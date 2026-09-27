@@ -308,7 +308,6 @@ private fun TransactionCardCustomizeContent(
                         onBackClick = onBackClick,
                         modifier = Modifier.padding(top = 10.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     TransactionCardPreviewSection(
                         localSettings = localSettings,
                         previewTransactions = previewTransactions,
@@ -359,7 +358,6 @@ private fun TransactionCardCustomizeContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AppHeader(
                     title = stringResource(id = R.string.title_transaction_card_settings),

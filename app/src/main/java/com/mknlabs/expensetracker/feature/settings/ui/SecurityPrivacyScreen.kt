@@ -154,7 +154,6 @@ private fun SecurityPrivacyContent(
                 title = stringResource(R.string.title_security_privacy),
                 onBackClick = onBackClick
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),

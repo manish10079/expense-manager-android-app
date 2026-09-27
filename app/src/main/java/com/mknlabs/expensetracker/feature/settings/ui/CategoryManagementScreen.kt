@@ -186,8 +186,6 @@ private fun CategoryManagementContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
             AnimatedTabSwitcher(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,

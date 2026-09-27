@@ -203,7 +203,6 @@ private fun PreferencesScreenContent(
                 title = stringResource(R.string.title_app_preferences),
                 onBackClick = onBackClick
             )
-            Spacer(modifier = Modifier.height(18.dp))
 
             AdaptiveContent(
                 maxWidth = 640.dp,

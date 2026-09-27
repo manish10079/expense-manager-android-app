@@ -239,7 +239,7 @@ private fun ProfileScreenContent(
         AppHeader(
             title = stringResource(id = R.string.title_edit_profile),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp)
         )
 
         Column(
@@ -247,7 +247,7 @@ private fun ProfileScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 4.dp, bottom = 22.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 22.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(

@@ -114,7 +114,7 @@ private fun ConnectedDevicesContent(
         AppHeader(
             title = stringResource(R.string.title_cloud_sync),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 8.dp)
         )
 
         if (userTier != UserTier.PREMIUM) {

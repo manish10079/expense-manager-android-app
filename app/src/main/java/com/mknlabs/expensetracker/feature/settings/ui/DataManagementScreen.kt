@@ -190,8 +190,6 @@ private fun DataManagementContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()

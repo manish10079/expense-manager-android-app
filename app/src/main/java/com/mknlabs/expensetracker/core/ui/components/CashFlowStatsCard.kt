@@ -78,11 +78,15 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Returns the current date formatted as "15 SEP 2026" (uppercase).
+ * Returns the current date formatted as "27 Sep 2026" (title-case month).
  */
 private fun currentDateString(): String {
-    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    return sdf.format(Date()).uppercase(Locale.getDefault())
+    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+    return sdf.format(Date())
+}
+
+private fun currentYearString(): String {
+    return SimpleDateFormat("yyyy", Locale.ENGLISH).format(Date())
 }
 
 /**
@@ -178,14 +182,13 @@ fun CashFlowStatsCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Formatted Current Date (e.g. 15 SEP 2026)
+                // Formatted Current Date (e.g. 27 Sep 2026)
                 Text(
-                    text = currentDate,
+                    text = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) currentYearString() else currentDate,
                     color = if (isDark) TextSecondaryDark else TextSecondaryLight,
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        letterSpacing = 1.2.sp
+                        fontSize = 14.sp
                     )
                 )
 
@@ -273,7 +276,7 @@ fun CashFlowStatsCard(
                 // EXPENSE
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_expense_cash_flow).uppercase(Locale.getDefault()),
+                    label = stringResource(R.string.label_expense_cash_flow),
                     amount = displayExpense,
                     labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
                     amountColor = MaterialTheme.colorScheme.expense,
@@ -283,7 +286,7 @@ fun CashFlowStatsCard(
                 // INCOME
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_income_cash_flow).uppercase(Locale.getDefault()),
+                    label = stringResource(R.string.label_income_cash_flow),
                     amount = displayIncome,
                     labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
                     amountColor = MaterialTheme.colorScheme.income,
@@ -416,8 +419,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp,
-                letterSpacing = 1.2.sp
+                fontSize = 12.sp
             )
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -427,7 +429,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 26.sp
+                fontSize = if (amount == "****") 26.sp else 23.4.sp
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

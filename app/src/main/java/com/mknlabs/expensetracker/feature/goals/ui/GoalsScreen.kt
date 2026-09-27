@@ -183,8 +183,6 @@ private fun GoalsScreenContent(
                     onBackClick = onBackClick
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
-
                 if (goals.isEmpty()) {
                     Box(
                         modifier = Modifier

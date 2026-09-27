@@ -289,7 +289,7 @@ private fun NotificationSettingsContent(
         AppHeader(
             title = stringResource(id = R.string.title_notification_settings),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing)
         )
 
         Column(

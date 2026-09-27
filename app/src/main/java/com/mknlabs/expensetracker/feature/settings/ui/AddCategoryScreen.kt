@@ -142,7 +142,6 @@ private fun AddCategoryScreenContent(
                 modifier = Modifier
                     .weight(1f)
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
 
                 CategorySectionLabel(text = stringResource(R.string.label_category_type_section))
                 Spacer(modifier = Modifier.height(12.dp))

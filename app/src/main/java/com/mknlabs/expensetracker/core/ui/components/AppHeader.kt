@@ -5,9 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
 
@@ -57,34 +60,39 @@ fun AppHeader(
     val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
     val effectiveTopOffset = if (fontScaleInfo.tier == FontScaleTier.Huge) 0.dp else contentTopOffset
 
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .offset(y = -effectiveTopOffset),
-        verticalAlignment = Alignment.CenterVertically,
+            .offset(y = -effectiveTopOffset)
     ) {
-        BackButton(onClick = onBackClick)
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = title,
-            // The page's own ink in light; in dark the dedicated header-title token
-            // (the light field, used as ink on the near-black page).
-            color = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
-            maxLines = titleMaxLines,
-            overflow = TextOverflow.Ellipsis,
-            softWrap = true,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.weight(1f)
-        )
-
         Row(
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
-            content = actions
-        )
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            BackButton(onClick = onBackClick)
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Text(
+                text = title,
+                // The page's own ink in light; in dark the dedicated header-title token
+                // (the light field, used as ink on the near-black page).
+                color = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
+                maxLines = titleMaxLines,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = true,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.weight(1f)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                content = actions
+            )
+        }
+        Spacer(modifier = Modifier.height(Dimens.HeaderContentGap))
     }
 }
 

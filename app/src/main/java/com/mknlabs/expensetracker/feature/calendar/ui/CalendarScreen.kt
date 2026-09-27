@@ -232,7 +232,7 @@ private fun CalendarScreenContent(
                     // Top inset is the gap under the AppHeader, so it is deliberately smaller
                     // than the 18.dp between cards, and matched to the Analytics list so both
                     // screens put their first control the same distance below the header.
-                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 12.dp, bottom = 130.dp),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 0.dp, bottom = 130.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     item {

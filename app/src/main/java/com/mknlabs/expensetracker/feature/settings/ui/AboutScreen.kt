@@ -140,7 +140,7 @@ private fun AboutScreenContent(
         AppHeader(
             title = stringResource(R.string.title_about),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing)
         )
 
         AdaptiveContent(

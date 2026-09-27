@@ -205,8 +205,6 @@ internal fun MembershipDetailsContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()

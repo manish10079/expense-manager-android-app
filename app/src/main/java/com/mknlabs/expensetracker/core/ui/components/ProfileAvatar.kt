@@ -41,8 +41,6 @@ import coil.transform.CircleCropTransformation
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.HeroRailStartLight
-import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 @Composable
@@ -105,7 +103,7 @@ fun ProfileAvatar(
 
         // Premium Sync Ring
         if (isPremium) {
-            val ringColor = PurplePrimary
+            val ringColor = MaterialTheme.colorScheme.accentInk
             if (isSyncing) {
                 Canvas(
                     modifier = Modifier
@@ -166,7 +164,7 @@ fun ProfileAvatar(
                                 shape = CircleShape
                             )
                         } else {
-                            val borderColor = MaterialTheme.colorScheme.outlineVariant
+                            val borderColor = MaterialTheme.colorScheme.accentInk
                             Modifier.border(
                                 width = 2.dp,
                                 color = borderColor,
@@ -219,14 +217,7 @@ fun ProfileAvatar(
                     .offset(x = size * 0.04f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
-                    // The chip is a brand island like the "+" FAB: it paints the light CTA
-                    // purple in BOTH themes instead of following the scheme. The old brush read
-                    // accentInk -> secondary, and those two are the same colour within a theme —
-                    // flat #6A4DFF in light, flat #9E84FF in dark — so the badge was always a
-                    // solid dot, just a purple that swapped with the theme. Holding the light
-                    // end keeps one identity across the switch, the decision fabGradient()
-                    // documents for the FAB.
-                    .background(color = HeroRailStartLight)
+                    .background(color = MaterialTheme.colorScheme.accentInk)
                     .border(
                         width = 0.5.dp,
                         color = Color.Black,

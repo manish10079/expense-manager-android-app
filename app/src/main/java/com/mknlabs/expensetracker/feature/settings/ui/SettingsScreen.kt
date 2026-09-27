@@ -232,8 +232,6 @@ fun SettingsScreenContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             AdaptiveContent(
                 maxWidth = 640.dp,
                 modifier = Modifier.weight(1f)

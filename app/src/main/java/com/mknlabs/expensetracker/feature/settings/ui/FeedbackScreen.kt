@@ -124,8 +124,7 @@ private fun FeedbackScreenContent(
             modifier = Modifier.padding(
                 start = Dimens.ScreenPadding,
                 end = Dimens.ScreenPadding,
-                top = Dimens.HeaderSpacing,
-                bottom = 12.dp
+                top = Dimens.HeaderSpacing
             )
         )
 
@@ -136,7 +135,6 @@ private fun FeedbackScreenContent(
                 .padding(horizontal = Dimens.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Info Card with User Context
             AppCard(

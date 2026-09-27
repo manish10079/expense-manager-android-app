@@ -244,7 +244,7 @@ fun AnalyticsScreenContent(
                 .navigationBarsPadding(),
             // Top inset is the gap under the AppHeader, so it is deliberately smaller
             // than the 18.dp between cards.
-            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 12.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
+            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 0.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             // Only added when it will draw. It is invisible on a standard calendar
@@ -260,9 +260,12 @@ fun AnalyticsScreenContent(
                 }
             }
             item {
-                // Week / Month / Year share the first row in equal thirds. Custom range
-                // sits on the row below at full width so a long date span never has to
-                // compete with the three short labels.
+                // Week / Month / Year, custom range, and the hero share one item so the
+                // list's 18.dp card gap does not sit between them.
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                 GatedAction(
                     feature = Feature.ANALYTICS_PERIOD_YEAR,
                     displayName = stringResource(id = R.string.title_yearly_analytics),
@@ -272,7 +275,7 @@ fun AnalyticsScreenContent(
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -305,13 +308,12 @@ fun AnalyticsScreenContent(
                         )
                     }
                 }
-            }
-            item { 
                 HeroAnalyticsSection(
                     snapshot = snapshot,
                     displayMode = heroDisplayMode,
                     onDisplayModeChange = { heroDisplayMode = it }
-                ) 
+                )
+                }
             }
             item {
                 AdContainer(isAdsEnabled = isAdsEnabled) {

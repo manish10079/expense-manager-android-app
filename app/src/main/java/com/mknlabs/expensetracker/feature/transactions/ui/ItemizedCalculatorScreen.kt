@@ -189,7 +189,6 @@ fun ItemizedCalculatorScreen(
                     }
                 }
             },
-        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         AppHeader(
             title = stringResource(id = R.string.label_itemized_calculator),
@@ -210,6 +209,8 @@ fun ItemizedCalculatorScreen(
                 }
             }
         )
+
+        Spacer(modifier = Modifier.height(18.dp))
 
         HorizontalPager(
             state = pagerState,
