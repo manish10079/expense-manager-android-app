@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,12 +29,9 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
-import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
@@ -50,27 +46,19 @@ fun AppHeader(
     title: String,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    /** Pulls the header up slightly to reduce the gap under the status bar / parent padding. */
-    contentTopOffset: Dp = 2.dp,
     actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {}
 ) {
     // Shared tier logic (see rememberFontScaleInfo / maxLinesForTier) — never
     // multiply sizes by the raw fontScale (non-linear on Android 14+).
-    val fontScaleInfo = rememberFontScaleInfo()
     val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
-    val effectiveTopOffset = if (fontScaleInfo.tier == FontScaleTier.Huge) 0.dp else contentTopOffset
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .offset(y = -effectiveTopOffset)
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             BackButton(onClick = onBackClick)
-            Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = title,
@@ -98,9 +86,11 @@ fun AppHeader(
 
 @Composable
 private fun BackButton(onClick: () -> Unit) {
+    // Visual size matches the title line so the glyph sits on the same
+    // horizontal axis; the 48.dp box was dropping the title under the arrow.
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(24.dp)
             .background(Color.Transparent)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

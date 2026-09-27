@@ -306,7 +306,7 @@ private fun TransactionCardCustomizeContent(
                     AppHeader(
                         title = stringResource(id = R.string.title_transaction_card_settings),
                         onBackClick = onBackClick,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier
                     )
                     TransactionCardPreviewSection(
                         localSettings = localSettings,
@@ -362,7 +362,7 @@ private fun TransactionCardCustomizeContent(
                 AppHeader(
                     title = stringResource(id = R.string.title_transaction_card_settings),
                     onBackClick = onBackClick,
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier
                 )
 
                 TransactionCardPreviewSection(

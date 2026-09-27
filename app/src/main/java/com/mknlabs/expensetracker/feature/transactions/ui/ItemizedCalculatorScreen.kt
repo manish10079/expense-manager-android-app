@@ -116,6 +116,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -181,7 +182,7 @@ fun ItemizedCalculatorScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding()
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp)
+            .padding(start = 20.dp, end = 20.dp, top = Dimens.HeaderSpacing, bottom = 14.dp)
             .pointerInput(Unit) {
                 detectVerticalDragGestures { _, dragAmount ->
                     if (dragAmount < -40f) {

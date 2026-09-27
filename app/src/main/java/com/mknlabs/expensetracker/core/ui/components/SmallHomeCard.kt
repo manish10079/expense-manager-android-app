@@ -35,8 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
-import com.mknlabs.expensetracker.core.ui.theme.cta
-import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 /**
  * One quick-action card on the home row.
@@ -100,13 +99,13 @@ fun SmallHomeCard(
                                 .offset(x = 4.dp, y = (-4).dp)
                                 .size(18.dp)
                                 .clip(CircleShape)
-                                .background(colorScheme.cta)
+                                .background(colorScheme.accentInk)
                                 .border(1.5.dp, colorScheme.surface, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             LabelText(
                                 text = badgeCount.toString(),
-                                color = colorScheme.onCta
+                                color = if (colorScheme.isDark) colorScheme.background else colorScheme.onPrimary
                             )
                         }
                     }

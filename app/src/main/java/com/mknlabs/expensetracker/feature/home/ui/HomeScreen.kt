@@ -1269,7 +1269,7 @@ fun SettingsButton(onClick: () -> Unit) {
         Icon(
             imageVector = PhosphorIcons.Regular.Gear,
             contentDescription = stringResource(id = R.string.desc_settings),
-            tint = MaterialTheme.colorScheme.accentInk,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(28.dp)
         )
     }

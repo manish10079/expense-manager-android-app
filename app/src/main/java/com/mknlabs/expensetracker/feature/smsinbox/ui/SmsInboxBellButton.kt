@@ -20,8 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
@@ -158,7 +158,7 @@ fun SmsInboxBellButton(
             imageVector = PhosphorIcons.Regular.Bell,
             // The Box above already carries the label for the whole control.
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.accentInk,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
                 .size(26.dp)
                 .graphicsLayer {
@@ -174,14 +174,7 @@ fun SmsInboxBellButton(
                 count = badgeCount,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = 4.dp, y = (-2).dp)
-                    .graphicsLayer {
-                        // The count pulses while the bell rings, so the eye is drawn to the
-                        // number rather than only to the icon.
-                        val scale = badgePulseScale(ringProgress)
-                        scaleX = scale
-                        scaleY = scale
-                    }
+                    .offset(x = 0.dp, y = 0.dp)
             )
         }
     }
@@ -213,13 +206,13 @@ private fun SmsInboxCountBadge(
         modifier = modifier
             .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.cta)
+            .background(MaterialTheme.colorScheme.accentInk)
             .padding(horizontal = 4.dp, vertical = 1.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = visibleText,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
             maxLines = 1,
             overflow = TextOverflow.Clip,

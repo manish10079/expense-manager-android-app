@@ -239,7 +239,7 @@ private fun ProfileScreenContent(
         AppHeader(
             title = stringResource(id = R.string.title_edit_profile),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding)
         )
 
         Column(
