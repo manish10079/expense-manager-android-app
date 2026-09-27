@@ -680,25 +680,29 @@ class MainViewModel @Inject constructor(
     fun createCustomCategory(
         name: String,
         iconKey: String,
-        transactionTypeId: Int
+        transactionTypeId: Int,
+        colorHex: String? = null
     ) {
         viewModelScope.launch {
             categoryRepository.createCustomCategory(
                 name = name,
                 iconKey = iconKey,
-                transactionTypeId = transactionTypeId
+                transactionTypeId = transactionTypeId,
+                colorHex = colorHex
             )
         }
     }
 
     fun createCustomPaymentMethod(
         name: String,
-        iconKey: String
+        iconKey: String,
+        colorHex: String? = null
     ) {
         viewModelScope.launch {
             paymentMethodRepository.createCustomPaymentMethod(
                 name = name,
-                iconKey = iconKey
+                iconKey = iconKey,
+                colorHex = colorHex
             )
         }
     }

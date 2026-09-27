@@ -6,6 +6,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository as DomainCategoryRepository
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.utils.normalizeColorHexOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
@@ -38,17 +39,26 @@ class CategoryRepository @Inject constructor(
     override suspend fun createCustomCategory(
         name: String,
         iconKey: String,
-        transactionTypeId: Int
+        transactionTypeId: Int,
+        colorHex: String?
     ) = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
+        val color = normalizeColorHexOrNull(colorHex)
 
         // Check if a deleted category with the same name and type exists
         val deleted = dao.findDeletedByNameAndType(name, transactionTypeId)
         if (deleted != null) {
-            // Reactivate the deleted row instead of creating a duplicate
+            // Reactivate the deleted row instead of creating a duplicate.
+            //
+            // `copy` carries every field it does not name, so anything left out here is
+            // silently inherited from the row the user deleted. `colorHex` is named for
+            // exactly that reason: without it, recreating a category the user had previously
+            // deleted would resurrect the old row's colour and throw away the one they just
+            // picked, which reads as "the picker works, except sometimes".
             dao.upsert(
                 deleted.copy(
                     iconKey = iconKey,
+                    colorHex = color,
                     isDeleted = false,
                     updatedAt = now,
                     syncState = SyncState.PENDING_UPLOAD
@@ -64,6 +74,7 @@ class CategoryRepository @Inject constructor(
                 name = name,
                 iconKey = iconKey,
                 transactionTypeId = transactionTypeId,
+                colorHex = color,
                 isSystem = false,
                 sortOrder = nextId,
                 isDeleted = false,

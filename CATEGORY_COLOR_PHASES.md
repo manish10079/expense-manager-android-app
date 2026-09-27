@@ -107,10 +107,11 @@ rewritten. Canonical `"#RRGGBB"`, no alpha.
    introduces the `colorHex: String? = null` parameter on `createCustomCategory` /
    `createCustomPaymentMethod`, threaded with a `null` default — so the parameter and its fix
    land in one commit and the picker merely starts passing a value in Phase 4.
-2. **Confirm the cloud read path.** Goals read `colorHex` via an explicit `doc.getString(...)`;
-   categories deserialize through `doc.toObject(Entity::class.java)`. Read the call site and
-   confirm the new field rides along. A silently-dropped field here fails as "my colours
-   reset after sync", which is the worst thing to diagnose from a bug report.
+2. **Confirm the cloud read path.** ✅ Confirmed, and the assumption was wrong: hopes that
+   categories rode the generic `doc.toObject(Entity::class.java)` path were unfounded. Both
+   `CategoryEntity` and `PaymentMethodEntity` have hand-rolled branches in the pull `when`
+   that name every field, so both now read `colorHex` explicitly. Left unchecked this would
+   have cost the colour on whichever device synced, with nothing wrong in either database.
 
 **Tests:** `Migration17Test` modelled on `Migration14To15Test` — rows survive with
 `color_hex` null and every other field intact. A create → delete → recreate cycle asserting

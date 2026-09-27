@@ -152,12 +152,18 @@ statements — the same O(1), additive shape as `MIGRATION_14_15`, and it belong
 | Cloud pull | `SyncRepositoryImpl` — the category/payment read path |
 | Backup | `DataManagementRepository` — export and import, exactly as `Goal.colorHex` does |
 
-The read path needs a look before relying on it: goals read `colorHex` through an explicit
-`doc.getString(...)` branch, while most entities deserialize through
-`doc.toObject(Entity::class.java)`. Categories go through the generic path today, so the
-new field should ride along — but that has to be confirmed at the call site rather than
-assumed, because a silently-dropped field would only show up as "my colours reset after
-sync", which is the worst possible failure mode to debug from a bug report.
+**Resolved during implementation — the assumption above was wrong.** This section first
+guessed that categories deserialise through `doc.toObject(Entity::class.java)` and would
+carry a new field automatically. Reading `pullCollection` showed otherwise: `CategoryEntity`
+and `PaymentMethodEntity` each have a **hand-rolled branch** in the pull `when`, naming every
+field explicitly. A new field is simply absent from a pulled row unless the branch is
+taught to read it.
+
+Had it not been checked, the failure would have been the worst kind to diagnose: the colour
+would save, draw, and survive a restore, then vanish on whichever device synced — a bug
+report that says "my colours reset sometimes" with nothing wrong in the database on either
+side. Both branches now read `colorHex` explicitly, with a comment saying why the generic
+path is not relied on.
 
 ---
 

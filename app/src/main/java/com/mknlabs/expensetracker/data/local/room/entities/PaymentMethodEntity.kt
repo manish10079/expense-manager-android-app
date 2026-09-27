@@ -21,6 +21,14 @@ data class PaymentMethodEntity(
     val name: String = "",
     @ColumnInfo(name = "icon_key")
     val iconKey: String = "",
+    /**
+     * The user's colour for this payment method, as `#RRGGBB`, or null to take the palette
+     * colour for [id]. The same contract as
+     * [CategoryEntity.colorHex][com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity]:
+     * nullable rather than empty, never written for a seeded row, and never carrying alpha.
+     */
+    @ColumnInfo(name = "color_hex")
+    val colorHex: String? = null,
     @get:PropertyName("isSystem")
     @field:PropertyName("isSystem")
     @ColumnInfo(name = "is_system")

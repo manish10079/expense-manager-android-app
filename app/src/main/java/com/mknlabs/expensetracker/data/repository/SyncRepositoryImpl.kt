@@ -810,6 +810,11 @@ class SyncRepositoryImpl @Inject constructor(
                             val name = doc.getString("name").orEmpty()
                             val transactionTypeId = doc.getLong("transactionTypeId")?.toInt() ?: 0
                             val iconKey = doc.getString("iconKey").orEmpty()
+                            // Read by hand rather than falling through to `toObject`, because
+                            // this entity has a branch of its own. A field the branch does not
+                            // name is simply absent from the pulled row, which would have shown
+                            // up as "my colours reset after syncing" rather than as an error.
+                            val colorHex = doc.getString("colorHex")
                             val isSystem = doc.getBoolean("isSystem") ?: false
                             val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
@@ -817,23 +822,26 @@ class SyncRepositoryImpl @Inject constructor(
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity(
                                 id = id, name = name, transactionTypeId = transactionTypeId,
-                                iconKey = iconKey, isSystem = isSystem, sortOrder = sortOrder,
-                                isDeleted = isDeleted, createdAt = createdAt, updatedAt = updatedAt
+                                iconKey = iconKey, colorHex = colorHex, isSystem = isSystem,
+                                sortOrder = sortOrder, isDeleted = isDeleted, createdAt = createdAt,
+                                updatedAt = updatedAt
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity::class -> {
                             val id = doc.getLong("id")?.toInt() ?: 0
                             val name = doc.getString("name").orEmpty()
                             val iconKey = doc.getString("iconKey").orEmpty()
+                            // Read by hand for the same reason as the category branch above.
+                            val colorHex = doc.getString("colorHex")
                             val isSystem = doc.getBoolean("isSystem") ?: false
                             val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
                             val createdAt = doc.getLong("createdAt") ?: 0L
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity(
-                                id = id, name = name, iconKey = iconKey, isSystem = isSystem,
-                                sortOrder = sortOrder, isDeleted = isDeleted, createdAt = createdAt,
-                                updatedAt = updatedAt
+                                id = id, name = name, iconKey = iconKey, colorHex = colorHex,
+                                isSystem = isSystem, sortOrder = sortOrder, isDeleted = isDeleted,
+                                createdAt = createdAt, updatedAt = updatedAt
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.GoalEntity::class -> {
@@ -1004,6 +1012,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
                 "transactionTypeId" to entity.transactionTypeId, "isSystem" to entity.isSystem,
                 "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "colorHex" to entity.colorHex,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
             )
         }
@@ -1024,6 +1033,7 @@ class SyncRepositoryImpl @Inject constructor(
             override fun toCloudMap() = mapOf(
                 "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
                 "isSystem" to entity.isSystem, "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "colorHex" to entity.colorHex,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
             )
         }
