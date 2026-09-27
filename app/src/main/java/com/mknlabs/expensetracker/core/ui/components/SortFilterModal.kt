@@ -44,10 +44,12 @@ import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.subtlePrimaryGradient
 import com.mknlabs.expensetracker.utils.getDefaultOrder
@@ -397,6 +399,10 @@ fun FilterBottomSheet(
                                             FilterChip(
                                                 title = category.name,
                                                 icon = category.icon,
+                                                iconTint = colorScheme.categoryColor(
+                                                    categoryId = category.id,
+                                                    colorHex = category.colorHex
+                                                ),
                                                 selected = selectedCategoryIds.contains(category.id),
                                                 selectedBrush = chipSelectedBrush,
                                                 unselectedBrush = chipUnselectedBrush,
@@ -424,6 +430,10 @@ fun FilterBottomSheet(
                                             FilterChip(
                                                 title = category.name,
                                                 icon = category.icon,
+                                                iconTint = colorScheme.categoryColor(
+                                                    categoryId = category.id,
+                                                    colorHex = category.colorHex
+                                                ),
                                                 selected = selectedCategoryIds.contains(category.id),
                                                 selectedBrush = chipSelectedBrush,
                                                 unselectedBrush = chipUnselectedBrush,
@@ -465,6 +475,10 @@ fun FilterBottomSheet(
                                 FilterChip(
                                     title = paymentType.name,
                                     icon = paymentType.icon,
+                                    iconTint = colorScheme.paymentColor(
+                                        paymentId = paymentType.id,
+                                        colorHex = paymentType.colorHex
+                                    ),
                                     selected = selectedPaymentTypeIds.contains(paymentType.id),
                                     selectedBrush = chipSelectedBrush,
                                     unselectedBrush = chipUnselectedBrush,
@@ -629,6 +643,12 @@ private fun FilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    /**
+     * The row's category or payment colour, for the chips that stand for one. Null for every
+     * other chip in the sheet — the date, sort and type chips are not categories and have no
+     * identity colour to carry.
+     */
+    iconTint: Color? = null,
     selectedBrush: Brush? = null,
     unselectedBrush: Brush? = null,
     locked: Boolean = false
@@ -659,7 +679,14 @@ private fun FilterChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) colorScheme.chipSelectedInk else colorScheme.onSurfaceVariant,
+                // Selected keeps the spec's chip ink: the fill behind it is the selected
+                // state's whole signal, and a category colour on top would read as a
+                // different, competing state rather than a selection.
+                tint = when {
+                    selected -> colorScheme.chipSelectedInk
+                    iconTint != null -> iconTint
+                    else -> colorScheme.onSurfaceVariant
+                },
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))

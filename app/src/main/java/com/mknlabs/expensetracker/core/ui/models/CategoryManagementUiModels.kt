@@ -23,7 +23,21 @@ data class CategoryManagementItemUi(
     val id: Int,
     val title: String,
     val icon: ImageVector,
-    val isUserCreated: Boolean
+    val isUserCreated: Boolean,
+    /**
+     * The user's own colour for this row, or `null` for one that draws from the palette.
+     *
+     * Carried as the stored string rather than a resolved [androidx.compose.ui.graphics.Color]
+     * for the same reason [com.mknlabs.expensetracker.core.ui.components.TransactionCard] does:
+     * resolution needs the active theme, and a `Color` resolved in the ViewModel would freeze
+     * whichever theme happened to be active when the list was built.
+     */
+    val colorHex: String? = null,
+    /**
+     * Which palette this row resolves against. Categories and payment methods are numbered
+     * from 1 independently — id 1 is Food *and* UPI — so the two cannot share one lookup.
+     */
+    val isPaymentMethod: Boolean = false
 )
 
 @Immutable

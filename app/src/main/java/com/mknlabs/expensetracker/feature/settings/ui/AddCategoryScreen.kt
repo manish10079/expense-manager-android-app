@@ -607,12 +607,42 @@ private fun IconSelectionItem(
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Light")
 @Composable
 private fun AddCategoryScreenContentPreview() {
     com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme {
         AddCategoryScreenContent(
             uiState = AddCategoryUiState(),
+            existingCategories = emptyList(),
+            existingPaymentMethods = emptyList(),
+            onBackClick = {},
+            onCategoryCreated = {},
+            onNameChange = {},
+            onIconSearchQueryChange = {},
+            onIconSelected = {},
+            onColorSelected = {},
+            onSaveCategory = {}
+        )
+    }
+}
+
+/**
+ * The state the light preview cannot show: a colour already chosen.
+ *
+ * The stored hex is a light swatch drawn inside the dark theme, which is exactly the case the
+ * swatch row exists to handle — a colour picked in one theme has to still read as selected in
+ * the other, or a coloured category would look uncoloured and a second tap would silently
+ * replace a colour the user never meant to change.
+ */
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Dark, colour chosen")
+@Composable
+private fun AddCategoryScreenContentColoredPreview() {
+    com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme(darkTheme = true) {
+        AddCategoryScreenContent(
+            uiState = AddCategoryUiState(
+                name = "Coffee runs",
+                selectedColorHex = "#D97706"
+            ),
             existingCategories = emptyList(),
             existingPaymentMethods = emptyList(),
             onBackClick = {},

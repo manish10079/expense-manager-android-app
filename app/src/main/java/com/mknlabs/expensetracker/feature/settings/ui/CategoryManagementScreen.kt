@@ -79,6 +79,9 @@ import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import androidx.compose.foundation.BorderStroke
@@ -377,6 +380,16 @@ private fun CategoryManagementCard(
     item: CategoryManagementItemUi,
     onDeleteClick: () -> Unit
 ) {
+    // The card is where a user checks that the colour they picked for their new category is
+    // the colour it actually wears, so the glyph takes it — resolved here rather than in the
+    // ViewModel, because it has to follow the theme toggle and not the theme at build time.
+    val colorScheme = MaterialTheme.colorScheme
+    val identityColor = if (item.isPaymentMethod) {
+        colorScheme.paymentColor(paymentId = item.id, colorHex = item.colorHex)
+    } else {
+        colorScheme.categoryColor(categoryId = item.id, colorHex = item.colorHex)
+    }
+
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -400,6 +413,10 @@ private fun CategoryManagementCard(
                 contentDescription = item.title,
                 size = 48.dp,
                 iconSize = 24.dp,
+                tint = identityColor,
+                // The palette's own wash rather than AppIconBox's flat 10%, so the tile splits
+                // light-10 / dark-14 like every other glyph tile in the system.
+                backgroundColor = colorScheme.categorySoft(identityColor),
                 border = BorderStroke(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)

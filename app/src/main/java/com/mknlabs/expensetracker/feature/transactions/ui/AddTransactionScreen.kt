@@ -139,6 +139,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -146,6 +147,7 @@ import com.mknlabs.expensetracker.core.ui.theme.hairline
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
@@ -858,6 +860,7 @@ internal fun AddTransactionScreenContent(
                             getId = { it.id },
                             getLabel = { it.name },
                             getIcon = { it.icon },
+                            getColor = { colorScheme.categoryColor(categoryId = it.id, colorHex = it.colorHex) },
                             onItemSelected = { selectedCategoryId = it }
                         )
                     }
@@ -875,6 +878,7 @@ internal fun AddTransactionScreenContent(
                             getId = { it.id },
                             getLabel = { it.name },
                             getIcon = { it.icon },
+                            getColor = { colorScheme.paymentColor(paymentId = it.id, colorHex = it.colorHex) },
                             onItemSelected = { selectedPaymentId = it; hasManuallySelectedPayment = true }
                         )
                     }
@@ -1976,6 +1980,12 @@ private fun <T> ChoiceChipRow(
     getId: (T) -> Int,
     getLabel: (T) -> String,
     getIcon: (T) -> ImageVector,
+    /**
+     * The row's identity colour, resolved by the caller — which is what decides whether this
+     * is a category or a payment method, since both are numbered from 1 and their palettes
+     * are separate. Null leaves the chip on the plain surface ink.
+     */
+    getColor: ((T) -> Color)? = null,
     onItemSelected: (Int) -> Unit
 ) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)) {
@@ -1983,6 +1993,7 @@ private fun <T> ChoiceChipRow(
             ChoiceChip(
                 label = getLabel(item),
                 icon = getIcon(item),
+                identityColor = getColor?.invoke(item),
                 isSelected = getId(item) == selectedId,
                 compact = compact,
                 onClick = { onItemSelected(getId(item)) }
@@ -1995,6 +2006,7 @@ private fun <T> ChoiceChipRow(
 private fun ChoiceChip(
     label: String,
     icon: ImageVector,
+    identityColor: Color?,
     isSelected: Boolean,
     compact: Boolean,
     onClick: () -> Unit
@@ -2026,7 +2038,16 @@ private fun ChoiceChip(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
+                // The identity colour stops at the glyph here, unlike a transaction row where
+                // it also washes the tile: the chip's fill is the chip, so tinting it would
+                // dissolve the button into the row rather than distinguish anything. Selected
+                // chips keep the on-brand icon, because the violet gradient behind it is what
+                // says "selected" and a category colour on top of it would argue with that.
+                tint = when {
+                    isSelected -> MaterialTheme.colorScheme.onCta
+                    identityColor != null -> identityColor
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
         }

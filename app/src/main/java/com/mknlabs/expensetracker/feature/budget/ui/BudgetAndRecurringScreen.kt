@@ -165,6 +165,8 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
@@ -1512,17 +1514,27 @@ private fun BudgetCategoryMultiPickerRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f)
         ) {
+            // Same rule as the single-select picker below: an unselected row wears the
+            // category's own colour, and the selected row keeps the brand wash the checked
+            // state is built from, so "selected" stays legible as one thing across the app.
+            val categoryColor = MaterialTheme.colorScheme.categoryColor(
+                categoryId = category.id,
+                colorHex = category.colorHex
+            )
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.accentSoft),
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.accentSoft
+                        else MaterialTheme.colorScheme.categorySoft(categoryColor)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = category.icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.accentInk,
+                    tint = if (isSelected) MaterialTheme.colorScheme.accentInk else categoryColor,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1758,7 +1770,18 @@ private fun BudgetCategoryPickerRow(
             Icon(
                 imageVector = category.icon,
                 contentDescription = category.name,
-                tint = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
+                // Unselected rows carry the category's own colour, so this picker reads as the
+                // same set of categories the rest of the app draws. Selected keeps the brand
+                // ink: the violet fill and the SELECTED label are that state's signal, and a
+                // category colour under them would look like a second, unrelated emphasis.
+                tint = if (isSelected) {
+                    MaterialTheme.colorScheme.accentInk
+                } else {
+                    MaterialTheme.colorScheme.categoryColor(
+                        categoryId = category.id,
+                        colorHex = category.colorHex
+                    )
+                },
                 modifier = Modifier.size(20.dp)
             )
         }

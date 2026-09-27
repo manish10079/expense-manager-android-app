@@ -205,6 +205,22 @@ README sync.
 
 No new logic, no Gradle run under the standing instruction, since this is purely presentation.
 
+**What was decided while doing it**
+
+1. **The identity colour stops at the glyph on chips and picker rows.** A transaction row washes
+   its whole tile, because the tile *is* a category swatch. A chip's fill is the chip, so tinting
+   it would dissolve the button into the row; the glyph carries the colour and the fill stays the
+   surface it was. Recorded at both call sites, since the asymmetry looks like an oversight.
+2. **A selected chip or picker row keeps the brand ink** — the violet fill, the `SELECTED` label
+   and the checked box are that state's whole signal, and a category colour under them reads as a
+   second, competing emphasis rather than a selection.
+3. **The budget screens were included**, though the plan listed only the transaction choosers: a
+   budget's category picker is a category chooser, and leaving it grey would have made the same
+   list look like two different systems depending on which tab it was opened from.
+4. **`CategoryManagementItemUi` gained `isPaymentMethod`.** It had to: payment ids restart at 1,
+   so id 1 is Food *and* UPI, and an unflagged lookup returns a colour — merely the wrong one,
+   which no screenshot review catches. Asserted in the test rather than assumed.
+
 **Commit:** `feat(ui): carry category colours through the choosers and settings` + minor bump +
 README sync.
 

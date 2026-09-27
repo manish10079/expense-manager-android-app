@@ -114,7 +114,12 @@ private fun buildCategoryManagementItems(
             id = category.id,
             title = category.name,
             icon = category.icon,
-            isUserCreated = category.id !in categoryMap
+            isUserCreated = category.id !in categoryMap,
+            // Built-ins carry no stored colour by design — their colour comes from the
+            // palette by id — so this is null for all of them and non-null only for a row
+            // the user created and coloured. `categoryMap`'s own entries have no colourHex
+            // to copy, so a built-in can never pick one up by accident.
+            colorHex = category.colorHex
         )
     }
 }
@@ -131,7 +136,11 @@ private fun buildPaymentManagementItems(
             id = paymentType.id,
             title = paymentType.name,
             icon = paymentType.icon,
-            isUserCreated = paymentType.id !in paymentTypeMap
+            isUserCreated = paymentType.id !in paymentTypeMap,
+            // Payment ids restart at 1, so this flag is what keeps UPI's card from drawing
+            // Food's colour.
+            colorHex = paymentType.colorHex,
+            isPaymentMethod = true
         )
     }
 }
