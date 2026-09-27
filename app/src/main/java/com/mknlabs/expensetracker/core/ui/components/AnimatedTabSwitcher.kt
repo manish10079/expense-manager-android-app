@@ -47,6 +47,9 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
+/** Wash strength for a tab's own [TabItem.selectedColor]; the brand pill uses the same 20%. */
+private const val SelectedTintAlpha = 0.20f
+
 @Composable
 fun <T> AnimatedTabSwitcher(
     items: List<TabItem<T>>,
@@ -80,6 +83,18 @@ fun <T> AnimatedTabSwitcher(
         val tabWidth = with(density) { (containerWidthPx.toDp() - (containerPadding * 2)) / items.size }
         val selectedIndex = items.indexOfFirst { it.id == selectedItemId }.coerceAtLeast(0)
 
+        // A tab may carry its own semantic colour (the Add/Edit screen's income/expense pair).
+        // When it does, the pill takes a wash of it and its label takes the colour itself;
+        // without one every other screen keeps the brand tokens it has always used.
+        val selectedItem = items.firstOrNull { it.id == selectedItemId }
+        val selectedWash by animateColorAsState(
+            targetValue = selectedItem?.selectedColor?.copy(alpha = SelectedTintAlpha)
+                ?: MaterialTheme.colorScheme.tabSwitcherSelectedFill,
+            label = "tab_indicator_wash"
+        )
+        val selectedInk = selectedItem?.selectedColor
+            ?: MaterialTheme.colorScheme.tabSwitcherSelectedInk
+
         val indicatorOffset by animateDpAsState(
             targetValue = tabWidth * selectedIndex,
             animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -94,7 +109,7 @@ fun <T> AnimatedTabSwitcher(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(pillRadius))
-                    .background(MaterialTheme.colorScheme.tabSwitcherSelectedFill)
+                    .background(selectedWash)
             )
         }
 
@@ -107,7 +122,7 @@ fun <T> AnimatedTabSwitcher(
                 
                 val animatedColor by animateColorAsState(
                     targetValue = when {
-                        selected -> MaterialTheme.colorScheme.tabSwitcherSelectedInk
+                        selected -> selectedInk
                         item.isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },

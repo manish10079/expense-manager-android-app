@@ -8,6 +8,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -114,6 +115,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.fill.Star
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
@@ -133,10 +137,13 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.sheet
@@ -591,7 +598,9 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = stringResource(R.string.desc_clear_fields),
-                                tint = MaterialTheme.colorScheme.accentInk
+                                // Same ink as the header's own title and back arrow, so the
+                                // action reads as part of the header rather than a stray accent.
+                                tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f)
                             )
                         }
                     }
@@ -608,7 +617,19 @@ internal fun AddTransactionScreenContent(
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {
                     AnimatedTabSwitcher(
-                        items = transactionModes.map { TabItem(it.id, stringResource(it.label)) },
+                        items = transactionModes.map { mode ->
+                            TabItem(
+                                id = mode.id,
+                                label = stringResource(mode.label),
+                                // The selected half wears its own amount ink, so the tab and the
+                                // figure it heads read as one colour: mint income, coral expense.
+                                selectedColor = if (mode.id == incomeTypeId) {
+                                    MaterialTheme.colorScheme.income
+                                } else {
+                                    MaterialTheme.colorScheme.expense
+                                }
+                            )
+                        },
                         selectedItemId = selectedTransactionTypeId,
                         onItemSelected = { selectedTransactionTypeId = it }
                     )
@@ -734,7 +755,7 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.accentInk.copy(alpha = 0.8f),
+                                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -764,7 +785,7 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
-                                tint = colorScheme.accentInk.copy(alpha = 0.8f),
+                                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -1756,12 +1777,14 @@ private fun CurrencyAmountCard(
     onClick: () -> Unit = {},
     onImeNext: () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
+    val shape = RoundedCornerShape(if (compact) 20.dp else 24.dp)
     val currency = getCurrency(currencyId)
+    // Mirrors the selected Income/Expense tab so the figure and its currency
+    // symbol read as part of the same choice.
     val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        MaterialTheme.colorScheme.accentInk
+        MaterialTheme.colorScheme.income
     } else {
-        MaterialTheme.colorScheme.onSurface
+        MaterialTheme.colorScheme.expense
     }
 
     val density = LocalDensity.current
@@ -1800,8 +1823,12 @@ private fun CurrencyAmountCard(
             Column {
                 Text(
                     text = stringResource(R.string.label_enter_amount),
-                    color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // 10% up on the labelSmall token, computed rather than hardcoded so the
+                    // user's font-scale setting still applies.
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.1f
+                    ),
                     modifier = Modifier
                         .graphicsLayer { translationY = labelTranslationY }
                 )
@@ -1827,7 +1854,7 @@ private fun CurrencyAmountCard(
                 if (currency.position == CurrencyPosition.PREFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.accentInk,
+                        color = amountColor,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -1910,14 +1937,14 @@ private fun CurrencyAmountCard(
                             onNext = { onImeNext() }
                         ),
                         singleLine = true,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk)
+                        cursorBrush = SolidColor(amountColor)
                     )
                 }
 
                 if (currency.position == CurrencyPosition.POSTFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.accentInk,
+                        color = amountColor,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -2270,7 +2297,7 @@ private fun QuickFavoritesRow(
                     },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.Star,
+                            imageVector = PhosphorIcons.Fill.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(16.dp)
@@ -2279,7 +2306,10 @@ private fun QuickFavoritesRow(
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
                         labelColor = MaterialTheme.colorScheme.accentInk
-                    )
+                    ),
+                    // The outline wears the label's own ink, so the chip reads as one control
+                    // rather than a purple label sitting inside a grey shell.
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk)
                 )
             }
             items(favorites, key = { it.id }) { favorite ->
