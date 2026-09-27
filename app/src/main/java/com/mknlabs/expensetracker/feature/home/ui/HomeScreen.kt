@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -340,6 +341,12 @@ private fun HomeScreenContent(
     val transactionsListState = rememberLazyListState()
     rememberBindAddFabToScroll(transactionsListState)
 
+    val enter = rememberSectionEnterAlphas(4)
+    val headerEnter = enter[0]
+    val cashFlowEnter = enter[1]
+    val miniCardsEnter = enter[2]
+    val recentEnter = enter[3]
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -352,14 +359,16 @@ private fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
                 // Full-width greeting row: greeting/settings/avatar on the right;
                 // recent activities render below it in the right pane.
-                HomeHeaderRow(
-                    userProfile = userProfile,
-                    uiState = uiState,
-                    onProfileClick = onProfileClick,
-                    onSettingsClick = onSettingsClick,
-                    onSmsInboxClick = onSmsInboxClick,
-                    isLockOverlayActive = isLockOverlayActive
-                )
+                Box(modifier = Modifier.alpha(headerEnter)) {
+                    HomeHeaderRow(
+                        userProfile = userProfile,
+                        uiState = uiState,
+                        onProfileClick = onProfileClick,
+                        onSettingsClick = onSettingsClick,
+                        onSmsInboxClick = onSmsInboxClick,
+                        isLockOverlayActive = isLockOverlayActive
+                    )
+                }
                 // Tighter than the 7.dp gap below the Cash Flow card: the row above it
                 // is text and icons with no container of its own, so the card reads
                 // better sitting close to it than spaced away.
@@ -388,7 +397,9 @@ private fun HomeScreenContent(
                             onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
                             onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
                             onPeriodChanged = onPeriodChanged,
-                            isWide = isWide
+                            isWide = isWide,
+                            cashFlowEnter = cashFlowEnter,
+                            miniCardsEnter = miniCardsEnter
                         )
                     }
 
@@ -396,6 +407,7 @@ private fun HomeScreenContent(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
+                            .alpha(recentEnter)
                     ) {
                         RecentActivitiesHeader(onViewAllClick = onViewAllClick)
                         Spacer(modifier = Modifier.height(16.dp))
@@ -431,18 +443,23 @@ private fun HomeScreenContent(
                     onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
                     onPeriodChanged = onPeriodChanged,
                     isLockOverlayActive = isLockOverlayActive,
-                    isWide = isWide
+                    isWide = isWide,
+                    headerEnter = headerEnter,
+                    cashFlowEnter = cashFlowEnter,
+                    miniCardsEnter = miniCardsEnter
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                RecentActivitiesHeader(onViewAllClick = onViewAllClick)
-                Spacer(modifier = Modifier.height(16.dp))
-                HomeTransactionsList(
-                    uiState = uiState,
-                    isProUser = isProUser,
-                    onTransactionClick = onTransactionClick,
-                    state = transactionsListState,
-                    bottomPadding = 88.dp
-                )
+                Column(modifier = Modifier.alpha(recentEnter).weight(1f)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RecentActivitiesHeader(onViewAllClick = onViewAllClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HomeTransactionsList(
+                        uiState = uiState,
+                        isProUser = isProUser,
+                        onTransactionClick = onTransactionClick,
+                        state = transactionsListState,
+                        bottomPadding = 88.dp
+                    )
+                }
             }
         }
     }
@@ -473,16 +490,21 @@ private fun HomeTopSection(
     onMiuiSetupCardDismiss: () -> Unit = {},
     onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false,
-    isWide: Boolean = false
+    isWide: Boolean = false,
+    headerEnter: Float = 1f,
+    cashFlowEnter: Float = 1f,
+    miniCardsEnter: Float = 1f
 ) {
-    HomeHeaderRow(
-        userProfile = userProfile,
-        uiState = uiState,
-        onProfileClick = onProfileClick,
-        onSettingsClick = onSettingsClick,
-        onSmsInboxClick = onSmsInboxClick,
-        isLockOverlayActive = isLockOverlayActive
-    )
+    Box(modifier = Modifier.alpha(headerEnter)) {
+        HomeHeaderRow(
+            userProfile = userProfile,
+            uiState = uiState,
+            onProfileClick = onProfileClick,
+            onSettingsClick = onSettingsClick,
+            onSmsInboxClick = onSmsInboxClick,
+            isLockOverlayActive = isLockOverlayActive
+        )
+    }
     // Tighter than the 7.dp gap below the Cash Flow card: the header row above it is
     // text and icons with no container of its own, so the card reads better sitting
     // close to it than spaced away.
@@ -503,7 +525,9 @@ private fun HomeTopSection(
         onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
         onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
         onPeriodChanged = onPeriodChanged,
-        isWide = isWide
+        isWide = isWide,
+        cashFlowEnter = cashFlowEnter,
+        miniCardsEnter = miniCardsEnter
     )
 }
 
@@ -733,7 +757,9 @@ private fun HomeStatsSection(
     onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     // Wide windows (tablets/foldables/desktop) render the tall media-first native ad;
     // phones keep the compact banner row.
-    isWide: Boolean = false
+    isWide: Boolean = false,
+    cashFlowEnter: Float = 1f,
+    miniCardsEnter: Float = 1f
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -744,6 +770,7 @@ private fun HomeStatsSection(
         smsSetupUiState.showSmsPermissionCard ||
         smsSetupUiState.showMiuiSetupCard
 
+    Column(modifier = Modifier.alpha(cashFlowEnter)) {
     if (appSettings != null) {
         AccountSetupCard(
             userProfile = userProfile,
@@ -806,9 +833,11 @@ private fun HomeStatsSection(
         yearIncome = uiState.yearTotalIncome,
         yearNetBalance = uiState.yearTotalBalance
     )
+    }
 
     Spacer(modifier = Modifier.height(7.dp))
 
+    Column(modifier = Modifier.alpha(miniCardsEnter)) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -851,6 +880,7 @@ private fun HomeStatsSection(
         UpcomingRecurringCard(
             upcomingExpenses = uiState.upcomingRecurring
         )
+    }
     }
 }
 

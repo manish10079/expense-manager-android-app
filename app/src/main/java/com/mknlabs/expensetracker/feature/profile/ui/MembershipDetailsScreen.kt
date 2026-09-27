@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.profile.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
@@ -49,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -200,15 +202,18 @@ internal fun MembershipDetailsContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_membership),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {

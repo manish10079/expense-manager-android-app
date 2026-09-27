@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.track
 
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -111,10 +113,11 @@ private fun ConnectedDevicesContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(R.string.title_cloud_sync),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding).alpha(enter[0])
         )
 
         if (userTier != UserTier.PREMIUM) {

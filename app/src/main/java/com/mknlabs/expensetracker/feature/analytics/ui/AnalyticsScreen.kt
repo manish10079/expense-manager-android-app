@@ -26,6 +26,7 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -74,6 +75,7 @@ import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
@@ -221,6 +223,7 @@ fun AnalyticsScreenContent(
     // direction drives the standalone add FAB's auto-hide on compact portrait.
     val analyticsListState = rememberLazyListState()
     rememberBindAddFabToScroll(analyticsListState)
+    val enter = rememberSectionEnterAlphas(4)
 
     Column(
         modifier = Modifier
@@ -232,6 +235,7 @@ fun AnalyticsScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                .alpha(enter[0])
         ) {
             AppHeader(title = stringResource(id = R.string.title_analytics), onBackClick = onBackClick)
         }
@@ -255,7 +259,8 @@ fun AnalyticsScreenContent(
                     CurrentPeriodIndicator(
                         startMillis = uiState.currentPeriodStartMillis,
                         endMillis = uiState.currentPeriodEndMillis,
-                        monthStartDay = uiState.monthStartDay
+                        monthStartDay = uiState.monthStartDay,
+                        modifier = Modifier.alpha(enter[1])
                     )
                 }
             }
@@ -263,7 +268,7 @@ fun AnalyticsScreenContent(
                 // Week / Month / Year, custom range, and the hero share one item so the
                 // list's 18.dp card gap does not sit between them.
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().alpha(enter[1]),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                 GatedAction(
@@ -320,13 +325,14 @@ fun AnalyticsScreenContent(
                     NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                 }
             }
-            item { StatsRow(snapshot) }
+            item { Box(Modifier.alpha(enter[2])) { StatsRow(snapshot) } }
             // Cash Flow Ratio is always full-width: in the two-column layout it
             // would otherwise be squeezed into half the row width.
             item {
-                CashFlowCard(snapshot)
+                Box(Modifier.alpha(enter[2])) { CashFlowCard(snapshot) }
             }
             item {
+                Box(Modifier.alpha(enter[3])) {
                 AnalyticsSectionRow(
                     isWide = isWide,
                     first = {
@@ -386,6 +392,7 @@ fun AnalyticsScreenContent(
                     }
                     }
                 )
+                }
             }
             // Single-column: keep the native ad between the payment breakdown
             // and top spending. In the two-column layout it becomes a full-width
@@ -398,6 +405,7 @@ fun AnalyticsScreenContent(
                 }
             }
             item {
+                Box(Modifier.alpha(enter[3])) {
                 AnalyticsSectionRow(
                     isWide = isWide,
                     first = {
@@ -446,6 +454,7 @@ fun AnalyticsScreenContent(
                     }
                 }
                 )
+                }
             }
             // Two-column layout: native ad as a full-width row at the bottom.
             if (isWide) {

@@ -246,6 +246,7 @@ fun MainScaffold(
     }
 
     CompositionLocalProvider(
+        LocalLockOverlayActive provides isLockOverlayActive,
         LocalAddFabVisibility provides addFabVisibility,
         // Installed once here so every "Upgrade to Pro" affordance below — gated actions,
         // settings rows, the membership screen, the transaction editor — can open the

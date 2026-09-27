@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 import com.mknlabs.expensetracker.core.ui.theme.sheet
@@ -44,6 +45,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.launch
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -199,14 +201,16 @@ private fun PreferencesScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_app_preferences),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             AdaptiveContent(
                 maxWidth = 640.dp,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).alpha(enter[1])
             ) {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),

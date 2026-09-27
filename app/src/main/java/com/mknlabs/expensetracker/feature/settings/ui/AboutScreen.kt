@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import android.content.Intent
 import android.net.Uri
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -137,15 +139,16 @@ private fun AboutScreenContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(R.string.title_about),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing).alpha(enter[0])
         )
 
         AdaptiveContent(
             maxWidth = 640.dp,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().alpha(enter[1])
         ) {
         Column(
             modifier = Modifier

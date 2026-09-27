@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -236,10 +237,11 @@ private fun ProfileScreenContent(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(id = R.string.title_edit_profile),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding).alpha(enter[0])
         )
 
         Column(
@@ -247,7 +249,8 @@ private fun ProfileScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 22.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 22.dp)
+                .alpha(enter[1]),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(

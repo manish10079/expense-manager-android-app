@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -185,15 +186,18 @@ private fun DataManagementContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(id = R.string.title_data_management),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {

@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.activity.compose.BackHandler
@@ -89,6 +90,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -427,6 +429,7 @@ private fun TransactionScreenContent(
     val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
     rememberBindAddFabToScroll(lazyListState)
+    val enter = rememberSectionEnterAlphas(4)
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
 
     // Paging 3 loads the next page automatically once the list scrolls near the
@@ -548,6 +551,7 @@ private fun TransactionScreenContent(
             AnimatedContent(
                 targetState = uiState.isSelectionMode,
                 label = "HeaderTransition",
+                modifier = Modifier.alpha(enter[0]),
                 transitionSpec = {
                     (slideInVertically { -it } + fadeIn(tween(300)))
                         .togetherWith(slideOutVertically { -it } + fadeOut(tween(300)))
@@ -764,7 +768,8 @@ private fun TransactionScreenContent(
 
             ActiveFilterBar(
                 filters = activeFilters,
-                onClearAll = { resetFilters() }
+                onClearAll = { resetFilters() },
+                modifier = Modifier.alpha(enter[1])
             )
 
             Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
@@ -774,11 +779,13 @@ private fun TransactionScreenContent(
             // renders placeholders, so the card keeps its height and the list below
             // never jumps when the numbers arrive.
             pinnedSummary?.let { summary ->
+                Box(Modifier.alpha(enter[2])) {
                 TransactionSummaryCard(
                     income = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalIncome,
                     expense = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalExpense,
                     periodLabel = summary.periodLabel
                 )
+                }
                 Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
             }
 
@@ -857,7 +864,8 @@ private fun TransactionScreenContent(
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier
-                        .weight(1f),
+                        .weight(1f)
+                        .alpha(enter[3]),
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
@@ -1073,7 +1081,7 @@ private fun TransactionScreenContent(
                     TransactionPeriodFilter.ALL -> null
                     else -> ({ showPeriodPicker = true })
                 },
-                modifier = Modifier.padding(top = Dimens.PaddingSmall)
+                modifier = Modifier.alpha(enter[3]).padding(top = Dimens.PaddingSmall)
             )
         }
 

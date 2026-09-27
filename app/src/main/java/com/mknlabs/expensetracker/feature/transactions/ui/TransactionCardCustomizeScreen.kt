@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -303,11 +305,13 @@ private fun TransactionCardCustomizeContent(
                         .verticalScroll(rememberScrollState())
                         .padding(end = 16.dp)
                 ) {
+                    val enter = rememberSectionEnterAlphas(2)
                     AppHeader(
                         title = stringResource(id = R.string.title_transaction_card_settings),
                         onBackClick = onBackClick,
-                        modifier = Modifier
+                        modifier = Modifier.alpha(enter[0])
                     )
+                    Box(Modifier.alpha(enter[1])) {
                     TransactionCardPreviewSection(
                         localSettings = localSettings,
                         previewTransactions = previewTransactions,
@@ -320,6 +324,7 @@ private fun TransactionCardCustomizeContent(
                         timeFormat = timeFormat,
                         isProUser = isProUser
                     )
+                    }
                 }
 
                 // RIGHT: customize toggles + ad

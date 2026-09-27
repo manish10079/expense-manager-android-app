@@ -20,10 +20,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -31,29 +31,38 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
-import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import kotlinx.coroutines.delay
 
 private val SplashLogoSize = 132.dp
+private val UpperAlphabet = ('A'..'Z').toList()
+private val LowerAlphabet = ('a'..'z').toList()
 
 @Composable
 fun SplashOverlay(viewModel: SplashViewModel) {
@@ -64,6 +73,14 @@ fun SplashOverlay(viewModel: SplashViewModel) {
 @Composable
 private fun SplashOverlayContent(currentTask: InitTask) {
     val loadingProgress = remember { Animatable(0f) }
+    val logoEnter = remember { Animatable(0f) }
+    val subtitleEnter = remember { Animatable(0f) }
+    val taglineEnter = remember { Animatable(0f) }
+    val titleText = stringResource(id = R.string.label_app_name_display)
+    val subtitleText = stringResource(id = R.string.label_budget_and_spend)
+    val taglineText = stringResource(id = R.string.label_splash_tagline)
+    var titleShown by remember { mutableStateOf("") }
+    var logoTopInRoot by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(currentTask) {
         loadingProgress.animateTo(
@@ -73,6 +90,17 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                 easing = FastOutSlowInEasing
             )
         )
+    }
+
+    LaunchedEffect(titleText, subtitleText, taglineText) {
+        val slideSpec = tween<Float>(durationMillis = 380, easing = FastOutSlowInEasing)
+        logoEnter.animateTo(
+            1f,
+            tween(durationMillis = 720, easing = FastOutSlowInEasing)
+        )
+        countdownReveal(titleText) { titleShown = it }
+        subtitleEnter.animateTo(1f, slideSpec)
+        taglineEnter.animateTo(1f, slideSpec)
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
@@ -95,6 +123,10 @@ private fun SplashOverlayContent(currentTask: InitTask) {
         label = "glow_alpha"
     )
 
+    val p = logoEnter.value
+    val grow = 0.22f + 0.78f * p
+    val landedPulse = 1f + (pulseScale - 1f) * p
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -107,26 +139,32 @@ private fun SplashOverlayContent(currentTask: InitTask) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo Area
             val brandPurple = PurplePrimary
             Box(
                 modifier = Modifier
                     .size(SplashLogoSize * 2.2f)
+                    .onGloballyPositioned { coords ->
+                        logoTopInRoot = coords.positionInRoot().y
+                    }
+                    .graphicsLayer {
+                        translationY = (1f - p) * -logoTopInRoot
+                        scaleX = grow * landedPulse
+                        scaleY = grow * landedPulse
+                    }
                     .drawBehind {
-                        val radius = this.size.minDimension / 2.2f // Tightest radius
+                        val radius = this.size.minDimension / 2.2f
                         drawCircle(
                             brush = Brush.radialGradient(
                                 0.0f to Color.Transparent,
-                                0.45f to brandPurple.copy(alpha = glowAlpha * 0.4f),
-                                0.6f to brandPurple.copy(alpha = glowAlpha),
+                                0.45f to brandPurple.copy(alpha = glowAlpha * 0.4f * p),
+                                0.6f to brandPurple.copy(alpha = glowAlpha * p),
                                 1.0f to Color.Transparent,
                                 center = center,
                                 radius = radius
                             ),
                             radius = radius
                         )
-                    }
-                    .scale(pulseScale),
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -138,41 +176,41 @@ private fun SplashOverlayContent(currentTask: InitTask) {
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Title Hierarchy
-            Text(
-                text = stringResource(id = R.string.label_app_name_display),
+            SplashCountdownLine(
+                fullText = titleText,
+                shown = titleShown,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-0.5).sp
-                ),
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                )
             )
 
-            Text(
-                text = stringResource(id = R.string.label_budget_and_spend),
+            SplashSlideLine(
+                text = subtitleText,
+                progress = subtitleEnter.value,
+                fromLeft = true,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 1.sp
-                ),
-                color = MaterialTheme.colorScheme.accentInk,
-                textAlign = TextAlign.Center
+                )
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = stringResource(id = R.string.label_splash_tagline),
+            SplashSlideLine(
+                text = taglineText,
+                progress = taglineEnter.value,
+                fromLeft = false,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     letterSpacing = 3.sp,
                     fontWeight = FontWeight.Light
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                )
             )
         }
 
-        // Bottom Loading Area
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -208,23 +246,100 @@ private fun SplashOverlayContent(currentTask: InitTask) {
                         textAlign = TextAlign.Center
                     )
                 } else {
-                    // Empty box to maintain layout height while text is hidden
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         }
 
-        // Fixed Footer
         Text(
             text = stringResource(id = R.string.label_splash_footer),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+            color = MaterialTheme.colorScheme.accentInk.copy(alpha = 1f),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
                 .padding(bottom = 24.dp),
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+private fun SplashCountdownLine(
+    fullText: String,
+    shown: String,
+    color: Color,
+    style: TextStyle
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = fullText,
+            style = style,
+            color = Color.Transparent,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = shown,
+            style = style,
+            color = color,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun SplashSlideLine(
+    text: String,
+    progress: Float,
+    fromLeft: Boolean,
+    color: Color,
+    style: TextStyle
+) {
+    val p = progress.coerceIn(0f, 1f)
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                val dist = size.width
+                translationX = (1f - p) * if (fromLeft) -dist else dist
+                alpha = p
+            }
+    )
+}
+
+private suspend fun countdownReveal(
+    text: String,
+    onFrame: (String) -> Unit
+) {
+    val out = CharArray(text.length) { i -> if (text[i].isWhitespace()) text[i] else ' ' }
+    onFrame(String(out))
+    for (i in text.indices) {
+        val target = text[i]
+        if (target.isWhitespace()) continue
+        val pool = when {
+            target.isUpperCase() -> UpperAlphabet
+            target.isLowerCase() -> LowerAlphabet
+            else -> listOf(target)
+        }
+        if (pool.size > 1) {
+            repeat(3) {
+                out[i] = pool.random()
+                onFrame(String(out))
+                delay(16)
+            }
+        }
+        out[i] = target
+        onFrame(String(out))
+        delay(18)
     }
 }
 

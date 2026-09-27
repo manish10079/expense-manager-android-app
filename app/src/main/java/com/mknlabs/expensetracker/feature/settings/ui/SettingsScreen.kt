@@ -46,7 +46,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -212,6 +214,7 @@ fun SettingsScreenContent(
     val isProUser = userTier == UserTier.PREMIUM
     val isAdPassActive = !isProUser && adFreeRemainingTime != null
     val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
+    val enter = rememberSectionEnterAlphas(4)
 
     Box(
         modifier = modifier
@@ -229,7 +232,8 @@ fun SettingsScreenContent(
 
             AppHeader(
                 title = stringResource(R.string.title_settings),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             AdaptiveContent(
@@ -241,6 +245,7 @@ fun SettingsScreenContent(
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
                     item {
+                        Box(Modifier.alpha(enter[1])) {
                         ProfileCard(
                             name = userProfile.fullName,
                             email = userProfile.emailAddress,
@@ -250,6 +255,7 @@ fun SettingsScreenContent(
                             isAnonymous = isAnonymous,
                             onClick = if (isAnonymous) onLinkAccountClick else onProfileClick
                         )
+                        }
                     }
 
                     if (isAdsEnabled) {
@@ -297,13 +303,15 @@ fun SettingsScreenContent(
 
                         SettingsSectionContainer(
                             headerRes = R.string.header_account_and_security,
-                            items = accountSecurityItems
+                            items = accountSecurityItems,
+                            modifier = Modifier.alpha(enter[2])
                         )
                     }
 
                     // Section 2: MEMBERSHIP
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_membership,
                             items = listOf(
                                 SettingsRowData(
@@ -360,6 +368,7 @@ fun SettingsScreenContent(
                     // Section 3: PREFERENCES
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_preferences,
                             items = listOf(
                                 SettingsRowData(
@@ -393,6 +402,7 @@ fun SettingsScreenContent(
                     // Section 4: SYSTEM & DATA
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_system_and_data,
                             items = listOf(
                                 SettingsRowData(
@@ -414,7 +424,9 @@ fun SettingsScreenContent(
                     // Isolated Action: Logout (No Card Container) - shown only for signed in users
                     if (!isAnonymous) {
                         item {
+                            Box(Modifier.alpha(enter[3])) {
                             SettingsIsolatedLogoutRow(onClick = onLogoutClick)
+                            }
                         }
                     }
                 }

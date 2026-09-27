@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -605,7 +606,9 @@ fun AddTransactionScreen(
                         }
                     }
                 )
-        ) {                AppHeader(
+        ) {
+                val enter = rememberSectionEnterAlphas(3)
+                AppHeader(
                 title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
                 onBackClick = {
                     keyboardController?.hide()
@@ -650,13 +653,15 @@ fun AddTransactionScreen(
                             )
                         }
                     }
-                }
+                },
+                modifier = Modifier.alpha(enter[0])
             )
 
 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .alpha(enter[1])
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {

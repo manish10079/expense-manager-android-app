@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.rounded.NoPhotography
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -150,13 +152,15 @@ private fun SecurityPrivacyContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_security_privacy),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {

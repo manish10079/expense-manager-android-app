@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.smsinbox.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.material3.FilterChipDefaults
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
@@ -73,6 +74,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -326,17 +328,22 @@ private fun SmsInboxContent(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
+        val enter = rememberSectionEnterAlphas(4)
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             AppHeader(
                 title = stringResource(id = R.string.label_sms_inbox_title),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
+            Box(Modifier.alpha(enter[1])) {
             SearchField(
                 query = uiState.searchQuery,
                 onQueryChanged = onSearchQueryChanged
             )
+            }
 
+            Box(Modifier.alpha(enter[2])) {
             FilterRow(
                 selected = uiState.filter,
                 onFilterSelected = onFilterSelected
@@ -346,7 +353,9 @@ private fun SmsInboxContent(
             // user has to know is what a tap does. It sits under the filters, where it is
             // read once, instead of being repeated on every card.
             InboxHint()
+            }
 
+            Box(Modifier.alpha(enter[3])) {
             when {
                 uiState.isEmpty -> EmptyInbox(filter = uiState.filter)
                 else -> InboxList(
@@ -359,6 +368,7 @@ private fun SmsInboxContent(
                     onSwipeDelete = onSwipeDelete,
                     onArrivalHandled = onArrivalHandled
                 )
+            }
             }
         }
     }

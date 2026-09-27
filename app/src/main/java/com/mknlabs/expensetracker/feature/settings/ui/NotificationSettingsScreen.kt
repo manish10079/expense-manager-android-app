@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
@@ -53,6 +54,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -286,17 +288,19 @@ private fun NotificationSettingsContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(id = R.string.title_notification_settings),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing).alpha(enter[0])
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.ScreenPadding),
+                .padding(horizontal = Dimens.ScreenPadding)
+                .alpha(enter[1]),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             if (!isNotificationsPermissionGranted) {

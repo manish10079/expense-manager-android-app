@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
@@ -191,9 +192,11 @@ fun ItemizedCalculatorScreen(
                 }
             },
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(id = R.string.label_itemized_calculator),
             onBackClick = onBackClick,
+            modifier = Modifier.alpha(enter[0]),
             actions = {
                 CalculatorHistoryHeaderIcon(
                     onClick = { showHistorySheet = true }
@@ -201,6 +204,7 @@ fun ItemizedCalculatorScreen(
             }
         )
 
+        Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
         AnimatedTabSwitcher(
             items = modes.map { TabItem(it, it.title) },
             selectedItemId = uiState.selectedMode,
@@ -257,6 +261,7 @@ fun ItemizedCalculatorScreen(
                     )
                 }
             }
+        }
         }
     }
 

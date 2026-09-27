@@ -2,10 +2,13 @@
 
 package com.mknlabs.expensetracker.feature.budget.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+
 import androidx.compose.material3.FilterChipDefaults
 
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -342,6 +345,7 @@ private fun BudgetAndRecurringContent(
     rememberBindAddFabToScroll(
         if (pagerState.currentPage == 0) budgetsListState else recurringListState
     )
+    val enter = rememberSectionEnterAlphas(4)
 
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
@@ -387,11 +391,12 @@ private fun BudgetAndRecurringContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                    .alpha(enter[0])
             ) {
                 AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
             }
 
-            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding).alpha(enter[1])) {
                 CurrentPeriodIndicator(
                     startMillis = uiState.currentPeriodStartMillis,
                     endMillis = uiState.currentPeriodEndMillis,
@@ -400,7 +405,7 @@ private fun BudgetAndRecurringContent(
                 )
             }
 
-            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding).alpha(enter[2])) {
                 AnimatedTabSwitcher(
                     items = listOf(
                         TabItem(
@@ -431,7 +436,8 @@ private fun BudgetAndRecurringContent(
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[3]),
                 verticalAlignment = Alignment.Top
             ) { page ->
                 // Both pages open with content rather than a heading, so they share one inset.

@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -133,14 +135,17 @@ private fun AddCategoryScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_add_category),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .alpha(enter[1])
             ) {
 
                 CategorySectionLabel(text = stringResource(R.string.label_category_type_section))

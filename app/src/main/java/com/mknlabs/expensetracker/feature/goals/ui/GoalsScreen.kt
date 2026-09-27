@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -56,6 +57,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogConfirmButton
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDismissButton
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
@@ -141,6 +143,7 @@ private fun GoalsScreenContent(
 
     val activeGoals = goals.filter { !it.isCompleted }
     val completedGoals = goals.filter { it.isCompleted }
+    val enter = rememberSectionEnterAlphas(2)
 
     Scaffold(
         floatingActionButton = {
@@ -180,14 +183,16 @@ private fun GoalsScreenContent(
 
                 AppHeader(
                     title = stringResource(R.string.title_my_goals),
-                    onBackClick = onBackClick
+                    onBackClick = onBackClick,
+                    modifier = Modifier.alpha(enter[0])
                 )
 
                 if (goals.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .alpha(enter[1]),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -200,7 +205,8 @@ private fun GoalsScreenContent(
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .alpha(enter[1]),
                         contentPadding = PaddingValues(bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {

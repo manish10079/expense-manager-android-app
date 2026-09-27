@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -118,6 +120,7 @@ private fun FeedbackScreenContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(R.string.title_feedback),
             onBackClick = onBackClick,
@@ -125,14 +128,15 @@ private fun FeedbackScreenContent(
                 start = Dimens.ScreenPadding,
                 end = Dimens.ScreenPadding,
                 top = Dimens.HeaderSpacing
-            )
+            ).alpha(enter[0])
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.ScreenPadding),
+                .padding(horizontal = Dimens.ScreenPadding)
+                .alpha(enter[1]),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 

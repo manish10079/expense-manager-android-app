@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -181,11 +183,14 @@ private fun CategoryManagementContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_manage_category),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
+            Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
             AnimatedTabSwitcher(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
                 selectedItemId = activeTab,
@@ -275,6 +280,7 @@ private fun CategoryManagementContent(
                     }
                     }
                 }
+            }
             }
         }
 

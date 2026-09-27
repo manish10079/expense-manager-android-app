@@ -1,7 +1,9 @@
 package com.mknlabs.expensetracker.feature.calendar.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -206,6 +208,7 @@ private fun CalendarScreenContent(
     // drives the standalone add FAB's auto-hide on compact portrait.
     val calendarListState = rememberLazyListState()
     rememberBindAddFabToScroll(calendarListState)
+    val enter = rememberSectionEnterAlphas(3)
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -219,6 +222,7 @@ private fun CalendarScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                        .alpha(enter[0])
                 ) {
                     AppHeader(title = stringResource(id = R.string.title_calendar), onBackClick = onBackClick)
                 }
@@ -256,7 +260,7 @@ private fun CalendarScreenContent(
                             // sideways, these three split the row evenly: three short labels
                             // always fit, and a fixed third each keeps the row's shape stable.
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().alpha(enter[1]),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 PeriodChip(
@@ -283,6 +287,7 @@ private fun CalendarScreenContent(
                     }
 
                     item {
+                        Box(Modifier.alpha(enter[2])) {
                         AnimatedContent(
                             targetState = uiState.isYearView,
                             transitionSpec = {
@@ -461,6 +466,7 @@ private fun CalendarScreenContent(
                                     }
                                 }
                             }
+                        }
                         }
                     }
                 }
