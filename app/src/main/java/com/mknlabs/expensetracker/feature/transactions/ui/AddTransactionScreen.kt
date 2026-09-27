@@ -1,11 +1,12 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
-import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import android.content.res.Configuration
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,18 +14,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -35,39 +41,38 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -77,54 +82,68 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mknlabs.expensetracker.core.ui.components.AppTextButton
-import kotlinx.coroutines.delay
-import android.widget.Toast
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
-import com.mknlabs.expensetracker.models.FavoriteTransaction
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.horizontalSwipe
+import com.mknlabs.expensetracker.core.ui.models.TabItem
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
@@ -133,6 +152,7 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.CurrencyPosition
+import com.mknlabs.expensetracker.models.FavoriteTransaction
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
@@ -144,63 +164,20 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RecurringGateResolver
 import com.mknlabs.expensetracker.monetization.RecurringRuleTier
-import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
-import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
-import com.mknlabs.expensetracker.monetization.MonetizationViewModel
-import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
-import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
-import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
-import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.utils.formatCurrencyValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.chipSelected
-import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
-import com.mknlabs.expensetracker.core.ui.theme.cta
-import com.mknlabs.expensetracker.core.ui.theme.hairline
-import com.mknlabs.expensetracker.core.ui.theme.onCta
-import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
-import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
-import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
-import com.mknlabs.expensetracker.core.ui.theme.sheet
-import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import androidx.compose.runtime.DisposableEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.core.ui.components.AppHeader
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
-import com.mknlabs.expensetracker.core.ui.models.TabItem
-import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
-import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
-import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
+import com.mknlabs.expensetracker.utils.findFragmentActivity
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getRankedCategories
 import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
-import com.mknlabs.expensetracker.utils.findFragmentActivity
-import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
-import com.mknlabs.expensetracker.utils.getCurrency
-import com.mknlabs.expensetracker.domain.models.VoiceConfidence
-import android.util.Log
-import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
-import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
-import com.mknlabs.expensetracker.voice.VoiceAddViewModel
-import android.Manifest
-import android.content.pm.PackageManager
-import android.speech.RecognitionListener
-import android.content.Intent
-import android.os.Bundle
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import com.mknlabs.expensetracker.voice.VoiceInputUiState
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 
 private const val incomeTypeId = 1
@@ -257,6 +234,94 @@ fun AddTransactionScreen(
     onNoteChange: (String) -> Unit = {},
     onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> }
 ) {
+    // --- Route layer: Hilt collaborators and the Android voice plumbing. ---
+    val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
+    val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId
+        .collectAsStateWithLifecycle()
+
+    // Voice lives in its own file because it touches android.speech, which the Compose
+    // preview renderer does not ship. See [rememberTransactionVoiceInput].
+    val voice = rememberTransactionVoiceInput(
+        autoStartVoice = autoStartVoice,
+        onVoiceAutoStarted = onVoiceAutoStarted
+    )
+
+    AddTransactionScreenContent(
+        currencyId = currencyId,
+        dateFormatPattern = dateFormatPattern,
+        transactions = transactions,
+        availableCategories = availableCategories,
+        availablePaymentMethods = availablePaymentMethods,
+        existingTransaction = existingTransaction,
+        existingRecurringRule = existingRecurringRule,
+        activeRecurringRuleCount = activeRecurringRuleCount,
+        allRecurringRules = allRecurringRules,
+        initialAmountInput = initialAmountInput,
+        initialNote = initialNote,
+        initialCategoryId = initialCategoryId,
+        initialTransactionTypeId = initialTransactionTypeId,
+        autoStartVoice = autoStartVoice,
+        favorites = favorites,
+        onRemoveFavorite = onRemoveFavorite,
+        onSaveExistingAsFavorite = onSaveExistingAsFavorite,
+        onBackClick = onBackClick,
+        onDeleteClick = onDeleteClick,
+        onCalculatorClick = onCalculatorClick,
+        onAmountInputChange = onAmountInputChange,
+        onNoteChange = onNoteChange,
+        onSaveClick = onSaveClick,
+        predictedPaymentMethodId = predictedPaymentMethodId,
+        onPredictNote = { paymentMethodPredictorViewModel.predict(it) },
+        onLearnPaymentMethod = { text, paymentId ->
+            paymentMethodPredictorViewModel.learn(text, paymentId)
+        },
+        voiceUiState = voice.uiState,
+        isVoiceSheetVisible = voice.isSheetVisible,
+        onMicClick = voice.onMicClick,
+        onVoiceSheetDismiss = voice.onSheetDismiss,
+        onVoiceSheetRetry = voice.onSheetRetry
+    )
+}
+
+/**
+ * Pure UI for the Add/Edit transaction form. Receives every Hilt-provided value and the
+ * voice affordances through parameters so it stays previewable without a Hilt container.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AddTransactionScreenContent(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    transactions: List<Transaction> = emptyList(),
+    availableCategories: List<CategoryType> = categoryMap.values.toList(),
+    availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
+    existingTransaction: Transaction? = null,
+    existingRecurringRule: RecurringTransactionRule? = null,
+    activeRecurringRuleCount: Int = 0,
+    allRecurringRules: List<RecurringTransactionRule> = emptyList(),
+    initialAmountInput: String? = null,
+    initialNote: String? = null,
+    initialCategoryId: Int? = null,
+    initialTransactionTypeId: Int? = null,
+    autoStartVoice: Boolean = false,
+    favorites: List<FavoriteTransaction> = emptyList(),
+    onRemoveFavorite: (String) -> Unit = {},
+    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
+    onAmountInputChange: (String) -> Unit = {},
+    onNoteChange: (String) -> Unit = {},
+    onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> },
+    predictedPaymentMethodId: Int? = null,
+    onPredictNote: (String) -> Unit = {},
+    onLearnPaymentMethod: (String, Int) -> Unit = { _, _ -> },
+    voiceUiState: VoiceInputUiState = VoiceInputUiState(),
+    isVoiceSheetVisible: Boolean = false,
+    onMicClick: () -> Unit = {},
+    onVoiceSheetDismiss: () -> Unit = {},
+    onVoiceSheetRetry: () -> Unit = {}
+) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -303,16 +368,12 @@ fun AddTransactionScreen(
             mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
         }
 
-        // Payment method prediction
-        val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
-        val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId.collectAsStateWithLifecycle()
-
         var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(false) }
 
         // Auto-predict payment method when note/merchant text changes
         LaunchedEffect(note) {
             if (note.isNotBlank() && !isEditMode && !hasManuallySelectedPayment) {
-                paymentMethodPredictorViewModel.predict(note)
+                onPredictNote(note)
             }
         }
 
@@ -363,125 +424,6 @@ fun AddTransactionScreen(
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
-
-        // Voice input state
-        var isVoiceSheetVisible by rememberSaveable { mutableStateOf(false) }
-        val voiceViewModel: VoiceAddViewModel = hiltViewModel()
-        val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
-        val hasMicPermission = remember {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
-                PackageManager.PERMISSION_GRANTED
-        }
-        var micPermissionGranted by rememberSaveable { mutableStateOf(hasMicPermission) }
-        val micPermissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            micPermissionGranted = granted
-            if (granted) {
-                voiceViewModel.resetToListening()
-                isVoiceSheetVisible = true
-            } else {
-                voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
-                isVoiceSheetVisible = true
-            }
-        }
-
-        LaunchedEffect(autoStartVoice) {
-            if (autoStartVoice) {
-                onVoiceAutoStarted()
-                // The amount field is auto-focused and the keyboard is shown on
-                // screen entry. An open IME can make the SpeechRecognizer fail
-                // immediately ("try again" error), so dismiss both before the
-                // voice sheet starts listening — same as the mic button tap.
-                focusManager.clearFocus(force = true)
-                keyboardController?.hide()
-                // Give the keyboard time to fully dismiss before the
-                // SpeechRecognizer starts — otherwise it races with the
-                // animation and fails with the "try again" error.
-                kotlinx.coroutines.delay(300)
-                if (micPermissionGranted) {
-                    voiceViewModel.resetToListening()
-                    isVoiceSheetVisible = true
-                } else {
-                    micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            }
-        }
-
-        // SpeechRecognizer — created once, started/stopped with the sheet
-        val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-        DisposableEffect(speechRecognizer) {
-            onDispose { speechRecognizer.destroy() }
-        }
-        LaunchedEffect(isVoiceSheetVisible, voiceUiState.sheetState) {
-            if (isVoiceSheetVisible && voiceUiState.sheetState == VoiceSheetState.LISTENING) {
-                Log.d("VoiceInput", "Starting speech recognizer, sheetVisible=$isVoiceSheetVisible, sheetState=${voiceUiState.sheetState}")
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                }
-                speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) {
-                        Log.d("VoiceInput", "onReadyForSpeech: params=$params")
-                    }
-                    override fun onBeginningOfSpeech() {
-                        Log.d("VoiceInput", "onBeginningOfSpeech")
-                    }
-                    override fun onRmsChanged(rmsdB: Float) {
-                        // Too frequent to log — intentionally silent
-                    }
-                    override fun onBufferReceived(buffer: ByteArray?) {
-                        Log.d("VoiceInput", "onBufferReceived: ${buffer?.size ?: 0} bytes")
-                    }
-                    override fun onEndOfSpeech() {
-                        Log.d("VoiceInput", "onEndOfSpeech: currentViewModelTranscript='${voiceUiState.transcript}'")
-                        // Do NOT call onSpeechResult here — voiceUiState.transcript is stale
-                        // (captured at LaunchedEffect launch time). The real result arrives in onResults.
-                    }
-                    override fun onError(error: Int) {
-                        val errorLabel = when (error) {
-                            SpeechRecognizer.ERROR_NO_MATCH -> "ERROR_NO_MATCH"
-                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "ERROR_SPEECH_TIMEOUT"
-                            SpeechRecognizer.ERROR_NETWORK -> "ERROR_NETWORK"
-                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "ERROR_NETWORK_TIMEOUT"
-                            SpeechRecognizer.ERROR_AUDIO -> "ERROR_AUDIO"
-                            SpeechRecognizer.ERROR_CLIENT -> "ERROR_CLIENT"
-                            SpeechRecognizer.ERROR_SERVER -> "ERROR_SERVER"
-                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "ERROR_RECOGNIZER_BUSY"
-                            else -> "ERROR_UNKNOWN($error)"
-                        }
-                        Log.e("VoiceInput", "onError: $errorLabel (code=$error)")
-                        val errorResId = when (error) {
-                            SpeechRecognizer.ERROR_NO_MATCH,
-                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
-                            SpeechRecognizer.ERROR_NETWORK,
-                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
-                            SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
-                            else -> R.string.msg_voice_error_recognizer
-                        }
-                        voiceViewModel.onRecognizerError(errorResId)
-                    }
-                    override fun onResults(results: Bundle?) {
-                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        val text = matches?.firstOrNull().orEmpty()
-                        val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-                        Log.d("VoiceInput", "onResults: text='$text', matchCount=${matches?.size ?: 0}, confidence=${confidenceScores?.firstOrNull()}")
-                        voiceViewModel.onSpeechResult(text)
-                    }
-                    override fun onPartialResults(partialResults: Bundle?) {
-                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        val text = matches?.firstOrNull().orEmpty()
-                        Log.d("VoiceInput", "onPartialResults: text='$text'")
-                        voiceViewModel.onPartialResult(text)
-                    }
-                    override fun onEvent(eventType: Int, params: Bundle?) {
-                        Log.d("VoiceInput", "onEvent: eventType=$eventType")
-                    }
-                })
-                speechRecognizer.startListening(intent)
-            }
-        }
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -785,12 +727,7 @@ fun AddTransactionScreen(
                                 )
                                 .clickable(onClick = {
                                     keyboardController?.hide()
-                                    voiceViewModel.resetToListening()
-                                    if (micPermissionGranted) {
-                                        isVoiceSheetVisible = true
-                                    } else {
-                                        micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                                    }
+                                    onMicClick()
                                 }),
                             contentAlignment = Alignment.Center
                         ) {
@@ -1067,7 +1004,7 @@ fun AddTransactionScreen(
                             keyboardController?.hide()
                             // Learn merchant → payment method association
                             if (note.isNotBlank()) {
-                                paymentMethodPredictorViewModel.learn(note, payment.id)
+                                onLearnPaymentMethod(note, payment.id)
                             }
                             onSaveClick(transaction, recurringDraft)
                         }
@@ -1119,10 +1056,7 @@ fun AddTransactionScreen(
                 parsedTransaction = voiceUiState.parsedTransaction,
                 errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
                 currencySymbol = currencySymbol,
-                onDismissRequest = {
-                    voiceViewModel.dismiss()
-                    isVoiceSheetVisible = false
-                },
+                onDismissRequest = onVoiceSheetDismiss,
                 onConfirm = { transaction ->
                     // Auto-fill form fields from parsed voice result
                     amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
@@ -1135,12 +1069,9 @@ fun AddTransactionScreen(
                         noteDraft = note
                     }
                     selectedDateMillis = transaction.createdAt
-                    voiceViewModel.dismiss()
-                    isVoiceSheetVisible = false
+                    onVoiceSheetDismiss()
                 },
-                onRetry = {
-                    voiceViewModel.resetToListening()
-                }
+                onRetry = onVoiceSheetRetry
             )
         }
 
@@ -1834,7 +1765,7 @@ private fun CurrencyAmountCard(
     }
 
     val density = LocalDensity.current
-    val labelTranslationY = with(density) { (-4).dp.toPx() }
+    val labelTranslationY = with(density) { 2.dp.toPx() }
 
     Box(
         modifier = Modifier
@@ -2746,16 +2677,23 @@ private fun validateAmountChange(newValue: String, current: String): String {
 }
 
 @Preview(
-    name = "Add Transaction",
+    name = "Add Transaction - Light",
     showBackground = true,
     showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
-
+@Preview(
+    name = "Add Transaction - Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
 @Composable
 private fun AddTransactionScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        AddTransactionScreen()
+    ExpenseTrackerTheme {
+        AddTransactionScreenContent()
     }
 }
 

@@ -13,8 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 
 const val SectionEnterDurationMs = 250
@@ -26,11 +28,20 @@ val LocalLockOverlayActive = compositionLocalOf { false }
  * returns to the foreground (and the lock overlay is not covering the UI).
  */
 @Composable
-fun rememberSectionEnterAlphas(count: Int): List<Float> {
+fun rememberSectionEnterAlphas(
+    count: Int,
+    lifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get(),
+): List<Float> {
+    // A @Preview host has no process lifecycle that ever reaches STARTED, so the fade below
+    // would never run and every section would stay at its initial alpha of 0 — an invisible,
+    // blank preview. Render the sections fully visible at design time instead.
+    if (LocalInspectionMode.current) {
+        return remember(count) { List(count) { 1f } }
+    }
+
     val lockOverlayActive = LocalLockOverlayActive.current
     val anims = remember(count) { List(count) { Animatable(0f) } }
-    val lifecycleOwner = remember { ProcessLifecycleOwner.get() }
-    var inForeground by remember {
+    var inForeground by remember(lifecycleOwner) {
         mutableStateOf(
             lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
