@@ -18,7 +18,16 @@ data class AddCategoryUiState(
     val selectedIconId: String = "shopping_cart",
     val iconSearchQuery: String = "",
     val targetTab: CategoryManagementTab = CategoryManagementTab.Expense,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    /**
+     * The colour the user chose, as `#RRGGBB`, or null for "no colour of its own".
+     *
+     * Null is the default and an ordinary answer rather than an absence: the row simply takes
+     * the palette colour for its id. The picker therefore has to offer a way back to null, which
+     * is why the swatch row leads with an explicit "default" option instead of treating a
+     * selection as one-way.
+     */
+    val selectedColorHex: String? = null
 )
 
 @HiltViewModel
@@ -52,6 +61,17 @@ class AddCategoryViewModel @Inject constructor(
         _uiState.update { it.copy(selectedIconId = iconId) }
     }
 
+    /**
+     * Takes the hex the user tapped, or null for the default swatch.
+     *
+     * Stored exactly as offered rather than re-derived from an id: the swatch the user saw and
+     * the value kept are the same colour by construction, so there is no lookup that could
+     * disagree with the screen.
+     */
+    fun onColorSelected(colorHex: String?) {
+        _uiState.update { it.copy(selectedColorHex = colorHex) }
+    }
+
     fun saveCategory(onSuccess: () -> Unit) {
         val currentState = _uiState.value
         val name = currentState.name.trim()
@@ -63,13 +83,19 @@ class AddCategoryViewModel @Inject constructor(
             try {
                 when (currentState.targetTab) {
                     CategoryManagementTab.Income -> {
-                        categoryRepository.createCustomCategory(name, currentState.selectedIconId, 1)
+                        categoryRepository.createCustomCategory(
+                            name, currentState.selectedIconId, 1, currentState.selectedColorHex
+                        )
                     }
                     CategoryManagementTab.Expense -> {
-                        categoryRepository.createCustomCategory(name, currentState.selectedIconId, 2)
+                        categoryRepository.createCustomCategory(
+                            name, currentState.selectedIconId, 2, currentState.selectedColorHex
+                        )
                     }
                     CategoryManagementTab.Payment -> {
-                        paymentMethodRepository.createCustomPaymentMethod(name, currentState.selectedIconId)
+                        paymentMethodRepository.createCustomPaymentMethod(
+                            name, currentState.selectedIconId, currentState.selectedColorHex
+                        )
                     }
                 }
                 onSuccess()

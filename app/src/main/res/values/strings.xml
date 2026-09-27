@@ -87,8 +87,14 @@
     <string name="placeholder_expense_example">e.g. Weekend Escapes</string>
     <string name="placeholder_payment_example">e.g. Digital Wallet</string>
     <string name="msg_name_already_exists">This name already exists in %1$s.</string>
-    <string name="msg_choose_icons_info">Choose from 50 icons. Color styling stays automatic.</string>
+    <string name="msg_choose_icons_info">Choose from 50 icons.</string>
     <string name="placeholder_search_icons">Search icons (e.g. \'Food\')…</string>
+
+    <string name="label_color_section">COLOR</string>
+    <string name="msg_choose_color_info">Optional. Without one, the app picks a color for you.</string>
+    <string name="desc_color_default">Default color</string>
+    <string name="desc_color_swatch">Color %1$s</string>
+    <string name="desc_color_swatch_selected">Color %1$s, selected</string>
     <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
     <string name="label_add_type">Add Type</string>
     <string name="label_payment_type_item">Payment Type</string>

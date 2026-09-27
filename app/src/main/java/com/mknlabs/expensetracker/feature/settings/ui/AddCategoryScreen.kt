@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,13 +28,21 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.data.constants.categoryColorOptionsDark
+import com.mknlabs.expensetracker.data.constants.categoryColorOptionsLight
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.parseHexColorOrNull
+import com.mknlabs.expensetracker.core.ui.theme.toCanonicalHex
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -70,6 +80,7 @@ fun AddCategoryScreen(
         onNameChange = viewModel::onNameChange,
         onIconSearchQueryChange = viewModel::onIconSearchQueryChange,
         onIconSelected = viewModel::onIconSelected,
+        onColorSelected = viewModel::onColorSelected,
         onSaveCategory = { viewModel.saveCategory(onCategoryCreated) }
     )
 }
@@ -84,6 +95,7 @@ private fun AddCategoryScreenContent(
     onNameChange: (String) -> Unit,
     onIconSearchQueryChange: (String) -> Unit,
     onIconSelected: (String) -> Unit,
+    onColorSelected: (String?) -> Unit,
     onSaveCategory: () -> Unit
 ) {
     val targetTab = uiState.targetTab
@@ -207,6 +219,23 @@ private fun AddCategoryScreenContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                CategorySectionLabel(text = stringResource(R.string.label_color_section))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.msg_choose_color_info),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ColorSelectionRow(
+                    selectedColorHex = uiState.selectedColorHex,
+                    onColorSelected = onColorSelected
+                )
 
                 Spacer(modifier = Modifier.height(28.dp))
 
@@ -426,6 +455,126 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
     }
 }
 
+/**
+ * The colour swatches, leading with the way back to "no colour of its own".
+ *
+ * The row shows the **active theme's** palette, and tapping a swatch stores the exact hex that
+ * was on screen. Two consequences, both deliberate:
+ *
+ * - every swatch is legible against the surface it is drawn on, where one shared set would put
+ *   deep tones on the near-black card and read as a row of mud;
+ * - a colour chosen in dark mode and a colour chosen in light mode are different stored values,
+ *   because they are different colours that a user saw. The other theme is the resolver's
+ *   problem, and its contrast adapter already handles a colour picked looking at the other one.
+ *
+ * The default swatch is not decoration. Every seeded category has no colour of its own, so
+ * "none" is the state this screen creates by default, and without a way back to it a user who
+ * tapped a swatch once could never undo it short of deleting the category.
+ */
+@Composable
+private fun ColorSelectionRow(
+    selectedColorHex: String?,
+    onColorSelected: (String?) -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val swatches = if (colorScheme.isDark) categoryColorOptionsDark else categoryColorOptionsLight
+
+    // A colour picked while looking at the other theme is not in this row. Without this it would
+    // render as nothing selected, which reads as "no colour" while the category is in fact
+    // coloured — so the current value is shown as a swatch of its own.
+    val selectedColor = parseHexColorOrNull(selectedColorHex)
+    val selectedIsAbsent = selectedColor != null &&
+        swatches.none { it.toCanonicalHex() == selectedColorHex }
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        item(key = "color_default") {
+            ColorSwatch(
+                color = null,
+                contentDescription = stringResource(R.string.desc_color_default),
+                selected = selectedColorHex == null,
+                onClick = { onColorSelected(null) }
+            )
+        }
+
+        if (selectedColor != null && selectedIsAbsent) {
+            item(key = "color_current") {
+                ColorSwatch(
+                    color = selectedColor,
+                    contentDescription = stringResource(
+                        R.string.desc_color_swatch_selected,
+                        selectedColor.toCanonicalHex()
+                    ),
+                    selected = true,
+                    onClick = { onColorSelected(selectedColorHex) }
+                )
+            }
+        }
+
+        items(swatches, key = { it.toCanonicalHex() }) { swatch ->
+            val hex = swatch.toCanonicalHex()
+            val selected = hex == selectedColorHex
+            ColorSwatch(
+                color = swatch,
+                contentDescription = stringResource(
+                    if (selected) R.string.desc_color_swatch_selected else R.string.desc_color_swatch,
+                    hex
+                ),
+                selected = selected,
+                onClick = { onColorSelected(hex) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatch(
+    color: Color?,
+    contentDescription: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val fill = color ?: colorScheme.surfaceVariant
+
+    // The tick has to sit on whatever the user chose, so its polarity is derived from the
+    // swatch rather than fixed: white on a light amber fails, black on a deep purple fails, and
+    // one of the two is right for every value the palette holds.
+    val tickColor = if (color == null || color.luminance() > 0.5f) Color.Black else Color.White
+
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .shadow(
+                elevation = if (selected) 12.dp else 0.dp,
+                shape = CircleShape,
+                ambientColor = colorScheme.accentInk.copy(alpha = 0.34f),
+                spotColor = colorScheme.secondary.copy(alpha = 0.28f)
+            )
+            .clip(CircleShape)
+            .background(fill)
+            .border(
+                width = if (selected) 2.dp else 1.dp,
+                color = if (selected) colorScheme.onSurface else colorScheme.outline,
+                shape = CircleShape
+            )
+            .clickable(onClick = onClick)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.Center
+    ) {
+        if (selected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = tickColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
 @Composable
 private fun IconSelectionItem(
     option: CategoryIconOption,
@@ -471,6 +620,7 @@ private fun AddCategoryScreenContentPreview() {
             onNameChange = {},
             onIconSearchQueryChange = {},
             onIconSelected = {},
+            onColorSelected = {},
             onSaveCategory = {}
         )
     }

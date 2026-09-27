@@ -60,6 +60,18 @@ fun parseHexColorOrNull(hex: String?): Color? {
  * 0.2126 / 0.7152 / 0.0722 — so a figure quoted in a comment and a figure this function
  * returns are the same number.
  */
+/**
+ * The canonical `#RRGGBB` for [this], the inverse of [parseHexColorOrNull].
+ *
+ * Rounds each channel to a byte, because that is the only precision a hex string carries and
+the only precision storage carries — so the value this produces is exactly the value a round
+trip through the database would give back. Opaque by construction: alpha is dropped, matching
+what the picker stores. The colour picker is the reader.
+ */
+fun Color.toCanonicalHex(): String = "#" + listOf(red, green, blue).joinToString("") {
+    ((it * 255f).toInt()).coerceIn(0, 255).toString(16).padStart(2, '0').uppercase()
+}
+
 fun contrastRatio(first: Color, second: Color): Float {
     val firstLuminance = first.luminance()
     val secondLuminance = second.luminance()
