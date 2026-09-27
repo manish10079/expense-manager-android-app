@@ -85,8 +85,6 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.expense
-import com.mknlabs.expensetracker.core.ui.theme.chartSeries
-import com.mknlabs.expensetracker.core.ui.theme.chartOther
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -97,6 +95,8 @@ import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
@@ -1273,27 +1273,42 @@ private fun LegendDot(label: String, color: Color) {
     }
 }
 
+/**
+ * The colour of a category's slice, legend dot and progress bar: the user's own if they picked
+ * one, otherwise the palette entry for that category's id.
+ *
+ * **This replaces the positional ramp, and the trade-off it accepted is worth knowing.** The ramp
+ * gave every slice a colour by its rank, which guaranteed that two adjacent slices differed. The
+ * palette repeats hues on purpose — Travel, Insurance and Transport are all `#0288D1`, and Bills,
+ * Groceries and Donations all `#059669` — so two adjacent slices can now be the same colour.
+ *
+ * That is acceptable here and only here, because the legend under the donut prints a text label
+ * for every dot: identity comes from the name, and the colour's job is to match the slice to a
+ * category the user already recognises from the transactions list. A chart whose only key was the
+ * colour could not afford this; this one is not.
+ *
+ * It also cannot wrap or run out the way the ramp could. A category id is either in the palette or
+ * it is not, and the not-in case takes the brand fallback ink rather than a recycled hue.
+ */
 @Composable
-private fun seriesColor(index: Int): Color {
-    // Branch, never wrap. The ramp holds five tones and the "view all" sheet lists every
-    // category the user has made, so an index past the ramp is the ordinary case rather
-    // than an edge one. A modulo here silently hands the sixth category the first
-    // category's colour, and the legend can no longer say which slice is which — the one
-    // thing this palette exists to prevent. The overflow takes the neutral tone instead.
-    val series = MaterialTheme.colorScheme.chartSeries
-    return if (index < series.size) series[index] else MaterialTheme.colorScheme.chartOther
-}
+private fun categoryBreakdownColor(category: CategoryBreakdownUi): Color =
+    MaterialTheme.colorScheme.categoryColor(
+        categoryId = category.id,
+        colorHex = category.colorHex
+    )
 
+/**
+ * The same lookup as [categoryBreakdownColor], against the payment palette.
+ *
+ * Kept as its own function rather than passed a palette in, because payment ids restart at 1: id
+ * 1 is both Food and UPI, so the domain has to be decided here and not at the call site.
+ */
 @Composable
-private fun categoryBreakdownColor(index: Int): Color = seriesColor(index)
-
-@Composable
-private fun paymentBreakdownColor(index: Int): Color {
-    // The same categorical ramp as the category donut. A payment type is not an
-    // income or an expense, so it has no business wearing the semantic income green
-    // that the old three-way split gave it just for being first.
-    return seriesColor(index)
-}
+private fun paymentBreakdownColor(item: PaymentTypeBreakdownUi): Color =
+    MaterialTheme.colorScheme.paymentColor(
+        paymentId = item.id,
+        colorHex = item.colorHex
+    )
 
 @Composable
 private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor: Color) {
@@ -1402,7 +1417,7 @@ private fun CategoryCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(categoryBreakdownColor(category.colorIndex))
+                                        .background(categoryBreakdownColor(category))
                                 )
                                 Text(
                                     text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
@@ -1540,7 +1555,7 @@ private fun CategoryBreakdownRow(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(categoryBreakdownColor(category.colorIndex))
+                            .background(categoryBreakdownColor(category))
                     )
                     Text(
                         text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
@@ -1588,7 +1603,7 @@ private fun CategoryBreakdownRow(
                         .fillMaxWidth(category.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(categoryBreakdownColor(category.colorIndex))
+                        .background(categoryBreakdownColor(category))
                 )
             }
 
@@ -1604,9 +1619,15 @@ private fun CategoryBreakdownRow(
 }
 
 @Composable
-private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
+/**
+ * The category donut. Internal so `AnalyticsDonutColorRenderTest` can put it on a device and read
+ * the pixels back: the chart maps its own rows to arcs, so nothing short of a rendered slice can
+ * show that the colour on screen is the colour the row resolved to. The whole screen cannot host
+ * that test — it composes a gated action that needs a Hilt container.
+ */
+internal fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
     val trackColor = MaterialTheme.colorScheme.track
-    val segmentColors = breakdown.map { categoryBreakdownColor(it.colorIndex) }
+    val segmentColors = breakdown.map { categoryBreakdownColor(it) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -1913,7 +1934,7 @@ private fun PaymentTypeCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(paymentBreakdownColor(item.colorIndex))
+                                        .background(paymentBreakdownColor(item))
                                 )
                                 Icon(
                                     imageVector = item.icon,
@@ -1956,9 +1977,10 @@ private fun PaymentTypeCard(
 }
 
 @Composable
-private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
+/** The payment donut. Internal for the same reason as [SpendingDonutChart]. */
+internal fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
     val trackColor = MaterialTheme.colorScheme.track
-    val segmentColors = breakdown.map { paymentBreakdownColor(it.colorIndex) }
+    val segmentColors = breakdown.map { paymentBreakdownColor(it) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -2155,7 +2177,7 @@ private fun PaymentBreakdownRow(
                         .fillMaxWidth(item.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(paymentBreakdownColor(item.colorIndex))
+                        .background(paymentBreakdownColor(item))
                 )
             }
 
@@ -2417,7 +2439,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         .sortedByDescending { it.second }
     val totalExp = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
 
-    val allCategoryBreakdown = categoryTotals.mapIndexed { index, (catId, amount) ->
+    val allCategoryBreakdown = categoryTotals.map { (catId, amount) ->
         val cat = categoryMap[catId]
         CategoryBreakdownUi(
             id = catId,
@@ -2425,8 +2447,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
             isOther = cat == null,
             amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
             fraction = (amount / totalExp).toFloat(),
-            percentLabel = ((amount / totalExp) * 100).toInt(),
-            colorIndex = index
+            percentLabel = ((amount / totalExp) * 100).toInt()
         )
     }
 
@@ -2438,7 +2459,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         .toList()
         .sortedByDescending { it.second }
 
-    val allPaymentBreakdown = paymentTotals.mapIndexed { index, (pmtId, amount) ->
+    val allPaymentBreakdown = paymentTotals.map { (pmtId, amount) ->
         val pmt = paymentTypeMap[pmtId]
         PaymentTypeBreakdownUi(
             id = pmtId,
@@ -2447,7 +2468,6 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
             amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
             fraction = (amount / totalExp).toFloat(),
             percentLabel = ((amount / totalExp) * 100).toInt(),
-            colorIndex = index,
             icon = pmt?.icon ?: Icons.Filled.Analytics
         )
     }

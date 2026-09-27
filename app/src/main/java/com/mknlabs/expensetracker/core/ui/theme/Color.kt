@@ -439,6 +439,11 @@ val ColorScheme.chartSeries: List<Color>
  * The tone a slice takes once the ramp is exhausted, i.e. for every category or payment
  * type past the fifth. Callers must branch on the index rather than let it wrap: see
  * [chartSeries] for why a recycled hue is the one thing this palette cannot do.
+ *
+ * **No longer reached by the analytics donut**, which now draws each slice in its category's own
+ * colour — see `categoryBreakdownColor` there. The ramp stays a spec token, pinned by the parity
+ * test, and this stays the tone for any future chart that has no identity to draw from and so no
+ * choice but to rank its series.
  */
 val ColorScheme.chartOther: Color
     get() = if (isDark) ChartOtherDark else ChartOtherLight

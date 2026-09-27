@@ -2,9 +2,15 @@ package com.mknlabs.expensetracker.feature.analytics.ui
 
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Calendar
 import kotlin.math.ceil
@@ -15,7 +21,9 @@ class AnalyticsViewModelTest {
         id: Long,
         createdAt: Long,
         amountMinor: Long,
-        typeId: Int = 2
+        typeId: Int = 2,
+        categoryId: Int = 1,
+        paymentTypeId: Int = 1
     ): Transaction {
         return Transaction(
             id = id.toString(),
@@ -23,8 +31,8 @@ class AnalyticsViewModelTest {
             createdAt = createdAt,
             amountMinor = amountMinor,
             transactionTypeId = typeId,
-            paymentTypeId = 1,
-            categoryId = 1
+            paymentTypeId = paymentTypeId,
+            categoryId = categoryId
         )
     }
 
@@ -38,12 +46,16 @@ class AnalyticsViewModelTest {
         }.timeInMillis
     }
 
-    private fun viewModelWith(transactions: List<Transaction>): AnalyticsViewModel {
+    private fun viewModelWith(
+        transactions: List<Transaction>,
+        categories: List<CategoryType> = emptyList(),
+        paymentTypes: List<PaymentType> = emptyList()
+    ): AnalyticsViewModel {
         return AnalyticsViewModel().apply {
             updateInputs(
                 transactions = transactions,
-                categories = emptyList(),
-                paymentTypes = emptyList(),
+                categories = categories,
+                paymentTypes = paymentTypes,
                 currencyId = DEFAULT_CURRENCY_ID,
                 amountFormatPreferences = defaultAmountFormatPreferences
             )
@@ -142,4 +154,100 @@ class AnalyticsViewModelTest {
         assertEquals(0.0f, snapshot.incomeChartPoints[0])
         assertEquals(60.0f, snapshot.incomeChartPoints[1])
     }
+
+    // ── Breakdown identity ────────────────────────────────────────────────────
+    // The donut, its legend dots and its bars now draw each category's own colour, which needs
+    // two things from this layer: the loaded row (a seed constant can never carry a stored colour)
+    // and the colour itself. Both are asserted here rather than left to the renderer.
+
+    @Test
+    fun `a user-created category brings its name and colour into the breakdown`() {
+        // The loaded row is what makes either possible: the breakdown is keyed by id against the
+        // rows the screen passes in, and a user-created category only exists there.
+        val viewModel = viewModelWith(
+            transactions = listOf(transaction(1, dayTimestamp(3), 4_000L, categoryId = 106)),
+            categories = listOf(customCategory(id = 106, name = "Coffee", colorHex = "#D97706"))
+        )
+
+        val row = viewModel.uiState.value.snapshot.allCategoryBreakdown.single()
+
+        assertEquals("Coffee", row.label)
+        assertEquals("#D97706", row.colorHex)
+        assertEquals(false, row.isOther)
+    }
+
+    @Test
+    fun `a seeded category takes its label from its row and carries no colour`() {
+        // The ordinary case, and the one that must not change. A seeded row has no stored colour,
+        // so the chart resolves it from the palette by id at draw time; a value here would mean the
+        // palette had leaked into storage.
+        val viewModel = viewModelWith(
+            transactions = listOf(transaction(1, dayTimestamp(3), 4_000L, categoryId = 1)),
+            categories = listOf(categoryMap.getValue(1))
+        )
+
+        val row = viewModel.uiState.value.snapshot.allCategoryBreakdown.single()
+
+        assertEquals(categoryMap.getValue(1).name, row.label)
+        assertNull(row.colorHex)
+        assertEquals(false, row.isOther)
+    }
+
+    @Test
+    fun `a category with no loaded row stays as Other`() {
+        // A transaction whose category row is gone — the category was deleted, the transaction was
+        // not. The id resolves to nothing, so it must still be groupable as Other rather than
+        // rendering as a blank legend entry wearing a colour it never had.
+        val viewModel = viewModelWith(
+            transactions = listOf(transaction(1, dayTimestamp(3), 4_000L, categoryId = 9_999)),
+            categories = listOf(categoryMap.getValue(1))
+        )
+
+        val row = viewModel.uiState.value.snapshot.allCategoryBreakdown.single()
+
+        assertEquals("", row.label)
+        assertNull(row.colorHex)
+        assertTrue(row.isOther)
+    }
+
+    @Test
+    fun `payment breakdown resolves its row the same way`() {
+        // Payment ids restart at 1, so this also proves the payment breakdown reads the payment
+        // list rather than the category one: id 1 exists in both, and only the right list holds
+        // the wallet the transaction was actually paid with.
+        val viewModel = viewModelWith(
+            transactions = listOf(transaction(1, dayTimestamp(3), 2_500L, paymentTypeId = 7)),
+            paymentTypes = listOf(
+                PaymentType(id = 7, name = "Wallet", iconKey = "payments", colorHex = "#0288D1")
+            )
+        )
+
+        val row = viewModel.uiState.value.snapshot.allPaymentTypeBreakdown.single()
+
+        assertEquals("Wallet", row.label)
+        assertEquals("#0288D1", row.colorHex)
+        assertEquals(false, row.isOther)
+    }
+
+    @Test
+    fun `a seeded payment method takes its label from its row and carries no colour`() {
+        val viewModel = viewModelWith(
+            transactions = listOf(transaction(1, dayTimestamp(3), 2_500L, paymentTypeId = 1)),
+            paymentTypes = listOf(paymentTypeMap.getValue(1))
+        )
+
+        val row = viewModel.uiState.value.snapshot.allPaymentTypeBreakdown.single()
+
+        assertEquals(paymentTypeMap.getValue(1).name, row.label)
+        assertNull(row.colorHex)
+    }
+
+    private fun customCategory(id: Int, name: String, colorHex: String?) = CategoryType(
+        id = id,
+        name = name,
+        iconKey = "shopping_cart",
+        transactionTypeId = 2,
+        colorHex = colorHex,
+        isSystem = false
+    )
 }

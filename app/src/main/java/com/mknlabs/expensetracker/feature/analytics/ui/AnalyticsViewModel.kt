@@ -43,7 +43,15 @@ data class CategoryBreakdownUi(
     val amountDisplay: String,
     val fraction: Float,
     val percentLabel: Int,
-    val colorIndex: Int,
+    /**
+     * The user's own colour for this category, or null when it draws from the palette.
+     *
+     * Carried as the stored string and resolved at draw time, so the donut, the legend dots and
+     * the management grid cannot disagree about what a category looks like — and so a theme
+     * toggle recolours them together rather than freezing whichever theme was active when the
+     * snapshot was built.
+     */
+    val colorHex: String? = null,
     val isOther: Boolean = false
 )
 
@@ -54,7 +62,8 @@ data class PaymentTypeBreakdownUi(
     val amountDisplay: String,
     val fraction: Float,
     val percentLabel: Int,
-    val colorIndex: Int,
+    /** The user's own colour for this payment method; see [CategoryBreakdownUi.colorHex]. */
+    val colorHex: String? = null,
     val icon: ImageVector,
     val isOther: Boolean = false
 )
@@ -285,7 +294,10 @@ private fun buildAnalyticsSnapshot(
         .toList()
         .sortedByDescending { it.second }
     val totalExpenseForShare = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
-    val allBreakdown = categoryTotals.mapIndexed { index, (categoryId, amount) ->
+    // `categoryMap` here is the **loaded rows**, the local built above — not the seeded constant of
+    // the same name, which it shadows. That distinction is the whole reason a row's own colour can
+    // reach the chart: the constant is keyed by id and can never carry a stored value.
+    val allBreakdown = categoryTotals.map { (categoryId, amount) ->
         val category = categoryMap[categoryId]
         CategoryBreakdownUi(
             id = categoryId,
@@ -294,7 +306,9 @@ private fun buildAnalyticsSnapshot(
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
-            colorIndex = index
+            // The user's pick, if they made one. A seeded category has none and resolves from the
+            // palette at draw time, which is what keeps the two in step across a theme toggle.
+            colorHex = category?.colorHex
         )
     }
     val breakdown = allBreakdown.take(3)
@@ -306,7 +320,8 @@ private fun buildAnalyticsSnapshot(
         .toList()
         .sortedByDescending { it.second }
     
-    val allPaymentBreakdown = paymentTotals.mapIndexed { index, (paymentId, amount) ->
+    // The same lookup against the loaded payment rows, and for the same reason.
+    val allPaymentBreakdown = paymentTotals.map { (paymentId, amount) ->
         val paymentType = paymentTypeMap[paymentId]
         PaymentTypeBreakdownUi(
             id = paymentId,
@@ -315,7 +330,7 @@ private fun buildAnalyticsSnapshot(
             amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
             fraction = (amount / totalExpenseForShare).toFloat(),
             percentLabel = ((amount / totalExpenseForShare) * 100).toInt(),
-            colorIndex = index,
+            colorHex = paymentType?.colorHex,
             icon = paymentType?.icon ?: Icons.Filled.Analytics
         )
     }

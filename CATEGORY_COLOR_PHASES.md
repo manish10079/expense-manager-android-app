@@ -161,14 +161,25 @@ do not "discover" it twice.
 
 | Surface | Reads | Consequence |
 |---|---|---|
-| `AnalyticsScreen` donut, legend, top transactions | `categoryMap[...]` | needs the real rows before phase 6 can colour it |
-| `AnalyticsViewModel` breakdown rows | `categoryMap[...]` | same |
+| `AnalyticsScreen` donut, legend, top transactions | the rows, via the snapshot | fine — see the correction below |
 | `CategoryManagementViewModel` built-in lists | `categoryMap.values` | harmless — built-ins are never recoloured by design |
 | `SortFilterModal` chip lists | `categoryMap.values` | chips will show palette colours only |
 | `AddTransactionScreen` / `BudgetAndRecurringScreen` default parameters | `categoryMap.values` | harmless — previews only; the real call sites pass database rows |
 
-The fix where it matters is not to make the constant mutable but to pass the loaded rows in,
-which is what the real call sites already do.
+**Correction, made while implementing phase 6.** The analytics rows were listed here as reading the
+constant. They are not: `buildAnalyticsSnapshot` opens with
+`val categoryMap = categories.associateBy { it.id }`, a **local** that shadows the imported constant
+of the same name for the whole function body. Everything below that line — the breakdown labels,
+the `isOther` flags, the top-spending categories — was therefore already resolving against the
+loaded rows, and the only thing missing for colour was carrying the row's `colorHex` through to the
+donut. The table above was written from the call sites without reading the shadowing declaration,
+which is exactly how a name that means two things in one file misleads a reader; the same local
+naming appears for `paymentTypeMap`.
+
+Where the constant *is* genuinely read — the chip lists and the built-in management cards — it is
+harmless for the reason given: those rows are never recoloured, because the picker is scoped to
+user-created items. The general rule still holds: pass the loaded rows to anything that draws a
+user's own data, and read the constant only for a seeded list.
 
 ---
 
@@ -233,7 +244,8 @@ README sync.
 **Parent plan:** §8.
 
 - `categoryBreakdownColor` / `paymentBreakdownColor` become identity lookups.
-- `seriesColor` survives only for the index-past-the-ramp case it already documents.
+- ~~`seriesColor` survives only for the index-past-the-ramp case it already documents.~~
+  **Superseded — it was deleted; see note 1 below.**
 - A comment at the call site records the trade-off: the palette repeats hues deliberately
   (Travel/Insurance/Transport share `#0288D1`; Bills/Groceries/Donations share `#059669`), so
   two adjacent slices can now match — acceptable because every legend dot carries a text
@@ -241,6 +253,26 @@ README sync.
 
 **Exit criteria:** compile green; the light and dark donuts checked on a device before
 committing.
+
+**What was decided while doing it**
+
+1. **`seriesColor` was deleted, not kept.** The plan said it survives for the index-past-the-ramp
+   case, but once both breakdown colours are identity lookups nothing calls it, and an identity
+   lookup cannot run out: a category id is either in the palette or it is not, and the not-in case
+   takes the brand fallback ink. Keeping the helper as dead code would have left a second, silent
+   colour rule in the file for the next reader to find. `chartSeries` / `chartOther` stay in
+   `Color.kt` as spec tokens the parity test pins, and `chartOther`'s KDoc now says the donut no
+   longer reaches it.
+2. **`colorIndex` was removed from both breakdown models.** It existed only to index the ramp, so
+   leaving it would have been a field that means nothing.
+3. **The device check is a test, not an eyeball.** `AnalyticsDonutColorRenderTest` renders the real
+   donut through the real theme and reads the pixels back: Health's dark `#FF5C5C` for a seeded
+   slice, a picked `#9333EA` for a stored one (against an id the palette has never heard of, so
+   agreement with a palette entry cannot pass it), payment 5's `#4B5563` with category 5's
+   `#DC2626` asserted *absent*, and one negative case that the stored colour does not also leave
+   the slice in the palette tone. That last pair is what a presence-only test would have missed.
+   `SpendingDonutChart` / `PaymentDonutChart` became `internal` to make that possible; the whole
+   screen could not host it, because it composes a gated action that needs a Hilt container.
 
 **Commit:** `feat(ui): the analytics donut uses category identity colours` + minor bump +
 README sync.
