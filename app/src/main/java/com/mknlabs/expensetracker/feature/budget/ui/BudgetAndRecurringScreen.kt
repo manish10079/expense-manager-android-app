@@ -88,6 +88,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.menu
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -165,6 +166,9 @@ import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -919,16 +923,16 @@ private fun BudgetPeriodRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PeriodChip(
-            label = thisMonthLabel,
-            isSelected = selectedPeriod == BudgetPeriodFilter.ThisMonth,
-            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-            onClick = { onPeriodSelected(BudgetPeriodFilter.ThisMonth) }
-        )
-        PeriodChip(
             label = lastMonthLabel,
             isSelected = selectedPeriod == BudgetPeriodFilter.LastMonth,
             textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
             onClick = { onPeriodSelected(BudgetPeriodFilter.LastMonth) }
+        )
+        PeriodChip(
+            label = thisMonthLabel,
+            isSelected = selectedPeriod == BudgetPeriodFilter.ThisMonth,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.ThisMonth) }
         )
         PeriodChip(
             label = stringResource(id = R.string.label_custom_month_caps),
@@ -2287,11 +2291,24 @@ private fun RecurringExpenseCard(
             }
 
             Switch(
+                modifier = Modifier.scale(0.9f),
                 checked = expense.isEnabled,
                 onCheckedChange = onEnabledChange,
+                thumbContent = if (expense.isEnabled) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                            tint = MaterialTheme.colorScheme.switchOnTick
+                        )
+                    }
+                } else {
+                    null
+                },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onCta,
-                    checkedTrackColor = MaterialTheme.colorScheme.accentInk,
+                    checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
+                    checkedTrackColor = MaterialTheme.colorScheme.switchOnTrack,
                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
                     uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
                     uncheckedBorderColor = MaterialTheme.colorScheme.outline

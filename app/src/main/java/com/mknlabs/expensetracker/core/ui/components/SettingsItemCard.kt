@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.outlined.Info
@@ -36,8 +37,9 @@ import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import com.mknlabs.expensetracker.core.ui.theme.cta
-import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,6 +51,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -219,12 +222,25 @@ fun SettingsItemCard(
                     SettingsItemType.Toggle -> {
                         CompositionLocalProvider(LocalRippleConfiguration provides null) {
                             Switch(
+                                modifier = Modifier.scale(0.9f),
                                 checked = isChecked,
                                 onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
                                 enabled = finalEnabled,
+                                thumbContent = if (isChecked) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Filled.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                            tint = colorScheme.switchOnTick
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = colorScheme.onCta,
-                                    checkedTrackColor = colorScheme.cta,
+                                    checkedThumbColor = colorScheme.switchOnThumb,
+                                    checkedTrackColor = colorScheme.switchOnTrack,
                                     checkedBorderColor = Color.Transparent,
                                     uncheckedThumbColor = MaterialTheme.colorScheme.textTertiary,
                                     uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),

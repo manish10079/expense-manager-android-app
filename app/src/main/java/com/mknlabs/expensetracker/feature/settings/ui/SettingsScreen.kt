@@ -232,7 +232,7 @@ fun SettingsScreenContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             AdaptiveContent(
                 maxWidth = 640.dp,
@@ -463,15 +463,11 @@ private fun SettingsSectionContainer(
                     SettingsRowItemView(data = item)
 
                     if (index < items.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 72.dp, end = 16.dp),
-                            thickness = 1.dp,
-                            // The hairline does the row separation, so in light it
-                            // is the divider colour at full strength rather than a
-                            // wash of it; dark keeps the half-strength variant it has
-                            // always drawn.
-                            color = if (isDark) colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                    else colorScheme.outline
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                                .background(colorScheme.background)
                         )
                     }
                 }

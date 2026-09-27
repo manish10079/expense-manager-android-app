@@ -1,15 +1,15 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 /**
  * A container that groups multiple settings items into a single card.
@@ -38,7 +38,7 @@ fun SettingsGroup(
 
 /**
  * A thin divider to visually separate items within a [SettingsGroup].
- * Uses 72.dp start inset to align directly beneath the text block without crossing the icon.
+ * Full-bleed across the group card, including under the leading icon.
  *
  * Light draws it at the divider colour's full strength, which is the specified #E8EBEF
  * line; the half-strength wash it used to be is what dark keeps.
@@ -47,16 +47,11 @@ fun SettingsGroup(
 fun SettingsGroupDivider(
     modifier: Modifier = Modifier
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    HorizontalDivider(
-        modifier = modifier.padding(start = 72.dp, end = 16.dp),
-        thickness = 1.dp,
-        color = if (colorScheme.isDark) {
-            colorScheme.outlineVariant.copy(alpha = 0.5f)
-        } else {
-            colorScheme.outline
-        }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(3.dp)
+            .background(MaterialTheme.colorScheme.background)
     )
 }
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DeleteOutline
@@ -87,6 +88,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
@@ -160,6 +162,9 @@ import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.hairline
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -1365,6 +1370,7 @@ private fun RecurringTransactionSection(
             }
 
             androidx.compose.material3.Switch(
+                modifier = Modifier.scale(0.9f),
                 checked = isEnabled,
                 onCheckedChange = { wantEnabled ->
                     if (wantEnabled && ruleCountGate !is AccessStatus.Granted) {
@@ -1378,9 +1384,21 @@ private fun RecurringTransactionSection(
                         onEnabledChange(wantEnabled)
                     }
                 },
+                thumbContent = if (isEnabled) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize),
+                            tint = colorScheme.switchOnTick
+                        )
+                    }
+                } else {
+                    null
+                },
                 colors = androidx.compose.material3.SwitchDefaults.colors(
-                    checkedThumbColor = colorScheme.onCta,
-                    checkedTrackColor = colorScheme.cta,
+                    checkedThumbColor = colorScheme.switchOnThumb,
+                    checkedTrackColor = colorScheme.switchOnTrack,
                     uncheckedThumbColor = colorScheme.outline,
                     uncheckedTrackColor = colorScheme.surfaceVariant
                 )

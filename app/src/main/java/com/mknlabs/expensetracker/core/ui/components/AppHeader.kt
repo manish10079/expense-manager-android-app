@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,18 +12,19 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowBendUpLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,9 +35,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
-import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 
 /**
@@ -61,17 +61,16 @@ fun AppHeader(
         modifier = modifier
             .fillMaxWidth()
             .offset(y = -effectiveTopOffset),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         BackButton(onClick = onBackClick)
-
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(5.dp))
 
         Text(
             text = title,
             // The page's own ink in light; in dark the dedicated header-title token
             // (the light field, used as ink on the near-black page).
-            color = MaterialTheme.colorScheme.appHeaderTitle,
+            color = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
             maxLines = titleMaxLines,
             overflow = TextOverflow.Ellipsis,
             softWrap = true,
@@ -91,31 +90,23 @@ fun AppHeader(
 
 @Composable
 private fun BackButton(onClick: () -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
-
     Box(
         modifier = Modifier
-            .size(48.dp), // Outer padding for accessibility
+            .size(48.dp)
+            .background(Color.Transparent)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp) // The visible circle
-                .clip(CircleShape)
-                // The spec's secondary surface in light; the quarter-strength wash this
-                // used to be vanished into the grey field. Dark is unchanged.
-                .background(if (isDark) colorScheme.surfaceVariant.copy(alpha = 0.3f) else CardLight)
-                .clickable(onClick = onClick), // Ripple now limited to 40dp
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = stringResource(R.string.desc_back),
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+        Icon(
+            imageVector = PhosphorIcons.Regular.ArrowBendUpLeft,
+            contentDescription = stringResource(R.string.desc_back),
+            tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 

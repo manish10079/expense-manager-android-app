@@ -154,16 +154,18 @@ private fun SecurityPrivacyContent(
                 title = stringResource(R.string.title_security_privacy),
                 onBackClick = onBackClick
             )
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                if (isAdsEnabled) {
+                    item {
+                        AdContainer(isAdsEnabled = true) {
+                            NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                        }
                     }
                 }
 

@@ -488,6 +488,22 @@ val ColorScheme.cta: Color
 val ColorScheme.onCta: Color
     get() = OnCta
 
+// Switch ON only (M3 mock). Off colours stay with each Switch call site.
+// Light: track #6750A4, thumb #FFFFFF, tick #21005D.
+// Dark:  track #D0BCFF, thumb #381E72, tick #E8DEF8.
+internal val SwitchOnTrackLight = Color(0xFF6750A4)
+internal val SwitchOnTrackDark = Color(0xFFD0BCFF)
+internal val SwitchOnThumbLight = Color(0xFFFFFFFF)
+internal val SwitchOnThumbDark = Color(0xFF381E72)
+internal val SwitchOnTickLight = Color(0xFF21005D)
+internal val SwitchOnTickDark = Color(0xFFE8DEF8)
+val ColorScheme.switchOnTrack: Color
+    get() = if (isDark) SwitchOnTrackDark else SwitchOnTrackLight
+val ColorScheme.switchOnThumb: Color
+    get() = if (isDark) SwitchOnThumbDark else SwitchOnThumbLight
+val ColorScheme.switchOnTick: Color
+    get() = if (isDark) SwitchOnTickDark else SwitchOnTickLight
+
 // -- Brand budget, per screen -------------------------------------------------
 // The spec caps brand colour at 30% of a screen's area, and its own accounting lands
 // the home screen at 15-25%: hero rail + bloom ~9%, FAB ~2%, active nav pill ~3%,

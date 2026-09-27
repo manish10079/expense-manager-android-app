@@ -147,6 +147,17 @@ class TokenParityTest {
         assertEquals(Color(0x1A6A4DFF), light.glow)       // --glow light
     }
 
+
+    @Test
+    fun `switch on track thumb and tick match the M3 mock`() {
+        assertEquals(Color(0xFF6750A4), light.switchOnTrack)
+        assertEquals(Color(0xFFFFFFFF), light.switchOnThumb)
+        assertEquals(Color(0xFF21005D), light.switchOnTick)
+        assertEquals(Color(0xFFD0BCFF), dark.switchOnTrack)
+        assertEquals(Color(0xFF381E72), dark.switchOnThumb)
+        assertEquals(Color(0xFFE8DEF8), dark.switchOnTick)
+    }
+
     @Test
     fun `tab switcher selected fill and ink are the dark accent at 20 and 90 percent in both themes`() {
         assertEquals(Color(0x339E84FF), dark.tabSwitcherSelectedFill)
