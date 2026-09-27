@@ -147,6 +147,14 @@ class TokenParityTest {
         assertEquals(Color(0x1A6A4DFF), light.glow)       // --glow light
     }
 
+    @Test
+    fun `tab switcher selected fill and ink are the dark accent at 20 and 90 percent in both themes`() {
+        assertEquals(Color(0x339E84FF), dark.tabSwitcherSelectedFill)
+        assertEquals(Color(0x339E84FF), light.tabSwitcherSelectedFill)
+        assertEquals(Color(0xE69E84FF), dark.tabSwitcherSelectedInk)
+        assertEquals(Color(0xE69E84FF), light.tabSwitcherSelectedInk)
+    }
+
     // ── Ramps ──────────────────────────────────────────────────────────────────
 
     @Test
@@ -178,6 +186,13 @@ class TokenParityTest {
     }
 
     // ── The membership exception ───────────────────────────────────────────────
+
+    @Test
+    fun `app header title is the light field in dark and primary text in light`() {
+        assertEquals(Color(0xFFF7F8FA), dark.appHeaderTitle)
+        assertEquals(Color(0xFF1F2937), light.appHeaderTitle)
+        assertEquals(AppHeaderTitleDark, dark.appHeaderTitle)
+    }
 
     @Test
     fun `premium card uses the CTA ramp from the master table`() {

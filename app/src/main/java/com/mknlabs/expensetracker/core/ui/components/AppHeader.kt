@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,9 +32,9 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
-import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
+import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 
@@ -54,7 +53,6 @@ fun AppHeader(
 ) {
     // Shared tier logic (see rememberFontScaleInfo / maxLinesForTier) — never
     // multiply sizes by the raw fontScale (non-linear on Android 14+).
-    val isDark = MaterialTheme.colorScheme.isDark
     val fontScaleInfo = rememberFontScaleInfo()
     val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
     val effectiveTopOffset = if (fontScaleInfo.tier == FontScaleTier.Huge) 0.dp else contentTopOffset
@@ -71,9 +69,9 @@ fun AppHeader(
 
         Text(
             text = title,
-            // The page's own ink in light — a title rather than an accent on one — and
-            // the brand purple it has always been in dark.
-            color = if (isDark) Color.White else TextPrimaryLight,
+            // The page's own ink in light; in dark the dedicated header-title token
+            // (the light field, used as ink on the near-black page).
+            color = MaterialTheme.colorScheme.appHeaderTitle,
             maxLines = titleMaxLines,
             overflow = TextOverflow.Ellipsis,
             softWrap = true,

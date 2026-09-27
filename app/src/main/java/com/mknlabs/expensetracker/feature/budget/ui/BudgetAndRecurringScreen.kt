@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -100,7 +99,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -116,8 +114,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.outlined.Info
@@ -148,8 +144,10 @@ import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
+import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
-import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.theme.budgetOnTrack
@@ -157,8 +155,6 @@ import com.mknlabs.expensetracker.core.ui.theme.budgetNearLimit
 import com.mknlabs.expensetracker.core.ui.theme.budgetOver
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
-import com.mknlabs.expensetracker.core.ui.components.tabBadgeSlotWidth
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -396,17 +392,30 @@ private fun BudgetAndRecurringContent(
                 )
             }
 
-            // Tab Row
             Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
-                BudgetTabRow(
-                    selectedTab = uiState.selectedTab,
-                    // Counted from the very lists the tabs render, so the badge can never
-                    // disagree with the cards below it — including the budget tab's
-                    // period filter, which changes how many budgets are on screen.
-                    budgetCount = uiState.categoryBudgets.size,
-                    recurringCount = uiState.recurringExpenses.size,
-                    isProUser = isProUser,
-                    onTabSelected = onSelectTab
+                AnimatedTabSwitcher(
+                    items = listOf(
+                        TabItem(
+                            id = BudgetTab.Budgets,
+                            label = stringResource(id = R.string.label_tab_budgets),
+                            badgeCount = tabBadgeCount(
+                                count = uiState.categoryBudgets.size,
+                                isSelected = uiState.selectedTab == BudgetTab.Budgets,
+                                isProUser = isProUser
+                            )
+                        ),
+                        TabItem(
+                            id = BudgetTab.Recurring,
+                            label = stringResource(id = R.string.label_tab_recurring),
+                            badgeCount = tabBadgeCount(
+                                count = uiState.recurringExpenses.size,
+                                isSelected = uiState.selectedTab == BudgetTab.Recurring,
+                                isProUser = isProUser
+                            )
+                        )
+                    ),
+                    selectedItemId = uiState.selectedTab,
+                    onItemSelected = onSelectTab
                 )
             }
 
@@ -2685,153 +2694,6 @@ private fun BudgetAndRecurringScreenPreview() {
             onCopyAllBudgets = {},
             onCopySelectedBudgets = {}
         )
-    }
-}
-
-@Composable
-private fun BudgetTabRow(
-    selectedTab: BudgetTab,
-    budgetCount: Int,
-    recurringCount: Int,
-    isProUser: Boolean,
-    onTabSelected: (BudgetTab) -> Unit
-) {
-    val tabs = remember { BudgetTab.entries }
-    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
-    
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(26.dp))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / tabs.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "tab_indicator_offset"
-        )
-
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(brandGradient())
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            tabs.forEach { tab ->
-                BudgetTabChip(
-                    label = when (tab) {
-                        BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
-                        BudgetTab.Recurring -> stringResource(id = R.string.label_tab_recurring)
-                    },
-                    count = tabBadgeCount(
-                        count = when (tab) {
-                            BudgetTab.Budgets -> budgetCount
-                            BudgetTab.Recurring -> recurringCount
-                        },
-                        isSelected = tab == selectedTab,
-                        isProUser = isProUser
-                    ),
-                    selected = tab == selectedTab,
-                    onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BudgetTabChip(
-    label: String,
-    count: Int?,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val animatedColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "tab_text_color"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // The badge is only ever passed for the selected tab, so whatever is drawn here sits
-        // on the brand-gradient indicator where the CTA's white ink is the readable colour. Its slot is
-        // emitted either way, so the label never moves when the badge comes or goes.
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = label.uppercase(),
-                color = animatedColor,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
-            )
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            TabBadgeSlot(count = count)
-        }
-    }
-}
-
-/**
- * The badge's place in a tab pill, occupied whether or not there is a badge to draw.
- *
- * Keeping the slot at a fixed width is what stops the label from being re-centred and jumping
- * sideways every time a badge appears or vanishes, which happens on each tab switch: the count
- * is only ever supplied for the selected tab. The badge fades into space that is already there.
- *
- * The width follows the system font scale, because the badge is text and would otherwise be
- * clipped at larger scales for the sake of a number that fits at the default one. The fade is
- * short so it reads as the number arriving, not as a second animation competing with the pill
- * sliding underneath it.
- *
- * Deliberately not inlined into [BudgetTabChip]'s `Row`: inside a row's content lambda Compose
- * resolves `AnimatedVisibility` to its `RowScope` overload, which is not what is wanted here.
- */
-@Composable
-private fun TabBadgeSlot(count: Int?) {
-    Box(
-        modifier = Modifier.width(tabBadgeSlotWidth()),
-        contentAlignment = Alignment.Center
-    ) {
-        AnimatedVisibility(
-            visible = count != null,
-            enter = fadeIn(animationSpec = tween(durationMillis = 160)) +
-                scaleIn(initialScale = 0.7f, animationSpec = tween(durationMillis = 160)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                scaleOut(targetScale = 0.7f, animationSpec = tween(durationMillis = 160)),
-            label = "tab_badge"
-        ) {
-            // Only reachable with a count, and it is the same badge the pill drew before: a null
-            // count leaves the reserved slot above empty.
-            if (count != null) {
-                TabCountBadge(count = count)
-            }
-        }
     }
 }
 

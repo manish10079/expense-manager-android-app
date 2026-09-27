@@ -1304,9 +1304,9 @@
     <string name="fallback_desc_pay_3">Bank transfers</string>
     <string name="fallback_desc_pay_4">Debit &amp; credit cards</string>
     <string name="fallback_desc_pay_5">Flexible payment mode</string>
-    <string name="label_income_categories_count">%1$d income categories</string>
-    <string name="label_expense_categories_count">%1$d expense categories</string>
-    <string name="label_payment_methods_count">%1$d payment methods</string>
+    <string name="label_income_categories_count">%1$d Income Categories</string>
+    <string name="label_expense_categories_count">%1$d Expense Categories</string>
+    <string name="label_payment_methods_count">%1$d Payment Methods</string>
 
     <!-- Budget Status & Labels -->
     <string name="label_no_budget">NO BUDGET</string>

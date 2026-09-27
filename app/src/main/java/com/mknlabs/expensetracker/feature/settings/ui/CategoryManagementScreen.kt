@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -184,7 +186,7 @@ private fun CategoryManagementContent(
                 onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedTabSwitcher(
                 items = CategoryManagementTab.entries.map { TabItem(it, stringResource(it.titleRes)) },
@@ -220,6 +222,15 @@ private fun CategoryManagementContent(
                     CategoryManagementTab.Payment -> uiState.paymentItems
                 }
 
+                val gridState = rememberLazyGridState()
+                // A newly added card is prepended. LazyGrid keeps the previously
+                // visible keys on screen, so the viewport stays on the built-ins
+                // and the new row sits above the fold. Jump to the real top when
+                // the leading item changes.
+                LaunchedEffect(animatingItems.firstOrNull()?.id) {
+                    gridState.scrollToItem(0)
+                }
+
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
                         text = when (currentTab) {
@@ -244,6 +255,7 @@ private fun CategoryManagementContent(
                     // count that would strand empty space on a tablet.
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 150.dp),
+                        state = gridState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 120.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp),

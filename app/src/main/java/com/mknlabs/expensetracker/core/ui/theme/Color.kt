@@ -72,6 +72,11 @@ val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
 // exact hex is the requirement; every light surface in the app reads from here.
 val BackgroundLight = Color(0xFFF7F8FA)   // app background, every screen
 
+// AppHeader title ink in dark. Same hex as the light field, but a different role:
+// pale title ink on the near-black page rather than the page itself. Named separately
+// so the header title can move without dragging every screen's background with it.
+val AppHeaderTitleDark = Color(0xFFF7F8FA)
+
 val SurfaceLight = Color(0xFFFFFFFF)      // primary card surface
 val CardLight = Color(0xFFF1F2F4)         // chips, segmented controls, search bars
 
@@ -342,6 +347,13 @@ internal val ExpenseTrackerLightColorScheme: ColorScheme = lightColorScheme(
 val ColorScheme.isDark: Boolean
     get() = background.luminance() < 0.5f
 
+/**
+ * AppHeader title ink. Light keeps the page's primary text; dark uses
+ * [AppHeaderTitleDark] so the title is the light field on the near-black page.
+ */
+val ColorScheme.appHeaderTitle: Color
+    get() = if (isDark) AppHeaderTitleDark else TextPrimaryLight
+
 val ColorScheme.featureGateLock: Color
     get() = FeatureGateLockGold
 
@@ -443,6 +455,19 @@ internal val AccentInkDark = Color(0xFF9E84FF)
 
 val ColorScheme.accentInk: Color
     get() = if (isDark) AccentInkDark else AccentInkLight
+
+// ── AnimatedTabSwitcher selected state ───────────────────────────────────────
+// Both themes use the dark accent (#9E84FF) so the pill reads as one identity
+// across the light/dark switch. Fill is a 20% tint; the label is the same hue
+// at 90% so it stays an ink on that wash rather than a solid block.
+val TabSwitcherSelectedFill = Color(0x339E84FF) // #9E84FF at 20%
+val TabSwitcherSelectedInk = Color(0xE69E84FF)  // #9E84FF at 90%
+
+val ColorScheme.tabSwitcherSelectedFill: Color
+    get() = TabSwitcherSelectedFill
+
+val ColorScheme.tabSwitcherSelectedInk: Color
+    get() = TabSwitcherSelectedInk
 
 // ── CTA fill ──────────────────────────────────────────────────────────────
 // The mock's --cta is a fill, never an ink: #5838FA in dark, and byte-identical to light's

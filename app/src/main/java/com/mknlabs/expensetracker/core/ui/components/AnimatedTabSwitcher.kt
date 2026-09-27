@@ -32,14 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedFill
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
@@ -94,7 +94,7 @@ fun <T> AnimatedTabSwitcher(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(pillRadius))
-                    .background(brandGradient())
+                    .background(MaterialTheme.colorScheme.tabSwitcherSelectedFill)
             )
         }
 
@@ -107,7 +107,7 @@ fun <T> AnimatedTabSwitcher(
                 
                 val animatedColor by animateColorAsState(
                     targetValue = when {
-                        selected -> MaterialTheme.colorScheme.onCta
+                        selected -> MaterialTheme.colorScheme.tabSwitcherSelectedInk
                         item.isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -128,24 +128,35 @@ fun <T> AnimatedTabSwitcher(
                         .padding(vertical = verticalPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = item.label,
-                            color = animatedColor,
-                            fontSize = fontSize,
-                            fontWeight = FontWeight.Bold,
-                            // Wrap instead of truncate at large font scales; the
-                            // pill/container grow via IntrinsicSize.Min.
-                            maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                        if (item.isLocked) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = stringResource(R.string.content_desc_locked_formatted, item.label),
-                                tint = MaterialTheme.colorScheme.featureGateLock,
-                                modifier = Modifier.size(if (compact) 10.dp else 12.dp)
+                    // Wrap-content so the badge pins to the label, not the tab's far
+                    // edge. The outer Box keeps that cluster in the horizontal centre.
+                    Box {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.label,
+                                color = animatedColor,
+                                fontSize = fontSize,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                                textAlign = TextAlign.Center
+                            )
+                            if (item.isLocked) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = stringResource(R.string.content_desc_locked_formatted, item.label),
+                                    tint = MaterialTheme.colorScheme.featureGateLock,
+                                    modifier = Modifier.size(if (compact) 10.dp else 12.dp)
+                                )
+                            }
+                        }
+                        val badgeCount = item.badgeCount
+                        if (badgeCount != null && badgeCount > 0) {
+                            TabCountBadge(
+                                count = badgeCount,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 8.dp, y = (-8).dp)
                             )
                         }
                     }
