@@ -80,6 +80,15 @@ class PaymentMethodRepository @Inject constructor(
         )
     }
 
+    override suspend fun updatePaymentMethodColor(id: Int, colorHex: String?) = withContext(Dispatchers.IO) {
+        // Normalised here for the same reason as the category path; see [CategoryRepository].
+        dao.updateColorHex(
+            id = id,
+            colorHex = normalizeColorHexOrNull(colorHex),
+            updatedAt = System.currentTimeMillis()
+        )
+    }
+
     override suspend fun deleteCustomPaymentMethod(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
     }

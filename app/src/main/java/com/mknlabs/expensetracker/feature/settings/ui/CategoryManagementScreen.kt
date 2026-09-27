@@ -31,8 +31,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -89,6 +91,7 @@ import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
+import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 
 
 
@@ -148,7 +151,11 @@ fun CategoryManagementScreen(
         onBackClick = onBackClick,
         onDeleteCustomCategory = onDeleteCustomCategory,
         onDeleteCustomPaymentType = onDeleteCustomPaymentType,
-        onAddCategoryClick = onAddCategoryClick
+        onAddCategoryClick = onAddCategoryClick,
+        // Recolouring is the ViewModel's job rather than a parameter threaded from the navigation
+        // host, the way deletion is: it writes through the same repositories this screen already
+        // observes, so the grid re-renders from the row rather than from a local guess.
+        onRecolour = categoryManagementViewModel::updateColor
     )
 }
 
@@ -161,7 +168,8 @@ private fun CategoryManagementContent(
     onBackClick: () -> Unit,
     onDeleteCustomCategory: (Int) -> Unit,
     onDeleteCustomPaymentType: (Int) -> Unit,
-    onAddCategoryClick: (CategoryManagementTab) -> Unit
+    onAddCategoryClick: (CategoryManagementTab) -> Unit,
+    onRecolour: (CategoryManagementItemUi, String?) -> Unit = { _, _ -> }
 ) {
     val activeTab = uiState.selectedTab
     val coroutineScope = rememberCoroutineScope()
@@ -169,6 +177,12 @@ private fun CategoryManagementContent(
     // Delete confirmation dialog state
     var showDeleteDialog by remember { mutableStateOf(false) }
     var pendingDeleteItem by remember { mutableStateOf<Pair<CategoryManagementItemUi, CategoryManagementTab>?>(null) }
+
+    // The card whose colour is being changed, or null when the sheet is closed. Held here rather
+    // than in the ViewModel because it is view state — which card the user tapped — and holding the
+    // whole item means the sheet shows the row's current colour without a second lookup that could
+    // disagree with the grid behind it.
+    var colorEditingItem by remember { mutableStateOf<CategoryManagementItemUi?>(null) }
 
     Box(
         modifier = Modifier
@@ -274,6 +288,7 @@ private fun CategoryManagementContent(
                         ) { item ->
                             CategoryManagementCard(
                                 item = item,
+                                onClick = { colorEditingItem = item },
                                 onDeleteClick = {
                                     pendingDeleteItem = Pair(item, currentTab)
                                     showDeleteDialog = true
@@ -353,6 +368,78 @@ private fun CategoryManagementContent(
             }
         )
     }
+
+    // Recolour sheet. Dismissed before the write is dispatched, so the sheet is not left on screen
+    // waiting for a database round trip — the card behind it updates from the observed row.
+    colorEditingItem?.let { item ->
+        CategoryColorSheet(
+            item = item,
+            onDismiss = { colorEditingItem = null },
+            onColorSelected = { colorHex ->
+                onRecolour(item, colorHex)
+                colorEditingItem = null
+            }
+        )
+    }
+}
+
+/**
+ * The recolour sheet: the same swatch row the create screen uses, over one existing row.
+ *
+ * It applies on tap and closes, rather than offering a Save. There is one setting here and the
+ * choice of a swatch *is* the decision — a confirm button would only add a way to leave with the
+ * tap undone, which is not a state a user can be in on purpose. The grid behind re-renders from the
+ * observed row, so what is on screen after the tap is what was stored.
+ *
+ * The default swatch is the way back: it clears the override and returns the row to the palette
+ * colour for its id, which is also why the sheet works the same for a seeded row and a
+ * user-created one.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryColorSheet(
+    item: CategoryManagementItemUi,
+    onDismiss: () -> Unit,
+    onColorSelected: (String?) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.sheet,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // The row's own name, not a generic title: with the sheet open over a grid of fifteen
+            // cards, "Change color" alone would not say which one is being changed.
+            Text(
+                text = item.title,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = stringResource(R.string.msg_change_color_hint),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            CategoryColorRow(
+                selectedColorHex = item.colorHex,
+                onColorSelected = onColorSelected
+            )
+        }
+    }
 }
 
 @Composable
@@ -378,6 +465,7 @@ private fun BoxScope.CategoryManagementGlow() {
 @Composable
 private fun CategoryManagementCard(
     item: CategoryManagementItemUi,
+    onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     // The card is where a user checks that the colour they picked for their new category is
@@ -395,7 +483,12 @@ private fun CategoryManagementCard(
             .fillMaxWidth()
             // A floor rather than a fixed height, so cards sharing a grid row agree on a
             // size instead of each hugging its own title length.
-            .heightIn(min = 142.dp),
+            .heightIn(min = 142.dp)
+            // Tapping the card changes its colour, which is the only edit a built-in row has:
+            // the name and the icon of a seeded category are the app's, and the colour is the
+            // part the user owns. The 'x' stays a separate target for the rows that may be
+            // deleted, so "open the colour sheet" and "delete this" cannot be confused.
+            .clickable(onClick = onClick),
         // The gradient is the dark surface and this card's only fill, so the container
         // beneath it stays transparent; light takes the standard white card.
         brush = darkOnlyGradient(standardCardGradient()),

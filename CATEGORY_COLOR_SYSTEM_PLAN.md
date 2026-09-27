@@ -20,8 +20,10 @@ colour for the categories and payment methods they create themselves.
    recorded exception, not an oversight. See §9.
 4. **A picked colour adapts per theme.** One hex is stored, and the renderer adjusts it
    for a theme it does not clear. See §4.
-5. **The picker is scoped to user-created items**, which is what keeps the initializer in
-   §6 from ever fighting the user.
+5. ~~**The picker is scoped to user-created items**, which is what keeps the initializer in
+   §6 from ever fighting the user.~~ **Superseded.** Seeded rows can be recoloured too; the
+   initializer was taught to carry the stored colour over instead. See §6, which records both
+   the decision that was taken and why the other one won.
 
 ---
 
@@ -234,9 +236,28 @@ hex; the renderer adapts it per theme as described in §4.
 
 ### Recolouring an existing category
 
-There is no edit path today — categories support create and delete only
-(`CategoryDao` has `softDelete` guarded by `is_system = 0`, and no update). `@Upsert`
-means adding one is small, but see the landmine below before allowing it on seeded rows.
+**Implemented** (phase 7). The screen has an edit path for the colour and only the colour:
+
+- `CategoryDao.updateColorHex` / `PaymentMethodDao.updateColorHex` — a targeted `UPDATE` that
+  moves `color_hex`, `updated_at` and `sync_state`, and deliberately carries **no** `is_system = 0`
+  guard. That guard stays on `softDelete`, which is the distinction the whole phase turns on: a
+  name and an icon belong to the app, a colour is a preference *about* the row.
+- `CategoryRepository.updateCategoryColor` / `PaymentMethodRepository.updatePaymentMethodColor`,
+  normalising through `normalizeColorHexOrNull` exactly as the create path does — the seeder now
+  copies this column straight back onto the row on every launch, so an unnormalised write would be
+  re-persisted nightly rather than corrected.
+- `CategoryManagementViewModel.updateColor(item, colorHex)`, which takes the whole item so the
+  category-versus-payment decision stays in one place (both are keyed from 1).
+- A recolour sheet on the management screen, opened by tapping any card, using the same
+  `CategoryColorRow` the create screen uses — so the palette and the stored value cannot drift
+  between the screen that creates and the one that edits. Tapping a swatch applies and closes;
+  the default swatch clears the override.
+
+The grid had to change to make this visible: it used to take its built-in cards from the
+`categoryMap` constant, which is keyed by id and can never carry a value, so a recoloured built-in
+would have drawn as uncoloured until the screen was reopened. Both lists now come from
+`observeActiveCategories()` / `observeActivePaymentMethods()` — the active rows, seeded ones
+included — split on `isSystem`, which is also the flag the delete guard uses.
 
 ---
 
@@ -255,16 +276,31 @@ constant. Today this is harmless because the constants carry nothing user-editab
 moment `colorHex` exists on those rows, **every app launch resets any colour the user put
 on a seeded category or payment method.**
 
-This drives a design choice, and it should be an explicit one:
+This drove a design choice, and it should be an explicit one:
 
-- **Recommended: the picker is for user-created items only.** Seeded categories and
+- **Recommended in the plan: the picker is for user-created items only.** Seeded categories and
   payment methods always resolve from the palette, so the built-in palette is the single
   source of truth and the initializer can never fight the user. This also matches the
   screen's existing behaviour, where only custom rows can be deleted.
-- **Alternative: allow recolouring built-ins too**, in which case the initializer must
-  stop clobbering. The least invasive form is to seed only rows that are absent (or to
-  merge the stored `color_hex` back over the constant before upserting), with a test that
-  proves a recoloured built-in survives a restart.
+- **Taken instead, in phase 7: allow recolouring built-ins too**, with the initializer carrying
+  the stored colour over. The carry-over is preferred to seeding only absent rows because
+  rewriting seeded rows is what lets a release correct a name or add a category; skipping
+  existing rows would have traded that away for a bug fix it does not need.
+
+**How it was built.** `initialize` reads `getStoredColors()` — a projection of `id, color_hex`,
+which is deliberately the only column the seeder may not take from the constant — and copies the
+stored value onto each row before `upsertAll`. Null-preserving: a row with no override stays null
+and keeps resolving from the palette by id, which is still the ordinary case for all 27 seeded
+categories and 6 payment methods.
+
+**The carry-over is a sync fix as much as a local one.** Seeded rows are written with
+`SyncState.PENDING_UPLOAD`, so they are pushed on the next sync. Without the carry-over, a second
+device's *startup* would push `color_hex = null` for every seeded row and erase the first device's
+choice from the cloud — a data-loss path that no local test would have caught, and that the
+"picker is scoped to custom rows" decision would have avoided by never allowing a seeded colour to
+exist. `CategoryColorReseedTest` covers the local half (seed, recolour, seed again) and asserts the
+row lands in the upload set; the negative check was run: with the carry-over removed, the restart
+test fails.
 
 ### A second path with the same failure: create-after-delete reactivates the old row
 

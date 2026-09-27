@@ -3,8 +3,6 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mknlabs.expensetracker.data.constants.categoryMap
-import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository
 import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
 import com.mknlabs.expensetracker.models.CategoryType
@@ -52,8 +50,19 @@ class CategoryManagementViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                categoryRepository.observeActiveCustomCategories(),
-                paymentMethodRepository.observeActiveCustomPaymentMethods()
+                // The **active** rows, seeded ones included — not the custom-only stream this used
+                // to read alongside the seeded constants.
+                //
+                // Two things follow, and the second is why it changed. A user-created row still
+                // arrives through the flow, so creating one still shows up immediately. And a
+                // *seeded* row now arrives through it too, which is the only way a colour stored on
+                // one can reach this grid: the constant map that used to supply the built-ins is
+                // keyed by id and can never carry a value, so a recoloured built-in would have
+                // looked uncoloured here until the screen was reopened. `observeAllCategories` is
+                // deliberately not used — it has no `is_deleted` filter, so a deleted custom
+                // category would come back.
+                categoryRepository.observeActiveCategories(),
+                paymentMethodRepository.observeActivePaymentMethods()
             ) { categories, paymentMethods ->
                 categories to paymentMethods
             }.collect { (categories, paymentMethods) ->
@@ -69,19 +78,37 @@ class CategoryManagementViewModel @Inject constructor(
         rebuildUiState(latestCategories, latestPaymentTypes)
     }
 
+    /**
+     * Sets, changes or clears the colour of one row, seeded or user-created.
+     *
+     * Takes the whole [item] rather than an id so the category-versus-payment decision stays in one
+     * place: both are keyed from 1, so an id alone does not say which repository to write to. The
+     * grid re-renders from the observed flow, so nothing is echoed into the UI state here — a local
+     * guess at the new value would be a second source of truth that could disagree with the row.
+     */
+    fun updateColor(item: CategoryManagementItemUi, colorHex: String?) {
+        viewModelScope.launch {
+            if (item.isPaymentMethod) {
+                paymentMethodRepository.updatePaymentMethodColor(item.id, colorHex)
+            } else {
+                categoryRepository.updateCategoryColor(item.id, colorHex)
+            }
+        }
+    }
+
     private fun rebuildUiState(
-        customCategories: List<CategoryType>,
-        customPaymentTypes: List<PaymentType>
+        categories: List<CategoryType>,
+        paymentTypes: List<PaymentType>
     ) {
         val incomeItems = buildCategoryManagementItems(
-            categories = customCategories,
-            transactionTypeId = 1
+            categories = categories,
+            transactionTypeId = TRANSACTION_TYPE_INCOME
         )
         val expenseItems = buildCategoryManagementItems(
-            categories = customCategories,
-            transactionTypeId = 2
+            categories = categories,
+            transactionTypeId = TRANSACTION_TYPE_EXPENSE
         )
-        val paymentItems = buildPaymentManagementItems(customPaymentTypes)
+        val paymentItems = buildPaymentManagementItems(paymentTypes)
 
         _uiState.update {
             it.copy(
@@ -92,21 +119,30 @@ class CategoryManagementViewModel @Inject constructor(
             )
         }
     }
-}
 
+    private companion object {
+        /** `categoryTypeData.kt`'s own ids: 1 is income, 2 is expense. */
+        const val TRANSACTION_TYPE_INCOME = 1
+        const val TRANSACTION_TYPE_EXPENSE = 2
+    }
+}
 
 private fun buildCategoryManagementItems(
     categories: List<CategoryType>,
     transactionTypeId: Int
 ): List<CategoryManagementItemUi> {
-    // The user's own categories lead, newest first — a category they just added is the
-    // one they are most likely looking for — with the built-ins after it in their fixed
-    // order. The grid renders this list in order, so this is what puts a new card first.
+    // The user's own categories lead, newest first — a category they just added is the one they are
+    // most likely looking for — with the built-ins after it in their fixed order. The grid renders
+    // this list in order, so this is what puts a new card first.
+    //
+    // Both halves are the same rows now, split on `isSystem` rather than on "is it in the constant".
+    // That is also the flag the DAO's delete guard uses (`is_system = 0`), so the 'x' the card draws
+    // and the delete the database permits can no longer disagree.
     val customItems = categories
-        .filter { it.transactionTypeId == transactionTypeId }
+        .filter { it.transactionTypeId == transactionTypeId && !it.isSystem }
         .sortedByDescending { it.id }
-    val builtinItems = categoryMap.values
-        .filter { it.transactionTypeId == transactionTypeId }
+    val builtinItems = categories
+        .filter { it.transactionTypeId == transactionTypeId && it.isSystem }
         .sortedBy { it.id }
 
     return (customItems + builtinItems).map { category ->
@@ -114,11 +150,7 @@ private fun buildCategoryManagementItems(
             id = category.id,
             title = category.name,
             icon = category.icon,
-            isUserCreated = category.id !in categoryMap,
-            // Built-ins carry no stored colour by design — their colour comes from the
-            // palette by id — so this is null for all of them and non-null only for a row
-            // the user created and coloured. `categoryMap`'s own entries have no colourHex
-            // to copy, so a built-in can never pick one up by accident.
+            isUserCreated = !category.isSystem,
             colorHex = category.colorHex
         )
     }
@@ -128,17 +160,17 @@ private fun buildPaymentManagementItems(
     paymentTypes: List<PaymentType>
 ): List<CategoryManagementItemUi> {
     // Newest payment method first, for the same reason the categories lead with theirs.
-    val customItems = paymentTypes.sortedByDescending { it.id }
-    val builtinItems = paymentTypeMap.values.sortedBy { it.id }
+    val customItems = paymentTypes.filter { !it.isSystem }.sortedByDescending { it.id }
+    val builtinItems = paymentTypes.filter { it.isSystem }.sortedBy { it.id }
 
     return (customItems + builtinItems).map { paymentType ->
         CategoryManagementItemUi(
             id = paymentType.id,
             title = paymentType.name,
             icon = paymentType.icon,
-            isUserCreated = paymentType.id !in paymentTypeMap,
-            // Payment ids restart at 1, so this flag is what keeps UPI's card from drawing
-            // Food's colour.
+            isUserCreated = !paymentType.isSystem,
+            // Payment ids restart at 1, so this flag is what keeps UPI's card from drawing Food's
+            // colour — and from writing to the categories table.
             colorHex = paymentType.colorHex,
             isPaymentMethod = true
         )

@@ -1,7 +1,10 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Payments
+import com.mknlabs.expensetracker.core.ui.models.CategoryManagementItemUi
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
-import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.domain.repository.CategoryRepository
 import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository
 import com.mknlabs.expensetracker.models.CategoryType
@@ -19,13 +22,13 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Covers the screen's half of the colour contract: which colour each card is told to draw, and
- * against which palette.
+ * Covers the grid's half of the colour contract: which colour each card is told to draw, against
+ * which palette, and where a new colour is written.
  *
- * Neither failure this guards against is visible in a database assertion. A row with the user's
- * colour dropped looks like an ordinary uncoloured category, and a *payment* method looked up in
- * the category palette is not an error at all — it returns a colour, just the wrong one, because
- * both sets of ids start at 1. That is why `isPaymentMethod` is asserted rather than assumed.
+ * Three failures this guards against are all quiet ones. A card with the user's colour dropped looks
+ * like an ordinary uncoloured row. A *payment* method looked up in the category palette is not an
+ * error at all — it returns a colour, just the wrong one, because both sets of ids start at 1. And a
+ * recolour that writes to the wrong repository succeeds while changing nothing on screen.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CategoryManagementViewModelTest {
@@ -33,11 +36,13 @@ class CategoryManagementViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    // ── What each card is told to draw ────────────────────────────────────────
+
     @Test
     fun `a user-created category carries the colour that was stored on it`() = runTest {
         val viewModel = viewModel(
             categories = listOf(
-                category(id = 106, name = "Coffee", transactionTypeId = EXPENSE, colorHex = "#D97706")
+                category(id = 106, name = "Coffee", colorHex = "#D97706", isSystem = false)
             )
         )
 
@@ -49,34 +54,38 @@ class CategoryManagementViewModelTest {
     }
 
     @Test
-    fun `a category with no colour of its own passes none on`() = runTest {
-        // Null is the ordinary answer, not an absence: this is how every seeded category resolves
-        // from the palette, and inventing a colour here would stop it following the theme.
-        val viewModel = viewModel(
-            categories = listOf(category(id = 106, name = "Coffee", transactionTypeId = EXPENSE))
+    fun `a recoloured seeded category carries its colour too`() = runTest {
+        // The whole point of phase 7. A seeded row's colour lives on the row, and the grid reads the
+        // rows — the seed constant it used to read for built-ins is keyed by id and could never have
+        // carried a value, so a recoloured built-in would have shown as uncoloured here.
+        val repository = StubCategoryRepository(
+            listOf(category(id = 1, name = "Food", colorHex = "#9333EA", isSystem = true))
         )
+        val viewModel = viewModel(categories = repository.categories)
 
-        assertNull(viewModel.uiState.value.expenseItems.single { it.id == 106 }.colorHex)
+        val item = viewModel.uiState.value.expenseItems.single { it.id == 1 }
+
+        assertEquals("#9333EA", item.colorHex)
+        assertFalse(item.isUserCreated)
     }
 
     @Test
-    fun `seeded categories never carry a colour`() = runTest {
-        // The rows the initializer rewrites on every launch. If a colour ever reached one of these
-        // cards it would mean the palette had leaked into storage.
-        val viewModel = viewModel()
+    fun `a seeded category with no colour of its own passes none on`() = runTest {
+        // Null is the ordinary answer, not an absence: this is how a seeded category resolves from
+        // the palette, and inventing a colour here would stop it following the theme.
+        val viewModel = viewModel(categories = listOf(category(id = 1, name = "Food", isSystem = true)))
 
-        val seeded = viewModel.uiState.value.expenseItems.filter { !it.isUserCreated }
+        val item = viewModel.uiState.value.expenseItems.single()
 
-        assertTrue(seeded.isNotEmpty())
-        assertTrue(seeded.all { it.colorHex == null })
-        assertTrue(viewModel.uiState.value.incomeItems.all { it.colorHex == null })
+        assertNull(item.colorHex)
+        assertFalse(item.isUserCreated)
     }
 
     @Test
     fun `payment methods are flagged as payments`() = runTest {
         // Payment ids restart at 1, so id 1 is both Food and UPI. Without the flag the card would
-        // resolve UPI against the category palette and draw Food's purple — a colour, merely the
-        // wrong one, which is exactly the kind of bug a screenshot review misses.
+        // resolve UPI against the category palette and draw Food's purple — and, worse, a recolour
+        // would be written to the categories table.
         val viewModel = viewModel(
             paymentMethods = listOf(
                 PaymentType(id = 7, name = "Wallet", iconKey = "payments", colorHex = "#0288D1")
@@ -87,7 +96,6 @@ class CategoryManagementViewModelTest {
 
         assertEquals("#0288D1", item.colorHex)
         assertTrue(item.isPaymentMethod)
-        // The payment list holds payments only, so nothing on it may be resolved as a category.
         assertTrue(viewModel.uiState.value.paymentItems.all { it.isPaymentMethod })
         assertTrue(viewModel.uiState.value.expenseItems.all { !it.isPaymentMethod })
         assertTrue(viewModel.uiState.value.incomeItems.all { !it.isPaymentMethod })
@@ -108,12 +116,10 @@ class CategoryManagementViewModelTest {
 
     @Test
     fun `switching tabs does not lose a colour`() = runTest {
-        // The tab switch rebuilds the lists from the cached rows; a rebuild that dropped the
-        // colour would show up only as a card that looks uncoloured until the next visit.
+        // The tab switch rebuilds the lists from the cached rows; a rebuild that dropped the colour
+        // would show up only as a card that looks uncoloured until the next visit.
         val viewModel = viewModel(
-            categories = listOf(
-                category(id = 106, name = "Coffee", transactionTypeId = EXPENSE, colorHex = "#D97706")
-            )
+            categories = listOf(category(id = 106, name = "Coffee", colorHex = "#D97706"))
         )
 
         viewModel.selectTab(CategoryManagementTab.Payment)
@@ -126,8 +132,8 @@ class CategoryManagementViewModelTest {
     fun `a newly created category leads its tab`() = runTest {
         val viewModel = viewModel(
             categories = listOf(
-                category(id = 106, name = "Older", transactionTypeId = EXPENSE),
-                category(id = 107, name = "Newer", transactionTypeId = EXPENSE, colorHex = "#2563EB")
+                category(id = 106, name = "Older"),
+                category(id = 107, name = "Newer", colorHex = "#2563EB")
             )
         )
 
@@ -135,6 +141,82 @@ class CategoryManagementViewModelTest {
 
         assertEquals(107, first.id)
         assertEquals("#2563EB", first.colorHex)
+    }
+
+    @Test
+    fun `the seeded rows follow the user's own rather than leading`() = runTest {
+        val viewModel = viewModel(
+            categories = listOf(
+                category(id = 1, name = "Food", isSystem = true),
+                category(id = 106, name = "Coffee"),
+                category(id = 2, name = "Travel", isSystem = true)
+            )
+        )
+
+        assertEquals(listOf(106, 1, 2), viewModel.uiState.value.expenseItems.map { it.id })
+    }
+
+    // ── Where a new colour is written ─────────────────────────────────────────
+
+    @Test
+    fun `recolouring a category writes to the category repository`() = runTest {
+        val categories = StubCategoryRepository(
+            listOf(category(id = 1, name = "Food", isSystem = true))
+        )
+        val payments = StubPaymentMethodRepository(emptyList())
+        val viewModel = CategoryManagementViewModel(categories, payments)
+
+        viewModel.updateColor(ItemFixtures.seededCategory(id = 1), "#9333EA")
+
+        assertEquals(listOf(1 to "#9333EA"), categories.colorUpdates)
+        assertEquals(0, payments.colorUpdates.size)
+    }
+
+    @Test
+    fun `recolouring a payment method writes to the payment repository`() = runTest {
+        // The id-1 collision again, one layer down: this is the assertion that catches a recolour
+        // landing in the categories table because the domain was inferred from the id.
+        val categories = StubCategoryRepository(emptyList())
+        val payments = StubPaymentMethodRepository(
+            listOf(PaymentType(id = 1, name = "UPI", iconKey = "payments"))
+        )
+        val viewModel = CategoryManagementViewModel(categories, payments)
+
+        viewModel.updateColor(ItemFixtures.paymentMethod(id = 1), "#0288D1")
+
+        assertEquals(listOf(1 to "#0288D1"), payments.colorUpdates)
+        assertEquals(0, categories.colorUpdates.size)
+    }
+
+    @Test
+    fun `clearing a colour sends null rather than an empty string`() = runTest {
+        // The default swatch. Null is what returns a row to the palette, and "" is a value no reader
+        // would know what to do with — it would have to be treated as null at every call site.
+        val categories = StubCategoryRepository(
+            listOf(category(id = 1, name = "Food", colorHex = "#9333EA", isSystem = true))
+        )
+        val viewModel = CategoryManagementViewModel(categories, StubPaymentMethodRepository(emptyList()))
+
+        viewModel.updateColor(ItemFixtures.seededCategory(id = 1), null)
+
+        assertEquals(listOf<Pair<Int, String?>>(1 to null), categories.colorUpdates)
+    }
+
+    @Test
+    fun `a stored colour reaches the grid through the observed row`() = runTest {
+        // The recolour is not echoed into the UI state; the grid re-renders from the flow. That is
+        // the property being checked: a second source of truth could disagree with the row and leave
+        // the card showing a colour that was never stored.
+        val categories = StubCategoryRepository(
+            listOf(category(id = 1, name = "Food", isSystem = true))
+        )
+        val viewModel = CategoryManagementViewModel(categories, StubPaymentMethodRepository(emptyList()))
+
+        assertNull(viewModel.uiState.value.expenseItems.single().colorHex)
+
+        categories.publish(listOf(category(id = 1, name = "Food", colorHex = "#9333EA", isSystem = true)))
+
+        assertEquals("#9333EA", viewModel.uiState.value.expenseItems.single().colorHex)
     }
 
     private fun viewModel(
@@ -151,24 +233,50 @@ class CategoryManagementViewModelTest {
     }
 }
 
+/** The UI items a recolour is asked for, built the way the grid builds them. */
+private object ItemFixtures {
+    fun seededCategory(id: Int) = CategoryManagementItemUi(
+        id = id,
+        title = "Food",
+        icon = Icons.Filled.Category,
+        isUserCreated = false
+    )
+
+    fun paymentMethod(id: Int) = CategoryManagementItemUi(
+        id = id,
+        title = "UPI",
+        icon = Icons.Filled.Payments,
+        isUserCreated = false,
+        isPaymentMethod = true
+    )
+}
+
 private fun category(
     id: Int,
     name: String,
-    transactionTypeId: Int,
-    colorHex: String? = null
+    transactionTypeId: Int = 2,
+    colorHex: String? = null,
+    isSystem: Boolean = false
 ) = CategoryType(
     id = id,
     name = name,
     iconKey = "shopping_cart",
     transactionTypeId = transactionTypeId,
     colorHex = colorHex,
-    isSystem = false
+    isSystem = isSystem
 )
 
 private class StubCategoryRepository(
-    categories: List<CategoryType>
+    initial: List<CategoryType>
 ) : CategoryRepository {
-    private val flow = MutableStateFlow(categories)
+    private val flow = MutableStateFlow(initial)
+
+    val categories: List<CategoryType> get() = flow.value
+    val colorUpdates = mutableListOf<Pair<Int, String?>>()
+
+    fun publish(next: List<CategoryType>) {
+        flow.value = next
+    }
 
     override fun observeActiveCategories(): Flow<List<CategoryType>> = flow
     override fun observeAllCategories(): Flow<List<CategoryType>> = flow
@@ -181,6 +289,10 @@ private class StubCategoryRepository(
         colorHex: String?
     ) = Unit
 
+    override suspend fun updateCategoryColor(id: Int, colorHex: String?) {
+        colorUpdates += id to colorHex
+    }
+
     override suspend fun deleteCustomCategory(id: Int) = Unit
 
     override suspend fun getFrequentlyUsedCategories(
@@ -191,9 +303,11 @@ private class StubCategoryRepository(
 }
 
 private class StubPaymentMethodRepository(
-    paymentMethods: List<PaymentType>
+    initial: List<PaymentType>
 ) : PaymentMethodRepository {
-    private val flow = MutableStateFlow(paymentMethods)
+    private val flow = MutableStateFlow(initial)
+
+    val colorUpdates = mutableListOf<Pair<Int, String?>>()
 
     override fun observeActivePaymentMethods(): Flow<List<PaymentType>> = flow
     override fun observeAllPaymentMethods(): Flow<List<PaymentType>> = flow
@@ -204,6 +318,10 @@ private class StubPaymentMethodRepository(
         iconKey: String,
         colorHex: String?
     ) = Unit
+
+    override suspend fun updatePaymentMethodColor(id: Int, colorHex: String?) {
+        colorUpdates += id to colorHex
+    }
 
     override suspend fun deleteCustomPaymentMethod(id: Int) = Unit
 }

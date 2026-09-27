@@ -95,6 +95,8 @@
     <string name="desc_color_default">Default color</string>
     <string name="desc_color_swatch">Color %1$s</string>
     <string name="desc_color_swatch_selected">Color %1$s, selected</string>
+    <string name="msg_change_color_hint">Pick a new color, or keep the one the app chose.</string>
+    <string name="desc_change_color">Change color</string>
     <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
     <string name="label_add_type">Add Type</string>
     <string name="label_payment_type_item">Payment Type</string>

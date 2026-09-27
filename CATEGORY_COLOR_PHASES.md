@@ -18,7 +18,7 @@ with nothing half-applied.
 | 4 | The colour picker | **yes** | compile | minor |
 | 5 | Choosers, settings, filter modal | **yes** | none (UI-only) | minor |
 | 6 | Analytics identity colours | **yes** | compile | minor |
-| 7 | *Deferred:* recolour seeded items | — | — | — |
+| 7 | Recolour seeded items | **yes** | compile + androidTest | minor |
 
 ---
 
@@ -279,13 +279,43 @@ README sync.
 
 ---
 
-## Phase 7 — Deferred: recolouring seeded items
+## Phase 7 — Recolouring seeded items (implemented)
 
-Deliberately **out of this plan.** Allowing it requires `ExpenseTrackerDatabaseInitializer` to
-stop clobbering, since it runs on every launch and `upsertAll` is replace-on-primary-key. The
-least invasive form is to seed only absent rows (or merge the stored `color_hex` back over the
-constant), with a test proving a recoloured seeded row survives a restart. Do not start this
-unless the picker being limited to custom items proves to be a problem in use.
+**Goal:** a colour the user puts on a built-in category or payment method stays there, across the
+restart that used to wipe it.
+
+**What was built**
+
+1. **The seeder carries the colour over.** `initialize` reads `getStoredColors()` — a projection of
+   `id, color_hex` — and copies the stored value onto each row before `upsertAll`. Chosen over
+   "seed only rows that are absent" because rewriting seeded rows is what lets a release correct a
+   name or add a category, and skipping existing rows would have traded that away for a bug fix it
+   does not need. Null-preserving, so a row with no override keeps resolving from the palette.
+2. **An update path for the colour alone:** `updateColorHex` on both DAOs (a targeted `UPDATE`,
+   with **no** `is_system = 0` guard — that stays on `softDelete`, which is the distinction the
+   phase turns on), the two repository methods, and `CategoryManagementViewModel.updateColor`.
+3. **A recolour sheet**, opened by tapping any card, using the same `CategoryColorRow` the create
+   screen uses.
+4. **The grid now reads the rows for its built-in cards too.** This was the part the plan did not
+   anticipate: the built-ins came from the `categoryMap` constant, which is keyed by id and can
+   never carry a value, so a recoloured built-in would have drawn as uncoloured until the screen was
+   reopened. Both lists now come from `observeActiveCategories()` / `observeActivePaymentMethods()`
+   and split on `isSystem` — the same flag the delete guard uses, so the 'x' a card draws and the
+   delete the database permits cannot disagree.
+
+**The exit criterion is a test, and it was checked negatively.** `CategoryColorReseedTest` performs
+seed → recolour → seed against one store, which is the sequence two launches perform; it also adds
+one assertion. A recolour must mark the row `PENDING_UPLOAD` and put it in the unsynced set, because
+seeded rows are written with that state on every launch: without the carry-over, a *second* device's
+startup would push `color_hex = null` for every seeded row and erase the first device's choice from
+the cloud. The restart test was also run with the carry-over removed, and it fails — so it is a
+regression test rather than a restatement of the code.
+
+**Deliberately still out of scope:** renaming or re-iconing a seeded row, and deleting one. The
+colour is the only field of a built-in the user owns; the rest is the app's, which is what the
+`is_system` guards on those paths still say.
+
+**Commit:** `feat(ui): a built-in category can be recoloured and keeps it` + minor bump + README sync.
 
 ---
 

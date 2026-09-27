@@ -20,5 +20,11 @@ interface PaymentMethodRepository {
         colorHex: String? = null
     )
 
+    /**
+     * Sets, changes or clears the colour of any payment method, seeded or user-created. See
+     * [CategoryRepository.updateCategoryColor] for the contract, which is the same here.
+     */
+    suspend fun updatePaymentMethodColor(id: Int, colorHex: String?)
+
     suspend fun deleteCustomPaymentMethod(id: Int)
 }

@@ -85,6 +85,18 @@ class CategoryRepository @Inject constructor(
         )
     }
 
+    override suspend fun updateCategoryColor(id: Int, colorHex: String?) = withContext(Dispatchers.IO) {
+        // Normalised on the way in, exactly as the create path does it, so the column only ever
+        // holds a canonical `#RRGGBB` or null whatever the caller supplies. The seeder copies this
+        // value straight back onto the row on every launch, so an unnormalised write would be
+        // re-persisted nightly rather than corrected.
+        dao.updateColorHex(
+            id = id,
+            colorHex = normalizeColorHexOrNull(colorHex),
+            updatedAt = System.currentTimeMillis()
+        )
+    }
+
     override suspend fun deleteCustomCategory(id: Int) = withContext(Dispatchers.IO) {
         dao.softDelete(id = id, updatedAt = System.currentTimeMillis())
     }

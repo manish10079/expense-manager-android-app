@@ -149,6 +149,8 @@ private class RecordingCategoryRepository : CategoryRepository {
         created += CreatedCategory(name, iconKey, transactionTypeId, colorHex)
     }
 
+    override suspend fun updateCategoryColor(id: Int, colorHex: String?) = Unit
+
     override suspend fun deleteCustomCategory(id: Int) = Unit
 
     override suspend fun getFrequentlyUsedCategories(
@@ -172,6 +174,8 @@ private class RecordingPaymentMethodRepository : PaymentMethodRepository {
     ) {
         created += CreatedPaymentMethod(name, iconKey, colorHex)
     }
+
+    override suspend fun updatePaymentMethodColor(id: Int, colorHex: String?) = Unit
 
     override suspend fun deleteCustomPaymentMethod(id: Int) = Unit
 }

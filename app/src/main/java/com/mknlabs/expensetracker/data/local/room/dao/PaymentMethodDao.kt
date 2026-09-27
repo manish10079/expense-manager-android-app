@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.data.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import com.mknlabs.expensetracker.data.local.room.StoredColorRow
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -41,6 +42,19 @@ interface PaymentMethodDao {
 
     @Upsert
     suspend fun upsertAll(paymentMethods: List<PaymentMethodEntity>)
+
+    /** The id and stored colour of every row; see [CategoryDao.getStoredColors]. */
+    @Query("SELECT id, color_hex FROM payment_methods")
+    suspend fun getStoredColors(): List<StoredColorRow>
+
+    /**
+     * Sets, changes or clears one row's colour, and marks it for upload.
+     *
+     * The same shape as [CategoryDao.updateColorHex], and unguarded for the same reason: a seeded
+     * payment method may be recoloured, even though it may not be deleted.
+     */
+    @Query("UPDATE payment_methods SET color_hex = :colorHex, updated_at = :updatedAt, sync_state = 'PENDING_UPLOAD' WHERE id = :id")
+    suspend fun updateColorHex(id: Int, colorHex: String?, updatedAt: Long)
 
     @Query("UPDATE payment_methods SET is_deleted = 1, sync_state = 'PENDING_DELETE', updated_at = :updatedAt WHERE id = :id AND is_system = 0")
     suspend fun softDelete(id: Int, updatedAt: Long)
