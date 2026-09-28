@@ -307,6 +307,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Keep AppCompat's night mode, which is what decides whether the window is built
+        // from `values/` or `values-night/`, in step with the theme the user actually chose.
+        // `ThemePreferenceSync` is the synchronous copy MainActivity reads before
+        // `super.onCreate`, so it is written here too. Without this the window can be built
+        // from the night theme while the app paints light, and the light theme's declared
+        // `windowLightStatusBar` never reaches the window - the status bar icons stayed white.
+        val themeMode = appSettings?.themeMode
+        LaunchedEffect(themeMode) {
+            if (themeMode == null) return@LaunchedEffect
+            val mode = when (themeMode) {
+                AppThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                AppThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                AppThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+            ThemePreferenceSync.setTheme(context, themeMode.name)
+            if (AppCompatDelegate.getDefaultNightMode() != mode) {
+                AppCompatDelegate.setDefaultNightMode(mode)
+            }
+        }
+
         DisposableEffect(darkTheme) {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.auto(

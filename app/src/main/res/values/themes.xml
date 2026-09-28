@@ -5,6 +5,14 @@
         <item name="android:windowBackground">?android:attr/colorBackground</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- The window is drawn edge-to-edge over the light #F7F8FA field, so the system
+             bar icons have to be dark. Declared here, not only at runtime, because the
+             framework reads this attribute when it creates the window and re-applies it
+             when the decor view is laid out; a runtime-only call can be overwritten after
+             the splash hands over, which is why the icons came back white in light mode.
+             values-night/ carries the false counterpart. -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="Theme.ExpenseTracker.Splash" parent="Theme.SplashScreen">
@@ -12,5 +20,9 @@
         <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo_system</item>
         <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
+        <!-- The splash window is created from this theme, so it declares the same icon
+             colour as the activity window it hands over to. -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>
