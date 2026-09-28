@@ -102,7 +102,7 @@ private data class TransactionCardToggleItem(
 )
 
 @Composable
-fun TransactionCardCustomizeScreen(
+fun CustomisationScreen(
     settings: TransactionCardCustomizationSettings,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
@@ -644,7 +644,7 @@ private fun PreviewTransactionCard(
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun TransactionCardCustomizeScreenPreview() {
+private fun CustomisationScreenPreview() {
     TransactionCardCustomizePreviewContent()
 }
 
@@ -653,7 +653,7 @@ private fun TransactionCardCustomizeScreenPreview() {
 @Preview(name = "Card Settings - Multi-Config", showBackground = true)
 @PreviewScreenSizes
 @Composable
-private fun TransactionCardCustomizeScreenMultiConfigPreview() {
+private fun CustomisationScreenMultiConfigPreview() {
     TransactionCardCustomizePreviewContent()
 }
 

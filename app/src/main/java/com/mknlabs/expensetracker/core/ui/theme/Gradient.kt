@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 
@@ -137,6 +138,31 @@ fun brandGradient(alpha: Float = 1f): Brush {
     return remember(start, end) {
         Brush.linearGradient(
             colors = listOf(start, end)
+        )
+    }
+}
+
+/**
+ * How far a fixed ramp runs past its anchor colour. Enough to read as a lit edge along the
+ * bar, not enough to become a second colour.
+ */
+private const val FIXED_RAMP_DEPTH = 0.12f
+
+/**
+ * A ramp anchored at a caller-supplied colour, deepened along its length.
+ *
+ * For surfaces whose colour is specified as a fixed value rather than a scheme role: the
+ * anchor is met exactly at the bar's start edge and the rest of the bar shades off it. The
+ * direction is always toward black, never the theme's polarity, because a fixed colour has
+ * to work on both a light and a dark track — lifting it in dark would wash the far end out
+ * against the field it is drawn on.
+ */
+@Composable
+fun deepenedRamp(base: Color): Brush {
+    val end = lerp(base, Color.Black, FIXED_RAMP_DEPTH)
+    return remember(base, end) {
+        Brush.linearGradient(
+            colors = listOf(base, end)
         )
     }
 }

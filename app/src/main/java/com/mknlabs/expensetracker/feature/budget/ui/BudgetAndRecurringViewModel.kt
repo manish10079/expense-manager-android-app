@@ -574,10 +574,11 @@ private fun buildSummary(
     } else {
         ((spentAmount / totalBudgetAmount) * 100).toInt().coerceAtLeast(0)
     }
+    // The bare amount, never the word "Over": the summary row is already titled Over Spent
+    // when the month is over budget, so the value would only repeat it.
     val remainingLabel = when {
         totalBudgetAmount <= 0.0 -> UiText.dynamic(formatCurrencyValue(0.0, currencyId, amountFormatPreferences))
-        remainingAmount >= 0.0 -> UiText.dynamic(formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences))
-        else -> UiText.res(R.string.format_over_amount, formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences))
+        else -> UiText.dynamic(formatCurrencyValue(abs(remainingAmount), currencyId, amountFormatPreferences))
     }
 
     // Daily Allowance Calculation

@@ -100,7 +100,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -169,6 +168,9 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.budgetCardAccent
+import com.mknlabs.expensetracker.core.ui.theme.budgetCardOverspent
+import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
@@ -1923,15 +1925,18 @@ private fun CategoryBudgetCard(
     onDeleteClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
-    // The hero summary bar's brand ramp, so a single category and the month's whole
-    // budget read as the same measure. Overspent is the exception: the fill switches to
-    // the installment pill's ink, the tone the recurring card gives its expense figure,
-    // so a broken budget never dresses in brand purple.
-    val progressAccent: Brush = if (budget.spentAmount > budget.limitAmount) {
-        SolidColor(MaterialTheme.colorScheme.expense)
+    // The card's own ink pair, through the scheme both times: indigo while the budget holds,
+    // amber once it is past its limit. Both states read it as one value, so the amount under
+    // the category name and the rail below it can never disagree about which state they are
+    // in. The rail ramps it (a lit edge, like every other bar in the app); the amount prints
+    // it flat.
+    val cardInk = if (budget.spentAmount > budget.limitAmount) {
+        MaterialTheme.colorScheme.budgetCardOverspent
     } else {
-        brandGradient()
+        MaterialTheme.colorScheme.budgetCardAccent
     }
+    val progressAccent: Brush = deepenedRamp(cardInk)
+    val statusInk = cardInk
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1980,7 +1985,7 @@ private fun CategoryBudgetCard(
 
                 Text(
                     text = budget.statusValueLabel.asString(),
-                    color = budgetHealthColor(budget.accent),
+                    color = statusInk,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.8.sp

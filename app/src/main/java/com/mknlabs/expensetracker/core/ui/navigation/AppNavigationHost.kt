@@ -50,7 +50,7 @@ import com.mknlabs.expensetracker.feature.profile.ui.ProfileScreen
 import com.mknlabs.expensetracker.feature.settings.ui.ConnectedDevicesScreen
 import com.mknlabs.expensetracker.feature.settings.ui.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.feature.settings.ui.SettingsScreen
-import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.CustomisationScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
 import com.mknlabs.expensetracker.feature.profile.ui.MembershipDetailsScreen
 import com.mknlabs.expensetracker.feature.paywall.ui.PaywallRoute
@@ -633,7 +633,7 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.TransactionCardCustomize -> {
-                    TransactionCardCustomizeScreen(
+                    CustomisationScreen(
                         isAdsEnabled = isAdsEnabled,
                         isProUser = isProUser,
                         settings = transactionCardCustomizationSettings,

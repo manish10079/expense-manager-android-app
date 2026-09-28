@@ -238,7 +238,7 @@
     <string name="title_show_transaction_date">Show Transaction Date</string>
     <string name="title_show_transaction_time">Show Transaction Time</string>
     <string name="title_track_expensesneasily">Track Expenses\nEasily</string>
-    <string name="title_transaction_card">Transaction Card</string>
+    <string name="title_transaction_card">Customisation</string>
     <string name="title_transaction_count">Transaction Count</string>
     <string name="title_transaction_type">Transaction Type</string>
     <string name="title_transactions">Transactions</string>
@@ -285,7 +285,7 @@
     <string name="label_security_privacy_subtitle">Biometrics, passcode, app lock</string>
     <string name="label_manage_category_subtitle">Add, edit, or color-code categories</string>
     <string name="label_app_preferences_subtitle">Theme, currency, language</string>
-    <string name="label_transaction_card_subtitle">Configure quick-add widgets</string>
+    <string name="label_transaction_card_subtitle">Personalise your app</string>
     <string name="label_data_management_subtitle">Backup, restore, export CSV</string>
     <string name="label_about_subtitle">Version, license, terms of service</string>
     <string name="label_about_app_subtitle">Version, license, terms of service</string>
@@ -863,7 +863,7 @@
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">Custom Month</string>
     <string name="label_remaining">REMAINING</string>
-    <string name="label_over">OVER</string>
+    <string name="label_over">Over Spent</string>
     <string name="title_add_budget">Add Budget</string>
     <string name="title_edit_budget">Edit Budget</string>
     <string name="msg_no_expense_categories_available">No expense categories available</string>
@@ -948,7 +948,7 @@
     <string name="desc_display_category_label">Display category label on card</string>
     <string name="desc_display_wallet_or_card">Display wallet or card used</string>
     <string name="desc_group_transactions_by_day">Group transactions under sticky day headers (e.g., \"Today\", \"Yesterday\").</string>
-    <string name="title_transaction_card_settings">Transaction Card</string>
+    <string name="title_transaction_card_settings">Customisation</string>
     <string name="label_visual_style">Visual Style</string>
     <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>
     <string name="label_transaction_details">Transaction Details</string>
@@ -1332,7 +1332,6 @@
     <string name="msg_no_recurring_start_tracking">No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction.</string>
 
     <!-- Budget Formatting -->
-    <string name="format_over_amount">Over %1$s</string>
     <string name="format_limit_amount">LIMIT %1$s</string>
     <string name="format_started_date">Started %1$s</string>
     <string name="label_due_today">Due Today</string>

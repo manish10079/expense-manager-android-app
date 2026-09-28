@@ -568,6 +568,22 @@ val ColorScheme.budgetNearLimit: Color
 val ColorScheme.budgetOver: Color
     get() = if (isDark) BudgetOverDark else BudgetOverLight
 
+// ── Budget card ink ──────────────────────────────────────────────────────────
+// The category card's own pair: the indigo its remaining amount and rail carry, and the
+// amber they both switch to once the limit is past. A role rather than a screen-level
+// literal so no composable names a colour, and deliberately NOT the health traffic-light
+// above — the card is specified at these two tones, and at the same two in BOTH themes,
+// which is why one literal serves each branch rather than a light/dark pair. The rail
+// ramps these through [deepenedRamp]; the amount prints them flat.
+internal val BudgetCardAccentInk = Color(0xFF4F46E5)
+internal val BudgetCardOverspentInk = Color(0xFFFB923C)
+
+val ColorScheme.budgetCardAccent: Color
+    get() = BudgetCardAccentInk
+
+val ColorScheme.budgetCardOverspent: Color
+    get() = BudgetCardOverspentInk
+
 // -- Surface and control roles the scheme lacked ------------------------------
 // The mock's two token sets are not fully expressible through Material's own roles: it
 // names a third surface rung, a track, a second outline weight, a disabled ink line and
