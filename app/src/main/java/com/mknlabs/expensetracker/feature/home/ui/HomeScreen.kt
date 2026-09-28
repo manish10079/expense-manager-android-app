@@ -563,11 +563,16 @@ private fun HomeHeaderRow(
         ) {
             val greetingName = uiState.greetingName
 
-            // Entrance animation (hand wave + settings-icon spin): plays whenever the
-            // home screen is actually VISIBLE — i.e. the activity is resumed AND no
-            // app-lock overlay is covering it. ON_RESUME alone fires while the lock
-            // overlay is still up, so the wave used to finish behind the lock before the
-            // user saw it.
+            // Entrance animation (hand wave + settings-icon spin): plays ONCE per arrival
+            // at Home, at the first moment the screen is actually visible — i.e. the
+            // activity is resumed AND no app-lock overlay is covering it. ON_RESUME alone
+            // fires while the lock overlay is still up, so the wave used to finish behind
+            // the lock before the user saw it.
+            //
+            // The gate matters for the same reason it does in the section-enter fade:
+            // ON_RESUME fires on every trip back from the background, so without it,
+            // backgrounding the app and returning set the wave and the full 360° spin off
+            // again. An entrance belongs to arriving at the screen, not to coming back to it.
             //
             // lifecycleResumed is written ONLY by the lifecycle observer below; the
             // LaunchedEffect only reads its keys. (The earlier version flipped a pending
@@ -591,8 +596,10 @@ private fun HomeHeaderRow(
                 }
             }
 
+            var entrancePlayed by remember { mutableStateOf(false) }
             LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
-                if (lifecycleResumed && !isLockOverlayActive) {
+                if (lifecycleResumed && !isLockOverlayActive && !entrancePlayed) {
+                    entrancePlayed = true
                     // Detected transactions bell — rings only when there is a count on it, so a
                     // quiet inbox never draws attention to an empty bell. It runs on its own
                     // clock rather than after the greeting wave: it is the one part of this

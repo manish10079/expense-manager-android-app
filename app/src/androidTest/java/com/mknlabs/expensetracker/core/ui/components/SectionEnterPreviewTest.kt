@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,6 +76,62 @@ class SectionEnterPreviewTest {
         assertEquals(
             listOf(0f, 0f, 0f),
             alphasFor(startState = Lifecycle.State.CREATED, inPreview = false)
+        )
+    }
+
+    /**
+     * Pins that the fade belongs to the screen's own entrance, and is never replayed.
+     *
+     * Every trip back from the background used to reset the sections and fade them in again.
+     * That reset could only land a frame or two after the window was already back on screen,
+     * so the finished screen flashed first and faded second. A return should not animate at
+     * all — the sections are simply still there.
+     *
+     * The clock is paused so the states either side of the lifecycle bump are things we can
+     * look at, rather than a window we hope to catch.
+     */
+    @Test
+    fun returningToForegroundDoesNotReplayTheEntrance() {
+        compose.mainClock.autoAdvance = false
+        lateinit var owner: TestOwner
+        var alphas: List<Float>? = null
+        compose.setContent {
+            owner = remember { TestOwner(Lifecycle.State.STARTED) }
+            alphas = rememberSectionEnterAlphas(count = 2, lifecycleOwner = owner)
+        }
+        compose.mainClock.advanceTimeByFrame()
+        assertTrue(
+            "The entrance must still be in flight a frame in: ${requireNotNull(alphas)}",
+            requireNotNull(alphas).all { it < 0.5f }
+        )
+        compose.mainClock.advanceTimeBy(SectionEnterDurationMs + SectionEnterStaggerMs + 200L)
+        assertEquals(
+            "The entrance should have finished by now",
+            listOf(1f, 1f),
+            requireNotNull(alphas)
+        )
+
+        compose.runOnUiThread { owner.registry.currentState = Lifecycle.State.CREATED }
+        compose.mainClock.advanceTimeByFrame()
+        assertEquals(
+            "A backgrounded screen keeps the sections it already faded in",
+            listOf(1f, 1f),
+            requireNotNull(alphas)
+        )
+
+        compose.runOnUiThread { owner.registry.currentState = Lifecycle.State.STARTED }
+        // Sampled frame by frame rather than at one instant: a replay first hides the sections
+        // again and then fades them back in, and how soon after the lifecycle bump that reaches
+        // the screen is not something worth racing. The dimmest frame is the whole story.
+        var dimmest = 1f
+        repeat(40) {
+            compose.mainClock.advanceTimeByFrame()
+            dimmest = minOf(dimmest, requireNotNull(alphas).min())
+        }
+        assertEquals(
+            "Coming back from the background must not fade the sections in again",
+            1f,
+            dimmest
         )
     }
 }

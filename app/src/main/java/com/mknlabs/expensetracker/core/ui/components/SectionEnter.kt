@@ -18,14 +18,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
-const val SectionEnterDurationMs = 250
+/** How long a single section takes to fade in. */
+const val SectionEnterDurationMs = 160
+
+/** Delay between the start of one section's fade and the next one's. */
+const val SectionEnterStaggerMs = 90
 
 val LocalLockOverlayActive = compositionLocalOf { false }
 
 /**
- * Sequential fade-in alphas, one per screen section. Replays whenever the app
- * returns to the foreground (and the lock overlay is not covering the UI).
+ * Section-wise fade-in alphas, one per screen section: the sections start in order but
+ * overlap, so a screen's whole entrance costs [SectionEnterDurationMs] plus one
+ * [SectionEnterStaggerMs] per following section, instead of growing by a full
+ * [SectionEnterDurationMs] per section.
+ *
+ * The fade belongs to the screen's own entrance and plays once. It waits for the first
+ * moment the screen is actually visible — the app being in the foreground, and no lock
+ * overlay covering it — because a screen composes before either of those is true. Returning
+ * from the background is not an entrance: the sections are simply still there, faded in.
+ * Every trip back used to replay the fade, which meant resetting them to invisible first,
+ * and that reset can only land a frame or two after the window is back on screen — so the
+ * finished screen flashed first and faded second.
  */
 @Composable
 fun rememberSectionEnterAlphas(
@@ -40,12 +56,13 @@ fun rememberSectionEnterAlphas(
     }
 
     val lockOverlayActive = LocalLockOverlayActive.current
-    val anims = remember(count) { List(count) { Animatable(0f) } }
     var inForeground by remember(lifecycleOwner) {
         mutableStateOf(
             lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
     }
+    var entrancePlayed by remember { mutableStateOf(false) }
+    val anims = remember(count) { List(count) { Animatable(0f) } }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -58,13 +75,26 @@ fun rememberSectionEnterAlphas(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
     LaunchedEffect(inForeground, lockOverlayActive, count) {
-        if (inForeground && !lockOverlayActive) {
+        if (inForeground && !lockOverlayActive && !entrancePlayed) {
+            entrancePlayed = true
             anims.forEach { it.snapTo(0f) }
-            val spec = tween<Float>(
-                durationMillis = SectionEnterDurationMs,
-                easing = FastOutSlowInEasing
-            )
-            anims.forEach { it.animateTo(1f, spec) }
+            coroutineScope {
+                anims.forEachIndexed { index, anim ->
+                    launch {
+                        // The stagger rides on the animation clock's own delay rather than a
+                        // coroutine delay, so a paused or slow frame clock keeps the sections
+                        // in step with each other instead of leaking wall-clock time in.
+                        anim.animateTo(
+                            1f,
+                            tween(
+                                durationMillis = SectionEnterDurationMs,
+                                delayMillis = index * SectionEnterStaggerMs,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
     return anims.map { it.value }
