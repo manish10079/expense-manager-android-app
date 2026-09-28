@@ -115,11 +115,12 @@ val PremiumCardDarkCenter = Color(0xFF1C1632) // Violet-charcoal, centre
 val PremiumCardDarkEnd = Color(0xFF100C1F)     // Near-black plum, bottom-right
 
 // The premium card's glow, border, light-theme and label sub-palettes were retired with
-// the inspect-and-replace pass: the membership surface is one gradient (PremiumGradient*)
-// plus its gold and its lilac border, and every other member of the old family had no
-// reader. The dark trio below survives because the goals screen still paints a goal card
-// with it; it is an app surface, not a spec token, and is kept apart from the membership
-// ramp for that reason.
+// the inspect-and-replace pass. The dark trio below survives because the goals screen still
+// paints a goal card with it; it is an app surface, not a spec token, and is kept apart from
+// the membership ramp for that reason. The membership card has since stopped painting that
+// ramp too — it wears the cash flow hero's neutral surface, with the state in its header,
+// badge and panel — so the PremiumGradient* and ProPass* ramps have no reader left and stand
+// as spec values until the next sweep.
 
 // ── Retired: the Cash Flow palette (indexmockup.html) ────────────────────────
 //

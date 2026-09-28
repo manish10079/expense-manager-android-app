@@ -151,8 +151,6 @@ internal data class MembershipCardSpec(
     val panel: MembershipPanel? = null,
     /** The card's own call to action, when the card carries one (free and offline states). */
     @StringRes val primaryActionRes: Int? = null,
-    /** Whether the card also offers the second way in, a ProPass code. */
-    val showRedeemAction: Boolean = false,
 )
 
 /**
@@ -189,10 +187,9 @@ internal fun membershipCardSpec(
         badgeRes = null,
         titleRes = R.string.title_membership_upgrade_card,
         bodyRes = R.string.msg_membership_upgrade_body,
-        // There is no access to describe yet, so the card is where both ways to reach Pro
-        // belong: buying one, and spending a code.
+        // There is no access to describe yet, so the card is where the one way to reach Pro
+        // belongs: buying one. A ProPass code is redeemed from the settings row instead.
         primaryActionRes = R.string.btn_membership_buy_subscription,
-        showRedeemAction = true,
     )
 
     // An anonymous install is device-local, so it has no purchase state to report — and the
@@ -204,7 +201,6 @@ internal fun membershipCardSpec(
         titleRes = R.string.title_membership_upgrade_card,
         bodyRes = R.string.label_offline_warning_desc,
         primaryActionRes = R.string.btn_sign_in_register,
-        showRedeemAction = false,
     )
 }
 
