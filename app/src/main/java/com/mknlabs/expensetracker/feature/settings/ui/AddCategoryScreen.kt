@@ -44,8 +44,9 @@ import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.identityColor
+import com.mknlabs.expensetracker.core.ui.theme.GlyphTileAlpha
 import com.mknlabs.expensetracker.core.ui.theme.onCta
-import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
@@ -125,6 +126,11 @@ private fun AddCategoryScreenContent(
     val selectedIcon = remember(uiState.selectedIconId) {
         categoryIconOptions.firstOrNull { it.id == uiState.selectedIconId } ?: categoryIconOptions.first()
     }
+
+    // The colour the grid previews: the pick if the user has made one, else the brand ink. Read
+    // through the picker's own resolver rather than off the swatch row, so a tile shows the colour
+    // the row will actually be given — a pick made while looking at the other theme included.
+    val identityColor = MaterialTheme.colorScheme.identityColor(uiState.selectedColorHex)
 
     Box(
         modifier = Modifier
@@ -293,6 +299,7 @@ private fun AddCategoryScreenContent(
                         IconSelectionItem(
                             option = option,
                             selected = option.id == uiState.selectedIconId,
+                            identityColor = identityColor,
                             onClick = { onIconSelected(option.id) }
                         )
                     }
@@ -455,8 +462,11 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
 private fun IconSelectionItem(
     option: CategoryIconOption,
     selected: Boolean,
+    identityColor: Color,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -464,12 +474,20 @@ private fun IconSelectionItem(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
+                ambientColor = colorScheme.accentInk.copy(alpha = 0.34f),
+                spotColor = colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
+            // A tile carries the colour twice over while it is unselected — the wash behind the
+            // glyph is the glyph's own colour, which is how every other glyph tile in the app
+            // reads. The chosen one gives the fill back to the screen and keeps the colour as a
+            // ring and a glyph instead, so the choice stands out against a grid of ninety tinted
+            // siblings rather than being one more of them at a different alpha.
             .background(
-                brush = if (selected) brandGradient() else surfaceGradient()
+                if (selected) colorScheme.background else identityColor.copy(alpha = GlyphTileAlpha)
+            )
+            .then(
+                if (selected) Modifier.border(1.dp, colorScheme.accentInk, CircleShape) else Modifier
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -477,7 +495,7 @@ private fun IconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (selected) colorScheme.accentInk else identityColor,
             modifier = Modifier.size(20.dp)
         )
     }

@@ -254,10 +254,33 @@ fun ColorScheme.categorySoft(color: Color): Color = color.copy(
     alpha = if (isDark) CategorySoftAlphaDark else CategorySoftAlphaLight
 )
 
+/**
+ * The wash behind a glyph tile drawn straight on the field rather than on a card: the icon
+ * picker's grid, and the category and payment chips in Add Transaction.
+ *
+ * One alpha for both themes, unlike the pair above. The two callers are asking different
+ * questions — the picker shows the colour a row is about to be given, a chip shows the colour a row
+ * already has — but both draw on the same field, and neither may let the theme decide how strongly
+ * a colour the user is looking at appears. A wash tuned per theme would show two colours for one
+ * choice, and would make the chips the only place a category is washed at another strength.
+ */
+internal const val GlyphTileAlpha = 0.20f
+
 // ── The resolvers ─────────────────────────────────────────────────────────────
 // One function per domain so no call site has to remember the fallback chain, and so the
 // "adapt only picked colours" rule is enforced in exactly one place rather than repeated
 // at every surface.
+
+/**
+ * The pick the user made, adapted for the theme it was not chosen in, or null when they made none.
+ *
+ * Split out because it is the one step every resolver shares: a palette entry is never adapted, so
+ * "there was a pick" is a different question from "which colour does this row get".
+ */
+private fun ColorScheme.adaptPicked(colorHex: String?): Color? =
+    parseHexColorOrNull(colorHex)?.let { picked ->
+        adaptForContrast(picked, background = surface, minRatio = GLYPH_MIN_CONTRAST)
+    }
 
 /**
  * The colour for a category row: the user's pick if there is one, else the palette, else
@@ -270,17 +293,21 @@ fun ColorScheme.categorySoft(color: Color): Color = color.copy(
  * Tolerant at every step: a malformed or blank stored value falls through to the palette
  * rather than drawing nothing, and an unknown id falls through to the brand ink.
  */
-fun ColorScheme.categoryColor(categoryId: Int, colorHex: String? = null): Color {
-    parseHexColorOrNull(colorHex)?.let { picked ->
-        return adaptForContrast(picked, background = surface, minRatio = GLYPH_MIN_CONTRAST)
-    }
-    return categoryAccent[categoryId] ?: categoryAccentFallback
-}
+fun ColorScheme.categoryColor(categoryId: Int, colorHex: String? = null): Color =
+    adaptPicked(colorHex) ?: categoryAccent[categoryId] ?: categoryAccentFallback
+
+/**
+ * The colour a row will be given before it has an id to be looked up by — what the icon picker
+ * previews while the user chooses.
+ *
+ * The chain of [categoryColor] with the palette step removed: a row that does not exist yet has no
+ * id, so the only colour there is to resolve is the user's own. With none picked that is the brand
+ * ink, which is what a category took before this palette existed and so reads as "not chosen yet"
+ * rather than as a colour the user did choose.
+ */
+fun ColorScheme.identityColor(colorHex: String? = null): Color =
+    adaptPicked(colorHex) ?: categoryAccentFallback
 
 /** The colour for a payment method row. The same chain as [categoryColor], per domain. */
-fun ColorScheme.paymentColor(paymentId: Int, colorHex: String? = null): Color {
-    parseHexColorOrNull(colorHex)?.let { picked ->
-        return adaptForContrast(picked, background = surface, minRatio = GLYPH_MIN_CONTRAST)
-    }
-    return paymentAccent[paymentId] ?: categoryAccentFallback
-}
+fun ColorScheme.paymentColor(paymentId: Int, colorHex: String? = null): Color =
+    adaptPicked(colorHex) ?: paymentAccent[paymentId] ?: categoryAccentFallback

@@ -195,6 +195,26 @@ class CategoryPaletteTest {
     }
 
     @Test
+    fun `a row with no id yet takes the pick, or the brand ink when there is none`() {
+        // The icon picker previews the colour the row is about to be given, before the row exists
+        // to be looked up — so there is no palette step to fall back to, and "nothing chosen yet"
+        // has to be the brand ink rather than whichever colour happened to sit at some id.
+        assertEquals(light.accentInk, light.identityColor())
+        assertEquals(dark.accentInk, dark.identityColor(null))
+        assertEquals(Color(0xFFFF0000), light.identityColor("#FF0000"))
+    }
+
+    @Test
+    fun `the id-less resolver adapts a pick the same way the row resolver does`() {
+        // Both routes have to agree, or the swatch the user taps and the tile it previews would
+        // show two different colours for one choice.
+        assertEquals(
+            light.categoryColor(1, "#AAAAAA"),
+            light.identityColor("#AAAAAA")
+        )
+    }
+
+    @Test
     fun `a stored pick wins over the palette`() {
         // Pure red already clears 3:1 on the white card, so it is returned untouched.
         assertEquals(Color(0xFFFF0000), light.categoryColor(1, "#FF0000"))
