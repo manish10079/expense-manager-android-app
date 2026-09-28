@@ -158,6 +158,11 @@ val HeroRailEndDark = Color(0xFF3713EC)        // purple-700, white ink 8.51:1
 val HeroRailStartLight = Color(0xFF6A4DFF)     // 5.10:1 with white ink
 val HeroRailEndLight = Color(0xFF5B45D6)       // the deeper end of the same ramp
 
+// Second stop of [brandGradient], paired with accentInk. Different per theme so the
+// ramp still reads on white cards and on near-black ones.
+val BrandGradientCompanionLight = Color(0xFF4338CA) // indigo-700, white ink ~8:1
+val BrandGradientCompanionDark = Color(0xFF4F46E5)  // indigo-600, cools the lavender accent
+
 // One bloom, at the accent's own hue. 22% over a near-black card reads as light
 // catching the corner; the same alpha on white would read as a stain, so light takes
 // 10% and the accent stands at full strength only in the rail.
