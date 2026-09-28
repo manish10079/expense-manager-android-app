@@ -126,7 +126,7 @@ fun FilterBottomSheet(
             .fillMaxWidth()
             .background(colorScheme.surface)
     ) {
-        // ── Sticky Header ──────────────────────────────────────────────────────
+        // â”€â”€ Sticky Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,7 +184,7 @@ fun FilterBottomSheet(
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.4f))
         }
 
-        // ── Scrollable Body ────────────────────────────────────────────────────
+        // â”€â”€ Scrollable Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -512,7 +512,7 @@ fun FilterBottomSheet(
 
         } // end LazyColumn
 
-        // ── Sticky Footer ──────────────────────────────────────────────────────
+        // â”€â”€ Sticky Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -645,7 +645,7 @@ private fun FilterChip(
     icon: ImageVector? = null,
     /**
      * The row's category or payment colour, for the chips that stand for one. Null for every
-     * other chip in the sheet — the date, sort and type chips are not categories and have no
+     * other chip in the sheet â€” the date, sort and type chips are not categories and have no
      * identity colour to carry.
      */
     iconTint: Color? = null,
@@ -726,7 +726,7 @@ private fun AmountFilterField(
         onValueChange = { onValueChange(sanitizeAmountRangeInput(it)) },
         modifier = modifier,
         singleLine = true,
-        shape = RoundedCornerShape(14.dp),
+        shape = AppOutlinedFieldDefaults.shape,
         placeholder = {
             Text(
                 text = placeholder,
@@ -734,15 +734,7 @@ private fun AmountFilterField(
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.25f),
-            unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.15f),
-            focusedBorderColor = colorScheme.accentInk,
-            unfocusedBorderColor = colorScheme.outlineVariant.copy(alpha = 0.5f),
-            cursorColor = colorScheme.accentInk,
-            focusedTextColor = colorScheme.onSurface,
-            unfocusedTextColor = colorScheme.onSurface
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 

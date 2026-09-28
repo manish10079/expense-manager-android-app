@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RedemptionState
@@ -52,7 +53,7 @@ fun ProPassRedeemDialog(
     // Only a *store subscription* is refused up front, because the store is the authority on
     // one and its answer is already on hand.
     //
-    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder — back
+    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder Ã¢â‚¬â€ back
     // when a second code stacked on top of a running pass. Stacking is gone: the server now
     // refuses a running pass with `PASS_ACTIVE`. That refusal is left to the server instead of
     // being guessed here, because the pass expiry is a local mirror that a sync may not have
@@ -189,7 +190,8 @@ fun ProPassRedeemDialog(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             enabled = currentState !is RedemptionState.Loading,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = AppOutlinedFieldDefaults.shape,
+                            colors = AppOutlinedFieldDefaults.colors()
                         )
                     }
                     is RedemptionState.Success -> {
@@ -217,7 +219,8 @@ fun ProPassRedeemDialog(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             isError = true,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = AppOutlinedFieldDefaults.shape,
+                            colors = AppOutlinedFieldDefaults.colors()
                         )
                     }
                 }

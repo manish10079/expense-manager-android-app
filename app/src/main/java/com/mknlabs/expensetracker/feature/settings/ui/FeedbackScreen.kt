@@ -33,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -50,7 +51,7 @@ fun FeedbackRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // System back must return to the previous screen (About), not send the
-    // app to the background — same convention as every other route.
+    // app to the background â€” same convention as every other route.
     BackHandler {
         onBackClick()
     }
@@ -192,28 +193,9 @@ private fun FeedbackScreenContent(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            if (MaterialTheme.colorScheme.isDark) 24.dp else 16.dp
-                        )
-                    )
-                    .background(MaterialTheme.colorScheme.surface),
-                // Dark keeps the 24dp radius and the quarter-strength border it has always
-                // drawn; light takes the field spec's 16dp and its full-strength outline.
-                shape = RoundedCornerShape(
-                    if (MaterialTheme.colorScheme.isDark) 24.dp else 16.dp
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                    unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) {
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                    } else {
-                        MaterialTheme.colorScheme.outline
-                    },
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
+                    .height(200.dp),
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors(),
                 maxLines = 10,
                 enabled = !uiState.isLoading && !uiState.isCooldownActive
             )

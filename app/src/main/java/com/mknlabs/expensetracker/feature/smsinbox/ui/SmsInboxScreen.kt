@@ -97,6 +97,7 @@ import android.content.Context
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -109,6 +110,7 @@ import com.mknlabs.expensetracker.core.ui.theme.BadgeExpenseFill
 import com.mknlabs.expensetracker.core.ui.theme.BadgeIncomeFill
 import com.mknlabs.expensetracker.core.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.transparent
 import com.mknlabs.expensetracker.utils.UiText
@@ -122,7 +124,7 @@ import kotlinx.coroutines.launch
  * Route: owns the ViewModel, hands the display context over once, surfaces one-shot
  * events as snackbars and forwards every user intent.
  *
- * Pure wiring — no layout decisions live here (GEMINI §2).
+ * Pure wiring â€” no layout decisions live here (GEMINI Â§2).
  */
 @Composable
 fun SmsInboxRoute(
@@ -136,7 +138,7 @@ fun SmsInboxRoute(
     onBackClick: () -> Unit,
     /**
      * A live detection was tapped: open the Add Transaction screen prefilled with it. The
-     * detection is only filed — and only leaves this list — when the user presses Add there.
+     * detection is only filed â€” and only leaves this list â€” when the user presses Add there.
      */
     onReviewInAddTransaction: (SmsInboxItemUi) -> Unit = {},
     /** An already-filed detection was tapped: open the transaction it created. */
@@ -188,7 +190,7 @@ fun SmsInboxRoute(
         }
     }
 
-    // Snackbar text is resolved here, where a Context exists — the ViewModel only ever
+    // Snackbar text is resolved here, where a Context exists â€” the ViewModel only ever
     // hands over a resource id. `UiText.asString()` is @Composable, so it cannot be
     // used from inside the collecting coroutine; the Context is the way to render a
     // resource id off the composition thread.
@@ -251,8 +253,8 @@ fun SmsInboxRoute(
 }
 
 /**
- * Content: a pure function of [uiState] and callbacks — no ViewModel, no state
- * collection — so it renders in previews and in tests without Hilt.
+ * Content: a pure function of [uiState] and callbacks â€” no ViewModel, no state
+ * collection â€” so it renders in previews and in tests without Hilt.
  */
 @Composable
 private fun SmsInboxContent(
@@ -304,7 +306,7 @@ private fun SmsInboxContent(
             }
         },
         // "Clear all" is only offered when there is something to clear, and it steps
-        // aside in selection mode — that bar already carries its own Delete. It wipes in
+        // aside in selection mode â€” that bar already carries its own Delete. It wipes in
         // from the start edge and wipes back out the same way.
         floatingActionButton = {
             AnimatedVisibility(
@@ -330,10 +332,14 @@ private fun SmsInboxContent(
     ) { padding ->
         val enter = rememberSectionEnterAlphas(4)
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            // AppHeader carries no inset of its own â€” every screen pads it â€” so without this the
+            // back button sat on the window edge, at x0 where the rest of the app puts it at 20dp.
             AppHeader(
                 title = stringResource(id = R.string.label_sms_inbox_title),
                 onBackClick = onBackClick,
-                modifier = Modifier.alpha(enter[0])
+                modifier = Modifier
+                    .padding(horizontal = Dimens.ScreenPadding)
+                    .alpha(enter[0])
             )
 
             Box(Modifier.alpha(enter[1])) {
@@ -343,7 +349,11 @@ private fun SmsInboxContent(
             )
             }
 
-            Box(Modifier.alpha(enter[2])) {
+            // A Column, not a Box: this section holds two things, and a Box stacks its children at
+            // a single origin. The hint was drawn on top of the filter chips rather than under
+            // them â€” its sentence covered every chip past the first, and only the selected "All"
+            // stayed in the accessibility tree because the rest were obscured by it.
+            Column(Modifier.alpha(enter[2])) {
             FilterRow(
                 selected = uiState.filter,
                 onFilterSelected = onFilterSelected
@@ -438,7 +448,7 @@ private fun SmsInboxContent(
  *
  * Only the fields a bank message cannot be trusted on are editable here: the amount
  * (prose parsing can mis-read it), the category (a guess) and the note (absent from the
- * SMS). Everything else — type, sender, time — stays as the bank stated it.
+ * SMS). Everything else â€” type, sender, time â€” stays as the bank stated it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -471,7 +481,9 @@ private fun EditDetectionDialog(
                     label = { Text(stringResource(id = R.string.label_sms_inbox_edit_amount)) },
                     singleLine = true,
                     isError = editor.amountText.replace(",", "").trim().toDoubleOrNull() == null,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -481,7 +493,9 @@ private fun EditDetectionDialog(
                     onValueChange = onNoteChanged,
                     label = { Text(stringResource(id = R.string.label_sms_inbox_edit_note)) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 if (categories.isNotEmpty()) {
@@ -531,20 +545,11 @@ private fun SearchField(query: String, onQueryChanged: (String) -> Unit) {
         onValueChange = onQueryChanged,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
         singleLine = true,
         placeholder = { Text(stringResource(id = R.string.label_sms_inbox_search_hint)) },
-        // A search bar is one of the spec's secondary surfaces, so in light the field is
-        // filled instead of leaving the grey field showing through it, and it takes the
-        // spec's 16dp field radius rather than the 14dp this was drawn with. Dark keeps
-        // both the transparent fill and the 14dp.
-        shape = RoundedCornerShape(if (MaterialTheme.colorScheme.isDark) 14.dp else 16.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) Color.Transparent
-            else MaterialTheme.colorScheme.surfaceVariant,
-            focusedContainerColor = if (MaterialTheme.colorScheme.isDark) Color.Transparent
-            else MaterialTheme.colorScheme.surfaceVariant,
-        )
+        shape = AppOutlinedFieldDefaults.shape,
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
@@ -553,7 +558,7 @@ private fun SearchField(query: String, onQueryChanged: (String) -> Unit) {
 private fun FilterRow(selected: SmsInboxFilter, onFilterSelected: (SmsInboxFilter) -> Unit) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = Dimens.ScreenPadding),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(SmsInboxFilter.entries) { filter ->
@@ -582,7 +587,7 @@ private fun InboxHint() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -625,7 +630,7 @@ private fun InboxList(
     }
 
     // Bring a notification's row into view. It may not be in the loaded page yet, in
-    // which case this simply does nothing — the user still sees the inbox rather than
+    // which case this simply does nothing â€” the user still sees the inbox rather than
     // an empty screen. The index is looked up in the render list, since a date separator
     // means a row's position in the list is no longer its position among the detections.
     LaunchedEffect(uiState.focusedId, uiState.listItems) {
@@ -667,8 +672,8 @@ private fun InboxList(
         modifier = Modifier.fillMaxSize(),
         // The bottom inset keeps the last row clear of the floating Clear all button.
         contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
+            start = Dimens.ScreenPadding,
+            end = Dimens.ScreenPadding,
             top = 12.dp,
             bottom = 88.dp
         ),
@@ -731,7 +736,7 @@ private fun InboxList(
  *
  * Both directions are accepted on purpose: the inbox has only one swipe action, so
  * refusing one side would just leave a dead gesture. The delete is reversible through the
- * snackbar's Undo, which is the safety net here instead of a confirmation dialog — a
+ * snackbar's Undo, which is the safety net here instead of a confirmation dialog â€” a
  * mis-swipe costs a tap, not a row.
  *
  * On commit the card does not simply disappear: it keeps travelling in the swipe
@@ -755,7 +760,7 @@ private fun SwipeToDeleteCard(
     val offset = remember { Animatable(0f) }
 
     // While the card is flying out it is no longer following a finger, and the delete has
-    // to land exactly once — even if the list drops the card mid-flight (it can, since
+    // to land exactly once â€” even if the list drops the card mid-flight (it can, since
     // the row is removed as soon as the write is queued).
     var isExiting by remember { mutableStateOf(false) }
     var exitFired by remember { mutableStateOf(false) }
@@ -884,7 +889,7 @@ private fun SwipeDeleteHint(modifier: Modifier = Modifier) {
  *
  * The shape follows the sender rather than the app chrome: a pastel initial disc, then
  * the name with the clock on the same line, the amount under it with its currency in a
- * badge, and the parser's guesses — category, then the message itself — below that. No
+ * badge, and the parser's guesses â€” category, then the message itself â€” below that. No
  * border, no container and no chips, so the eye runs down the avatar column and the list
  * reads as one column of text.
  */
@@ -983,7 +988,7 @@ private fun DetectionCard(
             Row(
                 modifier = Modifier.semantics(mergeDescendants = true) {
                     // Badge, number and verb are one fact when read aloud, and the full
-                    // formatted amount is what it should say — symbol included.
+                    // formatted amount is what it should say â€” symbol included.
                     contentDescription = amountDescription
                 },
                 verticalAlignment = Alignment.CenterVertically
@@ -1080,11 +1085,11 @@ private fun AmountBadge(isIncome: Boolean, symbol: String) {
  *
  * It only offers what a selection is for now: everything here is either "act on all of
  * these" (add) or destructive (delete). Marking read left the bar along with the status
- * words — a card is read as soon as it is on screen, so there is nothing left to mark.
+ * words â€” a card is read as soon as it is on screen, so there is nothing left to mark.
  *
  * Laid out in the same visual language as [SelectionHeader] so bulk selection looks the
  * same everywhere in the app, with one action the inbox needs on top: "Add all". The
- * select-all chip is a toggle — once every row on screen is selected it becomes a
+ * select-all chip is a toggle â€” once every row on screen is selected it becomes a
  * deselect-all chip, so one corner both takes and releases the whole list.
  */
 @Composable
@@ -1238,7 +1243,7 @@ private const val ARRIVAL_ANIMATION_MS = 420
 /** How far above its place a new card starts before sliding down into it. */
 private const val ARRIVAL_SLIDE_DP = 28f
 
-/** A new card is never fully invisible — it arrives, it does not blink in. */
+/** A new card is never fully invisible â€” it arrives, it does not blink in. */
 private const val ARRIVAL_START_ALPHA = 0.2f
 
 /** Slightly smaller at the start, so the card grows as it lands. */
@@ -1298,9 +1303,9 @@ private val previewItems = listOf(
     SmsInboxItemUi(
         id = "1",
         title = "Swiggy",
-        amountText = "₹450.00",
+        amountText = "â‚¹450.00",
         amountValueText = "450.00",
-        currencySymbol = "₹",
+        currencySymbol = "â‚¹",
         isIncome = false,
         timeText = "9:20 pm",
         messagePreview = "Rs.450 debited from A/c XX1234 to VPA swiggy@ybl. Avl Bal Rs.12,000",
@@ -1320,9 +1325,9 @@ private val previewItems = listOf(
     SmsInboxItemUi(
         id = "2",
         title = "VM-HDFCBK",
-        amountText = "₹25,000.00",
+        amountText = "â‚¹25,000.00",
         amountValueText = "25,000.00",
-        currencySymbol = "₹",
+        currencySymbol = "â‚¹",
         isIncome = true,
         timeText = "10:02 am",
         messagePreview = "Rs.25000 credited to A/c XX1234 by salary",

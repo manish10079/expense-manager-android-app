@@ -48,8 +48,7 @@ object AppDialogDefaults {
 
     /** The corner of an input field inside a dialog, per the spec's 16dp fields. */
     @Composable
-    fun fieldShape(): Shape =
-        if (MaterialTheme.colorScheme.isDark) OutlinedTextFieldDefaults.shape else ActionShape
+    fun fieldShape(): Shape = AppOutlinedFieldDefaults.shape
 }
 
 /**

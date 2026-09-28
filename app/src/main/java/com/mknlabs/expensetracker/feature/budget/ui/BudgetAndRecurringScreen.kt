@@ -79,6 +79,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
@@ -729,7 +730,7 @@ private fun BudgetAndRecurringContent(
             recurringName = pendingDeleteRecurring.title,
             onDismiss = { pendingDeleteRecurringId = null },
             onConfirm = {
-                // Stage for animated exit — the actual delete fires once the
+                // Stage for animated exit â€” the actual delete fires once the
                 // AnimatedVisibility exit animation completes (see list below).
                 deletingRecurringIds.add(pendingDeleteRecurring.id)
                 pendingDeleteRecurringId = null
@@ -773,7 +774,7 @@ private fun BudgetAndRecurringContent(
     }
 
     // A plan converted back to REGULAR (or deleted) while its ledger is open has
-    // no slots left to show — the sheet closes with it.
+    // no slots left to show â€” the sheet closes with it.
     val ledgerExpense = uiState.recurringExpenses
         .firstOrNull { it.id == ledgerRuleId && it.isInstallment }
     if (ledgerExpense != null) {
@@ -857,13 +858,13 @@ private fun BudgetAndRecurringContent(
  * budget-health call sites resolve through here.
  *
  * This also corrects an inversion. The near-limit state resolved through the scheme's
- * `tertiary`, which the light scheme sets to #0D9488 — the same teal that means "on
- * track" — so a warning was drawn in the success colour, on the bar and on its label
+ * `tertiary`, which the light scheme sets to #0D9488 â€” the same teal that means "on
+ * track" â€” so a warning was drawn in the success colour, on the bar and on its label
  * and on its icon at once.
  *
  * The colour never carries the state alone: each bar is accompanied by "SAFE" /
  * "NEAR LIMIT" / "EXCEEDED", which is what makes the meaning survive red-green
- * deficiency, where amber and red are only 4.4 ΔE76 apart.
+ * deficiency, where amber and red are only 4.4 Î”E76 apart.
  */
 @Composable
 private fun budgetHealthColor(accent: BudgetAccent): Color {
@@ -980,7 +981,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-        // Line 1 — month (left) + total budget (right) on a single row.
+        // Line 1 â€” month (left) + total budget (right) on a single row.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -1019,7 +1020,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             }
         }
 
-        // Line 2 — Spent and Remaining, each on its own row.
+        // Line 2 â€” Spent and Remaining, each on its own row.
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             BudgetInlineRow(
                 title = stringResource(id = R.string.title_spent),
@@ -1034,7 +1035,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             )
         }
 
-        // Line 3 — usage %, progress bar, and daily allowance / limit inline.
+        // Line 3 â€” usage %, progress bar, and daily allowance / limit inline.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -1218,6 +1219,7 @@ private fun BudgetEditorDialog(
                     onValueChange = { nameInput = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
                     placeholder = {
                         val placeholder = when {
@@ -1227,15 +1229,7 @@ private fun BudgetEditorDialog(
                         }
                         Text(placeholder)
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedLabelColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        cursorColor = MaterialTheme.colorScheme.accentInk
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1266,20 +1260,13 @@ private fun BudgetEditorDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     label = { Text(stringResource(id = R.string.label_monthly_limit)) },
                     placeholder = {
                         Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedLabelColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        cursorColor = MaterialTheme.colorScheme.accentInk
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -2250,7 +2237,7 @@ private fun RecurringExpenseCard(
     onNotificationsEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    /** Non-null only for an EMI rule with slots — opens the installment ledger. */
+    /** Non-null only for an EMI rule with slots â€” opens the installment ledger. */
     onLedgerClick: (() -> Unit)? = null
 ) {
     val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
@@ -2468,7 +2455,7 @@ private fun RecurringExpenseCardPreview() {
                         id = "preview-rent",
                         transactionId = "tx-preview-rent",
                         title = "Rent",
-                        amountLabel = "₹12,000",
+                        amountLabel = "â‚¹12,000",
                         categoryLabel = "Housing",
                         frequency = RecurringFrequency.Monthly,
                         frequencyLabel = "Monthly",
@@ -2477,7 +2464,7 @@ private fun RecurringExpenseCardPreview() {
                         totalInstallments = 12,
                         sourceDateLabel = UiText.dynamic("01 Jan 2026"),
                         dueLabel = UiText.dynamic("01 Oct"),
-                        dueAmountLabel = "₹12,000",
+                        dueAmountLabel = "â‚¹12,000",
                         icon = Icons.Filled.DateRange,
                         accent = BudgetAccent.Primary,
                         nextDueAt = 0L,
@@ -2494,7 +2481,7 @@ private fun RecurringExpenseCardPreview() {
                         id = "preview-emi",
                         transactionId = "tx-preview-emi",
                         title = "Phone EMI",
-                        amountLabel = "₹4,500 / mo",
+                        amountLabel = "â‚¹4,500 / mo",
                         categoryLabel = "Electronics",
                         frequency = RecurringFrequency.Monthly,
                         frequencyLabel = "Monthly",
@@ -2503,7 +2490,7 @@ private fun RecurringExpenseCardPreview() {
                         totalInstallments = 12,
                         sourceDateLabel = UiText.dynamic("15 Jan 2026"),
                         dueLabel = UiText.dynamic("15 Oct"),
-                        dueAmountLabel = "₹4,500",
+                        dueAmountLabel = "â‚¹4,500",
                         icon = Icons.Filled.DateRange,
                         accent = BudgetAccent.Primary,
                         nextDueAt = 0L,
@@ -2514,7 +2501,7 @@ private fun RecurringExpenseCardPreview() {
                         installmentTotalAmount = 54000.0,
                         installmentPerAmount = 4500.0,
                         installmentPaidCount = 3,
-                        installmentRemainingLabel = "₹40,500 left",
+                        installmentRemainingLabel = "â‚¹40,500 left",
                         installmentProgressFraction = 0.25f,
                         installmentPlanStatus = InstallmentStatus.ACTIVE,
                         firstDueAt = 0L,
@@ -2523,7 +2510,7 @@ private fun RecurringExpenseCardPreview() {
                                 id = "slot-1",
                                 index = 4,
                                 dueAt = 0L,
-                                amountLabel = "₹4,500",
+                                amountLabel = "â‚¹4,500",
                                 status = InstallmentOccurrenceStatus.PENDING,
                                 paidAt = null
                             )
@@ -2573,7 +2560,7 @@ private fun RecurringMetaChip(
  * Installment ledger for one EMI rule: every scheduled slot with what it is
  * worth, what happened to it, and the three settlement actions.
  *
- * Paying is per slot and multi-selectable — the selected slots go up in one
+ * Paying is per slot and multi-selectable â€” the selected slots go up in one
  * action, and the repository's per-slot idempotency makes a double submission
  * (or a slot the worker settled meanwhile) harmless. Skipping waives the cycle
  * without withdrawing the money owed, and undo returns either kind of settled
@@ -2649,7 +2636,7 @@ private fun InstallmentLedgerSheet(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "$progressLabel • $remainingLabel",
+                        text = "$progressLabel â€¢ $remainingLabel",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -2742,7 +2729,7 @@ private fun InstallmentSlotRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Multi-select only ever applies to slots that can still be paid — a
+        // Multi-select only ever applies to slots that can still be paid â€” a
         // settled slot changes through UNDO instead.
         if (isPending) {
             Box(
@@ -2779,7 +2766,7 @@ private fun InstallmentSlotRow(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = slot.paidAt?.let { paidAt ->
-                    slot.amountLabel + " • " + formatDate(paidAt)
+                    slot.amountLabel + " â€¢ " + formatDate(paidAt)
                 } ?: slot.amountLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodySmall
@@ -2862,7 +2849,7 @@ private fun RecurringRuleEditorModal(
     var installmentsInput by remember { mutableStateOf(rule.totalInstallments.toString()) }
     var isFrequencyDropdownExpanded by remember { mutableStateOf(false) }
 
-    // EMI fields — prefilled from the rule when it already carries a plan, so
+    // EMI fields â€” prefilled from the rule when it already carries a plan, so
     // editing an existing loan shows its real terms.
     var totalInput by remember { mutableStateOf(rule.installmentTotalAmount.formatForInput()) }
     var installmentInput by remember { mutableStateOf(rule.installmentPerAmount.formatForInput()) }
@@ -2876,10 +2863,10 @@ private fun RecurringRuleEditorModal(
     val totalAmount = totalInput.toDoubleOrNull() ?: 0.0
     val installmentAmount = installmentInput.toDoubleOrNull() ?: 0.0
     val planValid = count > 0 && totalAmount > 0.0 && installmentAmount > 0.0
-    // The recurring date is 12:00 local — slot dates inherit it, so "same
-    // total as count × installment" stays exact regardless of month lengths.
+    // The recurring date is 12:00 local â€” slot dates inherit it, so "same
+    // total as count Ã— installment" stays exact regardless of month lengths.
     val planConsistent = totalAmount == installmentAmount * count
-    // Nothing editable changed — saving would rewrite sync timestamps for no
+    // Nothing editable changed â€” saving would rewrite sync timestamps for no
     // visible reason, so the button stays disabled. (count <= 0 mirrors the old
     // guard that never let a REGULAR rule save a zero repeat count.)
     val regularInvalid = selectedType == RecurringType.REGULAR && count <= 0
@@ -2943,7 +2930,7 @@ private fun RecurringRuleEditorModal(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                // Type selector — REGULAR stays exactly the legacy editor;
+                // Type selector â€” REGULAR stays exactly the legacy editor;
                 // INSTALLMENT swaps the repeat-count row for the plan terms.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
@@ -3074,16 +3061,9 @@ private fun RecurringRuleEditorModal(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
-                                shape = RoundedCornerShape(14.dp),
+                                shape = AppOutlinedFieldDefaults.shape,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                    focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
+                                colors = AppOutlinedFieldDefaults.colors()
                             )
                         }
                     } else {
@@ -3129,16 +3109,9 @@ private fun RecurringRuleEditorModal(
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true,
-                                    shape = RoundedCornerShape(14.dp),
+                                    shape = AppOutlinedFieldDefaults.shape,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
+                                    colors = AppOutlinedFieldDefaults.colors()
                                 )
                             }
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3281,7 +3254,7 @@ private fun EditorAmountField(
     value: String,
     onValueChange: (String) -> Unit,
     supportingText: String? = null,
-    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp)
+    shape: androidx.compose.ui.graphics.Shape = AppOutlinedFieldDefaults.shape
 ) {
     OutlinedTextField(
         value = value,
@@ -3295,14 +3268,7 @@ private fun EditorAmountField(
         shape = shape,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         supportingText = supportingText?.let { { Text(it) } },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
@@ -3326,10 +3292,10 @@ private fun BudgetGroupInfoSheet(
         categories.filter { it.id in budget.categoryIds }
     }
 
-    // Odd-index (0, 2, 4...) → category pill style from TransactionCard
+    // Odd-index (0, 2, 4...) â†’ category pill style from TransactionCard
     val oddColor = MaterialTheme.colorScheme.accentInk
     val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-    // Even-index (1, 3, 5...) → payment-method pill style from TransactionCard
+    // Even-index (1, 3, 5...) â†’ payment-method pill style from TransactionCard
     val evenColor = MaterialTheme.colorScheme.onSurfaceVariant
     val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
 

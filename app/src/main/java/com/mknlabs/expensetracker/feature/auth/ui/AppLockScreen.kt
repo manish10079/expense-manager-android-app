@@ -88,6 +88,7 @@ import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -349,7 +350,7 @@ fun AppLockScreen(
     // (stringResource) inside a conditional expression like `message ?: when {...}`
     // makes a group appear/disappear in the slot table when `message` flips to null.
     // That shifted the slots of every following group (AppLockScreenContent etc.), so
-    // Compose disposed + recreated the content on the first keystroke — dropping the
+    // Compose disposed + recreated the content on the first keystroke â€” dropping the
     // answer field's focus and hiding the IME. All conditionals below are pure string
     // logic with no composable calls.
     val savedQuestionMsg = stringResource(R.string.msg_answer_saved_security_question)
@@ -394,7 +395,7 @@ fun AppLockScreen(
                     } else {
                         recoveryAnswer = ""
                         // A wrong answer also advances the persisted lockout
-                        // counter — refresh the countdown so a freshly-armed
+                        // counter â€” refresh the countdown so a freshly-armed
                         // window is shown instead of the plain error message.
                         refreshLockoutSeconds()
                         message = if (isLockedOut) null else incorrectAnswerMsg
@@ -997,7 +998,7 @@ private fun AppLockAnswerField(
             .fillMaxWidth()
             .onFocusChanged { onFocusChanged(it.isFocused) },
         singleLine = true,
-        shape = RoundedCornerShape(22.dp),
+        shape = AppOutlinedFieldDefaults.shape,
         label = {
             Text(text = label)
         },
@@ -1014,17 +1015,7 @@ private fun AppLockAnswerField(
                 keyboardController?.hide()
             }
         ),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedBorderColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.75f),
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.accentInk,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            cursorColor = MaterialTheme.colorScheme.accentInk
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 

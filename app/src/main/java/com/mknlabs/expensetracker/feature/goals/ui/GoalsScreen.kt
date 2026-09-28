@@ -56,6 +56,7 @@ import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogConfirmButton
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDismissButton
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -390,12 +391,9 @@ fun FundGoalDialog(
                     label = { Text(stringResource(R.string.label_fund_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = AppDialogDefaults.fieldShape(),
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
             }
         },
@@ -453,11 +451,8 @@ fun AddGoalDialog(
                     placeholder = { Text(stringResource(R.string.label_goal_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = AppDialogDefaults.fieldShape(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 OutlinedTextField(
@@ -468,12 +463,9 @@ fun AddGoalDialog(
                     label = { Text(stringResource(R.string.label_target_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = AppDialogDefaults.fieldShape(),
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 DeadlinePickerRow(
@@ -564,11 +556,8 @@ fun EditGoalDialog(
                     label = { Text(stringResource(R.string.label_goal_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = AppDialogDefaults.fieldShape(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 OutlinedTextField(
@@ -587,12 +576,9 @@ fun EditGoalDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = AppDialogDefaults.fieldShape(),
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 DeadlinePickerRow(

@@ -68,6 +68,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.ReminderWindow
@@ -96,7 +97,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
-/** ⓘ sheet content for each notification category (spec: one parent per category). */
+/** â“˜ sheet content for each notification category (spec: one parent per category). */
 private enum class NotificationCategoryInfo(val titleRes: Int, val bodyRes: Int) {
     EXPENSE_REMINDERS(R.string.title_expense_reminders, R.string.info_expense_reminders),
     BUDGET_ALERTS(R.string.title_budget_limit_alerts, R.string.info_budget_alerts),
@@ -275,7 +276,7 @@ private fun NotificationSettingsContent(
     val scrollState = rememberScrollState()
     // Which window the time-picker modal is editing (null = modal closed).
     var editingWindow by remember { mutableStateOf<ReminderWindow?>(null) }
-    // Which category's ⓘ sheet is open (null = closed).
+    // Which category's â“˜ sheet is open (null = closed).
     var infoCategory by remember { mutableStateOf<NotificationCategoryInfo?>(null) }
     // Large-transaction threshold + weekly-summary time pickers.
     var showThresholdPicker by remember { mutableStateOf(false) }
@@ -389,7 +390,7 @@ private fun NotificationSettingsContent(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            // Premium tier (spec categories 5-8): ⭐-locked for Free users.
+            // Premium tier (spec categories 5-8): â­-locked for Free users.
             SettingsGroup {
                 PremiumNotificationCard(
                     icon = Icons.Rounded.AutoAwesome,
@@ -440,7 +441,7 @@ private fun NotificationSettingsContent(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            // Reminder time windows + test notification (plan §Reminders/Phase 2).
+            // Reminder time windows + test notification (plan Â§Reminders/Phase 2).
             SettingsGroup {
                 SettingsItemCard(
                     icon = Icons.Rounded.WbSunny,
@@ -557,7 +558,7 @@ private fun NotificationSettingsContent(
     }
 }
 
-/** Premium category card: toggle for Pro users, ⭐ lock + upgrade tap for Free. */
+/** Premium category card: toggle for Pro users, â­ lock + upgrade tap for Free. */
 @Composable
 private fun PremiumNotificationCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -791,7 +792,7 @@ private fun ReminderTimeWindowPickerModal(
     }
 }
 
-/** Large-transaction threshold: ₹1k / ₹5k / ₹10k presets + custom amount (spec). */
+/** Large-transaction threshold: â‚¹1k / â‚¹5k / â‚¹10k presets + custom amount (spec). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LargeTransactionThresholdModal(
@@ -803,7 +804,7 @@ private fun LargeTransactionThresholdModal(
 ) {
     val context = LocalContext.current
     val presetsMajor = listOf(1000L, 5000L, 10000L)
-    // Minor units are fixed ×100 of major (see MoneyUtils).
+    // Minor units are fixed Ã—100 of major (see MoneyUtils).
     val presetsMinor = presetsMajor.map { it * 100L }
 
     var selectedPresetMinor by remember(currentThresholdMinor) {
@@ -908,7 +909,9 @@ private fun LargeTransactionThresholdModal(
                         placeholder = {
                             Text(stringResource(id = R.string.placeholder_custom_threshold))
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = AppOutlinedFieldDefaults.shape,
+                        colors = AppOutlinedFieldDefaults.colors()
                     )
                 }
             }
@@ -968,7 +971,7 @@ private fun WeeklySummaryTimeModal(
     val labelPm = stringResource(R.string.label_pm)
 
     // initialTimeMillis is millis-of-day (e.g. 72_000_000 = 8 PM), NOT an epoch
-    // timestamp — derive the 12-hour wheel state from it directly so the picker
+    // timestamp â€” derive the 12-hour wheel state from it directly so the picker
     // opens showing the actual stored time in any timezone.
     val initialHour24 = (initialTimeMillis / 3_600_000L).toInt().coerceIn(0, 23)
     val initialMinute = ((initialTimeMillis % 3_600_000L) / 60_000L).toInt().coerceIn(0, 59)
