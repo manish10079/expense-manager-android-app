@@ -545,7 +545,7 @@ private fun SearchField(query: String, onQueryChanged: (String) -> Unit) {
         onValueChange = onQueryChanged,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+            .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
         singleLine = true,
         placeholder = { Text(stringResource(id = R.string.label_sms_inbox_search_hint)) },
         shape = AppOutlinedFieldDefaults.shape,
@@ -724,7 +724,10 @@ private fun InboxList(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.accentInk
+                    )
                 }
             }
         }

@@ -631,7 +631,7 @@ private fun TransactionScreenContent(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dimens.PaddingMedium)
+
                         .focusRequester(searchFocusRequester)
                         .onGloballyPositioned { coordinates ->
                             searchBarBounds = coordinates.boundsInRoot()
@@ -772,7 +772,7 @@ private fun TransactionScreenContent(
                 modifier = Modifier.alpha(enter[1])
             )
 
-            Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+
 
             // Pinned summary rendered above the lazy list (out of the scrollable
             // area). While the totals are still being computed the same composable

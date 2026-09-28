@@ -126,7 +126,7 @@ private fun ConnectedDevicesContent(
             when (uiState) {
                 is ConnectedDevicesUiState.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.accentInk)
                     }
                 }
                 is ConnectedDevicesUiState.Success -> {
@@ -228,7 +228,7 @@ private fun DeviceListContent(
         AppCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
             shape = AppCardDefaults.shape(24.dp),
             // The brand tint is this card's dark surface and dark keeps it; light takes the
             // standard white card, which is what the redesign asks of every tinted hero.
@@ -288,7 +288,7 @@ private fun DeviceListContent(
             AppCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+                    .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
                 shape = AppCardDefaults.shape(24.dp),
                 colors = AppCardDefaults.colors(
                     darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
@@ -372,7 +372,7 @@ private fun DeviceListContent(
         AppCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.ScreenPadding, vertical = 8.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
             shape = AppCardDefaults.shape(24.dp),
             colors = AppCardDefaults.colors(
                 darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),

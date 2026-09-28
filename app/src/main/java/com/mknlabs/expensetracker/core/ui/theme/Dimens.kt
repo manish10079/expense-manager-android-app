@@ -45,7 +45,7 @@ object Dimens {
     val ScreenPadding = spacingMedium
     val HeaderSpacing = 4.dp  // Tight gap below statusBarsPadding()
     /** Gap from AppHeader title to the next screen content. Owned by AppHeader. */
-    val HeaderContentGap = 5.dp
+    val HeaderContentGap = 13.dp
     val PaddingLarge = spacingLarge
     val PaddingXL = spacingXL
 

@@ -157,8 +157,6 @@ private fun AboutScreenContent(
                 .padding(horizontal = Dimens.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
             // App Icon
             Box(
                 modifier = Modifier
