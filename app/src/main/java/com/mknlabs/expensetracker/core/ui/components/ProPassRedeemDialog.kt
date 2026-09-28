@@ -14,7 +14,11 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,8 +33,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -229,26 +237,24 @@ fun ProPassRedeemDialog(
         confirmButton = {
             when (state) {
                 is RedemptionState.Success -> {
-                    Button(
+                    ProPassGradientButton(
                         onClick = {
                             viewModel.resetRedemptionState()
                             onDismiss()
-                        },
-                        shape = RoundedCornerShape(12.dp)
+                        }
                     ) {
                         Text(stringResource(id = R.string.label_ok))
                     }
                 }
                 else -> {
-                    Button(
+                    ProPassGradientButton(
                         onClick = { viewModel.redeemProPass(code) },
-                        enabled = code.isNotBlank() && state !is RedemptionState.Loading,
-                        shape = RoundedCornerShape(12.dp)
+                        enabled = code.isNotBlank() && state !is RedemptionState.Loading
                     ) {
                         if (state is RedemptionState.Loading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = MaterialTheme.colorScheme.onCta,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -269,4 +275,35 @@ fun ProPassRedeemDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ProPassGradientButton(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val shape = RoundedCornerShape(12.dp)
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onCta,
+            disabledContentColor = MaterialTheme.colorScheme.onCta.copy(alpha = 0.6f)
+        ),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .background(brush = brandGradient(alpha = if (enabled) 1f else 0.45f))
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            content()
+        }
+    }
 }
