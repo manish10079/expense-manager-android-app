@@ -320,9 +320,16 @@ fun AnalyticsScreenContent(
                 )
                 }
             }
-            item {
-                AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+            // Guarded on the ad being on at all. AdContainer collapses to nothing when ads are
+            // off, but the item it was emitted from is still in the list, and an invisible lazy
+            // item still costs the 18.dp spacing above and below it — the same trap the period
+            // indicator above is kept out of the list to avoid. Measured on a real window with ads
+            // off, the hole left between two cards was 94px where every other pair is 47px.
+            if (isAdsEnabled) {
+                item {
+                    AdContainer(isAdsEnabled = true) {
+                        NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                    }
                 }
             }
             item { Box(Modifier.alpha(enter[2])) { StatsRow(snapshot) } }
@@ -397,9 +404,9 @@ fun AnalyticsScreenContent(
             // Single-column: keep the native ad between the payment breakdown
             // and top spending. In the two-column layout it becomes a full-width
             // row at the bottom instead (see below).
-            if (!isWide) {
+            if (!isWide && isAdsEnabled) {
                 item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                    AdContainer(isAdsEnabled = true) {
                         NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                     }
                 }
@@ -457,9 +464,9 @@ fun AnalyticsScreenContent(
                 }
             }
             // Two-column layout: native ad as a full-width row at the bottom.
-            if (isWide) {
+            if (isWide && isAdsEnabled) {
                 item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                    AdContainer(isAdsEnabled = true) {
                         NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                     }
                 }
@@ -575,9 +582,15 @@ private fun AnalyticsSectionRow(
             Box(modifier = Modifier.weight(1f)) { second() }
         }
     } else {
-        first()
-        Spacer(modifier = Modifier.height(18.dp))
-        second()
+        // The compact branch owns its own Column, because it emits more than one card and the
+        // caller wraps this in a Box — which stacks its children at a single origin. Emitted
+        // bare, the two cards were drawn on top of each other: the first one's title was not
+        // even in the accessibility tree, and only the second card was readable at all.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            first()
+            Spacer(modifier = Modifier.height(18.dp))
+            second()
+        }
     }
 }
 
