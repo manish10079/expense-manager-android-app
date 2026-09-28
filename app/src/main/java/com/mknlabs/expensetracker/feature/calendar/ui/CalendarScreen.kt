@@ -50,7 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.cta
+
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
@@ -658,7 +658,7 @@ private fun DayCell(
     ) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape)
-                .background(if (selected) MaterialTheme.colorScheme.cta else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+                .background(if (selected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
                 .then(
                     if (showTodayRing) {
                         Modifier.border(1.5.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
