@@ -268,7 +268,11 @@ private fun AuthContentBody(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     if (authState is AuthState.Loading && authState.type == AuthLoadingType.GOOGLE) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.accentInk,
+                            strokeWidth = 2.dp
+                        )
                     } else {
                         Text(
                             text = stringResource(id = R.string.label_continue_with),
@@ -516,7 +520,11 @@ private fun AuthContentBody(
                 enabled = authState !is AuthState.Loading
             ) {
                 if (authState is AuthState.Loading && authState.type == AuthLoadingType.GUEST) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.accentInk,
+                            strokeWidth = 2.dp
+                        )
                 } else {
                     Text(
                         text = stringResource(id = R.string.label_continue_as_guest),

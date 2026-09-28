@@ -156,6 +156,7 @@ fun VerificationBottomSheet(
                 if (isChecking) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -187,6 +188,7 @@ fun VerificationBottomSheet(
                 if (isResending) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 } else {

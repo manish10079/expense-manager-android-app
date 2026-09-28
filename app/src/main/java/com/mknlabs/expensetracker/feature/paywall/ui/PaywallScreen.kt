@@ -582,6 +582,7 @@ private fun LoadingPlans() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.semantics { contentDescription = loadingDescription },
+            color = MaterialTheme.colorScheme.accentInk,
         )
     }
 }

@@ -339,7 +339,10 @@ fun UpdateEmailBottomSheet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(32.dp))
-                        CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(40.dp),
+                            color = MaterialTheme.colorScheme.accentInk
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = stringResource(id = R.string.msg_checking_verification_status),
@@ -516,6 +519,7 @@ private fun PendingVerificationContent(
             if (isResending) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(18.dp),
+                    color = MaterialTheme.colorScheme.accentInk,
                     strokeWidth = 2.dp
                 )
             } else {
