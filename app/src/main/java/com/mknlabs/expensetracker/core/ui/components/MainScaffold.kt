@@ -129,7 +129,7 @@ fun MainScaffold(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onAddTransactionDraftCategoryIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },

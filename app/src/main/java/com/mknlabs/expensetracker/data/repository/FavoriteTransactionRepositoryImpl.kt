@@ -32,6 +32,10 @@ class FavoriteTransactionRepositoryImpl @Inject constructor(
         dao.deleteFavoriteById(id)
     }
 
+    override suspend fun removeFavoriteByTransactionId(transactionId: String) {
+        dao.deleteFavoriteByTransactionId(transactionId)
+    }
+
     override suspend fun togglePin(id: String, isPinned: Boolean) {
         dao.updatePinnedState(id, isPinned)
     }

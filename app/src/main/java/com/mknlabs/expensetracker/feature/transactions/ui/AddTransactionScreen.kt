@@ -57,6 +57,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
@@ -238,13 +239,12 @@ fun AddTransactionScreen(
     onVoiceAutoStarted: () -> Unit = {},
     favorites: List<FavoriteTransaction> = emptyList(),
     onRemoveFavorite: (String) -> Unit = {},
-    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
     onAmountInputChange: (String) -> Unit = {},
     onNoteChange: (String) -> Unit = {},
-    onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> }
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> }
 ) {
     // --- Route layer: Hilt collaborators and the Android voice plumbing. ---
     val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
@@ -275,7 +275,6 @@ fun AddTransactionScreen(
         autoStartVoice = autoStartVoice,
         favorites = favorites,
         onRemoveFavorite = onRemoveFavorite,
-        onSaveExistingAsFavorite = onSaveExistingAsFavorite,
         onBackClick = onBackClick,
         onDeleteClick = onDeleteClick,
         onCalculatorClick = onCalculatorClick,
@@ -318,13 +317,12 @@ internal fun AddTransactionScreenContent(
     autoStartVoice: Boolean = false,
     favorites: List<FavoriteTransaction> = emptyList(),
     onRemoveFavorite: (String) -> Unit = {},
-    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
     onAmountInputChange: (String) -> Unit = {},
     onNoteChange: (String) -> Unit = {},
-    onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> },
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> },
     predictedPaymentMethodId: Int? = null,
     onPredictNote: (String) -> Unit = {},
     onLearnPaymentMethod: (String, Int) -> Unit = { _, _ -> },
@@ -356,6 +354,15 @@ internal fun AddTransactionScreenContent(
             )
         }
         val isEditMode = existingTransaction != null
+        // The star is staged: tapping it only records the intent, and Add/Update
+        // is what writes or clears the template. Until it is touched it reports
+        // what is actually saved, so a template arriving from the favorites flow
+        // a frame after the screen opens still shows as marked.
+        val savedFavorite = existingTransaction != null &&
+            favorites.any { it.transactionId == existingTransaction.id }
+        var isFavoriteTouched by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
+        var isFavoriteValue by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
+        val isFavorite = if (isFavoriteTouched) isFavoriteValue else savedFavorite
 
         var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id, initialTransactionTypeId) {
             mutableIntStateOf(existingTransaction?.transactionTypeId ?: initialTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_ID)
@@ -795,58 +802,38 @@ internal fun AddTransactionScreenContent(
                             )
                         }
 
-                        // Favorite template star (edit mode only): immediately
-                        // persists the current values as a favorite template.
-                        if (isEditMode) {
-                            Box(
-                                modifier = Modifier
-                                    .size(if (compact) 40.dp else 44.dp)
-                                    .shadow(
-                                        elevation = if (colorScheme.isDark) 6.dp else 12.dp,
-                                        shape = RoundedCornerShape(16.dp),
-                                        ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
-                                        spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
-                                    )
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
-                                    .border(
-                                        width = 1.dp,
-                                        color = micBorderColor,
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                    .clickable(onClick = {
-                                        keyboardController?.hide()
-                                        val category = selectedCategory
-                                        val payment = selectedPayment
-                                        val amount = amountInput.toDoubleOrNull()
-                                        if (category != null && payment != null && amount != null) {
-                                            onSaveExistingAsFavorite(
-                                                Transaction(
-                                                    id = existingTransaction?.id.orEmpty(),
-                                                    note = note.trim(),
-                                                    createdAt = selectedDateMillis,
-                                                    amountMinor = amount.toMinorUnits(),
-                                                    transactionTypeId = selectedTransactionTypeId,
-                                                    paymentTypeId = payment.id,
-                                                    categoryId = category.id,
-                                                    contentHash = existingTransaction?.contentHash,
-                                                    syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
-                                                    isDeleted = false,
-                                                    updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
-                                                    sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
-                                                )
-                                            )
-                                        }
-                                    }),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Star,
-                                    contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                    tint = colorScheme.accentInk,
-                                    modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                        // Favorite template star: tapping it only records the
+                        // intent, and Add/Update is what writes or clears the
+                        // template, so leaving without saving changes nothing.
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
-                            }
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    isFavoriteTouched = true
+                                    isFavoriteValue = !isFavorite
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                tint = if (isFavorite) colorScheme.accentInk else colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                            )
                         }
                     }
                 }
@@ -1034,7 +1021,7 @@ internal fun AddTransactionScreenContent(
                             if (note.isNotBlank()) {
                                 onLearnPaymentMethod(note, payment.id)
                             }
-                            onSaveClick(transaction, recurringDraft)
+                            onSaveClick(transaction, recurringDraft, isFavorite)
                         }
                     )
 
@@ -1180,7 +1167,7 @@ internal fun AddTransactionScreenContent(
                         pendingSaveTransaction = null
                         pendingSaveDraft = null
                         keyboardController?.hide()
-                        if (tx != null) onSaveClick(tx, draft)
+                        if (tx != null) onSaveClick(tx, draft, isFavorite)
                     }) {
                         Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
                     }

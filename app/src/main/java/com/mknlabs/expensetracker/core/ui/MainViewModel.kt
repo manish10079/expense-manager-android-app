@@ -273,26 +273,15 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * Persists [transaction] as a quick-entry favorite template. The display
-     * title prefers the note (merchant/description) and falls back to the
-     * category name, then the category id — so a blank-note favorite is still
-     * recognizable in the carousel.
+     * Maps a transaction to its favorite template. The display title prefers the
+     * note (merchant/description) and falls back to the category name, then the
+     * category id — so a blank-note favorite is still recognizable in the
+     * carousel.
      *
-     * Used by the edit-screen star (the transaction already has its real id).
-     * The add-mode star is handled inside [saveTransaction] instead, so the
-     * favorite is created only after the transaction received its assigned id.
-     */
-    fun saveAsFavorite(transaction: Transaction) {
-        viewModelScope.launch {
-            favoriteTransactionRepository.saveFavorite(toFavorite(transaction))
-        }
-    }
-
-    /**
-     * Maps a transaction to its favorite template. [FavoriteTransaction.transactionId]
-     * links the favorite to the source transaction — the unique index on it dedupes
-     * re-favoriting. A blank id is stored as null so unsaved/legacy favorites never
-     * collide with real ones (SQLite unique indexes treat NULLs as distinct).
+     * [FavoriteTransaction.transactionId] links the favorite to the source
+     * transaction — the unique index on it dedupes re-favoriting. A blank id is
+     * stored as null so unsaved/legacy favorites never collide with real ones
+     * (SQLite unique indexes treat NULLs as distinct).
      */
     private fun toFavorite(transaction: Transaction): FavoriteTransaction {
         val categoryName = _uiState.value.categories
@@ -335,10 +324,20 @@ class MainViewModel @Inject constructor(
     fun saveTransaction(
         transaction: Transaction,
         recurringDraft: RecurringTransactionDraft?,
-        existingRule: RecurringTransactionRule?
+        existingRule: RecurringTransactionRule?,
+        isFavorite: Boolean
     ) {
         viewModelScope.launch {
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
+            // The Add Transaction star is applied only here, once Add/Update was
+            // pressed, so backing out of that screen leaves the favorites alone.
+            // This coroutine runs to the end before the screen is told the save
+            // finished, which keeps the write clear of that screen being cleared.
+            if (isFavorite) {
+                favoriteTransactionRepository.saveFavorite(toFavorite(savedTransaction))
+            } else {
+                favoriteTransactionRepository.removeFavoriteByTransactionId(savedTransaction.id)
+            }
             when {
                 recurringDraft != null -> {
                     val initialNextRun = calculateInitialNextRun(

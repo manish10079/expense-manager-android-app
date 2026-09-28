@@ -24,6 +24,11 @@ interface FavoriteTransactionDao {
     @Query("DELETE FROM favorite_transactions WHERE id = :id")
     suspend fun deleteFavoriteById(id: String)
 
+    // Clearing a star in the edit screen clears the template of the transaction
+    // being saved: that screen knows the transaction, never the favorite's id.
+    @Query("DELETE FROM favorite_transactions WHERE transaction_id = :transactionId")
+    suspend fun deleteFavoriteByTransactionId(transactionId: String)
+
     @Query("UPDATE favorite_transactions SET is_pinned = :isPinned WHERE id = :id")
     suspend fun updatePinnedState(id: String, isPinned: Boolean)
 }

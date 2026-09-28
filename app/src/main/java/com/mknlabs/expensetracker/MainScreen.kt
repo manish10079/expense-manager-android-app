@@ -1603,7 +1603,7 @@ fun MainScreen(
                         updatedAt = now,
                         sourceRecurringRuleId = null
                     )
-                    mainViewModel.saveTransaction(transaction, null, null)
+                    // A voice entry is never a favorite template: the star lives
                     speechRecognizer.cancel()
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)
