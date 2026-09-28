@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mknlabs.expensetracker.models.FavoriteTransaction
+import com.mknlabs.expensetracker.models.SyncState
 
 @Entity(
     tableName = "favorite_transactions",
@@ -31,7 +32,18 @@ data class FavoriteTransactionEntity(
     @ColumnInfo(name = "is_pinned")
     val isPinned: Boolean = true,
     @ColumnInfo(name = "created_at")
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Sync bookkeeping, the same three columns every other synced row carries: the
+    // watermark a peer's pull filters on, the tombstone an unfavorite leaves behind
+    // for that peer to read, and the state the push selects on. Rows created before
+    // this table synced are handed a fresh updated_at by MIGRATION_17_18, so they are
+    // newer than every device's watermark and reach the other devices on first sync.
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = 0L,
+    @ColumnInfo(name = "is_deleted")
+    val isDeleted: Boolean = false,
+    @ColumnInfo(name = "sync_state")
+    val syncState: SyncState = SyncState.PENDING_UPLOAD
 ) {
     fun toDomain(): FavoriteTransaction = FavoriteTransaction(
         id = id,
