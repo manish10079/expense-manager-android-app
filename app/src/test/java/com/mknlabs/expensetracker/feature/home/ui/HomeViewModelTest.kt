@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.home.ui
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.SyncState
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -53,6 +54,48 @@ class HomeViewModelTest {
     }
 
 
+
+    @Test
+    fun `a month that overspends more than the last one reports a fall`() {
+        // The home summary's delta reads the month's net, so a month that outspends its income
+        // leaves a negative baseline for the next one. Net of -4 000 minor becoming -8 000 is a
+        // 100% larger shortfall, and the card must not answer with a green rise.
+        val summary = buildMonthlySummary(
+            incomeMinor = 5_000,
+            expenseMinor = 13_000,
+            previousIncomeMinor = 5_000,
+            previousExpenseMinor = 9_000
+        )
+
+        assertEquals(-8_000L, summary.netMinor)
+        assertEquals(-100f, summary.deltaPercent, 0.01f)
+        assertTrue(summary.hasBaseline)
+    }
+
+    @Test
+    fun `a month that climbs out of a deficit reports a rise`() {
+        val summary = buildMonthlySummary(
+            incomeMinor = 9_000,
+            expenseMinor = 5_000,
+            previousIncomeMinor = 1_000,
+            previousExpenseMinor = 5_000
+        )
+
+        assertEquals(200f, summary.deltaPercent, 0.01f)
+    }
+
+    @Test
+    fun `an ordinary month keeps the plain percent change`() {
+        // The non-negative baseline the divisor change must leave alone.
+        val summary = buildMonthlySummary(
+            incomeMinor = 12_000,
+            expenseMinor = 2_000,
+            previousIncomeMinor = 8_000,
+            previousExpenseMinor = 3_000
+        )
+
+        assertEquals(100f, summary.deltaPercent, 0.01f)
+    }
 
     private fun goal(
         id: String,

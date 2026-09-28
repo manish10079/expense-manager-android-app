@@ -46,6 +46,15 @@ class AnalyticsViewModelTest {
         }.timeInMillis
     }
 
+    /** Noon on [day] of the calendar month before this one, so the delta has a baseline to read. */
+    private fun previousMonthDayTimestamp(day: Int): Long {
+        val lastMonth = Calendar.getInstance().apply { add(Calendar.MONTH, -1) }
+        return Calendar.getInstance().apply {
+            set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), day, 12, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
     private fun viewModelWith(
         transactions: List<Transaction>,
         categories: List<CategoryType> = emptyList(),
@@ -240,6 +249,40 @@ class AnalyticsViewModelTest {
 
         assertEquals(paymentTypeMap.getValue(1).name, row.label)
         assertNull(row.colorHex)
+    }
+
+    @Test
+    fun `savings that fall further below zero read as a fall, not a rise`() {
+        // The savings delta is a percent change against the previous month's savings, and that
+        // baseline is negative whenever the month was overspent. A divisor that keeps the baseline's
+        // sign answers "+100%" for savings of -40.00 that became -80.00: the size of the shortfall
+        // doubled, so the card has to say -100% and let the red follow from the sign.
+        val viewModel = viewModelWith(
+            transactions = listOf(
+                transaction(1, previousMonthDayTimestamp(15), 5_000L, typeId = 1),
+                transaction(2, previousMonthDayTimestamp(16), 9_000L),
+                transaction(3, dayTimestamp(3), 5_000L, typeId = 1),
+                transaction(4, dayTimestamp(4), 13_000L)
+            )
+        )
+
+        assertEquals(-100f, viewModel.uiState.value.snapshot.savingsDeltaPercent, 0.01f)
+    }
+
+    @Test
+    fun `savings that climb out of a deficit read as a rise`() {
+        // The mirror of the case above, and the one the old divisor got backwards: savings of -40.00
+        // becoming +40.00 is a rise, so the delta is positive even though the baseline is negative.
+        val viewModel = viewModelWith(
+            transactions = listOf(
+                transaction(1, previousMonthDayTimestamp(15), 1_000L, typeId = 1),
+                transaction(2, previousMonthDayTimestamp(16), 5_000L),
+                transaction(3, dayTimestamp(3), 9_000L, typeId = 1),
+                transaction(4, dayTimestamp(4), 5_000L)
+            )
+        )
+
+        assertEquals(200f, viewModel.uiState.value.snapshot.savingsDeltaPercent, 0.01f)
     }
 
     private fun customCategory(id: Int, name: String, colorHex: String?) = CategoryType(

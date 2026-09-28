@@ -533,11 +533,20 @@ private fun formatPercent(value: Float): UiText {
     return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
 }
 
+/**
+ * Percent change of [current] against [previous], signed so that a rise is positive.
+ *
+ * The divisor is the *magnitude* of the baseline, not the baseline itself, because savings can be
+ * negative. Dividing by a negative baseline flips the sign of the result, so a month that fell
+ * further into the red — savings of -₹9,881 becoming -₹52,272 — read as a green "+429%" while the
+ * hero's own number said the shortfall had grown fivefold. For the income, expense and average
+ * daily figures the baseline is never negative and this changes nothing.
+ */
 private fun percentageChange(current: Double, previous: Double): Float {
     if (previous == 0.0) {
         return if (current == 0.0) 0f else 100f
     }
-    return (((current - previous) / previous) * 100.0).toFloat()
+    return (((current - previous) / abs(previous)) * 100.0).toFloat()
 }
 
 private fun periodRangeFor(timestamp: Long, period: AnalyticsPeriod, monthStartDay: Int = 1): LongRange {
