@@ -1077,17 +1077,19 @@ private fun BreakdownItemCard(
                 .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Column 1: the two labels on top, their two values underneath. SpaceBetween
-            // rather than a fixed gap so both rows reach the top and bottom of the block and
-            // so line up with the two actions beside them, which are taller than either row.
+            // Column 1: the labels on top, their values underneath, one row per half of the
+            // block and each row's content centred in its own half. The halves are equal, so
+            // the block's height still comes from the 28.dp actions beside it.
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .fillMaxHeight()
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -1110,7 +1112,9 @@ private fun BreakdownItemCard(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
