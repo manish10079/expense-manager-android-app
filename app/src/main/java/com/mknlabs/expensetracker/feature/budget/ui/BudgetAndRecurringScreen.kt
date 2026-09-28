@@ -58,6 +58,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
@@ -1547,13 +1548,13 @@ private fun BudgetCategoryMultiPickerRow(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.cta),
+                    .background(brush = brandGradient()),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onCta,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -3307,10 +3308,10 @@ private fun BudgetGroupInfoSheet(
 
     // Odd-index (0, 2, 4...) â†’ category pill style from TransactionCard
     val oddColor = MaterialTheme.colorScheme.accentInk
-    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
     // Even-index (1, 3, 5...) â†’ payment-method pill style from TransactionCard
     val evenColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -3508,19 +3509,33 @@ private fun CopyPreviousMonthBudgetsSheet(
                 Button(
                     onClick = onCopyAll,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onCta
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = R.string.action_copy_all),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(brush = brandGradient(), shape = RoundedCornerShape(16.dp))
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ContentCopy,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onCta,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.action_copy_all),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        )
+                    }
                 }
 
                 LazyColumn(
@@ -3551,12 +3566,30 @@ private fun CopyPreviousMonthBudgetsSheet(
                     onClick = { onCopySelected(checkedIds.toList()) },
                     enabled = checkedIds.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onCta,
+                        disabledContentColor = MaterialTheme.colorScheme.onCta.copy(alpha = 0.6f)
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.action_copy_selected),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = brandGradient(alpha = if (checkedIds.isNotEmpty()) 1f else 0.45f),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.action_copy_selected),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        )
+                    }
                 }
             }
         }
@@ -3657,13 +3690,13 @@ private fun CopyBudgetRow(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.cta),
+                    .background(brush = brandGradient()),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onCta,
                     modifier = Modifier.size(16.dp)
                 )
             }
