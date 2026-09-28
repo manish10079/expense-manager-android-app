@@ -1131,6 +1131,10 @@ private fun BreakdownItemCard(
                     Text(
                         text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
                         color = MaterialTheme.colorScheme.onSurface,
+                        // One line and never ellipsized: this fixed-width child is measured
+                        // before the weighted description, so it always has room and the
+                        // description is the one that gives way.
+                        maxLines = 1,
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(start = 14.dp)
                     )
