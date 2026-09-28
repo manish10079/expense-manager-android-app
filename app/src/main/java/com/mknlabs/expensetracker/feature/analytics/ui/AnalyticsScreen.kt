@@ -1247,29 +1247,96 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = stringResource(id = R.string.label_cash_flow_ratio),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    LegendDot(stringResource(id = R.string.label_income).uppercase(), MaterialTheme.colorScheme.income)
-                    LegendDot(stringResource(id = R.string.label_expense).uppercase(), MaterialTheme.colorScheme.expense)
-                }
+                RatioBadge(snapshot.ratioDisplay)
             }
             Spacer(modifier = Modifier.height(20.dp))
-            CashFlowBar(snapshot.incomeFraction, MaterialTheme.colorScheme.income, MaterialTheme.colorScheme.expense)
-            Spacer(modifier = Modifier.height(14.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = snapshot.incomeDisplay,
-                    color = MaterialTheme.colorScheme.income,
-                    style = MaterialTheme.typography.titleMedium
+            // The bar and its two percentages are one block: the labels sit under the ends of
+            // the segments they describe, so the gap between the two is tight and fixed.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CashFlowBar(
+                    snapshot.incomeFraction,
+                    MaterialTheme.colorScheme.income,
+                    MaterialTheme.colorScheme.expense
                 )
-                Text(
-                    text = snapshot.expenseDisplay,
-                    color = MaterialTheme.colorScheme.expense,
-                    style = MaterialTheme.typography.titleMedium
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    SharePercent(snapshot.incomePercent, MaterialTheme.colorScheme.income)
+                    SharePercent(snapshot.expensePercent, MaterialTheme.colorScheme.expense)
+                }
+            }
+            Spacer(modifier = Modifier.height(18.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CashFlowStat(
+                    label = stringResource(id = R.string.label_income).uppercase(),
+                    amount = snapshot.incomeDisplay,
+                    accent = MaterialTheme.colorScheme.income
+                )
+                CashFlowStat(
+                    label = stringResource(id = R.string.label_expense).uppercase(),
+                    amount = snapshot.expenseDisplay,
+                    accent = MaterialTheme.colorScheme.expense,
+                    alignEnd = true
                 )
             }
         }
+    }
+}
+
+/** The period's income to expense ratio, normalised to income = 1; see [cashFlowSplit]. */
+@Composable
+private fun RatioBadge(ratio: String) {
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.format_cash_flow_ratio, ratio),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+        )
+    }
+}
+
+/** One of the bar's two shares, printed under the end of the segment it belongs to. */
+@Composable
+private fun SharePercent(percent: Int, accent: Color) {
+    Text(
+        text = stringResource(id = R.string.format_percent, percent.toString()),
+        color = accent,
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+    )
+}
+
+/**
+ * One half of the card's foot: the legend dot and its label, then the period's total in that
+ * direction. Both halves take the same width, so the two amounts stay lined up with the bar's
+ * ends whichever of them happens to be the longer number.
+ */
+@Composable
+private fun RowScope.CashFlowStat(
+    label: String,
+    amount: String,
+    accent: Color,
+    alignEnd: Boolean = false
+) {
+    Column(
+        modifier = Modifier.weight(1f),
+        horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        LegendDot(label, accent)
+        Text(
+            text = amount,
+            color = accent,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
     }
 }
 
@@ -1282,7 +1349,11 @@ private fun LegendDot(label: String, color: Color) {
                 .clip(CircleShape)
                 .background(color)
         )
-        Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+        )
     }
 }
 
@@ -2441,7 +2512,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
     val expense = monthlyTransactions.filter { it.transactionTypeId == 2 }.sumOf { it.amount }
     val savings = income - expense
     val avgDailyExpense = expense / 28.0
-    val incomeFraction = (income / maxOf(income + expense, 1.0)).toFloat()
+    val split = cashFlowSplit(income, expense)
 
     // Category breakdown
     val categoryTotals = monthlyTransactions
@@ -2552,7 +2623,10 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         savingsDeltaPercent = 8.1f,
         incomeDisplay = formatCurrencyValue(income, currencyId, fmtPrefs),
         expenseDisplay = formatCurrencyValue(expense, currencyId, fmtPrefs),
-        incomeFraction = incomeFraction,
+        incomeFraction = split.incomeWeight,
+        incomePercent = split.incomePercent,
+        expensePercent = split.expensePercent,
+        ratioDisplay = split.ratioDisplay,
         expenseChartPoints = expenseChartPoints,
         incomeChartPoints = incomeChartPoints,
         chartLabels = chartLabels,

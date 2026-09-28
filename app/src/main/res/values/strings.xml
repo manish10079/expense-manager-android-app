@@ -1372,6 +1372,8 @@
     <string name="label_period_short">P%1$d</string>
     <string name="format_percent">%1$s%%</string>
     <string name="format_percent_signed">%1$s%2$s%%</string>
+    <!-- Cash Flow Ratio card badge: the period's income to expense ratio, normalised to income = 1. -->
+    <string name="format_cash_flow_ratio">%1$s Ratio</string>
     <string name="label_zero_percent">+0%</string>
     <string name="label_plus">+</string>
     <string name="label_minus">-</string>

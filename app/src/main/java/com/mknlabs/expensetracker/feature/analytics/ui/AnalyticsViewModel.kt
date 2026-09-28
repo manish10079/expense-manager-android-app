@@ -27,6 +27,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import com.mknlabs.expensetracker.R
 
 enum class AnalyticsPeriod(val labelRes: Int) {
@@ -111,7 +112,13 @@ data class AnalyticsSnapshotUi(
     val savingsDeltaPercent: Float = 0f,
     val incomeDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val expenseDisplay: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
-    val incomeFraction: Float = 0f,
+    // Income's share of the period's total movement; drives the ratio card's bar. An even
+    // split when nothing moved, which is what [cashFlowSplit] decides for both.
+    val incomeFraction: Float = 0.5f,
+    // The ratio card's other readings of the same split; see [cashFlowSplit].
+    val incomePercent: Int = 50,
+    val expensePercent: Int = 50,
+    val ratioDisplay: String = "1 : 0",
     val expenseChartPoints: List<Float> = emptyList(),
     val incomeChartPoints: List<Float> = emptyList(),
     val chartLabels: List<ChartLabelUi> = emptyList(),
@@ -382,6 +389,7 @@ private fun buildAnalyticsSnapshot(
     val flowChange = percentageChange(totalFlow, previousFlow)
     val savingsChange = percentageChange(savings, previousSavings)
     val dailyChange = percentageChange(avgDailyExpense, previousAvgDailyExpense)
+    val split = cashFlowSplit(income, expense)
     return AnalyticsSnapshotUi(
         summaryLabel = buildSummaryLabel(period, range, customRange),
         totalDisplay = formatCurrencyValue(totalFlow, currencyId, amountFormatPreferences),
@@ -395,7 +403,10 @@ private fun buildAnalyticsSnapshot(
         savingsDeltaPercent = savingsChange,
         incomeDisplay = formatCurrencyValue(income, currencyId, amountFormatPreferences),
         expenseDisplay = formatCurrencyValue(expense, currencyId, amountFormatPreferences),
-        incomeFraction = (income / max(income + expense, 1.0)).toFloat(),
+        incomeFraction = split.incomeWeight,
+        incomePercent = split.incomePercent,
+        expensePercent = split.expensePercent,
+        ratioDisplay = split.ratioDisplay,
         expenseChartPoints = chartBuckets.map { it.expenseValue.toFloat() },
         incomeChartPoints = chartBuckets.map { it.incomeValue.toFloat() },
         chartLabels = chartBuckets.map { it.label },
@@ -531,6 +542,53 @@ private fun formatPercent(value: Float): UiText {
     val absoluteValue = formatter.format(abs(value))
     val prefixRes = if (value >= 0f) R.string.label_plus else R.string.label_minus
     return UiText.res(R.string.format_percent_signed, UiText.res(prefixRes), absoluteValue)
+}
+
+/**
+ * The Cash Flow Ratio card's three readings of a period's [income] and [expense]: how the bar
+ * splits, the two percentages printed under it, and the "1 : N" badge beside the title.
+ *
+ * They are derived together because the card shows all three at once, so a bar that disagrees
+ * with the percentage beneath it is a contradiction the user can see. One division, read three
+ * ways, is what keeps them consistent.
+ *
+ * Two cases divide by nothing. A period with no movement gets an even split rather than a bar
+ * claiming one side took all of it. A period with no income cannot be normalised to "1 : N" at
+ * all, because that ratio is infinite, so it reads "0 : 1": all outflow and nothing in.
+ */
+internal data class CashFlowSplit(
+    val incomeWeight: Float,
+    val incomePercent: Int,
+    val expensePercent: Int,
+    val ratioDisplay: String
+)
+
+internal fun cashFlowSplit(income: Double, expense: Double): CashFlowSplit {
+    val total = income + expense
+    if (total <= 0.0) {
+        return CashFlowSplit(
+            incomeWeight = 0.5f,
+            incomePercent = 50,
+            expensePercent = 50,
+            ratioDisplay = "1 : 0"
+        )
+    }
+    // One decimal at most: "1 : 5.2" when expenses are five and a fifth times income, "1 : 2"
+    // when they are exactly twice it. Locale-aware, like the percentages above it.
+    val ratioDisplay = when {
+        expense <= 0.0 -> "1 : 0"
+        income <= 0.0 -> "0 : 1"
+        else -> "1 : " + DecimalFormat("0.#").format(expense / income)
+    }
+    val incomePercent = ((income / total) * 100).roundToInt()
+    return CashFlowSplit(
+        incomeWeight = (income / total).toFloat(),
+        incomePercent = incomePercent,
+        // The expense share is the remainder, so the two always add up to 100. Rounding them
+        // apart could print 99% or 101% together.
+        expensePercent = 100 - incomePercent,
+        ratioDisplay = ratioDisplay
+    )
 }
 
 /**
