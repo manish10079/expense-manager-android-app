@@ -217,8 +217,6 @@ fun ItemizedCalculatorScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
-
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.weight(1f),
@@ -228,7 +226,9 @@ fun ItemizedCalculatorScreen(
             when (modes[page]) {
                 CalculatorMode.ITEMIZED -> {
                     ItemizedCalculatorContent(
-                        modifier = Modifier.fillMaxSize(),
+                        // The switcher sits 10dp above the total card: the card brings 8dp
+                        // of its own top inset for the shadow, so the page adds the rest.
+                        modifier = Modifier.fillMaxSize().padding(top = 2.dp),
                         items = uiState.items,
                         currencyId = currencyId,
                         amountFormatPreferences = amountFormatPreferences,
@@ -254,7 +254,7 @@ fun ItemizedCalculatorScreen(
 
                 CalculatorMode.NORMAL -> {
                     NormalCalculatorContent(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(top = 18.dp),
                         display = uiState.normalDisplay,
                         previewResult = viewModel.calculatePreview(),
                         expression = viewModel.buildExpression(),
@@ -961,23 +961,24 @@ private fun TotalAmountCard(
 ) {
     // Light flattens the total to the shared card; dark keeps the tinted gradient.
     val lightCard = AppCardDefaults.colors()
+    // 28dp: a step tighter than the 30dp it carried, matching the breakdown rows below.
     val cardChrome = if (MaterialTheme.colorScheme.isDark) {
         Modifier
-            .clip(RoundedCornerShape(30.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(standardCardGradient())
     } else {
         Modifier
             .shadow(
                 elevation = AppCardDefaults.Elevation,
-                shape = RoundedCornerShape(30.dp),
+                shape = RoundedCornerShape(28.dp),
                 clip = false,
                 ambientColor = CardShadowAmbientLight,
                 spotColor = CardShadowSpotLight
             )
-            .clip(RoundedCornerShape(30.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(lightCard.containerColor)
             .then(
-                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(30.dp)) }
+                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(28.dp)) }
                     ?: Modifier
             )
     }
