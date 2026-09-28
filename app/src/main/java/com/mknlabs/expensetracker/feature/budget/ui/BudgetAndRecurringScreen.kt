@@ -9,6 +9,7 @@ import androidx.compose.material3.FilterChipDefaults
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,7 +49,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
+
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
@@ -1924,7 +1925,15 @@ private fun CategoryBudgetCard(
 
         else -> standardCardGradient()
     }
-    val iconContainer = when {
+    val categoryColor = MaterialTheme.colorScheme.categoryColor(
+        categoryId = budget.categoryId,
+        colorHex = budget.colorHex
+    )
+    val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
+    val iconBorder = remember(iconBorderColor) {
+        BorderStroke(width = 1.dp, color = iconBorderColor)
+    }
+    val unusedIconContainer = when {
         budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
         budget.progressFraction >= 0.85f -> MaterialTheme.colorScheme.tertiaryContainer
         else -> MaterialTheme.colorScheme.surfaceVariant
@@ -1946,15 +1955,16 @@ private fun CategoryBudgetCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(iconContainer),
+                    .size(50.dp).clip(CircleShape)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.categorySoft(categoryColor))
+                    .border(iconBorder, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = budget.icon,
                     contentDescription = budget.title,
-                    tint = budgetHealthColor(budget.accent),
+                    tint = categoryColor,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -2064,16 +2074,18 @@ private fun CategoryBudgetCard(
                     contentDescription = stringResource(id = R.string.label_edit),
                     accent = MaterialTheme.colorScheme.accentInk,
                     isLocked = !budget.canEdit,
+                    filled = false,
                     onClick = { if (budget.canEdit) onEditClick() }
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 BudgetCardAction(
-                    icon = Icons.Default.Delete,
+                    icon = Icons.Rounded.Close,
                     contentDescription = stringResource(id = R.string.label_delete),
                     accent = MaterialTheme.colorScheme.error,
                     isLocked = !budget.canEdit,
+                    filled = false,
                     onClick = { if (budget.canEdit) onDeleteClick() }
                 )
             }
@@ -2259,7 +2271,7 @@ private fun RecurringExpenseCard(
             Box(
                 modifier = Modifier
                     .size(38.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
