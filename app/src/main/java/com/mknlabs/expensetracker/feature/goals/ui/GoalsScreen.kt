@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Edit
@@ -34,8 +34,6 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -53,7 +51,6 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
-import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogConfirmButton
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
@@ -67,15 +64,10 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.track
-import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
-import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressMedium
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkEnd
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -863,57 +855,15 @@ fun GoalItem(
     }
 
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
     val cardShape = RoundedCornerShape(24.dp)
-
-    // The premium gradient is dark's card surface and dark's alone; light takes the shared
-    // white card below, so the lavender tokens this used to blend are gone with it.
-    val gradientBrush = Brush.linearGradient(
-        colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
-    )
-    val borderBrush = remember(colorScheme.accentInk) {
-        Brush.linearGradient(
-            colors = listOf(
-                colorScheme.accentInk.copy(alpha = 0.4f),
-                Color.White.copy(alpha = 0.08f)
-            )
+    val cardChrome = Modifier
+        .clip(cardShape)
+        .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        .border(
+            width = 1.dp,
+            color = colorScheme.accentInk.copy(alpha = 0.18f),
+            shape = cardShape
         )
-    }
-
-    // Light flattens this hero to the shared card: the lavender gradient it painted is
-    // exactly the sort of surface the redesign replaces with white. Dark keeps that
-    // gradient byte for byte, along with the two things the shared card has no way to
-    // carry - a violet-tinted lift and a gradient edge, where AppCard takes a solid
-    // outline and one shadow colour - so the chrome branches and the content under it is
-    // untouched. The light branch still reads its container, outline and elevation from
-    // AppCardDefaults, so this card cannot drift away from the rest.
-    val cardChrome = if (isDark) {
-        Modifier
-            .shadow(
-                elevation = 12.dp,
-                shape = cardShape,
-                ambientColor = colorScheme.accentInk.copy(alpha = 0.2f),
-                spotColor = Color.Black
-            )
-            .clip(cardShape)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, brush = borderBrush, shape = cardShape)
-    } else {
-        val lightCard = AppCardDefaults.colors()
-        Modifier
-            .shadow(
-                elevation = AppCardDefaults.Elevation,
-                shape = cardShape,
-                ambientColor = CardShadowAmbientLight,
-                spotColor = CardShadowSpotLight
-            )
-            .clip(cardShape)
-            .background(lightCard.containerColor)
-            .then(
-                lightCard.border?.let { Modifier.border(border = it, shape = cardShape) }
-                    ?: Modifier
-            )
-    }
 
     Box(
         modifier = Modifier
@@ -975,7 +925,7 @@ fun GoalItem(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     GoalCardAction(
-                        icon = Icons.Default.Delete,
+                        icon = Icons.Default.Close,
                         contentDescription = stringResource(R.string.cd_delete_goal),
                         accent = MaterialTheme.colorScheme.error,
                         onClick = onDelete
@@ -1114,12 +1064,6 @@ private fun GoalCardAction(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(accent.copy(alpha = 0.12f))
-            .border(
-                width = 1.dp,
-                color = accent.copy(alpha = 0.22f),
-                shape = RoundedCornerShape(12.dp)
-            )
             .clickable(onClick = onClick)
             .padding(10.dp),
         contentAlignment = Alignment.Center

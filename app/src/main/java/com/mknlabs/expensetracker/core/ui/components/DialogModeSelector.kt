@@ -36,6 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedFill
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -214,7 +216,7 @@ fun <T> ViewPickerDialog(
                                 val isSelected = option.id == selectedId
                                 val bgColor by animateColorAsState(
                                     targetValue = if (isSelected)
-                                        MaterialTheme.colorScheme.accentInk
+                                        MaterialTheme.colorScheme.tabSwitcherSelectedFill
                                     else if (MaterialTheme.colorScheme.isDark)
                                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                                     else
@@ -224,7 +226,7 @@ fun <T> ViewPickerDialog(
                                 )
                                 val contentColor by animateColorAsState(
                                     targetValue = if (isSelected)
-                                        MaterialTheme.colorScheme.onPrimary
+                                        MaterialTheme.colorScheme.tabSwitcherSelectedInk
                                     else
                                         MaterialTheme.colorScheme.onSurfaceVariant,
                                     animationSpec = tween(200),
@@ -263,7 +265,7 @@ fun <T> ViewPickerDialog(
                                                     .clip(CircleShape)
                                                     .background(
                                                         if (isSelected)
-                                                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f)
+                                                            MaterialTheme.colorScheme.tabSwitcherSelectedInk.copy(alpha = 0.18f)
                                                         else
                                                             MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
                                                     ),
@@ -273,7 +275,7 @@ fun <T> ViewPickerDialog(
                                                     imageVector = icon,
                                                     contentDescription = null,
                                                     tint = if (isSelected)
-                                                        MaterialTheme.colorScheme.onPrimary
+                                                        MaterialTheme.colorScheme.tabSwitcherSelectedInk
                                                     else
                                                         MaterialTheme.colorScheme.accentInk,
                                                     modifier = Modifier.size(18.dp)
