@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Info
@@ -56,9 +57,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -122,6 +123,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
@@ -135,6 +137,7 @@ import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
@@ -414,7 +417,7 @@ internal fun AddTransactionScreenContent(
         }
         var emiTotalInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
         var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
-        // Null until the user picks one — an unpicked plan starts on the
+        // Null until the user picks one Ã¢â‚¬â€ an unpicked plan starts on the
         // transaction date, so changing that date still moves the plan start.
         var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
             mutableStateOf<Long?>(null)
@@ -494,8 +497,8 @@ internal fun AddTransactionScreenContent(
         }
         val recurringCount = recurringCountInput.toIntOrNull()
 
-        // ── Recurring draft (built once, so the Add button and the save path
-        // can never disagree about what is about to be persisted) ─────────────
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Recurring draft (built once, so the Add button and the save path
+        // can never disagree about what is about to be persisted) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         val isEmiSelected = canCreateInstallment && selectedRecurringType == RecurringType.INSTALLMENT
         val effectiveFirstDueAt = emiFirstDueAtPicked ?: selectedDateMillis
         val recurringDraft = buildRecurringDraft(
@@ -540,7 +543,7 @@ internal fun AddTransactionScreenContent(
                     top = Dimens.HeaderSpacing,
                     bottom = if (dense) 12.dp else 14.dp
                 )
-                // Swipe left → Expense (next tab), swipe right → Income (previous tab),
+                // Swipe left Ã¢â€ â€™ Expense (next tab), swipe right Ã¢â€ â€™ Income (previous tab),
                 // matching the Calendar screen's month/year swipe conventions. Compose's
                 // gesture disambiguation (touch slop + Main pass bubbling) lets the vertical
                 // scroll and the horizontally-scrollable category/payment chip rows keep
@@ -662,7 +665,7 @@ internal fun AddTransactionScreenContent(
                                 keyboardController?.show()
                             },
                             onImeNext = {
-                                // Tick/enter on amount → open note sheet
+                                // Tick/enter on amount Ã¢â€ â€™ open note sheet
                                 keyboardController?.hide()
                                 noteDraft = note
                                 isNoteSheetVisible = true
@@ -1027,7 +1030,7 @@ internal fun AddTransactionScreenContent(
                                 }
                             }
                             keyboardController?.hide()
-                            // Learn merchant → payment method association
+                            // Learn merchant Ã¢â€ â€™ payment method association
                             if (note.isNotBlank()) {
                                 onLearnPaymentMethod(note, payment.id)
                             }
@@ -1531,7 +1534,7 @@ private fun RecurringTransactionSection(
                     }
                 }
 
-                // Plan terms — only the count below is shared with REGULAR.
+                // Plan terms Ã¢â‚¬â€ only the count below is shared with REGULAR.
                 if (isInstallment) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         SectionHeader(title = stringResource(R.string.label_emi_total_amount))
@@ -1576,7 +1579,7 @@ private fun RecurringTransactionSection(
                         )
                     }
 
-                    // A half-filled plan is not an error yet — only an inconsistent
+                    // A half-filled plan is not an error yet Ã¢â‚¬â€ only an inconsistent
                     // one is, exactly as in the recurring-list editor.
                     if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
                         Text(
@@ -1716,11 +1719,11 @@ private fun RecurringTransactionSection(
             onDismiss = { showAdDialog = false; pendingFrequencyForAd = null },
             onWatchAdClick = {
                 // This section is composed inside the recurring ModalBottomSheet, which is
-                // hosted in its own dialog window — LocalContext there is a
+                // hosted in its own dialog window Ã¢â‚¬â€ LocalContext there is a
                 // ContextThemeWrapper, not the Activity, so a plain `as? Activity` cast is
                 // null and the rewarded ad is never even requested. Unwrap like MainScreen.
                 val activity = context.findFragmentActivity()
-                // Grant access once it is real — reward earned, or no ad to show. Applying
+                // Grant access once it is real Ã¢â‚¬â€ reward earned, or no ad to show. Applying
                 // the pending choice up front would unlock the rule without an ad ever
                 // appearing (frequency gate: select it; rule-count gate: enable it).
                 val applyGrantedChoice = {
@@ -1981,7 +1984,7 @@ private fun <T> ChoiceChipRow(
     getLabel: (T) -> String,
     getIcon: (T) -> ImageVector,
     /**
-     * The row's identity colour, resolved by the caller — which is what decides whether this
+     * The row's identity colour, resolved by the caller Ã¢â‚¬â€ which is what decides whether this
      * is a category or a payment method, since both are numbered from 1 and their palettes
      * are separate. Null leaves the chip on the plain surface ink.
      */
@@ -2025,11 +2028,21 @@ private fun ChoiceChip(
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
                 )
                 .clip(CircleShape)
+                // Unselected wash matches the transaction-card icon (10% light / 14% dark).
+                // Selected fill is the screen background; ring and glyph use accent ink.
                 .background(
                     brush = when {
-                        isSelected -> brandGradient()
+                        isSelected -> SolidColor(MaterialTheme.colorScheme.background)
+                        identityColor != null -> SolidColor(MaterialTheme.colorScheme.categorySoft(identityColor))
                         MaterialTheme.colorScheme.isDark -> standardCardGradient()
                         else -> SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+                    }
+                )
+                .then(
+                    if (isSelected) {
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
+                    } else {
+                        Modifier
                     }
                 )
                 .clickable(onClick = onClick),
@@ -2038,13 +2051,12 @@ private fun ChoiceChip(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                // The identity colour stops at the glyph here, unlike a transaction row where
-                // it also washes the tile: the chip's fill is the chip, so tinting it would
-                // dissolve the button into the row rather than distinguish anything. Selected
-                // chips keep the on-brand icon, because the violet gradient behind it is what
-                // says "selected" and a category colour on top of it would argue with that.
+                // The identity colour reaches the glyph and the tile behind it, the two steps
+                // every other glyph tile in the app takes. Selection moves the glyph to the
+                // accent ink and rings the tile Ã¢â‚¬â€ the pair the icon picker uses for its chosen
+                // tile Ã¢â‚¬â€ so a chip reads as chosen against a grid of tinted siblings.
                 tint = when {
-                    isSelected -> MaterialTheme.colorScheme.onCta
+                    isSelected -> MaterialTheme.colorScheme.accentInk
                     identityColor != null -> identityColor
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
@@ -2338,7 +2350,7 @@ private fun QuickFavoritesRow(
                     onClick = { onSelectFavorite(favorite) },
                     label = {
                         Text(
-                            text = "${favorite.title} • ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
+                            text = "${favorite.title} Ã¢â‚¬Â¢ ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -2411,7 +2423,9 @@ private fun FavoritesBottomSheet(
                 onValueChange = { searchQuery = it },
                 placeholder = { Text(stringResource(R.string.placeholder_search_favorites)) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -2483,7 +2497,7 @@ private fun FavoriteTemplateRow(
 ) {
     val categoryLabel = availableCategories.firstOrNull { it.id == favorite.categoryId }?.name
     val paymentLabel = availablePaymentMethods.firstOrNull { it.id == favorite.paymentTypeId }?.name
-    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" • ")
+    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" Ã¢â‚¬Â¢ ")
 
     Row(
         modifier = Modifier
@@ -2519,16 +2533,22 @@ private fun FavoriteTemplateRow(
             modifier = Modifier.padding(start = 8.dp, end = 4.dp)
         )
 
-        Button(
-            onClick = onSelect,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(stringResource(R.string.label_copy))
+        // Both actions are icons. Copy is the filled copy glyph the app uses wherever it
+        // copies Ã¢â‚¬â€ the Itemized Calculator rows and the transactions menu Ã¢â‚¬â€ where the button
+        // here used to be a violet fill carrying the word; that label is the icon's content
+        // description now. Delete is the X the recurring card deletes with rather than a
+        // dustbin, so the pair reads as one row of actions.
+        IconButton(onClick = onSelect) {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = stringResource(R.string.label_copy),
+                tint = MaterialTheme.colorScheme.accentInk
+            )
         }
 
         IconButton(onClick = onDelete) {
             Icon(
-                imageVector = Icons.Rounded.Delete,
+                imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.desc_delete_favorite),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -2632,9 +2652,9 @@ private fun formatEditableAmount(amount: Double): String {
  * off or the repeat count is unusable.
  *
  * An EMI is materialized only when its terms are internally consistent
- * (`total = installment × count`, the invariant the recurring-list editor also
+ * (`total = installment Ãƒâ€” count`, the invariant the recurring-list editor also
  * enforces), compared in minor units so float noise on values like
- * `1234.56 × 3` cannot reject a plan the user entered correctly. A half-filled or
+ * `1234.56 Ãƒâ€” 3` cannot reject a plan the user entered correctly. A half-filled or
  * inconsistent plan therefore yields a draft with `plan == null`, which callers
  * must treat as unsaveable instead of persisting it as an ordinary recurring
  * rule.
@@ -2692,16 +2712,10 @@ private fun EmiAmountField(
         },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        shape = AppOutlinedFieldDefaults.shape,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         supportingText = supportingText?.let { { Text(it) } },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-            unfocusedBorderColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.outline,
-            focusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
