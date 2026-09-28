@@ -83,11 +83,10 @@ data class BudgetCategoryBudgetUi(
     val period: BudgetPeriod = BudgetPeriod.MONTHLY,
     val title: String,
     val summaryLabel: String,
-    /** The spent amount on its own, for the card's status footer. */
-    val spentLabel: String,
-    /** The share of the limit spent, as a whole percent -- over 100 once past it. */
-    val usagePercent: Int,
-    val statusValueLabel: UiText,
+    /** The amount still unspent, for the card's status footer; negative once past the limit. */
+    val remainingLabel: String,
+    /** The share of the limit still unspent, as a whole percent -- negative once past it. */
+    val remainingPercent: Int,
     val statusCaption: UiText,
     val totalCaption: UiText,
     val progressFraction: Float,
@@ -670,23 +669,24 @@ private fun buildCategoryBudgets(
             } else {
                 (spentAmount / budgetEntry.limitAmount).toFloat()
             }
+            // The amount left, and the share of the limit it is. Both go negative once the
+            // limit is passed, so the footer reads the same way in all three states.
             val remainingAmount = budgetEntry.limitAmount - spentAmount
+            val remainingPercent = 100 - (progress * 100).toInt()
             val accent = categoryAccent(progress)
-            val (statusValueLabel, statusCaption, totalCaption) = when {
-                spentAmount > budgetEntry.limitAmount -> Triple(
-                    UiText.res(R.string.format_amount_over, formatCurrencyValue(spentAmount - budgetEntry.limitAmount, currencyId, amountFormatPreferences)),
+            // The verdict word and the caption under it, in the same three states the rail tracks.
+            val (statusCaption, totalCaption) = when {
+                spentAmount > budgetEntry.limitAmount -> Pair(
                     UiText.res(R.string.label_budget_status_label),
                     UiText.res(R.string.label_exceeded)
                 )
 
-                progress >= 0.85f -> Triple(
-                    UiText.res(R.string.format_percent_used, (progress * 100).toInt()),
+                progress >= 0.85f -> Pair(
                     UiText.res(R.string.label_near_limit),
                     UiText.res(R.string.label_spent_limit)
                 )
 
-                else -> Triple(
-                    UiText.res(R.string.format_amount_left, formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences)),
+                else -> Pair(
                     UiText.res(R.string.label_safe),
                     UiText.res(R.string.label_spent_limit)
                 )
@@ -712,9 +712,8 @@ private fun buildCategoryBudgets(
                 period = budgetEntry.period,
                 title = title,
                 summaryLabel = "${formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences)} / ${formatCurrencyValue(budgetEntry.limitAmount, currencyId, amountFormatPreferences)}",
-                spentLabel = formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences),
-                usagePercent = (progress * 100).toInt(),
-                statusValueLabel = statusValueLabel,
+                remainingLabel = formatCurrencyValue(remainingAmount, currencyId, amountFormatPreferences),
+                remainingPercent = remainingPercent,
                 statusCaption = statusCaption,
                 totalCaption = totalCaption,
                 progressFraction = progress.coerceIn(0f, 1f),

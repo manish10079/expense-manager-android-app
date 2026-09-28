@@ -962,7 +962,6 @@
     <string name="label_time_and_organization">Time &amp; Organization</string>
     <string name="desc_time_and_organization">These settings control how time information is presented and how transactions are grouped in the list.</string>
     <string name="label_preview">Preview</string>
-    <string name="title_customize_transaction_card">Customize Transaction Card</string>
     <!-- Edit Profile Screen -->
     <string name="placeholder_select_gender">Select Gender</string>
     <string name="msg_unable_to_load_photo">Unable to load that image. Please try another photo.</string>
@@ -1344,9 +1343,7 @@
     <string name="label_due_tomorrow">DUE TOMORROW</string>
     <string name="format_due_in_days">DUE IN %1$d DAYS</string>
     <string name="format_percent_used">%1$d%% USED</string>
-    <string name="format_usage_percent">(%1$d%%)</string>
-    <string name="format_amount_left">%1$s LEFT</string>
-    <string name="format_amount_over">%1$s OVER</string>
+    <string name="format_remaining_pill">%1$s (%2$d%%) Left</string>
     <string name="format_next_due">NEXT %1$s</string>
     <string name="format_daily_allowance">You can spend %1$s/day</string>
 

@@ -363,14 +363,6 @@ private fun TransactionCardCustomizeContent(
                         .weight(1f)
                         .fillMaxHeight()
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.title_customize_transaction_card),
-                        color = MaterialTheme.colorScheme.accentInk,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
-                        modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
-                    )
                     TransactionCardTogglesList(
                         toggleItems = toggleItems,
                         isInPreview = isInPreview,
@@ -411,15 +403,6 @@ private fun TransactionCardCustomizeContent(
                     dateFormatPattern = dateFormatPattern,
                     timeFormat = timeFormat,
                     isProUser = isProUser
-                )
-
-                Text(
-                    text = stringResource(id = R.string.title_customize_transaction_card),
-                    color = MaterialTheme.colorScheme.accentInk,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
                 )
             }
 

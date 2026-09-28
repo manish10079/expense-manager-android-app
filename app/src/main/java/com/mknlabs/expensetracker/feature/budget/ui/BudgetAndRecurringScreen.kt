@@ -1942,17 +1942,15 @@ private fun CategoryBudgetCard(
     onInfoClick: () -> Unit
 ) {
     // The card's ink, through the scheme both times: the theme's own accent ink while the
-    // budget holds, amber once it is past its limit. Both states read it as one value, so the
-    // amount under the category name -- "Rs 3,800 LEFT" -- and the rail below it can never
-    // disagree about which state they are in. The rail ramps it (a lit edge, like every other
-    // bar in the app); the amount prints it flat, at full accent strength.
+    // budget holds, amber once it is past its limit. The rail below the header reads it as one
+    // value, so its lit edge can never disagree with the state the card is in. The rail ramps
+    // it, like every other bar in the app.
     val cardInk = if (budget.spentAmount > budget.limitAmount) {
         MaterialTheme.colorScheme.budgetCardOverspent
     } else {
         MaterialTheme.colorScheme.accentInk
     }
     val progressAccent: Brush = deepenedRamp(cardInk)
-    val statusInk = cardInk
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1996,17 +1994,6 @@ private fun CategoryBudgetCard(
                             .clickable(onClick = onInfoClick)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = budget.statusValueLabel.asString(),
-                    color = statusInk,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                        letterSpacing = 0.8.sp
-                    )
-                )
             }
 
             Column(horizontalAlignment = Alignment.End) {
@@ -2068,11 +2055,13 @@ private fun CategoryBudgetCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Two pills: the verdict, and the money behind it as a share of the limit --
-            // "Safe" beside "Rs 4,200 (52%)". Each is filled with its own ink at 20%, the
+            // Two pills: the verdict, and the money left as a share of the limit --
+            // "Safe" beside "Rs 3,800 (48%) Left". Each is filled with its own ink at 20%, the
             // recipe the recurring card's meta chips already use, so the two card types keep
             // one chrome. The status word stays in the muted ink the SPENT / LIMIT label
-            // carries; the figure keeps full ink, which is what makes it the readout.
+            // carries; the figure keeps full ink, which is what makes it the readout. Past the
+            // limit both go negative -- "-Rs 2,000 (-20%)" -- rather than flipping to an
+            // amount over, so one sign says where the budget stands in every state.
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -2084,8 +2073,11 @@ private fun CategoryBudgetCard(
                 )
 
                 RecurringMetaChip(
-                    label = budget.spentLabel + " " +
-                        stringResource(id = R.string.format_usage_percent, budget.usagePercent),
+                    label = stringResource(
+                        id = R.string.format_remaining_pill,
+                        budget.remainingLabel,
+                        budget.remainingPercent
+                    ),
                     accent = MaterialTheme.colorScheme.onSurface,
                     fillAlpha = 0.2f
                 )
@@ -2697,16 +2689,15 @@ private fun CategoryBudgetCardPreview() {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // The labels below are the ones the view model actually produces for a
-                // healthy budget: an amount LEFT, Safe, and the SPENT / LIMIT caption.
+                // healthy budget: Safe beside the SPENT / LIMIT caption.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-food",
                         categoryId = 1,
                         title = "Food",
                         summaryLabel = "Rs 4,200 / Rs 8,000",
-                        spentLabel = "Rs 4,200",
-                        usagePercent = 52,
-                        statusValueLabel = UiText.res(R.string.format_amount_left, "Rs 3,800"),
+                        remainingLabel = "Rs 3,800",
+                        remainingPercent = 48,
                         statusCaption = UiText.res(R.string.label_safe),
                         totalCaption = UiText.res(R.string.label_spent_limit),
                         progressFraction = 0.525f,
@@ -2719,16 +2710,15 @@ private fun CategoryBudgetCardPreview() {
                     onDeleteClick = {},
                     onInfoClick = {}
                 )
-                // Near limit: the percent USED, the Near Limit caption and the amber rail.
+                // Near limit: the Near Limit caption and the amber rail.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-near",
                         categoryId = 3,
                         title = "Travel",
                         summaryLabel = "Rs 10,500 / Rs 12,000",
-                        spentLabel = "Rs 10,500",
-                        usagePercent = 87,
-                        statusValueLabel = UiText.res(R.string.format_percent_used, 87),
+                        remainingLabel = "Rs 1,500",
+                        remainingPercent = 13,
                         statusCaption = UiText.res(R.string.label_near_limit),
                         totalCaption = UiText.res(R.string.label_spent_limit),
                         progressFraction = 0.875f,
@@ -2741,16 +2731,15 @@ private fun CategoryBudgetCardPreview() {
                     onDeleteClick = {},
                     onInfoClick = {}
                 )
-                // Overspent: the amount OVER the limit, the Overspent caption and EXCEEDED.
+                // Overspent: the Overspent caption and EXCEEDED.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-over",
                         categoryId = 2,
                         title = "Shopping",
                         summaryLabel = "Rs 12,000 / Rs 10,000",
-                        spentLabel = "Rs 12,000",
-                        usagePercent = 120,
-                        statusValueLabel = UiText.res(R.string.format_amount_over, "Rs 2,000"),
+                        remainingLabel = "-Rs 2,000",
+                        remainingPercent = -20,
                         statusCaption = UiText.res(R.string.label_budget_status_label),
                         totalCaption = UiText.res(R.string.label_exceeded),
                         progressFraction = 1f,
