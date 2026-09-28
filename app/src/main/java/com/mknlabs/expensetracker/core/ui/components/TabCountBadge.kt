@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.cta
-import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 internal const val MAX_TAB_BADGE_COUNT = 99
 
@@ -54,13 +54,17 @@ fun TabCountBadge(
             .semantics { contentDescription = badgeDescription }
             .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.cta)
+            .background(MaterialTheme.colorScheme.accentInk)
             .padding(horizontal = 4.dp, vertical = 1.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = visibleText,
-            color = MaterialTheme.colorScheme.onCta,
+            color = if (MaterialTheme.colorScheme.isDark) {
+                MaterialTheme.colorScheme.background
+            } else {
+                MaterialTheme.colorScheme.onPrimary
+            },
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
             maxLines = 1,
             overflow = TextOverflow.Clip,
