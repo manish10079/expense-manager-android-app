@@ -41,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -912,5 +913,57 @@ private fun AnonymousMembershipPreview() {
             onRestoreClick = {},
             onBackClick = {}
         )
+    }
+}
+
+@Preview(name = "MembershipCard Subscription", showBackground = true)
+@Preview(name = "MembershipCard Subscription Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardSubscriptionPreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.SUBSCRIPTION, storeEntitlement = renewingSubscription())
+}
+
+@Preview(name = "MembershipCard Pro Pass", showBackground = true)
+@Preview(name = "MembershipCard Pro Pass Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardProPassPreview() {
+    MembershipCardPreviewHost(
+        status = MembershipStatus.PRO_PASS,
+        proExpiryTimestamp = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30
+    )
+}
+
+@Preview(name = "MembershipCard Free", showBackground = true)
+@Preview(name = "MembershipCard Free Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardFreePreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.FREE)
+}
+
+@Preview(name = "MembershipCard Offline", showBackground = true)
+@Preview(name = "MembershipCard Offline Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardOfflinePreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.OFFLINE)
+}
+
+@Composable
+private fun MembershipCardPreviewHost(
+    status: MembershipStatus,
+    proExpiryTimestamp: Long = 0L,
+    storeEntitlement: StoreEntitlement? = null
+) {
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                MembershipCard(
+                    status = status,
+                    proExpiryTimestamp = proExpiryTimestamp,
+                    storeEntitlement = storeEntitlement,
+                    onUpgradeClick = {},
+                    onRedeemProPassClick = {}
+                )
+            }
+        }
     }
 }

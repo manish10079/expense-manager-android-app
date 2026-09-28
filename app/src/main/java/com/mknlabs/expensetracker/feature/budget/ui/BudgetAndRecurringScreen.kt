@@ -2541,6 +2541,59 @@ private fun RecurringExpenseCardPreview() {
     }
 }
 
+@Preview(name = "CategoryBudgetCard Light", showBackground = true)
+@Preview(name = "CategoryBudgetCard Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CategoryBudgetCardPreview() {
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-food",
+                        categoryId = 1,
+                        title = "Food",
+                        summaryLabel = "Rs 4,200 / Rs 8,000",
+                        statusValueLabel = UiText.dynamic("Rs 3,800 left"),
+                        statusCaption = UiText.dynamic("On track"),
+                        totalCaption = UiText.dynamic("of Rs 8,000"),
+                        progressFraction = 0.525f,
+                        spentAmount = 4200.0,
+                        limitAmount = 8000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Primary
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
+                )
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-over",
+                        categoryId = 2,
+                        title = "Shopping",
+                        summaryLabel = "Rs 12,000 / Rs 10,000",
+                        statusValueLabel = UiText.dynamic("Rs 2,000 over"),
+                        statusCaption = UiText.dynamic("Overspent"),
+                        totalCaption = UiText.dynamic("of Rs 10,000"),
+                        progressFraction = 1f,
+                        spentAmount = 12000.0,
+                        limitAmount = 10000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Overspent
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun RecurringMetaChip(
     label: String,
