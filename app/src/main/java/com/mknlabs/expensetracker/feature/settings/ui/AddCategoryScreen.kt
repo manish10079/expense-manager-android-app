@@ -273,7 +273,7 @@ private fun AddCategoryScreenContent(
                             IconButton(onClick = { onIconSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.label_delete),
+                                    contentDescription = stringResource(R.string.desc_clear_search),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

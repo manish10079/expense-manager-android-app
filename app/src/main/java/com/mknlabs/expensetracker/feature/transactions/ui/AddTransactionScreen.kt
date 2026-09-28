@@ -2337,7 +2337,7 @@ private fun QuickFavoritesRow(
                     onClick = { onSelectFavorite(favorite) },
                     label = {
                         Text(
-                            text = "${favorite.title} Ã¢â‚¬Â¢ ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
+                            text = "${favorite.title} \u2022 ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -2484,7 +2484,7 @@ private fun FavoriteTemplateRow(
 ) {
     val categoryLabel = availableCategories.firstOrNull { it.id == favorite.categoryId }?.name
     val paymentLabel = availablePaymentMethods.firstOrNull { it.id == favorite.paymentTypeId }?.name
-    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" Ã¢â‚¬Â¢ ")
+    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" \u2022 ")
 
     Row(
         modifier = Modifier

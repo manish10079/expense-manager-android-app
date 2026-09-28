@@ -168,7 +168,6 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.budgetCardAccent
 import com.mknlabs.expensetracker.core.ui.theme.budgetCardOverspent
 import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
@@ -1108,7 +1107,7 @@ private fun BudgetInlineRow(
         Text(
             text = value,
             color = valueColor,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1,
@@ -1463,14 +1462,25 @@ private fun BudgetCategoryPickerSheet(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Button(
-                onClick = {
-                    onSelectionChanged(tempSelectedIds)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+            // The Add Transaction screen's CTA, in both its fill and its ink: confirming this
+            // picker is the same brand surface the user just pressed to get here, so it wears
+            // `brandGradient()` -- the same ramp the selected rows' check marks already use --
+            // rather than the flat `primary` a stock Button paints, which in dark mode is a
+            // different, harder violet than the Add Transaction button beside it.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient())
+                    .clickable { onSelectionChanged(tempSelectedIds) }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(id = R.string.label_add))
+                Text(
+                    text = stringResource(id = R.string.label_add),
+                    color = MaterialTheme.colorScheme.onCta,
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1601,7 +1611,10 @@ private fun DeleteBudgetDialog(
         },
         confirmButton = {
             AppTextButton(onClick = onConfirm) {
-                Text(stringResource(id = R.string.label_delete_1))
+                Text(
+                    text = stringResource(id = R.string.label_delete_1),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         dismissButton = {
@@ -1834,7 +1847,10 @@ private fun DeleteRecurringDialog(
         },
         confirmButton = {
             AppTextButton(onClick = onConfirm) {
-                Text(stringResource(id = R.string.label_delete_1))
+                Text(
+                    text = stringResource(id = R.string.label_delete_1),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         dismissButton = {
@@ -1925,15 +1941,15 @@ private fun CategoryBudgetCard(
     onDeleteClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
-    // The card's own ink pair, through the scheme both times: indigo while the budget holds,
-    // amber once it is past its limit. Both states read it as one value, so the amount under
-    // the category name and the rail below it can never disagree about which state they are
-    // in. The rail ramps it (a lit edge, like every other bar in the app); the amount prints
-    // it flat.
+    // The card's ink, through the scheme both times: the theme's own accent ink while the
+    // budget holds, amber once it is past its limit. Both states read it as one value, so the
+    // amount under the category name -- "Rs 3,800 LEFT" -- and the rail below it can never
+    // disagree about which state they are in. The rail ramps it (a lit edge, like every other
+    // bar in the app); the amount prints it flat, at full accent strength.
     val cardInk = if (budget.spentAmount > budget.limitAmount) {
         MaterialTheme.colorScheme.budgetCardOverspent
     } else {
-        MaterialTheme.colorScheme.budgetCardAccent
+        MaterialTheme.colorScheme.accentInk
     }
     val progressAccent: Brush = deepenedRamp(cardInk)
     val statusInk = cardInk
@@ -1994,6 +2010,11 @@ private fun CategoryBudgetCard(
             }
 
             Column(horizontalAlignment = Alignment.End) {
+                // The spent / limit pair prints in the title's own ink -- `onSurface`,
+                // the token the category name above it reads -- so the two stay one pair
+                // in safe, near limit and overspent alike. Health is left to the rail and
+                // the labels beside it rather than recolouring the card's second line of
+                // identity in all three states.
                 Text(
                     text = budget.summaryLabel,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -2047,14 +2068,28 @@ private fun CategoryBudgetCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = budget.statusCaption.asString(),
-                color = budgetHealthColor(budget.accent),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 1.sp
+            // Two pills: the verdict, and the money behind it as a share of the limit --
+            // "Safe" beside "Rs 4,200 (52%)". Each is filled with its own ink at 20%, the
+            // recipe the recurring card's meta chips already use, so the two card types keep
+            // one chrome. The status word stays in the muted ink the SPENT / LIMIT label
+            // carries; the figure keeps full ink, which is what makes it the readout.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                RecurringMetaChip(
+                    label = budget.statusCaption.asString(),
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fillAlpha = 0.2f
                 )
-            )
+
+                RecurringMetaChip(
+                    label = budget.spentLabel + " " +
+                        stringResource(id = R.string.format_usage_percent, budget.usagePercent),
+                    accent = MaterialTheme.colorScheme.onSurface,
+                    fillAlpha = 0.2f
+                )
+            }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BudgetCardAction(
@@ -2662,13 +2697,15 @@ private fun CategoryBudgetCardPreview() {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // The labels below are the ones the view model actually produces for a
-                // healthy budget: an amount LEFT, SAFE, and the SPENT / LIMIT caption.
+                // healthy budget: an amount LEFT, Safe, and the SPENT / LIMIT caption.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-food",
                         categoryId = 1,
                         title = "Food",
                         summaryLabel = "Rs 4,200 / Rs 8,000",
+                        spentLabel = "Rs 4,200",
+                        usagePercent = 52,
                         statusValueLabel = UiText.res(R.string.format_amount_left, "Rs 3,800"),
                         statusCaption = UiText.res(R.string.label_safe),
                         totalCaption = UiText.res(R.string.label_spent_limit),
@@ -2682,13 +2719,37 @@ private fun CategoryBudgetCardPreview() {
                     onDeleteClick = {},
                     onInfoClick = {}
                 )
-                // Overspent: the amount OVER the limit, the BUDGET caption and EXCEEDED.
+                // Near limit: the percent USED, the Near Limit caption and the amber rail.
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-near",
+                        categoryId = 3,
+                        title = "Travel",
+                        summaryLabel = "Rs 10,500 / Rs 12,000",
+                        spentLabel = "Rs 10,500",
+                        usagePercent = 87,
+                        statusValueLabel = UiText.res(R.string.format_percent_used, 87),
+                        statusCaption = UiText.res(R.string.label_near_limit),
+                        totalCaption = UiText.res(R.string.label_spent_limit),
+                        progressFraction = 0.875f,
+                        spentAmount = 10500.0,
+                        limitAmount = 12000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Warning
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
+                )
+                // Overspent: the amount OVER the limit, the Overspent caption and EXCEEDED.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-over",
                         categoryId = 2,
                         title = "Shopping",
                         summaryLabel = "Rs 12,000 / Rs 10,000",
+                        spentLabel = "Rs 12,000",
+                        usagePercent = 120,
                         statusValueLabel = UiText.res(R.string.format_amount_over, "Rs 2,000"),
                         statusCaption = UiText.res(R.string.label_budget_status_label),
                         totalCaption = UiText.res(R.string.label_exceeded),
@@ -2816,7 +2877,7 @@ private fun InstallmentLedgerSheet(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "$progressLabel â€¢ $remainingLabel",
+                        text = "$progressLabel \u2022 $remainingLabel",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -2946,7 +3007,7 @@ private fun InstallmentSlotRow(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = slot.paidAt?.let { paidAt ->
-                    slot.amountLabel + " â€¢ " + formatDate(paidAt)
+                    slot.amountLabel + " \u2022 " + formatDate(paidAt)
                 } ?: slot.amountLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodySmall

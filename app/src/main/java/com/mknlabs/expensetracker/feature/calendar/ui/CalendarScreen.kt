@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
@@ -114,8 +115,6 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import java.util.Calendar
 
 // Theme colors are now derived from MaterialTheme.colorScheme
-
-private val dayNames = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 
 @Composable
 fun CalendarScreen(
@@ -602,12 +601,13 @@ private fun MonthCalendarCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Title-case weekday initials shared with the analytics charts.
+                val dayNames = stringArrayResource(R.array.days_of_week_short)
                 dayNames.forEachIndexed { index, day ->
                     Text(
                         text = day,
                         color = when (index) {
-                            5 -> MaterialTheme.colorScheme.tertiary
-                            6 -> MaterialTheme.colorScheme.expense
+                            5, 6 -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         style = MaterialTheme.typography.labelSmall,

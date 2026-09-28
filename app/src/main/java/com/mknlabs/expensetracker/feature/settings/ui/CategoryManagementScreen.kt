@@ -355,7 +355,11 @@ private fun CategoryManagementContent(
                     }
                     pendingDeleteItem = null
                 }) {
-                    Text(stringResource(R.string.label_delete_confirm), fontWeight = FontWeight.Bold)
+                    Text(
+                        text = stringResource(R.string.label_delete_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
@@ -550,7 +554,7 @@ private fun CategoryManagementCard(
                 Icon(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.content_desc_delete_item, item.title),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(18.dp)
                 )
             }

@@ -569,17 +569,15 @@ val ColorScheme.budgetOver: Color
     get() = if (isDark) BudgetOverDark else BudgetOverLight
 
 // ── Budget card ink ──────────────────────────────────────────────────────────
-// The category card's own pair: the indigo its remaining amount and rail carry, and the
-// amber they both switch to once the limit is past. A role rather than a screen-level
-// literal so no composable names a colour, and deliberately NOT the health traffic-light
-// above — the card is specified at these two tones, and at the same two in BOTH themes,
-// which is why one literal serves each branch rather than a light/dark pair. The rail
-// ramps these through [deepenedRamp]; the amount prints them flat.
-internal val BudgetCardAccentInk = Color(0xFF4F46E5)
+// The category card's overspent ink: the amber its remaining amount and rail switch to once
+// the limit is past. A role rather than a screen-level literal so no composable names a
+// colour, and deliberately NOT the health traffic-light above — the card is specified at this
+// tone, and at the same tone in BOTH themes, which is why one literal serves both palettes.
+//
+// The healthy branch has no literal here at all: it is the scheme's own `accentInk`, so the
+// amount and the rail move with the theme the way every other accent label in the app does.
+// The rail ramps whichever ink it is handed through [deepenedRamp]; the amount prints it flat.
 internal val BudgetCardOverspentInk = Color(0xFFFB923C)
-
-val ColorScheme.budgetCardAccent: Color
-    get() = BudgetCardAccentInk
 
 val ColorScheme.budgetCardOverspent: Color
     get() = BudgetCardOverspentInk

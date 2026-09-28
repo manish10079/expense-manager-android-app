@@ -640,6 +640,9 @@ private fun ProfilePhotoSection(
 ) {
     val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
     val photoActionIconColor = MaterialTheme.colorScheme.secondary
+    // Removing the photo is destructive, so the trash action carries the same error ink as
+    // every other delete control in the app; the edit action beside it keeps the neutral pair.
+    val photoDeleteIconColor = MaterialTheme.colorScheme.error
 
     ProfileAvatar(
         gender = gender,
@@ -685,9 +688,9 @@ private fun ProfilePhotoSection(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = stringResource(id = R.string.content_desc_delete_photo),
                 tint = if (photoUri != null && !isPhotoProcessing) {
-                    photoActionIconColor
+                    photoDeleteIconColor
                 } else {
-                    photoActionIconColor.copy(alpha = 0.65f)
+                    photoDeleteIconColor.copy(alpha = 0.65f)
                 }
             )
         }

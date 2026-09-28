@@ -390,7 +390,10 @@ private fun SmsInboxContent(
             text = { Text(stringResource(id = R.string.label_sms_inbox_delete_body)) },
             confirmButton = {
                 AppTextButton(onClick = onConfirmDelete) {
-                    Text(stringResource(id = R.string.action_delete))
+                    Text(
+                        text = stringResource(id = R.string.action_delete),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {

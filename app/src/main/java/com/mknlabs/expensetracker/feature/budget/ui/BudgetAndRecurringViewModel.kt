@@ -83,6 +83,10 @@ data class BudgetCategoryBudgetUi(
     val period: BudgetPeriod = BudgetPeriod.MONTHLY,
     val title: String,
     val summaryLabel: String,
+    /** The spent amount on its own, for the card's status footer. */
+    val spentLabel: String,
+    /** The share of the limit spent, as a whole percent -- over 100 once past it. */
+    val usagePercent: Int,
     val statusValueLabel: UiText,
     val statusCaption: UiText,
     val totalCaption: UiText,
@@ -708,6 +712,8 @@ private fun buildCategoryBudgets(
                 period = budgetEntry.period,
                 title = title,
                 summaryLabel = "${formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences)} / ${formatCurrencyValue(budgetEntry.limitAmount, currencyId, amountFormatPreferences)}",
+                spentLabel = formatCurrencyValue(spentAmount, currencyId, amountFormatPreferences),
+                usagePercent = (progress * 100).toInt(),
                 statusValueLabel = statusValueLabel,
                 statusCaption = statusCaption,
                 totalCaption = totalCaption,

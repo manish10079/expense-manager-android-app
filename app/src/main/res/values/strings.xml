@@ -149,6 +149,7 @@
     <string name="desc_favorite_icon">Favorite</string>
 
     <string name="desc_clear_note">Clear note</string>
+    <string name="desc_clear_search">Clear search</string>
     <string name="desc_close">Close</string>
     <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>
     <string name="desc_add_category">Add category</string>
@@ -325,6 +326,7 @@
     <string name="desc_back">Go back</string>
     <string name="desc_close_filters">Close filters</string>
     <string name="desc_close_search">Close search</string>
+    <string name="desc_remove_filter">Remove filter</string>
     <string name="desc_custom_range">Custom range</string>
     <string name="desc_delete">Delete</string>
     <string name="desc_add_all">Add All</string>
@@ -862,7 +864,7 @@
     <string name="msg_sms_inbox_invalid_amount">Enter an amount greater than zero</string>
     <string name="label_this_month_caps">THIS MONTH</string>
     <string name="label_custom_month_caps">Custom Month</string>
-    <string name="label_remaining">REMAINING</string>
+    <string name="label_remaining">Remaining</string>
     <string name="label_over">Over Spent</string>
     <string name="title_add_budget">Add Budget</string>
     <string name="title_edit_budget">Edit Budget</string>
@@ -949,6 +951,10 @@
     <string name="desc_display_wallet_or_card">Display wallet or card used</string>
     <string name="desc_group_transactions_by_day">Group transactions under sticky day headers (e.g., \"Today\", \"Yesterday\").</string>
     <string name="title_transaction_card_settings">Customisation</string>
+    <string name="label_on_each_transaction_card">On Each Transaction Card</string>
+    <string name="desc_on_each_transaction_card">These settings control what information appears on every transaction card in the list.</string>
+    <string name="label_in_the_list">In the List</string>
+    <string name="desc_in_the_list">These settings control how the transaction list is grouped and summarized around those cards.</string>
     <string name="label_visual_style">Visual Style</string>
     <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>
     <string name="label_transaction_details">Transaction Details</string>
@@ -1319,11 +1325,11 @@
     <!-- Budget Status & Labels -->
     <string name="label_no_budget">NO BUDGET</string>
     <string name="label_add_a_budget">ADD A BUDGET</string>
-    <string name="label_near_limit">NEAR LIMIT</string>
-    <string name="label_safe">SAFE</string>
+    <string name="label_near_limit">Near Limit</string>
+    <string name="label_safe">Safe</string>
     <string name="label_spent_limit">SPENT / LIMIT</string>
     <string name="label_exceeded">EXCEEDED</string>
-    <string name="label_budget_status_label">BUDGET</string>
+    <string name="label_budget_status_label">Overspent</string>
 
     <!-- Budget Messages -->
     <string name="msg_no_budgets_locked">No budgets were set for %1$s. History is now locked.</string>
@@ -1338,6 +1344,7 @@
     <string name="label_due_tomorrow">DUE TOMORROW</string>
     <string name="format_due_in_days">DUE IN %1$d DAYS</string>
     <string name="format_percent_used">%1$d%% USED</string>
+    <string name="format_usage_percent">(%1$d%%)</string>
     <string name="format_amount_left">%1$s LEFT</string>
     <string name="format_amount_over">%1$s OVER</string>
     <string name="format_next_due">NEXT %1$s</string>

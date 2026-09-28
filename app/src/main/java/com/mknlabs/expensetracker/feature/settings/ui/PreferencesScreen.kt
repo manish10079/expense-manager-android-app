@@ -559,7 +559,10 @@ private fun FontPickerSheet(
                     onDeleteFont(fileName)
                     showDeleteDialog = null
                 }) {
-                    Text(stringResource(R.string.label_delete))
+                    Text(
+                        text = stringResource(R.string.label_delete),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
