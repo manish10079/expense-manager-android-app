@@ -239,6 +239,7 @@ class PaywallViewModelTest {
         // arrives at all. Either way the user has paid, so the paywall must not wait for it.
         assertFalse(viewModel.uiState.value.isPremium)
         assertTrue(viewModel.uiState.value.isPurchaseSettled)
+        assertTrue(viewModel.uiState.value.isPurchaseSuccess)
     }
 
     @Test

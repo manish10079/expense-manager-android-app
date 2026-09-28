@@ -2084,6 +2084,9 @@
     <string name="paywall_period_year">per year</string>
     <string name="paywall_period_one_time">one-time</string>
     <string name="msg_paywall_purchase_success">You\'re on Pro now. Enjoy!</string>
+    <string name="title_paywall_purchase_congrats">Congratulations</string>
+    <string name="msg_paywall_purchase_congrats">You are Pro. Unlimited insights, no ads, and every feature unlocked. Enjoy the upgrade.</string>
+    <string name="content_desc_opening_play_store">Opening Google Play</string>
     <string name="msg_paywall_restore_success">Your purchase was restored.</string>
     <string name="msg_paywall_restore_nothing_found">No previous purchase was found for this account.</string>
     <string name="msg_paywall_payment_pending">Your payment is pending. Pro unlocks as soon as the payment completes.</string>

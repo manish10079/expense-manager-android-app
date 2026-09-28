@@ -823,6 +823,10 @@ fun AppNavigationHost(
                     // whichever one opened it; `resolveBackNavigationRoute` owns that
                     // decision and Home is the safe fallback.
                     PaywallRoute(
+                        onNavigateToMembership = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.MembershipDetails)
+                        },
                         onBackClick = {
                             val backRoute = resolveBackNavigationRoute(AppRoute.Paywall, profileOriginRoute, previousRoute, paywallOriginRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)
