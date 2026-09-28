@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.RowScope
@@ -37,8 +38,9 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -235,7 +237,9 @@ fun ItemizedCalculatorScreen(
                         descriptionInput = uiState.descriptionInput,
                         amountInput = uiState.amountInput,
                         canAddItem = uiState.canAddItem,
+                        isEditingItem = uiState.editingItemId != null,
                         onDeleteItem = viewModel::deleteItem,
+                        onEditItem = viewModel::startEditingItem,
                         onDescriptionChange = viewModel::updateDescriptionInput,
                         onAmountChange = viewModel::updateAmountInput,
                         onStartAdding = viewModel::startAddingItem,
@@ -331,7 +335,9 @@ private fun ItemizedCalculatorContent(
     descriptionInput: String,
     amountInput: String,
     canAddItem: Boolean,
+    isEditingItem: Boolean,
     onDeleteItem: (Int) -> Unit,
+    onEditItem: (CalculatorLineItem) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onAmountChange: (String) -> Unit,
     onStartAdding: () -> Unit,
@@ -388,7 +394,8 @@ private fun ItemizedCalculatorContent(
                         item = item,
                         currencyId = currencyId,
                         amountFormatPreferences = amountFormatPreferences,
-                        onDeleteClick = { onDeleteItem(item.id) }
+                        onDeleteClick = { onDeleteItem(item.id) },
+                        onEditClick = { onEditItem(item) }
                     )
                 }
             }
@@ -402,7 +409,8 @@ private fun ItemizedCalculatorContent(
                         onDescriptionChange = onDescriptionChange,
                         onAmountChange = onAmountChange,
                         onCancel = onCancelAdding,
-                        onAddClick = onAddItem
+                        onAddClick = onAddItem,
+                        isEditing = isEditingItem
                     )
                 }
             }
@@ -1008,7 +1016,8 @@ private fun BreakdownItemCard(
     item: CalculatorLineItem,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(28.dp)
     val colorScheme = MaterialTheme.colorScheme
@@ -1062,67 +1071,127 @@ private fun BreakdownItemCard(
             }
             .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Column 1: the two labels on top, their two values underneath. SpaceBetween
+            // rather than a fixed gap so both rows reach the top and bottom of the block and
+            // so line up with the two actions beside them, which are taller than either row.
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = stringResource(id = R.string.label_description_caps),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        letterSpacing = 0.8.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-
-                Text(
-                    text = stringResource(id = R.string.label_amount_caps),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        letterSpacing = 0.8.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = item.description,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(start = 14.dp, end = 16.dp)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f))
-                        .clickable(onClick = onDeleteClick),
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.DeleteOutline,
-                        contentDescription = stringResource(id = R.string.content_desc_delete_item, item.description),
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(18.dp)
+                    Text(
+                        text = stringResource(id = R.string.label_description_caps),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 0.8.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+
+                    Text(
+                        text = stringResource(id = R.string.label_amount_caps),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 0.8.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = item.description,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // No trailing inset: the amount now shares the AMOUNT label's right edge,
+                    // which is this column's edge rather than the card's.
+                    Text(
+                        text = formatCurrencyValue(item.amount, currencyId, amountFormatPreferences),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(start = 14.dp)
                     )
                 }
             }
+
+            // Column 2: edit over delete, level with the rows they act on.
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(start = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                BreakdownRowAction(
+                    icon = Icons.Rounded.Edit,
+                    contentDescription = stringResource(
+                        id = R.string.content_desc_edit_item,
+                        item.description
+                    ),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    onClick = onEditClick
+                )
+
+                BreakdownRowAction(
+                    icon = Icons.Rounded.Close,
+                    contentDescription = stringResource(
+                        id = R.string.content_desc_delete_item,
+                        item.description
+                    ),
+                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f),
+                    contentColor = MaterialTheme.colorScheme.error,
+                    onClick = onDeleteClick
+                )
+            }
         }
+    }
+}
+
+/**
+ * One 28.dp round action on a breakdown row. The wash and the glyph travel together, so a
+ * caller cannot pair a delete glyph with the neutral wash the edit action wears.
+ */
+@Composable
+private fun BreakdownRowAction(
+    icon: ImageVector,
+    contentDescription: String,
+    containerColor: Color,
+    contentColor: Color,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(28.dp)
+            .clip(CircleShape)
+            .background(containerColor)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = contentColor,
+            modifier = Modifier.size(18.dp)
+        )
     }
 }
 
@@ -1131,6 +1200,7 @@ private fun AddItemInputCard(
     description: String,
     amount: String,
     canAddItem: Boolean,
+    isEditing: Boolean,
     onDescriptionChange: (String) -> Unit,
     onAmountChange: (String) -> Unit,
     onCancel: () -> Unit,
@@ -1193,7 +1263,7 @@ private fun AddItemInputCard(
 
             PrimaryActionButton(
                 modifier = Modifier.weight(1f),
-                label = stringResource(id = R.string.label_add_item),
+                label = stringResource(id = if (isEditing) R.string.label_update_action else R.string.label_add_item),
                 enabled = canAddItem,
                 onClick = onAddClick
             )
@@ -1344,17 +1414,17 @@ private fun ApplyToNoteButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp)
             .alpha(if (enabled) 1f else 0.55f)
             .shadow(
                 elevation = 22.dp,
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(28.dp),
                 ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.28f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
             )
-            .clip(RoundedCornerShape(32.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(brush = brandGradient())
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -1363,7 +1433,7 @@ private fun ApplyToNoteButton(
         ) {
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(18.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
@@ -1372,7 +1442,7 @@ private fun ApplyToNoteButton(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = stringResource(id = R.string.label_apply_to_note),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(12.dp)
                 )
             }
 
@@ -1381,7 +1451,7 @@ private fun ApplyToNoteButton(
             Text(
                 text = stringResource(id = R.string.label_apply_to_note),
                 color = MaterialTheme.colorScheme.onCta,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleSmall
             )
         }
     }
@@ -1700,6 +1770,7 @@ private fun ItemizedCalculatorScreenPreview() {
             description = "appy fizz",
             amount = "1000",
             canAddItem = true,
+            isEditing = false,
             onDescriptionChange = {},
             onAmountChange = {},
             onCancel = {},

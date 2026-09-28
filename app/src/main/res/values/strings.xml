@@ -217,7 +217,6 @@
     <string name="label_transactionid">transactionId</string>
     <string name="label_transactions">TRANSACTIONS</string>
     <string name="label_your_highest_expenses_in_the_s">Your highest expenses in the selected period.</string>
-    <string name="title_add_new_budget">ADD NEW BUDGET</string>
     <string name="title_amount">Amount</string>
     <string name="title_amount_range">Amount Range</string>
     <string name="title_budget_recurring">Budget &amp; Recurring</string>
@@ -752,6 +751,7 @@
     <string name="label_description_caps">DESCRIPTION</string>
     <string name="label_amount_caps">AMOUNT</string>
     <string name="content_desc_delete_item">Delete %1$s</string>
+    <string name="content_desc_edit_item">Edit %1$s</string>
     <string name="placeholder_description_ex">Ex. Coffee House</string>
     <string name="placeholder_amount_zero">0.00</string>
     <string name="content_desc_add_item">Add item</string>

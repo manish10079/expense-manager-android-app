@@ -44,7 +44,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
@@ -541,8 +540,8 @@ private fun BudgetAndRecurringContent(
                         item {
                             val canAdd = uiState.canAddBudget
                             BudgetActionButton(
-                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
-                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
+                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_budget),
+                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else null,
                                 enabled = canAdd,
                                 onClick = {
                                     editingBudgetId = null
@@ -2200,7 +2199,7 @@ private fun BudgetProgressBar(
 @Composable
 private fun BudgetActionButton(
     title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -2215,26 +2214,28 @@ private fun BudgetActionButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(backgroundBrush)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 18.dp),
+            .padding(vertical = 14.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.onCta,
-            modifier = Modifier.size(18.dp)
-        )
+        icon?.let { iconVector ->
+            Icon(
+                imageVector = iconVector,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.onCta,
+                modifier = Modifier.size(18.dp)
+            )
 
-        Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+        }
 
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onCta,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 1.2.sp
             )
