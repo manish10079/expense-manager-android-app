@@ -1335,7 +1335,7 @@
     <string name="format_over_amount">Over %1$s</string>
     <string name="format_limit_amount">LIMIT %1$s</string>
     <string name="format_started_date">Started %1$s</string>
-    <string name="label_due_today">DUE TODAY</string>
+    <string name="label_due_today">Due Today</string>
     <string name="label_due_tomorrow">DUE TOMORROW</string>
     <string name="format_due_in_days">DUE IN %1$d DAYS</string>
     <string name="format_percent_used">%1$d%% USED</string>

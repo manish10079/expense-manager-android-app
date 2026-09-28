@@ -122,6 +122,12 @@ data class BudgetRecurringExpenseUi(
     val totalInstallments: Int,
     val sourceDateLabel: UiText,
     val dueLabel: UiText,
+    /**
+     * True when [dueLabel] is a relative countdown (today, tomorrow, within the week)
+     * rather than a calendar date. The card inks such a due date like the
+     * installment pill so an approaching date stands out from the rest.
+     */
+    val isDueSoon: Boolean = false,
     val dueAmountLabel: String,
     val icon: ImageVector,
     val colorHex: String? = null,
@@ -758,8 +764,7 @@ private fun buildRecurringExpenses(
             }
         }
         .sortedWith(
-            compareBy<BudgetRecurringExpenseUi> { !it.isEnabled }
-                .thenBy { it.repeatCount <= 0 }
+            compareBy<BudgetRecurringExpenseUi> { it.repeatCount <= 0 }
                 .thenBy { it.nextDueAt }
                 .thenBy { it.title.lowercase(Locale.getDefault()) }
         )
@@ -806,6 +811,7 @@ private fun buildRegularExpense(
         totalInstallments = recurringEntry.repeatCount,
         sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
         dueLabel = dueLabelFor(nextDueAt, referenceTime),
+        isDueSoon = isNearDue(nextDueAt, referenceTime),
         dueAmountLabel = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
         icon = category.icon,
         accent = accent,
@@ -888,6 +894,9 @@ private fun buildInstallmentExpense(
         hasOverdueSlot -> UiText.res(R.string.label_emis_overdue)
         else -> dueLabelFor(nextDueAt, referenceTime)
     }
+    // "All settled" and "overdue" are not countdowns, so only the relative
+    // labels (today / tomorrow / in N days) get the due-soon ink.
+    val isDueSoon = !isDone && !hasOverdueSlot && isNearDue(nextDueAt, referenceTime)
 
     return BudgetRecurringExpenseUi(
         id = recurringEntry.id,
@@ -902,6 +911,7 @@ private fun buildInstallmentExpense(
         totalInstallments = totalCount,
         sourceDateLabel = UiText.res(R.string.format_started_date, recurringDateFormatter.format(Date(transaction.createdAt))),
         dueLabel = dueLabel,
+        isDueSoon = isDueSoon,
         dueAmountLabel = formatCurrencyValue(perAmount, currencyId, amountFormatPreferences),
         icon = category.icon,
         accent = accent,
@@ -1029,11 +1039,21 @@ private fun calculateNextInstallmentInfo(
 
     return nextCalendar.timeInMillis to (index - 1).coerceAtLeast(1)
 }
+/** Past a week the card shows a calendar date instead of a countdown. */
+private const val NEAR_DUE_DAYS = 6
+
+private fun daysUntil(nextDueAt: Long, referenceTime: Long): Int =
+    ((startOfDay(nextDueAt) - startOfDay(referenceTime)) / DAY_IN_MILLIS).toInt()
+
+/** True while [dueLabelFor] would render a relative countdown (today through in 6 days). */
+private fun isNearDue(nextDueAt: Long, referenceTime: Long): Boolean =
+    daysUntil(nextDueAt, referenceTime) <= NEAR_DUE_DAYS
+
 private fun dueLabelFor(
     nextDueAt: Long,
     referenceTime: Long
 ): UiText {
-    val diffDays = ((startOfDay(nextDueAt) - startOfDay(referenceTime)) / DAY_IN_MILLIS).toInt()
+    val diffDays = daysUntil(nextDueAt, referenceTime)
     return when {
         diffDays <= 0 -> UiText.res(R.string.label_due_today)
         diffDays == 1 -> UiText.res(R.string.label_due_tomorrow)

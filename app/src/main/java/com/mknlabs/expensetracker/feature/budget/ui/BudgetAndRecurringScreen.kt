@@ -9,7 +9,6 @@ import androidx.compose.material3.FilterChipDefaults
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.ui.draw.alpha
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -101,6 +100,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -128,6 +128,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -164,6 +165,7 @@ import com.mknlabs.expensetracker.core.ui.theme.budgetNearLimit
 import com.mknlabs.expensetracker.core.ui.theme.budgetOver
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -1907,6 +1909,13 @@ private fun MuteRecurringDialog(
 
 
 
+/**
+ * The budget card's three headline labels run 10% under their type-scale role: at full
+ * size the category name, the amount pair and the SPENT / LIMIT caption crowd each other
+ * on a narrow card.
+ */
+private const val BUDGET_CARD_TEXT_SCALE = 0.9f
+
 @Composable
 private fun CategoryBudgetCard(
     budget: BudgetCategoryBudgetUi,
@@ -1914,63 +1923,33 @@ private fun CategoryBudgetCard(
     onDeleteClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
-    val containerBrush = when {
-        budget.spentAmount > budget.limitAmount -> Brush.verticalGradient(
-            colors = listOf(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
-        )
-
-        budget.progressFraction >= 0.85f -> Brush.verticalGradient(
-            colors = listOf(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f))
-        )
-
-        else -> standardCardGradient()
+    // The hero summary bar's brand ramp, so a single category and the month's whole
+    // budget read as the same measure. Overspent is the exception: the fill switches to
+    // the installment pill's ink, the tone the recurring card gives its expense figure,
+    // so a broken budget never dresses in brand purple.
+    val progressAccent: Brush = if (budget.spentAmount > budget.limitAmount) {
+        SolidColor(MaterialTheme.colorScheme.expense)
+    } else {
+        brandGradient()
     }
-    val categoryColor = MaterialTheme.colorScheme.categoryColor(
-        categoryId = budget.categoryId,
-        colorHex = budget.colorHex
-    )
-    val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-    val iconBorder = remember(iconBorderColor) {
-        BorderStroke(width = 1.dp, color = iconBorderColor)
-    }
-    val unusedIconContainer = when {
-        budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
-        budget.progressFraction >= 0.85f -> MaterialTheme.colorScheme.tertiaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(containerBrush)
+            // The recurring rule card's chrome: its fill and its single brand hairline,
+            // the same in every state, so the two card types sitting in the same list read
+            // as one family. Health is carried by the progress bar and the status labels
+            // instead of by the container.
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .border(
                 width = 1.dp,
-                color = budgetHealthColor(budget.accent).copy(alpha = 0.24f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp).clip(CircleShape)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.categorySoft(categoryColor))
-                    .border(iconBorder, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = budget.icon,
-                    contentDescription = budget.title,
-                    tint = categoryColor,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -1980,7 +1959,8 @@ private fun CategoryBudgetCard(
                         text = budget.title,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -2013,7 +1993,8 @@ private fun CategoryBudgetCard(
                     text = budget.summaryLabel,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                     )
                 )
 
@@ -2024,7 +2005,8 @@ private fun CategoryBudgetCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        letterSpacing = 0.7.sp
+                        letterSpacing = 0.7.sp,
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                     )
                 )
             }
@@ -2049,9 +2031,10 @@ private fun CategoryBudgetCard(
 
         BudgetProgressBar(
             progress = budget.progressFraction,
-            accent = Brush.horizontalGradient(
-                colors = listOf(budgetHealthColor(budget.accent), budgetHealthColor(budget.accent).copy(alpha = 0.8f))
-            )
+            accent = progressAccent,
+            // The goals card's bar: a slimmer rail sitting on the dedicated track token.
+            height = 8.dp,
+            trackColor = MaterialTheme.colorScheme.track
         )
 
         Row(
@@ -2072,7 +2055,10 @@ private fun CategoryBudgetCard(
                 BudgetCardAction(
                     icon = Icons.Default.Edit,
                     contentDescription = stringResource(id = R.string.label_edit),
-                    accent = MaterialTheme.colorScheme.accentInk,
+                    // The recurring rule card inks its edit action with the neutral
+                    // variant rather than brand, which keeps the row's only loud glyph
+                    // the destructive one.
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
                     isLocked = !budget.canEdit,
                     filled = false,
                     onClick = { if (budget.canEdit) onEditClick() }
@@ -2172,7 +2158,10 @@ private fun BudgetCardAction(
 private fun BudgetProgressBar(
     progress: Float,
     accent: Brush,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Defaults are the hero summary bar's 12dp rail; a card passes the goals styling. */
+    height: Dp = 12.dp,
+    trackColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),
@@ -2183,14 +2172,14 @@ private fun BudgetProgressBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(12.dp)
+            .height(height)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(trackColor)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(animatedProgress)
-                .height(12.dp)
+                .height(height)
                 .clip(CircleShape)
                 .background(accent)
         )
@@ -2255,43 +2244,41 @@ private fun RecurringExpenseCard(
     onLedgerClick: (() -> Unit)? = null
 ) {
     val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
-    
+    val categoryInk = MaterialTheme.colorScheme.onSurfaceVariant
+    val titleColor = if (expense.isEnabled) MaterialTheme.colorScheme.onSurface else categoryInk
+    val frequencyAccent = if (expense.isEnabled) MaterialTheme.colorScheme.income else categoryInk
+    val installmentAccent = if (expense.isEnabled) MaterialTheme.colorScheme.expense else categoryInk
+    // A countdown (due today / tomorrow / in N days) borrows the installment pill's
+    // ink so an approaching date stands out; a calendar date stays neutral.
+    val dueColor = when {
+        !expense.isEnabled -> categoryInk
+        expense.isDueSoon -> installmentAccent
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    val chipFillAlpha = if (expense.isEnabled) 0.07f else 0.14f
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // One edge for every state: the normal rule's brand hairline. A rule that is
+            // due soon, overdue, daily, yearly or switched off no longer repaints its
+            // outline, so state is told by the sparkle, the due ink and the chips instead.
             .border(
                 width = 1.dp,
-                color = budgetAccentColor(expense.accent).copy(alpha = 0.18f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(15.dp)
             )
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = expense.icon,
-                    contentDescription = expense.title,
-                    tint = budgetAccentColor(expense.accent),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = expense.title,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = titleColor,
                         style = MaterialTheme.typography.titleSmall
                             .copy(
                            fontWeight = FontWeight.Medium
@@ -2340,7 +2327,7 @@ private fun RecurringExpenseCard(
                     checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
                     checkedTrackColor = MaterialTheme.colorScheme.switchOnTrack,
                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     uncheckedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
@@ -2349,17 +2336,17 @@ private fun RecurringExpenseCard(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             RecurringMetaChip(
                 label = expense.categoryLabel,
-                accent = MaterialTheme.colorScheme.onSurfaceVariant
+                accent = categoryInk
             )
             RecurringMetaChip(
                 label = expense.frequencyLabel,
-                accent = MaterialTheme.colorScheme.income,
-                fillAlpha = 0.07f
+                accent = frequencyAccent,
+                fillAlpha = chipFillAlpha
             )
             RecurringMetaChip(
                 label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
-                accent = MaterialTheme.colorScheme.expense,
-                fillAlpha = 0.07f
+                accent = installmentAccent,
+                fillAlpha = chipFillAlpha
             )
         }
 
@@ -2372,14 +2359,16 @@ private fun RecurringExpenseCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = expense.dueLabel.asString(),
-                        color = budgetAccentColor(expense.accent),
+                        color = dueColor,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                             letterSpacing = 0.8.sp
                         )
                     )
                     
-                    if (expense.dueLabel.asString().contains("TODAY")) {
+                    if (expense.dueLabel.asString()
+                            .equals(stringResource(id = R.string.label_due_today), ignoreCase = true)
+                    ) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -2454,93 +2443,209 @@ private fun RecurringExpenseCard(
     }
 }
 
-@Preview(name = "RecurringExpenseCard Light", showBackground = true)
-@Preview(name = "RecurringExpenseCard Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+/**
+ * Every state [RecurringExpenseCard] can be in, so the light and dark hosts below can
+ * show the whole matrix on one screen instead of across a dozen separate previews.
+ *
+ * Order runs from the calm states to the loud ones: a plain calendar date, the countdown
+ * labels, the frequency accents, a muted rule, a switched-off rule, and an EMI with its
+ * ledger affordance.
+ */
+private fun recurringExpenseCardStates(): List<BudgetRecurringExpenseUi> = listOf(
+    previewRecurringExpense(
+        id = "preview-regular",
+        title = "Rent",
+        dueLabel = "01 Oct",
+        accent = BudgetAccent.Primary
+    ),
+    // Due today: countdown ink plus the red dot.
+    previewRecurringExpense(
+        id = "preview-due-today",
+        title = "Internet",
+        amountLabel = "Rs 999 / Month",
+        dueLabel = "Due Today",
+        accent = BudgetAccent.Overspent,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-due-soon",
+        title = "Insurance",
+        amountLabel = "Rs 2,400 / Month",
+        dueLabel = "In 2 days",
+        accent = BudgetAccent.Warning,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-daily",
+        title = "Coffee",
+        amountLabel = "Rs 150 / Day",
+        frequency = RecurringFrequency.Daily,
+        frequencyLabel = "Daily",
+        dueLabel = "Tomorrow",
+        accent = BudgetAccent.Daily,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-weekly",
+        title = "Groceries",
+        amountLabel = "Rs 3,000 / Week",
+        frequency = RecurringFrequency.Weekly,
+        frequencyLabel = "Weekly",
+        dueLabel = "Fri 03 Oct",
+        accent = BudgetAccent.Warning
+    ),
+    previewRecurringExpense(
+        id = "preview-yearly",
+        title = "Domain",
+        amountLabel = "Rs 1,099 / Year",
+        frequency = RecurringFrequency.Yearly,
+        frequencyLabel = "Yearly",
+        dueLabel = "12 Mar",
+        accent = BudgetAccent.Yearly
+    ),
+    // Notifications off: the bell action flips to the muted glyph.
+    previewRecurringExpense(
+        id = "preview-muted",
+        title = "Streaming",
+        amountLabel = "Rs 199 / Month",
+        dueLabel = "20 Oct",
+        accent = BudgetAccent.Primary,
+        notificationsEnabled = false
+    ),
+    // Switched off: every ink on the card drops to the muted variant.
+    previewRecurringExpense(
+        id = "preview-disabled",
+        title = "Gym",
+        amountLabel = "Rs 1,200 / Month",
+        dueLabel = "12 Oct",
+        accent = BudgetAccent.Disabled,
+        isEnabled = false
+    ),
+    // EMI: adds the installment chip row and the ledger action.
+    previewRecurringExpense(
+        id = "preview-emi",
+        title = "Phone EMI",
+        amountLabel = "Rs 4,500 / Month",
+        categoryLabel = "Electronics",
+        dueLabel = "15 Oct",
+        accent = BudgetAccent.Primary,
+        isInstallment = true
+    )
+)
+
+@Preview(
+    name = "RecurringExpenseCard States Light",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1800
+)
 @Composable
-private fun RecurringExpenseCardPreview() {
+private fun RecurringExpenseCardStatesLightPreview() {
+    RecurringExpenseCardStatesHost()
+}
+
+@Preview(
+    name = "RecurringExpenseCard States Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 412,
+    heightDp = 1800
+)
+@Composable
+private fun RecurringExpenseCardStatesDarkPreview() {
+    RecurringExpenseCardStatesHost()
+}
+
+/**
+ * The shared light/dark host: one scrolling column holding every card state. The scroll
+ * matters in interactive mode (the column is taller than the preview) and is harmless in a
+ * static render, which simply clips at the preview's height.
+ */
+@Composable
+private fun RecurringExpenseCardStatesHost() {
+    val states = remember { recurringExpenseCardStates() }
     ExpenseTrackerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                RecurringExpenseCard(
-                    expense = BudgetRecurringExpenseUi(
-                        id = "preview-rent",
-                        transactionId = "tx-preview-rent",
-                        title = "Rent",
-                        amountLabel = "â‚¹12,000",
-                        categoryLabel = "Housing",
-                        frequency = RecurringFrequency.Monthly,
-                        frequencyLabel = "Monthly",
-                        repeatCount = 12,
-                        currentInstallment = 3,
-                        totalInstallments = 12,
-                        sourceDateLabel = UiText.dynamic("01 Jan 2026"),
-                        dueLabel = UiText.dynamic("01 Oct"),
-                        dueAmountLabel = "â‚¹12,000",
-                        icon = Icons.Filled.DateRange,
-                        accent = BudgetAccent.Primary,
-                        nextDueAt = 0L,
-                        isEnabled = true,
-                        notificationsEnabled = true
-                    ),
-                    onEnabledChange = {},
-                    onNotificationsEnabledChange = {},
-                    onEditClick = {},
-                    onDeleteClick = {}
-                )
-                RecurringExpenseCard(
-                    expense = BudgetRecurringExpenseUi(
-                        id = "preview-emi",
-                        transactionId = "tx-preview-emi",
-                        title = "Phone EMI",
-                        amountLabel = "â‚¹4,500 / mo",
-                        categoryLabel = "Electronics",
-                        frequency = RecurringFrequency.Monthly,
-                        frequencyLabel = "Monthly",
-                        repeatCount = 12,
-                        currentInstallment = 4,
-                        totalInstallments = 12,
-                        sourceDateLabel = UiText.dynamic("15 Jan 2026"),
-                        dueLabel = UiText.dynamic("15 Oct"),
-                        dueAmountLabel = "â‚¹4,500",
-                        icon = Icons.Filled.DateRange,
-                        accent = BudgetAccent.Primary,
-                        nextDueAt = 0L,
-                        isEnabled = true,
-                        notificationsEnabled = true,
-                        isInstallment = true,
-                        recurringType = RecurringType.INSTALLMENT,
-                        installmentTotalAmount = 54000.0,
-                        installmentPerAmount = 4500.0,
-                        installmentPaidCount = 3,
-                        installmentRemainingLabel = "â‚¹40,500 left",
-                        installmentProgressFraction = 0.25f,
-                        installmentPlanStatus = InstallmentStatus.ACTIVE,
-                        firstDueAt = 0L,
-                        slots = listOf(
-                            InstallmentSlotUi(
-                                id = "slot-1",
-                                index = 4,
-                                dueAt = 0L,
-                                amountLabel = "â‚¹4,500",
-                                status = InstallmentOccurrenceStatus.PENDING,
-                                paidAt = null
-                            )
-                        )
-                    ),
-                    onEnabledChange = {},
-                    onNotificationsEnabledChange = {},
-                    onEditClick = {},
-                    onDeleteClick = {},
-                    onLedgerClick = {}
-                )
+                states.forEach { state ->
+                    RecurringExpenseCard(
+                        expense = state,
+                        onEnabledChange = {},
+                        onNotificationsEnabledChange = {},
+                        onEditClick = {},
+                        onDeleteClick = {},
+                        onLedgerClick = if (state.isInstallment) ({}) else null
+                    )
+                }
             }
         }
     }
 }
 
+private fun previewRecurringExpense(
+    id: String = "preview-recurring",
+    title: String,
+    amountLabel: String = "Rs 12,000 / Month",
+    categoryLabel: String = "Housing",
+    frequency: RecurringFrequency = RecurringFrequency.Monthly,
+    frequencyLabel: String = "Monthly",
+    dueLabel: String,
+    sourceDateLabel: String = "01 Jan 2026",
+    accent: BudgetAccent,
+    isEnabled: Boolean = true,
+    notificationsEnabled: Boolean = true,
+    isInstallment: Boolean = false,
+    isDueSoon: Boolean = false
+): BudgetRecurringExpenseUi = BudgetRecurringExpenseUi(
+    id = id,
+    transactionId = "tx-$id",
+    title = title,
+    amountLabel = amountLabel,
+    categoryLabel = categoryLabel,
+    frequency = frequency,
+    frequencyLabel = frequencyLabel,
+    repeatCount = 12,
+    currentInstallment = 3,
+    totalInstallments = 12,
+    sourceDateLabel = UiText.dynamic(sourceDateLabel),
+    dueLabel = UiText.dynamic(dueLabel),
+    isDueSoon = isDueSoon,
+    dueAmountLabel = amountLabel,
+    icon = Icons.Filled.DateRange,
+    accent = accent,
+    nextDueAt = 0L,
+    isEnabled = isEnabled,
+    notificationsEnabled = notificationsEnabled,
+    isInstallment = isInstallment,
+    recurringType = if (isInstallment) RecurringType.INSTALLMENT else RecurringType.REGULAR,
+    installmentTotalAmount = if (isInstallment) 54000.0 else 0.0,
+    installmentPerAmount = if (isInstallment) 4500.0 else 0.0,
+    installmentPaidCount = if (isInstallment) 3 else 0,
+    installmentRemainingLabel = if (isInstallment) "Rs 40,500 left" else "",
+    installmentProgressFraction = if (isInstallment) 0.25f else 0f,
+    installmentPlanStatus = if (isInstallment) InstallmentStatus.ACTIVE else null,
+    firstDueAt = 0L,
+    slots = if (isInstallment) {
+        listOf(
+            InstallmentSlotUi(
+                id = "slot-1",
+                index = 4,
+                dueAt = 0L,
+                amountLabel = "Rs 4,500",
+                status = InstallmentOccurrenceStatus.PENDING,
+                paidAt = null
+            )
+        )
+    } else {
+        emptyList()
+    }
+)
 @Preview(name = "CategoryBudgetCard Light", showBackground = true)
 @Preview(name = "CategoryBudgetCard Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -2551,15 +2656,17 @@ private fun CategoryBudgetCardPreview() {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // The labels below are the ones the view model actually produces for a
+                // healthy budget: an amount LEFT, SAFE, and the SPENT / LIMIT caption.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-food",
                         categoryId = 1,
                         title = "Food",
                         summaryLabel = "Rs 4,200 / Rs 8,000",
-                        statusValueLabel = UiText.dynamic("Rs 3,800 left"),
-                        statusCaption = UiText.dynamic("On track"),
-                        totalCaption = UiText.dynamic("of Rs 8,000"),
+                        statusValueLabel = UiText.res(R.string.format_amount_left, "Rs 3,800"),
+                        statusCaption = UiText.res(R.string.label_safe),
+                        totalCaption = UiText.res(R.string.label_spent_limit),
                         progressFraction = 0.525f,
                         spentAmount = 4200.0,
                         limitAmount = 8000.0,
@@ -2570,15 +2677,16 @@ private fun CategoryBudgetCardPreview() {
                     onDeleteClick = {},
                     onInfoClick = {}
                 )
+                // Overspent: the amount OVER the limit, the BUDGET caption and EXCEEDED.
                 CategoryBudgetCard(
                     budget = BudgetCategoryBudgetUi(
                         id = "preview-over",
                         categoryId = 2,
                         title = "Shopping",
                         summaryLabel = "Rs 12,000 / Rs 10,000",
-                        statusValueLabel = UiText.dynamic("Rs 2,000 over"),
-                        statusCaption = UiText.dynamic("Overspent"),
-                        totalCaption = UiText.dynamic("of Rs 10,000"),
+                        statusValueLabel = UiText.res(R.string.format_amount_over, "Rs 2,000"),
+                        statusCaption = UiText.res(R.string.label_budget_status_label),
+                        totalCaption = UiText.res(R.string.label_exceeded),
                         progressFraction = 1f,
                         spentAmount = 12000.0,
                         limitAmount = 10000.0,
