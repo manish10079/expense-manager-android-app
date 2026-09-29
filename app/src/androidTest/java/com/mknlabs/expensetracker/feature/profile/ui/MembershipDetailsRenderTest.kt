@@ -343,9 +343,9 @@ class MembershipDetailsRenderTest {
         compose.onNodeWithText(text(R.string.label_membership_card_free)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.title_membership_upgrade_card)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.msg_membership_upgrade_body)).assertIsDisplayed()
-        // Both ways to reach Pro sit on the card itself for a free user.
+        // A free user reaches Pro by buying it here; a ProPass code is redeemed in Settings.
         compose.onNodeWithText(text(R.string.btn_membership_buy_subscription)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.title_redeem_pro_pass)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.title_redeem_pro_pass)).assertDoesNotExist()
 
         // Anchored at the bottom of the list so the absence is checked where those rows
         // would actually be composed, not merely off-screen.
@@ -363,8 +363,6 @@ class MembershipDetailsRenderTest {
 
         compose.onNodeWithText(text(R.string.label_unlimited_offline)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.btn_sign_in_register)).assertIsDisplayed()
-        // The server refuses a code from an anonymous user, so the card must not offer one.
-        compose.onNodeWithText(text(R.string.title_redeem_pro_pass)).assertDoesNotExist()
     }
 
     // --- the restore action, which used to leave the screen ---

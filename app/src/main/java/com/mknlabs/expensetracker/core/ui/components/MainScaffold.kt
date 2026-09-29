@@ -129,7 +129,7 @@ fun MainScaffold(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onAddTransactionDraftCategoryIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
@@ -206,7 +206,7 @@ fun MainScaffold(
     )
     val colorScheme = MaterialTheme.colorScheme
 
-    // Shared visibility controller for the standalone AddTransactionFab. Tab
+    // Shared visibility controller for the standalone BrandAddFab. Tab
     // screens flip this from their list's scroll direction; the slot composable
     // reads only this value so bar flips stay scoped.
     val addFabVisibility = remember { mutableStateOf(true) }
@@ -246,6 +246,7 @@ fun MainScaffold(
     }
 
     CompositionLocalProvider(
+        LocalLockOverlayActive provides isLockOverlayActive,
         LocalAddFabVisibility provides addFabVisibility,
         // Installed once here so every "Upgrade to Pro" affordance below — gated actions,
         // settings rows, the membership screen, the transaction editor — can open the

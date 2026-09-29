@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -39,9 +38,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,7 +46,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,12 +66,17 @@ import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.core.ui.components.ProfileCard
 import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
@@ -208,6 +214,7 @@ fun SettingsScreenContent(
     val isProUser = userTier == UserTier.PREMIUM
     val isAdPassActive = !isProUser && adFreeRemainingTime != null
     val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
+    val enter = rememberSectionEnterAlphas(4)
 
     Box(
         modifier = modifier
@@ -225,10 +232,9 @@ fun SettingsScreenContent(
 
             AppHeader(
                 title = stringResource(R.string.title_settings),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
-
-            Spacer(modifier = Modifier.height(18.dp))
 
             AdaptiveContent(
                 maxWidth = 640.dp,
@@ -239,6 +245,7 @@ fun SettingsScreenContent(
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
                     item {
+                        Box(Modifier.alpha(enter[1])) {
                         ProfileCard(
                             name = userProfile.fullName,
                             email = userProfile.emailAddress,
@@ -248,6 +255,7 @@ fun SettingsScreenContent(
                             isAnonymous = isAnonymous,
                             onClick = if (isAnonymous) onLinkAccountClick else onProfileClick
                         )
+                        }
                     }
 
                     if (isAdsEnabled) {
@@ -295,13 +303,15 @@ fun SettingsScreenContent(
 
                         SettingsSectionContainer(
                             headerRes = R.string.header_account_and_security,
-                            items = accountSecurityItems
+                            items = accountSecurityItems,
+                            modifier = Modifier.alpha(enter[2])
                         )
                     }
 
                     // Section 2: MEMBERSHIP
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_membership,
                             items = listOf(
                                 SettingsRowData(
@@ -358,6 +368,7 @@ fun SettingsScreenContent(
                     // Section 3: PREFERENCES
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_preferences,
                             items = listOf(
                                 SettingsRowData(
@@ -391,6 +402,7 @@ fun SettingsScreenContent(
                     // Section 4: SYSTEM & DATA
                     item {
                         SettingsSectionContainer(
+                            modifier = Modifier.alpha(enter[3]),
                             headerRes = R.string.header_system_and_data,
                             items = listOf(
                                 SettingsRowData(
@@ -412,7 +424,9 @@ fun SettingsScreenContent(
                     // Isolated Action: Logout (No Card Container) - shown only for signed in users
                     if (!isAnonymous) {
                         item {
+                            Box(Modifier.alpha(enter[3])) {
                             SettingsIsolatedLogoutRow(onClick = onLogoutClick)
+                            }
                         }
                     }
                 }
@@ -430,33 +444,40 @@ private fun SettingsSectionContainer(
     items: List<SettingsRowData>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(headerRes),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            // The label sits above the card as an aside rather than as an accent on it:
+            // brand purple here competed with the icon pucks inside the card, so light
+            // mode reads it as the third ink weight instead. Dark keeps the purple.
+            color = if (isDark) colorScheme.accentInk else TextSecondaryLight,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 6.dp)
         )
 
-        Surface(
+        AppCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            tonalElevation = 1.dp,
-            shadowElevation = 0.dp
+            // Dark keeps the tonal container the group has always had; light takes the
+            // white card, outline and soft lift, which is now the only container the
+            // settings rows are drawn on.
+            colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow),
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 items.forEachIndexed { index, item ->
                     SettingsRowItemView(data = item)
 
                     if (index < items.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 72.dp, end = 16.dp),
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                                .background(colorScheme.background)
                         )
                     }
                 }
@@ -476,10 +497,10 @@ private fun SettingsRowItemView(
     val isEnabled = data.isEnabled
     val colorScheme = MaterialTheme.colorScheme
 
-    val iconTint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-    val iconBg = if (isEnabled) colorScheme.primary.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
-    val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f)
-    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val iconTint = if (isEnabled) colorScheme.accentInk else colorScheme.disabled
+    val iconBg = if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.disabled
+    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.disabled
 
     Row(
         modifier = modifier
@@ -539,7 +560,7 @@ private fun SettingsRowItemView(
             Text(
                 text = data.trailing,
                 style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.primary,
+                color = colorScheme.accentInk,
                 maxLines = 1
             )
         }

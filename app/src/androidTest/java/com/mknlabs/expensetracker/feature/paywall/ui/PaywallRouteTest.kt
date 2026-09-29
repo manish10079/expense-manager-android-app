@@ -2,6 +2,10 @@ package com.mknlabs.expensetracker.feature.paywall.ui
 
 import android.app.Activity
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.domain.repository.BillingRepository
@@ -49,6 +53,7 @@ class PaywallRouteTest {
                 PaywallRoute(
                     onBackClick = { closed.set(true) },
                     onPrepareForExternalActivity = {},
+                    onNavigateToMembership = { closed.set(true) },
                     // Supplied rather than resolved through Hilt, so the test controls the
                     // billing state the route reacts to.
                     viewModel = PaywallViewModel(billing),
@@ -58,7 +63,7 @@ class PaywallRouteTest {
     }
 
     @Test
-    fun aCompletedPurchaseClosesThePaywall() {
+    fun aCompletedPurchaseShowsCongratsThenOpensMembership() {
         renderRoute()
 
         billing.purchaseState.value = PurchaseState.Completed(PurchaseState.Operation.Purchase)
@@ -66,9 +71,15 @@ class PaywallRouteTest {
         // The confirmation is held for a beat before the screen leaves, so this waits for the
         // close rather than asserting it synchronously — and a paywall that never closes is
         // exactly the bug being pinned.
-        compose.waitUntil(timeoutMillis = CLOSE_WAIT_TIMEOUT_MILLIS) { closed.get() }
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val title = context.getString(com.mknlabs.expensetracker.R.string.title_paywall_purchase_congrats)
+        val ok = context.getString(com.mknlabs.expensetracker.R.string.label_ok)
+        compose.waitUntil(timeoutMillis = CLOSE_WAIT_TIMEOUT_MILLIS) {
+            compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText(ok).performClick()
 
-        assertTrue("A completed purchase must take the paywall with it", closed.get())
+        assertTrue("OK on congratulations must open Membership", closed.get())
         // Consumed on the way out: an outcome left unacknowledged would be announced again the
         // next time the paywall opens.
         assertTrue("The outcome must be consumed", billing.acknowledgeCount >= 1)

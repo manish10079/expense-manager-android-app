@@ -45,7 +45,7 @@ import java.io.File
         InstallmentOccurrenceEntity::class,
         DetectedSmsNotificationEntity::class
     ],
-    version = 16,
+    version = 18,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -76,8 +76,41 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        /**
+         * Favorites join the synced set. Additive: nothing is dropped, and no favorite is
+         * rewritten beyond its new bookkeeping columns.
+         *
+         * The three columns are the same ones every other synced table carries, so the
+         * push/pull code needs no special case - `sync_state` is what `getUnsynced()`
+         * selects on, `is_deleted` is the tombstone an unfavorite leaves for the other
+         * devices to read, and `updated_at` is the watermark their pull filters on.
+         *
+         * `DEFAULT 0` is only there to satisfy the NOT NULL ALTER on a table that already
+         * has rows. `is_deleted` and `sync_state` keep their defaults: nothing is deleted
+         * here, and every existing favorite is owed exactly one push.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE favorite_transactions ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE favorite_transactions ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE favorite_transactions ADD COLUMN sync_state TEXT NOT NULL DEFAULT 'PENDING_UPLOAD'")
+
+                // The one part that is not just a column add. A pull only fetches docs
+                // newer than the device's last watermark, so a favorite that predates sync
+                // and kept its `created_at` would sit below every watermark in existence
+                // and never reach another device. Stamping the migration's own clock on the
+                // existing rows lifts them above all of them, which is what carries them
+                // across on the next sync. A row written after this keeps the timestamp its
+                // own write gives it and is unaffected.
+                val migratedAt = System.currentTimeMillis()
+                db.execSQL("UPDATE favorite_transactions SET updated_at = $migratedAt")
             }
         }
 
@@ -170,6 +203,34 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_status_detected_at` ON `detected_sms_notifications` (`status`, `detected_at`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_detected_at` ON `detected_sms_notifications` (`detected_at`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_detected_sms_notifications_linked_transaction_id` ON `detected_sms_notifications` (`linked_transaction_id`)")
+            }
+        }
+
+        /**
+         * An optional user-chosen colour on categories and payment methods.
+         *
+         * Two additive columns and nothing else. Both are nullable with no DEFAULT, which is
+         * what makes this O(1) and impossible to fail partway on a large table: no row is
+         * read, rewritten, copied or moved, and an existing row simply gains a NULL it was
+         * always going to have.
+         *
+         * NULL is the load-bearing value here rather than an absence of one. It means "this
+         * row has no colour of its own, derive one from its id", which is the state every
+         * existing row — and every seeded row, forever — is in. That is what keeps the
+         * palette in `CategoryPalette.kt` the single source of truth for the categories the
+         * app ships, and what lets the per-launch reseed of those rows run without ever
+         * overwriting a choice the user made.
+         *
+         * The alternative, a NOT NULL column defaulted to an empty string, was rejected: an
+         * empty string cannot be told apart from a truncated write, so the resolver would
+         * have had to treat corruption and "no override" as the same case.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE categories ADD COLUMN color_hex TEXT")
+                db.execSQL("ALTER TABLE payment_methods ADD COLUMN color_hex TEXT")
             }
         }
 

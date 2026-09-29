@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.mknlabs.expensetracker.BuildConfig
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.monetization.PurchaseState
@@ -12,6 +14,7 @@ import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.monetization.SubscriptionOfferMapper
 import com.mknlabs.expensetracker.monetization.discountPercentOf
 import com.mknlabs.expensetracker.monetization.toPurchaseState
+import com.mknlabs.expensetracker.workers.SyncWorker
 import com.revenuecat.purchases.CacheFetchPolicy
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.LogLevel
@@ -342,6 +345,32 @@ class BillingManager @Inject constructor(
         _customerInfo.update { info }
         // Also update offerings in case entitlements changed
         fetchOfferings()
+
+        // Latch the store's verdict where the settings layer can read it without holding a
+        // BillingRepository: a store subscription never writes accountTier = "PREMIUM"
+        // locally, so this is the only way AppSettingsDataStore can learn that the user is
+        // actually paying. A null snapshot means "not loaded yet", not "no entitlement", so
+        // it is ignored rather than overwriting the last verdict with false.
+        if (info != null) {
+            val premiumActive = info.entitlements.all.get(PREMIUM_ENTITLEMENT_ID)?.isActive == true
+            CoroutineScope(Dispatchers.IO).launch {
+                MonetizationDataStore.setPremiumEntitlementActive(context, premiumActive)
+
+                // The one automatic switch-on of cloud sync: a new subscriber should not have
+                // to discover the setting before their data starts syncing. The claim is
+                // single-shot and never released, so a renewal, a re-login or a restored
+                // entitlement cannot switch it back on for a user who has since turned it off.
+                if (premiumActive && MonetizationDataStore.claimCloudSyncAutoEnable(context)) {
+                    AppSettingsDataStore.updateAppSettings(context) { settings ->
+                        if (settings.isCloudSyncEnabled) settings
+                        else settings.copy(isCloudSyncEnabled = true)
+                    }
+                    // Same follow-through as flipping the toggle by hand, so sync starts now
+                    // instead of at the next periodic run.
+                    SyncWorker.startImmediate(context)
+                }
+            }
+        }
 
         // Debug-only: log the SDK's entitlements next to the snapshot the RevenueCat
         // Firebase Extension wrote to Firestore, so the sync path can be confirmed from

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
@@ -147,6 +148,92 @@ class ItemizedCalculatorViewModelTest {
         viewModel.deleteHistoryEntry(entry.timestampMillis)
 
         assertTrue(historyRepository.entries.isEmpty())
+    }
+
+    // Itemized rows: the add and edit paths share one draft, so the flags that pick which
+    // one addItem performs are worth pinning down.
+
+    @Test
+    fun `startEditingItem prefills the draft from the row`() {
+        addRow("Coffee", "4.50")
+        val row = viewModel.uiState.value.items.single()
+
+        viewModel.startEditingItem(row)
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isAddingItem)
+        assertEquals(row.id, state.editingItemId)
+        assertEquals("Coffee", state.descriptionInput)
+        assertEquals("4.5", state.amountInput)
+        assertTrue(state.canAddItem)
+    }
+
+    @Test
+    fun `editing a row replaces it in place and keeps its id and position`() {
+        addRow("Coffee", "4.50")
+        addRow("Sandwich", "9")
+
+        val first = viewModel.uiState.value.items.first()
+        viewModel.startEditingItem(first)
+        viewModel.updateDescriptionInput("Flat white")
+        viewModel.updateAmountInput("5")
+        viewModel.addItem()
+
+        val state = viewModel.uiState.value
+        assertEquals(2, state.items.size)
+        assertEquals(listOf(first.id, first.id + 1), state.items.map { it.id })
+        assertEquals("Flat white", state.items[0].description)
+        assertEquals(5.0, state.items[0].amount, 0.0)
+        assertEquals("Sandwich", state.items[1].description)
+        assertEquals(14.0, state.totalAmount, 0.0)
+        assertNull(state.editingItemId)
+        assertTrue(!state.isAddingItem)
+    }
+
+    @Test
+    fun `cancelling an edit clears the pending id so the next add appends`() {
+        addRow("Coffee", "4.50")
+        val row = viewModel.uiState.value.items.single()
+
+        viewModel.startEditingItem(row)
+        viewModel.cancelAddingItem()
+
+        val cancelled = viewModel.uiState.value
+        assertNull(cancelled.editingItemId)
+        assertTrue(!cancelled.isAddingItem)
+        assertEquals("", cancelled.descriptionInput)
+
+        // A stale editingItemId here would silently overwrite the cancelled row.
+        addRow("Sandwich", "9")
+
+        val state = viewModel.uiState.value
+        assertEquals(2, state.items.size)
+        assertEquals("Coffee", state.items[0].description)
+        assertEquals("Sandwich", state.items[1].description)
+        assertEquals(13.5, state.totalAmount, 0.0)
+    }
+
+    @Test
+    fun `editing the only row keeps its id when it is re-saved`() {
+        addRow("Coffee", "4.50")
+        val row = viewModel.uiState.value.items.single()
+
+        viewModel.startEditingItem(row)
+        viewModel.updateAmountInput("6.25")
+        viewModel.addItem()
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.items.size)
+        assertEquals(row.id, state.items.single().id)
+        assertEquals("Coffee", state.items.single().description)
+        assertEquals(6.25, state.totalAmount, 0.0)
+    }
+
+    private fun addRow(description: String, amount: String) {
+        viewModel.startAddingItem()
+        viewModel.updateDescriptionInput(description)
+        viewModel.updateAmountInput(amount)
+        viewModel.addItem()
     }
 }
 

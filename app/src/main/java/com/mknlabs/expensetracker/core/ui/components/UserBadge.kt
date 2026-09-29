@@ -9,12 +9,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 
 enum class UserBadgeType {
     GUEST,
@@ -35,9 +38,9 @@ fun UserBadge(
         UserBadgeType.GUEST -> 
             colorScheme.surfaceVariant to colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
         UserBadgeType.MEMBER -> 
-            colorScheme.secondaryContainer.copy(alpha = 0.4f) to colorScheme.primary
+            colorScheme.secondaryContainer.copy(alpha = 0.4f) to colorScheme.accentInk
         UserBadgeType.PREMIUM -> 
-            Color.Transparent to colorScheme.onPrimary
+            Color.Transparent to colorScheme.onCta
     }
 
     Box(

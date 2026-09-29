@@ -17,6 +17,7 @@ import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.FontMode
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -153,15 +154,35 @@ object AppSettingsDataStore {
     ) {
         // Read current profile status to enforce premium features from the single source of truth
         val profile = UserProfileDataStore.getUserProfileFlow(context).first()
+        // The store's own verdict, latched by BillingManager on every CustomerInfo snapshot.
+        // Not decoration: a store subscription never writes accountTier = "PREMIUM" locally —
+        // only the redeemProPass Cloud Function does — so the profile alone reads a paying
+        // subscriber as free, which is how the enforcer below used to strip their premium
+        // settings and snap the cloud-sync toggle back off on every settings write.
+        val storeEntitlementActive = MonetizationDataStore.getPremiumEntitlementActive(context).first()
         val now = System.currentTimeMillis()
-        val isPremium = profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)
+        // What granting Pro means for the bonus defaults, deliberately without the store: those
+        // fire on a transition, and a subscriber's local tier never changes, so counting the
+        // store would fire on every write and pin the defaults on for good.
+        val isProfilePremium = profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)
+
+        // The one rule the rest of the app decides Pro with, so the enforcer below can never
+        // disagree with the screen that shows the setting in the first place.
+        fun isPremiumFor(tier: com.mknlabs.expensetracker.models.UserTier): Boolean =
+            EntitlementResolver.isPremium(
+                appSettingsTier = tier,
+                accountTier = profile.accountTier,
+                proExpiryTimestamp = profile.proExpiryTimestamp,
+                revenueCatEntitlementActive = storeEntitlementActive,
+                now = now
+            )
 
         context.applicationContext.appSettingsDataStore.edit { preferences ->
             val currentSettings = preferences.toAppSettings()
             var updatedSettings = transform(currentSettings)
 
             val wasPremium = currentSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
-            val isNowPremium = isPremium || updatedSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
+            val isNowPremium = isProfilePremium || updatedSettings.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM
             if (isNowPremium && !wasPremium) {
                 updatedSettings = updatedSettings.copy(
                     transactionCardShowListSummaries = true,
@@ -170,7 +191,12 @@ object AppSettingsDataStore {
             }
 
             // Centralized Enforcer: If user is downgraded to FREE, clean up all Premium-only settings!
-            if (!isPremium) {
+            //
+            // Every reset goes through resetUnlessSet: the enforcer clears what it finds stale,
+            // never what this call just wrote. A value the caller set is a decision — the
+            // cloud-sync toggle, for one — and reverting it in the same transaction that
+            // recorded it is what used to snap the switch straight back off.
+            if (!isPremiumFor(updatedSettings.userTier)) {
                 val needResetTimeout = updatedSettings.appLockTimeoutMinutes !in listOf(0, 1, 5, 10, 15)
                 val newTimeout = if (needResetTimeout) 1 else updatedSettings.appLockTimeoutMinutes
 
@@ -178,14 +204,46 @@ object AppSettingsDataStore {
                 val newBackupFreq = if (needResetBackupFreq) 7 else updatedSettings.autoBackupFrequencyDays
 
                 updatedSettings = updatedSettings.copy(
-                    transactionCardShowPaymentMethod = false,
-                    blurInRecentsEnabled = false,
-                    screenshotProtectionEnabled = false,
-                    scrambledPinKeypadEnabled = false,
-                    appLockTimeoutMinutes = newTimeout,
-                    autoBackupFrequencyDays = newBackupFreq,
-                    isCloudSyncEnabled = false,
-                    transactionCardShowListSummaries = false
+                    transactionCardShowPaymentMethod = resetUnlessSet(
+                        currentSettings.transactionCardShowPaymentMethod,
+                        updatedSettings.transactionCardShowPaymentMethod,
+                        false
+                    ),
+                    blurInRecentsEnabled = resetUnlessSet(
+                        currentSettings.blurInRecentsEnabled,
+                        updatedSettings.blurInRecentsEnabled,
+                        false
+                    ),
+                    screenshotProtectionEnabled = resetUnlessSet(
+                        currentSettings.screenshotProtectionEnabled,
+                        updatedSettings.screenshotProtectionEnabled,
+                        false
+                    ),
+                    scrambledPinKeypadEnabled = resetUnlessSet(
+                        currentSettings.scrambledPinKeypadEnabled,
+                        updatedSettings.scrambledPinKeypadEnabled,
+                        false
+                    ),
+                    appLockTimeoutMinutes = resetUnlessSet(
+                        currentSettings.appLockTimeoutMinutes,
+                        updatedSettings.appLockTimeoutMinutes,
+                        newTimeout
+                    ),
+                    autoBackupFrequencyDays = resetUnlessSet(
+                        currentSettings.autoBackupFrequencyDays,
+                        updatedSettings.autoBackupFrequencyDays,
+                        newBackupFreq
+                    ),
+                    isCloudSyncEnabled = resetUnlessSet(
+                        currentSettings.isCloudSyncEnabled,
+                        updatedSettings.isCloudSyncEnabled,
+                        false
+                    ),
+                    transactionCardShowListSummaries = resetUnlessSet(
+                        currentSettings.transactionCardShowListSummaries,
+                        updatedSettings.transactionCardShowListSummaries,
+                        false
+                    )
                 )
 
                 if (needResetTimeout) {
@@ -359,3 +417,15 @@ object AppSettingsDataStore {
         context.applicationContext.appSettingsDataStore.edit { it.clear() }
     }
 }
+
+/**
+ * The premium enforcer's reset rule: a setting is only cleared when this call did not
+ * itself change it.
+ *
+ * An unchanged value is stale — leftover from a Pro that has lapsed — and is exactly what
+ * the enforcer exists to clean up. A value the caller just wrote is a decision, made by the
+ * same transaction, and reverting it there would silently undo the user's action: flipping
+ * the cloud-sync toggle was recorded and forced back to false in one write.
+ */
+internal fun <T> resetUnlessSet(current: T, updated: T, reset: T): T =
+    if (current == updated) reset else updated

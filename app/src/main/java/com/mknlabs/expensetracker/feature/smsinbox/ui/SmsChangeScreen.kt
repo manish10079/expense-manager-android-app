@@ -39,6 +39,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -58,6 +60,8 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.sms.ParsedSms
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -176,7 +180,7 @@ fun SmsChangeContent(
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = stringResource(R.string.title_sms_change),
-                        color = colorScheme.primary,
+                        color = colorScheme.accentInk,
                         style = MaterialTheme.typography.titleLarge
                     )
                     Row(
@@ -186,7 +190,7 @@ fun SmsChangeContent(
                         Text(
                             text = amountText,
                             color = if (parsed.transactionTypeId == INCOME_TYPE_ID) {
-                                colorScheme.primary
+                                colorScheme.accentInk
                             } else {
                                 colorScheme.onSurface
                             },
@@ -272,13 +276,27 @@ fun SmsChangeContent(
                             }
                         }
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        focusedBorderColor = colorScheme.primary,
-                        unfocusedBorderColor = Color.Transparent,
-                        cursorColor = colorScheme.primary
-                    )
+                    // Light takes the field spec: a white surface on the hairline outline,
+                    // lit in brand purple while it holds the cursor. The half-strength wash
+                    // this used to be sits almost on the sheet's own white and left the note
+                    // with no edge at all. Dark keeps the wash and the invisible edge.
+                    colors = if (MaterialTheme.colorScheme.isDark) {
+                        OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            focusedBorderColor = colorScheme.accentInk,
+                            unfocusedBorderColor = Color.Transparent,
+                            cursorColor = colorScheme.accentInk
+                        )
+                    } else {
+                        OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = colorScheme.surface,
+                            unfocusedContainerColor = colorScheme.surface,
+                            focusedBorderColor = colorScheme.accentInk,
+                            unfocusedBorderColor = colorScheme.outline,
+                            cursorColor = colorScheme.accentInk
+                        )
+                    }
                 )
                 Text(
                     text = "${uiState.note.length}/200",
@@ -299,7 +317,7 @@ fun SmsChangeContent(
                     .shadow(
                         elevation = 16.dp,
                         shape = RoundedCornerShape(28.dp),
-                        ambientColor = colorScheme.primary.copy(alpha = 0.25f),
+                        ambientColor = colorScheme.accentInk.copy(alpha = 0.25f),
                         spotColor = colorScheme.secondary.copy(alpha = 0.25f)
                     )
                     .clip(RoundedCornerShape(28.dp))
@@ -310,13 +328,13 @@ fun SmsChangeContent(
                 if (uiState.isSaving) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = colorScheme.onPrimary,
+                        color = colorScheme.onCta,
                         strokeWidth = 2.5.dp
                     )
                 } else {
                     Text(
                         text = stringResource(R.string.label_save),
-                        color = colorScheme.onPrimary,
+                        color = colorScheme.onCta,
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -341,7 +359,7 @@ private fun SmsCategoryChip(
                 .shadow(
                     elevation = if (isSelected) 18.dp else 0.dp,
                     shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.24f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
                 )
                 .clip(CircleShape)
@@ -355,7 +373,7 @@ private fun SmsCategoryChip(
                 imageVector = category.icon,
                 contentDescription = category.name,
                 tint = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimary
+                    MaterialTheme.colorScheme.onCta
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
                 },
@@ -368,7 +386,7 @@ private fun SmsCategoryChip(
         Text(
             text = category.name,
             color = if (isSelected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.accentInk
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             },

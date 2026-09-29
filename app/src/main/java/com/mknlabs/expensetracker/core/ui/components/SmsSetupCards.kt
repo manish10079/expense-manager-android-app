@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,11 +21,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 /**
@@ -46,12 +47,9 @@ fun SmsPermissionCard(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.material3.Card(
+    AppCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = AppCardDefaults.tintedColors()
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(
@@ -66,7 +64,7 @@ fun SmsPermissionCard(
                     Icon(
                         imageVector = Icons.Rounded.Sms,
                         contentDescription = stringResource(id = R.string.desc_sms_detection_icon),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -99,10 +97,10 @@ fun SmsPermissionCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextButton(onClick = onOpenSettings) {
+            AppTextButton(onClick = onOpenSettings) {
                 Text(
                     text = stringResource(id = R.string.label_open_app_settings),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -120,12 +118,9 @@ fun MiuiSmsSetupCard(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.material3.Card(
+    AppCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = AppCardDefaults.tintedColors()
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(
@@ -140,7 +135,7 @@ fun MiuiSmsSetupCard(
                     Icon(
                         imageVector = Icons.Rounded.PhoneAndroid,
                         contentDescription = stringResource(id = R.string.desc_sms_detection_icon),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -178,17 +173,17 @@ fun MiuiSmsSetupCard(
 
             // Two rows so the actions can never overflow a narrow screen.
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onOpenAppSettings) {
+                AppTextButton(onClick = onOpenAppSettings) {
                     Text(
                         text = stringResource(id = R.string.label_open_app_settings),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
-                TextButton(onClick = onBatterySettings) {
+                AppTextButton(onClick = onBatterySettings) {
                     Text(
                         text = stringResource(id = R.string.label_battery_settings),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
@@ -197,7 +192,7 @@ fun MiuiSmsSetupCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(
                         text = stringResource(id = R.string.label_sms_miui_done),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -4,6 +4,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity
 import com.mknlabs.expensetracker.domain.repository.FavoriteTransactionRepository
 import com.mknlabs.expensetracker.models.FavoriteTransaction
+import com.mknlabs.expensetracker.models.SyncState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -21,18 +22,32 @@ class FavoriteTransactionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveFavorite(favorite: FavoriteTransaction) {
-        dao.insertFavorite(FavoriteTransactionEntity.fromDomain(favorite))
+        val now = System.currentTimeMillis()
+        // A star cleared earlier leaves a tombstone in the row's place, and the unique
+        // index on transaction_id would then swallow the insert below. Reviving the
+        // tombstone first is what turns re-favoriting a transaction back into a favorite.
+        favorite.transactionId?.let { dao.reviveFavoriteByTransactionId(it, now) }
+        dao.insertFavorite(
+            FavoriteTransactionEntity.fromDomain(favorite).copy(
+                updatedAt = now,
+                syncState = SyncState.PENDING_UPLOAD
+            )
+        )
     }
 
     override suspend fun removeFavorite(favorite: FavoriteTransaction) {
-        dao.deleteFavorite(FavoriteTransactionEntity.fromDomain(favorite))
+        dao.softDeleteById(favorite.id, System.currentTimeMillis())
     }
 
     override suspend fun removeFavoriteById(id: String) {
-        dao.deleteFavoriteById(id)
+        dao.softDeleteById(id, System.currentTimeMillis())
+    }
+
+    override suspend fun removeFavoriteByTransactionId(transactionId: String) {
+        dao.softDeleteByTransactionId(transactionId, System.currentTimeMillis())
     }
 
     override suspend fun togglePin(id: String, isPinned: Boolean) {
-        dao.updatePinnedState(id, isPinned)
+        dao.updatePinnedState(id, isPinned, System.currentTimeMillis())
     }
 }

@@ -164,12 +164,19 @@ internal fun buildMonthlySummary(
     )
 }
 
-/** Percent change of [current] vs [previous]; 100% when there was no previous baseline. */
+/**
+ * Percent change of [current] vs [previous], signed so that a rise is positive; 100% when there was
+ * no previous baseline.
+ *
+ * The divisor is the magnitude of the baseline because the only caller passes the month's *net*,
+ * which a month that outspends its income leaves negative. Dividing by the signed baseline inverted
+ * the arrow and the colour on exactly those months — see the same fix in the analytics snapshot.
+ */
 private fun percentageChange(current: Double, previous: Double): Float {
     if (previous == 0.0) {
         return if (current == 0.0) 0f else 100f
     }
-    return (((current - previous) / previous) * 100.0).toFloat()
+    return (((current - previous) / abs(previous)) * 100.0).toFloat()
 }
 
 /**

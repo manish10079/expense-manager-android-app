@@ -16,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,7 @@ fun OrderOption(
             .clip(shape)
             .background(
                 color = if (isSelected) {
-                    colorScheme.primary.copy(alpha = 0.10f)
+                    colorScheme.accentInk.copy(alpha = 0.10f)
                 } else {
                     colorScheme.surfaceVariant.copy(alpha = 0.38f)
                 }
@@ -49,7 +51,7 @@ fun OrderOption(
             .border(
                 width = 1.dp,
                 color = if (isSelected) {
-                    colorScheme.primary.copy(alpha = 0.55f)
+                    colorScheme.accentInk.copy(alpha = 0.55f)
                 } else {
                     colorScheme.onSurface.copy(alpha = 0.65f)
                 },
@@ -77,7 +79,7 @@ fun OrderOption(
             selected = isSelected,
             onClick = onClick,
             colors = RadioButtonDefaults.colors(
-                selectedColor = colorScheme.primary,
+                selectedColor = colorScheme.accentInk,
                 unselectedColor = colorScheme.onSurfaceVariant
             )
         )

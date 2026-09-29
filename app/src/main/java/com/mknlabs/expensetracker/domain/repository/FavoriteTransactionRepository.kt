@@ -8,5 +8,6 @@ interface FavoriteTransactionRepository {
     suspend fun saveFavorite(favorite: FavoriteTransaction)
     suspend fun removeFavorite(favorite: FavoriteTransaction)
     suspend fun removeFavoriteById(id: String)
+    suspend fun removeFavoriteByTransactionId(transactionId: String)
     suspend fun togglePin(id: String, isPinned: Boolean)
 }

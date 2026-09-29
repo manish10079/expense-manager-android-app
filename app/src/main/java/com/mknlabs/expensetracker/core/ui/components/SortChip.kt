@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,7 +39,7 @@ fun SortChip(
     val colorScheme = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(22.dp)
     val borderColor = if (selected) {
-        colorScheme.primary.copy(alpha = 0.55f)
+        colorScheme.accentInk.copy(alpha = 0.55f)
     } else {
         colorScheme.onSurface.copy(alpha = 0.65f)
     }
@@ -45,7 +47,7 @@ fun SortChip(
     val backgroundBrush = if (selected) {
         Brush.linearGradient(
             colors = listOf(
-                colorScheme.primary.copy(alpha = 0.24f),
+                colorScheme.accentInk.copy(alpha = 0.24f),
                 colorScheme.secondary.copy(alpha = 0.16f)
             )
         )
@@ -70,7 +72,7 @@ fun SortChip(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant
+            tint = if (selected) colorScheme.accentInk else colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -82,7 +84,7 @@ fun SortChip(
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = stringResource(R.string.label_active),
-                color = colorScheme.primary,
+                color = colorScheme.accentInk,
                 style = MaterialTheme.typography.labelSmall
             )
         } else {

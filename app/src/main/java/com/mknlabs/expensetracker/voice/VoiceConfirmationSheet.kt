@@ -25,11 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -88,7 +91,7 @@ fun VoiceConfirmationSheet(
                     onClick = { isExpense = true },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    color = if (isExpense) ExpenseRed else MaterialTheme.colorScheme.surfaceVariant,
+                    color = if (isExpense) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = if (isExpense) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 ) {
                     Text(
@@ -103,7 +106,7 @@ fun VoiceConfirmationSheet(
                     onClick = { isExpense = false },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    color = if (!isExpense) IncomeGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    color = if (!isExpense) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = if (!isExpense) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 ) {
                     Text(
@@ -136,7 +139,7 @@ fun VoiceConfirmationSheet(
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = if (isExpense) ExpenseRed else IncomeGreen
+                        color = if (isExpense) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.income
                     )
                 }
             }
@@ -229,7 +232,7 @@ fun VoiceConfirmationSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
@@ -250,7 +253,7 @@ fun VoiceConfirmationSheet(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = MaterialTheme.colorScheme.accentInk
                     )
                 ) {
                     Text("Save")

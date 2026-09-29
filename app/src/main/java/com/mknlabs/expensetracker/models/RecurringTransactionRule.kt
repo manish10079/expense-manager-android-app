@@ -3,10 +3,10 @@ package com.mknlabs.expensetracker.models
 import androidx.compose.runtime.Immutable
 
 enum class RecurringFrequency(val label: String, val periodUnit: String) {
-    Daily("Daily", "day"),
-    Weekly("Weekly", "week"),
-    Monthly("Monthly", "month"),
-    Yearly("Yearly", "year")
+    Daily("Daily", "Day"),
+    Weekly("Weekly", "Week"),
+    Monthly("Monthly", "Month"),
+    Yearly("Yearly", "Year")
 }
 
 /**

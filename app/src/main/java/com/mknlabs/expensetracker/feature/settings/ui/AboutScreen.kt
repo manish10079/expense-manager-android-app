@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import android.content.Intent
 import android.net.Uri
@@ -8,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +39,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -49,12 +54,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import androidx.compose.foundation.border
 // Legacy theme imports removed
@@ -130,15 +139,16 @@ private fun AboutScreenContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(R.string.title_about),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing).alpha(enter[0])
         )
 
         AdaptiveContent(
             maxWidth = 640.dp,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().alpha(enter[1])
         ) {
         Column(
             modifier = Modifier
@@ -147,8 +157,6 @@ private fun AboutScreenContent(
                 .padding(horizontal = Dimens.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
             // App Icon
             Box(
                 modifier = Modifier
@@ -288,23 +296,21 @@ private fun AboutInfoCard(
     title: String,
     description: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(24.dp)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the card.
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -320,6 +326,7 @@ private fun AboutInfoCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge
         )
+        }
     }
 }
 
@@ -329,18 +336,12 @@ private fun DeveloperCard(
     email: String,
     onEmailClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .clickable(onClick = onEmailClick)
-            .padding(24.dp)
+    AppCard(
+        onClick = onEmailClick,
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
+        contentPadding = PaddingValues(24.dp),
     ) {
         Column {
             Text(
@@ -356,7 +357,7 @@ private fun DeveloperCard(
             )
             Text(
                 text = email,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -367,7 +368,7 @@ private fun DeveloperCard(
 private fun AboutSectionHeader(title: String) {
     Text(
         text = title,
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+        color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier
             .fillMaxWidth()
@@ -377,18 +378,14 @@ private fun AboutSectionHeader(title: String) {
 
 @Composable
 private fun SupportLegalSection(content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
-        content()
+        Column {
+            content()
+        }
     }
 }
 
@@ -408,7 +405,7 @@ private fun AboutActionItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -421,7 +418,7 @@ private fun AboutActionItem(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
             modifier = Modifier.size(20.dp)
         )
     }
@@ -443,7 +440,7 @@ private fun SocialButton(
             size = 60.dp,
             iconSize = 28.dp,
             backgroundBrush = brandGradient(),
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = MaterialTheme.colorScheme.onCta,
             modifier = Modifier.clickable(onClick = onClick)
         )
         Spacer(modifier = Modifier.height(8.dp))

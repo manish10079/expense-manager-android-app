@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -87,7 +90,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -124,6 +130,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
@@ -142,7 +149,7 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.components.ActiveFilter
 import com.mknlabs.expensetracker.core.ui.components.ActiveFilterBar
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
-import com.mknlabs.expensetracker.core.ui.components.AddTransactionFabSlot
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFabSlot
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.FilterBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.FilterPillType
@@ -158,11 +165,14 @@ import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.core.ui.models.TransactionListItemUi
 import com.mknlabs.expensetracker.core.ui.models.buildTransactionsFeed
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
+import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.TransactionSwipeAction
@@ -343,14 +353,23 @@ private fun HeaderCircleActionButton(
             modifier = Modifier
                 .size(40.dp) // The visible circle — matches AppHeader back button
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                // The spec's secondary surface in light, as on AppHeader's back button;
+                // the half-strength wash this used to be disappeared into the grey
+                // field. Dark is unchanged.
+                .background(
+                    if (MaterialTheme.colorScheme.isDark) {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    } else {
+                        CardLight
+                    }
+                )
                 .clickable(onClick = onClick), // Ripple now limited to 40dp
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -410,6 +429,7 @@ private fun TransactionScreenContent(
     val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
     rememberBindAddFabToScroll(lazyListState)
+    val enter = rememberSectionEnterAlphas(4)
     var searchBarBounds by remember { mutableStateOf<Rect?>(null) }
 
     // Paging 3 loads the next page automatically once the list scrolls near the
@@ -531,6 +551,7 @@ private fun TransactionScreenContent(
             AnimatedContent(
                 targetState = uiState.isSelectionMode,
                 label = "HeaderTransition",
+                modifier = Modifier.alpha(enter[0]),
                 transitionSpec = {
                     (slideInVertically { -it } + fadeIn(tween(300)))
                         .togetherWith(slideOutVertically { -it } + fadeOut(tween(300)))
@@ -578,7 +599,7 @@ private fun TransactionScreenContent(
                                             .padding(4.dp)
                                             .size(7.dp)
                                             .background(
-                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                                                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.85f),
                                                 shape = CircleShape
                                             )
                                     )
@@ -605,10 +626,12 @@ private fun TransactionScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge,
-                    shape = RoundedCornerShape(Dimens.CardRadius),
+                    shape = RoundedCornerShape(
+                        if (MaterialTheme.colorScheme.isDark) Dimens.CardRadius else 16.dp
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dimens.PaddingMedium)
+
                         .focusRequester(searchFocusRequester)
                         .onGloballyPositioned { coordinates ->
                             searchBarBounds = coordinates.boundsInRoot()
@@ -659,9 +682,9 @@ private fun TransactionScreenContent(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -745,21 +768,24 @@ private fun TransactionScreenContent(
 
             ActiveFilterBar(
                 filters = activeFilters,
-                onClearAll = { resetFilters() }
+                onClearAll = { resetFilters() },
+                modifier = Modifier.alpha(enter[1])
             )
 
-            Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+
 
             // Pinned summary rendered above the lazy list (out of the scrollable
             // area). While the totals are still being computed the same composable
             // renders placeholders, so the card keeps its height and the list below
             // never jumps when the numbers arrive.
             pinnedSummary?.let { summary ->
+                Box(Modifier.alpha(enter[2])) {
                 TransactionSummaryCard(
                     income = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalIncome,
                     expense = if (isSummaryLoading) SUMMARY_PLACEHOLDER else summary.totalExpense,
                     periodLabel = summary.periodLabel
                 )
+                }
                 Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
             }
 
@@ -781,7 +807,7 @@ private fun TransactionScreenContent(
                 ) {
                     androidx.compose.material3.CircularProgressIndicator(
                         modifier = Modifier.size(28.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 }
@@ -824,7 +850,7 @@ private fun TransactionScreenContent(
                             text = emptyTransactionMessage,
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            emphasisColor = MaterialTheme.colorScheme.primary,
+                            emphasisColor = MaterialTheme.colorScheme.accentInk,
                             textAlign = TextAlign.Center,
                             softWrap = true,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -838,7 +864,8 @@ private fun TransactionScreenContent(
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier
-                        .weight(1f),
+                        .weight(1f)
+                        .alpha(enter[3]),
                     verticalArrangement = Arrangement.spacedBy(Dimens.PaddingMedium),
                     contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
@@ -912,6 +939,8 @@ private fun TransactionScreenContent(
                                             transactionTime = card.transactionTime,
                                             amount = card.amount,
                                             icon = card.icon,
+                                            categoryId = card.transaction.categoryId,
+                                            categoryColorHex = card.categoryColorHex,
                                             transactionTypeId = card.transactionTypeId,
                                             paymentType = card.paymentType,
                                             categoryLabel = card.categoryLabel,
@@ -956,11 +985,9 @@ private fun TransactionScreenContent(
                                 // render (and are tracked separately in the console).
                                 is TransactionListItemUi.Ad -> {
                                     if (isAdsEnabled) {
-                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                         AdContainer(isAdsEnabled = true) {
                                             NativeAdCard(placement = item.placement)
                                         }
-                                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                                     }
                                 }
                                 }
@@ -977,13 +1004,13 @@ private fun TransactionScreenContent(
                                         .padding(Dimens.PaddingMedium),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    TextButton(onClick = onRetry) {
+                                    AppTextButton(onClick = onRetry) {
                                         Text(
                                             text = stringResource(R.string.label_retry),
                                             style = MaterialTheme.typography.bodyMedium.copy(
                                                 fontWeight = FontWeight.SemiBold
                                             ),
-                                            color = MaterialTheme.colorScheme.primary
+                                            color = MaterialTheme.colorScheme.accentInk
                                         )
                                     }
                                 }
@@ -998,7 +1025,7 @@ private fun TransactionScreenContent(
                                 ) {
                                     androidx.compose.material3.CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.accentInk,
                                         strokeWidth = 2.dp
                                     )
                                 }
@@ -1020,9 +1047,9 @@ private fun TransactionScreenContent(
             ) {
                 Column {
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.hairline
                     )
-                    TextButton(
+                    AppTextButton(
                         onClick = { selectAllInQuery() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -1034,11 +1061,11 @@ private fun TransactionScreenContent(
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.SemiBold
                             ),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.accentInk
                         )
                     }
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.hairline
                     )
                 }
             }
@@ -1056,7 +1083,7 @@ private fun TransactionScreenContent(
                     TransactionPeriodFilter.ALL -> null
                     else -> ({ showPeriodPicker = true })
                 },
-                modifier = Modifier.padding(top = Dimens.PaddingSmall)
+                modifier = Modifier.alpha(enter[3]).padding(top = Dimens.PaddingSmall)
             )
         }
 
@@ -1068,7 +1095,7 @@ private fun TransactionScreenContent(
                 .padding(bottom = 80.dp)
         )
 
-        AddTransactionFabSlot(
+        BrandAddFabSlot(
             onClick = onAddTransactionClick,
             visible = !uiState.isSelectionMode && snackbarHostState.currentSnackbarData == null,
             modifier = Modifier
@@ -1167,7 +1194,7 @@ private fun TransactionScreenContent(
             title = { Text(stringResource(R.string.label_delete_transactions)) },
             text = { Text(stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size)) },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         deleteSelectedTransactions()
                         showDeleteConfirmation = false
@@ -1177,11 +1204,11 @@ private fun TransactionScreenContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirmation = false }) {
+                AppTextButton(onClick = { showDeleteConfirmation = false }) {
                     Text(stringResource(R.string.label_cancel_confirm))
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1193,11 +1220,11 @@ private fun TransactionScreenContent(
             title = { Text(stringResource(R.string.title_cannot_duplicate_recurring)) },
             text = { Text(stringResource(R.string.msg_cannot_duplicate_recurring)) },
             confirmButton = {
-                TextButton(onClick = { showRecurringDuplicateDialog = false }) {
+                AppTextButton(onClick = { showRecurringDuplicateDialog = false }) {
                     Text(stringResource(R.string.label_ok), fontWeight = FontWeight.Bold)
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1341,7 +1368,7 @@ private fun SwipeableDuplicateCard(
         SwipeActionLabel(
             icon = Icons.Filled.ContentCopy,
             text = stringResource(R.string.label_duplicate),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.accentInk,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 20.dp)
@@ -1723,7 +1750,7 @@ private fun TransactionSummaryCard(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.hairline,
                 thickness = 0.8.dp
             )
             Row(
@@ -1737,7 +1764,7 @@ private fun TransactionSummaryCard(
                     Text(
                         text = periodLabel,
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.padding(end = 12.dp)
                     )
                 }
@@ -1750,7 +1777,7 @@ private fun TransactionSummaryCard(
                     Text(
                         text = "+ " + income,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = IncomeGreen
+                        color = MaterialTheme.colorScheme.income
                     )
                 }
 
@@ -1765,12 +1792,12 @@ private fun TransactionSummaryCard(
                     Text(
                         text = "- " + expense,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = ExpenseRed
+                        color = MaterialTheme.colorScheme.expense
                     )
                 }
             }
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.hairline,
                 thickness = 0.8.dp
             )
         }
@@ -1783,7 +1810,7 @@ private fun TypewriterText(
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
-    emphasisColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    emphasisColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.accentInk,
     textAlign: TextAlign? = null,
     softWrap: Boolean = true,
     charDelayMillis: Long = 25L,
@@ -1891,13 +1918,13 @@ private fun TransactionListErrorState(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
-            TextButton(onClick = onRetry) {
+            AppTextButton(onClick = onRetry) {
                 Text(
                     text = stringResource(R.string.label_retry),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.accentInk
                 )
             }
         }

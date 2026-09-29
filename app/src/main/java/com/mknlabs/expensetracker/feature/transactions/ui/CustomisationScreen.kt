@@ -1,4 +1,7 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+
+import android.content.res.Configuration
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,19 +33,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseRed
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,10 +66,16 @@ import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import androidx.window.core.layout.WindowSizeClass
 import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatAmount
 import com.mknlabs.expensetracker.utils.formatDate
@@ -76,6 +88,7 @@ import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.core.ui.components.SettingsGroupHeader
 
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.models.SettingsItemType
@@ -97,8 +110,29 @@ private data class TransactionCardToggleItem(
     val onCheckedChange: (Boolean) -> Unit
 )
 
+/**
+ * The two scopes the customize toggles are grouped by, each an explicit ordered id list.
+ *
+ * The split is by scope rather than by theme: the first five change what a single
+ * transaction card shows, the last two change how the list around those cards is arranged.
+ * The order a group renders in is the order written here, not the order the toggle pool
+ * happens to declare, so adding a toggle to the pool cannot silently reshuffle a group.
+ */
+private val transactionCardToggleIds = listOf(
+    "showCategoryIcon",
+    "showCategoryLabel",
+    "showPaymentMethod",
+    "showTransactionDate",
+    "showTransactionTime"
+)
+
+private val listLevelToggleIds = listOf(
+    "showDateSeparators",
+    "showTransactionListSummaries"
+)
+
 @Composable
-fun TransactionCardCustomizeScreen(
+fun CustomisationScreen(
     settings: TransactionCardCustomizationSettings,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
@@ -301,12 +335,13 @@ private fun TransactionCardCustomizeContent(
                         .verticalScroll(rememberScrollState())
                         .padding(end = 16.dp)
                 ) {
+                    val enter = rememberSectionEnterAlphas(2)
                     AppHeader(
                         title = stringResource(id = R.string.title_transaction_card_settings),
                         onBackClick = onBackClick,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.alpha(enter[0])
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(Modifier.alpha(enter[1])) {
                     TransactionCardPreviewSection(
                         localSettings = localSettings,
                         previewTransactions = previewTransactions,
@@ -319,6 +354,7 @@ private fun TransactionCardCustomizeContent(
                         timeFormat = timeFormat,
                         isProUser = isProUser
                     )
+                    }
                 }
 
                 // RIGHT: customize toggles + ad
@@ -327,14 +363,6 @@ private fun TransactionCardCustomizeContent(
                         .weight(1f)
                         .fillMaxHeight()
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.title_customize_transaction_card),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
-                        modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
-                    )
                     TransactionCardTogglesList(
                         toggleItems = toggleItems,
                         isInPreview = isInPreview,
@@ -357,12 +385,11 @@ private fun TransactionCardCustomizeContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AppHeader(
                     title = stringResource(id = R.string.title_transaction_card_settings),
                     onBackClick = onBackClick,
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier
                 )
 
                 TransactionCardPreviewSection(
@@ -376,15 +403,6 @@ private fun TransactionCardCustomizeContent(
                     dateFormatPattern = dateFormatPattern,
                     timeFormat = timeFormat,
                     isProUser = isProUser
-                )
-
-                Text(
-                    text = stringResource(id = R.string.title_customize_transaction_card),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = Modifier.padding(top = Dimens.PaddingMedium, bottom = Dimens.PaddingMedium)
                 )
             }
 
@@ -428,7 +446,7 @@ private fun TransactionCardPreviewSection(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             text = stringResource(id = R.string.label_preview),
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.accentInk,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.6.sp
@@ -492,10 +510,19 @@ private fun TransactionCardTogglesList(
         contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // Group 1: Visual Style
+        // Group 1: what every transaction card displays, ordered to mirror the card's own
+        // anatomy -- icon, category, payment method, then the date and time stamps.
+        item {
+            SettingsGroupHeader(
+                title = stringResource(id = R.string.label_on_each_transaction_card),
+                subtitle = stringResource(id = R.string.desc_on_each_transaction_card)
+            )
+        }
         item {
             SettingsGroup {
-                val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryIcon") }
+                val groupItems = transactionCardToggleIds.mapNotNull { id ->
+                    toggleItems.firstOrNull { it.optionId == id }
+                }
                 groupItems.forEachIndexed { index, item ->
                     false.ToggleSettingsItem(
                         item = item,
@@ -506,38 +533,19 @@ private fun TransactionCardTogglesList(
             }
         }
 
-        // Group 2: Transaction Details
+        // Group 2: how the list itself is arranged -- grouped under day headers, with the
+        // period summaries above them.
         item {
-            SettingsGroup {
-                val groupItems = toggleItems.filter { it.optionId in listOf("showCategoryLabel", "showPaymentMethod", "showTransactionTime") }
-                groupItems.forEachIndexed { index, item ->
-                    false.ToggleSettingsItem(
-                        item = item,
-                        isInPreview = isInPreview
-                    )
-                    if (index < groupItems.size - 1) SettingsGroupDivider()
-                }
-            }
+            SettingsGroupHeader(
+                title = stringResource(id = R.string.label_in_the_list),
+                subtitle = stringResource(id = R.string.desc_in_the_list)
+            )
         }
-
-        // Group 3: Time & Organization
         item {
             SettingsGroup {
-                val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionDate", "showDateSeparators") }
-                groupItems.forEachIndexed { index, item ->
-                    false.ToggleSettingsItem(
-                        item = item,
-                        isInPreview = isInPreview
-                    )
-                    if (index < groupItems.size - 1) SettingsGroupDivider()
+                val groupItems = listLevelToggleIds.mapNotNull { id ->
+                    toggleItems.firstOrNull { it.optionId == id }
                 }
-            }
-        }
-
-        // Group 4: Transaction List Summaries
-        item {
-            SettingsGroup {
-                val groupItems = toggleItems.filter { it.optionId in listOf("showTransactionListSummaries") }
                 groupItems.forEachIndexed { index, item ->
                     false.ToggleSettingsItem(
                         item = item,
@@ -617,6 +625,7 @@ private fun PreviewTransactionCard(
         ),
         transactionTypeId = transaction.transactionTypeId,
         icon = transaction.categoryIcon,
+        categoryId = transaction.categoryId,
         paymentType = getPaymentTypeName(transaction.paymentTypeId).uppercase(),
         categoryLabel = stringResource(id = R.string.label_category_1).uppercase(),
         showTypeLabel = settings.showIncomeExpenseLabels,
@@ -631,15 +640,43 @@ private fun PreviewTransactionCard(
     )
 }
 
+// Smartphone pair: the same 412dp handset rendered in both themes so the screen can be
+// reviewed against the light redesign without flipping the IDE's night mode. The uiMode
+// annotation keeps the simulated system bars in step with the theme the content is given,
+// and the handset window classes pin the run to the phone's single-column layout.
+
+/** The 412dp portrait handset both smartphone previews are rendered in. */
+private val PREVIEW_HANDSET_WINDOW_INFO =
+    AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)
+
 @Preview(
-    name = "Card Settings Screen",
+    name = "Card Settings - Smartphone Light",
     showBackground = true,
     showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
+    device = "spec:width=412dp,height=915dp,dpi=420",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
-private fun TransactionCardCustomizeScreenPreview() {
-    TransactionCardCustomizePreviewContent()
+private fun CustomisationScreenLightPreview() {
+    TransactionCardCustomizePreviewContent(
+        darkTheme = false,
+        windowInfo = PREVIEW_HANDSET_WINDOW_INFO
+    )
+}
+
+@Preview(
+    name = "Card Settings - Smartphone Dark",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=412dp,height=915dp,dpi=420",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun CustomisationScreenDarkPreview() {
+    TransactionCardCustomizePreviewContent(
+        darkTheme = true,
+        windowInfo = PREVIEW_HANDSET_WINDOW_INFO
+    )
 }
 
 // Multi-config adaptive preview: verifies the stacked (compact) vs two-column
@@ -647,31 +684,71 @@ private fun TransactionCardCustomizeScreenPreview() {
 @Preview(name = "Card Settings - Multi-Config", showBackground = true)
 @PreviewScreenSizes
 @Composable
-private fun TransactionCardCustomizeScreenMultiConfigPreview() {
-    TransactionCardCustomizePreviewContent()
+private fun CustomisationScreenMultiConfigPreview() {
+    TransactionCardCustomizePreviewContent(darkTheme = true)
 }
 
 @Composable
-private fun TransactionCardCustomizePreviewContent() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        TransactionCardCustomizeContent(
-            settings = TransactionCardCustomizationSettings(),
-            currencyId = DEFAULT_CURRENCY_ID,
-            amountFormatPreferences = defaultAmountFormatPreferences,
-            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
-            timeFormat = DEFAULT_TIME_FORMAT,
-            previewTransactions = transactionList.take(2),
-            isAdsEnabled = false,
-            isProUser = true,
-            isTransactionTimeProGranted = true,
-            isDateSeparatorsProGranted = true,
-            isPaymentMethodProGranted = true,
-            isListSummariesProGranted = true,
-            onSettingsChange = {},
-            onBackClick = {}
+private fun TransactionCardCustomizePreviewContent(
+    darkTheme: Boolean,
+    windowInfo: AppWindowInfo? = null
+) {
+    // The screen branches on LocalAppWindowInfo, which only the app root provides. A static
+    // preview installs no provider, so it fell back to the local's default -- compact width
+    // AND compact height, which reads as phone LANDSCAPE, not portrait -- and every preview,
+    // the 412dp handset pair included, drew the two-column layout instead of the phone's
+    // single column. A preview that knows its own frame passes the classes for it; one that
+    // covers several frames (the multi-config preview) leaves this null and gets the classes
+    // its current frame implies, so a wide frame still splits into two.
+    val configuration = LocalConfiguration.current
+    val frameWindowInfo = remember(configuration.screenWidthDp, configuration.screenHeightDp) {
+        previewAppWindowInfo(
+            widthDp = configuration.screenWidthDp,
+            heightDp = configuration.screenHeightDp
         )
     }
+    val resolvedWindowInfo = windowInfo ?: frameWindowInfo
+    ExpenseTrackerTheme(darkTheme = darkTheme) {
+        CompositionLocalProvider(LocalAppWindowInfo provides resolvedWindowInfo) {
+            TransactionCardCustomizeContent(
+                settings = TransactionCardCustomizationSettings(),
+                currencyId = DEFAULT_CURRENCY_ID,
+                amountFormatPreferences = defaultAmountFormatPreferences,
+                dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+                timeFormat = DEFAULT_TIME_FORMAT,
+                previewTransactions = transactionList.take(2),
+                isAdsEnabled = false,
+                isProUser = true,
+                isTransactionTimeProGranted = true,
+                isDateSeparatorsProGranted = true,
+                isPaymentMethodProGranted = true,
+                isListSummariesProGranted = true,
+                onSettingsChange = {},
+                onBackClick = {}
+            )
+        }
+    }
 }
+
+/**
+ * The size classes a preview frame implies, mapped at the same breakpoints
+ * `rememberAppWindowInfo()` reads at runtime -- a preview has no real window to ask, only the
+ * width and height its `@Preview` frame was given.
+ */
+private fun previewAppWindowInfo(widthDp: Int, heightDp: Int): AppWindowInfo = AppWindowInfo(
+    width = when {
+        widthDp >= WindowSizeClass.WIDTH_DP_EXTRA_LARGE_LOWER_BOUND -> AppWindowSize.ExtraLarge
+        widthDp >= WindowSizeClass.WIDTH_DP_LARGE_LOWER_BOUND -> AppWindowSize.Large
+        widthDp >= WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND -> AppWindowSize.Expanded
+        widthDp >= WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND -> AppWindowSize.Medium
+        else -> AppWindowSize.Compact
+    },
+    height = when {
+        heightDp >= WindowSizeClass.HEIGHT_DP_EXPANDED_LOWER_BOUND -> AppWindowHeight.Expanded
+        heightDp >= WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND -> AppWindowHeight.Medium
+        else -> AppWindowHeight.Compact
+    }
+)
 
 @Composable
 private fun PreviewDateHeader(
@@ -726,7 +803,7 @@ private fun PreviewTransactionSummaryCard(
                     Text(
                         text = periodLabel,
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.padding(end = 12.dp)
                     )
                 }
@@ -739,7 +816,7 @@ private fun PreviewTransactionSummaryCard(
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
                         contentDescription = null,
-                        tint = IncomeGreen,
+                        tint = MaterialTheme.colorScheme.income,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
@@ -759,7 +836,7 @@ private fun PreviewTransactionSummaryCard(
                     Icon(
                         imageVector = Icons.Default.ArrowUpward,
                         contentDescription = null,
-                        tint = ExpenseRed,
+                        tint = MaterialTheme.colorScheme.expense,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(

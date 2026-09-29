@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -16,7 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -41,7 +51,7 @@ fun FeedbackRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // System back must return to the previous screen (About), not send the
-    // app to the background — same convention as every other route.
+    // app to the background â€” same convention as every other route.
     BackHandler {
         onBackClick()
     }
@@ -81,7 +91,7 @@ private fun FeedbackScreenContent(
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(48.dp)
                 )
             },
@@ -92,7 +102,7 @@ private fun FeedbackScreenContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         onDismissSuccess()
                         onBackClick()
@@ -111,63 +121,62 @@ private fun FeedbackScreenContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(R.string.title_feedback),
             onBackClick = onBackClick,
             modifier = Modifier.padding(
                 start = Dimens.ScreenPadding,
                 end = Dimens.ScreenPadding,
-                top = Dimens.HeaderSpacing,
-                bottom = 12.dp
-            )
+                top = Dimens.HeaderSpacing
+            ).alpha(enter[0])
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.ScreenPadding),
+                .padding(horizontal = Dimens.ScreenPadding)
+                .alpha(enter[1]),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Info Card with User Context
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(standardCardGradient())
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
-                        shape = RoundedCornerShape(24.dp)
-                    )
-                    .padding(20.dp)
+            AppCard(
+                modifier = Modifier.fillMaxWidth(),
+                // The gradient is the dark surface and this card's only fill, so the
+                // container beneath it stays transparent; light takes the white card.
+                brush = darkOnlyGradient(standardCardGradient()),
+                shape = AppCardDefaults.shape(24.dp),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.Email,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Rounded.Email,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.accentInk,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.label_send_feedback_desc),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = stringResource(R.string.label_send_feedback_desc),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleSmall
+                        text = stringResource(
+                            R.string.label_logged_in_as,
+                            uiState.userEmail.ifEmpty { "Anonymous" },
+                            uiState.userId.take(8)
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(
-                        R.string.label_logged_in_as,
-                        uiState.userEmail.ifEmpty { "Anonymous" },
-                        uiState.userId.take(8)
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -184,16 +193,9 @@ private fun FeedbackScreenContent(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(24.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
+                    .height(200.dp),
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors(),
                 maxLines = 10,
                 enabled = !uiState.isLoading && !uiState.isCooldownActive
             )
@@ -236,7 +238,7 @@ private fun FeedbackScreenContent(
                     .clip(RoundedCornerShape(28.dp)),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.accentInk,
                     disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                 )
             ) {

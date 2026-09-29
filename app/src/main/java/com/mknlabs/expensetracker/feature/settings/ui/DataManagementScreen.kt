@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,13 +17,18 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
@@ -180,17 +187,18 @@ private fun DataManagementContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(id = R.string.title_data_management),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
-
-            Spacer(modifier = Modifier.height(18.dp))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
@@ -381,7 +389,7 @@ private fun DataManagementContent(
     if (isDeleteTransactionsDialogVisible) {
         AlertDialog(
             onDismissRequest = { isDeleteTransactionsDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
@@ -397,7 +405,7 @@ private fun DataManagementContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         isDeleteTransactionsDialogVisible = false
                         onDeleteAllTransactionsClick()
@@ -411,10 +419,10 @@ private fun DataManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
+                AppTextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -425,7 +433,7 @@ private fun DataManagementContent(
     pendingRestoreUri?.let { selectedUri ->
         AlertDialog(
             onDismissRequest = { pendingRestoreUri = null },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(id = R.string.label_restore_database),
@@ -441,7 +449,7 @@ private fun DataManagementContent(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         pendingRestoreUri = null
                         onDatabaseRestoreFileSelected(selectedUri)
@@ -455,10 +463,10 @@ private fun DataManagementContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingRestoreUri = null }) {
+                AppTextButton(onClick = { pendingRestoreUri = null }) {
                     Text(
                         text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -518,7 +526,7 @@ private fun DataManagementContent(
     if (isCustomFrequencyDialogVisible) {
         AlertDialog(
             onDismissRequest = { isCustomFrequencyDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = {
                 Text(
                     text = stringResource(R.string.title_custom_backup_frequency),
@@ -541,18 +549,13 @@ private fun DataManagementContent(
                         placeholder = { Text(stringResource(R.string.placeholder_days)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                        )
+                        shape = AppOutlinedFieldDefaults.shape,
+                        colors = AppOutlinedFieldDefaults.colors()
                     )
                 }
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         val days = customFrequencyInput.toIntOrNull() ?: 7
                         if (days in 1..365) {
@@ -564,13 +567,13 @@ private fun DataManagementContent(
                 ) {
                     Text(
                         text = stringResource(R.string.label_apply),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { isCustomFrequencyDialogVisible = false }) {
+                AppTextButton(onClick = { isCustomFrequencyDialogVisible = false }) {
                     Text(
                         text = stringResource(R.string.label_cancel_1),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -603,7 +606,7 @@ private fun SectionHeader(
 ) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         style = MaterialTheme.typography.labelMedium.copy(
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp

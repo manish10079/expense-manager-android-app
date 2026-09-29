@@ -42,6 +42,9 @@ fun Transaction.toTransactionCardItemUi(
         transactionTypeId = transactionTypeId,
         paymentType = paymentTypeName.uppercase(Locale.getDefault()),
         categoryLabel = (category?.name ?: fallbackCategoryName).uppercase(Locale.getDefault()),
+        // The same `category` lookup the icon above uses, so a row's colour and its glyph can
+        // never be resolved from two different categories.
+        categoryColorHex = category?.colorHex,
         isRecurring = !sourceRecurringRuleId.isNullOrBlank()
     )
 }

@@ -1,13 +1,10 @@
 package com.mknlabs.expensetracker.feature.analytics.ui
 
-import androidx.compose.animation.AnimatedContent
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +26,7 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,47 +57,14 @@ import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
-import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextSelectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBgUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipBorderUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedDark
-import com.mknlabs.expensetracker.core.ui.theme.ChipTextUnselectedLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.adamglin.phosphoricons.regular.Wallet
 import com.adamglin.phosphoricons.regular.TrendUp
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -110,6 +75,7 @@ import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
@@ -121,7 +87,20 @@ import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 
@@ -138,9 +117,19 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+/**
+ * What the analytics hero is showing.
+ *
+ * These labels are the title-case forms - "Expense", "Income", "Both" - because they
+ * are the options of a changer the user reads as three words, and the upper-case
+ * [R.string.label_expense] / [R.string.label_income] mixed with the title-case
+ * [R.string.label_both] read as two different kinds of label in one control. The
+ * upper-case pair stays as it is for the transaction pills and the legends that were
+ * built around it.
+ */
 enum class HeroDisplayMode(val labelRes: Int) {
-    EXPENSE(R.string.label_expense),
-    INCOME(R.string.label_income),
+    EXPENSE(R.string.label_expense_title),
+    INCOME(R.string.label_income_title),
     BOTH(R.string.label_both)
 }
 
@@ -234,6 +223,7 @@ fun AnalyticsScreenContent(
     // direction drives the standalone add FAB's auto-hide on compact portrait.
     val analyticsListState = rememberLazyListState()
     rememberBindAddFabToScroll(analyticsListState)
+    val enter = rememberSectionEnterAlphas(4)
 
     Column(
         modifier = Modifier
@@ -245,6 +235,7 @@ fun AnalyticsScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                .alpha(enter[0])
         ) {
             AppHeader(title = stringResource(id = R.string.title_analytics), onBackClick = onBackClick)
         }
@@ -257,7 +248,7 @@ fun AnalyticsScreenContent(
                 .navigationBarsPadding(),
             // Top inset is the gap under the AppHeader, so it is deliberately smaller
             // than the 18.dp between cards.
-            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 12.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
+            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 0.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             // Only added when it will draw. It is invisible on a standard calendar
@@ -268,105 +259,87 @@ fun AnalyticsScreenContent(
                     CurrentPeriodIndicator(
                         startMillis = uiState.currentPeriodStartMillis,
                         endMillis = uiState.currentPeriodEndMillis,
-                        monthStartDay = uiState.monthStartDay
+                        monthStartDay = uiState.monthStartDay,
+                        modifier = Modifier.alpha(enter[1])
                     )
                 }
             }
             item {
-                // While a custom range is active the other periods are moot, so the row
-                // shows only the range pill (with Clear) and hiding the three switches
-                // leaves nothing to switch between. Clearing the range restores them.
-                //
-                // AnimatedContent rather than fading the three chips out in place, because
-                // the two states are different layouts — four controls spread evenly, or one
-                // pill — and this slides between them instead of snapping. Each direction
-                // slides towards where the eye expects the content to be: the pill arrives
-                // from the end of the row it was already sitting at, and the switches
-                // return from the start.
-                val isCustomRangeActive = uiState.selectedPeriod == AnalyticsPeriod.CUSTOM
+                // Week / Month / Year, custom range, and the hero share one item so the
+                // list's 18.dp card gap does not sit between them.
+                Column(
+                    modifier = Modifier.fillMaxWidth().alpha(enter[1]),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                GatedAction(
+                    feature = Feature.ANALYTICS_PERIOD_YEAR,
+                    displayName = stringResource(id = R.string.title_yearly_analytics),
+                    onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
+                ) { status, onLockedClick ->
+                    val isYearLocked = status !is AccessStatus.Granted
 
-                AnimatedContent(
-                    targetState = isCustomRangeActive,
-                    transitionSpec = {
-                        if (targetState) {
-                            (slideInHorizontally(tween(260)) { it / 8 } + fadeIn(tween(200))) togetherWith
-                                (slideOutHorizontally(tween(260)) { -it / 8 } + fadeOut(tween(160)))
-                        } else {
-                            (slideInHorizontally(tween(260)) { -it / 8 } + fadeIn(tween(200))) togetherWith
-                                (slideOutHorizontally(tween(260)) { it / 8 } + fadeOut(tween(160)))
-                        }
-                    },
-                    label = "analytics_period_row"
-                ) { customRangeActive ->
-                    // Four period controls on one line, spaced evenly across the full width.
-                    // FlowRow rather than a Row because the wrapping is the adaptivity: the
-                    // labels keep their natural width and move onto a second row only when
-                    // all four stop fitting, which is what a large font scale or a narrow
-                    // window does to them. A Row would squeeze or clip instead.
-                    FlowRow(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        // Emitted one chip at a time so the FlowRow sees four siblings to
-                        // space. Wrapping them in an inner Row would make it two children
-                        // and the three periods would stay bunched at one end.
-                        if (!customRangeActive) {
-                            GatedAction(
-                                feature = Feature.ANALYTICS_PERIOD_YEAR,
-                                displayName = stringResource(id = R.string.title_yearly_analytics),
-                                onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
-                            ) { status, onLockedClick ->
-                                val isYearLocked = status !is AccessStatus.Granted
-
-                                AnalyticsPeriod.entries
-                                    .filter { it != AnalyticsPeriod.CUSTOM }
-                                    .forEach { period ->
-                                        val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
-                                        PeriodChip(
-                                            modifier = Modifier.weight(1f),
-                                            label = stringResource(id = period.labelRes),
-                                            isSelected = period == uiState.selectedPeriod,
-                                            isLocked = isLocked,
-                                            onClick = {
-                                                if (isLocked) onLockedClick() else onDateRangeSelected(period)
-                                            }
-                                        )
-                                    }
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AnalyticsPeriod.entries
+                                .filter { it != AnalyticsPeriod.CUSTOM }
+                                .forEach { period ->
+                                    val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
+                                    PeriodChip(
+                                        label = stringResource(id = period.labelRes),
+                                        isSelected = period == uiState.selectedPeriod,
+                                        isLocked = isLocked,
+                                        onClick = {
+                                            if (isLocked) onLockedClick() else onDateRangeSelected(period)
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                         }
 
                         CustomRangeSelector(
-                            modifier = Modifier.weight(1f),
                             selectedPeriod = uiState.selectedPeriod,
                             customRange = customRange,
                             onClick = {
                                 isCustomRangePickerVisible = true
                             },
-                            onClear = onClearCustomRange
+                            onClear = onClearCustomRange,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
-            }
-            item { 
                 HeroAnalyticsSection(
                     snapshot = snapshot,
                     displayMode = heroDisplayMode,
                     onDisplayModeChange = { heroDisplayMode = it }
-                ) 
-            }
-            item {
-                AdContainer(isAdsEnabled = isAdsEnabled) {
-                    NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                )
                 }
             }
-            item { StatsRow(snapshot) }
+            // Guarded on the ad being on at all. AdContainer collapses to nothing when ads are
+            // off, but the item it was emitted from is still in the list, and an invisible lazy
+            // item still costs the 18.dp spacing above and below it — the same trap the period
+            // indicator above is kept out of the list to avoid. Measured on a real window with ads
+            // off, the hole left between two cards was 94px where every other pair is 47px.
+            if (isAdsEnabled) {
+                item {
+                    AdContainer(isAdsEnabled = true) {
+                        NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
+                    }
+                }
+            }
+            item { Box(Modifier.alpha(enter[2])) { StatsRow(snapshot) } }
             // Cash Flow Ratio is always full-width: in the two-column layout it
             // would otherwise be squeezed into half the row width.
             item {
-                CashFlowCard(snapshot)
+                Box(Modifier.alpha(enter[2])) { CashFlowCard(snapshot) }
             }
             item {
+                Box(Modifier.alpha(enter[3])) {
                 AnalyticsSectionRow(
                     isWide = isWide,
                     first = {
@@ -426,18 +399,20 @@ fun AnalyticsScreenContent(
                     }
                     }
                 )
+                }
             }
             // Single-column: keep the native ad between the payment breakdown
             // and top spending. In the two-column layout it becomes a full-width
             // row at the bottom instead (see below).
-            if (!isWide) {
+            if (!isWide && isAdsEnabled) {
                 item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                    AdContainer(isAdsEnabled = true) {
                         NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                     }
                 }
             }
             item {
+                Box(Modifier.alpha(enter[3])) {
                 AnalyticsSectionRow(
                     isWide = isWide,
                     first = {
@@ -486,11 +461,12 @@ fun AnalyticsScreenContent(
                     }
                 }
                 )
+                }
             }
             // Two-column layout: native ad as a full-width row at the bottom.
-            if (isWide) {
+            if (isWide && isAdsEnabled) {
                 item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
+                    AdContainer(isAdsEnabled = true) {
                         NativeAdCard(placement = AdPlacement.ANALYTICS_INSIGHTS)
                     }
                 }
@@ -606,9 +582,15 @@ private fun AnalyticsSectionRow(
             Box(modifier = Modifier.weight(1f)) { second() }
         }
     } else {
-        first()
-        Spacer(modifier = Modifier.height(18.dp))
-        second()
+        // The compact branch owns its own Column, because it emits more than one card and the
+        // caller wraps this in a Box — which stacks its children at a single origin. Emitted
+        // bare, the two cards were drawn on top of each other: the first one's title was not
+        // even in the accessibility tree, and only the second card was readable at all.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            first()
+            Spacer(modifier = Modifier.height(18.dp))
+            second()
+        }
     }
 }
 
@@ -620,29 +602,30 @@ private fun CustomRangeSelector(
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
     val isSelected = selectedPeriod == AnalyticsPeriod.CUSTOM
 
+    // The same five spec chip tokens PeriodChip reads, so the custom-range control and the
+    // period chips beside it cannot disagree about what a selected chip looks like.
     val containerColor = if (isSelected) {
-        if (isDark) ChipBgSelectedDark else ChipBgSelectedLight
+        MaterialTheme.colorScheme.chipSelected
     } else {
-        if (isDark) ChipBgUnselectedDark else ChipBgUnselectedLight
+        MaterialTheme.colorScheme.chip
     }
 
     val borderColor = if (isSelected) {
-        if (isDark) ChipBorderSelectedDark else ChipBorderSelectedLight
+        Color.Transparent
     } else {
-        if (isDark) ChipBorderUnselectedDark else ChipBorderUnselectedLight
+        MaterialTheme.colorScheme.chipOutline
     }
 
     val textColor = if (isSelected) {
-        if (isDark) ChipTextSelectedDark else ChipTextSelectedLight
+        MaterialTheme.colorScheme.chipSelectedInk
     } else {
-        if (isDark) ChipTextUnselectedDark else ChipTextUnselectedLight
+        MaterialTheme.colorScheme.chipInkOff
     }
 
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -703,7 +686,7 @@ private fun CustomRangeSelector(
         if (selectedPeriod == AnalyticsPeriod.CUSTOM && customRange != null) {
             Text(
                 text = stringResource(id = R.string.label_clear),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.clickable(onClick = onClear)
             )
@@ -717,8 +700,6 @@ private fun HeroAnalyticsSection(
     displayMode: HeroDisplayMode,
     onDisplayModeChange: (HeroDisplayMode) -> Unit
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-
     val title = when (displayMode) {
         HeroDisplayMode.EXPENSE -> stringResource(id = R.string.label_total_spending)
         HeroDisplayMode.INCOME -> stringResource(id = R.string.label_total_income)
@@ -731,13 +712,9 @@ private fun HeroAnalyticsSection(
         HeroDisplayMode.BOTH -> snapshot.savingsDisplay
     }
 
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(CashFlowCardDarkStart, CashFlowCardDarkCenter, CashFlowCardDarkEnd))
-    } else {
-        Brush.linearGradient(listOf(CashFlowCardLightStart, CashFlowCardLightCenter, CashFlowCardLightEnd))
-    }
-    val borderColor = if (isDark) CashFlowCardBorderDarkStart.copy(alpha = 0.35f) else CashFlowCardBorderLight
-    val shape = RoundedCornerShape(20.dp)
+    // The hero is a neutral card in both themes, the same recipe the home hero uses: the
+    // brand is the bloom, never the surface. The dark-only violet gradient this painted
+    // (CashFlowCardDark*) is retired with the mock that specified it.
 
     val deltaColor = if (snapshot.changePercent >= 0) {
         if (displayMode == HeroDisplayMode.EXPENSE) MaterialTheme.colorScheme.expense else MaterialTheme.colorScheme.income
@@ -747,16 +724,24 @@ private fun HeroAnalyticsSection(
     val deltaArrow = if (snapshot.changePercent >= 0) "▲ " else "▼ "
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(shape)
-                .background(brush = gradientBrush)
-                .border(width = 1.dp, color = borderColor, shape = shape)
-                .padding(18.dp)
+        AppCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = AppCardDefaults.shape(20.dp),
+            colors = AppCardDefaults.colors(),
+            brush = darkOnlyGradient(standardCardGradient()),
         ) {
+            // The bloom must be attached to a fill that spans the card. Its centre sits at
+            // 92% of the width and 18% of the height, well inside its own radius, so a rect
+            // inset by the card's padding cuts it off at near-full strength and the glow
+            // reads as a square patch rather than a corner wash. The padding therefore sits
+            // on the column below, as it does on the home hero — which also keeps this Box
+            // and the card the same rect, since the bloom's fractions measure against this Box.
+            Box(modifier = Modifier.matchParentSize().heroBloom())
+
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Row(
@@ -766,7 +751,7 @@ private fun HeroAnalyticsSection(
                 ) {
                     Text(
                         text = title.uppercase(Locale.getDefault()),
-                        color = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
+                        color = MaterialTheme.colorScheme.textTertiary,
                         style = MaterialTheme.typography.labelSmall.copy(
                             letterSpacing = 1.2.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -787,7 +772,7 @@ private fun HeroAnalyticsSection(
                                 iconTint = when (mode) {
                                     HeroDisplayMode.EXPENSE -> MaterialTheme.colorScheme.expense
                                     HeroDisplayMode.INCOME -> MaterialTheme.colorScheme.income
-                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.primary
+                                    HeroDisplayMode.BOTH -> MaterialTheme.colorScheme.accentInk
                                 }
                             )
                         },
@@ -798,7 +783,7 @@ private fun HeroAnalyticsSection(
 
                 Text(
                     text = amount,
-                    color = if (isDark) CashFlowNetBalanceAmountDark else CashFlowNetBalanceAmountLight,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontSize = 31.sp,
                         fontWeight = FontWeight.Bold
@@ -828,7 +813,7 @@ private fun HeroAnalyticsSection(
 
                     Text(
                         text = resolveSummaryLabel(snapshot.summaryLabel),
-                        color = if (isDark) Color(0xFF8F8BA3) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.textTertiary,
                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp)
                     )
                 }
@@ -1152,26 +1137,18 @@ private fun InsightStatCard(
     deltaBackground: Color,
     icon: ImageVector
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
+    val colorScheme = MaterialTheme.colorScheme
+    // A neutral card; the brand is the icon tile, per the spec's accentSoft/accent pairing.
+    val iconBgColor = colorScheme.accentSoft
+    val iconTintColor = colorScheme.accentInk
+    val labelColor = colorScheme.onSurfaceVariant
 
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
-    } else {
-        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
-    }
-
-    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
-    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
-    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
-    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
-    val shape = RoundedCornerShape(18.dp)
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, color = borderColor, shape = shape)
-            .padding(14.dp)
+    AppCard(
+        modifier = modifier,
+        shape = AppCardDefaults.shape(18.dp),
+        colors = AppCardDefaults.colors(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        contentPadding = PaddingValues(14.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -1248,11 +1225,14 @@ private fun InsightStatCard(
 
 @Composable
 private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1267,29 +1247,96 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = stringResource(id = R.string.label_cash_flow_ratio),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    LegendDot(stringResource(id = R.string.label_income).uppercase(), MaterialTheme.colorScheme.income)
-                    LegendDot(stringResource(id = R.string.label_expense).uppercase(), MaterialTheme.colorScheme.expense)
-                }
+                RatioBadge(snapshot.ratioDisplay)
             }
             Spacer(modifier = Modifier.height(20.dp))
-            CashFlowBar(snapshot.incomeFraction, MaterialTheme.colorScheme.income, MaterialTheme.colorScheme.expense)
-            Spacer(modifier = Modifier.height(14.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = snapshot.incomeDisplay,
-                    color = MaterialTheme.colorScheme.income,
-                    style = MaterialTheme.typography.titleMedium
+            // The bar and its two percentages are one block: the labels sit under the ends of
+            // the segments they describe, so the gap between the two is tight and fixed.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CashFlowBar(
+                    snapshot.incomeFraction,
+                    MaterialTheme.colorScheme.income,
+                    MaterialTheme.colorScheme.expense
                 )
-                Text(
-                    text = snapshot.expenseDisplay,
-                    color = MaterialTheme.colorScheme.expense,
-                    style = MaterialTheme.typography.titleMedium
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    SharePercent(snapshot.incomePercent, MaterialTheme.colorScheme.income)
+                    SharePercent(snapshot.expensePercent, MaterialTheme.colorScheme.expense)
+                }
+            }
+            Spacer(modifier = Modifier.height(18.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CashFlowStat(
+                    label = stringResource(id = R.string.label_income).uppercase(),
+                    amount = snapshot.incomeDisplay,
+                    accent = MaterialTheme.colorScheme.income
+                )
+                CashFlowStat(
+                    label = stringResource(id = R.string.label_expense).uppercase(),
+                    amount = snapshot.expenseDisplay,
+                    accent = MaterialTheme.colorScheme.expense,
+                    alignEnd = true
                 )
             }
         }
+    }
+}
+
+/** The period's income to expense ratio, normalised to income = 1; see [cashFlowSplit]. */
+@Composable
+private fun RatioBadge(ratio: String) {
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.format_cash_flow_ratio, ratio),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+        )
+    }
+}
+
+/** One of the bar's two shares, printed under the end of the segment it belongs to. */
+@Composable
+private fun SharePercent(percent: Int, accent: Color) {
+    Text(
+        text = stringResource(id = R.string.format_percent, percent.toString()),
+        color = accent,
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+    )
+}
+
+/**
+ * One half of the card's foot: the legend dot and its label, then the period's total in that
+ * direction. Both halves take the same width, so the two amounts stay lined up with the bar's
+ * ends whichever of them happens to be the longer number.
+ */
+@Composable
+private fun RowScope.CashFlowStat(
+    label: String,
+    amount: String,
+    accent: Color,
+    alignEnd: Boolean = false
+) {
+    Column(
+        modifier = Modifier.weight(1f),
+        horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        LegendDot(label, accent)
+        Text(
+            text = amount,
+            color = accent,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
     }
 }
 
@@ -1302,29 +1349,50 @@ private fun LegendDot(label: String, color: Color) {
                 .clip(CircleShape)
                 .background(color)
         )
-        Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+        )
     }
 }
 
+/**
+ * The colour of a category's slice, legend dot and progress bar: the user's own if they picked
+ * one, otherwise the palette entry for that category's id.
+ *
+ * **This replaces the positional ramp, and the trade-off it accepted is worth knowing.** The ramp
+ * gave every slice a colour by its rank, which guaranteed that two adjacent slices differed. The
+ * palette repeats hues on purpose — Travel, Insurance and Transport are all `#0288D1`, and Bills,
+ * Groceries and Donations all `#059669` — so two adjacent slices can now be the same colour.
+ *
+ * That is acceptable here and only here, because the legend under the donut prints a text label
+ * for every dot: identity comes from the name, and the colour's job is to match the slice to a
+ * category the user already recognises from the transactions list. A chart whose only key was the
+ * colour could not afford this; this one is not.
+ *
+ * It also cannot wrap or run out the way the ramp could. A category id is either in the palette or
+ * it is not, and the not-in case takes the brand fallback ink rather than a recycled hue.
+ */
 @Composable
-private fun categoryBreakdownColor(index: Int): Color {
-    val colorScheme = MaterialTheme.colorScheme
-    return when (index % 3) {
-        0 -> colorScheme.primary
-        1 -> colorScheme.secondary
-        else -> colorScheme.tertiary
-    }
-}
+private fun categoryBreakdownColor(category: CategoryBreakdownUi): Color =
+    MaterialTheme.colorScheme.categoryColor(
+        categoryId = category.id,
+        colorHex = category.colorHex
+    )
 
+/**
+ * The same lookup as [categoryBreakdownColor], against the payment palette.
+ *
+ * Kept as its own function rather than passed a palette in, because payment ids restart at 1: id
+ * 1 is both Food and UPI, so the domain has to be decided here and not at the call site.
+ */
 @Composable
-private fun paymentBreakdownColor(index: Int): Color {
-    val colorScheme = MaterialTheme.colorScheme
-    return when (index % 3) {
-        0 -> colorScheme.income
-        1 -> colorScheme.primary
-        else -> colorScheme.secondary
-    }
-}
+private fun paymentBreakdownColor(item: PaymentTypeBreakdownUi): Color =
+    MaterialTheme.colorScheme.paymentColor(
+        paymentId = item.id,
+        colorHex = item.colorHex
+    )
 
 @Composable
 private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor: Color) {
@@ -1359,10 +1427,14 @@ private fun CategoryCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1388,7 +1460,7 @@ private fun CategoryCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1397,7 +1469,7 @@ private fun CategoryCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1429,7 +1501,7 @@ private fun CategoryCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(categoryBreakdownColor(category.colorIndex))
+                                        .background(categoryBreakdownColor(category))
                                 )
                                 Text(
                                     text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
@@ -1451,7 +1523,7 @@ private fun CategoryCard(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
                                     contentDescription = stringResource(id = R.string.desc_show_transactions),
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { onShowTransactions(category.id, category.label) }
@@ -1474,7 +1546,7 @@ private fun CategoryBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -1567,7 +1639,7 @@ private fun CategoryBreakdownRow(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(categoryBreakdownColor(category.colorIndex))
+                            .background(categoryBreakdownColor(category))
                     )
                     Text(
                         text = if (category.isOther) stringResource(id = R.string.label_other) else category.label,
@@ -1593,7 +1665,7 @@ private fun CategoryBreakdownRow(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.desc_show_transactions),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onShowTransactions(category.id, category.label) }
@@ -1615,7 +1687,7 @@ private fun CategoryBreakdownRow(
                         .fillMaxWidth(category.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(categoryBreakdownColor(category.colorIndex))
+                        .background(categoryBreakdownColor(category))
                 )
             }
 
@@ -1631,9 +1703,15 @@ private fun CategoryBreakdownRow(
 }
 
 @Composable
-private fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    val segmentColors = breakdown.map { categoryBreakdownColor(it.colorIndex) }
+/**
+ * The category donut. Internal so `AnalyticsDonutColorRenderTest` can put it on a device and read
+ * the pixels back: the chart maps its own rows to arcs, so nothing short of a rendered slice can
+ * show that the colour on screen is the colour the row resolved to. The whole screen cannot host
+ * that test — it composes a gated action that needs a Hilt container.
+ */
+internal fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
+    val trackColor = MaterialTheme.colorScheme.track
+    val segmentColors = breakdown.map { categoryBreakdownColor(it) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -1677,10 +1755,14 @@ private fun TopSpendingCard(
     dateFormatPattern: String,
     onViewAllClick: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1704,7 +1786,7 @@ private fun TopSpendingCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1713,7 +1795,7 @@ private fun TopSpendingCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1760,7 +1842,7 @@ private fun TopSpendingRow(
             Icon(
                 imageVector = transaction.icon,
                 contentDescription = transaction.note,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1805,10 +1887,14 @@ private fun SmartTipCard(
     modifier: Modifier = Modifier,
     tip: SmartTipUi
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1830,7 +1916,7 @@ private fun SmartTipCard(
                     Icon(
                         imageVector = Icons.Filled.AutoAwesome,
                         contentDescription = stringResource(id = R.string.desc_ai_tip),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onCta,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -1858,10 +1944,14 @@ private fun PaymentTypeCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = modifier,
+        // The gradient is the dark surface and this card's only fill, so the container
+        // beneath it stays transparent and no outline is added; light takes the standard
+        // white card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -1887,7 +1977,7 @@ private fun PaymentTypeCard(
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_view_all),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.4.sp
@@ -1896,7 +1986,7 @@ private fun PaymentTypeCard(
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1928,7 +2018,7 @@ private fun PaymentTypeCard(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(paymentBreakdownColor(item.colorIndex))
+                                        .background(paymentBreakdownColor(item))
                                 )
                                 Icon(
                                     imageVector = item.icon,
@@ -1956,7 +2046,7 @@ private fun PaymentTypeCard(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
                                     contentDescription = stringResource(id = R.string.desc_show_transactions),
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { onShowTransactions(item.id, item.label) }
@@ -1971,9 +2061,10 @@ private fun PaymentTypeCard(
 }
 
 @Composable
-private fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    val segmentColors = breakdown.map { paymentBreakdownColor(it.colorIndex) }
+/** The payment donut. Internal for the same reason as [SpendingDonutChart]. */
+internal fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
+    val trackColor = MaterialTheme.colorScheme.track
+    val segmentColors = breakdown.map { paymentBreakdownColor(it) }
 
     Box(modifier = modifier.size(160.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -2025,7 +2116,7 @@ private fun PaymentTypeBreakdownBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -2148,7 +2239,7 @@ private fun PaymentBreakdownRow(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.desc_show_transactions),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onShowTransactions(item.id, item.label) }
@@ -2170,7 +2261,7 @@ private fun PaymentBreakdownRow(
                         .fillMaxWidth(item.fraction.coerceIn(0f, 1f))
                         .height(8.dp)
                         .clip(CircleShape)
-                        .background(paymentBreakdownColor(item.colorIndex))
+                        .background(paymentBreakdownColor(item))
                 )
             }
 
@@ -2200,7 +2291,7 @@ private fun FilteredTransactionsBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -2243,6 +2334,8 @@ private fun FilteredTransactionsBottomSheet(
                             amount = formatCurrencyValue(transaction.amount, currencyId, amountFormatPreferences),
                             transactionTypeId = transaction.transactionTypeId,
                             icon = category?.icon ?: Icons.Filled.QuestionMark,
+                            categoryId = transaction.categoryId,
+                            categoryColorHex = category?.colorHex,
                             paymentType = (payment?.name ?: stringResource(id = R.string.label_unknown)).uppercase(),
                             categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase(),
                             showNoteTooltip = isProUser,
@@ -2314,7 +2407,7 @@ private fun TopSpendingBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -2419,7 +2512,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
     val expense = monthlyTransactions.filter { it.transactionTypeId == 2 }.sumOf { it.amount }
     val savings = income - expense
     val avgDailyExpense = expense / 28.0
-    val incomeFraction = (income / maxOf(income + expense, 1.0)).toFloat()
+    val split = cashFlowSplit(income, expense)
 
     // Category breakdown
     val categoryTotals = monthlyTransactions
@@ -2430,7 +2523,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         .sortedByDescending { it.second }
     val totalExp = categoryTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
 
-    val allCategoryBreakdown = categoryTotals.mapIndexed { index, (catId, amount) ->
+    val allCategoryBreakdown = categoryTotals.map { (catId, amount) ->
         val cat = categoryMap[catId]
         CategoryBreakdownUi(
             id = catId,
@@ -2438,8 +2531,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
             isOther = cat == null,
             amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
             fraction = (amount / totalExp).toFloat(),
-            percentLabel = ((amount / totalExp) * 100).toInt(),
-            colorIndex = index
+            percentLabel = ((amount / totalExp) * 100).toInt()
         )
     }
 
@@ -2451,7 +2543,7 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         .toList()
         .sortedByDescending { it.second }
 
-    val allPaymentBreakdown = paymentTotals.mapIndexed { index, (pmtId, amount) ->
+    val allPaymentBreakdown = paymentTotals.map { (pmtId, amount) ->
         val pmt = paymentTypeMap[pmtId]
         PaymentTypeBreakdownUi(
             id = pmtId,
@@ -2460,7 +2552,6 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
             amountDisplay = formatCurrencyValue(amount, currencyId, fmtPrefs),
             fraction = (amount / totalExp).toFloat(),
             percentLabel = ((amount / totalExp) * 100).toInt(),
-            colorIndex = index,
             icon = pmt?.icon ?: Icons.Filled.Analytics
         )
     }
@@ -2532,7 +2623,10 @@ private fun buildPreviewAnalyticsUiState(): AnalyticsScreenUiState {
         savingsDeltaPercent = 8.1f,
         incomeDisplay = formatCurrencyValue(income, currencyId, fmtPrefs),
         expenseDisplay = formatCurrencyValue(expense, currencyId, fmtPrefs),
-        incomeFraction = incomeFraction,
+        incomeFraction = split.incomeWeight,
+        incomePercent = split.incomePercent,
+        expensePercent = split.expensePercent,
+        ratioDisplay = split.ratioDisplay,
         expenseChartPoints = expenseChartPoints,
         incomeChartPoints = incomeChartPoints,
         chartLabels = chartLabels,

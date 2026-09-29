@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Screen Mock — Light vs Dark (Colored Category Icons)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root {
+    --brand: #7B61FF;
+    --brand-light: #BFA6FF;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: radial-gradient(1100px 600px at 50% -10%, #1B1730 0%, transparent 60%), #07060B;
+    color: #FFFFFF;
+    min-height: 100vh;
+    padding: 34px 18px 70px;
+  }
+  .page { max-width: 1000px; margin: 0 auto; }
+
+  .intro { text-align: center; margin-bottom: 30px; }
+  .intro h1 {
+    font-size: 24px; font-weight: 700; color: var(--brand-light);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .intro h1 .material-symbols-outlined { font-size: 30px; }
+  .intro p { color: #A5A1B8; font-size: 14px; margin-top: 8px; }
+
+  .devices { display: flex; gap: 34px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .device-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .device-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .device-label .material-symbols-outlined { font-size: 17px; }
+  .device-label.light { color: #5B21B6; background: rgba(124,77,255,.14); border: 1px solid rgba(124,77,255,.3); }
+  .device-label.dark  { color: var(--brand-light); background: rgba(191,166,255,.1); border: 1px solid rgba(191,166,255,.26); }
+
+  .phone {
+    width: 392px; padding: 11px; border-radius: 44px;
+    background: linear-gradient(160deg, #26232F, #0C0B10);
+    box-shadow: 0 40px 80px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .screen {
+    border-radius: 34px; height: 850px;
+    display: flex; flex-direction: column; overflow: hidden; position: relative;
+    background: var(--bg);
+  }
+
+  .screen.dark {
+    --bg: #000000;
+    --card: transparent; --card-border: transparent; --card-shadow: none;
+    --text: #EAEAEA; --text2: #9E9E9E;
+    --primary: #7B61FF; --primary-ink: #BFA6FF;
+    --hair: rgba(42,42,42,.65);
+    --chrome-circle: rgba(53,53,52,.3);
+    --nav-off: #7A778C; --nav-on: #BFA6FF; --nav-pill: rgba(122,82,255,.16);
+    --nav-bg: rgba(17,15,26,.92); --nav-border: rgba(58,53,90,.55);
+  }
+  .screen.light {
+    --bg: #F7F8FA;
+    --card: #FFFFFF; --card-border: #E8EBEF; --card-shadow: 0 2px 10px rgba(0,0,0,.05);
+    --text: #1F2937; --text2: #6B7280;
+    --primary: #6A4DFF; --primary-ink: #6C52EE;
+    --hair: #E8EBEF;
+    --chrome-circle: #F1F2F4;
+    --nav-off: #9CA3AF; --nav-on: #6C52EE; --nav-pill: rgba(108,82,238,.12);
+    --nav-bg: rgba(255,255,255,.94); --nav-border: #ECEEF2;
+  }
+
+  /* status bar */
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 22px 6px; font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .statusbar .icons { display: flex; gap: 5px; align-items: center; }
+  .statusbar .material-symbols-outlined { font-size: 17px; }
+
+  .scroll { flex: 1; overflow-y: auto; padding: 6px 16px 120px; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ---------- greeting header ---------- */
+  .greet-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .greet { flex: 1; min-width: 0; }
+  .greet .hi { font-size: 21px; font-weight: 400; color: var(--text); display: flex; align-items: center; gap: 5px; }
+  .greet .sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .greet-actions { display: flex; align-items: center; gap: 4px; }
+  .bellwrap { position: relative; }
+  .iconbtn {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2); position: relative;
+  }
+  .iconbtn .material-symbols-outlined { font-size: 23px; }
+  .badge {
+    position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px;
+    border-radius: 999px; background: var(--primary); color: #fff;
+    font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; border: 1.5px solid var(--bg);
+  }
+  .avatar {
+    width: 50px; height: 50px; border-radius: 50%; margin-left: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px; color: #fff;
+    background: linear-gradient(140deg, #7B61FF, #4C2ACF);
+    position: relative;
+  }
+  .avatar .crown {
+    position: absolute; right: -2px; bottom: -2px; width: 19px; height: 19px;
+    border-radius: 50%; background: linear-gradient(140deg,#FFD75E,#F0A400);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; border: 2px solid var(--bg);
+  }
+
+  /* ---------- period indicator ---------- */
+  .period-ind {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px; color: var(--text2); margin: 12px 2px 8px;
+  }
+  .period-ind .material-symbols-outlined { font-size: 15px; color: var(--primary); }
+
+  /* ---------- cash flow hero ---------- */
+  .hero {
+    border-radius: 24px; padding: 20px; margin-bottom: 7px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  /* Unified hero: one recipe, two lightness levels.
+     Same hue (255), same saturation (47%), same bloom structure,
+     same inset surfaces and same inks. Only the base stops get lighter. */
+  .screen.dark .hero {
+    background:
+      radial-gradient(120% 90% at 12% 0%, rgba(147,120,255,.28) 0%, transparent 58%),
+      radial-gradient(120% 100% at 90% 100%, rgba(20,12,40,.55) 0%, transparent 58%),
+      linear-gradient(150deg, #271B4B 0%, #1B1334 45%, #120C22 100%);
+    border: 1px solid rgba(147,120,255,.38);
+    box-shadow: 0 20px 50px rgba(76,42,207,.22), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .screen.light .hero {
+    background:
+      radial-gradient(120% 90% at 12% 0%, rgba(147,120,255,.28) 0%, transparent 58%),
+      radial-gradient(120% 100% at 90% 100%, rgba(20,12,40,.28) 0%, transparent 58%),
+      linear-gradient(150deg, #3E2B78 0%, #31225E 45%, #231843 100%);
+    border: 1px solid rgba(163,140,255,.45);
+    box-shadow: 0 16px 40px rgba(76,42,207,.28), inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .hero-head { display: flex; align-items: center; justify-content: space-between; }
+  .hero-date {
+    font-size: 14px; font-weight: 700; letter-spacing: 1.2px;
+  }
+  .hero-date { color: #D8CCF8; }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid;
+  }
+  .hero-pill { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); color: #D8CCF8; }
+  .hero-pill .material-symbols-outlined { font-size: 16px; }
+
+  .hero-metrics { display: flex; justify-content: space-between; align-items: center; }
+  .metric .lab { font-size: 11px; letter-spacing: .8px; font-weight: 600; margin-bottom: 4px; }
+  .metric .val { font-size: 20px; font-weight: 700; }
+  .metric .lab { color: #CFC6EC; }
+  .metric.r { text-align: right; }
+  .exp-val { color: #FFB0A6; }
+  .inc-val { color: #6FE8A6; }
+
+  .net {
+    display: flex; align-items: center; justify-content: space-between;
+    border-radius: 18px; padding: 14px 18px; border: 1px solid;
+  }
+  .net { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18); }
+  .net-left { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 500; }
+  .net-left { color: #CFC6EC; }
+  .net-left .material-symbols-outlined { font-size: 16px; opacity: .7; }
+  .net-val { font-size: 20px; font-weight: 700; }
+  .net-val { color: #FFFFFF; }
+
+  /* ---------- small cards ---------- */
+  .small-row { display: flex; gap: 14px; margin: 8px 0 10px; }
+  .small {
+    flex: 1; border-radius: 18px; padding: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .screen.dark .small {
+    background: linear-gradient(140deg, #1B1530, #121019);
+    border: 1px solid rgba(255,255,255,.07);
+  }
+  .screen.light .small {
+    background: #FFFFFF; border: 1px solid #E8EBEF; border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  .small .ico {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .small .ico .material-symbols-outlined { font-size: 20px; }
+  .screen.dark .small .ico { background: rgba(122,82,255,.18); color: #BFA6FF; }
+  .screen.light .small .ico { background: rgba(108,82,238,.14); color: #6C52EE; }
+  .small .txt { min-width: 0; }
+  .small .t { font-size: 11.5px; font-weight: 600; }
+  .screen.dark .small .t { color: #A5A1B8; }
+  .screen.light .small .t { color: #6B7280; }
+  .small .v { font-size: 13.5px; font-weight: 700; color: var(--text); margin-top: 1px; }
+  .small .chev { margin-left: auto; font-size: 14px; color: var(--text2); opacity: .55; }
+  .small .gdot {
+    position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px;
+    border-radius: 999px; background: var(--primary); color: #fff; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg);
+  }
+
+  /* ---------- recent header ---------- */
+  .recent-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 14px 2px 14px;
+  }
+  .recent-head .t { font-size: 15px; font-weight: 700; color: var(--text); }
+  .recent-head .all {
+    font-size: 12px; font-weight: 600; color: var(--primary-ink);
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .recent-head .all .material-symbols-outlined { font-size: 15px; }
+
+  /* ---------- transaction cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 20px; box-shadow: var(--card-shadow);
+    padding: 12px 14px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .screen.dark .card { border: none; }
+  .tile {
+    width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--hair);
+  }
+  .tile .material-symbols-outlined { font-size: 25px; }
+  .body { flex: 1; min-width: 0; }
+  .row1 { display: flex; align-items: baseline; gap: 8px; }
+  .note { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .amount { font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .amount.inc { color: var(--income); }
+  .amount.exp { color: var(--expense); }
+  .screen.dark { --income: #3DDC97; --expense: #FFFFFF; --exp-pill: #FF6B6B; --primary-container: rgba(45,36,63,.6); }
+  .screen.light { --income: #15803D; --expense: #1F2937; --exp-pill: #DC2626; --primary-container: rgba(229,222,255,.6); }
+  .row2 { display: flex; align-items: center; gap: 6px; margin-top: 7px; overflow: hidden; }
+  .pill { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; padding: 3px 8px;
+    border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+  .pill.pay { color: var(--text2); background: color-mix(in srgb, var(--text2) 10%, transparent); }
+  .pill.income { color: var(--income); background: color-mix(in srgb, var(--income) 12%, transparent); }
+  .pill.expense { color: var(--exp-pill); background: color-mix(in srgb, var(--exp-pill) 12%, transparent); }
+  .pill.cat { color: var(--primary); background: var(--primary-container); }
+  .datetime { margin-left: auto; font-size: 10.5px; color: var(--text2); white-space: nowrap;
+    padding-left: 6px; flex-shrink: 0; }
+
+  /* ---------- nav ---------- */
+  .nav {
+    position: absolute; left: 16px; right: 16px; bottom: 14px; height: 62px;
+    border-radius: 999px; background: var(--nav-bg); border: 1px solid var(--nav-border);
+    backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: space-around;
+    padding: 0 10px; box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--nav-off); font-size: 9.5px; font-weight: 600; }
+  .nav-item .material-symbols-outlined { font-size: 22px; }
+  .nav-item.active { color: var(--nav-on); }
+  .nav-item.active .material-symbols-outlined {
+    background: var(--nav-pill); border-radius: 999px; padding: 4px 14px; }
+
+  /* ---------- legend ---------- */
+  .legend-card {
+    margin-top: 44px; border: 1px solid #24222F; border-radius: 16px;
+    background: #0E0D13; overflow: hidden;
+  }
+  .legend-head {
+    padding: 15px 20px; background: #16141F; border-bottom: 1px solid #24222F;
+    font-size: 15px; font-weight: 700; color: var(--brand-light);
+    display: flex; align-items: center; gap: 9px; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .legend-head .material-symbols-outlined { font-size: 20px; }
+  .legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #17161f; }
+  .pair { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+  .sw { width: 16px; height: 16px; border-radius: 5px; display: inline-block; }
+  .legend-item .name { font-size: 13px; color: #FFFFFF; font-weight: 600; }
+  .legend-item .tok { font-size: 10px; color: #A5A1B8; }
+
+  .footnote {
+    margin-top: 22px; padding: 16px 18px; border: 1px solid #24222F; border-radius: 14px;
+    background: #0E0D13; color: #A5A1B8; font-size: 13px;
+  }
+  .footnote strong { color: #fff; }
+  .footnote ul { margin: 8px 0 0 18px; }
+  .footnote li { margin-bottom: 5px; }
+
+  @media (max-width: 860px) { .devices { gap: 40px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="intro">
+    <h1><span class="material-symbols-outlined">home</span> Home Screen — Light vs Dark</h1>
+    <p>Faithful to <code>HomeScreen.kt</code>: greeting header, Cash Flow hero, Today/Goals cards and Recent Activities. Only the transaction tile carries a category color.</p>
+  </div>
+
+  <div class="devices">
+    <div class="device-wrap">
+      <span class="device-label light"><span class="material-symbols-outlined">light_mode</span> Light Mode</span>
+      <div class="phone"><div class="screen light" id="homeLight"></div></div>
+    </div>
+    <div class="device-wrap">
+      <span class="device-label dark"><span class="material-symbols-outlined">dark_mode</span> Dark Mode</span>
+      <div class="phone"><div class="screen dark" id="homeDark"></div></div>
+    </div>
+  </div>
+
+  <div class="legend-card">
+    <div class="legend-head"><span class="material-symbols-outlined">palette</span> Category Color Pairs Used Above</div>
+    <div class="legend-grid" id="legendGrid"></div>
+  </div>
+
+  <div class="footnote">
+    <strong>What to check</strong>
+    <ul>
+      <li>On Home the colored category icons appear only in the Recent Activities rows — the tile is the one element that takes the category pair, exactly as in the app.</li>
+      <li>The Cash Flow hero now uses <b>one shared recipe</b> in both modes: hue 255, 47% saturation, the same two-bloom structure, the same inset surfaces, and the same ink colors. Only the base gradient's <b>lightness</b> changes (#271B4B→#120C22 in dark; #48328B→#2B1E52 in light). That is what makes the two read as the same card, recolored — not two different designs.</li>
+      <li>The two small cards (Spent Today / My Goals) keep the brand purple icon, because they are app actions, not categories.</li>
+      <li>Watch whether the colorful transaction tiles feel cohesive next to the purple hero, or whether they pull attention away from it.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  const tokens = {
+    deepOrange: { dark: "#FF7043", light: "#7C2D12" },
+    sky:        { dark: "#4FC3F7", light: "#0369A1" },
+    green:      { dark: "#3DDC97", light: "#166534" },
+    lilac:      { dark: "#C77DFF", light: "#7B1FA2" },
+    red:        { dark: "#FF6B6B", light: "#C0392B" },
+    yellow:     { dark: "#F5C542", light: "#7C5A00" },
+    amber:      { dark: "#FFB020", light: "#92400E" },
+    teal:       { dark: "#2DD4BF", light: "#0F766E" },
+    orange:     { dark: "#FF9F45", light: "#9A3412" },
+    violet:     { dark: "#A78BFA", light: "#6D28D9" },
+    blue:       { dark: "#6BA6FF", light: "#1D4ED8" }
+  };
+
+  const recent = [
+    { note: "Lunch at office cafeteria", amount: "-₹320",   income: false, token: "deepOrange", icon: "restaurant",        payment: "UPI",  category: "FOOD",          time: "1:30 PM" },
+    { note: "Uber to airport",           amount: "-₹1,250", income: false, token: "sky",        icon: "flight",            payment: "CARD", category: "TRAVEL",        time: "11:05 AM" },
+    { note: "Monthly salary credit",     amount: "+₹64,000",income: true,  token: "green",      icon: "payments",          payment: "BANK", category: "SALARY",        time: "9:00 AM" },
+    { note: "Amazon wireless headphones",amount: "-₹2,999", income: false, token: "lilac",      icon: "shopping_bag",      payment: "CARD", category: "SHOPPING",      time: "Yesterday" },
+    { note: "Electricity bill",          amount: "-₹1,840", income: false, token: "green",      icon: "receipt_long",      payment: "UPI",  category: "BILLS",         time: "Yesterday" },
+    { note: "Pharmacy — antibiotics",    amount: "-₹740",   income: false, token: "red",        icon: "favorite",          payment: "UPI",  category: "HEALTH",        time: "Yesterday" }
+  ];
+
+  const NAV = [
+    { icon: "home", label: "Home", active: true },
+    { icon: "receipt_long", label: "History" },
+    { icon: "insights", label: "Stats" },
+    { icon: "person", label: "Profile" }
+  ];
+
+  function rgba(hex, a) {
+    const c = hex.replace("#", "");
+    return `rgba(${parseInt(c.slice(0,2),16)}, ${parseInt(c.slice(2,4),16)}, ${parseInt(c.slice(4,6),16)}, ${a})`;
+  }
+
+  function card(item, mode) {
+    const ink = tokens[item.token][mode];
+    const alpha = mode === "dark" ? 0.18 : 0.12;
+    return `
+      <div class="card">
+        <div class="tile" style="background:${rgba(ink,alpha)};color:${ink}">
+          <span class="material-symbols-outlined">${item.icon}</span>
+        </div>
+        <div class="body">
+          <div class="row1">
+            <span class="note">${item.note}</span>
+            <span class="amount ${item.income ? "inc" : "exp"}">${item.amount}</span>
+          </div>
+          <div class="row2">
+            <span class="pill pay">${item.payment}</span>
+            <span class="pill ${item.income ? "income" : "expense"}">${item.income ? "INCOME" : "EXPENSE"}</span>
+            <span class="pill cat">${item.category}</span>
+            <span class="datetime">${item.time}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderHome(mode) {
+    const navItems = NAV.map(n => `
+      <div class="nav-item ${n.active ? "active" : ""}">
+        <span class="material-symbols-outlined">${n.icon}</span><span>${n.label}</span>
+      </div>`).join("");
+
+    return `
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="icons">
+          <span class="material-symbols-outlined">signal_cellular_alt</span>
+          <span class="material-symbols-outlined">wifi</span>
+          <span class="material-symbols-outlined">battery_full</span>
+        </span>
+      </div>
+
+      <div class="scroll">
+        <div class="greet-row">
+          <div class="greet">
+            <div class="hi">Hi Minkal <span style="font-size:19px">👋</span></div>
+            <div class="sub">Track every move with confidence</div>
+          </div>
+          <div class="greet-actions">
+            <div class="bellwrap">
+              <div class="iconbtn"><span class="material-symbols-outlined">notifications</span>
+                <span class="badge">3</span>
+              </div>
+            </div>
+            <div class="iconbtn"><span class="material-symbols-outlined">settings</span></div>
+          </div>
+          <div class="avatar">M<span class="crown">♛</span></div>
+        </div>
+
+        <div class="period-ind">
+          <span class="material-symbols-outlined">calendar_today</span>
+          01 Sep — 30 Sep 2026
+        </div>
+
+        <div class="hero">
+          <div class="hero-head">
+            <div class="hero-date">25 SEP 2026</div>
+            <span class="hero-pill">This Month <span class="material-symbols-outlined">expand_more</span></span>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric">
+              <div class="lab">EXPENSE</div>
+              <div class="val exp-val">₹47,998</div>
+            </div>
+            <div class="metric r">
+              <div class="lab">INCOME</div>
+              <div class="val inc-val">₹66,400</div>
+            </div>
+          </div>
+          <div class="net">
+            <div class="net-left">Net Balance <span class="material-symbols-outlined">visibility_off</span></div>
+            <div class="net-val">₹18,402</div>
+          </div>
+        </div>
+
+        <div class="small-row">
+          <div class="small">
+            <div class="ico"><span class="material-symbols-outlined">calendar_today</span></div>
+            <div class="txt"><div class="t">Spent Today</div><div class="v">₹1,570</div></div>
+            <span class="chev material-symbols-outlined">chevron_right</span>
+          </div>
+          <div class="small">
+            <div class="ico"><span class="material-symbols-outlined">savings</span>
+              <span class="gdot">3</span>
+            </div>
+            <div class="txt"><div class="t">My Goals</div><div class="v">₹12,000</div></div>
+            <span class="chev material-symbols-outlined">chevron_right</span>
+          </div>
+        </div>
+
+        <div class="recent-head">
+          <span class="t">Recent Activities</span>
+          <span class="all">View All <span class="material-symbols-outlined">chevron_right</span></span>
+        </div>
+
+        ${recent.map(item => card(item, mode)).join("")}
+      </div>
+
+      <div class="nav">${navItems}</div>
+    `;
+  }
+
+  document.getElementById("homeLight").innerHTML = renderHome("light");
+  document.getElementById("homeDark").innerHTML = renderHome("dark");
+
+  document.getElementById("legendGrid").innerHTML = Object.keys(tokens).map(key => `
+    <div class="legend-item">
+      <div>
+        <div class="name">${key}</div>
+        <div class="tok">${tokens[key].dark} / ${tokens[key].light}</div>
+      </div>
+      <div class="pair">
+        <span class="sw" style="background:${tokens[key].light}" title="light"></span>
+        <span class="sw" style="background:${tokens[key].dark}" title="dark"></span>
+      </div>
+    </div>`).join("");
+</script>
+</body>
+</html>

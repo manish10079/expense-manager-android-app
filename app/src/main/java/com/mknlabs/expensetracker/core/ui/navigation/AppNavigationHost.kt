@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
@@ -49,7 +50,7 @@ import com.mknlabs.expensetracker.feature.profile.ui.ProfileScreen
 import com.mknlabs.expensetracker.feature.settings.ui.ConnectedDevicesScreen
 import com.mknlabs.expensetracker.feature.settings.ui.SecurityPrivacyScreen
 import com.mknlabs.expensetracker.feature.settings.ui.SettingsScreen
-import com.mknlabs.expensetracker.feature.transactions.ui.TransactionCardCustomizeScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.CustomisationScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionScreen
 import com.mknlabs.expensetracker.feature.profile.ui.MembershipDetailsScreen
 import com.mknlabs.expensetracker.feature.paywall.ui.PaywallRoute
@@ -136,7 +137,7 @@ fun AppNavigationHost(
     onSelectedTransactionChange: (Transaction?) -> Unit,
     onAddTransactionDraftAmountChange: (String?) -> Unit,
     onAddTransactionDraftNoteChange: (String?) -> Unit,
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
@@ -632,7 +633,7 @@ fun AppNavigationHost(
                 }
 
                 AppRoute.TransactionCardCustomize -> {
-                    TransactionCardCustomizeScreen(
+                    CustomisationScreen(
                         isAdsEnabled = isAdsEnabled,
                         isProUser = isProUser,
                         settings = transactionCardCustomizationSettings,
@@ -724,15 +725,7 @@ fun AppNavigationHost(
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
-                        onSaveExistingAsFavorite = { transaction ->
-                            mainViewModel.saveAsFavorite(transaction)
-                            Toast.makeText(
-                                favoritesContext,
-                                favoritesContext.getString(R.string.msg_favorite_added),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        onSaveClick = { draftTransaction, recurringDraft ->
+                        onSaveClick = { draftTransaction, recurringDraft, isFavorite ->
                             val isEdit = selectedTransaction != null
                             // Only a draft that came from the inbox carries a detection.
                             val detectionId = if (isEdit) null else smsInboxDraftDetectionId
@@ -746,11 +739,24 @@ fun AppNavigationHost(
                                     draftTransaction.copy(id = UUID.randomUUID().toString())
                                 else -> draftTransaction
                             }
+                            // The star is written by the save, not by the tap, so this
+                            // is the only place its effect can be confirmed.
+                            val wasFavorite = favorites.any { it.transactionId == transactionToSave.id }
                             onSaveTransaction(
                                 transactionToSave,
                                 recurringDraft,
-                                selectedRecurringRule
+                                selectedRecurringRule,
+                                isFavorite
                             )
+                            if (isFavorite != wasFavorite) {
+                                Toast.makeText(
+                                    favoritesContext,
+                                    favoritesContext.getString(
+                                        if (isFavorite) R.string.msg_favorite_added else R.string.msg_favorite_removed
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             // Add was pressed, so the detection is now filed: the inbox
                             // drops its card and the notification goes with it. Backing out
                             // of this screen instead leaves the detection exactly as it was.
@@ -817,6 +823,10 @@ fun AppNavigationHost(
                     // whichever one opened it; `resolveBackNavigationRoute` owns that
                     // decision and Home is the safe fallback.
                     PaywallRoute(
+                        onNavigateToMembership = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.MembershipDetails)
+                        },
                         onBackClick = {
                             val backRoute = resolveBackNavigationRoute(AppRoute.Paywall, profileOriginRoute, previousRoute, paywallOriginRoute) ?: AppRoute.Home
                             onBottomBarVisibilityChange(false)
@@ -837,7 +847,7 @@ fun AppNavigationHost(
                     title = { Text(stringResource(id = R.string.msg_email_updated_success)) },
                     text = { Text(stringResource(id = R.string.msg_email_updated_success_desc)) },
                     confirmButton = {
-                        TextButton(onClick = {
+                        AppTextButton(onClick = {
                             showEmailUpdateSuccessDialog = false
                             onDirectSignOut()
                         }) {

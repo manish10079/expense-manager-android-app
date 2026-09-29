@@ -52,6 +52,8 @@ data class ItemizedCalculatorUiState(
     val selectedMode: CalculatorMode = CalculatorMode.ITEMIZED,
     val items: List<CalculatorLineItem> = emptyList(),
     val isAddingItem: Boolean = false,
+    // Non-null while the editor is open on an existing row; addItem then replaces that row.
+    val editingItemId: Int? = null,
     val descriptionInput: String = "",
     val amountInput: String = "",
     // Normal calculator
@@ -111,13 +113,14 @@ class ItemizedCalculatorViewModel @Inject constructor(
     }
 
     fun startAddingItem() {
-        _uiState.update { it.copy(isAddingItem = true) }
+        _uiState.update { it.copy(isAddingItem = true, editingItemId = null) }
     }
 
     fun cancelAddingItem() {
         _uiState.update {
             it.copy(
                 isAddingItem = false,
+                editingItemId = null,
                 descriptionInput = "",
                 amountInput = "",
                 canAddItem = false
@@ -144,22 +147,50 @@ class ItemizedCalculatorViewModel @Inject constructor(
         }
     }
 
+    /** Opens the editor on [item], with its values already in the draft fields. */
+    fun startEditingItem(item: CalculatorLineItem) {
+        _uiState.update {
+            it.copy(
+                isAddingItem = true,
+                editingItemId = item.id,
+                descriptionInput = item.description,
+                amountInput = formatEditableTotal(item.amount),
+                canAddItem = item.description.isNotBlank() && item.amount > 0
+            )
+        }
+    }
+
+    /**
+     * Commits the draft: a new row when nothing is being edited, otherwise a replace of the
+     * edited row, so both the list order and the row id survive the change.
+     */
     fun addItem() {
         val state = _uiState.value
         val parsedAmount = state.amountInput.toDoubleOrNull()
         if (parsedAmount != null) {
-            val nextId = (state.items.maxOfOrNull { it.id } ?: 0) + 1
-            val newItem = CalculatorLineItem(
-                id = nextId,
-                description = state.descriptionInput.trim(),
-                amount = parsedAmount
-            )
-            val updatedItems = state.items + newItem
+            val editingItemId = state.editingItemId
+            val updatedItems = if (editingItemId == null) {
+                val nextId = (state.items.maxOfOrNull { it.id } ?: 0) + 1
+                state.items + CalculatorLineItem(
+                    id = nextId,
+                    description = state.descriptionInput.trim(),
+                    amount = parsedAmount
+                )
+            } else {
+                state.items.map { item ->
+                    if (item.id == editingItemId) {
+                        item.copy(description = state.descriptionInput.trim(), amount = parsedAmount)
+                    } else {
+                        item
+                    }
+                }
+            }
             _uiState.update {
                 it.copy(
                     items = updatedItems,
                     totalAmount = updatedItems.sumOf { item -> item.amount },
                     isAddingItem = false,
+                    editingItemId = null,
                     descriptionInput = "",
                     amountInput = "",
                     canAddItem = false

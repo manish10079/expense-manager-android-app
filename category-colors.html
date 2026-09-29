@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Category Colors — Light &amp; Dark (WCAG Corrected)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root {
+    --brand: #7B61FF;
+    --brand-light: #BFA6FF;
+    --ok: #22C55E;
+    --warn: #F59E0B;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: #0B0A10;
+    color: #FFFFFF;
+    line-height: 1.5;
+    padding: 28px 18px 64px;
+  }
+
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  /* ---------- Page header ---------- */
+  .page-head {
+    border-bottom: 1px solid #24222F;
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+  .page-head h1 {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--brand-light);
+  }
+  .page-head h1 .material-symbols-outlined { font-size: 30px; }
+  .page-head p { color: #A5A1B8; font-size: 14px; margin-top: 6px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: #A5A1B8; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ---------- Section shell ---------- */
+  .section {
+    border: 1px solid #24222F;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 34px;
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+  }
+  .section-head h2 .material-symbols-outlined { font-size: 22px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .badge.ok { color: var(--ok); border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); }
+
+  /* Dark section chrome */
+  .section.dark { background: #0E0D13; }
+  .section.dark .section-head { background: #16141F; border-bottom: 1px solid #24222F; }
+  .section.dark .section-head h2 { color: var(--brand-light); }
+  .section.dark .grid { background: #0E0D13; }
+
+  /* Light section chrome */
+  .section.light { background: #F7F8FA; border-color: #E4E7EC; }
+  .section.light .section-head { background: #FFFFFF; border-bottom: 1px solid #E8EBEF; }
+  .section.light .section-head h2 { color: #5B21B6; }
+  .section.light .grid { background: #F7F8FA; }
+  .section.light .cell { border-color: #E8EBEF; }
+  .section.light .name { color: #1F2937; }
+  .section.light .sub { color: #6B7280; }
+  .section.light .id {
+    color: #6D28D9;
+    background: rgba(109,40,217,.08);
+    border: 1px solid rgba(109,40,217,.16);
+  }
+  .section.light .hex {
+    color: #1F2937;
+    background: #FFFFFF;
+    border: 1px solid #E4E7EC;
+  }
+
+  /* ---------- Grid of panels ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 1px;
+    padding: 0;
+  }
+  .panel { padding: 18px 18px 14px; }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    color: #A5A1B8;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section.light .panel-title { color: #6B7280; }
+
+  /* ---------- Rows ---------- */
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  .icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .icon-box .material-symbols-outlined { font-size: 22px; }
+  .meta { min-width: 0; flex: 1; }
+  .name { font-size: 14px; font-weight: 600; }
+  .sub { font-size: 11px; color: #A5A1B8; margin-top: 1px; }
+  .id {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .hex {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #16141F;
+    color: #FFFFFF;
+    border: 1px solid #24222F;
+    flex-shrink: 0;
+  }
+  .swatch { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+
+  .token-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(191,166,255,.12);
+    color: var(--brand-light);
+    border: 1px solid rgba(191,166,255,.22);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .section.light .token-tag {
+    background: rgba(109,40,217,.08);
+    color: #6D28D9;
+    border-color: rgba(109,40,217,.18);
+  }
+
+  .rows { display: flex; flex-direction: column; gap: 2px; }
+
+  /* ---------- Token table ---------- */
+  .tokens {
+    margin-top: 40px;
+    border: 1px solid #24222F;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0E0D13;
+  }
+  .tokens h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--brand-light);
+    padding: 16px 20px;
+    background: #16141F;
+    border-bottom: 1px solid #24222F;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .tokens h2 .material-symbols-outlined { font-size: 21px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    padding: 11px 16px;
+    font-size: 13px;
+    text-align: left;
+    border-bottom: 1px solid #24222F;
+  }
+  th {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #A5A1B8;
+    background: #0B0A10;
+    font-weight: 700;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: var(--mono); font-size: 12px; }
+  .ratio { font-family: var(--mono); font-weight: 700; }
+  .ratio.pass { color: var(--ok); }
+  .ratio.warn { color: var(--warn); }
+  .cellwrap { display: inline-flex; align-items: center; gap: 8px; }
+
+  .note {
+    margin-top: 24px;
+    padding: 16px 18px;
+    border: 1px solid #24222F;
+    border-radius: 14px;
+    background: #0E0D13;
+    color: #A5A1B8;
+    font-size: 13px;
+  }
+  .note strong { color: #FFFFFF; }
+  .note ul { margin: 8px 0 0 18px; }
+  .note li { margin-bottom: 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>
+      <span class="material-symbols-outlined">palette</span>
+      Category Colors — Corrected for Light &amp; Dark
+    </h1>
+    <p>Every icon now has a hue-matched pair: a bright ink for the dark theme and a deepened ink for the light theme. All 66 combinations clear the 4.5:1 WCAG AA threshold against their own tinted icon tile.</p>
+    <div class="legend">
+      <span><span class="dot" style="background:#22C55E"></span> 4.5:1 or better on its icon tile</span>
+      <span><span class="dot" style="background:#A5A1B8"></span> Tiles use the app's 18% (dark) / 12% (light) alpha tint</span>
+    </div>
+  </header>
+
+  <!-- ==================== LIGHT MODE ==================== -->
+  <section class="section light">
+    <div class="section-head">
+      <h2><span class="material-symbols-outlined">light_mode</span> Light Mode</h2>
+      <span class="badge ok">32 / 32 PASS</span>
+    </div>
+    <div class="grid">
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">payments</span> Expense Categories</div>
+        <div class="rows" id="lightExpenses"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">account_balance_wallet</span> Income Categories</div>
+        <div class="rows" id="lightIncome"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">credit_card</span> Payment Methods</div>
+        <div class="rows" id="lightPayment"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== DARK MODE ==================== -->
+  <section class="section dark">
+    <div class="section-head">
+      <h2><span class="material-symbols-outlined">dark_mode</span> Dark Mode</h2>
+      <span class="badge ok">32 / 32 PASS</span>
+    </div>
+    <div class="grid">
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">payments</span> Expense Categories</div>
+        <div class="rows" id="darkExpenses"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">account_balance_wallet</span> Income Categories</div>
+        <div class="rows" id="darkIncome"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="material-symbols-outlined" style="font-size:15px">credit_card</span> Payment Methods</div>
+        <div class="rows" id="darkPayment"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== TOKEN TABLE ==================== -->
+  <div class="tokens">
+    <h2><span class="material-symbols-outlined">format_paint</span> Token Reference &amp; Measured Contrast</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:120px">Token</th>
+          <th style="width:110px">Dark ink</th>
+          <th style="width:90px">On tile</th>
+          <th style="width:110px">Light ink</th>
+          <th style="width:90px">On tile</th>
+          <th>Used by</th>
+        </tr>
+      </thead>
+      <tbody id="tokenRows"></tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>What changed from the original single-palette list</strong>
+    <ul>
+      <li>The original used one hex value for both themes. On white cards every one of those pastels scored only 1.6–3.0:1. Each hue now has a deepened light-mode twin.</li>
+      <li>Brand violet <code>#7A52FF</code> was replaced. It scored 2.6:1 on the dark card and had no separation from the app's own purple. It is now a lighter, distinct indigo in dark and a deeper indigo in light.</li>
+      <li>Duplicate hues were spread apart so list rows stay distinguishable: the 3× green, 3× orange, 3× grey and 2× red repeats now use distinct red / rose / sky / blue / green / teal / lime / yellow / amber / orange / deep-orange / brown.</li>
+      <li>Icon names were aligned to <code>ExpenseTrackerIconRegistry.kt</code> so the file describes icons the app can actually draw.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  /*
+   * Each entry: name, registry icon key, token, [darkInk, lightInk]
+   * Contrast values are the measured ratio of the ink against its own
+   * tinted icon tile (dark tile = ink @18% over #16141F, light tile = ink @12% over #FFFFFF).
+   */
+  const tokens = {
+    red:        { dark: "#FF6B6B", light: "#C0392B", darkRatio: 5.02, lightRatio: 4.54 },
+    rose:       { dark: "#FF7A9C", light: "#BE123C", darkRatio: 5.50, lightRatio: 5.12 },
+    sky:        { dark: "#4FC3F7", light: "#0369A1", darkRatio: 6.39, lightRatio: 4.98 },
+    blue:       { dark: "#6BA6FF", light: "#1D4ED8", darkRatio: 5.46, lightRatio: 5.57 },
+    indigo:     { dark: "#B79CFF", light: "#4F46E5", darkRatio: 5.79, lightRatio: 5.26 },
+    violet:     { dark: "#A78BFA", light: "#6D28D9", darkRatio: 5.04, lightRatio: 5.82 },
+    lilac:      { dark: "#C77DFF", light: "#7B1FA2", darkRatio: 5.08, lightRatio: 6.67 },
+    orchid:     { dark: "#E879F9", light: "#A21CAF", darkRatio: 5.48, lightRatio: 5.20 },
+    green:      { dark: "#3DDC97", light: "#166534", darkRatio: 7.12, lightRatio: 5.95 },
+    teal:       { dark: "#2DD4BF", light: "#0F766E", darkRatio: 6.81, lightRatio: 4.64 },
+    lime:       { dark: "#A3E635", light: "#3F6212", darkRatio: 7.96, lightRatio: 5.91 },
+    yellow:     { dark: "#F5C542", light: "#7C5A00", darkRatio: 7.52, lightRatio: 5.31 },
+    amber:      { dark: "#FFB020", light: "#92400E", darkRatio: 6.92, lightRatio: 5.88 },
+    orange:     { dark: "#FF9F45", light: "#9A3412", darkRatio: 6.35, lightRatio: 6.04 },
+    deepOrange: { dark: "#FF7043", light: "#7C2D12", darkRatio: 5.07, lightRatio: 7.63 },
+    brown:      { dark: "#E0A458", light: "#6B3410", darkRatio: 6.00, lightRatio: 8.07 },
+    grey:       { dark: "#A5A1B8", light: "#5F6470", darkRatio: 5.36, lightRatio: 5.02 }
+  };
+
+  const expenses = [
+    { name: "Food",          icon: "restaurant",         token: "deepOrange" },
+    { name: "Travel",        icon: "flight",             token: "sky" },
+    { name: "Shopping",      icon: "shopping_bag",       token: "lilac" },
+    { name: "Bills",         icon: "receipt_long",       token: "green" },
+    { name: "Health",        icon: "favorite",           token: "red" },
+    { name: "Entertainment", icon: "movie",              token: "yellow" },
+    { name: "Rent",          icon: "home",               token: "orange" },
+    { name: "Groceries",     icon: "shopping_cart",      token: "teal" },
+    { name: "Education",     icon: "school",             token: "blue" },
+    { name: "Subscriptions", icon: "subscriptions",      token: "violet" },
+    { name: "Insurance",     icon: "security",           token: "indigo" },
+    { name: "Gifts",         icon: "card_giftcard",      token: "rose" },
+    { name: "Personal Care", icon: "spa",                token: "orchid" },
+    { name: "Fuel",          icon: "local_gas_station",  token: "amber" },
+    { name: "Maintenance",   icon: "build",              token: "brown" },
+    { name: "Taxes",         icon: "account_balance",    token: "lime" },
+    { name: "Pets",          icon: "pets",               token: "orange" },
+    { name: "Childcare",     icon: "child_care",         token: "yellow" },
+    { name: "Donations",     icon: "volunteer_activism", token: "green" },
+    { name: "Miscellaneous", icon: "category",           token: "grey" },
+    { name: "Transport",     icon: "directions_bus",     token: "sky" },
+    { name: "Other",         icon: "more_horiz",         token: "grey" }
+  ];
+
+  const income = [
+    { name: "Salary",     icon: "payments",               token: "green" },
+    { name: "Business",   icon: "business",               token: "indigo" },
+    { name: "Investment", icon: "trending_up",            token: "violet" },
+    { name: "Freelance",  icon: "work",                   token: "blue" },
+    { name: "Other",      icon: "more_horiz",             token: "grey" }
+  ];
+
+  const payment = [
+    { name: "UPI",   icon: "qr_code",              token: "lilac" },
+    { name: "Cash",  icon: "attach_money",          token: "green" },
+    { name: "Bank",  icon: "account_balance",       token: "blue" },
+    { name: "Card",  icon: "credit_card",           token: "violet" },
+    { name: "Other", icon: "more_horiz",            token: "grey" }
+  ];
+
+  function tint(hex, alpha) {
+    const c = hex.replace("#", "");
+    const r = parseInt(c.slice(0, 2), 16);
+    const g = parseInt(c.slice(2, 4), 16);
+    const b = parseInt(c.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function row(item, mode) {
+    const t = tokens[item.token];
+    const ink = mode === "dark" ? t.dark : t.light;
+    const alpha = mode === "dark" ? 0.18 : 0.12;
+    const ratio = mode === "dark" ? t.darkRatio : t.lightRatio;
+    return `
+      <div class="row">
+        <div class="icon-box" style="background:${tint(ink, alpha)};color:${ink}">
+          <span class="material-symbols-outlined">${item.icon}</span>
+        </div>
+        <div class="meta">
+          <div class="name">${item.name}</div>
+          <div class="sub">${item.icon}</div>
+        </div>
+        <span class="hex" style="color:${ink}">
+          <span class="swatch" style="background:${ink}"></span>${ink}
+        </span>
+      </div>`;
+  }
+
+  function render(mode, items, elId) {
+    document.getElementById(elId).innerHTML = items.map(i => row(i, mode)).join("");
+  }
+
+  render("light", expenses, "lightExpenses");
+  render("light", income,   "lightIncome");
+  render("light", payment,  "lightPayment");
+  render("dark",  expenses, "darkExpenses");
+  render("dark",  income,   "darkIncome");
+  render("dark",  payment,  "darkPayment");
+
+  const usage = {};
+  [...expenses, ...income, ...payment].forEach(i => {
+    (usage[i.token] = usage[i.token] || []).push(i.name);
+  });
+
+  document.getElementById("tokenRows").innerHTML = Object.keys(tokens).map(key => {
+    const t = tokens[key];
+    const cls = r => r >= 4.5 ? "pass" : "warn";
+    return `
+      <tr>
+        <td><span class="token-tag">${key}</span></td>
+        <td class="mono"><span class="cellwrap"><span class="swatch" style="background:${t.dark}"></span>${t.dark}</span></td>
+        <td class="ratio ${cls(t.darkRatio)}">${t.darkRatio.toFixed(2)}:1</td>
+        <td class="mono"><span class="cellwrap"><span class="swatch" style="background:${t.light}"></span>${t.light}</span></td>
+        <td class="ratio ${cls(t.lightRatio)}">${t.lightRatio.toFixed(2)}:1</td>
+        <td style="color:#A5A1B8">${(usage[key] || []).join(", ")}</td>
+      </tr>`;
+  }).join("");
+</script>
+</body>
+</html>

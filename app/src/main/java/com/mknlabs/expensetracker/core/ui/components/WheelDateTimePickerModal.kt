@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.utils.validateAndCalculateTimestamp
 import java.util.*
 
@@ -83,7 +87,7 @@ fun WheelDateTimePickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         dragHandle = {
             Box(
@@ -187,7 +191,7 @@ fun WheelDateTimePickerModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(stringResource(id = R.string.btn_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                 }
 
@@ -243,19 +247,12 @@ fun WheelDateTimePickerModal(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.secondary
-                                    )
-                                )
-                            ),
+                            .background(brush = brandGradient()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = if (mode == WheelPickerMode.DATE_RANGE) stringResource(id = R.string.btn_apply_range) else stringResource(id = R.string.btn_confirm),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onCta,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -295,7 +292,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)))
+                    .background(brandGradient())
             )
         }
 
@@ -303,7 +300,7 @@ private fun RangeTabs(selectedTab: RangeTab, onTabSelected: (RangeTab) -> Unit) 
             tabs.forEach { tab ->
                 val isSelected = tab == selectedTab
                 val contentColor by animateColorAsState(
-                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.onSurfaceVariant,
                     label = "text_color"
                 )
                 Box(

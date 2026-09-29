@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseTracker - Terms & Conditions Consent Step Mockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #0D0F14;
+            --canvas-text: #E5E7EB;
+            --canvas-muted: #9CA3AF;
+            --accent-brand: #7B61FF;
+            --accent-brand-light: #6A4DFF;
+            --accent-glow: rgba(123, 97, 255, 0.25);
+            
+            /* Dark Theme Tokens (from Color.kt) */
+            --dark-bg: #0A0A0A;
+            --dark-surface: #141418;
+            --dark-surface-2: #1A1A20;
+            --dark-surface-3: #1E1E23;
+            --dark-surface-variant: #26262E;
+            --dark-text-primary: #F2F2F5;
+            --dark-text-secondary: #A8A8B3;
+            --dark-text-tertiary: #8A8C95;
+            --dark-divider: #2A2A31;
+            --dark-accent-ink: #9E84FF;
+            --dark-accent-soft: rgba(158, 132, 255, 0.14);
+            --dark-cta-start: #5838FA;
+            --dark-cta-end: #3713EC;
+            --dark-disabled: #6E6E7A;
+            --dark-track: #26262E;
+            --dark-bloom: rgba(158, 132, 255, 0.18);
+
+            /* Light Theme Tokens (from Color.kt) */
+            --light-bg: #F7F8FA;
+            --light-surface: #FFFFFF;
+            --light-surface-2: #F1F2F4;
+            --light-surface-3: #FAFAFC;
+            --light-surface-variant: #F1F2F4;
+            --light-text-primary: #1F2937;
+            --light-text-secondary: #5B6270;
+            --light-text-tertiary: #6B7280;
+            --light-divider: #E8EBEF;
+            --light-accent-ink: #6A4DFF;
+            --light-accent-soft: rgba(106, 77, 255, 0.10);
+            --light-cta-start: #6A4DFF;
+            --light-cta-end: #5B45D6;
+            --light-disabled: #A8B0BB;
+            --light-track: #F1F2F4;
+            --light-bloom: rgba(106, 77, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--canvas-text);
+            min-height: 100vh;
+            padding: 32px 20px 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top Header Controls */
+        .workspace-header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 32px;
+            gap: 12px;
+        }
+
+        .workspace-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(123, 97, 255, 0.15);
+            color: #B39DFF;
+            border: 1px solid rgba(123, 97, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .workspace-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+        }
+
+        .workspace-subtitle {
+            font-size: 1rem;
+            color: var(--canvas-muted);
+            max-width: 680px;
+            line-height: 1.6;
+        }
+
+        /* View Mode & Preset Controls */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #161922;
+            border: 1px solid #232838;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-bottom: 36px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-toggle-group {
+            display: flex;
+            background: #0B0D13;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid #1F2433;
+            gap: 4px;
+        }
+
+        .btn-toggle {
+            background: transparent;
+            border: none;
+            color: #9CA3AF;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle.active {
+            background: var(--accent-brand);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(123, 97, 255, 0.4);
+        }
+
+        .btn-toggle:hover:not(.active) {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .control-separator {
+            width: 1px;
+            height: 24px;
+            background: #2A3144;
+            margin: 0 4px;
+        }
+
+        .interactive-tag {
+            font-size: 0.8rem;
+            color: #10B981;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            padding: 0 8px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Phone Frames Container */
+        .showcase-grid {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            transition: all 0.3s ease;
+        }
+
+        .phone-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .phone-badge {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 4px 14px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .phone-badge.dark {
+            background: #1A1A22;
+            color: #9E84FF;
+            border: 1px solid #2A2A35;
+        }
+
+        .phone-badge.light {
+            background: #F1F2F4;
+            color: #5B45D6;
+            border: 1px solid #E2E4E9;
+        }
+
+        /* Realistic Android Frame */
+        .android-frame {
+            width: 395px;
+            height: 840px;
+            border-radius: 46px;
+            position: relative;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .android-frame.dark-theme {
+            background: var(--dark-bg);
+            color: var(--dark-text-primary);
+        }
+
+        .android-frame.light-theme {
+            background: var(--light-bg);
+            color: var(--light-text-primary);
+        }
+
+        /* Ambient Glow Backdrop matching Compose AmbientBackdrop() */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dark-theme .ambient-glow {
+            background: radial-gradient(circle at 50% 38%, rgba(158, 132, 255, 0.18) 0%, rgba(38, 38, 46, 0.28) 45%, #0A0A0A 80%);
+        }
+
+        .light-theme .ambient-glow {
+            background: radial-gradient(circle at 50% 38%, rgba(106, 77, 255, 0.12) 0%, rgba(241, 242, 244, 0.45) 45%, #F7F8FA 80%);
+        }
+
+        /* Android Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .dark-theme .status-bar { color: var(--dark-text-primary); }
+        .light-theme .status-bar { color: var(--light-text-primary); }
+
+        .camera-punch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            background: #000000;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+        }
+
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-icons svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        /* Onboarding Screen Content Layout */
+        .screen-container {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: calc(100% - 44px);
+            padding: 8px 20px 16px 20px;
+        }
+
+        /* Top Bar / Step Header */
+        .top-step-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            min-height: 36px;
+        }
+
+        .nav-icon-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease;
+        }
+
+        .dark-theme .nav-icon-btn {
+            color: var(--dark-text-secondary);
+        }
+        .dark-theme .nav-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--dark-text-primary);
+        }
+
+        .light-theme .nav-icon-btn {
+            color: var(--light-text-secondary);
+        }
+        .light-theme .nav-icon-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--light-text-primary);
+        }
+
+        .step-pill {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .dark-theme .step-pill {
+            background: var(--dark-surface-variant);
+            color: var(--dark-accent-ink);
+            border: 1px solid var(--dark-divider);
+        }
+
+        .light-theme .step-pill {
+            background: var(--light-surface-variant);
+            color: var(--light-accent-ink);
+            border: 1px solid var(--light-divider);
+        }
+
+        /* Screen Title & Subtitle */
+        .consent-header {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .consent-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .consent-subtitle {
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .dark-theme .consent-title { color: var(--dark-text-primary); }
+        .dark-theme .consent-subtitle { color: var(--dark-text-secondary); }
+
+        .light-theme .consent-title { color: var(--light-text-primary); }
+        .light-theme .consent-subtitle { color: var(--light-text-secondary); }
+
+        /* Middle Scrollable Section */
+        .middle-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Custom subtle scrollbar */
+        .middle-scrollable::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .dark-theme .middle-scrollable::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+        .dark-theme .middle-scrollable::-webkit-scrollbar-thumb {
+            background: var(--dark-divider);
+            border-radius: 4px;
+        }
+
+        .light-theme .middle-scrollable::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 4px;
+        }
+        .light-theme .middle-scrollable::-webkit-scrollbar-thumb {
+            background: var(--light-divider);
+            border-radius: 4px;
+        }
+
+        /* 4 Key Bullet Cards */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .highlight-card {
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.15s ease;
+        }
+
+        .dark-theme .highlight-card {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-divider);
+        }
+
+        .light-theme .highlight-card {
+            background: var(--light-surface);
+            border: 1px solid var(--light-divider);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .highlight-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-icon-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .dark-theme .highlight-icon-box {
+            background: var(--dark-accent-soft);
+            color: var(--dark-accent-ink);
+        }
+
+        .light-theme .highlight-icon-box {
+            background: var(--light-accent-soft);
+            color: var(--light-accent-ink);
+        }
+
+        .highlight-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .dark-theme .highlight-title { color: var(--dark-text-primary); }
+        .light-theme .highlight-title { color: var(--light-text-primary); }
+
+        .highlight-desc {
+            font-size: 0.68rem;
+            line-height: 1.35;
+        }
+
+        .dark-theme .highlight-desc { color: var(--dark-text-secondary); }
+        .light-theme .highlight-desc { color: var(--light-text-secondary); }
+
+        /* Scrollable Terms & Conditions Pane */
+        .terms-pane {
+            border-radius: 16px;
+            padding: 12px 14px;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            position: relative;
+        }
+
+        .terms-pane::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .dark-theme .terms-pane {
+            background: var(--dark-surface-3);
+            border: 1px solid var(--dark-divider);
+            color: var(--dark-text-secondary);
+        }
+        .dark-theme .terms-pane::-webkit-scrollbar-thumb {
+            background: #383844;
+        }
+
+        .light-theme .terms-pane {
+            background: var(--light-surface-3);
+            border: 1px solid var(--light-divider);
+            color: var(--light-text-secondary);
+        }
+        .light-theme .terms-pane::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+        }
+
+        .terms-pane h4 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin: 6px 0 3px 0;
+        }
+
+        .terms-pane h4:first-child {
+            margin-top: 0;
+        }
+
+        .dark-theme .terms-pane h4 { color: var(--dark-text-primary); }
+        .light-theme .terms-pane h4 { color: var(--light-text-primary); }
+
+        .terms-pane p {
+            margin-bottom: 6px;
+        }
+
+        /* External Legal Links */
+        .legal-links-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 0;
+        }
+
+        .legal-link {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: opacity 0.15s ease;
+        }
+
+        .legal-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .dark-theme .legal-link { color: var(--dark-accent-ink); }
+        .light-theme .legal-link { color: var(--light-accent-ink); }
+
+        .link-bullet {
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+
+        /* Bottom Fixed Controls Section */
+        .fixed-bottom-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 8px;
+            border-top: 1px solid transparent;
+        }
+
+        .dark-theme .fixed-bottom-section {
+            border-top-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .light-theme .fixed-bottom-section {
+            border-top-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Checkbox Row Component */
+        .checkbox-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 6px 8px;
+            transition: background 0.15s ease;
+            user-select: none;
+        }
+
+        .dark-theme .checkbox-card:hover { background: rgba(255, 255, 255, 0.04); }
+        .light-theme .checkbox-card:hover { background: rgba(0, 0, 0, 0.03); }
+
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark-theme .custom-checkbox {
+            border-color: var(--dark-divider);
+            background: var(--dark-surface-2);
+        }
+
+        .light-theme .custom-checkbox {
+            border-color: #D1D5DB;
+            background: var(--light-surface);
+        }
+
+        .custom-checkbox.checked {
+            border-color: transparent !important;
+        }
+
+        .dark-theme .custom-checkbox.checked {
+            background: var(--dark-cta-start) !important;
+            box-shadow: 0 0 10px rgba(88, 56, 250, 0.5);
+        }
+
+        .light-theme .custom-checkbox.checked {
+            background: var(--light-cta-start) !important;
+            box-shadow: 0 0 10px rgba(106, 77, 255, 0.4);
+        }
+
+        .custom-checkbox svg {
+            width: 13px;
+            height: 13px;
+            stroke: #FFFFFF;
+            stroke-width: 3;
+            fill: none;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all 0.2s ease;
+        }
+
+        .custom-checkbox.checked svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkbox-label {
+            font-size: 0.74rem;
+            line-height: 1.35;
+            font-weight: 500;
+        }
+
+        .dark-theme .checkbox-label { color: var(--dark-text-primary); }
+        .light-theme .checkbox-label { color: var(--light-text-primary); }
+
+        .checkbox-label strong {
+            font-weight: 700;
+        }
+
+        .dark-theme .checkbox-label strong { color: var(--dark-accent-ink); }
+        .light-theme .checkbox-label strong { color: var(--light-accent-ink); }
+
+        /* Primary Onboarding CTA Button (Pixel-matched with Compose PrimaryOnboardingButton) */
+        .btn-primary-cta {
+            width: 100%;
+            height: 60px;
+            border-radius: 999px;
+            border: none;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .dark-theme .btn-primary-cta.enabled {
+            background: linear-gradient(135deg, var(--dark-cta-start) 0%, var(--dark-cta-end) 100%);
+            box-shadow: 0 10px 24px -4px rgba(88, 56, 250, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+
+        .dark-theme .btn-primary-cta.enabled:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 12px rgba(88, 56, 250, 0.4);
+        }
+
+        .light-theme .btn-primary-cta.enabled {
+            background: linear-gradient(135deg, var(--light-cta-start) 0%, var(--light-cta-end) 100%);
+            box-shadow: 0 10px 24px -4px rgba(106, 77, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        }
+
+        .light-theme .btn-primary-cta.enabled:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 12px rgba(106, 77, 255, 0.3);
+        }
+
+        .btn-primary-cta.disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .dark-theme .btn-primary-cta.disabled {
+            background: var(--dark-surface-variant);
+            color: var(--dark-disabled);
+        }
+
+        .light-theme .btn-primary-cta.disabled {
+            background: var(--light-surface-variant);
+            color: var(--light-disabled);
+        }
+
+        /* Bottom Controls Row: Prev on left, Dots in center, No Skip */
+        .bottom-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 6px 0 6px;
+            min-height: 28px;
+        }
+
+        .prev-action {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .dark-theme .prev-action { color: var(--dark-text-secondary); }
+        .dark-theme .prev-action:hover { color: var(--dark-text-primary); }
+
+        .light-theme .prev-action { color: var(--light-text-secondary); }
+        .light-theme .prev-action:hover { color: var(--light-text-primary); }
+
+        /* Page Indicator Dots */
+        .page-dots-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-dot {
+            height: 6px;
+            border-radius: 999px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark-theme .page-dot {
+            background: var(--dark-divider);
+            width: 6px;
+        }
+
+        .dark-theme .page-dot.active {
+            background: var(--dark-accent-ink);
+            width: 22px;
+            box-shadow: 0 0 8px rgba(158, 132, 255, 0.6);
+        }
+
+        .light-theme .page-dot {
+            background: var(--light-divider);
+            width: 6px;
+        }
+
+        .light-theme .page-dot.active {
+            background: var(--light-accent-ink);
+            width: 22px;
+            box-shadow: 0 0 8px rgba(106, 77, 255, 0.4);
+        }
+
+        .no-skip-placeholder {
+            width: 44px; /* balance space against PREV */
+        }
+
+        /* Android Navigation Bar Pill */
+        .nav-gesture-bar {
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .gesture-pill {
+            width: 108px;
+            height: 4px;
+            border-radius: 999px;
+            opacity: 0.6;
+        }
+
+        .dark-theme .gesture-pill { background: #FFFFFF; }
+        .light-theme .gesture-pill { background: #000000; }
+
+        /* Architectural & Implementation Notes Section */
+        .specs-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 48px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .spec-card {
+            background: #141721;
+            border: 1px solid #232838;
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spec-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spec-card-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-brand);
+        }
+
+        .spec-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.86rem;
+            color: var(--canvas-muted);
+            line-height: 1.5;
+        }
+
+        .spec-list li {
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .spec-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: var(--accent-brand);
+            font-weight: bold;
+        }
+
+        .code-pill {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0B0D13;
+            color: #93C5FD;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            border: 1px solid #1E293B;
+        }
+
+        /* Success Toast Simulation */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            background: #10B981;
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 860px) {
+            .showcase-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .workspace-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Workspace Header -->
+    <header class="workspace-header">
+        <div class="workspace-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+            </svg>
+            Onboarding Consent Gate
+        </div>
+        <h1 class="workspace-title">Terms &amp; Conditions Visual Mockup</h1>
+        <p class="workspace-subtitle">
+            Mandatory user consent step positioned immediately before Sign In &amp; Continue as Guest. Features real-time state reactivity, scrollable terms pane, legal links, and exact ColorScheme tokens.
+        </p>
+    </header>
+
+    <!-- Interactive Controls Bar -->
+    <div class="control-bar">
+        <div class="btn-toggle-group">
+            <button class="btn-toggle active" id="btnViewSplit" onclick="setViewMode('split')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="18" rx="2"/></svg>
+                Side-by-Side
+            </button>
+            <button class="btn-toggle" id="btnViewDark" onclick="setViewMode('dark')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 4.97 4.03 9 9 9 4.97 0 9-4.03 9-9 0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                Dark Theme
+            </button>
+            <button class="btn-toggle" id="btnViewLight" onclick="setViewMode('light')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                Light Theme
+            </button>
+        </div>
+
+        <div class="control-separator"></div>
+
+        <div class="btn-toggle-group">
+            <button class="btn-toggle active" id="btnDualCheck" onclick="setCheckboxMode('dual')">Dual Checkboxes</button>
+            <button class="btn-toggle" id="btnSingleCheck" onclick="setCheckboxMode('single')">Single Checkbox</button>
+        </div>
+
+        <div class="interactive-tag">
+            <span class="pulse-dot"></span>
+            Interactive Live Preview
+        </div>
+    </div>
+
+    <!-- Phone Showcase Grid -->
+    <main class="showcase-grid" id="showcaseGrid">
+
+        <!-- ==================================================== -->
+        <!-- DARK MODE MOCKUP (Android Material 3)                -->
+        <!-- ==================================================== -->
+        <div class="phone-wrapper" id="darkWrapper">
+            <span class="phone-badge dark">Dark Theme (#0A0A0A)</span>
+            
+            <div class="android-frame dark-theme">
+                <div class="ambient-glow"></div>
+
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div class="camera-punch"></div>
+                    <div class="status-icons">
+                        <svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+                    </div>
+                </div>
+
+                <!-- Screen Body -->
+                <div class="screen-container">
+                    
+                    <!-- Top Navigation / Step Header -->
+                    <div class="top-step-row">
+                        <button class="nav-icon-btn" onclick="triggerToast('Back to illustration slide 4')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                        </button>
+                        <span class="step-pill">Step 4 of 5</span>
+                        <div style="width: 36px;"></div> <!-- balance spacer -->
+                    </div>
+
+                    <!-- Title & One-line Requirement -->
+                    <div class="consent-header">
+                        <h2 class="consent-title">Terms &amp; Conditions</h2>
+                        <p class="consent-subtitle">You must accept these terms to continue using ExpenseTracker as a guest or with an account.</p>
+                    </div>
+
+                    <!-- Middle Scrollable Area -->
+                    <div class="middle-scrollable">
+                        <!-- 4 Key Bullets -->
+                        <div class="highlights-grid">
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">📱</div>
+                                    <span class="highlight-title">App Usage</span>
+                                </div>
+                                <p class="highlight-desc">Personal budgeting and tracking. No reverse engineering or illegal activity.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">🔒</div>
+                                    <span class="highlight-title">Data &amp; Privacy</span>
+                                </div>
+                                <p class="highlight-desc">Offline-first by default. Your financial records never leave device without opt-in sync.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">⭐</div>
+                                    <span class="highlight-title">Subscriptions</span>
+                                </div>
+                                <p class="highlight-desc">Pro plans billed transparently via Google Play. Auto-renews unless cancelled.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">🔄</div>
+                                    <span class="highlight-title">Cancellation</span>
+                                </div>
+                                <p class="highlight-desc">Cancel Pro anytime in Play Store. Export or delete 100% of your data on demand.</p>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Terms Pane -->
+                        <div class="terms-pane">
+                            <h4>1. Acceptance of Terms</h4>
+                            <p>By using ExpenseTracker: Budget &amp; Spend operated by MKN Labs, you acknowledge you have read, understood, and agree to these Terms &amp; Conditions and our Privacy Policy. These terms apply to all guest and registered users.</p>
+
+                            <h4>2. License &amp; Permitted Use</h4>
+                            <p>We grant you a personal, non-commercial, revocable license. You agree not to copy, resell, extract source code, or misuse backend services.</p>
+
+                            <h4>3. Offline-First Data &amp; Security</h4>
+                            <p>Your financial transactions and accounts are stored locally on your device in an encrypted Room SQLite database. Optional cloud synchronization utilizes Google Firebase under end-to-end security controls.</p>
+
+                            <h4>4. In-App Purchases &amp; Google Play</h4>
+                            <p>Pro tier features and subscriptions are managed exclusively through Google Play Billing. MKN Labs does not process or store sensitive payment card details.</p>
+
+                            <h4>5. Disclaimers &amp; Limitation of Liability</h4>
+                            <p>ExpenseTracker is a self-directed financial organization tool, not a certified financial advisor. Data is provided "as is".</p>
+                        </div>
+
+                        <!-- Legal Links -->
+                        <div class="legal-links-row">
+                            <a href="https://expense-tracker-2ea00.web.app/terms.html" target="_blank" class="legal-link">
+                                Terms &amp; Conditions
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                            <span class="link-bullet">•</span>
+                            <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" class="legal-link">
+                                Privacy Policy
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Fixed Section (Always Visible) -->
+                    <div class="fixed-bottom-section">
+                        
+                        <!-- Checkbox 1: Terms -->
+                        <div class="checkbox-card" onclick="toggleDarkCheckbox(1)">
+                            <div class="custom-checkbox" id="darkCheck1">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="checkbox-label">
+                                I have read and agree to the <strong>Terms &amp; Conditions</strong>
+                            </span>
+                        </div>
+
+                        <!-- Checkbox 2: Privacy (Optional/Configurable) -->
+                        <div class="checkbox-card dual-check-only" id="darkCheckRow2" onclick="toggleDarkCheckbox(2)">
+                            <div class="custom-checkbox" id="darkCheck2">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="checkbox-label">
+                                I agree to the <strong>Privacy Policy</strong> and data terms
+                            </span>
+                        </div>
+
+                        <!-- Primary Onboarding Continue Button -->
+                        <button class="btn-primary-cta disabled" id="darkBtnContinue" onclick="onContinueClick('Dark Theme')">
+                            <span>Continue</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+
+                        <!-- Bottom Controls: Prev + Indicators + NO Skip -->
+                        <div class="bottom-controls-row">
+                            <span class="prev-action" onclick="triggerToast('Back to previous illustration')">PREV</span>
+                            <div class="page-dots-container">
+                                <div class="page-dot"></div>
+                                <div class="page-dot"></div>
+                                <div class="page-dot"></div>
+                                <div class="page-dot active"></div>
+                                <div class="page-dot"></div>
+                            </div>
+                            <div class="no-skip-placeholder"></div>
+                        </div>
+
+                        <!-- Nav gesture bar -->
+                        <div class="nav-gesture-bar">
+                            <div class="gesture-pill"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================================================== -->
+        <!-- LIGHT MODE MOCKUP (Android Material 3)               -->
+        <!-- ==================================================== -->
+        <div class="phone-wrapper" id="lightWrapper">
+            <span class="phone-badge light">Light Theme (#F7F8FA)</span>
+
+            <div class="android-frame light-theme">
+                <div class="ambient-glow"></div>
+
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <div class="camera-punch"></div>
+                    <div class="status-icons">
+                        <svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg>
+                        <svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+                    </div>
+                </div>
+
+                <!-- Screen Body -->
+                <div class="screen-container">
+                    
+                    <!-- Top Navigation / Step Header -->
+                    <div class="top-step-row">
+                        <button class="nav-icon-btn" onclick="triggerToast('Back to illustration slide 4')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                        </button>
+                        <span class="step-pill">Step 4 of 5</span>
+                        <div style="width: 36px;"></div> <!-- balance spacer -->
+                    </div>
+
+                    <!-- Title & One-line Requirement -->
+                    <div class="consent-header">
+                        <h2 class="consent-title">Terms &amp; Conditions</h2>
+                        <p class="consent-subtitle">You must accept these terms to continue using ExpenseTracker as a guest or with an account.</p>
+                    </div>
+
+                    <!-- Middle Scrollable Area -->
+                    <div class="middle-scrollable">
+                        <!-- 4 Key Bullets -->
+                        <div class="highlights-grid">
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">📱</div>
+                                    <span class="highlight-title">App Usage</span>
+                                </div>
+                                <p class="highlight-desc">Personal budgeting and tracking. No reverse engineering or illegal activity.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">🔒</div>
+                                    <span class="highlight-title">Data &amp; Privacy</span>
+                                </div>
+                                <p class="highlight-desc">Offline-first by default. Your financial records never leave device without opt-in sync.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">⭐</div>
+                                    <span class="highlight-title">Subscriptions</span>
+                                </div>
+                                <p class="highlight-desc">Pro plans billed transparently via Google Play. Auto-renews unless cancelled.</p>
+                            </div>
+                            <div class="highlight-card">
+                                <div class="highlight-header">
+                                    <div class="highlight-icon-box">🔄</div>
+                                    <span class="highlight-title">Cancellation</span>
+                                </div>
+                                <p class="highlight-desc">Cancel Pro anytime in Play Store. Export or delete 100% of your data on demand.</p>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Terms Pane -->
+                        <div class="terms-pane">
+                            <h4>1. Acceptance of Terms</h4>
+                            <p>By using ExpenseTracker: Budget &amp; Spend operated by MKN Labs, you acknowledge you have read, understood, and agree to these Terms &amp; Conditions and our Privacy Policy. These terms apply to all guest and registered users.</p>
+
+                            <h4>2. License &amp; Permitted Use</h4>
+                            <p>We grant you a personal, non-commercial, revocable license. You agree not to copy, resell, extract source code, or misuse backend services.</p>
+
+                            <h4>3. Offline-First Data &amp; Security</h4>
+                            <p>Your financial transactions and accounts are stored locally on your device in an encrypted Room SQLite database. Optional cloud synchronization utilizes Google Firebase under end-to-end security controls.</p>
+
+                            <h4>4. In-App Purchases &amp; Google Play</h4>
+                            <p>Pro tier features and subscriptions are managed exclusively through Google Play Billing. MKN Labs does not process or store sensitive payment card details.</p>
+
+                            <h4>5. Disclaimers &amp; Limitation of Liability</h4>
+                            <p>ExpenseTracker is a self-directed financial organization tool, not a certified financial advisor. Data is provided "as is".</p>
+                        </div>
+
+                        <!-- Legal Links -->
+                        <div class="legal-links-row">
+                            <a href="https://expense-tracker-2ea00.web.app/terms.html" target="_blank" class="legal-link">
+                                Terms &amp; Conditions
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                            <span class="link-bullet">•</span>
+                            <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" class="legal-link">
+                                Privacy Policy
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Fixed Section (Always Visible) -->
+                    <div class="fixed-bottom-section">
+                        
+                        <!-- Checkbox 1: Terms -->
+                        <div class="checkbox-card" onclick="toggleLightCheckbox(1)">
+                            <div class="custom-checkbox" id="lightCheck1">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="checkbox-label">
+                                I have read and agree to the <strong>Terms &amp; Conditions</strong>
+                            </span>
+                        </div>
+
+                        <!-- Checkbox 2: Privacy (Optional/Configurable) -->
+                        <div class="checkbox-card dual-check-only" id="lightCheckRow2" onclick="toggleLightCheckbox(2)">
+                            <div class="custom-checkbox" id="lightCheck2">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="checkbox-label">
+                                I agree to the <strong>Privacy Policy</strong> and data terms
+                            </span>
+                        </div>
+
+                        <!-- Primary Onboarding Continue Button -->
+                        <button class="btn-primary-cta disabled" id="lightBtnContinue" onclick="onContinueClick('Light Theme')">
+                            <span>Continue</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+
+                        <!-- Bottom Controls: Prev + Indicators + NO Skip -->
+                        <div class="bottom-controls-row">
+                            <span class="prev-action" onclick="triggerToast('Back to previous illustration')">PREV</span>
+                            <div class="page-dots-container">
+                                <div class="page-dot"></div>
+                                <div class="page-dot"></div>
+                                <div class="page-dot"></div>
+                                <div class="page-dot active"></div>
+                                <div class="page-dot"></div>
+                            </div>
+                            <div class="no-skip-placeholder"></div>
+                        </div>
+
+                        <!-- Nav gesture bar -->
+                        <div class="nav-gesture-bar">
+                            <div class="gesture-pill"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Architecture & Guidelines Reference -->
+    <section class="specs-section">
+        <div class="spec-card">
+            <h3 class="spec-card-title">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                Placement &amp; Flow Design
+            </h3>
+            <ul class="spec-list">
+                <li><strong>Exact Flow Placement:</strong> Inserted immediately before <span class="code-pill">AuthContent</span> (Sign In / Continue as guest).</li>
+                <li><strong>Equal Gate Enforcement:</strong> Bound to <em>app usage</em> rather than login, ensuring guest users cannot bypass legal acceptance.</li>
+                <li><strong>No Skip Allowed:</strong> The <span class="code-pill">SKIP</span> button is intentionally omitted from this screen, leaving only <span class="code-pill">PREV</span> to go back.</li>
+                <li><strong>No Big Illustration:</strong> Large visual graphic dropped to grant ample comfortable reading space for terms and highlights.</li>
+            </ul>
+        </div>
+
+        <div class="spec-card">
+            <h3 class="spec-card-title">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+                Persistence &amp; State Model
+            </h3>
+            <ul class="spec-list">
+                <li><strong>Local Persistence:</strong> Stored in <span class="code-pill">AppSettingsDataStore</span> as:
+                    <br>• <span class="code-pill">termsAcceptedVersion = "1.0.0"</span>
+                    <br>• <span class="code-pill">termsAcceptedTimestamp = 1790640000000L</span>
+                </li>
+                <li><strong>Zero Repeat Prompts:</strong> Once accepted, subsequent app launches bypass this step directly to MainScreen.</li>
+                <li><strong>Ongoing Access:</strong> Terms &amp; Conditions and Privacy Policy remain readily accessible under <span class="code-pill">Settings -> About</span>.</li>
+            </ul>
+        </div>
+
+        <div class="spec-card">
+            <h3 class="spec-card-title">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 4.97 4.03 9 9 9 4.97 0 9-4.03 9-9 0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                Theme &amp; ColorScheme Alignment
+            </h3>
+            <ul class="spec-list">
+                <li><strong>Dark Theme Tokens:</strong> Field <span class="code-pill">#0A0A0A</span>, Cards <span class="code-pill">#141418</span> &amp; <span class="code-pill">#1E1E23</span>, Accent Ink <span class="code-pill">#9E84FF</span>, CTA <span class="code-pill">#5838FA -> #3713EC</span>.</li>
+                <li><strong>Light Theme Tokens:</strong> Field <span class="code-pill">#F7F8FA</span>, Cards <span class="code-pill">#FFFFFF</span> &amp; <span class="code-pill">#F1F2F4</span>, Accent Ink <span class="code-pill">#6A4DFF</span>, CTA <span class="code-pill">#6A4DFF -> #5B45D6</span>.</li>
+                <li><strong>Dynamic Glow:</strong> Button shadow elevated with 34% alpha brand accent glow when active, seamlessly switching to disabled slate when unchecked.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Simulated Toast -->
+    <div class="toast-notification" id="toastNotification">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span id="toastText">Consent Recorded Successfully</span>
+    </div>
+
+    <!-- Interaction Script -->
+    <script>
+        let isDualMode = true;
+        
+        let darkState = { check1: false, check2: false };
+        let lightState = { check1: false, check2: false };
+
+        function setViewMode(mode) {
+            document.getElementById('btnViewSplit').classList.toggle('active', mode === 'split');
+            document.getElementById('btnViewDark').classList.toggle('active', mode === 'dark');
+            document.getElementById('btnViewLight').classList.toggle('active', mode === 'light');
+
+            const darkWrapper = document.getElementById('darkWrapper');
+            const lightWrapper = document.getElementById('lightWrapper');
+
+            if (mode === 'split') {
+                darkWrapper.style.display = 'flex';
+                lightWrapper.style.display = 'flex';
+            } else if (mode === 'dark') {
+                darkWrapper.style.display = 'flex';
+                lightWrapper.style.display = 'none';
+            } else if (mode === 'light') {
+                darkWrapper.style.display = 'none';
+                lightWrapper.style.display = 'flex';
+            }
+        }
+
+        function setCheckboxMode(mode) {
+            isDualMode = (mode === 'dual');
+            document.getElementById('btnDualCheck').classList.toggle('active', isDualMode);
+            document.getElementById('btnSingleCheck').classList.toggle('active', !isDualMode);
+
+            document.querySelectorAll('.dual-check-only').forEach(el => {
+                el.style.display = isDualMode ? 'flex' : 'none';
+            });
+
+            updateButtonStates();
+        }
+
+        function toggleDarkCheckbox(index) {
+            if (index === 1) {
+                darkState.check1 = !darkState.check1;
+                document.getElementById('darkCheck1').classList.toggle('checked', darkState.check1);
+            } else {
+                darkState.check2 = !darkState.check2;
+                document.getElementById('darkCheck2').classList.toggle('checked', darkState.check2);
+            }
+            updateButtonStates();
+        }
+
+        function toggleLightCheckbox(index) {
+            if (index === 1) {
+                lightState.check1 = !lightState.check1;
+                document.getElementById('lightCheck1').classList.toggle('checked', lightState.check1);
+            } else {
+                lightState.check2 = !lightState.check2;
+                document.getElementById('lightCheck2').classList.toggle('checked', lightState.check2);
+            }
+            updateButtonStates();
+        }
+
+        function updateButtonStates() {
+            // Dark button
+            const isDarkValid = isDualMode ? (darkState.check1 && darkState.check2) : darkState.check1;
+            const darkBtn = document.getElementById('darkBtnContinue');
+            darkBtn.classList.toggle('enabled', isDarkValid);
+            darkBtn.classList.toggle('disabled', !isDarkValid);
+
+            // Light button
+            const isLightValid = isDualMode ? (lightState.check1 && lightState.check2) : lightState.check1;
+            const lightBtn = document.getElementById('lightBtnContinue');
+            lightBtn.classList.toggle('enabled', isLightValid);
+            lightBtn.classList.toggle('disabled', !isLightValid);
+        }
+
+        function onContinueClick(themeName) {
+            const isValid = (themeName === 'Dark Theme') 
+                ? (isDualMode ? (darkState.check1 && darkState.check2) : darkState.check1)
+                : (isDualMode ? (lightState.check1 && lightState.check2) : lightState.check1);
+
+            if (!isValid) {
+                triggerToast('Please check the required consent checkbox to continue.');
+                return;
+            }
+
+            triggerToast(`Consent saved (v1.0.0)! Advancing to Sign In / Guest page.`);
+        }
+
+        let toastTimer;
+        function triggerToast(text) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = document.getElementById('toastText');
+            toastText.textContent = text;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3200);
+        }
+    </script>
+</body>
+</html>

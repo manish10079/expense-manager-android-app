@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_ORDER
 import com.mknlabs.expensetracker.data.constants.categoryMap
@@ -41,6 +44,12 @@ import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.subtlePrimaryGradient
 import com.mknlabs.expensetracker.utils.getDefaultOrder
@@ -96,10 +105,12 @@ fun FilterBottomSheet(
     val colorScheme = MaterialTheme.colorScheme
     val orderOptions = remember(selectedSort) { getOrderOptions(selectedSort) }
 
-    // PERFORMANCE: Cache gradients to prevent per-frame allocation
-    val brandBrush = brandGradient()
+    // PERFORMANCE: Cache the brushes to prevent per-frame allocation.
     val cardBrush = standardCardGradient()
-    val chipSelectedBrush = brandGradient(alpha = 0.2f)
+    // The selected chip is the spec's --chipSel fill with the spec's --chipInk label,
+    // not a tint of the accent: a 20% brand wash under a brand label was neither the
+    // mock's fill nor its ink.
+    val chipSelectedBrush = SolidColor(colorScheme.chipSelected)
     val chipUnselectedBrush = subtlePrimaryGradient()
 
     // UI-only expansion states to hide categories by default
@@ -115,7 +126,7 @@ fun FilterBottomSheet(
             .fillMaxWidth()
             .background(colorScheme.surface)
     ) {
-        // ── Sticky Header ──────────────────────────────────────────────────────
+        // â”€â”€ Sticky Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +184,7 @@ fun FilterBottomSheet(
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.4f))
         }
 
-        // ── Scrollable Body ────────────────────────────────────────────────────
+        // â”€â”€ Scrollable Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -388,6 +399,10 @@ fun FilterBottomSheet(
                                             FilterChip(
                                                 title = category.name,
                                                 icon = category.icon,
+                                                iconTint = colorScheme.categoryColor(
+                                                    categoryId = category.id,
+                                                    colorHex = category.colorHex
+                                                ),
                                                 selected = selectedCategoryIds.contains(category.id),
                                                 selectedBrush = chipSelectedBrush,
                                                 unselectedBrush = chipUnselectedBrush,
@@ -415,6 +430,10 @@ fun FilterBottomSheet(
                                             FilterChip(
                                                 title = category.name,
                                                 icon = category.icon,
+                                                iconTint = colorScheme.categoryColor(
+                                                    categoryId = category.id,
+                                                    colorHex = category.colorHex
+                                                ),
                                                 selected = selectedCategoryIds.contains(category.id),
                                                 selectedBrush = chipSelectedBrush,
                                                 unselectedBrush = chipUnselectedBrush,
@@ -456,6 +475,10 @@ fun FilterBottomSheet(
                                 FilterChip(
                                     title = paymentType.name,
                                     icon = paymentType.icon,
+                                    iconTint = colorScheme.paymentColor(
+                                        paymentId = paymentType.id,
+                                        colorHex = paymentType.colorHex
+                                    ),
                                     selected = selectedPaymentTypeIds.contains(paymentType.id),
                                     selectedBrush = chipSelectedBrush,
                                     unselectedBrush = chipUnselectedBrush,
@@ -489,7 +512,7 @@ fun FilterBottomSheet(
 
         } // end LazyColumn
 
-        // ── Sticky Footer ──────────────────────────────────────────────────────
+        // â”€â”€ Sticky Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -504,7 +527,7 @@ fun FilterBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Reset button
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         isExpenseExpanded = false
                         isIncomeExpanded = false
@@ -543,8 +566,8 @@ fun FilterBottomSheet(
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.primary,
-                        contentColor = colorScheme.onPrimary
+                        containerColor = colorScheme.cta,
+                        contentColor = colorScheme.onCta
                     )
                 ) {
                     Icon(
@@ -620,6 +643,12 @@ private fun FilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    /**
+     * The row's category or payment colour, for the chips that stand for one. Null for every
+     * other chip in the sheet â€” the date, sort and type chips are not categories and have no
+     * identity colour to carry.
+     */
+    iconTint: Color? = null,
     selectedBrush: Brush? = null,
     unselectedBrush: Brush? = null,
     locked: Boolean = false
@@ -627,12 +656,13 @@ private fun FilterChip(
     val colorScheme = MaterialTheme.colorScheme
 
     val bgModifier = if (selected) {
-        Modifier.background(selectedBrush ?: SolidColor(colorScheme.primaryContainer.copy(alpha = 0.6f)))
+        Modifier.background(selectedBrush ?: SolidColor(colorScheme.chipSelected))
     } else {
         Modifier.background(unselectedBrush ?: SolidColor(colorScheme.surfaceVariant.copy(alpha = 0.35f)))
     }
 
-    val borderColor = if (selected) colorScheme.primary.copy(alpha = 0.35f) else colorScheme.outlineVariant.copy(alpha = 0.4f)
+    // The mock's selected chip has no edge of its own; the fill is the whole signal.
+    val borderColor = if (selected) Color.Transparent else colorScheme.outlineVariant.copy(alpha = 0.4f)
     val shape = RoundedCornerShape(12.dp)
 
     Row(
@@ -649,7 +679,14 @@ private fun FilterChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                // Selected keeps the spec's chip ink: the fill behind it is the selected
+                // state's whole signal, and a category colour on top would read as a
+                // different, competing state rather than a selection.
+                tint = when {
+                    selected -> colorScheme.chipSelectedInk
+                    iconTint != null -> iconTint
+                    else -> colorScheme.onSurfaceVariant
+                },
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
@@ -660,7 +697,7 @@ private fun FilterChip(
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
             ),
-            color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant
+            color = if (selected) colorScheme.chipSelectedInk else colorScheme.onSurfaceVariant
         )
 
         if (locked) {
@@ -689,7 +726,7 @@ private fun AmountFilterField(
         onValueChange = { onValueChange(sanitizeAmountRangeInput(it)) },
         modifier = modifier,
         singleLine = true,
-        shape = RoundedCornerShape(14.dp),
+        shape = AppOutlinedFieldDefaults.shape,
         placeholder = {
             Text(
                 text = placeholder,
@@ -697,15 +734,7 @@ private fun AmountFilterField(
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.25f),
-            unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.15f),
-            focusedBorderColor = colorScheme.primary,
-            unfocusedBorderColor = colorScheme.outlineVariant.copy(alpha = 0.5f),
-            cursorColor = colorScheme.primary,
-            focusedTextColor = colorScheme.onSurface,
-            unfocusedTextColor = colorScheme.onSurface
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
@@ -746,7 +775,7 @@ private fun FilterSection(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = colorScheme.primary,
+                    tint = colorScheme.accentInk,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -801,7 +830,7 @@ private fun OrderOption(
     val shape = RoundedCornerShape(14.dp)
 
     val bgColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.4f) else colorScheme.surfaceVariant.copy(alpha = 0.25f)
-    val borderColor = if (selected) colorScheme.primary.copy(alpha = 0.3f) else colorScheme.outlineVariant.copy(alpha = 0.3f)
+    val borderColor = if (selected) colorScheme.accentInk.copy(alpha = 0.3f) else colorScheme.outlineVariant.copy(alpha = 0.3f)
 
     Row(
         modifier = Modifier
@@ -835,7 +864,7 @@ private fun OrderOption(
                     SortType.EXPENSE_FIRST -> Icons.Default.ArrowDownward
                 },
                 contentDescription = null,
-                tint = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                tint = if (selected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -859,7 +888,7 @@ private fun OrderOption(
             selected = selected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = colorScheme.primary,
+                selectedColor = colorScheme.accentInk,
                 unselectedColor = colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
             )
         )

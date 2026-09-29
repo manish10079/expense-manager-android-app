@@ -50,6 +50,7 @@ local.properties
 .ohmyagent/
 strings_ad.patch
 strings_emi.patch
+patch_lib.js
 
 # ===================== Secrets & API config =====================
 # Firebase config — contains your API keys / OAuth client IDs (add your own copy)
@@ -71,6 +72,7 @@ FEATURE_GRAPHIC_ASO_PROMPT.md
 
 # Benchmark screen captures (large transient artifacts)
 /benchmark_screen.png
+/shot_*.png
 
 # Internal implementation plans (kept local only, not in git)
 implementation_plans/

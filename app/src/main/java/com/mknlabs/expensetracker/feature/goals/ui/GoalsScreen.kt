@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Edit
@@ -30,9 +30,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -43,26 +44,30 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
+import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
+import com.mknlabs.expensetracker.core.ui.components.AppDialogConfirmButton
+import com.mknlabs.expensetracker.core.ui.components.AppDialogDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppDialogDismissButton
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressLow
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressMedium
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightCenter
-import com.mknlabs.expensetracker.core.ui.theme.PremiumCardLightEnd
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -131,16 +136,27 @@ private fun GoalsScreenContent(
 
     val activeGoals = goals.filter { !it.isCompleted }
     val completedGoals = goals.filter { it.isCompleted }
+    val enter = rememberSectionEnterAlphas(2)
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
+            // The very same brand "+" FAB the shell docks on the home screen — one
+            // component, so the ramp, glow, shape and elevation cannot drift from it.
+            // It carries its own label because this button adds a goal, not a
+            // transaction. The offset cancels the room the component reserves for its
+            // glow, which Scaffold would otherwise count as button width and leave the
+            // circle inset from the screen edge rather than on the standard margin.
+            BrandAddFab(
                 onClick = { isAddGoalDialogVisible = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_goal))
-            }
+                modifier = Modifier.offset(
+                    x = BrandAddFabDefaults.GlowInset,
+                    y = BrandAddFabDefaults.GlowInset
+                ),
+                contentDescription = stringResource(R.string.cd_add_goal),
+                // Pools the halo downward, matching the docked FAB it is the same
+                // button as.
+                glowOffset = 8.dp
+            )
         },
         containerColor = Color.Transparent
     ) { padding ->
@@ -160,16 +176,16 @@ private fun GoalsScreenContent(
 
                 AppHeader(
                     title = stringResource(R.string.title_my_goals),
-                    onBackClick = onBackClick
+                    onBackClick = onBackClick,
+                    modifier = Modifier.alpha(enter[0])
                 )
-
-                Spacer(modifier = Modifier.height(18.dp))
 
                 if (goals.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .alpha(enter[1]),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -182,7 +198,8 @@ private fun GoalsScreenContent(
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .alpha(enter[1]),
                         contentPadding = PaddingValues(bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -303,6 +320,8 @@ fun DeleteGoalDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_delete_goal),
@@ -316,7 +335,7 @@ fun DeleteGoalDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.label_delete_1),
                     color = MaterialTheme.colorScheme.error,
@@ -325,9 +344,10 @@ fun DeleteGoalDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
@@ -345,6 +365,8 @@ fun FundGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_fund_goal),
@@ -361,16 +383,14 @@ fun FundGoalDialog(
                     label = { Text(stringResource(R.string.label_fund_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = { onSave(fundAmount) },
                 enabled = isSaveEnabled
             ) {
@@ -378,9 +398,10 @@ fun FundGoalDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
@@ -405,6 +426,8 @@ fun AddGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_add_goal),
@@ -420,10 +443,8 @@ fun AddGoalDialog(
                     placeholder = { Text(stringResource(R.string.label_goal_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 OutlinedTextField(
@@ -434,11 +455,9 @@ fun AddGoalDialog(
                     label = { Text(stringResource(R.string.label_target_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 DeadlinePickerRow(
@@ -455,17 +474,17 @@ fun AddGoalDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppDialogConfirmButton(
+                text = stringResource(R.string.label_save_1),
                 onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
                 enabled = isSaveEnabled
-            ) {
-                Text(stringResource(R.string.label_save_1))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 
@@ -513,6 +532,8 @@ fun EditGoalDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_edit_goal),
@@ -527,10 +548,8 @@ fun EditGoalDialog(
                     label = { Text(stringResource(R.string.label_goal_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 OutlinedTextField(
@@ -549,11 +568,9 @@ fun EditGoalDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 DeadlinePickerRow(
@@ -570,17 +587,17 @@ fun EditGoalDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppDialogConfirmButton(
+                text = stringResource(R.string.label_save_1),
                 onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
                 enabled = isSaveEnabled
-            ) {
-                Text(stringResource(R.string.label_save_1))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 
@@ -619,7 +636,13 @@ private fun DeadlinePickerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // A picker row is a field inside the dialog, so in light it takes the spec's
+            // secondary surface. The half-strength wash it used to be sits almost on the
+            // dialog's own white and left the row with no edge at all.
+            .background(
+                if (colorScheme.isDark) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                else colorScheme.surfaceVariant
+            )
             .padding(horizontal = 16.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -633,13 +656,13 @@ private fun DeadlinePickerRow(
             Text(
                 text = formatDate(deadlineAt, dateFormatPattern),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = colorScheme.primary,
+                color = colorScheme.accentInk,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(onClick = onPick)
                     .padding(horizontal = 8.dp, vertical = 8.dp)
             )
-            TextButton(onClick = onClear) {
+            AppTextButton(onClick = onClear) {
                 Text(
                     text = stringResource(R.string.label_clear),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
@@ -647,11 +670,11 @@ private fun DeadlinePickerRow(
                 )
             }
         } else {
-            TextButton(onClick = onPick) {
+            AppTextButton(onClick = onPick) {
                 Text(
                     text = stringResource(R.string.label_set_deadline),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = colorScheme.primary
+                    color = colorScheme.accentInk
                 )
             }
         }
@@ -692,7 +715,12 @@ private fun GoalIconPickerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // The icon picker's row is a field too, so it takes the secondary surface in
+            // light for the same reason the deadline row above does.
+            .background(
+                if (colorScheme.isDark) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                else colorScheme.surfaceVariant
+            )
             .clickable(onClick = onPick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -707,7 +735,7 @@ private fun GoalIconPickerRow(
             Icon(
                 imageVector = selectedOption?.icon ?: Icons.Filled.Savings,
                 contentDescription = stringResource(R.string.cd_goal_icon),
-                tint = colorScheme.onPrimary,
+                tint = colorScheme.onCta,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -721,7 +749,7 @@ private fun GoalIconPickerRow(
         Text(
             text = stringResource(R.string.title_choose_icon),
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = colorScheme.primary
+            color = colorScheme.accentInk
         )
     }
 }
@@ -734,6 +762,8 @@ private fun GoalIconPickerModal(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = AppDialogDefaults.shape(),
+        containerColor = AppDialogDefaults.containerColor(),
         title = {
             Text(
                 text = stringResource(R.string.title_choose_icon),
@@ -759,9 +789,10 @@ private fun GoalIconPickerModal(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_1))
-            }
+            AppDialogDismissButton(
+                text = stringResource(R.string.label_cancel_1),
+                onClick = onDismiss
+            )
         }
     )
 }
@@ -779,11 +810,11 @@ private fun GoalIconSelectionItem(
             .aspectRatio(1f)
             .clip(CircleShape)
             .background(
-                color = if (selected) colorScheme.primary else colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                color = if (selected) colorScheme.accentInk else colorScheme.surfaceVariant.copy(alpha = 0.6f)
             )
             .border(
                 width = if (selected) 2.dp else 1.dp,
-                color = if (selected) colorScheme.primary else colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = if (selected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f),
                 shape = CircleShape
             )
             .clickable(onClick = onClick),
@@ -824,39 +855,20 @@ fun GoalItem(
     }
 
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
     val cardShape = RoundedCornerShape(24.dp)
-
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardDarkStart, PremiumCardDarkCenter, PremiumCardDarkEnd)
+    val cardChrome = Modifier
+        .clip(cardShape)
+        .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        .border(
+            width = 1.dp,
+            color = colorScheme.accentInk.copy(alpha = 0.18f),
+            shape = cardShape
         )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(PremiumCardLightStart, PremiumCardLightCenter, PremiumCardLightEnd)
-        )
-    }
-    val borderBrush = remember(colorScheme.primary) {
-        Brush.linearGradient(
-            colors = listOf(
-                colorScheme.primary.copy(alpha = 0.4f),
-                Color.White.copy(alpha = 0.08f)
-            )
-        )
-    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 12.dp,
-                shape = cardShape,
-                ambientColor = colorScheme.primary.copy(alpha = 0.2f),
-                spotColor = Color.Black
-            )
-            .clip(cardShape)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, brush = borderBrush, shape = cardShape)
+            .then(cardChrome)
             .padding(16.dp)
     ) {
         Column(
@@ -881,7 +893,7 @@ fun GoalItem(
                         Icon(
                             imageVector = goalIcon,
                             contentDescription = stringResource(R.string.cd_goal_icon),
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -906,14 +918,14 @@ fun GoalItem(
                     GoalCardAction(
                         icon = Icons.Default.Add,
                         contentDescription = stringResource(R.string.cd_add_funds),
-                        accent = MaterialTheme.colorScheme.primary,
+                        accent = MaterialTheme.colorScheme.accentInk,
                         onClick = onFund
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     GoalCardAction(
-                        icon = Icons.Default.Delete,
+                        icon = Icons.Default.Close,
                         contentDescription = stringResource(R.string.cd_delete_goal),
                         accent = MaterialTheme.colorScheme.error,
                         onClick = onDelete
@@ -929,7 +941,7 @@ fun GoalItem(
                     .fillMaxWidth()
                     .height(8.dp),
                 color = progressColor,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                trackColor = MaterialTheme.colorScheme.track,
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
             )
 
@@ -1052,12 +1064,6 @@ private fun GoalCardAction(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(accent.copy(alpha = 0.12f))
-            .border(
-                width = 1.dp,
-                color = accent.copy(alpha = 0.22f),
-                shape = RoundedCornerShape(12.dp)
-            )
             .clickable(onClick = onClick)
             .padding(10.dp),
         contentAlignment = Alignment.Center
@@ -1088,7 +1094,7 @@ private fun GoalFundHistoryInline(
         Icon(
             imageVector = Icons.Default.History,
             contentDescription = stringResource(R.string.desc_toggle_fund_history),
-            tint = colorScheme.primary,
+            tint = colorScheme.accentInk,
             modifier = Modifier.size(14.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))

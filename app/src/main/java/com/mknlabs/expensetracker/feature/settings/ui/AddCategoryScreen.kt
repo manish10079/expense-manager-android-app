@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +20,10 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -29,14 +34,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+import com.mknlabs.expensetracker.core.ui.theme.identityColor
+import com.mknlabs.expensetracker.core.ui.theme.GlyphTileAlpha
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
@@ -64,6 +74,7 @@ fun AddCategoryScreen(
         onNameChange = viewModel::onNameChange,
         onIconSearchQueryChange = viewModel::onIconSearchQueryChange,
         onIconSelected = viewModel::onIconSelected,
+        onColorSelected = viewModel::onColorSelected,
         onSaveCategory = { viewModel.saveCategory(onCategoryCreated) }
     )
 }
@@ -78,6 +89,7 @@ private fun AddCategoryScreenContent(
     onNameChange: (String) -> Unit,
     onIconSearchQueryChange: (String) -> Unit,
     onIconSelected: (String) -> Unit,
+    onColorSelected: (String?) -> Unit,
     onSaveCategory: () -> Unit
 ) {
     val targetTab = uiState.targetTab
@@ -115,6 +127,11 @@ private fun AddCategoryScreenContent(
         categoryIconOptions.firstOrNull { it.id == uiState.selectedIconId } ?: categoryIconOptions.first()
     }
 
+    // The colour the grid previews: the pick if the user has made one, else the brand ink. Read
+    // through the picker's own resolver rather than off the swatch row, so a tile shows the colour
+    // the row will actually be given — a pick made while looking at the other theme included.
+    val identityColor = MaterialTheme.colorScheme.identityColor(uiState.selectedColorHex)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -129,16 +146,18 @@ private fun AddCategoryScreenContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_add_category),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .alpha(enter[1])
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
 
                 CategorySectionLabel(text = stringResource(R.string.label_category_type_section))
                 Spacer(modifier = Modifier.height(12.dp))
@@ -175,7 +194,7 @@ private fun AddCategoryScreenContent(
                             Icon(
                                 imageVector = selectedIcon.icon,
                                 contentDescription = stringResource(selectedIcon.labelRes),
-                                tint = MaterialTheme.colorScheme.onPrimary,
+                                tint = MaterialTheme.colorScheme.onCta,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -186,7 +205,7 @@ private fun AddCategoryScreenContent(
                     ),
                     shape = RoundedCornerShape(22.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )
                 )
@@ -199,6 +218,26 @@ private fun AddCategoryScreenContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                CategorySectionLabel(text = stringResource(R.string.label_color_section))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.msg_choose_color_info),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // The same row the management screen opens to recolour an existing row, so the
+                // palette a user picks from and the value a tap stores cannot drift between the
+                // screen that creates and the one that edits.
+                CategoryColorRow(
+                    selectedColorHex = uiState.selectedColorHex,
+                    onColorSelected = onColorSelected
+                )
 
                 Spacer(modifier = Modifier.height(28.dp))
 
@@ -226,7 +265,7 @@ private fun AddCategoryScreenContent(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.accentInk
                         )
                     },
                     trailingIcon = {
@@ -234,7 +273,7 @@ private fun AddCategoryScreenContent(
                             IconButton(onClick = { onIconSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.label_delete),
+                                    contentDescription = stringResource(R.string.desc_clear_search),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -243,7 +282,7 @@ private fun AddCategoryScreenContent(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f),
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )
                 )
@@ -260,6 +299,7 @@ private fun AddCategoryScreenContent(
                         IconSelectionItem(
                             option = option,
                             selected = option.id == uiState.selectedIconId,
+                            identityColor = identityColor,
                             onClick = { onIconSelected(option.id) }
                         )
                     }
@@ -293,6 +333,11 @@ private fun AddCategoryScreenContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
+                // The action is pinned to the window, so the keyboard has to be accounted
+                // for here: without this the IME is drawn straight over the button and
+                // "Add type" cannot be reached while a name is being typed. Same
+                // pairing the other pinned actions use.
+                .imePadding()
                 .padding(24.dp)
         ) {
             Button(
@@ -306,15 +351,15 @@ private fun AddCategoryScreenContent(
                     .shadow(
                         elevation = if (canCreate) 8.dp else 0.dp,
                         shape = RoundedCornerShape(22.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
+                        spotColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f)
                     ),
                 shape = RoundedCornerShape(22.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    contentColor = MaterialTheme.colorScheme.onCta,
+                    disabledContentColor = MaterialTheme.colorScheme.disabled
                 ),
                 contentPadding = PaddingValues(0.dp)
             ) {
@@ -330,7 +375,7 @@ private fun AddCategoryScreenContent(
                 ) {
                     if (uiState.isSaving) {
                         CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onCta,
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
                         )
@@ -350,7 +395,7 @@ private fun AddCategoryScreenContent(
 private fun CategorySectionLabel(text: String) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         style = MaterialTheme.typography.labelLarge.copy(
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp
@@ -367,7 +412,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.22f),
                 shape = RoundedCornerShape(24.dp)
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -388,7 +433,7 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                     CategoryManagementTab.Payment -> Icons.Filled.Payments
                 },
                 contentDescription = stringResource(targetTab.titleRes),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onCta,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -417,8 +462,11 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
 private fun IconSelectionItem(
     option: CategoryIconOption,
     selected: Boolean,
+    identityColor: Color,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -426,12 +474,20 @@ private fun IconSelectionItem(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
+                ambientColor = colorScheme.accentInk.copy(alpha = 0.34f),
+                spotColor = colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
+            // A tile carries the colour twice over while it is unselected — the wash behind the
+            // glyph is the glyph's own colour, which is how every other glyph tile in the app
+            // reads. The chosen one gives the fill back to the screen and keeps the colour as a
+            // ring and a glyph instead, so the choice stands out against a grid of ninety tinted
+            // siblings rather than being one more of them at a different alpha.
             .background(
-                brush = if (selected) brandGradient() else surfaceGradient()
+                if (selected) colorScheme.background else identityColor.copy(alpha = GlyphTileAlpha)
+            )
+            .then(
+                if (selected) Modifier.border(1.dp, colorScheme.accentInk, CircleShape) else Modifier
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -439,13 +495,13 @@ private fun IconSelectionItem(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (selected) colorScheme.accentInk else identityColor,
             modifier = Modifier.size(20.dp)
         )
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Light")
 @Composable
 private fun AddCategoryScreenContentPreview() {
     com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme {
@@ -458,6 +514,37 @@ private fun AddCategoryScreenContentPreview() {
             onNameChange = {},
             onIconSearchQueryChange = {},
             onIconSelected = {},
+            onColorSelected = {},
+            onSaveCategory = {}
+        )
+    }
+}
+
+/**
+ * The state the light preview cannot show: a colour already chosen.
+ *
+ * The stored hex is a light swatch drawn inside the dark theme, which is exactly the case the
+ * swatch row exists to handle — a colour picked in one theme has to still read as selected in
+ * the other, or a coloured category would look uncoloured and a second tap would silently
+ * replace a colour the user never meant to change.
+ */
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Dark, colour chosen")
+@Composable
+private fun AddCategoryScreenContentColoredPreview() {
+    com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme(darkTheme = true) {
+        AddCategoryScreenContent(
+            uiState = AddCategoryUiState(
+                name = "Coffee runs",
+                selectedColorHex = "#D97706"
+            ),
+            existingCategories = emptyList(),
+            existingPaymentMethods = emptyList(),
+            onBackClick = {},
+            onCategoryCreated = {},
+            onNameChange = {},
+            onIconSearchQueryChange = {},
+            onIconSelected = {},
+            onColorSelected = {},
             onSaveCategory = {}
         )
     }

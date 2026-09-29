@@ -231,7 +231,7 @@ class MembershipStatusTest {
         assertEquals(R.string.label_expires_on, expiryFact.labelRes)
         assertEquals(passExpiry, expiryFact.valueMillis)
 
-        assertEquals(R.string.label_membership_pass_headline, spec.panel?.headlineRes)
+        assertNull(spec.panel?.headlineRes)
         assertEquals(R.string.msg_membership_pass_body, spec.panel?.bodyRes)
     }
 
@@ -258,7 +258,7 @@ class MembershipStatusTest {
         )
 
         assertTrue(spec.facts.isEmpty())
-        assertEquals(R.string.label_membership_pass_headline, spec.panel?.headlineRes)
+        assertNull(spec.panel?.headlineRes)
         assertEquals(R.string.msg_pro_active_no_expiry, spec.panel?.bodyRes)
     }
 
@@ -274,7 +274,7 @@ class MembershipStatusTest {
     }
 
     @Test
-    fun `the free card carries both ways to reach pro`() {
+    fun `the free card offers the subscribe action`() {
         val spec = membershipCardSpec(
             status = MembershipStatus.FREE,
             proExpiryTimestamp = 0L,
@@ -288,13 +288,12 @@ class MembershipStatusTest {
         assertEquals(R.string.title_membership_upgrade_card, spec.titleRes)
         assertEquals(R.string.msg_membership_upgrade_body, spec.bodyRes)
         assertEquals(R.string.btn_membership_buy_subscription, spec.primaryActionRes)
-        assertTrue("a free user is the one who needs the code path", spec.showRedeemAction)
         assertTrue(spec.facts.isEmpty())
         assertNull(spec.panel)
     }
 
     @Test
-    fun `the anonymous card offers sign-in and no code path`() {
+    fun `the anonymous card offers sign-in`() {
         val spec = membershipCardSpec(
             status = MembershipStatus.OFFLINE,
             proExpiryTimestamp = 0L,
@@ -304,8 +303,6 @@ class MembershipStatusTest {
 
         assertEquals(R.string.label_unlimited_offline, spec.headerLabelRes)
         assertEquals(R.string.btn_sign_in_register, spec.primaryActionRes)
-        // The server refuses a code from an anonymous user, so the card must not offer one.
-        assertFalse(spec.showRedeemAction)
         assertNull(spec.badgeRes)
     }
 }

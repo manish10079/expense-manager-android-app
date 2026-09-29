@@ -1,5 +1,12 @@
 package com.mknlabs.expensetracker.widget.ui
 
+// Widget colours are fixed RemoteViews (Glance) literals, not theme roles: a widget is
+// composed by the launcher, outside the app's CompositionLocal scope, so it cannot read
+// MaterialTheme and cannot follow the light/dark switch. The values sit outside the mock's
+// token set by that constraint — #A275E3 is the brand accent's neighbourhood (#9E84FF),
+// #EF4444 the expense red's (#FF6B6B), #A0A5C0 the tertiary ink's (#8A8C95). Recorded here
+// so the exception is visible rather than assumed.
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp

@@ -5,6 +5,10 @@
         <item name="android:windowBackground">?android:attr/colorBackground</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- Dark mode keeps today's light system bar icons. This is the partner of the
+             true value in values/themes.xml; keep the two files in step. -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
     <style name="Theme.ExpenseTracker.Splash" parent="Theme.SplashScreen">
@@ -12,5 +16,7 @@
         <item name="windowSplashScreenBackground">#FF000000</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo_system</item>
         <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

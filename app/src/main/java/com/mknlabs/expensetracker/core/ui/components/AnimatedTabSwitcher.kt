@@ -32,18 +32,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedFill
+import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+
+/** Wash strength for a tab's own [TabItem.selectedColor]; the brand pill uses the same 20%. */
+private const val SelectedTintAlpha = 0.20f
 
 @Composable
 fun <T> AnimatedTabSwitcher(
@@ -78,6 +83,18 @@ fun <T> AnimatedTabSwitcher(
         val tabWidth = with(density) { (containerWidthPx.toDp() - (containerPadding * 2)) / items.size }
         val selectedIndex = items.indexOfFirst { it.id == selectedItemId }.coerceAtLeast(0)
 
+        // A tab may carry its own semantic colour (the Add/Edit screen's income/expense pair).
+        // When it does, the pill takes a wash of it and its label takes the colour itself;
+        // without one every other screen keeps the brand tokens it has always used.
+        val selectedItem = items.firstOrNull { it.id == selectedItemId }
+        val selectedWash by animateColorAsState(
+            targetValue = selectedItem?.selectedColor?.copy(alpha = SelectedTintAlpha)
+                ?: MaterialTheme.colorScheme.tabSwitcherSelectedFill,
+            label = "tab_indicator_wash"
+        )
+        val selectedInk = selectedItem?.selectedColor
+            ?: MaterialTheme.colorScheme.tabSwitcherSelectedInk
+
         val indicatorOffset by animateDpAsState(
             targetValue = tabWidth * selectedIndex,
             animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -92,11 +109,7 @@ fun <T> AnimatedTabSwitcher(
                     .width(tabWidth)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(pillRadius))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    .background(selectedWash)
             )
         }
 
@@ -109,7 +122,7 @@ fun <T> AnimatedTabSwitcher(
                 
                 val animatedColor by animateColorAsState(
                     targetValue = when {
-                        selected -> MaterialTheme.colorScheme.onPrimary
+                        selected -> selectedInk
                         item.isLocked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -130,24 +143,35 @@ fun <T> AnimatedTabSwitcher(
                         .padding(vertical = verticalPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = item.label,
-                            color = animatedColor,
-                            fontSize = fontSize,
-                            fontWeight = FontWeight.Bold,
-                            // Wrap instead of truncate at large font scales; the
-                            // pill/container grow via IntrinsicSize.Min.
-                            maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                        if (item.isLocked) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = stringResource(R.string.content_desc_locked_formatted, item.label),
-                                tint = MaterialTheme.colorScheme.featureGateLock,
-                                modifier = Modifier.size(if (compact) 10.dp else 12.dp)
+                    // Wrap-content so the badge pins to the label, not the tab's far
+                    // edge. The outer Box keeps that cluster in the horizontal centre.
+                    Box {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.label,
+                                color = animatedColor,
+                                fontSize = fontSize,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                                textAlign = TextAlign.Center
+                            )
+                            if (item.isLocked) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = stringResource(R.string.content_desc_locked_formatted, item.label),
+                                    tint = MaterialTheme.colorScheme.featureGateLock,
+                                    modifier = Modifier.size(if (compact) 10.dp else 12.dp)
+                                )
+                            }
+                        }
+                        val badgeCount = item.badgeCount
+                        if (badgeCount != null && badgeCount > 0) {
+                            TabCountBadge(
+                                count = badgeCount,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 12.dp, y = (-4).dp)
                             )
                         }
                     }

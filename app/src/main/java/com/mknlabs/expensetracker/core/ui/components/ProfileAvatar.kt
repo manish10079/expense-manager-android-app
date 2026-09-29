@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -39,7 +41,7 @@ import coil.transform.CircleCropTransformation
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 @Composable
 fun ProfileAvatar(
@@ -84,7 +86,7 @@ fun ProfileAvatar(
                     .shadow(
                         elevation = 24.dp,
                         shape = CircleShape,
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                     )
                     .background(
@@ -101,7 +103,7 @@ fun ProfileAvatar(
 
         // Premium Sync Ring
         if (isPremium) {
-            val ringColor = PurplePrimary
+            val ringColor = MaterialTheme.colorScheme.accentInk
             if (isSyncing) {
                 Canvas(
                     modifier = Modifier
@@ -162,7 +164,7 @@ fun ProfileAvatar(
                                 shape = CircleShape
                             )
                         } else {
-                            val borderColor = MaterialTheme.colorScheme.outlineVariant
+                            val borderColor = MaterialTheme.colorScheme.accentInk
                             Modifier.border(
                                 width = 2.dp,
                                 color = borderColor,
@@ -215,11 +217,7 @@ fun ProfileAvatar(
                     .offset(x = size * 0.04f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
-                        )
-                    )
+                    .background(color = MaterialTheme.colorScheme.accentInk)
                     .border(
                         width = 0.5.dp,
                         color = Color.Black,
@@ -227,18 +225,29 @@ fun ProfileAvatar(
                     ),
                 contentAlignment = Alignment.Center
             ) {
+                // Dark mode draws the glyph in the dark base rather than the theme's white.
+                // The case is partly legibility: white on the chip's old #9E84FF measured
+                // 2.9:1, under the 3:1 a graphic needs, so the old pairing never cleared its
+                // own bar. Near-black on the fill's #6A4DFF is ~3.9:1 and reads as a mark ON
+                // the brand rather than a glow out of it. Light keeps the white it always had.
+                val badgeInk = if (MaterialTheme.colorScheme.isDark) {
+                    MaterialTheme.colorScheme.background
+                } else {
+                    MaterialTheme.colorScheme.onPrimary
+                }
+
                 if (badgeIconRes != null) {
                     Icon(
                         painter = painterResource(id = badgeIconRes),
                         contentDescription = badgeContentDescription,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = badgeInk,
                         modifier = Modifier.size(size * 0.27f)
                     )
                 } else {
                     Icon(
                         imageVector = badgeIcon,
                         contentDescription = badgeContentDescription,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = badgeInk,
                         modifier = Modifier.size(size * 0.135f)
                     )
                 }

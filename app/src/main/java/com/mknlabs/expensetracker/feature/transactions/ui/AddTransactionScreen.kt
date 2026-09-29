@@ -1,29 +1,37 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import android.content.res.Configuration
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -34,38 +42,40 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextRange
 import androidx.compose.material.icons.automirrored.filled.Backspace
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,50 +85,81 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import android.widget.Toast
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
-import com.mknlabs.expensetracker.models.FavoriteTransaction
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.fill.Star
+import com.adamglin.phosphoricons.regular.Star
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
+import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.horizontalSwipe
+import com.mknlabs.expensetracker.core.ui.models.TabItem
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
+import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
+import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
@@ -127,6 +168,7 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.CurrencyPosition
+import com.mknlabs.expensetracker.models.FavoriteTransaction
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
@@ -138,51 +180,20 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RecurringGateResolver
 import com.mknlabs.expensetracker.monetization.RecurringRuleTier
-import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
-import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
-import com.mknlabs.expensetracker.monetization.MonetizationViewModel
-import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
-import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.utils.formatCurrencyValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import androidx.compose.runtime.DisposableEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.core.ui.components.AppHeader
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
-import com.mknlabs.expensetracker.core.ui.models.TabItem
-import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
-import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
-import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
+import com.mknlabs.expensetracker.utils.findFragmentActivity
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getRankedCategories
 import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
-import com.mknlabs.expensetracker.utils.findFragmentActivity
-import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
-import com.mknlabs.expensetracker.utils.getCurrency
-import com.mknlabs.expensetracker.domain.models.VoiceConfidence
-import android.util.Log
-import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
-import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
-import com.mknlabs.expensetracker.voice.VoiceAddViewModel
-import android.Manifest
-import android.content.pm.PackageManager
-import android.speech.RecognitionListener
-import android.content.Intent
-import android.os.Bundle
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import com.mknlabs.expensetracker.voice.VoiceInputUiState
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 
 private const val incomeTypeId = 1
@@ -231,13 +242,98 @@ fun AddTransactionScreen(
     onVoiceAutoStarted: () -> Unit = {},
     favorites: List<FavoriteTransaction> = emptyList(),
     onRemoveFavorite: (String) -> Unit = {},
-    onSaveExistingAsFavorite: (Transaction) -> Unit = {},
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onCalculatorClick: () -> Unit = {},
     onAmountInputChange: (String) -> Unit = {},
     onNoteChange: (String) -> Unit = {},
-    onSaveClick: (Transaction, RecurringTransactionDraft?) -> Unit = { _, _ -> }
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> }
+) {
+    // --- Route layer: Hilt collaborators and the Android voice plumbing. ---
+    val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
+    val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId
+        .collectAsStateWithLifecycle()
+
+    // Voice lives in its own file because it touches android.speech, which the Compose
+    // preview renderer does not ship. See [rememberTransactionVoiceInput].
+    val voice = rememberTransactionVoiceInput(
+        autoStartVoice = autoStartVoice,
+        onVoiceAutoStarted = onVoiceAutoStarted
+    )
+
+    AddTransactionScreenContent(
+        currencyId = currencyId,
+        dateFormatPattern = dateFormatPattern,
+        transactions = transactions,
+        availableCategories = availableCategories,
+        availablePaymentMethods = availablePaymentMethods,
+        existingTransaction = existingTransaction,
+        existingRecurringRule = existingRecurringRule,
+        activeRecurringRuleCount = activeRecurringRuleCount,
+        allRecurringRules = allRecurringRules,
+        initialAmountInput = initialAmountInput,
+        initialNote = initialNote,
+        initialCategoryId = initialCategoryId,
+        initialTransactionTypeId = initialTransactionTypeId,
+        autoStartVoice = autoStartVoice,
+        favorites = favorites,
+        onRemoveFavorite = onRemoveFavorite,
+        onBackClick = onBackClick,
+        onDeleteClick = onDeleteClick,
+        onCalculatorClick = onCalculatorClick,
+        onAmountInputChange = onAmountInputChange,
+        onNoteChange = onNoteChange,
+        onSaveClick = onSaveClick,
+        predictedPaymentMethodId = predictedPaymentMethodId,
+        onPredictNote = { paymentMethodPredictorViewModel.predict(it) },
+        onLearnPaymentMethod = { text, paymentId ->
+            paymentMethodPredictorViewModel.learn(text, paymentId)
+        },
+        voiceUiState = voice.uiState,
+        isVoiceSheetVisible = voice.isSheetVisible,
+        onMicClick = voice.onMicClick,
+        onVoiceSheetDismiss = voice.onSheetDismiss,
+        onVoiceSheetRetry = voice.onSheetRetry
+    )
+}
+
+/**
+ * Pure UI for the Add/Edit transaction form. Receives every Hilt-provided value and the
+ * voice affordances through parameters so it stays previewable without a Hilt container.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AddTransactionScreenContent(
+    currencyId: Int = DEFAULT_CURRENCY_ID,
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    transactions: List<Transaction> = emptyList(),
+    availableCategories: List<CategoryType> = categoryMap.values.toList(),
+    availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
+    existingTransaction: Transaction? = null,
+    existingRecurringRule: RecurringTransactionRule? = null,
+    activeRecurringRuleCount: Int = 0,
+    allRecurringRules: List<RecurringTransactionRule> = emptyList(),
+    initialAmountInput: String? = null,
+    initialNote: String? = null,
+    initialCategoryId: Int? = null,
+    initialTransactionTypeId: Int? = null,
+    autoStartVoice: Boolean = false,
+    favorites: List<FavoriteTransaction> = emptyList(),
+    onRemoveFavorite: (String) -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
+    onAmountInputChange: (String) -> Unit = {},
+    onNoteChange: (String) -> Unit = {},
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> },
+    predictedPaymentMethodId: Int? = null,
+    onPredictNote: (String) -> Unit = {},
+    onLearnPaymentMethod: (String, Int) -> Unit = { _, _ -> },
+    voiceUiState: VoiceInputUiState = VoiceInputUiState(),
+    isVoiceSheetVisible: Boolean = false,
+    onMicClick: () -> Unit = {},
+    onVoiceSheetDismiss: () -> Unit = {},
+    onVoiceSheetRetry: () -> Unit = {}
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -261,6 +357,15 @@ fun AddTransactionScreen(
             )
         }
         val isEditMode = existingTransaction != null
+        // The star is staged: tapping it only records the intent, and Add/Update
+        // is what writes or clears the template. Until it is touched it reports
+        // what is actually saved, so a template arriving from the favorites flow
+        // a frame after the screen opens still shows as marked.
+        val savedFavorite = existingTransaction != null &&
+            favorites.any { it.transactionId == existingTransaction.id }
+        var isFavoriteTouched by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
+        var isFavoriteValue by rememberSaveable(existingTransaction?.id) { mutableStateOf(false) }
+        val isFavorite = if (isFavoriteTouched) isFavoriteValue else savedFavorite
 
         var selectedTransactionTypeId by rememberSaveable(existingTransaction?.id, initialTransactionTypeId) {
             mutableIntStateOf(existingTransaction?.transactionTypeId ?: initialTransactionTypeId ?: DEFAULT_TRANSACTION_TYPE_ID)
@@ -285,16 +390,12 @@ fun AddTransactionScreen(
             mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
         }
 
-        // Payment method prediction
-        val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
-        val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId.collectAsStateWithLifecycle()
-
         var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(false) }
 
         // Auto-predict payment method when note/merchant text changes
         LaunchedEffect(note) {
             if (note.isNotBlank() && !isEditMode && !hasManuallySelectedPayment) {
-                paymentMethodPredictorViewModel.predict(note)
+                onPredictNote(note)
             }
         }
 
@@ -326,7 +427,7 @@ fun AddTransactionScreen(
         }
         var emiTotalInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
         var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
-        // Null until the user picks one — an unpicked plan starts on the
+        // Null until the user picks one Ã¢â‚¬â€ an unpicked plan starts on the
         // transaction date, so changing that date still moves the plan start.
         var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
             mutableStateOf<Long?>(null)
@@ -345,125 +446,6 @@ fun AddTransactionScreen(
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
-
-        // Voice input state
-        var isVoiceSheetVisible by rememberSaveable { mutableStateOf(false) }
-        val voiceViewModel: VoiceAddViewModel = hiltViewModel()
-        val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
-        val hasMicPermission = remember {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
-                PackageManager.PERMISSION_GRANTED
-        }
-        var micPermissionGranted by rememberSaveable { mutableStateOf(hasMicPermission) }
-        val micPermissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            micPermissionGranted = granted
-            if (granted) {
-                voiceViewModel.resetToListening()
-                isVoiceSheetVisible = true
-            } else {
-                voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
-                isVoiceSheetVisible = true
-            }
-        }
-
-        LaunchedEffect(autoStartVoice) {
-            if (autoStartVoice) {
-                onVoiceAutoStarted()
-                // The amount field is auto-focused and the keyboard is shown on
-                // screen entry. An open IME can make the SpeechRecognizer fail
-                // immediately ("try again" error), so dismiss both before the
-                // voice sheet starts listening — same as the mic button tap.
-                focusManager.clearFocus(force = true)
-                keyboardController?.hide()
-                // Give the keyboard time to fully dismiss before the
-                // SpeechRecognizer starts — otherwise it races with the
-                // animation and fails with the "try again" error.
-                kotlinx.coroutines.delay(300)
-                if (micPermissionGranted) {
-                    voiceViewModel.resetToListening()
-                    isVoiceSheetVisible = true
-                } else {
-                    micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            }
-        }
-
-        // SpeechRecognizer — created once, started/stopped with the sheet
-        val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-        DisposableEffect(speechRecognizer) {
-            onDispose { speechRecognizer.destroy() }
-        }
-        LaunchedEffect(isVoiceSheetVisible, voiceUiState.sheetState) {
-            if (isVoiceSheetVisible && voiceUiState.sheetState == VoiceSheetState.LISTENING) {
-                Log.d("VoiceInput", "Starting speech recognizer, sheetVisible=$isVoiceSheetVisible, sheetState=${voiceUiState.sheetState}")
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                }
-                speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) {
-                        Log.d("VoiceInput", "onReadyForSpeech: params=$params")
-                    }
-                    override fun onBeginningOfSpeech() {
-                        Log.d("VoiceInput", "onBeginningOfSpeech")
-                    }
-                    override fun onRmsChanged(rmsdB: Float) {
-                        // Too frequent to log — intentionally silent
-                    }
-                    override fun onBufferReceived(buffer: ByteArray?) {
-                        Log.d("VoiceInput", "onBufferReceived: ${buffer?.size ?: 0} bytes")
-                    }
-                    override fun onEndOfSpeech() {
-                        Log.d("VoiceInput", "onEndOfSpeech: currentViewModelTranscript='${voiceUiState.transcript}'")
-                        // Do NOT call onSpeechResult here — voiceUiState.transcript is stale
-                        // (captured at LaunchedEffect launch time). The real result arrives in onResults.
-                    }
-                    override fun onError(error: Int) {
-                        val errorLabel = when (error) {
-                            SpeechRecognizer.ERROR_NO_MATCH -> "ERROR_NO_MATCH"
-                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "ERROR_SPEECH_TIMEOUT"
-                            SpeechRecognizer.ERROR_NETWORK -> "ERROR_NETWORK"
-                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "ERROR_NETWORK_TIMEOUT"
-                            SpeechRecognizer.ERROR_AUDIO -> "ERROR_AUDIO"
-                            SpeechRecognizer.ERROR_CLIENT -> "ERROR_CLIENT"
-                            SpeechRecognizer.ERROR_SERVER -> "ERROR_SERVER"
-                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "ERROR_RECOGNIZER_BUSY"
-                            else -> "ERROR_UNKNOWN($error)"
-                        }
-                        Log.e("VoiceInput", "onError: $errorLabel (code=$error)")
-                        val errorResId = when (error) {
-                            SpeechRecognizer.ERROR_NO_MATCH,
-                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
-                            SpeechRecognizer.ERROR_NETWORK,
-                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
-                            SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
-                            else -> R.string.msg_voice_error_recognizer
-                        }
-                        voiceViewModel.onRecognizerError(errorResId)
-                    }
-                    override fun onResults(results: Bundle?) {
-                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        val text = matches?.firstOrNull().orEmpty()
-                        val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-                        Log.d("VoiceInput", "onResults: text='$text', matchCount=${matches?.size ?: 0}, confidence=${confidenceScores?.firstOrNull()}")
-                        voiceViewModel.onSpeechResult(text)
-                    }
-                    override fun onPartialResults(partialResults: Bundle?) {
-                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        val text = matches?.firstOrNull().orEmpty()
-                        Log.d("VoiceInput", "onPartialResults: text='$text'")
-                        voiceViewModel.onPartialResult(text)
-                    }
-                    override fun onEvent(eventType: Int, params: Bundle?) {
-                        Log.d("VoiceInput", "onEvent: eventType=$eventType")
-                    }
-                })
-                speechRecognizer.startListening(intent)
-            }
-        }
 
         LaunchedEffect(initialAmountInput) {
             if (initialAmountInput != null && initialAmountInput != amountInput) {
@@ -525,8 +507,8 @@ fun AddTransactionScreen(
         }
         val recurringCount = recurringCountInput.toIntOrNull()
 
-        // ── Recurring draft (built once, so the Add button and the save path
-        // can never disagree about what is about to be persisted) ─────────────
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Recurring draft (built once, so the Add button and the save path
+        // can never disagree about what is about to be persisted) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         val isEmiSelected = canCreateInstallment && selectedRecurringType == RecurringType.INSTALLMENT
         val effectiveFirstDueAt = emiFirstDueAtPicked ?: selectedDateMillis
         val recurringDraft = buildRecurringDraft(
@@ -571,7 +553,7 @@ fun AddTransactionScreen(
                     top = Dimens.HeaderSpacing,
                     bottom = if (dense) 12.dp else 14.dp
                 )
-                // Swipe left → Expense (next tab), swipe right → Income (previous tab),
+                // Swipe left Ã¢â€ â€™ Expense (next tab), swipe right Ã¢â€ â€™ Income (previous tab),
                 // matching the Calendar screen's month/year swipe conventions. Compose's
                 // gesture disambiguation (touch slop + Main pass bubbling) lets the vertical
                 // scroll and the horizontally-scrollable category/payment chip rows keep
@@ -588,7 +570,9 @@ fun AddTransactionScreen(
                         }
                     }
                 )
-        ) {                AppHeader(
+        ) {
+                val enter = rememberSectionEnterAlphas(3)
+                AppHeader(
                 title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
                 onBackClick = {
                     keyboardController?.hide()
@@ -629,23 +613,38 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = stringResource(R.string.desc_clear_fields),
-                                tint = MaterialTheme.colorScheme.primary
+                                // Same ink as the header's own title and back arrow, so the
+                                // action reads as part of the header rather than a stray accent.
+                                tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f)
                             )
                         }
                     }
-                }
+                },
+                modifier = Modifier.alpha(enter[0])
             )
 
-            Spacer(modifier = Modifier.height(if (dense) 12.dp else 14.dp))
 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .alpha(enter[1])
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {
                     AnimatedTabSwitcher(
-                        items = transactionModes.map { TabItem(it.id, stringResource(it.label)) },
+                        items = transactionModes.map { mode ->
+                            TabItem(
+                                id = mode.id,
+                                label = stringResource(mode.label),
+                                // The selected half wears its own amount ink, so the tab and the
+                                // figure it heads read as one colour: mint income, coral expense.
+                                selectedColor = if (mode.id == incomeTypeId) {
+                                    MaterialTheme.colorScheme.income
+                                } else {
+                                    MaterialTheme.colorScheme.expense
+                                }
+                            )
+                        },
                         selectedItemId = selectedTransactionTypeId,
                         onItemSelected = { selectedTransactionTypeId = it }
                     )
@@ -676,7 +675,7 @@ fun AddTransactionScreen(
                                 keyboardController?.show()
                             },
                             onImeNext = {
-                                // Tick/enter on amount → open note sheet
+                                // Tick/enter on amount Ã¢â€ â€™ open note sheet
                                 keyboardController?.hide()
                                 noteDraft = note
                                 isNoteSheetVisible = true
@@ -687,7 +686,7 @@ fun AddTransactionScreen(
 
                 val noteBlock: @Composable () -> Unit = {
                     val micBorderColor by animateColorAsState(
-                        targetValue = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        targetValue = if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f) else colorScheme.outline,
                         label = "mic_border"
                     )
                     Row(
@@ -700,13 +699,13 @@ fun AddTransactionScreen(
                                 .weight(1f)
                                 .heightIn(min = if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -729,7 +728,7 @@ fun AddTransactionScreen(
                                 Icon(
                                     imageVector = Icons.Filled.EditNote,
                                     contentDescription = stringResource(R.string.label_note),
-                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.primary,
+                                    tint = if (note.isBlank()) colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else colorScheme.accentInk,
                                     modifier = Modifier.size(if (compact) 18.dp else 20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -750,13 +749,13 @@ fun AddTransactionScreen(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -764,19 +763,14 @@ fun AddTransactionScreen(
                                 )
                                 .clickable(onClick = {
                                     keyboardController?.hide()
-                                    voiceViewModel.resetToListening()
-                                    if (micPermissionGranted) {
-                                        isVoiceSheetVisible = true
-                                    } else {
-                                        micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                                    }
+                                    onMicClick()
                                 }),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -785,13 +779,13 @@ fun AddTransactionScreen(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                    spotColor = colorScheme.secondary.copy(alpha = 0.06f)
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(Color.Transparent))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -806,63 +800,43 @@ fun AddTransactionScreen(
                             Icon(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
-                                tint = colorScheme.primary.copy(alpha = 0.8f),
+                                tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
 
-                        // Favorite template star (edit mode only): immediately
-                        // persists the current values as a favorite template.
-                        if (isEditMode) {
-                            Box(
-                                modifier = Modifier
-                                    .size(if (compact) 40.dp else 44.dp)
-                                    .shadow(
-                                        elevation = 6.dp,
-                                        shape = RoundedCornerShape(16.dp),
-                                        ambientColor = colorScheme.primary.copy(alpha = 0.06f),
-                                        spotColor = colorScheme.secondary.copy(alpha = 0.06f)
-                                    )
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(SolidColor(Color.Transparent))
-                                    .border(
-                                        width = 1.dp,
-                                        color = micBorderColor,
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                    .clickable(onClick = {
-                                        keyboardController?.hide()
-                                        val category = selectedCategory
-                                        val payment = selectedPayment
-                                        val amount = amountInput.toDoubleOrNull()
-                                        if (category != null && payment != null && amount != null) {
-                                            onSaveExistingAsFavorite(
-                                                Transaction(
-                                                    id = existingTransaction?.id.orEmpty(),
-                                                    note = note.trim(),
-                                                    createdAt = selectedDateMillis,
-                                                    amountMinor = amount.toMinorUnits(),
-                                                    transactionTypeId = selectedTransactionTypeId,
-                                                    paymentTypeId = payment.id,
-                                                    categoryId = category.id,
-                                                    contentHash = existingTransaction?.contentHash,
-                                                    syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
-                                                    isDeleted = false,
-                                                    updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
-                                                    sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
-                                                )
-                                            )
-                                        }
-                                    }),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Star,
-                                    contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                    tint = colorScheme.primary,
-                                    modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                        // Favorite template star: tapping it only records the
+                        // intent, and Add/Update is what writes or clears the
+                        // template, so leaving without saving changes nothing.
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
-                            }
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    isFavoriteTouched = true
+                                    isFavoriteValue = !isFavorite
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) PhosphorIcons.Fill.Star else PhosphorIcons.Regular.Star,
+                                contentDescription = stringResource(R.string.desc_toggle_favorite),
+                                tint = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                            )
                         }
                     }
                 }
@@ -879,6 +853,7 @@ fun AddTransactionScreen(
                             getId = { it.id },
                             getLabel = { it.name },
                             getIcon = { it.icon },
+                            getColor = { colorScheme.categoryColor(categoryId = it.id, colorHex = it.colorHex) },
                             onItemSelected = { selectedCategoryId = it }
                         )
                     }
@@ -896,6 +871,7 @@ fun AddTransactionScreen(
                             getId = { it.id },
                             getLabel = { it.name },
                             getIcon = { it.icon },
+                            getColor = { colorScheme.paymentColor(paymentId = it.id, colorHex = it.colorHex) },
                             onItemSelected = { selectedPaymentId = it; hasManuallySelectedPayment = true }
                         )
                     }
@@ -1044,11 +1020,11 @@ fun AddTransactionScreen(
                                 }
                             }
                             keyboardController?.hide()
-                            // Learn merchant → payment method association
+                            // Learn merchant Ã¢â€ â€™ payment method association
                             if (note.isNotBlank()) {
-                                paymentMethodPredictorViewModel.learn(note, payment.id)
+                                onLearnPaymentMethod(note, payment.id)
                             }
-                            onSaveClick(transaction, recurringDraft)
+                            onSaveClick(transaction, recurringDraft, isFavorite)
                         }
                     )
 
@@ -1098,10 +1074,7 @@ fun AddTransactionScreen(
                 parsedTransaction = voiceUiState.parsedTransaction,
                 errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
                 currencySymbol = currencySymbol,
-                onDismissRequest = {
-                    voiceViewModel.dismiss()
-                    isVoiceSheetVisible = false
-                },
+                onDismissRequest = onVoiceSheetDismiss,
                 onConfirm = { transaction ->
                     // Auto-fill form fields from parsed voice result
                     amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
@@ -1114,12 +1087,9 @@ fun AddTransactionScreen(
                         noteDraft = note
                     }
                     selectedDateMillis = transaction.createdAt
-                    voiceViewModel.dismiss()
-                    isVoiceSheetVisible = false
+                    onVoiceSheetDismiss()
                 },
-                onRetry = {
-                    voiceViewModel.resetToListening()
-                }
+                onRetry = onVoiceSheetRetry
             )
         }
 
@@ -1127,7 +1097,7 @@ fun AddTransactionScreen(
             ModalBottomSheet(
                 onDismissRequest = { isRecurringModalVisible = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
                 tonalElevation = 0.dp
             ) {
@@ -1176,7 +1146,7 @@ fun AddTransactionScreen(
                     pendingSaveTransaction = null
                     pendingSaveDraft = null
                 },
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(R.string.title_cannot_duplicate_recurring),
@@ -1192,7 +1162,7 @@ fun AddTransactionScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = {
+                    AppTextButton(onClick = {
                         showDuplicateWarning = false
                         duplicateWarningMessage = null
                         val tx = pendingSaveTransaction
@@ -1200,13 +1170,13 @@ fun AddTransactionScreen(
                         pendingSaveTransaction = null
                         pendingSaveDraft = null
                         keyboardController?.hide()
-                        if (tx != null) onSaveClick(tx, draft)
+                        if (tx != null) onSaveClick(tx, draft, isFavorite)
                     }) {
                         Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
+                    AppTextButton(onClick = {
                         showDuplicateWarning = false
                         duplicateWarningMessage = null
                         pendingSaveTransaction = null
@@ -1329,7 +1299,7 @@ private fun RecurringTransactionSection(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isEnabled) colorScheme.primary.copy(alpha = 0.12f)
+                        if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f)
                         else colorScheme.onSurface.copy(alpha = 0.08f)
                     ),
                 contentAlignment = Alignment.Center
@@ -1337,7 +1307,7 @@ private fun RecurringTransactionSection(
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
-                    tint = if (isEnabled) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    tint = if (isEnabled) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1347,12 +1317,13 @@ private fun RecurringTransactionSection(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.label_recurring_transaction),
-                    color = if (isEnabled) colorScheme.primary else colorScheme.onSurface,
+                    color = if (isEnabled) colorScheme.accentInk else colorScheme.onSurface,
                     style = MaterialTheme.typography.titleSmall
                 )
             }
 
             androidx.compose.material3.Switch(
+                modifier = Modifier.scale(0.9f),
                 checked = isEnabled,
                 onCheckedChange = { wantEnabled ->
                     if (wantEnabled && ruleCountGate !is AccessStatus.Granted) {
@@ -1366,11 +1337,25 @@ private fun RecurringTransactionSection(
                         onEnabledChange(wantEnabled)
                     }
                 },
+                thumbContent = if (isEnabled) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize),
+                            tint = colorScheme.switchOnTick
+                        )
+                    }
+                } else {
+                    null
+                },
                 colors = androidx.compose.material3.SwitchDefaults.colors(
-                    checkedThumbColor = colorScheme.onPrimary,
-                    checkedTrackColor = colorScheme.primary,
-                    uncheckedThumbColor = colorScheme.outline,
-                    uncheckedTrackColor = colorScheme.surfaceVariant
+                    checkedThumbColor = colorScheme.switchOnThumb,
+                    checkedTrackColor = colorScheme.switchOnTrack,
+                    checkedBorderColor = Color.Transparent,
+                    uncheckedThumbColor = colorScheme.textTertiary,
+                    uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    uncheckedBorderColor = colorScheme.textTertiary
                 )
             )
         }
@@ -1381,7 +1366,7 @@ private fun RecurringTransactionSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(colorScheme.primary.copy(alpha = 0.06f))
+                    .background(colorScheme.accentSoft)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -1424,12 +1409,20 @@ private fun RecurringTransactionSection(
                             FilterChip(
                                 selected = !isInstallment,
                                 onClick = { onTypeSelected(RecurringType.REGULAR) },
-                                label = { Text(stringResource(R.string.label_type_regular)) }
+                                label = { Text(stringResource(R.string.label_type_regular)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = colorScheme.chipSelected,
+                                    selectedLabelColor = colorScheme.chipSelectedInk
+                                )
                             )
                             FilterChip(
                                 selected = isInstallment,
                                 onClick = { onTypeSelected(RecurringType.INSTALLMENT) },
-                                label = { Text(stringResource(R.string.label_type_emi)) }
+                                label = { Text(stringResource(R.string.label_type_emi)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = colorScheme.chipSelected,
+                                    selectedLabelColor = colorScheme.chipSelectedInk
+                                )
                             )
                         }
                         if (isInstallment) {
@@ -1456,10 +1449,12 @@ private fun RecurringTransactionSection(
                             .height(IntrinsicSize.Min)
                             .onSizeChanged { containerWidthPx = it.width }
                             .clip(RoundedCornerShape(20.dp))
-                            .background(SolidColor(Color.Transparent))
+                            // Light: the specified secondary surface, so the sliding brand
+                            // pill reads as the selected segment of a control.
+                            .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surfaceVariant))
                             .border(
                                 width = 1.dp,
-                                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
+                                color = if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.2f) else Color.Transparent,
                                 shape = RoundedCornerShape(20.dp)
                             )
                             .padding(4.dp)
@@ -1496,7 +1491,7 @@ private fun RecurringTransactionSection(
                                     AccessStatus.Granted
                                 }
                                 val animatedColor by animateColorAsState(
-                                    targetValue = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                                    targetValue = if (selected) colorScheme.onCta else colorScheme.onSurfaceVariant,
                                     label = "recurring_freq_text_color"
                                 )
                                 Box(
@@ -1531,7 +1526,7 @@ private fun RecurringTransactionSection(
                     }
                 }
 
-                // Plan terms — only the count below is shared with REGULAR.
+                // Plan terms Ã¢â‚¬â€ only the count below is shared with REGULAR.
                 if (isInstallment) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         SectionHeader(title = stringResource(R.string.label_emi_total_amount))
@@ -1565,18 +1560,18 @@ private fun RecurringTransactionSection(
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
                                     contentDescription = null,
-                                    tint = colorScheme.primary
+                                    tint = colorScheme.accentInk
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 disabledTextColor = colorScheme.onSurface,
-                                disabledBorderColor = colorScheme.outlineVariant,
-                                disabledContainerColor = colorScheme.surfaceVariant
+                                disabledBorderColor = if (colorScheme.isDark) colorScheme.outlineVariant else colorScheme.outline,
+                                disabledContainerColor = if (colorScheme.isDark) colorScheme.surfaceVariant else colorScheme.surface
                             )
                         )
                     }
 
-                    // A half-filled plan is not an error yet — only an inconsistent
+                    // A half-filled plan is not an error yet Ã¢â‚¬â€ only an inconsistent
                     // one is, exactly as in the recurring-list editor.
                     if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
                         Text(
@@ -1605,12 +1600,15 @@ private fun RecurringTransactionSection(
                                     .heightIn(min = 44.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
-                                        if (isSelected) SolidColor(colorScheme.primary.copy(alpha = 0.15f))
-                                        else standardCardGradient()
+                                        when {
+                                            isSelected -> SolidColor(colorScheme.accentSoft)
+                                            colorScheme.isDark -> standardCardGradient()
+                                            else -> SolidColor(colorScheme.surfaceVariant)
+                                        }
                                     )
                                     .border(
                                         width = 1.dp,
-                                        color = if (isSelected) colorScheme.primary else Color.Transparent,
+                                        color = if (isSelected) colorScheme.accentInk else Color.Transparent,
                                         shape = RoundedCornerShape(12.dp)
                                     )
                                     .clickable { onRepeatCountChange(count) },
@@ -1618,7 +1616,7 @@ private fun RecurringTransactionSection(
                             ) {
                                 Text(
                                     text = count,
-                                    color = if (isSelected) colorScheme.primary else colorScheme.onSurface,
+                                    color = if (isSelected) colorScheme.accentInk else colorScheme.onSurface,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
@@ -1640,9 +1638,9 @@ private fun RecurringTransactionSection(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedBorderColor = colorScheme.primary,
+                                focusedBorderColor = colorScheme.accentInk,
                                 unfocusedBorderColor = Color.Transparent,
-                                focusedTextColor = colorScheme.primary
+                                focusedTextColor = colorScheme.accentInk
                             )
                         )
                     }
@@ -1713,11 +1711,11 @@ private fun RecurringTransactionSection(
             onDismiss = { showAdDialog = false; pendingFrequencyForAd = null },
             onWatchAdClick = {
                 // This section is composed inside the recurring ModalBottomSheet, which is
-                // hosted in its own dialog window — LocalContext there is a
+                // hosted in its own dialog window Ã¢â‚¬â€ LocalContext there is a
                 // ContextThemeWrapper, not the Activity, so a plain `as? Activity` cast is
                 // null and the rewarded ad is never even requested. Unwrap like MainScreen.
                 val activity = context.findFragmentActivity()
-                // Grant access once it is real — reward earned, or no ad to show. Applying
+                // Grant access once it is real Ã¢â‚¬â€ reward earned, or no ad to show. Applying
                 // the pending choice up front would unlock the rule without an ad ever
                 // appearing (frequency gate: select it; rule-count gate: enable it).
                 val applyGrantedChoice = {
@@ -1778,32 +1776,34 @@ private fun CurrencyAmountCard(
     onClick: () -> Unit = {},
     onImeNext: () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(if (compact) 28.dp else 32.dp)
+    val shape = RoundedCornerShape(if (compact) 20.dp else 24.dp)
     val currency = getCurrency(currencyId)
+    // Mirrors the selected Income/Expense tab so the figure and its currency
+    // symbol read as part of the same choice.
     val amountColor = if (selectedTransactionTypeId == incomeTypeId) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.income
     } else {
-        MaterialTheme.colorScheme.onSurface
+        MaterialTheme.colorScheme.expense
     }
 
     val density = LocalDensity.current
-    val labelTranslationY = with(density) { (-4).dp.toPx() }
+    val labelTranslationY = with(density) { 2.dp.toPx() }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = if (compact) 104.dp else 122.dp) // Tightened height
             .shadow(
-                elevation = 8.dp,
+                elevation = if (MaterialTheme.colorScheme.isDark) 8.dp else 12.dp,
                 shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
+                ambientColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f) else CardShadowAmbientLight,
+                spotColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f) else CardShadowSpotLight
             )
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f))
+            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f) else MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline,
                 shape = shape
             )
             .clickable(onClick = onClick)
@@ -1822,8 +1822,12 @@ private fun CurrencyAmountCard(
             Column {
                 Text(
                     text = stringResource(R.string.label_enter_amount),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // 10% up on the labelSmall token, computed rather than hardcoded so the
+                    // user's font-scale setting still applies.
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.1f
+                    ),
                     modifier = Modifier
                         .graphicsLayer { translationY = labelTranslationY }
                 )
@@ -1834,7 +1838,7 @@ private fun CurrencyAmountCard(
                     modifier = Modifier
                         .fillMaxWidth(0.1f)
                         .height(1.dp)
-                        .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        .background(MaterialTheme.colorScheme.hairline)
                 )
             }
 
@@ -1849,7 +1853,7 @@ private fun CurrencyAmountCard(
                 if (currency.position == CurrencyPosition.PREFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = amountColor,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -1932,14 +1936,14 @@ private fun CurrencyAmountCard(
                             onNext = { onImeNext() }
                         ),
                         singleLine = true,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                        cursorBrush = SolidColor(amountColor)
                     )
                 }
 
                 if (currency.position == CurrencyPosition.POSTFIX) {
                     Text(
                         text = currency.currencySymbol,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = amountColor,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = if (compact) 22.sp else 24.sp
@@ -1971,6 +1975,12 @@ private fun <T> ChoiceChipRow(
     getId: (T) -> Int,
     getLabel: (T) -> String,
     getIcon: (T) -> ImageVector,
+    /**
+     * The row's identity colour, resolved by the caller Ã¢â‚¬â€ which is what decides whether this
+     * is a category or a payment method, since both are numbered from 1 and their palettes
+     * are separate. Null leaves the chip on the plain surface ink.
+     */
+    getColor: ((T) -> Color)? = null,
     onItemSelected: (Int) -> Unit
 ) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)) {
@@ -1978,6 +1988,7 @@ private fun <T> ChoiceChipRow(
             ChoiceChip(
                 label = getLabel(item),
                 icon = getIcon(item),
+                identityColor = getColor?.invoke(item),
                 isSelected = getId(item) == selectedId,
                 compact = compact,
                 onClick = { onItemSelected(getId(item)) }
@@ -1990,6 +2001,7 @@ private fun <T> ChoiceChipRow(
 private fun ChoiceChip(
     label: String,
     icon: ImageVector,
+    identityColor: Color?,
     isSelected: Boolean,
     compact: Boolean,
     onClick: () -> Unit
@@ -2004,15 +2016,25 @@ private fun ChoiceChip(
                 .shadow(
                     elevation = if (isSelected) 22.dp else 0.dp,
                     shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.24f)
                 )
                 .clip(CircleShape)
+                // Unselected wash matches the transaction-card icon (10% light / 14% dark).
+                // Selected fill is the screen background; ring and glyph use accent ink.
                 .background(
-                    brush = if (isSelected) {
-                        brandGradient()
+                    brush = when {
+                        isSelected -> SolidColor(MaterialTheme.colorScheme.background)
+                        identityColor != null -> SolidColor(MaterialTheme.colorScheme.categorySoft(identityColor))
+                        MaterialTheme.colorScheme.isDark -> standardCardGradient()
+                        else -> SolidColor(MaterialTheme.colorScheme.surfaceVariant)
+                    }
+                )
+                .then(
+                    if (isSelected) {
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
                     } else {
-                        standardCardGradient()
+                        Modifier
                     }
                 )
                 .clickable(onClick = onClick),
@@ -2021,7 +2043,15 @@ private fun ChoiceChip(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                // The identity colour reaches the glyph and the tile behind it, the two steps
+                // every other glyph tile in the app takes. Selection moves the glyph to the
+                // accent ink and rings the tile Ã¢â‚¬â€ the pair the icon picker uses for its chosen
+                // tile Ã¢â‚¬â€ so a chip reads as chosen against a grid of tinted siblings.
+                tint = when {
+                    isSelected -> MaterialTheme.colorScheme.accentInk
+                    identityColor != null -> identityColor
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
         }
@@ -2030,7 +2060,7 @@ private fun ChoiceChip(
 
         Text(
             text = label,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -2057,7 +2087,8 @@ private fun SelectionInfoCard(
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (highlighted) Color.Transparent 
-                     else colorScheme.outlineVariant.copy(alpha = 0.5f),
+                     else if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f)
+                     else colorScheme.outline,
         label = "selection_card_border"
     )
 
@@ -2074,11 +2105,14 @@ private fun SelectionInfoCard(
                 .shadow(
                     elevation = if (highlighted) 12.dp else 6.dp,
                     shape = RoundedCornerShape(20.dp),
-                    ambientColor = colorScheme.primary.copy(alpha = if (highlighted) 0.15f else 0.06f),
-                    spotColor = colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f)
+                    // The highlighted tile is the enabled-recurring one, and its violet lift
+                    // is that state's message, so light keeps the tint; the plain tile takes
+                    // the card spec's own shadow.
+                    ambientColor = if (colorScheme.isDark || highlighted) colorScheme.accentInk.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowAmbientLight,
+                    spotColor = if (colorScheme.isDark || highlighted) colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowSpotLight
                 )
                 .clip(RoundedCornerShape(20.dp))
-                .background(SolidColor(Color.Transparent))
+                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
                 .border(
                     width = if (highlighted) 0.dp else 1.dp,
                     color = if (highlighted) Color.Transparent else animatedBorderColor,
@@ -2095,9 +2129,9 @@ private fun SelectionInfoCard(
                 imageVector = leadingIcon,
                 contentDescription = label,
                 tint = when {
-                    highlighted -> colorScheme.primary
+                    highlighted -> colorScheme.accentInk
                     isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    else -> colorScheme.primary
+                    else -> colorScheme.accentInk
                 },
                 modifier = Modifier.size(if (compact) 18.dp else 20.dp)
             )
@@ -2165,7 +2199,12 @@ private fun KeypadToggle(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(22.dp))
-            .background(standardCardGradient())
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surface))
+            .border(
+                width = 1.dp,
+                color = if (MaterialTheme.colorScheme.isDark) Color.Transparent else MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(22.dp)
+            )
             .clickable(onClick = onClick)
             .padding(
                 horizontal = if (compact) 16.dp else 18.dp,
@@ -2222,7 +2261,12 @@ private fun KeypadKey(
         modifier = modifier
             .height(if (compact) 46.dp else 52.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(standardCardGradient())
+            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surface))
+            .border(
+                width = 1.dp,
+                color = if (MaterialTheme.colorScheme.isDark) Color.Transparent else MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(18.dp)
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -2272,22 +2316,25 @@ private fun QuickFavoritesRow(
                     label = {
                         Text(
                             text = stringResource(R.string.label_all_favorites),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.accentInk,
                             maxLines = 1
                         )
                     },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.Star,
+                            imageVector = PhosphorIcons.Fill.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(16.dp)
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                        labelColor = MaterialTheme.colorScheme.primary
-                    )
+                        containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
+                        labelColor = MaterialTheme.colorScheme.accentInk
+                    ),
+                    // The outline wears the label's own ink, so the chip reads as one control
+                    // rather than a purple label sitting inside a grey shell.
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk)
                 )
             }
             items(favorites, key = { it.id }) { favorite ->
@@ -2295,14 +2342,14 @@ private fun QuickFavoritesRow(
                     onClick = { onSelectFavorite(favorite) },
                     label = {
                         Text(
-                            text = "${favorite.title} • ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
+                            text = "${favorite.title} \u2022 ${formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId)}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     },
                     colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             }
@@ -2333,7 +2380,7 @@ private fun FavoritesBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.sheet
     ) {
         Column(
             modifier = Modifier
@@ -2368,7 +2415,9 @@ private fun FavoritesBottomSheet(
                 onValueChange = { searchQuery = it },
                 placeholder = { Text(stringResource(R.string.placeholder_search_favorites)) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -2384,7 +2433,7 @@ private fun FavoritesBottomSheet(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.accentInk,
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -2440,13 +2489,13 @@ private fun FavoriteTemplateRow(
 ) {
     val categoryLabel = availableCategories.firstOrNull { it.id == favorite.categoryId }?.name
     val paymentLabel = availablePaymentMethods.firstOrNull { it.id == favorite.paymentTypeId }?.name
-    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" • ")
+    val subtitle = listOfNotNull(categoryLabel, paymentLabel).joinToString(" \u2022 ")
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -2472,20 +2521,26 @@ private fun FavoriteTemplateRow(
         Text(
             text = formatCurrencyValue(favorite.amountMinor.toMajorUnits(), currencyId),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.accentInk,
             modifier = Modifier.padding(start = 8.dp, end = 4.dp)
         )
 
-        Button(
-            onClick = onSelect,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(stringResource(R.string.label_copy))
+        // Both actions are icons. Copy is the filled copy glyph the app uses wherever it
+        // copies Ã¢â‚¬â€ the Itemized Calculator rows and the transactions menu Ã¢â‚¬â€ where the button
+        // here used to be a violet fill carrying the word; that label is the icon's content
+        // description now. Delete is the X the recurring card deletes with rather than a
+        // dustbin, so the pair reads as one row of actions.
+        IconButton(onClick = onSelect) {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = stringResource(R.string.label_copy),
+                tint = MaterialTheme.colorScheme.accentInk
+            )
         }
 
         IconButton(onClick = onDelete) {
             Icon(
-                imageVector = Icons.Rounded.Delete,
+                imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.desc_delete_favorite),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -2509,7 +2564,7 @@ private fun AddTransactionButton(
             .shadow(
                 elevation = 26.dp,
                 shape = shape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
             )
             .clip(shape)
@@ -2524,7 +2579,7 @@ private fun AddTransactionButton(
         ) {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onCta,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleSmall,
@@ -2589,9 +2644,9 @@ private fun formatEditableAmount(amount: Double): String {
  * off or the repeat count is unusable.
  *
  * An EMI is materialized only when its terms are internally consistent
- * (`total = installment × count`, the invariant the recurring-list editor also
+ * (`total = installment Ãƒâ€” count`, the invariant the recurring-list editor also
  * enforces), compared in minor units so float noise on values like
- * `1234.56 × 3` cannot reject a plan the user entered correctly. A half-filled or
+ * `1234.56 Ãƒâ€” 3` cannot reject a plan the user entered correctly. A half-filled or
  * inconsistent plan therefore yields a draft with `plan == null`, which callers
  * must treat as unsaveable instead of persisting it as an ordinary recurring
  * rule.
@@ -2649,16 +2704,10 @@ private fun EmiAmountField(
         },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        shape = AppOutlinedFieldDefaults.shape,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         supportingText = supportingText?.let { { Text(it) } },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
@@ -2685,16 +2734,23 @@ private fun validateAmountChange(newValue: String, current: String): String {
 }
 
 @Preview(
-    name = "Add Transaction",
+    name = "Add Transaction - Light",
     showBackground = true,
     showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
-
+@Preview(
+    name = "Add Transaction - Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    device = "spec:width=412dp,height=915dp,dpi=420"
+)
 @Composable
 private fun AddTransactionScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        AddTransactionScreen()
+    ExpenseTrackerTheme {
+        AddTransactionScreenContent()
     }
 }
 
@@ -2751,7 +2807,7 @@ private fun TransactionNoteBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -2772,7 +2828,7 @@ private fun TransactionNoteBottomSheet(
                     text = stringResource(R.string.label_what_is_this_for),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.accentInk
                     )
                 )
 
@@ -2801,7 +2857,7 @@ private fun TransactionNoteBottomSheet(
                         .focusRequester(focusRequester)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                            color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outline.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(16.dp)
                         ),
                     placeholder = {
@@ -2825,11 +2881,11 @@ private fun TransactionNoteBottomSheet(
                         }
                     },
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.accentInk
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -2853,7 +2909,7 @@ private fun TransactionNoteBottomSheet(
                     .shadow(
                         elevation = 16.dp,
                         shape = RoundedCornerShape(28.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
                     )
                     .clip(RoundedCornerShape(28.dp))
@@ -2863,7 +2919,7 @@ private fun TransactionNoteBottomSheet(
             ) {
                 Text(
                     text = stringResource(R.string.label_save_note),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onCta,
                     style = MaterialTheme.typography.titleMedium
                 )
             }

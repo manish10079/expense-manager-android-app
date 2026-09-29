@@ -87,8 +87,16 @@
     <string name="placeholder_expense_example">e.g. Weekend Escapes</string>
     <string name="placeholder_payment_example">e.g. Digital Wallet</string>
     <string name="msg_name_already_exists">This name already exists in %1$s.</string>
-    <string name="msg_choose_icons_info">Choose from 50 icons. Color styling stays automatic.</string>
+    <string name="msg_choose_icons_info">Choose from 50 icons.</string>
     <string name="placeholder_search_icons">Search icons (e.g. \'Food\')…</string>
+
+    <string name="label_color_section">COLOR</string>
+    <string name="msg_choose_color_info">Optional. Without one, the app picks a color for you.</string>
+    <string name="desc_color_default">Default color</string>
+    <string name="desc_color_swatch">Color %1$s</string>
+    <string name="desc_color_swatch_selected">Color %1$s, selected</string>
+    <string name="msg_change_color_hint">Pick a new color, or keep the one the app chose.</string>
+    <string name="desc_change_color">Change color</string>
     <string name="msg_no_icons_found">No icons found for \"%1$s\"</string>
     <string name="label_add_type">Add Type</string>
     <string name="label_payment_type_item">Payment Type</string>
@@ -141,6 +149,7 @@
     <string name="desc_favorite_icon">Favorite</string>
 
     <string name="desc_clear_note">Clear note</string>
+    <string name="desc_clear_search">Clear search</string>
     <string name="desc_close">Close</string>
     <string name="label_recurring_track">Turn on to automatically track this expense in the future.</string>
     <string name="desc_add_category">Add category</string>
@@ -173,8 +182,14 @@
     <string name="label_expense_category">Expense category</string>
     <string name="label_expense_tracker">Budget &amp; Spend</string>
     <string name="label_expense_tracker_1">BUDGET &amp; SPEND</string>
+    <!-- Title-case counterpart of label_expense, for the analytics hero's mode changer:
+         the three options are read as words there, while label_expense stays upper case
+         for the transaction pills and the legends that were built around it. -->
+    <string name="label_expense_title">Expense</string>
     <string name="label_how_many_times_this_recurring">How many times this recurring transaction should repeat.</string>
     <string name="label_income">INCOME</string>
+    <!-- Title-case counterpart of label_income; see label_expense_title. -->
+    <string name="label_income_title">Income</string>
     <string name="label_monthly_budget">MONTHLY BUDGET</string>
     <string name="label_no_category_spending_found_in">No category spending found in this range.</string>
     <string name="label_no_spending_data_found">No spending data found.</string>
@@ -203,7 +218,6 @@
     <string name="label_transactionid">transactionId</string>
     <string name="label_transactions">TRANSACTIONS</string>
     <string name="label_your_highest_expenses_in_the_s">Your highest expenses in the selected period.</string>
-    <string name="title_add_new_budget">ADD NEW BUDGET</string>
     <string name="title_amount">Amount</string>
     <string name="title_amount_range">Amount Range</string>
     <string name="title_budget_recurring">Budget &amp; Recurring</string>
@@ -225,7 +239,7 @@
     <string name="title_show_transaction_date">Show Transaction Date</string>
     <string name="title_show_transaction_time">Show Transaction Time</string>
     <string name="title_track_expensesneasily">Track Expenses\nEasily</string>
-    <string name="title_transaction_card">Transaction Card</string>
+    <string name="title_transaction_card">Customisation</string>
     <string name="title_transaction_count">Transaction Count</string>
     <string name="title_transaction_type">Transaction Type</string>
     <string name="title_transactions">Transactions</string>
@@ -272,7 +286,7 @@
     <string name="label_security_privacy_subtitle">Biometrics, passcode, app lock</string>
     <string name="label_manage_category_subtitle">Add, edit, or color-code categories</string>
     <string name="label_app_preferences_subtitle">Theme, currency, language</string>
-    <string name="label_transaction_card_subtitle">Configure quick-add widgets</string>
+    <string name="label_transaction_card_subtitle">Personalise your app</string>
     <string name="label_data_management_subtitle">Backup, restore, export CSV</string>
     <string name="label_about_subtitle">Version, license, terms of service</string>
     <string name="label_about_app_subtitle">Version, license, terms of service</string>
@@ -312,6 +326,7 @@
     <string name="desc_back">Go back</string>
     <string name="desc_close_filters">Close filters</string>
     <string name="desc_close_search">Close search</string>
+    <string name="desc_remove_filter">Remove filter</string>
     <string name="desc_custom_range">Custom range</string>
     <string name="desc_delete">Delete</string>
     <string name="desc_add_all">Add All</string>
@@ -395,7 +410,7 @@
     <string name="label_gender">GENDER</string>
     <string name="label_github">GITHUB</string>
     <string name="label_growth_index">GROWTH INDEX</string>
-    <string name="label_handcrafted_with_precision_and">HANDCRAFTED WITH PRECISION AND LOVE</string>
+    <string name="label_handcrafted_with_precision_and">Handcrafted With Precision And ❤️</string>
     <string name="label_headertransition">HeaderTransition</string>
     <string name="label_hi_val">Hi, %1$s</string>
     <string name="label_high_fidelity">High Fidelity</string>
@@ -738,6 +753,7 @@
     <string name="label_description_caps">DESCRIPTION</string>
     <string name="label_amount_caps">AMOUNT</string>
     <string name="content_desc_delete_item">Delete %1$s</string>
+    <string name="content_desc_edit_item">Edit %1$s</string>
     <string name="placeholder_description_ex">Ex. Coffee House</string>
     <string name="placeholder_amount_zero">0.00</string>
     <string name="content_desc_add_item">Add item</string>
@@ -847,9 +863,9 @@
     <string name="msg_sms_inbox_swiped_away">Deleted %1$d detection</string>
     <string name="msg_sms_inbox_invalid_amount">Enter an amount greater than zero</string>
     <string name="label_this_month_caps">THIS MONTH</string>
-    <string name="label_custom_month_caps">CUSTOM MONTH</string>
-    <string name="label_remaining">REMAINING</string>
-    <string name="label_over">OVER</string>
+    <string name="label_custom_month_caps">Custom Month</string>
+    <string name="label_remaining">Remaining</string>
+    <string name="label_over">Over Spent</string>
     <string name="title_add_budget">Add Budget</string>
     <string name="title_edit_budget">Edit Budget</string>
     <string name="msg_no_expense_categories_available">No expense categories available</string>
@@ -934,7 +950,11 @@
     <string name="desc_display_category_label">Display category label on card</string>
     <string name="desc_display_wallet_or_card">Display wallet or card used</string>
     <string name="desc_group_transactions_by_day">Group transactions under sticky day headers (e.g., \"Today\", \"Yesterday\").</string>
-    <string name="title_transaction_card_settings">Transaction Card</string>
+    <string name="title_transaction_card_settings">Customisation</string>
+    <string name="label_on_each_transaction_card">On Each Transaction Card</string>
+    <string name="desc_on_each_transaction_card">These settings control what information appears on every transaction card in the list.</string>
+    <string name="label_in_the_list">In the List</string>
+    <string name="desc_in_the_list">These settings control how the transaction list is grouped and summarized around those cards.</string>
     <string name="label_visual_style">Visual Style</string>
     <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>
     <string name="label_transaction_details">Transaction Details</string>
@@ -942,7 +962,6 @@
     <string name="label_time_and_organization">Time &amp; Organization</string>
     <string name="desc_time_and_organization">These settings control how time information is presented and how transactions are grouped in the list.</string>
     <string name="label_preview">Preview</string>
-    <string name="title_customize_transaction_card">Customize Transaction Card</string>
     <!-- Edit Profile Screen -->
     <string name="placeholder_select_gender">Select Gender</string>
     <string name="msg_unable_to_load_photo">Unable to load that image. Please try another photo.</string>
@@ -1044,7 +1063,7 @@
     <string name="label_search_placeholder">Notes or Amount…</string>
     <string name="label_search_by_category_wallet">Search by Category &amp; Wallet</string>
     <string name="msg_delete_transactions_confirm">Are you sure you want to delete %1$d transactions? This action cannot be undone.</string>
-    <string name="msg_delete_category_confirm">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="msg_delete_category_confirm">Are you sure you want to delete \"%1$s\"? Existing transactions may still be using it. This action cannot be undone.</string>
     <string name="label_delete_confirm">Delete</string>
     <string name="label_cancel_confirm">Cancel</string>
     <string name="label_duplicate">Duplicate</string>
@@ -1298,18 +1317,18 @@
     <string name="fallback_desc_pay_3">Bank transfers</string>
     <string name="fallback_desc_pay_4">Debit &amp; credit cards</string>
     <string name="fallback_desc_pay_5">Flexible payment mode</string>
-    <string name="label_income_categories_count">%1$d income categories</string>
-    <string name="label_expense_categories_count">%1$d expense categories</string>
-    <string name="label_payment_methods_count">%1$d payment methods</string>
+    <string name="label_income_categories_count">%1$d Income Categories</string>
+    <string name="label_expense_categories_count">%1$d Expense Categories</string>
+    <string name="label_payment_methods_count">%1$d Payment Methods</string>
 
     <!-- Budget Status & Labels -->
     <string name="label_no_budget">NO BUDGET</string>
     <string name="label_add_a_budget">ADD A BUDGET</string>
-    <string name="label_near_limit">NEAR LIMIT</string>
-    <string name="label_safe">SAFE</string>
+    <string name="label_near_limit">Near Limit</string>
+    <string name="label_safe">Safe</string>
     <string name="label_spent_limit">SPENT / LIMIT</string>
     <string name="label_exceeded">EXCEEDED</string>
-    <string name="label_budget_status_label">BUDGET</string>
+    <string name="label_budget_status_label">Overspent</string>
 
     <!-- Budget Messages -->
     <string name="msg_no_budgets_locked">No budgets were set for %1$s. History is now locked.</string>
@@ -1318,15 +1337,13 @@
     <string name="msg_no_recurring_start_tracking">No recurring expenses added yet. Tap ADD RECURRING and choose an existing expense transaction.</string>
 
     <!-- Budget Formatting -->
-    <string name="format_over_amount">Over %1$s</string>
     <string name="format_limit_amount">LIMIT %1$s</string>
     <string name="format_started_date">Started %1$s</string>
-    <string name="label_due_today">DUE TODAY</string>
+    <string name="label_due_today">Due Today</string>
     <string name="label_due_tomorrow">DUE TOMORROW</string>
     <string name="format_due_in_days">DUE IN %1$d DAYS</string>
     <string name="format_percent_used">%1$d%% USED</string>
-    <string name="format_amount_left">%1$s LEFT</string>
-    <string name="format_amount_over">%1$s OVER</string>
+    <string name="format_remaining_pill">%1$s (%2$d%%) Left</string>
     <string name="format_next_due">NEXT %1$s</string>
     <string name="format_daily_allowance">You can spend %1$s/day</string>
 
@@ -1358,6 +1375,8 @@
     <string name="label_period_short">P%1$d</string>
     <string name="format_percent">%1$s%%</string>
     <string name="format_percent_signed">%1$s%2$s%%</string>
+    <!-- Cash Flow Ratio card badge: the period's income to expense ratio, normalised to income = 1. -->
+    <string name="format_cash_flow_ratio">%1$s Ratio</string>
     <string name="label_zero_percent">+0%</string>
     <string name="label_plus">+</string>
     <string name="label_minus">-</string>
@@ -1944,7 +1963,7 @@
     <string name="msg_subscription_billing_issue">We couldn\'t collect your last payment. Update your payment method in Google Play to keep Pro.</string>
     <string name="msg_pro_active_no_expiry">Your Pro access is active.</string>
     <string name="label_na">N/A</string>
-    <string name="btn_sign_in_register">Sign In / Register</string>
+    <string name="btn_sign_in_register">Sign In / Sign Up</string>
     <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
     <string name="label_free_tier">Free Tier</string>
     <string name="label_pro_benefit_adfree">Zero Ads. Pure Focus</string>
@@ -2068,6 +2087,9 @@
     <string name="paywall_period_year">per year</string>
     <string name="paywall_period_one_time">one-time</string>
     <string name="msg_paywall_purchase_success">You\'re on Pro now. Enjoy!</string>
+    <string name="title_paywall_purchase_congrats">Congratulations</string>
+    <string name="msg_paywall_purchase_congrats">You are Pro. Unlimited insights, no ads, and every feature unlocked. Enjoy the upgrade.</string>
+    <string name="content_desc_opening_play_store">Opening Google Play</string>
     <string name="msg_paywall_restore_success">Your purchase was restored.</string>
     <string name="msg_paywall_restore_nothing_found">No previous purchase was found for this account.</string>
     <string name="msg_paywall_payment_pending">Your payment is pending. Pro unlocks as soon as the payment completes.</string>
@@ -2082,4 +2104,24 @@
     <string name="paywall_error_configuration">Subscriptions aren\'t set up correctly right now. Please try again later.</string>
     <string name="paywall_error_billing_not_configured">Subscriptions aren\'t available in this build.</string>
     <string name="paywall_error_unknown">Something went wrong. Please try again.</string>
+
+    <!-- Onboarding Consent Step Strings -->
+    <string name="desc_terms_conditions_requirement">You must accept these terms to continue using ExpenseTracker as a guest or with a registered account.</string>
+    <string name="label_bullet_app_usage_title">App Usage</string>
+    <string name="label_bullet_app_usage_desc">Personal budgeting and tracking. No unauthorized redistribution or reverse engineering.</string>
+    <string name="label_bullet_privacy_title">Data &amp; Privacy</string>
+    <string name="label_bullet_privacy_desc">Offline-first on your device. Sync is optional and protected with end-to-end encryption.</string>
+    <string name="label_bullet_subscriptions_title">Subscriptions</string>
+    <string name="label_bullet_subscriptions_desc">Pro access managed securely via Google Play Billing. Auto-renews unless cancelled.</string>
+    <string name="label_bullet_cancellation_title">Cancellation &amp; Export</string>
+    <string name="label_bullet_cancellation_desc">Cancel Pro anytime in Play Store. Export or delete 100% of your data on demand.</string>
+    <string name="label_terms_clause_1">1. Acceptance of Terms: By accessing or using the App, you acknowledge and agree to these Terms &amp; Conditions and our Privacy Policy. These terms bind all users (guest or registered).</string>
+    <string name="label_terms_clause_2">2. License: We grant you a limited, revocable, non-exclusive license for personal non-commercial financial management.</string>
+    <string name="label_terms_clause_3">3. Local-First Storage: Your financial data stays stored securely on your local device in an encrypted database by default.</string>
+    <string name="label_terms_clause_4">4. In-App Purchases: Subscriptions are billed through Google Play according to store policies.</string>
+    <string name="label_terms_clause_5">5. Disclaimers: ExpenseTracker is an organizational tool and does not provide certified financial advice.</string>
+    <string name="label_agree_terms_checkbox">I have read and agree to the Terms &amp; Conditions</string>
+    <string name="label_agree_privacy_checkbox">I agree to the Privacy Policy and data handling terms</string>
+    <string name="cd_terms_checkbox">Terms and Conditions consent checkbox</string>
+    <string name="cd_privacy_checkbox">Privacy Policy consent checkbox</string>
 </resources>

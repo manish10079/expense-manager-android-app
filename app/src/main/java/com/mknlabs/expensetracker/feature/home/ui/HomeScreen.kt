@@ -1,5 +1,8 @@
 package com.mknlabs.expensetracker.feature.home.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.track
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -39,6 +42,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -54,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -75,6 +82,7 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -333,6 +341,12 @@ private fun HomeScreenContent(
     val transactionsListState = rememberLazyListState()
     rememberBindAddFabToScroll(transactionsListState)
 
+    val enter = rememberSectionEnterAlphas(4)
+    val headerEnter = enter[0]
+    val cashFlowEnter = enter[1]
+    val miniCardsEnter = enter[2]
+    val recentEnter = enter[3]
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -345,14 +359,16 @@ private fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
                 // Full-width greeting row: greeting/settings/avatar on the right;
                 // recent activities render below it in the right pane.
-                HomeHeaderRow(
-                    userProfile = userProfile,
-                    uiState = uiState,
-                    onProfileClick = onProfileClick,
-                    onSettingsClick = onSettingsClick,
-                    onSmsInboxClick = onSmsInboxClick,
-                    isLockOverlayActive = isLockOverlayActive
-                )
+                Box(modifier = Modifier.alpha(headerEnter)) {
+                    HomeHeaderRow(
+                        userProfile = userProfile,
+                        uiState = uiState,
+                        onProfileClick = onProfileClick,
+                        onSettingsClick = onSettingsClick,
+                        onSmsInboxClick = onSmsInboxClick,
+                        isLockOverlayActive = isLockOverlayActive
+                    )
+                }
                 // Tighter than the 7.dp gap below the Cash Flow card: the row above it
                 // is text and icons with no container of its own, so the card reads
                 // better sitting close to it than spaced away.
@@ -381,7 +397,9 @@ private fun HomeScreenContent(
                             onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
                             onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
                             onPeriodChanged = onPeriodChanged,
-                            isWide = isWide
+                            isWide = isWide,
+                            cashFlowEnter = cashFlowEnter,
+                            miniCardsEnter = miniCardsEnter
                         )
                     }
 
@@ -389,6 +407,7 @@ private fun HomeScreenContent(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
+                            .alpha(recentEnter)
                     ) {
                         RecentActivitiesHeader(onViewAllClick = onViewAllClick)
                         Spacer(modifier = Modifier.height(16.dp))
@@ -424,18 +443,23 @@ private fun HomeScreenContent(
                     onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
                     onPeriodChanged = onPeriodChanged,
                     isLockOverlayActive = isLockOverlayActive,
-                    isWide = isWide
+                    isWide = isWide,
+                    headerEnter = headerEnter,
+                    cashFlowEnter = cashFlowEnter,
+                    miniCardsEnter = miniCardsEnter
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                RecentActivitiesHeader(onViewAllClick = onViewAllClick)
-                Spacer(modifier = Modifier.height(16.dp))
-                HomeTransactionsList(
-                    uiState = uiState,
-                    isProUser = isProUser,
-                    onTransactionClick = onTransactionClick,
-                    state = transactionsListState,
-                    bottomPadding = 88.dp
-                )
+                Column(modifier = Modifier.alpha(recentEnter).weight(1f)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RecentActivitiesHeader(onViewAllClick = onViewAllClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HomeTransactionsList(
+                        uiState = uiState,
+                        isProUser = isProUser,
+                        onTransactionClick = onTransactionClick,
+                        state = transactionsListState,
+                        bottomPadding = 88.dp
+                    )
+                }
             }
         }
     }
@@ -466,16 +490,21 @@ private fun HomeTopSection(
     onMiuiSetupCardDismiss: () -> Unit = {},
     onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     isLockOverlayActive: Boolean = false,
-    isWide: Boolean = false
+    isWide: Boolean = false,
+    headerEnter: Float = 1f,
+    cashFlowEnter: Float = 1f,
+    miniCardsEnter: Float = 1f
 ) {
-    HomeHeaderRow(
-        userProfile = userProfile,
-        uiState = uiState,
-        onProfileClick = onProfileClick,
-        onSettingsClick = onSettingsClick,
-        onSmsInboxClick = onSmsInboxClick,
-        isLockOverlayActive = isLockOverlayActive
-    )
+    Box(modifier = Modifier.alpha(headerEnter)) {
+        HomeHeaderRow(
+            userProfile = userProfile,
+            uiState = uiState,
+            onProfileClick = onProfileClick,
+            onSettingsClick = onSettingsClick,
+            onSmsInboxClick = onSmsInboxClick,
+            isLockOverlayActive = isLockOverlayActive
+        )
+    }
     // Tighter than the 7.dp gap below the Cash Flow card: the header row above it is
     // text and icons with no container of its own, so the card reads better sitting
     // close to it than spaced away.
@@ -496,7 +525,9 @@ private fun HomeTopSection(
         onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
         onMiuiSetupCardDismiss = onMiuiSetupCardDismiss,
         onPeriodChanged = onPeriodChanged,
-        isWide = isWide
+        isWide = isWide,
+        cashFlowEnter = cashFlowEnter,
+        miniCardsEnter = miniCardsEnter
     )
 }
 
@@ -532,11 +563,16 @@ private fun HomeHeaderRow(
         ) {
             val greetingName = uiState.greetingName
 
-            // Entrance animation (hand wave + settings-icon spin): plays whenever the
-            // home screen is actually VISIBLE — i.e. the activity is resumed AND no
-            // app-lock overlay is covering it. ON_RESUME alone fires while the lock
-            // overlay is still up, so the wave used to finish behind the lock before the
-            // user saw it.
+            // Entrance animation (hand wave + settings-icon spin): plays ONCE per arrival
+            // at Home, at the first moment the screen is actually visible — i.e. the
+            // activity is resumed AND no app-lock overlay is covering it. ON_RESUME alone
+            // fires while the lock overlay is still up, so the wave used to finish behind
+            // the lock before the user saw it.
+            //
+            // The gate matters for the same reason it does in the section-enter fade:
+            // ON_RESUME fires on every trip back from the background, so without it,
+            // backgrounding the app and returning set the wave and the full 360° spin off
+            // again. An entrance belongs to arriving at the screen, not to coming back to it.
             //
             // lifecycleResumed is written ONLY by the lifecycle observer below; the
             // LaunchedEffect only reads its keys. (The earlier version flipped a pending
@@ -560,8 +596,10 @@ private fun HomeHeaderRow(
                 }
             }
 
+            var entrancePlayed by remember { mutableStateOf(false) }
             LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
-                if (lifecycleResumed && !isLockOverlayActive) {
+                if (lifecycleResumed && !isLockOverlayActive && !entrancePlayed) {
+                    entrancePlayed = true
                     // Detected transactions bell — rings only when there is a count on it, so a
                     // quiet inbox never draws attention to an empty bell. It runs on its own
                     // clock rather than after the greeting wave: it is the one part of this
@@ -629,7 +667,7 @@ private fun HomeHeaderRow(
                     maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Medium
                     )
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -663,7 +701,7 @@ private fun HomeHeaderRow(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // Detected bank messages waiting for a decision. Independent of the dialogs below:
                 // the badge is driven by the inbox table, so a dismissed notification still counts.
@@ -726,7 +764,9 @@ private fun HomeStatsSection(
     onPeriodChanged: (CashFlowPeriod) -> Unit = {},
     // Wide windows (tablets/foldables/desktop) render the tall media-first native ad;
     // phones keep the compact banner row.
-    isWide: Boolean = false
+    isWide: Boolean = false,
+    cashFlowEnter: Float = 1f,
+    miniCardsEnter: Float = 1f
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -737,6 +777,7 @@ private fun HomeStatsSection(
         smsSetupUiState.showSmsPermissionCard ||
         smsSetupUiState.showMiuiSetupCard
 
+    Column(modifier = Modifier.alpha(cashFlowEnter)) {
     if (appSettings != null) {
         AccountSetupCard(
             userProfile = userProfile,
@@ -799,9 +840,11 @@ private fun HomeStatsSection(
         yearIncome = uiState.yearTotalIncome,
         yearNetBalance = uiState.yearTotalBalance
     )
+    }
 
     Spacer(modifier = Modifier.height(7.dp))
 
+    Column(modifier = Modifier.alpha(miniCardsEnter)) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -845,6 +888,7 @@ private fun HomeStatsSection(
             upcomingExpenses = uiState.upcomingRecurring
         )
     }
+    }
 }
 
 /**
@@ -854,16 +898,20 @@ private fun HomeStatsSection(
 private fun UpcomingRecurringCard(
     upcomingExpenses: List<UpcomingRecurringUi>
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        // 30dp in dark, where this card is a brand gradient; the standard card in light.
+        shape = if (MaterialTheme.colorScheme.isDark) {
+            RoundedCornerShape(30.dp)
+        } else {
+            AppCardDefaults.shape()
+        },
+        brush = darkOnlyGradient(standardCardGradient()),
+        contentPadding = PaddingValues(22.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(22.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -903,7 +951,7 @@ private fun UpcomingRecurringCard(
                                 Icon(
                                     imageVector = expense.icon,
                                     contentDescription = expense.categoryLabel,
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.accentInk,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -1027,6 +1075,8 @@ private fun ColumnScope.HomeTransactionsList(
                 transactionTime = card.transactionTime,
                 amount = card.amount,
                 icon = card.icon,
+                categoryId = card.transaction.categoryId,
+                categoryColorHex = card.categoryColorHex,
                 transactionTypeId = card.transactionTypeId,
                 paymentType = card.paymentType,
                 categoryLabel = card.categoryLabel,
@@ -1083,13 +1133,10 @@ fun AccountSetupCard(
 
     if (isComplete || isDismissed) return
 
-    androidx.compose.material3.Card(
+    AppCard(
         onClick = onActionClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = AppCardDefaults.tintedColors()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -1111,7 +1158,7 @@ fun AccountSetupCard(
                     Text(
                         text = "$score%",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.accentInk
                         )
                     )
                     
@@ -1139,8 +1186,8 @@ fun AccountSetupCard(
                     .fillMaxWidth()
                     .height(3.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                color = MaterialTheme.colorScheme.accentInk,
+                trackColor = MaterialTheme.colorScheme.track
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -1164,7 +1211,7 @@ fun AccountSetupCard(
                     Icon(
                         imageVector = PhosphorIcons.Regular.Info,
                         contentDescription = stringResource(id = R.string.title_setup_progress),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -1210,7 +1257,7 @@ fun AccountSetupCard(
                             Icon(
                                 imageVector = if (isDone) PhosphorIcons.Fill.CheckCircle else PhosphorIcons.Regular.Circle,
                                 contentDescription = null,
-                                tint = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = if (isDone) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -1224,7 +1271,7 @@ fun AccountSetupCard(
                                     Text(
                                         text = stringResource(subtitleRes),
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.accentInk
                                     )
                                 }
                             }
@@ -1233,11 +1280,11 @@ fun AccountSetupCard(
                 }
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { showChecklist = false }) {
+                AppTextButton(onClick = { showChecklist = false }) {
                     Text(stringResource(R.string.btn_got_it))
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
         )
     }
@@ -1261,7 +1308,7 @@ fun SettingsButton(onClick: () -> Unit) {
         Icon(
             imageVector = PhosphorIcons.Regular.Gear,
             contentDescription = stringResource(id = R.string.desc_settings),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(28.dp)
         )
     }

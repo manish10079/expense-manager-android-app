@@ -33,6 +33,17 @@ data class PaywallUiState(
     val isBusy: Boolean get() = purchaseState is PurchaseState.InProgress
 
     /**
+     * A store purchase just completed. The snackbar is not used for this outcome: the
+     * congratulations dialog is, and OK is what leaves the paywall for Membership.
+     */
+    val isPurchaseSuccess: Boolean
+        get() {
+            val state = purchaseState
+            return state is PurchaseState.Completed &&
+                state.operation == PurchaseState.Operation.Purchase
+        }
+
+    /**
      * The attempt that just finished delivered what this screen sells, so there is nothing
      * left to sell and the paywall closes itself.
      *

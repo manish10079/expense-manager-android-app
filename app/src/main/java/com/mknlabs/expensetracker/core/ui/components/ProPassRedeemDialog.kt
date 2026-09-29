@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +14,11 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,12 +33,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RedemptionState
 
@@ -47,7 +61,7 @@ fun ProPassRedeemDialog(
     // Only a *store subscription* is refused up front, because the store is the authority on
     // one and its answer is already on hand.
     //
-    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder — back
+    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder Ã¢â‚¬â€ back
     // when a second code stacked on top of a running pass. Stacking is gone: the server now
     // refuses a running pass with `PASS_ACTIVE`. That refusal is left to the server instead of
     // being guessed here, because the pass expiry is a local mirror that a sync may not have
@@ -63,12 +77,12 @@ fun ProPassRedeemDialog(
     if (hasActiveStoreSubscription) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             icon = {
                 Icon(
                     imageVector = Icons.Rounded.ConfirmationNumber,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -101,12 +115,12 @@ fun ProPassRedeemDialog(
     if (!isEmailVerified) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             icon = {
                 Icon(
                     imageVector = Icons.Rounded.Email,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -135,7 +149,7 @@ fun ProPassRedeemDialog(
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(text = stringResource(id = R.string.label_later))
                 }
             }
@@ -150,12 +164,12 @@ fun ProPassRedeemDialog(
                 onDismiss()
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         icon = {
             Icon(
                 imageVector = if (state is RedemptionState.Success) Icons.Rounded.CheckCircle else Icons.Rounded.ConfirmationNumber,
                 contentDescription = null,
-                tint = if (state is RedemptionState.Success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                tint = if (state is RedemptionState.Success) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(32.dp)
             )
         },
@@ -184,7 +198,8 @@ fun ProPassRedeemDialog(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             enabled = currentState !is RedemptionState.Loading,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = AppOutlinedFieldDefaults.shape,
+                            colors = AppOutlinedFieldDefaults.colors()
                         )
                     }
                     is RedemptionState.Success -> {
@@ -212,7 +227,8 @@ fun ProPassRedeemDialog(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             isError = true,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = AppOutlinedFieldDefaults.shape,
+                            colors = AppOutlinedFieldDefaults.colors()
                         )
                     }
                 }
@@ -221,26 +237,24 @@ fun ProPassRedeemDialog(
         confirmButton = {
             when (state) {
                 is RedemptionState.Success -> {
-                    Button(
+                    ProPassGradientButton(
                         onClick = {
                             viewModel.resetRedemptionState()
                             onDismiss()
-                        },
-                        shape = RoundedCornerShape(12.dp)
+                        }
                     ) {
                         Text(stringResource(id = R.string.label_ok))
                     }
                 }
                 else -> {
-                    Button(
+                    ProPassGradientButton(
                         onClick = { viewModel.redeemProPass(code) },
-                        enabled = code.isNotBlank() && state !is RedemptionState.Loading,
-                        shape = RoundedCornerShape(12.dp)
+                        enabled = code.isNotBlank() && state !is RedemptionState.Loading
                     ) {
                         if (state is RedemptionState.Loading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = MaterialTheme.colorScheme.onCta,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -252,7 +266,7 @@ fun ProPassRedeemDialog(
         },
         dismissButton = {
             if (state !is RedemptionState.Success && state !is RedemptionState.Loading) {
-                TextButton(onClick = { 
+                AppTextButton(onClick = { 
                     viewModel.resetRedemptionState()
                     onDismiss() 
                 }) {
@@ -261,4 +275,35 @@ fun ProPassRedeemDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ProPassGradientButton(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val shape = RoundedCornerShape(12.dp)
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onCta,
+            disabledContentColor = MaterialTheme.colorScheme.onCta.copy(alpha = 0.6f)
+        ),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .background(brush = brandGradient(alpha = if (enabled) 1f else 0.45f))
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            content()
+        }
+    }
 }

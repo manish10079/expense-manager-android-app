@@ -44,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
@@ -63,6 +65,7 @@ import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.NavEdgeLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
@@ -80,7 +83,7 @@ import kotlinx.coroutines.delay
 /**
  * Gap reserved between the two destination groups for the docked Add FAB.
  *
- * Deliberately 8dp NARROWER than the FAB ([AddTransactionFabSize]), i.e. 4dp per
+ * Deliberately 8dp NARROWER than the FAB ([BrandAddFabDefaults.Size]), i.e. 4dp per
  * side, so Analytics and Budget sit closer to Add. The slot previously measured
  * exactly one FAB diameter, which left the two inner pills tangent to the FAB's
  * *bounding box* — but the FAB is a circle whose widest point rests on the
@@ -104,7 +107,7 @@ import kotlinx.coroutines.delay
  * intrusion triples to ~6.8dp, which reads as a collision. Narrowing further would
  * also steal room the labels need at raised font scales.
  */
-private val AddFabSlotWidth = AddTransactionFabSize - 8.dp
+private val AddFabSlotWidth = BrandAddFabDefaults.Size - 8.dp
 
 /** Capsule width cap so the bar stays a capsule rather than stretching edge to
  *  edge if it is ever rendered on a wide window (the rail covers those today). */
@@ -124,7 +127,7 @@ private val NavItemMinHeight = 56.dp
 /**
  * Diameter of the circular reveal handle. Held at the 48dp minimum touch target
  * because it is the only way back to the bar once it has hidden itself, and kept
- * below [AddTransactionFabSize] so it reads as a compact affordance rather than
+ * below [BrandAddFabDefaults.Size] so it reads as a compact affordance rather than
  * competing with the Add button that occupied the same centre line.
  */
 private val RevealHandleSize = 48.dp
@@ -261,14 +264,27 @@ private fun AppBottomBarContent(
 
     // Frosted glass. A true backdrop blur is not available here: the bar is a SHARED
     // sibling of the scrolling content, not its parent, so there is no composable for
-    // a RenderEffect to sample. What is available is translucency — the elevated
-    // surface tone drawn at 80% over whatever is behind it — so live content reads
-    // through the capsule instead of being hidden behind an opaque slab, and the
-    // hairline border gives the pane the edge a glass surface needs to stay legible
-    // against both the app background and a bright card scrolled under it.
-    val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        .copy(alpha = 0.80f)
-    val capsuleBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
+    // a RenderEffect to sample. What is available is translucency — the surface tone
+    // drawn at 80% over whatever is behind it — so live content reads through the
+    // capsule instead of being hidden behind an opaque slab, and the hairline border
+    // gives the pane the edge a glass surface needs to stay legible against both the
+    // app background and a bright card scrolled under it.
+    //
+    // Light is the spec's white bar, edged with the nav's own hairline instead of the
+    // card outline: the capsule floats over live content rather than sitting in the
+    // card grid, so its edge is drawn a touch warmer and lighter than the grid's. Dark
+    // keeps both the elevated tone and the outline wash it has always used.
+    val isDark = MaterialTheme.colorScheme.isDark
+    val containerColor = if (isDark) {
+        MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp).copy(alpha = 0.80f)
+    } else {
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.80f)
+    }
+    val capsuleBorderColor = if (isDark) {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
+    } else {
+        NavEdgeLight
+    }
 
     val capsuleMinHeight = capsuleMinHeight(LocalFontScaleInfo.current.tier)
 
@@ -332,7 +348,7 @@ private fun AppBottomBarContent(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(
-                        top = AddTransactionFabSize / 2 + AddTransactionFabGlowInset,
+                        top = BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset,
                         start = Dimens.spacingCompact,
                         end = Dimens.spacingCompact,
                         bottom = Dimens.spacingCompact
@@ -344,8 +360,6 @@ private fun AppBottomBarContent(
                 // protruding half) and anchors to this wrapper's top edge, which
                 // the top padding above has already aligned to the Column's top.
                 Box(contentAlignment = Alignment.TopCenter) {
-                    val isDark = MaterialTheme.colorScheme.isDark
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(CapsuleWidthFraction)
@@ -363,7 +377,12 @@ private fun AppBottomBarContent(
                                     Modifier.hazeEffect(
                                         state = hazeState,
                                         style = HazeStyle(
-                                            backgroundColor = if (isDark) Color(0xD90E0D13) else Color(0xD9FFFFFF),
+                                            // The frost's own fill, and what the app
+                                            // actually samples: white from the scheme in
+                                            // light, so the light bar cannot drift off the
+                                            // spec, and the same charcoal it has always
+                                            // been in dark.
+                                            backgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                                             blurRadius = 24.dp,
                                             noiseFactor = 0.03f,
                                             tints = emptyList()
@@ -409,11 +428,14 @@ private fun AppBottomBarContent(
                     // The offset covers the glow inset as well as the radius: what
                     // is aligned to the capsule is the glow box, and the circle sits
                     // one inset inside that box.
-                    AddTransactionFab(
+                    BrandAddFab(
                         onClick = onAddClick,
                         modifier = Modifier.offset(
-                            y = -(AddTransactionFabSize / 2 + AddTransactionFabGlowInset)
-                        )
+                            y = -(BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset)
+                        ),
+                        // Pools the halo downward onto the frosted capsule below, which is
+                        // the one place in the app the glow is meant to light something.
+                        glowOffset = 8.dp
                     )
                 }
             }
@@ -437,8 +459,10 @@ private fun AppBottomBarContent(
  * The fill is [fabGradient], the same one the docked FAB uses, and the chevron
  * takes the same [onBrandGradient] ink — so the affordance the bar collapses into
  * is visibly the same button as the one it collapsed from, rather than a second
- * brand surface a shade off it. Both ends of the gradient are derived from
- * [MaterialTheme.colorScheme], so it separates from the background in either theme.
+ * brand surface a shade off it. The ramp itself is theme-independent — [fabGradient]
+ * takes the same two ends whichever theme is on — so the handle separates from the
+ * background in either theme and stays exactly the FAB's colour rather than each
+ * theme recolouring it separately.
  */
 @Composable
 private fun BottomBarRevealHandle(onClick: () -> Unit) {
@@ -457,7 +481,7 @@ private fun BottomBarRevealHandle(onClick: () -> Unit) {
                 .shadow(
                     elevation = 22.dp,
                     shape = handleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
+                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.30f),
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                 )
                 .clip(handleShape)

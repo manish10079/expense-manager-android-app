@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,7 +43,7 @@ fun DateChip(
                 brush = if (isSelected) {
                     Brush.linearGradient(
                         colors = listOf(
-                            colorScheme.primary.copy(alpha = 0.20f),
+                            colorScheme.accentInk.copy(alpha = 0.20f),
                             colorScheme.secondary.copy(alpha = 0.14f)
                         )
                     )
@@ -57,7 +59,7 @@ fun DateChip(
             .border(
                 width = 1.dp,
                 color = if (isSelected) {
-                    colorScheme.primary.copy(alpha = 0.55f)
+                    colorScheme.accentInk.copy(alpha = 0.55f)
                 } else {
                     colorScheme.onSurface.copy(alpha = 0.65f)
                 },
@@ -69,7 +71,7 @@ fun DateChip(
     ) {
         Text(
             text = title,
-            color = if (isSelected) colorScheme.primary else colorScheme.onSurface,
+            color = if (isSelected) colorScheme.accentInk else colorScheme.onSurface,
             style = MaterialTheme.typography.labelLarge
         )
 
@@ -78,7 +80,7 @@ fun DateChip(
             Icon(
                 imageVector = it,
                 contentDescription = null,
-                tint = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                tint = if (isSelected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
         }

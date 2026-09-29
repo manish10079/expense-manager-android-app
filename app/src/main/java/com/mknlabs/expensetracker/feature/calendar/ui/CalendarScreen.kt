@@ -1,5 +1,9 @@
 package com.mknlabs.expensetracker.feature.calendar.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,8 +34,6 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +50,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -57,8 +62,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,6 +76,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -81,10 +90,12 @@ import com.mknlabs.expensetracker.core.ui.models.CalendarMonthFinancialSummaryUi
 import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -94,9 +105,7 @@ import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.getAmountColor
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePicker
-import com.mknlabs.expensetracker.core.ui.models.TabItem
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
@@ -106,8 +115,6 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import java.util.Calendar
 
 // Theme colors are now derived from MaterialTheme.colorScheme
-
-private val dayNames = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 
 @Composable
 fun CalendarScreen(
@@ -200,6 +207,7 @@ private fun CalendarScreenContent(
     // drives the standalone add FAB's auto-hide on compact portrait.
     val calendarListState = rememberLazyListState()
     rememberBindAddFabToScroll(calendarListState)
+    val enter = rememberSectionEnterAlphas(3)
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -213,6 +221,7 @@ private fun CalendarScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                        .alpha(enter[0])
                 ) {
                     AppHeader(title = stringResource(id = R.string.title_calendar), onBackClick = onBackClick)
                 }
@@ -226,7 +235,7 @@ private fun CalendarScreenContent(
                     // Top inset is the gap under the AppHeader, so it is deliberately smaller
                     // than the 18.dp between cards, and matched to the Analytics list so both
                     // screens put their first control the same distance below the header.
-                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 12.dp, bottom = 130.dp),
+                    contentPadding = PaddingValues(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 0.dp, bottom = 130.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     item {
@@ -241,23 +250,43 @@ private fun CalendarScreenContent(
                                     onSetYearView(false)
                                 }
                             }
-                            AnimatedTabSwitcher(
-                                items = listOf(
-                                    TabItem(false, stringResource(id = R.string.label_month_1)),
-                                    TabItem(
-                                        id = true,
-                                        label = stringResource(id = R.string.label_year),
-                                        isLocked = isYearLocked,
-                                        onLockedClick = { onClick() }
-                                    )
-                                ),
-                                selectedItemId = uiState.isYearView,
-                                onItemSelected = { isYearView -> onSetYearView(isYearView) }
-                            )
+                            // The calendar's three controls, dressed as the period pills
+                            // Analytics wears for its four: Month and Year pick the view (Year
+                            // keeping its lock from the gate above), Today jumps to the current
+                            // date — whose ViewModel handler also leaves year view, so the tap
+                            // lands on this month and Month lights up here behind it. Unlike
+                            // Analytics, which sizes its chips to their labels and scrolls
+                            // sideways, these three split the row evenly: three short labels
+                            // always fit, and a fixed third each keeps the row's shape stable.
+                            Row(
+                                modifier = Modifier.fillMaxWidth().alpha(enter[1]),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_month_1),
+                                    isSelected = !uiState.isYearView,
+                                    onClick = { onSetYearView(false) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_year),
+                                    isSelected = uiState.isYearView,
+                                    isLocked = isYearLocked,
+                                    onClick = { if (isYearLocked) onClick() else onSetYearView(true) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                PeriodChip(
+                                    label = stringResource(id = R.string.label_today),
+                                    isSelected = false,
+                                    onClick = onJumpToToday,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
 
                     item {
+                        Box(Modifier.alpha(enter[2])) {
                         AnimatedContent(
                             targetState = uiState.isYearView,
                             transitionSpec = {
@@ -296,7 +325,6 @@ private fun CalendarScreenContent(
                                                     isPickerLocked = status !is AccessStatus.Granted,
                                                     onPreviousYear = onGoToPreviousYear,
                                                     onNextYear = onGoToNextYear,
-                                                    onTodayClick = onJumpToToday,
                                                     onOpenYearPicker = {
                                                         if (status is AccessStatus.Granted) {
                                                             isYearPickerVisible = true
@@ -352,10 +380,9 @@ private fun CalendarScreenContent(
                                                     MonthHeading(
                                                         monthStart = targetMonthStart,
                                                         isPickerLocked = status !is AccessStatus.Granted,
-                                                        onPreviousMonth = onGoToPreviousMonth,
-                                                        onNextMonth = onGoToNextMonth,
-                                                        onTodayClick = onJumpToToday,
-                                                        onOpenPicker = {
+                                                onPreviousMonth = onGoToPreviousMonth,
+                                                onNextMonth = onGoToNextMonth,
+                                                onOpenPicker = {
                                                             if (status is AccessStatus.Granted) {
                                                                 isMonthYearPickerVisible = true
                                                             } else {
@@ -439,6 +466,7 @@ private fun CalendarScreenContent(
                                 }
                             }
                         }
+                        }
                     }
                 }
             }
@@ -477,37 +505,32 @@ private fun MonthHeading(
     isPickerLocked: Boolean,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
-    onTodayClick: () -> Unit,
     onOpenPicker: () -> Unit
 ) {
-    // One row, deliberately. The Today shortcut used to sit on a row of its own 10.dp below this
-    // one, which cost a whole row of height to hold a pill that used a sixth of the width, and
-    // pushed the calendar card down for no reason. It now shares the row that already establishes
-    // which month is on screen, which is the thing it acts on.
+    // One row: two arrows and the title. Today used to sit in it too, first on a row of its own
+    // below and then beside the arrows, but it belongs with Month and Year — the screen's other
+    // two controls — and all three now sit together at the top as period chips, in the style
+    // Analytics wears for its weeks and months. What is left here navigates and names the month
+    // on screen.
     //
-    // The title is left-aligned rather than centred. It was only ever centred because the two
-    // arrow buttons happened to be the same width; adding a third element would have shifted it
-    // off centre by half the pill's width, which reads as a mistake. Aligning it deliberately
-    // means its position is the design rather than an accident.
+    // The title sits in the flexible middle so the equal-width arrows pin it on the screen
+    // centre.
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // The two arrows and the shortcut are fixed-size; only the middle is flexible, so the
-        // arrows stay pinned to the corners whatever the month name costs.
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = stringResource(id = R.string.content_desc_previous_month),
             onClick = onPreviousMonth
         )
 
-        // The flexible middle: it takes exactly what the fixed controls leave, and the spacer
-        // inside pushes the shortcut to the far end of it. Capping the title here rather than
-        // letting it take whatever width it asks for is what keeps the row from overflowing — at
-        // large font scales it wraps onto a second line, which is why it carries no maxLines: a
-        // truncated month name would lose information the user came to read.
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 modifier = Modifier
                     .minimumInteractiveComponentSize()
@@ -523,7 +546,7 @@ private fun MonthHeading(
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = stringResource(id = R.string.content_desc_jump_to_date),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
@@ -536,43 +559,12 @@ private fun MonthHeading(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
         }
-
-        TodayShortcutButton(onClick = onTodayClick)
 
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = stringResource(id = R.string.content_desc_next_month),
             onClick = onNextMonth
-        )
-    }
-}
-
-@Composable
-private fun TodayShortcutButton(onClick: () -> Unit) {
-    // The fill is the theme's primaryContainer rather than surfaceVariant, with onPrimaryContainer
-    // as the label. The old pair measured 3.42:1 in light and 2.92:1 in dark against the 4.5:1 that
-    // text this size needs, and it was also heavier than the arrow buttons' surface fill, so the
-    // occasionally-used shortcut outweighed the constantly-used navigation. This pair measures
-    // 13.27:1 and 12.40:1, and sits in the same visual weight band as the arrows.
-    //
-    // The layout reserves a 48.dp touch target while the pill keeps its own size, the same
-    // construction Material's own icon buttons use.
-    Box(
-        modifier = Modifier
-            .minimumInteractiveComponentSize()
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(id = R.string.label_today),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            maxLines = 1,
-            style = MaterialTheme.typography.labelMedium
         )
     }
 }
@@ -586,16 +578,20 @@ private fun MonthCalendarCard(
     onSwipePrevious: () -> Unit,
     onSwipeNext: () -> Unit
 ) {
-    Box(
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
-            .background(standardCardGradient())
             .horizontalSwipe(
                 key = days to selectedDate,
                 onSwipeLeft = onSwipeNext,
                 onSwipeRight = onSwipePrevious
-            )
+            ),
+        // The gradient is the dark surface and the only fill this card has, so the
+        // container underneath it stays transparent and no outline is added; light falls
+        // back to the standard card, which is what the redesign asks of every hero.
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(26.dp),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
@@ -605,12 +601,13 @@ private fun MonthCalendarCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Title-case weekday initials shared with the analytics charts.
+                val dayNames = stringArrayResource(R.array.days_of_week_short)
                 dayNames.forEachIndexed { index, day ->
                     Text(
                         text = day,
                         color = when (index) {
-                            5 -> MaterialTheme.colorScheme.tertiary
-                            6 -> MaterialTheme.colorScheme.expense
+                            5, 6 -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         style = MaterialTheme.typography.labelSmall,
@@ -661,10 +658,10 @@ private fun DayCell(
     ) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape)
-                .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
+                .background(if (selected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.surface.copy(alpha = 0f))
                 .then(
                     if (showTodayRing) {
-                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
                     } else {
                         Modifier
                     }
@@ -756,6 +753,8 @@ private fun CalendarTransactionCard(
         amount = transaction.amount,
         transactionTypeId = transaction.transactionTypeId,
         icon = transaction.icon,
+        categoryId = transaction.transaction.categoryId,
+        categoryColorHex = transaction.categoryColorHex,
         paymentType = transaction.paymentType,
         categoryLabel = transaction.categoryLabel,
         showTypeLabel = transactionCardCustomizationSettings.showIncomeExpenseLabels,
@@ -775,11 +774,11 @@ private fun CalendarTransactionCard(
 private fun EmptyTransactionsCard(
     message: String
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(Color.Transparent),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -805,11 +804,10 @@ private fun YearHeading(
     isPickerLocked: Boolean,
     onPreviousYear: () -> Unit,
     onNextYear: () -> Unit,
-    onTodayClick: () -> Unit,
     onOpenYearPicker: () -> Unit
 ) {
-    // Mirrors [MonthHeading] exactly, including the single row, the left-aligned title and the
-    // corner-pinned arrows. They are kept identical on purpose: switching tabs must not look like
+    // Mirrors [MonthHeading] exactly, including the centred title and the corner-pinned arrows.
+    // They are kept identical on purpose: switching between month and year must not look like
     // the header changed shape.
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -822,7 +820,11 @@ private fun YearHeading(
             onClick = onPreviousYear
         )
 
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 modifier = Modifier
                     .minimumInteractiveComponentSize()
@@ -838,7 +840,7 @@ private fun YearHeading(
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = stringResource(id = R.string.content_desc_jump_to_year),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(16.dp)
                 )
                 if (isPickerLocked) {
@@ -851,10 +853,7 @@ private fun YearHeading(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
         }
-
-        TodayShortcutButton(onClick = onTodayClick)
 
         CircularNavButton(
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -869,9 +868,9 @@ private fun AnnualSummaryCard(
     totalIncome: String,
     totalExpense: String
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(28.dp)
+    AppCard(
+        colors = AppCardDefaults.colors(MaterialTheme.colorScheme.surface),
+        shape = AppCardDefaults.shape(28.dp),
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -947,10 +946,10 @@ private fun MonthSummaryCard(
     summary: CalendarMonthFinancialSummaryUi,
     onClick: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(22.dp),
-        modifier = Modifier.clickable(onClick = onClick)
+    AppCard(
+        onClick = onClick,
+        colors = AppCardDefaults.colors(MaterialTheme.colorScheme.surface),
+        shape = AppCardDefaults.shape(22.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 14.dp),
@@ -994,7 +993,7 @@ private fun MonthSummaryCard(
                     SummaryRow(
                         icon = Icons.Default.AccountBalanceWallet,
                         label = summary.netLabel,
-                        color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        color = if (summary.net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.accentInk,
                         isBold = true
                     )
                 }
@@ -1053,7 +1052,7 @@ private fun CircularNavButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.primary)
+        Icon(imageVector = icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.accentInk)
     }
 }
 
@@ -1164,16 +1163,16 @@ private fun MonthYearPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(tempDate) }) {
+            AppTextButton(onClick = { onConfirm(tempDate) }) {
                 Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         shape = RoundedCornerShape(28.dp)
     )
 }
@@ -1213,16 +1212,16 @@ private fun YearPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(tempYear) }) {
+            AppTextButton(onClick = { onConfirm(tempYear) }) {
                 Text(stringResource(id = R.string.label_apply), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         shape = RoundedCornerShape(28.dp)
     )
 }

@@ -6,6 +6,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.domain.repository.PaymentMethodRepository as DomainPaymentMethodRepository
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.utils.normalizeColorHexOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
@@ -37,17 +38,23 @@ class PaymentMethodRepository @Inject constructor(
 
     override suspend fun createCustomPaymentMethod(
         name: String,
-        iconKey: String
+        iconKey: String,
+        colorHex: String?
     ) = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
+        val color = normalizeColorHexOrNull(colorHex)
 
         // Check if a deleted payment method with the same name exists
         val deleted = dao.findDeletedByName(name)
         if (deleted != null) {
-            // Reactivate the deleted row instead of creating a duplicate
+            // Reactivate the deleted row instead of creating a duplicate, naming `colorHex`
+            // for the same reason `CategoryRepository` does: `copy` keeps every field it is
+            // not given, so leaving it out would hand the recreated row the deleted one's
+            // colour and discard the user's pick.
             dao.upsert(
                 deleted.copy(
                     iconKey = iconKey,
+                    colorHex = color,
                     isDeleted = false,
                     updatedAt = now,
                     syncState = SyncState.PENDING_UPLOAD
@@ -62,6 +69,7 @@ class PaymentMethodRepository @Inject constructor(
                 id = nextId,
                 name = name,
                 iconKey = iconKey,
+                colorHex = color,
                 isSystem = false,
                 sortOrder = nextId,
                 isDeleted = false,
@@ -69,6 +77,15 @@ class PaymentMethodRepository @Inject constructor(
                 updatedAt = now,
                 syncState = SyncState.PENDING_UPLOAD
             ).toEntity()
+        )
+    }
+
+    override suspend fun updatePaymentMethodColor(id: Int, colorHex: String?) = withContext(Dispatchers.IO) {
+        // Normalised here for the same reason as the category path; see [CategoryRepository].
+        dao.updateColorHex(
+            id = id,
+            colorHex = normalizeColorHexOrNull(colorHex),
+            updatedAt = System.currentTimeMillis()
         )
     }
 

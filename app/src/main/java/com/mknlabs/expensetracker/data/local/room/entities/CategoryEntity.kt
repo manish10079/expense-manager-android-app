@@ -23,6 +23,23 @@ data class CategoryEntity(
     val transactionTypeId: Int = 0,
     @ColumnInfo(name = "icon_key")
     val iconKey: String = "",
+    /**
+     * The user's colour for this category, as `#RRGGBB`, or null to take the palette colour
+     * for [id] instead — see
+     * [categoryColor][com.mknlabs.expensetracker.core.ui.theme.categoryColor].
+     *
+     * NULL rather than "" on purpose: an empty string cannot be told apart from a truncated
+     * write, so `null` is what makes "this row has no override" a fact rather than a guess.
+     * Every seeded row stays null forever — only a category the user made and coloured stores
+     * a value — which is what lets
+     * [ExpenseTrackerDatabaseInitializer][com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer]
+     * rewrite the seeded rows on every launch without destroying anything.
+     *
+     * Alpha is not stored. A pick is normalised to six digits on write, and the transparency
+     * a surface needs is applied at draw time.
+     */
+    @ColumnInfo(name = "color_hex")
+    val colorHex: String? = null,
     @get:PropertyName("isSystem")
     @field:PropertyName("isSystem")
     @ColumnInfo(name = "is_system")

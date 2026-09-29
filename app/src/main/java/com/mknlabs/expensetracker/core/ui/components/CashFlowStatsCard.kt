@@ -1,7 +1,6 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +22,7 @@ import com.adamglin.phosphoricons.regular.EyeSlash
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,10 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.menu
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,29 +47,29 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowDateTextDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowDateTextLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowExpenseAmountDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowExpenseAmountLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowIncomeAmountDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowIncomeAmountLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowLabelLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceAmountLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceBgDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceBgLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowNetBalanceLabelLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillBgDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillBgLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillTextDark
-import com.mknlabs.expensetracker.core.ui.theme.CashFlowPillTextLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
+import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryDark
+import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryLight
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.heroRail
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.feature.home.ui.CashFlowPeriod
 import kotlinx.coroutines.delay
@@ -77,19 +78,27 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Returns the current date formatted as "15 SEP 2026" (uppercase).
+ * Returns the current date formatted as "27 Sep 2026" (title-case month).
  */
 private fun currentDateString(): String {
-    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    return sdf.format(Date()).uppercase(Locale.getDefault())
+    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+    return sdf.format(Date())
+}
+
+private fun currentYearString(): String {
+    return SimpleDateFormat("yyyy", Locale.ENGLISH).format(Date())
 }
 
 /**
- * Redesigned CashFlow card with adaptive image background:
- * - Stretches and shrinks vertically/horizontally across devices and orientations
- * - Perfect 24.dp corner clipping
- * - Supports both Dark mode (bg_cashflow_dark) and Light mode (bg_cashflow_light)
- * - All internal content styles, formatting, dropdown selection, and privacy toggle preserved
+ * Cash Flow hero card.
+ *
+ * A neutral card in both themes, the same surface as every other card in the app. The
+ * brand is carried by a 3dp rail down the leading edge and a single bloom off the
+ * top-trailing corner rather than by the surface itself — at ~9% of the card's area in
+ * brand colour, against the ~100% of the violet gradient this replaces.
+ *
+ * Everything inside is identical in both themes apart from the ink it reads, and that ink
+ * is now the app's shared text and semantic tokens rather than a set of the hero's own.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -135,20 +144,30 @@ fun CashFlowStatsCard(
 
     var dropdownMenuExpanded by remember { mutableStateOf(dropdownExpanded) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .clickable(onClick = onToggleVisibility)
+    AppCard(
+        onClick = onToggleVisibility,
+        modifier = Modifier.fillMaxWidth(),
+        // The app's own card radius, so the hero is radius-matched to the cards it sits
+        // among in each theme rather than carrying a number of its own.
+        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
+        // No brush: the surface is neutral now, so the hero takes the ordinary flat-fill
+        // path and differs from any other card only in the colour it passes here.
+        colors = AppCardColors(
+            containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            border = BorderStroke(
+                1.dp,
+                if (isDark) HeroOutlineDark else HeroOutlineLight
+            )
+        ),
+        elevation = 0.dp
     ) {
-        // Adaptive background image that stretches and shrinks horizontally & vertically
-        Image(
-            painter = painterResource(
-                id = if (isDark) R.drawable.bg_cashflow_dark else R.drawable.bg_cashflow_light
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.matchParentSize()
+        // Both decorations sit behind the content, clipped to the card's own shape by the
+        // card. The bloom is drawn first so the rail reads as the nearer edge.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .heroBloom()
         )
 
         Column(
@@ -163,14 +182,13 @@ fun CashFlowStatsCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Formatted Current Date (e.g. 15 SEP 2026)
+                // Formatted Current Date (e.g. 27 Sep 2026)
                 Text(
-                    text = currentDate,
-                    color = if (isDark) CashFlowDateTextDark else CashFlowDateTextLight,
+                    text = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) currentYearString() else currentDate,
+                    color = if (isDark) TextSecondaryDark else TextSecondaryLight,
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        letterSpacing = 1.2.sp
+                        fontSize = 14.sp
                     )
                 )
 
@@ -178,10 +196,10 @@ fun CashFlowStatsCard(
                 Box {
                     Surface(
                         shape = RoundedCornerShape(50),
-                        color = if (isDark) CashFlowPillBgDark else CashFlowPillBgLight,
+                        color = if (isDark) HeroPillDark else HeroPillLight,
                         border = BorderStroke(
                             width = 1.dp,
-                            color = if (isDark) CashFlowPillBorderDark else CashFlowPillBorderLight
+                            color = if (isDark) HeroPillOutlineDark else HeroPillOutlineLight
                         ),
                         modifier = Modifier.clickable { dropdownMenuExpanded = true }
                     ) {
@@ -194,7 +212,7 @@ fun CashFlowStatsCard(
                                     stringResource(R.string.label_this_year_cash_flow)
                                 else
                                     stringResource(R.string.label_this_month_cash_flow),
-                                color = if (isDark) CashFlowPillTextDark else CashFlowPillTextLight,
+                                color = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
@@ -204,7 +222,7 @@ fun CashFlowStatsCard(
                             Icon(
                                 imageVector = PhosphorIcons.Regular.CaretDown,
                                 contentDescription = null,
-                                tint = if (isDark) CashFlowPillTextDark else CashFlowPillTextLight,
+                                tint = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -215,7 +233,17 @@ fun CashFlowStatsCard(
                         onDismissRequest = { dropdownMenuExpanded = false },
                         offset = DpOffset(x = 0.dp, y = 8.dp),
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(16.dp)),
+                        // The popup is a surface in its own right, and Material builds it
+                        // from surface-container roles this palette never defines - which
+                        // on the light field renders with a lavender cast. Light paints it
+                        // as the card it is: the specified white, flat, with the hairline
+                        // edge and the card's own corner. Dark keeps the Material default
+                        // it has always had.
+                        shape = RoundedCornerShape(16.dp),
+                        containerColor = MaterialTheme.colorScheme.menu,
+                        tonalElevation = if (isDark) MenuDefaults.TonalElevation else 0.dp,
+                        border = if (isDark) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         CashFlowPeriodOption(
                             label = stringResource(R.string.label_this_month_cash_flow),
@@ -248,20 +276,20 @@ fun CashFlowStatsCard(
                 // EXPENSE
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_expense_cash_flow).uppercase(Locale.getDefault()),
+                    label = stringResource(R.string.label_expense_cash_flow),
                     amount = displayExpense,
-                    labelColor = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
-                    amountColor = if (isDark) CashFlowExpenseAmountDark else CashFlowExpenseAmountLight,
+                    labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
+                    amountColor = MaterialTheme.colorScheme.expense,
                     textAlign = TextAlign.Start
                 )
 
                 // INCOME
                 CashFlowMetric(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.label_income_cash_flow).uppercase(Locale.getDefault()),
+                    label = stringResource(R.string.label_income_cash_flow),
                     amount = displayIncome,
-                    labelColor = if (isDark) CashFlowLabelDark else CashFlowLabelLight,
-                    amountColor = if (isDark) CashFlowIncomeAmountDark else CashFlowIncomeAmountLight,
+                    labelColor = if (isDark) TextTertiaryDark else TextTertiaryLight,
+                    amountColor = MaterialTheme.colorScheme.income,
                     textAlign = TextAlign.End
                 )
             }
@@ -270,10 +298,10 @@ fun CashFlowStatsCard(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                color = if (isDark) CashFlowNetBalanceBgDark else CashFlowNetBalanceBgLight,
+                color = if (isDark) HeroInsetDark else HeroInsetLight,
                 border = BorderStroke(
                     width = 1.dp,
-                    color = if (isDark) CashFlowNetBalanceBorderDark else CashFlowNetBalanceBorderLight
+                    color = if (isDark) HeroInsetOutlineDark else HeroInsetOutlineLight
                 )
             ) {
                 Row(
@@ -289,7 +317,7 @@ fun CashFlowStatsCard(
                     ) {
                         Text(
                             text = stringResource(R.string.label_net_balance_cash_flow),
-                            color = if (isDark) CashFlowNetBalanceLabelDark else CashFlowNetBalanceLabelLight,
+                            color = if (isDark) TextTertiaryDark else TextTertiaryLight,
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
@@ -314,7 +342,7 @@ fun CashFlowStatsCard(
                                     if (isBalanceHidden) R.string.desc_show_balance
                                     else R.string.desc_hide_balance
                                 ),
-                                tint = if (isDark) CashFlowNetBalanceLabelDark.copy(alpha = 0.7f) else CashFlowNetBalanceLabelLight.copy(alpha = 0.7f),
+                                tint = if (isDark) TextSecondaryDark else TextSecondaryLight,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -322,7 +350,7 @@ fun CashFlowStatsCard(
 
                     Text(
                         text = displayBalance,
-                        color = if (isDark) CashFlowNetBalanceAmountDark else CashFlowNetBalanceAmountLight,
+                        color = if (isDark) TextPrimaryDark else TextPrimaryLight,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
@@ -350,7 +378,7 @@ private fun CashFlowPeriodOption(
     Text(
         text = label,
         color = if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.accentInk
         } else {
             MaterialTheme.colorScheme.onSurface
         },
@@ -391,8 +419,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp,
-                letterSpacing = 1.2.sp
+                fontSize = 12.sp
             )
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -402,7 +429,7 @@ private fun CashFlowMetric(
             textAlign = textAlign,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 26.sp
+                fontSize = if (amount == "****") 26.sp else 23.4.sp
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

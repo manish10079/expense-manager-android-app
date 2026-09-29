@@ -1,4 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -51,7 +54,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +68,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.ReminderWindow
 import com.mknlabs.expensetracker.models.SettingsItemType
@@ -70,6 +78,8 @@ import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.theme.CardLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePicker
@@ -87,7 +97,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
-/** ⓘ sheet content for each notification category (spec: one parent per category). */
+/** â“˜ sheet content for each notification category (spec: one parent per category). */
 private enum class NotificationCategoryInfo(val titleRes: Int, val bodyRes: Int) {
     EXPENSE_REMINDERS(R.string.title_expense_reminders, R.string.info_expense_reminders),
     BUDGET_ALERTS(R.string.title_budget_limit_alerts, R.string.info_budget_alerts),
@@ -266,7 +276,7 @@ private fun NotificationSettingsContent(
     val scrollState = rememberScrollState()
     // Which window the time-picker modal is editing (null = modal closed).
     var editingWindow by remember { mutableStateOf<ReminderWindow?>(null) }
-    // Which category's ⓘ sheet is open (null = closed).
+    // Which category's â“˜ sheet is open (null = closed).
     var infoCategory by remember { mutableStateOf<NotificationCategoryInfo?>(null) }
     // Large-transaction threshold + weekly-summary time pickers.
     var showThresholdPicker by remember { mutableStateOf(false) }
@@ -279,17 +289,19 @@ private fun NotificationSettingsContent(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(id = R.string.title_notification_settings),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, bottom = 12.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = Dimens.HeaderSpacing).alpha(enter[0])
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.ScreenPadding),
+                .padding(horizontal = Dimens.ScreenPadding)
+                .alpha(enter[1]),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             if (!isNotificationsPermissionGranted) {
@@ -378,7 +390,7 @@ private fun NotificationSettingsContent(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            // Premium tier (spec categories 5-8): ⭐-locked for Free users.
+            // Premium tier (spec categories 5-8): â­-locked for Free users.
             SettingsGroup {
                 PremiumNotificationCard(
                     icon = Icons.Rounded.AutoAwesome,
@@ -429,7 +441,7 @@ private fun NotificationSettingsContent(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            // Reminder time windows + test notification (plan §Reminders/Phase 2).
+            // Reminder time windows + test notification (plan Â§Reminders/Phase 2).
             SettingsGroup {
                 SettingsItemCard(
                     icon = Icons.Rounded.WbSunny,
@@ -495,7 +507,7 @@ private fun NotificationSettingsContent(
     infoCategory?.let { category ->
         ModalBottomSheet(
             onDismissRequest = { infoCategory = null },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             Column(
@@ -546,7 +558,7 @@ private fun NotificationSettingsContent(
     }
 }
 
-/** Premium category card: toggle for Pro users, ⭐ lock + upgrade tap for Free. */
+/** Premium category card: toggle for Pro users, â­ lock + upgrade tap for Free. */
 @Composable
 private fun PremiumNotificationCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -656,7 +668,7 @@ private fun ReminderTimeWindowPickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -675,7 +687,7 @@ private fun ReminderTimeWindowPickerModal(
 
             Text(
                 text = stringResource(id = R.string.label_starts_at),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -697,7 +709,7 @@ private fun ReminderTimeWindowPickerModal(
 
             Text(
                 text = stringResource(id = R.string.label_ends_at),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -731,7 +743,7 @@ private fun ReminderTimeWindowPickerModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(id = R.string.btn_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -780,7 +792,7 @@ private fun ReminderTimeWindowPickerModal(
     }
 }
 
-/** Large-transaction threshold: ₹1k / ₹5k / ₹10k presets + custom amount (spec). */
+/** Large-transaction threshold: â‚¹1k / â‚¹5k / â‚¹10k presets + custom amount (spec). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LargeTransactionThresholdModal(
@@ -792,7 +804,7 @@ private fun LargeTransactionThresholdModal(
 ) {
     val context = LocalContext.current
     val presetsMajor = listOf(1000L, 5000L, 10000L)
-    // Minor units are fixed ×100 of major (see MoneyUtils).
+    // Minor units are fixed Ã—100 of major (see MoneyUtils).
     val presetsMinor = presetsMajor.map { it * 100L }
 
     var selectedPresetMinor by remember(currentThresholdMinor) {
@@ -806,7 +818,7 @@ private fun LargeTransactionThresholdModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -835,9 +847,14 @@ private fun LargeTransactionThresholdModal(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     color = if (isCustom.not() && selectedPresetMinor == presetMinor) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                    } else {
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
+                    } else if (MaterialTheme.colorScheme.isDark) {
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    } else {
+                        // A picker option is one of the spec's secondary surfaces in
+                        // light. The half-strength wash it used to be sits almost on the
+                        // sheet's own white, which left the options with no edge at all.
+                        CardLight
                     },
                     onClick = {
                         selectedPresetMinor = presetMinor
@@ -862,9 +879,11 @@ private fun LargeTransactionThresholdModal(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 color = if (isCustom) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                } else {
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
+                } else if (MaterialTheme.colorScheme.isDark) {
                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                } else {
+                    CardLight
                 },
                 onClick = {
                     isCustom = true
@@ -890,7 +909,9 @@ private fun LargeTransactionThresholdModal(
                         placeholder = {
                             Text(stringResource(id = R.string.placeholder_custom_threshold))
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = AppOutlinedFieldDefaults.shape,
+                        colors = AppOutlinedFieldDefaults.colors()
                     )
                 }
             }
@@ -950,7 +971,7 @@ private fun WeeklySummaryTimeModal(
     val labelPm = stringResource(R.string.label_pm)
 
     // initialTimeMillis is millis-of-day (e.g. 72_000_000 = 8 PM), NOT an epoch
-    // timestamp — derive the 12-hour wheel state from it directly so the picker
+    // timestamp â€” derive the 12-hour wheel state from it directly so the picker
     // opens showing the actual stored time in any timezone.
     val initialHour24 = (initialTimeMillis / 3_600_000L).toInt().coerceIn(0, 23)
     val initialMinute = ((initialTimeMillis % 3_600_000L) / 60_000L).toInt().coerceIn(0, 59)
@@ -965,7 +986,7 @@ private fun WeeklySummaryTimeModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -1019,7 +1040,7 @@ private fun WeeklySummaryTimeModal(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
+                AppTextButton(onClick = onDismissRequest, modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(id = R.string.btn_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1145,7 +1166,7 @@ private fun NotificationPermissionBanner(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            TextButton(onClick = onEnableClick) {
+            AppTextButton(onClick = onEnableClick) {
                 Text(
                     text = stringResource(
                         id = if (hasRequestedPermission) {

@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
@@ -70,7 +72,7 @@ fun CurrentPeriodIndicator(
         Text(
             text = "${stringResource(R.string.label_current_period)}  $periodText",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.accentInk
         )
     }
 }

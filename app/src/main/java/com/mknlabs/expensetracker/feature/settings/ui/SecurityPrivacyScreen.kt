@@ -1,4 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.rounded.NoPhotography
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_APP_LOCK_TIMEOUT_MINUTES
 import com.mknlabs.expensetracker.data.constants.DEFAULT_BIOMETRIC_LOCK_ENABLED
 import com.mknlabs.expensetracker.data.constants.DEFAULT_BLUR_IN_RECENTS_ENABLED
@@ -147,20 +152,23 @@ private fun SecurityPrivacyContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_security_privacy),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
-            Spacer(modifier = Modifier.height(18.dp))
 
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    AdContainer(isAdsEnabled = isAdsEnabled) {
-                        NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                if (isAdsEnabled) {
+                    item {
+                        AdContainer(isAdsEnabled = true) {
+                            NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
+                        }
                     }
                 }
 
@@ -324,7 +332,7 @@ private fun AutoLockDurationPickerSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -449,7 +457,7 @@ private fun AutoLockDurationPickerSheet(
                         if (isLocked) {
                             Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.featureGateLock)
                         } else if (customMinutesInput.isNotEmpty()) {
-                            TextButton(onClick = {
+                            AppTextButton(onClick = {
                                 val mins = customMinutesInput.toIntOrNull() ?: 0
                                 if (mins > 0) {
                                     onDurationSelected(mins)
@@ -508,7 +516,7 @@ private fun ChangePasswordSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         dragHandle = { BottomSheetDefaults.DragHandle() },
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }
     ) {

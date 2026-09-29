@@ -32,11 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 
 // ── Filter Pill Color Palette ────────────────────────────────────────────
@@ -60,6 +63,12 @@ enum class FilterPillType {
  * The container uses a tinted background; the content color is derived from
  * the same hue but darker for contrast.
  */
+// Sanctioned exception to the mock's token set and to the 30% brand budget: these are
+// CATEGORY IDENTITY hues, not brand or selection colours. A sort pill, a date pill and an
+// amount pill are different kinds of thing, and the bar is more legible when each kind
+// keeps its own hue than when all eight collapse onto the brand accent. They are tints
+// (12–15%) carrying a deepened ink of the same hue, and none of them is the brand violet,
+// so the bar adds no brand area. Kept as literals rather than tokens for that reason.
 private fun FilterPillType.colors(): Pair<Color, Color> {
     return when (this) {
         FilterPillType.SORT ->
@@ -67,9 +76,9 @@ private fun FilterPillType.colors(): Pair<Color, Color> {
         FilterPillType.DATE_RANGE ->
             Color(0xFF00BFA5).copy(alpha = 0.12f) to Color(0xFF00897B)       // Teal
         FilterPillType.INCOME ->
-            Color(0xFF81C784).copy(alpha = 0.15f) to Color(0xFF2E7D32)       // IncomeGreen
+            Color(0xFF81C784).copy(alpha = 0.15f) to Color(0xFF2E7D32)       // IncomeInkDark
         FilterPillType.EXPENSE ->
-            Color(0xFFFF7D7D).copy(alpha = 0.15f) to Color(0xFFC62828)       // ExpenseRed
+            Color(0xFFFF7D7D).copy(alpha = 0.15f) to Color(0xFFC62828)       // ExpenseInkDark
         FilterPillType.CATEGORY ->
             Color(0xFF00C853).copy(alpha = 0.12f) to Color(0xFF2E7D32)       // Green
         FilterPillType.PAYMENT_MODE ->
@@ -136,7 +145,7 @@ fun FilterPill(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
-                    contentDescription = "Remove filter",
+                    contentDescription = stringResource(R.string.desc_remove_filter),
                     tint = contentColor.copy(alpha = 0.7f),
                     modifier = Modifier.size(10.dp)
                 )
@@ -207,7 +216,7 @@ fun ActiveFilterBar(
                 }
 
                 // "Clear all" pinned to the end
-                TextButton(
+                AppTextButton(
                     onClick = onClearAll,
                     modifier = Modifier.padding(start = 4.dp)
                 ) {

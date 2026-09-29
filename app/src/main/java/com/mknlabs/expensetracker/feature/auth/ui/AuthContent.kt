@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.auth.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.disabled
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -13,11 +15,15 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,7 +111,7 @@ fun AuthRoute(
             title = { Text(stringResource(id = R.string.title_google_accounts_not_found)) },
             text = { Text(stringResource(id = R.string.msg_google_accounts_not_found)) },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showNoGoogleAccountsDialog = false
                     // Open device Settings → Add Google Account
                     viewModel.shouldAttemptAutoSignInAfterReturn = true
@@ -119,7 +125,7 @@ fun AuthRoute(
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showNoGoogleAccountsDialog = false
                     // Retry sign-in — the Credential Manager may succeed on a
                     // second attempt after clearing its stale state.
@@ -245,7 +251,7 @@ private fun AuthContentBody(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Google Sign In Button
-            OutlinedButton(
+            AppOutlinedButton(
                 onClick = onGoogleSignIn,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -262,7 +268,11 @@ private fun AuthContentBody(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     if (authState is AuthState.Loading && authState.type == AuthLoadingType.GOOGLE) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.accentInk,
+                            strokeWidth = 2.dp
+                        )
                     } else {
                         Text(
                             text = stringResource(id = R.string.label_continue_with),
@@ -274,7 +284,7 @@ private fun AuthContentBody(
                             painter = painterResource(id = R.drawable.ic_google_logo),
                             contentDescription = stringResource(id = R.string.content_desc_google_logo),
                             modifier = Modifier.size(24.dp),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.accentInk)
                         )
                     }
                 }
@@ -349,7 +359,7 @@ private fun AuthContentBody(
                     Text(
                         text = stringResource(id = R.string.label_forgot_password),
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         modifier = Modifier.clickable {
                             onForgotPassword(email)
                         }
@@ -430,16 +440,16 @@ private fun AuthContentBody(
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                     },
                     disabledContentColor = if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.accentInk
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        MaterialTheme.colorScheme.disabled
                     }
                 )
             ) {
                 if (authState is AuthState.Loading && authState.type == AuthLoadingType.EMAIL) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -492,25 +502,29 @@ private fun AuthContentBody(
                 }
             }
 
-            TextButton(onClick = { 
+            AppTextButton(onClick = { 
                 isSignUp = !isSignUp 
                 onToggleSignUp()
             }) {
                 Text(
                     text = if (isSignUp) stringResource(id = R.string.label_already_have_account) else stringResource(id = R.string.label_no_account_signup),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.accentInk
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextButton(
+            AppTextButton(
                 onClick = onGuestContinue,
                 enabled = authState !is AuthState.Loading
             ) {
                 if (authState is AuthState.Loading && authState.type == AuthLoadingType.GUEST) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.accentInk,
+                            strokeWidth = 2.dp
+                        )
                 } else {
                     Text(
                         text = stringResource(id = R.string.label_continue_as_guest),
@@ -577,7 +591,7 @@ private fun EmailVerificationContent(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -648,7 +662,7 @@ private fun EmailVerificationContent(
             }
         }
 
-        OutlinedButton(
+        AppOutlinedButton(
             onClick = onResend,
             modifier = Modifier
                 .fillMaxWidth()
@@ -659,7 +673,7 @@ private fun EmailVerificationContent(
             if (isVerificationLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -670,7 +684,7 @@ private fun EmailVerificationContent(
             }
         }
 
-        TextButton(
+        AppTextButton(
             onClick = onCancel,
             enabled = !isVerificationLoading
         ) {
@@ -679,7 +693,7 @@ private fun EmailVerificationContent(
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.accentInk
             )
         }
     }

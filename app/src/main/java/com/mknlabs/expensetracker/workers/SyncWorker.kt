@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
-import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.google.firebase.auth.FirebaseAuth
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -68,7 +69,21 @@ class SyncWorker @AssistedInject constructor(
 
         // 2. Re-read settings AFTER profile sync to get the latest tier
         val settings = AppSettingsDataStore.getAppSettingsFlow(applicationContext).first()
-        if (settings.userTier != UserTier.PREMIUM || !settings.isCloudSyncEnabled) {
+        // The same rule the settings enforcer and the cloud-sync screen gate use. Reading the
+        // raw tier mirror here skipped every store subscriber: a subscription never writes
+        // accountTier = "PREMIUM" locally, and the mirror follows whatever the server says for
+        // the user, so the worker refused to run for someone who is paying.
+        val profile = com.mknlabs.expensetracker.data.local.UserProfileDataStore
+            .getUserProfileFlow(applicationContext).first()
+        val isPremium = EntitlementResolver.isPremium(
+            appSettingsTier = settings.userTier,
+            accountTier = profile.accountTier,
+            proExpiryTimestamp = profile.proExpiryTimestamp,
+            revenueCatEntitlementActive = MonetizationDataStore
+                .getPremiumEntitlementActive(applicationContext).first(),
+            now = System.currentTimeMillis()
+        )
+        if (!isPremium || !settings.isCloudSyncEnabled) {
             schedulePeriodic(applicationContext)
             return Result.success()
         }

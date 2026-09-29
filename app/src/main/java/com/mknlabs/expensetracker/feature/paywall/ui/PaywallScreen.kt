@@ -29,6 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -43,6 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +54,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -65,11 +71,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.delay
@@ -96,11 +110,14 @@ private const val PURCHASE_CONFIRMATION_HOLD_MILLIS = 1_500L
 fun PaywallRoute(
     onBackClick: () -> Unit,
     onPrepareForExternalActivity: () -> Unit,
+    onNavigateToMembership: () -> Unit,
     viewModel: PaywallViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var waitingForPlaySheet by remember { mutableStateOf(false) }
 
     // System back leaves the paywall rather than the app — same convention as every
     // other route.
@@ -108,6 +125,19 @@ fun PaywallRoute(
         onBackClick()
     }
 
+    // The Play sheet pauses this Activity when it appears. That is the moment the
+    // subscribe spinner has done its job.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) waitingForPlaySheet = false
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(uiState.purchaseState) {
+        if (uiState.purchaseState !is PurchaseState.InProgress) waitingForPlaySheet = false
+    }
     // Deliberately an external browser rather than a WebView: the legal pages are the same
     // ones AboutScreen opens, and leaving the app must suppress the auto-lock first —
     // otherwise returning from the browser demands the PIN mid-purchase.
@@ -120,8 +150,9 @@ fun PaywallRoute(
         }
     }
 
-    LaunchedEffect(uiState.messageRes) {
+    LaunchedEffect(uiState.messageRes, uiState.isPurchaseSuccess) {
         val messageRes = uiState.messageRes ?: return@LaunchedEffect
+        if (uiState.isPurchaseSuccess) return@LaunchedEffect
         snackbarHostState.showSnackbar(context.getString(messageRes))
         // Released only after the message has actually been shown, so a configuration
         // change mid-snackbar cannot swallow it.
@@ -131,8 +162,8 @@ fun PaywallRoute(
     // A settled attempt closes the paywall. The user came here to buy, they have bought, and
     // a purchase screen they have already paid on is the bug this exists to prevent — the
     // confirmation above is what they get for their money, not another chance to pay twice.
-    LaunchedEffect(uiState.isPurchaseSettled) {
-        if (!uiState.isPurchaseSettled) return@LaunchedEffect
+    LaunchedEffect(uiState.isPurchaseSettled, uiState.isPurchaseSuccess) {
+        if (!uiState.isPurchaseSettled || uiState.isPurchaseSuccess) return@LaunchedEffect
         delay(PURCHASE_CONFIRMATION_HOLD_MILLIS)
         // Consumed here rather than by the effect above, because leaving cancels that one
         // mid-snackbar and its acknowledgement would never run — and an outcome left
@@ -146,17 +177,23 @@ fun PaywallRoute(
     PaywallContent(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
+        isOpeningStore = waitingForPlaySheet,
         onSubscribeClick = { offerId ->
             // Gated content can live in its own dialog window, where LocalContext is a
             // ContextThemeWrapper rather than the Activity — a plain `as? Activity` cast
             // would be null and no Play sheet would ever open.
             context.findFragmentActivity()?.let { activity ->
+                waitingForPlaySheet = true
                 viewModel.onSubscribeClick(activity, offerId)
             }
         },
         onRestoreClick = viewModel::onRestoreClick,
         onRetryClick = viewModel::onRetryClick,
         onOpenUrl = openUrl,
+        onPurchaseSuccessConfirmed = {
+            viewModel.onOutcomeShown()
+            onNavigateToMembership()
+        },
     )
 }
 
@@ -172,6 +209,8 @@ internal fun PaywallContent(
     onRetryClick: () -> Unit,
     onOpenUrl: (String) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    isOpeningStore: Boolean = false,
+    onPurchaseSuccessConfirmed: () -> Unit = {},
 ) {
     // Selection is UI-local and survives rotation; the first plan is preselected so the
     // primary action is usable the moment plans arrive, with no dead initial tap.
@@ -215,7 +254,7 @@ internal fun PaywallContent(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp,
                         ),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -238,6 +277,7 @@ internal fun PaywallContent(
                 item {
                     SubscribeAction(
                         isEnabled = selectedId != null && !uiState.isBusy,
+                        isLoading = isOpeningStore,
                         onSubscribeClick = { selectedId?.let(onSubscribeClick) },
                     )
                 }
@@ -247,7 +287,7 @@ internal fun PaywallContent(
                 item { RenewalDisclosure() }
 
                 item {
-                    TextButton(
+                    AppTextButton(
                         onClick = onRestoreClick,
                         enabled = !uiState.isBusy,
                         modifier = Modifier.height(44.dp),
@@ -255,7 +295,7 @@ internal fun PaywallContent(
                         Text(
                             text = stringResource(R.string.btn_restore_purchase),
                             style = MaterialTheme.typography.labelLarge.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.accentInk,
                                 fontWeight = FontWeight.SemiBold,
                             ),
                         )
@@ -266,7 +306,7 @@ internal fun PaywallContent(
                 // non-subscriber has nothing to manage.
                 if (uiState.canManageSubscription) {
                     item {
-                        TextButton(
+                        AppTextButton(
                             onClick = { uiState.managementUrl?.let(onOpenUrl) },
                             enabled = !uiState.isBusy,
                             modifier = Modifier.height(44.dp),
@@ -285,6 +325,10 @@ internal fun PaywallContent(
                 item { PaywallLegalLinks(onOpenUrl = onOpenUrl) }
             }
         }
+    }
+
+    if (uiState.isPurchaseSuccess) {
+        PurchaseSuccessDialog(onConfirm = onPurchaseSuccessConfirmed)
     }
 }
 
@@ -315,7 +359,7 @@ private fun PaywallLegalLinks(onOpenUrl: (String) -> Unit) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(
+        AppTextButton(
             onClick = { onOpenUrl(termsUrl) },
             modifier = Modifier.height(44.dp),
         ) {
@@ -326,7 +370,7 @@ private fun PaywallLegalLinks(onOpenUrl: (String) -> Unit) {
             )
         }
         Spacer(modifier = Modifier.width(Dimens.spacingSmall))
-        TextButton(
+        AppTextButton(
             onClick = { onOpenUrl(privacyUrl) },
             modifier = Modifier.height(44.dp),
         ) {
@@ -352,7 +396,7 @@ private fun PaywallHero() {
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.accentInk,
                             MaterialTheme.colorScheme.secondary,
                         )
                     )
@@ -383,7 +427,7 @@ private fun AlreadyProNotice() {
     Text(
         text = stringResource(R.string.msg_paywall_already_pro),
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.accentInk,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -401,7 +445,7 @@ private fun ProBenefits() {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.5.sp,
             ),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
         )
 
         BenefitRow(stringResource(R.string.label_pro_benefit_adfree))
@@ -422,14 +466,14 @@ private fun BenefitRow(text: String) {
             modifier = Modifier
                 .size(24.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                .background(MaterialTheme.colorScheme.accentSoft),
             contentAlignment = Alignment.Center,
         ) {
             // Decorative: the benefit text beside it carries the meaning.
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(14.dp),
             )
         }
@@ -466,7 +510,7 @@ private fun PlanCard(
         shape = RoundedCornerShape(Dimens.CardRadius),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
             } else {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             },
@@ -474,7 +518,7 @@ private fun PlanCard(
         border = BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
             color = if (isSelected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.accentInk
             } else {
                 MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
             },
@@ -502,7 +546,7 @@ private fun PlanCard(
                     if (discountPercent != null) {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.accentInk,
                             shape = RoundedCornerShape(6.dp),
                         ) {
                             Text(
@@ -547,24 +591,36 @@ private fun PlanCard(
 @Composable
 private fun SubscribeAction(
     isEnabled: Boolean,
+    isLoading: Boolean,
     onSubscribeClick: () -> Unit,
 ) {
     Button(
         onClick = onSubscribeClick,
-        enabled = isEnabled,
+        enabled = isEnabled && !isLoading,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.accentInk,
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
     ) {
-        Text(
-            text = stringResource(R.string.btn_paywall_subscribe),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-        )
+        if (isLoading) {
+            val openingStore = stringResource(R.string.content_desc_opening_play_store)
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(24.dp)
+                    .semantics { contentDescription = openingStore },
+                color = MaterialTheme.colorScheme.onPrimary,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.btn_paywall_subscribe),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            )
+        }
     }
 }
 
@@ -579,6 +635,7 @@ private fun LoadingPlans() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.semantics { contentDescription = loadingDescription },
+            color = MaterialTheme.colorScheme.accentInk,
         )
     }
 }
@@ -602,7 +659,7 @@ private fun PlansUnavailable(onRetryClick: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        TextButton(onClick = onRetryClick) {
+        AppTextButton(onClick = onRetryClick) {
             Text(text = stringResource(R.string.btn_paywall_retry))
         }
     }
@@ -679,3 +736,57 @@ private val PaywallPreviewState = PaywallUiState(
     ),
     isLoadingOffers = false,
 )
+
+@Composable
+private fun PurchaseSuccessDialog(onConfirm: () -> Unit) {
+    val shape = RoundedCornerShape(12.dp)
+    AlertDialog(
+        onDismissRequest = onConfirm,
+        containerColor = MaterialTheme.colorScheme.sheet,
+        icon = {
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.accentInk,
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(id = R.string.title_paywall_purchase_congrats),
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.msg_paywall_purchase_congrats),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                shape = shape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onCta
+                ),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(shape)
+                        .background(brush = brandGradient())
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(id = R.string.label_ok))
+                }
+            }
+        },
+        shape = RoundedCornerShape(20.dp)
+    )
+}

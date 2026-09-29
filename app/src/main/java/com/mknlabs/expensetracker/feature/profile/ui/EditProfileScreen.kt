@@ -17,7 +17,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DOB_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.UserTier
@@ -41,6 +45,7 @@ import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.ProfilePhotoManager
@@ -69,6 +74,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.focus.onFocusChanged
 
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
 
@@ -231,10 +237,11 @@ private fun ProfileScreenContent(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
+        val enter = rememberSectionEnterAlphas(2)
         AppHeader(
             title = stringResource(id = R.string.title_edit_profile),
             onBackClick = onBackClick,
-            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 10.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding).alpha(enter[0])
         )
 
         Column(
@@ -242,7 +249,8 @@ private fun ProfileScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, top = 4.dp, bottom = 22.dp),
+                .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 22.dp)
+                .alpha(enter[1]),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfilePhotoSection(
@@ -299,14 +307,20 @@ private fun ProfileScreenContent(
                     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
 
-                androidx.compose.material3.Surface(
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                // The card that groups the account fields. It is chrome rather than a
+                // message, so light takes the shared white card; dark keeps the surface, the
+                // quarter-strength outline and the 8dp lift it has always had.
+                AppCard(
+                    shape = AppCardDefaults.shape(28.dp),
+                    colors = AppCardDefaults.colors(
+                        darkContainer = MaterialTheme.colorScheme.surface,
+                        darkBorder = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        )
                     ),
-                    shadowElevation = 8.dp
+                    elevation = if (MaterialTheme.colorScheme.isDark) 8.dp
+                    else AppCardDefaults.Elevation
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         InputFieldCard(
@@ -323,14 +337,21 @@ private fun ProfileScreenContent(
                                         imageVector = Icons.Rounded.Verified,
                                         contentDescription = stringResource(id = R.string.content_desc_email_verified),
                                         modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = MaterialTheme.colorScheme.accentInk
                                     )
                                 }
                             } else null
                         )
 
                         HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            // The rule still separates the two fields on the card; in light it
+                            // is the spec's hairline instead of a fifth-strength wash that
+                            // disappeared into the white.
+                            color = if (MaterialTheme.colorScheme.isDark) {
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            }
                         )
 
                         if (isGoogleAccount) {
@@ -346,7 +367,7 @@ private fun ProfileScreenContent(
                             )
                         } else if (!emailVerifiedState) {
                             // Email not verified → Verify Email button
-                            androidx.compose.material3.TextButton(
+                            AppTextButton(
                                 onClick = {
                                     firebaseUser?.sendEmailVerification()
                                     showVerificationSheet = true
@@ -367,7 +388,7 @@ private fun ProfileScreenContent(
                             }
                         } else {
                             // Email verified (non-Google) → Update Email button
-                            androidx.compose.material3.TextButton(
+                            AppTextButton(
                                 onClick = { showUpdateEmailSheet = true },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -494,7 +515,7 @@ private fun ProfileScreenContent(
                     .shadow(
                         elevation = 28.dp,
                         shape = RoundedCornerShape(999.dp),
-                        ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.34f),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
                     ),
                 shape = RoundedCornerShape(999.dp),
@@ -509,7 +530,7 @@ private fun ProfileScreenContent(
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.accentInk,
                                     MaterialTheme.colorScheme.secondary
                                 )
                             ),
@@ -619,6 +640,9 @@ private fun ProfilePhotoSection(
 ) {
     val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
     val photoActionIconColor = MaterialTheme.colorScheme.secondary
+    // Removing the photo is destructive, so the trash action carries the same error ink as
+    // every other delete control in the app; the edit action beside it keeps the neutral pair.
+    val photoDeleteIconColor = MaterialTheme.colorScheme.error
 
     ProfileAvatar(
         gender = gender,
@@ -664,9 +688,9 @@ private fun ProfilePhotoSection(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = stringResource(id = R.string.content_desc_delete_photo),
                 tint = if (photoUri != null && !isPhotoProcessing) {
-                    photoActionIconColor
+                    photoDeleteIconColor
                 } else {
-                    photoActionIconColor.copy(alpha = 0.65f)
+                    photoDeleteIconColor.copy(alpha = 0.65f)
                 }
             )
         }
@@ -736,19 +760,42 @@ private fun PhoneInputFieldCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val containerColor = colorScheme.surface
-    val primary = colorScheme.primary
+    val accent = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
-    val containerShape = RoundedCornerShape(28.dp)
-    val borderColor = colorScheme.outlineVariant.copy(alpha = 0.4f)
+    // The same field spec the shared InputFieldCard follows: light takes the 16dp white
+    // field on the hairline outline, lit in brand purple while it holds the cursor, and
+    // dark keeps the 28dp, the quarter-strength edge and the 8dp lift. This is a second
+    // implementation of that field - it carries the country-code selector the shared one
+    // has no slot for - so it has to be kept in step by hand.
+    val isDark = colorScheme.isDark
+    var isFocused by remember { mutableStateOf(false) }
+    val containerShape = if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
+    val borderColor = if (isDark) {
+        colorScheme.outlineVariant.copy(alpha = 0.4f)
+    } else {
+        if (isFocused) accent else colorScheme.outline
+    }
     val focusManager = LocalFocusManager.current
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
+    AppCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { isFocused = it.hasFocus },
         shape = containerShape,
-        color = containerColor,
-        border = BorderStroke(width = 1.dp, color = borderColor),
-        shadowElevation = 8.dp
+        colors = if (isDark) {
+            AppCardDefaults.colors(
+                darkContainer = containerColor,
+                darkBorder = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        } else {
+            AppCardColors(
+                containerColor = containerColor,
+                contentColor = onSurface,
+                border = BorderStroke(width = 1.dp, color = borderColor),
+            )
+        },
+        elevation = if (isDark) 8.dp else AppCardDefaults.Elevation,
     ) {
         Row(
             modifier = Modifier
@@ -760,13 +807,13 @@ private fun PhoneInputFieldCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(primary.copy(alpha = 0.1f)),
+                    .background(accent.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Call,
                     contentDescription = null,
-                    tint = primary,
+                    tint = accent,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -798,14 +845,14 @@ private fun PhoneInputFieldCard(
                             text = selectedCountryCode,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = primary
+                                color = accent
                             )
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowDown,
                             contentDescription = stringResource(id = R.string.title_select_country),
-                            tint = primary,
+                            tint = accent,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -834,7 +881,7 @@ private fun PhoneInputFieldCard(
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
                             color = onSurface
                         ),
-                        cursorBrush = SolidColor(primary),
+                        cursorBrush = SolidColor(accent),
                         modifier = Modifier.fillMaxWidth(),
                         decorationBox = { innerTextField ->
                             if (phoneNumber.isEmpty()) {

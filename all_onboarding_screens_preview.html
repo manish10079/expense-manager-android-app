@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseTracker - Complete Onboarding Flow Preview (All Screens)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #0B0D13;
+            --canvas-text: #E5E7EB;
+            --canvas-muted: #9CA3AF;
+            --accent-brand: #7B61FF;
+            --accent-brand-light: #6A4DFF;
+            
+            /* Dark Theme Tokens (from Color.kt) */
+            --dark-bg: #0A0A0A;
+            --dark-surface: #141418;
+            --dark-surface-2: #1A1A20;
+            --dark-surface-3: #1E1E23;
+            --dark-surface-variant: #26262E;
+            --dark-text-primary: #F2F2F5;
+            --dark-text-secondary: #A8A8B3;
+            --dark-text-tertiary: #8A8C95;
+            --dark-divider: #2A2A31;
+            --dark-accent-ink: #9E84FF;
+            --dark-accent-soft: rgba(158, 132, 255, 0.14);
+            --dark-cta-start: #5838FA;
+            --dark-cta-end: #3713EC;
+            --dark-disabled: #6E6E7A;
+            --dark-income: #2DD4BF;
+            --dark-expense: #FF7597;
+
+            /* Light Theme Tokens (from Color.kt) */
+            --light-bg: #F7F8FA;
+            --light-surface: #FFFFFF;
+            --light-surface-2: #F1F2F4;
+            --light-surface-3: #FAFAFC;
+            --light-surface-variant: #F1F2F4;
+            --light-text-primary: #1F2937;
+            --light-text-secondary: #5B6270;
+            --light-text-tertiary: #6B7280;
+            --light-divider: #E8EBEF;
+            --light-accent-ink: #6A4DFF;
+            --light-accent-soft: rgba(106, 77, 255, 0.10);
+            --light-cta-start: #6A4DFF;
+            --light-cta-end: #5B45D6;
+            --light-disabled: #A8B0BB;
+            --light-income: #0D9488;
+            --light-expense: #E11D48;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--canvas-text);
+            min-height: 100vh;
+            padding: 28px 20px 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top Header */
+        .workspace-header {
+            width: 100%;
+            max-width: 1380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 24px;
+            gap: 10px;
+        }
+
+        .workspace-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(123, 97, 255, 0.15);
+            color: #B39DFF;
+            border: 1px solid rgba(123, 97, 255, 0.3);
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .workspace-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+        }
+
+        .workspace-subtitle {
+            font-size: 0.95rem;
+            color: var(--canvas-muted);
+            max-width: 760px;
+            line-height: 1.55;
+        }
+
+        /* Master Controls Bar */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #151822;
+            border: 1px solid #232838;
+            padding: 8px 14px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            position: sticky;
+            top: 16px;
+            z-index: 200;
+        }
+
+        .btn-toggle-group {
+            display: flex;
+            background: #0B0D13;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid #1F2433;
+            gap: 4px;
+        }
+
+        .btn-toggle {
+            background: transparent;
+            border: none;
+            color: #9CA3AF;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle.active {
+            background: var(--accent-brand);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(123, 97, 255, 0.4);
+        }
+
+        .btn-toggle:hover:not(.active) {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .control-separator {
+            width: 1px;
+            height: 24px;
+            background: #2A3144;
+            margin: 0 2px;
+        }
+
+        /* Screen Quick Jump Tabs (Carousel Mode) */
+        .jump-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            max-width: 1380px;
+            width: 100%;
+            padding: 4px 6px 14px 6px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+        .jump-nav::-webkit-scrollbar { display: none; }
+
+        .jump-tab {
+            background: #141721;
+            border: 1px solid #232838;
+            color: #9CA3AF;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .jump-tab.active {
+            background: rgba(123, 97, 255, 0.2);
+            color: #C4B5FD;
+            border-color: var(--accent-brand);
+            font-weight: 700;
+        }
+
+        .jump-tab:hover:not(.active) {
+            color: #FFFFFF;
+            background: #1E2333;
+        }
+
+        /* Layout Container */
+        .main-container {
+            width: 100%;
+            max-width: 1380px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Grid View */
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 32px;
+            width: 100%;
+            justify-items: center;
+        }
+
+        /* Carousel View */
+        .carousel-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .screen-card-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+            transition: transform 0.2s ease;
+        }
+
+        .screen-header-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 4px;
+        }
+
+        .screen-num {
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: #93C5FD;
+            background: rgba(59, 130, 246, 0.12);
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .screen-role {
+            font-size: 0.76rem;
+            color: var(--canvas-muted);
+            font-weight: 600;
+        }
+
+        /* Android Phone Frame */
+        .android-frame {
+            width: 375px;
+            height: 780px;
+            border-radius: 44px;
+            position: relative;
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        /* Theme Styling */
+        .theme-dark .android-frame {
+            background: var(--dark-bg);
+            color: var(--dark-text-primary);
+        }
+
+        .theme-light .android-frame {
+            background: var(--light-bg);
+            color: var(--light-text-primary);
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .theme-dark .ambient-glow {
+            background: radial-gradient(circle at 50% 36%, rgba(158, 132, 255, 0.16) 0%, rgba(38, 38, 46, 0.22) 42%, #0A0A0A 80%);
+        }
+        .theme-light .ambient-glow {
+            background: radial-gradient(circle at 50% 36%, rgba(106, 77, 255, 0.10) 0%, rgba(241, 242, 244, 0.40) 42%, #F7F8FA 80%);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 40px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .camera-punch {
+            position: absolute;
+            top: 10px; left: 50%;
+            transform: translateX(-50%);
+            width: 12px; height: 12px;
+            background: #000000;
+            border-radius: 50%;
+        }
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-icons svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* Screen Inner Container */
+        .screen-content {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 6px 18px 14px 18px;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .screen-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 32px;
+            margin-bottom: 6px;
+        }
+        .nav-back-icon {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+        .step-indicator-pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .theme-dark .step-indicator-pill {
+            background: var(--dark-surface-variant);
+            color: var(--dark-accent-ink);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .step-indicator-pill {
+            background: var(--light-surface-variant);
+            color: var(--light-accent-ink);
+            border: 1px solid var(--light-divider);
+        }
+
+        /* Main Illustration Section */
+        .illustration-stage {
+            height: 250px;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* Floating circles in illustrations */
+        .float-bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        }
+        .theme-dark .float-bubble {
+            background: var(--dark-surface-variant);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .float-bubble {
+            background: var(--light-surface);
+            border: 1px solid var(--light-divider);
+        }
+
+        /* Title and Subtitle */
+        .copy-block {
+            text-align: center;
+            margin-bottom: auto;
+            padding: 0 4px;
+        }
+        .copy-title {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            line-height: 1.22;
+            margin-bottom: 6px;
+        }
+        .copy-title .accent-text {
+            color: var(--dark-accent-ink);
+        }
+        .theme-light .copy-title .accent-text {
+            color: var(--light-accent-ink);
+        }
+        .copy-desc {
+            font-size: 0.8rem;
+            line-height: 1.4;
+            opacity: 0.75;
+        }
+
+        /* Footer Controls */
+        .screen-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        /* CTA Button */
+        .onboarding-btn {
+            width: 100%;
+            height: 56px;
+            border-radius: 999px;
+            border: none;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .theme-dark .onboarding-btn {
+            background: linear-gradient(135deg, var(--dark-cta-start) 0%, var(--dark-cta-end) 100%);
+            box-shadow: 0 8px 20px -4px rgba(88, 56, 250, 0.5);
+        }
+        .theme-light .onboarding-btn {
+            background: linear-gradient(135deg, var(--light-cta-start) 0%, var(--light-cta-end) 100%);
+            box-shadow: 0 8px 20px -4px rgba(106, 77, 255, 0.4);
+        }
+        .onboarding-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+            box-shadow: none !important;
+        }
+        .theme-dark .onboarding-btn.disabled {
+            background: var(--dark-surface-variant);
+            color: var(--dark-disabled);
+        }
+        .theme-light .onboarding-btn.disabled {
+            background: var(--light-surface-variant);
+            color: var(--light-disabled);
+        }
+
+        /* Bottom Controls Row */
+        .bottom-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 26px;
+            padding: 0 4px;
+        }
+        .nav-text-btn {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.15s ease;
+        }
+        .nav-text-btn:hover { opacity: 1; }
+        .nav-text-btn.accent {
+            opacity: 1;
+            font-size: 0.78rem;
+        }
+        .theme-dark .nav-text-btn.accent { color: var(--dark-accent-ink); }
+        .theme-light .nav-text-btn.accent { color: var(--light-accent-ink); }
+
+        /* Page Dots */
+        .dots-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        .theme-dark .dot { background: var(--dark-divider); }
+        .theme-dark .dot.active {
+            background: var(--dark-accent-ink);
+            width: 18px;
+            border-radius: 999px;
+        }
+        .theme-light .dot { background: var(--light-divider); }
+        .theme-light .dot.active {
+            background: var(--light-accent-ink);
+            width: 18px;
+            border-radius: 999px;
+        }
+
+        /* Navigation gesture pill */
+        .gesture-bar {
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 4px;
+        }
+        .gesture-bar-pill {
+            width: 90px;
+            height: 4px;
+            border-radius: 999px;
+            opacity: 0.5;
+        }
+        .theme-dark .gesture-bar-pill { background: #FFFFFF; }
+        .theme-light .gesture-bar-pill { background: #000000; }
+
+        /* ------------------------------------------------------------- */
+        /* SPECIFIC SCREEN ILLUSTRATIONS & CONTENT BLOCKS                */
+        /* ------------------------------------------------------------- */
+        
+        /* Screen 1: Expense Card Illustration */
+        .card-tilt-art {
+            width: 220px;
+            height: 170px;
+            border-radius: 30px;
+            transform: rotate(-4deg);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+        }
+        .theme-dark .card-tilt-art {
+            background: linear-gradient(135deg, #1C1C24, #141418);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .card-tilt-art {
+            background: #FFFFFF;
+            border: 1px solid var(--light-divider);
+        }
+
+        /* Screen 2: Security Biometric Shield */
+        .security-orb-art {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .theme-dark .security-orb-art {
+            background: var(--dark-surface-2);
+            border: 2px solid var(--dark-divider);
+            box-shadow: 0 0 30px rgba(158, 132, 255, 0.2);
+        }
+        .theme-light .security-orb-art {
+            background: #FFFFFF;
+            border: 2px solid var(--light-divider);
+            box-shadow: 0 0 30px rgba(106, 77, 255, 0.15);
+        }
+        .biometric-center {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5838FA, #3713EC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+        }
+
+        /* Screen 3: Growth Chart Analytics */
+        .analytics-card-art {
+            width: 240px;
+            height: 180px;
+            border-radius: 28px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .theme-dark .analytics-card-art {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .analytics-card-art {
+            background: #FFFFFF;
+            border: 1px solid var(--light-divider);
+        }
+        .bars-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 80px;
+            padding: 0 8px;
+        }
+        .bar-col {
+            width: 38px;
+            border-radius: 16px 16px 10px 10px;
+        }
+
+        /* Screen 4: Benefit Cards */
+        .benefit-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .benefit-box {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .theme-dark .benefit-box {
+            background: var(--dark-surface-variant);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .benefit-box {
+            background: var(--light-surface-variant);
+            border: 1px solid var(--light-divider);
+        }
+
+        /* Screen 5: Consent Highlights & Scrollable Terms */
+        .consent-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 380px;
+            padding-right: 4px;
+        }
+        .consent-scroll-area::-webkit-scrollbar { width: 3px; }
+        .theme-dark .consent-scroll-area::-webkit-scrollbar-thumb { background: #383844; }
+        .theme-light .consent-scroll-area::-webkit-scrollbar-thumb { background: #D1D5DB; }
+
+        .consent-bullets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .consent-bullet-card {
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.68rem;
+            line-height: 1.35;
+        }
+        .theme-dark .consent-bullet-card {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .consent-bullet-card {
+            background: var(--light-surface);
+            border: 1px solid var(--light-divider);
+        }
+        .consent-terms-pane {
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 0.68rem;
+            line-height: 1.4;
+            max-height: 90px;
+            overflow-y: auto;
+        }
+        .theme-dark .consent-terms-pane {
+            background: var(--dark-surface-3);
+            border: 1px solid var(--dark-divider);
+            color: var(--dark-text-secondary);
+        }
+        .theme-light .consent-terms-pane {
+            background: var(--light-surface-3);
+            border: 1px solid var(--light-divider);
+            color: var(--light-text-secondary);
+        }
+
+        /* Checkbox UI */
+        .check-card-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 6px;
+            cursor: pointer;
+        }
+        .mini-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid #9CA3AF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .mini-checkbox.checked {
+            background: var(--accent-brand);
+            border-color: var(--accent-brand);
+        }
+        .mini-checkbox svg { width: 12px; height: 12px; stroke: #FFFFFF; stroke-width: 3; fill: none; }
+
+        /* Screen 6: Auth Content */
+        .auth-buttons-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .btn-google-auth {
+            height: 52px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+        .theme-dark .btn-google-auth {
+            background: #FFFFFF;
+            color: #1F2937;
+        }
+        .theme-light .btn-google-auth {
+            background: #FFFFFF;
+            color: #1F2937;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .auth-field-card {
+            border-radius: 16px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .theme-dark .auth-field-card {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .auth-field-card {
+            background: var(--light-surface);
+            border: 1px solid var(--light-divider);
+        }
+        .btn-guest-action {
+            height: 48px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid;
+            background: transparent;
+        }
+        .theme-dark .btn-guest-action {
+            border-color: var(--dark-divider);
+            color: var(--dark-accent-ink);
+        }
+        .theme-light .btn-guest-action {
+            border-color: var(--light-divider);
+            color: var(--light-accent-ink);
+        }
+
+        /* Screen 7: Goals List */
+        .goals-list-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .goals-list-scroll::-webkit-scrollbar { width: 3px; }
+        .goal-option-card {
+            padding: 12px 14px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .theme-dark .goal-option-card {
+            background: var(--dark-surface-variant);
+            color: var(--dark-text-primary);
+        }
+        .theme-light .goal-option-card {
+            background: var(--light-surface-variant);
+            color: var(--light-text-primary);
+        }
+        .goal-option-card.selected {
+            font-weight: 700;
+        }
+        .theme-dark .goal-option-card.selected {
+            background: rgba(158, 132, 255, 0.16);
+            color: var(--dark-accent-ink);
+            border: 1px solid var(--dark-accent-ink);
+        }
+        .theme-light .goal-option-card.selected {
+            background: rgba(106, 77, 255, 0.12);
+            color: var(--light-accent-ink);
+            border: 1px solid var(--light-accent-ink);
+        }
+
+        /* Screen 8: Profile Setup */
+        .profile-setup-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .user-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            align-self: center;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .theme-dark .user-tag-pill {
+            background: rgba(45, 212, 191, 0.15);
+            color: var(--dark-income);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+        }
+        .theme-light .user-tag-pill {
+            background: rgba(13, 148, 136, 0.12);
+            color: var(--light-income);
+            border: 1px solid rgba(13, 148, 136, 0.25);
+        }
+
+        /* Screen 9: Welcome Back */
+        .welcome-back-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex: 1;
+            gap: 16px;
+        }
+        .wave-emoji { font-size: 48px; }
+        .goal-target-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            text-align: left;
+            width: 100%;
+        }
+        .theme-dark .goal-target-pill {
+            background: var(--dark-accent-soft);
+            border: 1px solid var(--dark-divider);
+        }
+        .theme-light .goal-target-pill {
+            background: var(--light-accent-soft);
+            border: 1px solid var(--light-divider);
+        }
+
+        @media (max-width: 800px) {
+            .workspace-title { font-size: 1.6rem; }
+            .android-frame { width: 340px; height: 720px; }
+        }
+    </style>
+</head>
+<body class="theme-dark" id="bodyRoot">
+
+    <!-- Workspace Header -->
+    <header class="workspace-header">
+        <div class="workspace-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Complete Onboarding Experience
+        </div>
+        <h1 class="workspace-title">All Onboarding Screens Preview</h1>
+        <p class="workspace-subtitle">
+            Visual gallery and interactive preview of all sequential screens in the ExpenseTracker Android application onboarding flow, including the new pre-auth Consent Step.
+        </p>
+    </header>
+
+    <!-- Master Control Bar -->
+    <div class="control-bar">
+        <!-- Theme Mode -->
+        <div class="btn-toggle-group">
+            <button class="btn-toggle active" id="btnThemeDark" onclick="setTheme('dark')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 4.97 4.03 9 9 9 4.97 0 9-4.03 9-9 0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                Dark Mode
+            </button>
+            <button class="btn-toggle" id="btnThemeLight" onclick="setTheme('light')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                Light Mode
+            </button>
+        </div>
+
+        <div class="control-separator"></div>
+
+        <!-- View Layout Mode -->
+        <div class="btn-toggle-group">
+            <button class="btn-toggle active" id="btnLayoutGrid" onclick="setLayout('grid')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                All Screens Grid
+            </button>
+            <button class="btn-toggle" id="btnLayoutCarousel" onclick="setLayout('carousel')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="21" x2="8" y2="3"/><line x1="16" y1="21" x2="16" y2="3"/></svg>
+                Interactive Walkthrough
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Jump Tabs (Active in Carousel Mode) -->
+    <nav class="jump-nav" id="jumpNav" style="display: none;">
+        <button class="jump-tab active" onclick="showScreenIndex(0)">1. Track Expenses</button>
+        <button class="jump-tab" onclick="showScreenIndex(1)">2. Secure &amp; Private</button>
+        <button class="jump-tab" onclick="showScreenIndex(2)">3. Visual Analytics</button>
+        <button class="jump-tab" onclick="showScreenIndex(3)">4. Premium &amp; Privacy</button>
+        <button class="jump-tab" onclick="showScreenIndex(4)">5. Terms Consent Gate ⭐</button>
+        <button class="jump-tab" onclick="showScreenIndex(5)">6. Sign In &amp; Guest</button>
+        <button class="jump-tab" onclick="showScreenIndex(6)">7. Financial Goal</button>
+        <button class="jump-tab" onclick="showScreenIndex(7)">8. Profile Setup</button>
+        <button class="jump-tab" onclick="showScreenIndex(8)">9. Welcome Back</button>
+    </nav>
+
+    <!-- Main Screens Container -->
+    <main class="main-container">
+        <div class="screens-grid" id="screensContainer">
+
+            <!-- ========================================================= -->
+            <!-- 1. TRACK EXPENSES EASILY                                  -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit0">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 1</span>
+                    <span class="screen-role">Intro / Value Prop</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <span class="step-indicator-pill">Step 1 of 5</span>
+                            <span class="nav-text-btn" onclick="nextScreen(4)">SKIP</span>
+                        </div>
+                        <div class="illustration-stage">
+                            <div class="float-bubble" style="top: 15px; right: 25px; width: 44px; height: 44px;">₿</div>
+                            <div class="float-bubble" style="bottom: 30px; left: 15px; width: 44px; height: 44px;">💵</div>
+                            <div class="float-bubble" style="bottom: 20px; right: 20px; width: 40px; height: 40px;">🐷</div>
+                            <div class="card-tilt-art">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--dark-accent-soft); display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">📊</div>
+                                    <span style="font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px;">EXPENSE TRACKER</span>
+                                </div>
+                                <div>
+                                    <div style="width: 70px; height: 5px; background: rgba(158,132,255,0.4); border-radius: 999px; margin-bottom: 6px;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; opacity: 0.8;">SECURE LOGGING</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="copy-block">
+                            <h2 class="copy-title">Track Expenses<br>Easily</h2>
+                            <p class="copy-desc">Log your daily spending in seconds with a clean, fast interface.</p>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="nextScreen(1)">Next</button>
+                            <div class="bottom-nav-row">
+                                <span style="width: 32px;"></span>
+                                <div class="dots-row">
+                                    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                                </div>
+                                <span class="nav-text-btn accent" onclick="nextScreen(1)">NEXT</span>
+                            </div>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 2. SECURE & PRIVATE                                       -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit1">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 2</span>
+                    <span class="screen-role">Security Pillar</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <span class="step-indicator-pill">Step 2 of 5</span>
+                            <span class="nav-text-btn" onclick="nextScreen(4)">SKIP</span>
+                        </div>
+                        <div class="illustration-stage">
+                            <div class="float-bubble" style="top: 30px; right: 35px; width: 38px; height: 38px;">🛡️</div>
+                            <div class="float-bubble" style="bottom: 40px; left: 25px; width: 36px; height: 36px;">🔑</div>
+                            <div class="security-orb-art">
+                                <div class="biometric-center">
+                                    <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27C9.9 4.04 12 4 12.1 4c1.9 0 3.92.51 5.86 1.48 1.5 1.05 2.72 2.27 3.65 3.65.15.22.09.53-.13.68-.22.15-.53.09-.68-.13-.86-1.27-1.97-2.39-3.34-3.35C15.68 5.43 13.82 5 12.1 5c-.1 0-2.02.04-4.86 1.48-1.39.71-2.55 1.73-3.46 3.02-.07.14-.18.22-.28.22z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="copy-block">
+                            <h2 class="copy-title">Secure &amp;<br>Private</h2>
+                            <p class="copy-desc">Your financial data stays on your device. Encrypted and locked with biometrics.</p>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="nextScreen(2)">Next</button>
+                            <div class="bottom-nav-row">
+                                <span class="nav-text-btn" onclick="nextScreen(0)">PREV</span>
+                                <div class="dots-row">
+                                    <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                                </div>
+                                <span class="nav-text-btn accent" onclick="nextScreen(2)">NEXT</span>
+                            </div>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 3. VISUAL ANALYTICS                                       -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit2">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 3</span>
+                    <span class="screen-role">Charts &amp; Insights</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <span class="step-indicator-pill">Step 3 of 5</span>
+                            <span class="nav-text-btn" onclick="nextScreen(4)">SKIP</span>
+                        </div>
+                        <div class="illustration-stage">
+                            <div class="analytics-card-art">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.72rem; font-weight: 700; opacity: 0.8;">GROWTH INDEX</span>
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--dark-accent-ink);">+24.8%</span>
+                                </div>
+                                <div class="bars-container">
+                                    <div class="bar-col" style="height: 40px; background: rgba(158,132,255,0.25);"></div>
+                                    <div class="bar-col" style="height: 75px; background: linear-gradient(to top, #5838FA, #9E84FF);"></div>
+                                    <div class="bar-col" style="height: 30px; background: rgba(158,132,255,0.25);"></div>
+                                    <div class="bar-col" style="height: 60px; background: rgba(158,132,255,0.45);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="copy-block">
+                            <h2 class="copy-title">Visual<br>Analytics</h2>
+                            <p class="copy-desc">Visualize where your money goes with intuitive charts and spending trends.</p>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="nextScreen(3)">Next</button>
+                            <div class="bottom-nav-row">
+                                <span class="nav-text-btn" onclick="nextScreen(1)">PREV</span>
+                                <div class="dots-row">
+                                    <div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+                                </div>
+                                <span class="nav-text-btn accent" onclick="nextScreen(3)">NEXT</span>
+                            </div>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 4. PREMIUM BY DESIGN                                      -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit3">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 4</span>
+                    <span class="screen-role">Trust &amp; Benefits</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <span class="step-indicator-pill">Step 4 of 5</span>
+                            <span class="nav-text-btn" onclick="nextScreen(4)">SKIP</span>
+                        </div>
+                        <div class="illustration-stage" style="height: 180px;">
+                            <div class="float-bubble" style="top: 20px; right: 40px; width: 36px; height: 36px;">🔒</div>
+                            <div class="float-bubble" style="bottom: 20px; left: 30px; width: 40px; height: 40px;">💰</div>
+                            <div style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #5838FA, #3713EC); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 10px 30px rgba(88,56,250,0.5);">
+                                <svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                            </div>
+                        </div>
+                        <div class="copy-block">
+                            <h2 class="copy-title" style="font-size: 1.35rem;">Premium by design<br><span class="accent-text">Private by nature</span></h2>
+                            <p class="copy-desc" style="font-size: 0.76rem;">Modern financial management engineered with privacy.</p>
+                            <div class="benefit-row">
+                                <div class="benefit-box">
+                                    <span style="font-size: 0.68rem; font-weight: 700; opacity: 0.7;">ARCHITECTURE</span>
+                                    <span style="font-size: 0.76rem; font-weight: 800;">100% Offline</span>
+                                </div>
+                                <div class="benefit-box">
+                                    <span style="font-size: 0.68rem; font-weight: 700; opacity: 0.7;">CONTROL</span>
+                                    <span style="font-size: 0.76rem; font-weight: 800;">Full Access</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="nextScreen(4)">Continue</button>
+                            <div class="bottom-nav-row">
+                                <span class="nav-text-btn" onclick="nextScreen(2)">PREV</span>
+                                <div class="dots-row">
+                                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+                                </div>
+                                <span class="nav-text-btn accent" onclick="nextScreen(4)">NEXT</span>
+                            </div>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 5. TERMS & CONDITIONS (CONSENT STEP - NEW GATEWAY)        -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit4">
+                <div class="screen-header-badge">
+                    <span class="screen-num" style="background: rgba(123,97,255,0.2); color: #C4B5FD; border-color: var(--accent-brand);">Screen 5 (Consent)</span>
+                    <span class="screen-role">Legal Gate (Pre-Auth)</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <div class="nav-back-icon" onclick="nextScreen(3)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </div>
+                            <span class="step-indicator-pill">Step 4 of 5</span>
+                            <div style="width: 24px;"></div>
+                        </div>
+                        
+                        <div class="copy-block" style="margin-bottom: 8px;">
+                            <h2 class="copy-title" style="font-size: 1.4rem;">Terms &amp; Conditions</h2>
+                            <p class="copy-desc" style="font-size: 0.74rem;">You must accept these terms to use the app (guest or signed-in).</p>
+                        </div>
+
+                        <!-- Scrollable Middle -->
+                        <div class="consent-scroll-area">
+                            <div class="consent-bullets-grid">
+                                <div class="consent-bullet-card">
+                                    <strong>📱 App Usage</strong><br>Personal tracking, no reverse engineering.
+                                </div>
+                                <div class="consent-bullet-card">
+                                    <strong>🔒 Data &amp; Privacy</strong><br>Offline-first. Opt-in sync only.
+                                </div>
+                                <div class="consent-bullet-card">
+                                    <strong>⭐ Subscriptions</strong><br>Billed via Google Play. Auto-renews.
+                                </div>
+                                <div class="consent-bullet-card">
+                                    <strong>🔄 Cancellation</strong><br>Cancel or export data anytime.
+                                </div>
+                            </div>
+                            <div class="consent-terms-pane">
+                                <strong>1. Acceptance:</strong> Binding on all users.<br>
+                                <strong>2. License:</strong> Personal non-commercial use.<br>
+                                <strong>3. Privacy:</strong> Local SQLite encrypted storage.<br>
+                                <strong>4. Billing:</strong> Google Play subscription rules.<br>
+                                <strong>5. Disclaimer:</strong> Financial tracking tool, not advice.
+                            </div>
+                            <div style="text-align: center; font-size: 0.7rem; font-weight: 600; color: var(--dark-accent-ink);">
+                                <a href="https://expense-tracker-2ea00.web.app/terms.html" target="_blank" style="color: inherit; text-decoration: none;">Terms &amp; Conditions</a> • 
+                                <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" style="color: inherit; text-decoration: none;">Privacy Policy</a>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Bottom -->
+                        <div class="screen-footer" style="gap: 8px; margin-top: 6px;">
+                            <div class="check-card-row" onclick="toggleScreen4Check()">
+                                <div class="mini-checkbox checked" id="screen4Check">
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <span style="font-size: 0.72rem; line-height: 1.3;">I agree to the <strong>Terms &amp; Conditions</strong> and Privacy Policy</span>
+                            </div>
+                            <button class="onboarding-btn" id="screen4Btn" onclick="nextScreen(5)">Continue</button>
+                            <div class="bottom-nav-row">
+                                <span class="nav-text-btn" onclick="nextScreen(3)">PREV</span>
+                                <div class="dots-row">
+                                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+                                </div>
+                                <span style="width: 30px;"></span> <!-- NO SKIP -->
+                            </div>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 6. SIGN IN / GUEST AUTH GATEWAY                           -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit5">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 6</span>
+                    <span class="screen-role">Authentication &amp; Guest Gate</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <div class="nav-back-icon" onclick="nextScreen(4)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </div>
+                            <span class="step-indicator-pill">Step 5 of 5</span>
+                            <div style="width: 24px;"></div>
+                        </div>
+                        <div class="copy-block" style="margin-bottom: 12px;">
+                            <h2 class="copy-title" style="font-size: 1.45rem;">Secure Your<br>Account</h2>
+                            <p class="copy-desc">Sign in to sync your data or explore first as a guest.</p>
+                        </div>
+                        <div class="auth-buttons-col">
+                            <button class="btn-google-auth" onclick="nextScreen(6)">
+                                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.96 0 12s.45 3.83 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                                Continue with Google
+                            </button>
+                            <div class="auth-field-card">
+                                <span style="font-size: 0.65rem; font-weight: 700; opacity: 0.7;">EMAIL ADDRESS</span>
+                                <span style="font-size: 0.8rem; opacity: 0.4;">alex.morgan@example.com</span>
+                            </div>
+                            <div class="auth-field-card">
+                                <span style="font-size: 0.65rem; font-weight: 700; opacity: 0.7;">PASSWORD</span>
+                                <span style="font-size: 0.8rem; opacity: 0.4;">••••••••••••</span>
+                            </div>
+                            <button class="onboarding-btn" style="height: 48px; font-size: 0.9rem;" onclick="nextScreen(6)">Sign In with Email</button>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0; font-size: 0.7rem; opacity: 0.6;">
+                                <span>────────</span> OR <span>────────</span>
+                            </div>
+                            <button class="btn-guest-action" onclick="nextScreen(6)">Continue as Guest</button>
+                        </div>
+                        <div class="screen-footer" style="margin-top: auto;">
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 7. FINANCIAL GOAL SELECTION                               -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit6">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 7</span>
+                    <span class="screen-role">Goal Personalization</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <div class="nav-back-icon" onclick="nextScreen(5)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </div>
+                            <span class="step-indicator-pill">Goal Selection</span>
+                            <div style="width: 24px;"></div>
+                        </div>
+                        <div class="copy-block" style="margin-bottom: 8px;">
+                            <h2 class="copy-title" style="font-size: 1.35rem;">What is your main financial goal?</h2>
+                            <p class="copy-desc">Personalize your journey to financial freedom.</p>
+                        </div>
+                        <div class="goals-list-scroll">
+                            <div class="goal-option-card selected">
+                                <span>💰 Emergency Savings</span>
+                                <span>✓</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>🏠 Home &amp; Mortgage</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>✈️ Travel &amp; Vacation</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>💳 Pay off Debt</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>🏖️ Retirement</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>🚗 Buy a Car</span>
+                            </div>
+                            <div class="goal-option-card">
+                                <span>📈 Grow Investments</span>
+                            </div>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="nextScreen(7)">Next</button>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 8. PROFILE SETUP                                          -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit7">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 8</span>
+                    <span class="screen-role">Setup Profile</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <div class="nav-back-icon" onclick="nextScreen(6)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </div>
+                            <span class="step-indicator-pill">Final Step</span>
+                            <div style="width: 24px;"></div>
+                        </div>
+                        <div class="user-tag-pill">
+                            <span>👤 Guest User</span>
+                        </div>
+                        <div class="copy-block" style="margin-top: 8px; margin-bottom: 16px;">
+                            <h2 class="copy-title" style="font-size: 1.45rem;">Let's get started!</h2>
+                            <p class="copy-desc">Tell us a bit about yourself to personalize your experience.</p>
+                        </div>
+                        <div class="profile-setup-col">
+                            <div class="auth-field-card">
+                                <span style="font-size: 0.65rem; font-weight: 700; opacity: 0.7;">FULL NAME</span>
+                                <span style="font-size: 0.88rem; font-weight: 600;">Alex Morgan</span>
+                            </div>
+                            <div class="auth-field-card" style="display: flex; justify-content: space-between; flex-direction: row; align-items: center;">
+                                <div>
+                                    <span style="font-size: 0.65rem; font-weight: 700; opacity: 0.7;">GENDER</span><br>
+                                    <span style="font-size: 0.88rem; font-weight: 600;">Non-Binary</span>
+                                </div>
+                                <span style="font-size: 0.8rem; opacity: 0.5;">▼</span>
+                            </div>
+                            <div style="padding: 10px 14px; border-radius: 14px; background: rgba(158,132,255,0.1); border: 1px dashed rgba(158,132,255,0.3); font-size: 0.72rem; line-height: 1.4; opacity: 0.85;">
+                                🔒 <strong>100% Private:</strong> Used solely on-device for insights and personalized greetings.
+                            </div>
+                        </div>
+                        <div class="screen-footer" style="margin-top: auto;">
+                            <button class="onboarding-btn" onclick="nextScreen(8)">Get Started</button>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 9. WELCOME BACK (RETURNING USER PROFILE)                  -->
+            <!-- ========================================================= -->
+            <div class="screen-card-unit" id="screenUnit8">
+                <div class="screen-header-badge">
+                    <span class="screen-num">Screen 9 (Returning)</span>
+                    <span class="screen-role">Cloud Sync Recovery</span>
+                </div>
+                <div class="android-frame">
+                    <div class="ambient-glow"></div>
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <div class="camera-punch"></div>
+                        <div class="status-icons"><svg viewBox="0 0 24 24"><path d="M12 3C7.5 3 3.7 4.9 1 7.9L12 21 23 7.9C20.3 4.9 16.5 3 12 3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 22h20V2z"/></svg><svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg></div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="screen-top-bar">
+                            <span class="step-indicator-pill">Cloud Profile Loaded</span>
+                        </div>
+                        <div class="welcome-back-stage">
+                            <div class="wave-emoji">👋</div>
+                            <div>
+                                <span style="font-size: 1.1rem; opacity: 0.75; font-weight: 500;">Welcome back,</span>
+                                <h2 class="copy-title" style="font-size: 1.8rem; margin-top: 4px;">Alex!</h2>
+                            </div>
+                            <div class="goal-target-pill">
+                                <span style="font-size: 1.8rem;">🎯</span>
+                                <div>
+                                    <span style="font-size: 0.65rem; font-weight: 700; color: var(--dark-accent-ink); letter-spacing: 0.6px; text-transform: uppercase;">YOUR GOAL</span>
+                                    <div style="font-size: 0.92rem; font-weight: 800;">Emergency Savings</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="screen-footer">
+                            <button class="onboarding-btn" onclick="alert('Entering Main Dashboard!')">Continue to Dashboard</button>
+                            <div class="gesture-bar"><div class="gesture-bar-pill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Script for Themes & Carousel/Grid Views -->
+    <script>
+        let currentTheme = 'dark';
+        let currentLayout = 'grid';
+        let activeCarouselIndex = 0;
+        let isScreen4Checked = true;
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            const body = document.getElementById('bodyRoot');
+            body.className = (theme === 'dark') ? 'theme-dark' : 'theme-light';
+            document.getElementById('btnThemeDark').classList.toggle('active', theme === 'dark');
+            document.getElementById('btnThemeLight').classList.toggle('active', theme === 'light');
+        }
+
+        function setLayout(layout) {
+            currentLayout = layout;
+            document.getElementById('btnLayoutGrid').classList.toggle('active', layout === 'grid');
+            document.getElementById('btnLayoutCarousel').classList.toggle('active', layout === 'carousel');
+            
+            const jumpNav = document.getElementById('jumpNav');
+            jumpNav.style.display = (layout === 'carousel') ? 'flex' : 'none';
+
+            const units = document.querySelectorAll('.screen-card-unit');
+            if (layout === 'grid') {
+                units.forEach(u => u.style.display = 'flex');
+            } else {
+                showScreenIndex(activeCarouselIndex);
+            }
+        }
+
+        function showScreenIndex(index) {
+            activeCarouselIndex = index;
+            const units = document.querySelectorAll('.screen-card-unit');
+            units.forEach((u, idx) => {
+                u.style.display = (idx === index) ? 'flex' : 'none';
+            });
+
+            const tabs = document.querySelectorAll('.jump-tab');
+            tabs.forEach((tab, idx) => {
+                tab.classList.toggle('active', idx === index);
+            });
+        }
+
+        function nextScreen(targetIndex) {
+            if (currentLayout === 'carousel') {
+                showScreenIndex(targetIndex);
+            } else {
+                const target = document.getElementById('screenUnit' + targetIndex);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function toggleScreen4Check() {
+            isScreen4Checked = !isScreen4Checked;
+            const check = document.getElementById('screen4Check');
+            const btn = document.getElementById('screen4Btn');
+            check.classList.toggle('checked', isScreen4Checked);
+            btn.classList.toggle('disabled', !isScreen4Checked);
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 package com.mknlabs.expensetracker.feature.profile.ui
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
@@ -34,27 +35,25 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -68,23 +67,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
-import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.IncomeGreen
-import com.mknlabs.expensetracker.core.ui.theme.ProPassBorder
-import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientEnd
-import com.mknlabs.expensetracker.core.ui.theme.ProPassGradientStart
-import com.mknlabs.expensetracker.core.ui.theme.ProPassOnGradient
-import com.mknlabs.expensetracker.core.ui.theme.PremiumBorder
-import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientEnd
-import com.mknlabs.expensetracker.core.ui.theme.PremiumGradientStart
-import com.mknlabs.expensetracker.core.ui.theme.PremiumGold
-import com.mknlabs.expensetracker.core.ui.theme.PremiumOnGradient
-import com.mknlabs.expensetracker.core.ui.theme.PremiumShadowNeutral
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.premiumGold
+import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -106,17 +106,6 @@ fun MembershipDetailsScreen(
     val restoreState by monetizationViewModel.restoreState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-
-    // The same dialog the Settings row opens, hosted here too so the one code path a
-    // ProPass holder looks for exists on the screen that explains their access.
-    var showRedeemDialog by remember { mutableStateOf(false) }
-
-    if (showRedeemDialog) {
-        ProPassRedeemDialog(
-            viewModel = monetizationViewModel,
-            onDismiss = { showRedeemDialog = false }
-        )
-    }
 
     // Ask the store what it knows before this card describes the user's access. RevenueCat
     // delivers customer info only through its listener, a login or a purchase, so a
@@ -146,8 +135,7 @@ fun MembershipDetailsScreen(
         isRestoring = restoreState is PurchaseState.InProgress,
         snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
-        onRestoreClick = monetizationViewModel::restorePurchases,
-        onRedeemProPassClick = { showRedeemDialog = true }
+        onRestoreClick = monetizationViewModel::restorePurchases
     )
 }
 
@@ -161,7 +149,6 @@ internal fun MembershipDetailsContent(
     isRestoring: Boolean,
     onBackClick: () -> Unit,
     onRestoreClick: () -> Unit,
-    onRedeemProPassClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val status = resolveMembershipStatus(
@@ -192,17 +179,18 @@ internal fun MembershipDetailsContent(
         ) {
             Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
+            val enter = rememberSectionEnterAlphas(2)
             AppHeader(
                 title = stringResource(R.string.title_membership),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.alpha(enter[0])
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[1]),
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -212,8 +200,7 @@ internal fun MembershipDetailsContent(
                         status = status,
                         proExpiryTimestamp = proExpiryTimestamp,
                         storeEntitlement = storeEntitlement,
-                        onUpgradeClick = upgradeToPro,
-                        onRedeemProPassClick = onRedeemProPassClick
+                        onUpgradeClick = upgradeToPro
                     )
                 }
 
@@ -225,18 +212,30 @@ internal fun MembershipDetailsContent(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.5.sp
                         ),
-                        color = colorScheme.primary.copy(alpha = 0.8f),
+                        // A section header is a label rather than something to tap, so in
+                        // light it takes the secondary ink instead of the brand purple the
+                        // card above it already uses for its actions.
+                        color = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.8f)
+                        else TextSecondaryLight,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
                     )
                 }
 
                 item {
-                    Card(
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    AppCard(
+                        shape = AppCardDefaults.shape(24.dp),
+                        // A half-strength variant wash is dark's surface here and dark keeps
+                        // it; light takes the white card on the grey field. The membership
+                        // hero above keeps its tier gradient - that fill is what says which
+                        // access the user has - but the benefits list is chrome, and a tinted
+                        // panel is the shape of thing the redesign replaces with a card.
+                        colors = AppCardDefaults.colors(
+                            darkContainer = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            darkBorder = BorderStroke(
+                                1.dp,
+                                colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            )
                         ),
-                        border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.3f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -306,40 +305,13 @@ internal fun MembershipDetailsContent(
                             }
                         }
 
-                        // The second way to reach Pro, and the only one open to a user who was
-                        // given a code. It sits above Restore because it grants access while
-                        // Restore only recovers it.
-                        //
-                        // Only for a pass holder here: a free user gets it inside their card,
-                        // and a subscriber never sees it at all, since the server refuses a pass
-                        // that would run out unused. A pass holder keeps it because their state
-                        // outlives the grant — the tier is swept on a schedule, so a lapsed pass
-                        // still reads as one for a while, and redeeming then is allowed.
-                        if (status == MembershipStatus.PRO_PASS) {
-                            OutlinedButton(
-                                onClick = onRedeemProPassClick,
-                                shape = RoundedCornerShape(16.dp),
-                                border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = colorScheme.primary
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.title_redeem_pro_pass),
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
-
-                        OutlinedButton(
+                        AppOutlinedButton(
                             onClick = onRestoreClick,
                             enabled = !isRestoring,
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = colorScheme.primary
+                                contentColor = colorScheme.accentInk
                             ),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -400,15 +372,19 @@ private fun SubscriptionCancelHint() {
 /**
  * The colours one membership state draws itself in.
  *
- * Gathered in one place because the three states share a single layout and differ only here
- * and in their copy. The surface is the part that carries meaning: violet for access the user
- * pays for, blue for a pass they were given, and the neutral surface for the state with no
- * access at all.
+ * Gathered in one place because the four states share a single layout and differ only here
+ * and in their copy.
+ *
+ * The card wears the cash flow hero's chrome: the app's own card surface in each theme behind
+ * the spec's single hairline, and no shadow. What used to tell the states apart was the fill —
+ * violet for access a user pays for, blue for access they were given — and that made the
+ * membership card the loudest object on a screen whose whole job is to explain access. The
+ * state is told by the header label, the badge, the glyph and the panel instead, so all four
+ * read as one card answering one question.
  */
 private data class MembershipCardPalette(
-    val surface: Brush,
+    val surface: Color,
     val border: Color,
-    val shadow: Color,
     val foreground: Color,
     val headerLabel: Color,
     val bodyText: Color,
@@ -421,53 +397,33 @@ private data class MembershipCardPalette(
 @Composable
 private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalette {
     val colorScheme = MaterialTheme.colorScheme
-    return when (status) {
-        MembershipStatus.SUBSCRIPTION -> MembershipCardPalette(
-            surface = Brush.verticalGradient(listOf(PremiumGradientStart, PremiumGradientEnd)),
-            border = PremiumBorder.copy(alpha = 0.7f),
-            shadow = PremiumGradientEnd.copy(alpha = 0.4f),
-            foreground = PremiumOnGradient,
-            headerLabel = PremiumGold,
-            bodyText = PremiumOnGradient.copy(alpha = 0.92f),
-            accent = PremiumGold,
-            panelBackground = PremiumOnGradient.copy(alpha = 0.12f),
-            // A green tick on the panel is this card's "you have it" mark; the pass card marks
-            // the same claim in gold, which is the accent a grant is dressed in.
-            panelIcon = IncomeGreen,
-            panelHeadline = PremiumOnGradient,
-        )
-
-        MembershipStatus.PRO_PASS -> MembershipCardPalette(
-            surface = Brush.verticalGradient(listOf(ProPassGradientStart, ProPassGradientEnd)),
-            border = ProPassBorder.copy(alpha = 0.7f),
-            shadow = ProPassGradientStart.copy(alpha = 0.4f),
-            foreground = ProPassOnGradient,
-            headerLabel = PremiumGold,
-            bodyText = ProPassOnGradient.copy(alpha = 0.92f),
-            accent = PremiumGold,
-            panelBackground = ProPassOnGradient.copy(alpha = 0.14f),
-            panelIcon = PremiumGold,
-            panelHeadline = PremiumGold,
-        )
-
-        MembershipStatus.FREE, MembershipStatus.OFFLINE -> MembershipCardPalette(
-            surface = Brush.verticalGradient(
-                listOf(
-                    colorScheme.surfaceVariant.copy(alpha = 0.9f),
-                    colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                )
-            ),
-            border = colorScheme.outlineVariant.copy(alpha = 0.4f),
-            shadow = PremiumShadowNeutral.copy(alpha = 0.1f),
-            foreground = colorScheme.onSurface,
-            headerLabel = colorScheme.onSurfaceVariant,
-            bodyText = colorScheme.onSurfaceVariant,
-            accent = colorScheme.primary,
-            panelBackground = colorScheme.onSurface.copy(alpha = 0.06f),
-            panelIcon = colorScheme.primary,
-            panelHeadline = colorScheme.onSurface,
-        )
-    }
+    val isDark = colorScheme.isDark
+    return MembershipCardPalette(
+        surface = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
+        border = if (isDark) HeroOutlineDark else HeroOutlineLight,
+        foreground = colorScheme.onSurface,
+        headerLabel = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
+            colorScheme.premiumGold
+        } else {
+            colorScheme.onSurfaceVariant
+        },
+        bodyText = colorScheme.onSurfaceVariant,
+        accent = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
+            colorScheme.premiumGold
+        } else {
+            colorScheme.accentInk
+        },
+        panelBackground = colorScheme.onSurface.copy(alpha = 0.05f),
+        // The one thing the states still say in colour: a subscriber holds access the store
+        // keeps, a pass holds access that runs out, and neither is the other's claim. The
+        // panel's own glyph carries that difference; everything around it is one neutral ink.
+        panelIcon = if (status == MembershipStatus.SUBSCRIPTION) {
+            colorScheme.income
+        } else {
+            colorScheme.accentInk
+        },
+        panelHeadline = colorScheme.onSurface,
+    )
 }
 
 /** The icon behind a [MembershipGlyph]. */
@@ -480,13 +436,14 @@ private fun glyphIcon(glyph: MembershipGlyph): ImageVector = when (glyph) {
 }
 
 /**
- * The membership card: one layout for all three states.
+ * The membership card: one layout for all four states.
  *
- * A subscriber, a ProPass holder and a free user are all asking the same question — what do I
- * have? — so they get the same card: what this is (header and badge), what it is called
- * (title), what the app actually knows about it (facts), and how it is paid for (panel). Only
- * the answers differ. That is what makes the three states comparable at a glance instead of
- * three unrelated designs the user has to re-read each time.
+ * A subscriber, a ProPass holder, a free user and an anonymous one are all asking the same
+ * question — what do I have? — so they get the same card, on the same neutral surface: what
+ * this is (header and badge), what it is called (title), what the app actually knows about it
+ * (facts), and how it is paid for (panel). Only the answers differ, and only the answers are
+ * what tells the four apart. That is what makes them comparable at a glance instead of four
+ * unrelated designs the user has to re-read each time.
  *
  * Size comes from the window's size class and the layout wraps rather than clips, so the card
  * survives a tablet, a split screen and a large system font without losing a fact.
@@ -497,8 +454,7 @@ private fun MembershipCard(
     status: MembershipStatus,
     proExpiryTimestamp: Long,
     storeEntitlement: StoreEntitlement?,
-    onUpgradeClick: () -> Unit,
-    onRedeemProPassClick: () -> Unit
+    onUpgradeClick: () -> Unit
 ) {
     val spacing = currentSpacing()
     val palette = membershipCardPalette(status)
@@ -510,19 +466,13 @@ private fun MembershipCard(
         // rather than announced as an upcoming renewal.
         now = System.currentTimeMillis()
     )
-    val cardShape = RoundedCornerShape(spacing.cardRadius + 12.dp)
+    val cardShape = RoundedCornerShape(spacing.cardRadius + 10.dp)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 12.dp,
-                shape = cardShape,
-                ambientColor = palette.shadow,
-                spotColor = palette.shadow
-            )
             .clip(cardShape)
-            .background(brush = palette.surface)
+            .background(palette.surface)
             .border(width = 1.dp, color = palette.border, shape = cardShape)
     ) {
         Column(
@@ -569,9 +519,7 @@ private fun MembershipCard(
             spec.primaryActionRes?.let { primaryActionRes ->
                 MembershipCardActions(
                     primaryActionRes = primaryActionRes,
-                    showRedeemAction = spec.showRedeemAction,
-                    onUpgradeClick = onUpgradeClick,
-                    onRedeemProPassClick = onRedeemProPassClick
+                    onUpgradeClick = onUpgradeClick
                 )
             }
         }
@@ -687,23 +635,28 @@ private fun MembershipCardPanel(panel: MembershipPanel, palette: MembershipCardP
             .padding(Dimens.spacingDefault),
         verticalArrangement = Arrangement.spacedBy(Dimens.spacingTiny)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = glyphIcon(panel.glyph),
-                contentDescription = null,
-                tint = palette.panelIcon,
-                modifier = Modifier.size(18.dp)
-            )
+        if (panel.glyph != null || panel.headlineRes != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                panel.glyph?.let { glyph ->
+                    Icon(
+                        imageVector = glyphIcon(glyph),
+                        contentDescription = null,
+                        tint = palette.panelIcon,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+                }
 
-            Spacer(modifier = Modifier.width(Dimens.spacingSmall))
-
-            Text(
-                text = stringResource(panel.headlineRes),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = palette.panelHeadline,
-                modifier = Modifier.weight(1f)
-            )
+                panel.headlineRes?.let { headlineRes ->
+                    Text(
+                        text = stringResource(headlineRes),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = palette.panelHeadline,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
 
         Text(
@@ -718,9 +671,7 @@ private fun MembershipCardPanel(panel: MembershipPanel, palette: MembershipCardP
 @Composable
 private fun MembershipCardActions(
     @StringRes primaryActionRes: Int,
-    showRedeemAction: Boolean,
-    onUpgradeClick: () -> Unit,
-    onRedeemProPassClick: () -> Unit
+    onUpgradeClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -730,11 +681,12 @@ private fun MembershipCardActions(
         verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
     ) {
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = onUpgradeClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
+                containerColor = colorScheme.cta,
+                contentColor = colorScheme.onCta
             )
         ) {
             Text(
@@ -742,20 +694,6 @@ private fun MembershipCardActions(
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyLarge
             )
-        }
-
-        if (showRedeemAction) {
-            TextButton(
-                onClick = onRedeemProPassClick,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary)
-            ) {
-                Text(
-                    text = stringResource(R.string.title_redeem_pro_pass),
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
         }
     }
 }
@@ -775,7 +713,7 @@ private fun BenefitRow(
             modifier = Modifier
                 .size(24.dp)
                 .background(
-                    color = if (isAvailable) colorScheme.primary.copy(alpha = 0.15f) else colorScheme.error.copy(alpha = 0.1f),
+                    color = if (isAvailable) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.error.copy(alpha = 0.1f),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -783,7 +721,7 @@ private fun BenefitRow(
             Icon(
                 imageVector = if (isAvailable) Icons.Default.Check else Icons.Default.Close,
                 contentDescription = null,
-                tint = if (isAvailable) colorScheme.primary else colorScheme.error,
+                tint = if (isAvailable) colorScheme.accentInk else colorScheme.error,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -889,5 +827,56 @@ private fun AnonymousMembershipPreview() {
             onRestoreClick = {},
             onBackClick = {}
         )
+    }
+}
+
+@Preview(name = "MembershipCard Subscription", showBackground = true)
+@Preview(name = "MembershipCard Subscription Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardSubscriptionPreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.SUBSCRIPTION, storeEntitlement = renewingSubscription())
+}
+
+@Preview(name = "MembershipCard Pro Pass", showBackground = true)
+@Preview(name = "MembershipCard Pro Pass Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardProPassPreview() {
+    MembershipCardPreviewHost(
+        status = MembershipStatus.PRO_PASS,
+        proExpiryTimestamp = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30
+    )
+}
+
+@Preview(name = "MembershipCard Free", showBackground = true)
+@Preview(name = "MembershipCard Free Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardFreePreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.FREE)
+}
+
+@Preview(name = "MembershipCard Offline", showBackground = true)
+@Preview(name = "MembershipCard Offline Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardOfflinePreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.OFFLINE)
+}
+
+@Composable
+private fun MembershipCardPreviewHost(
+    status: MembershipStatus,
+    proExpiryTimestamp: Long = 0L,
+    storeEntitlement: StoreEntitlement? = null
+) {
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                MembershipCard(
+                    status = status,
+                    proExpiryTimestamp = proExpiryTimestamp,
+                    storeEntitlement = storeEntitlement,
+                    onUpgradeClick = {}
+                )
+            }
+        }
     }
 }

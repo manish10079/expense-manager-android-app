@@ -547,6 +547,10 @@ private fun CategoryEntity.toJson(): JSONObject {
         put("name", name)
         put("transactionTypeId", transactionTypeId)
         put("iconKey", iconKey)
+        // Written as an explicit null rather than omitted, so a restored backup can tell
+        // "this category had no colour" from "this backup predates the field". Both resolve
+        // to the palette, but only one of them is a fact about the user's data.
+        putNullable("colorHex", colorHex)
         put("isSystem", isSystem)
         put("sortOrder", sortOrder)
         put("isDeleted", isDeleted)
@@ -560,6 +564,7 @@ private fun PaymentMethodEntity.toJson(): JSONObject {
         put("id", id)
         put("name", name)
         put("iconKey", iconKey)
+        putNullable("colorHex", colorHex)
         put("isSystem", isSystem)
         put("sortOrder", sortOrder)
         put("isDeleted", isDeleted)
@@ -643,6 +648,9 @@ private fun JSONObject.toCategoryEntity(): CategoryEntity {
         name = getString("name"),
         transactionTypeId = getInt("transactionTypeId"),
         iconKey = getString("iconKey"),
+        // Absent in a backup written before the field existed, which reads back as null and
+        // resolves from the palette — the same behaviour the app had then.
+        colorHex = optNullableString("colorHex"),
         isSystem = optBoolean("isSystem", true),
         sortOrder = optInt("sortOrder", getInt("id")),
         isDeleted = optBoolean("isDeleted", false),
@@ -657,6 +665,7 @@ private fun JSONObject.toPaymentMethodEntity(): PaymentMethodEntity {
         id = getInt("id"),
         name = getString("name"),
         iconKey = getString("iconKey"),
+        colorHex = optNullableString("colorHex"),
         isSystem = optBoolean("isSystem", true),
         sortOrder = optInt("sortOrder", getInt("id")),
         isDeleted = optBoolean("isDeleted", false),

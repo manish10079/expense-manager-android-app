@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Column
@@ -43,6 +42,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -59,7 +62,6 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.core.ui.theme.NeutralGray
 import com.mknlabs.expensetracker.utils.formatTime
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
@@ -69,8 +71,11 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.transparent
 import kotlinx.coroutines.launch
 
@@ -85,6 +90,17 @@ fun TransactionCard(
     amount: String,
     transactionTypeId: Int,
     icon: ImageVector,
+    /**
+     * The row's category, and the user's own colour for it if they chose one. Resolved here
+     * rather than passed in as a [Color] so every surface that draws a transaction row gets
+     * the same answer from the same place — a card that took a pre-resolved colour would put
+     * the fallback chain in the hands of each of its six call sites.
+     *
+     * Defaults to the brand ink, which is what every category glyph used before the palette
+     * existed, so a caller that does not know the category looks unchanged.
+     */
+    categoryId: Int = 0,
+    categoryColorHex: String? = null,
     paymentType: String,
     categoryLabel: String = "",
     showTypeLabel: Boolean = true,
@@ -102,12 +118,23 @@ fun TransactionCard(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f)
-    val cardBorder = remember(borderColor) {
-        BorderStroke(
-            width = 1.dp,
-            color = borderColor
+    // Selection keeps the filled primary container and the stronger edge it always had.
+    // An unselected row was a transparent list row rather than a filled surface, and dark
+    // mode is not part of this pass, so the dark fill stays clear; in light the row is a
+    // card like any other, which is the whole point of the redesign.
+    val categoryColor = MaterialTheme.colorScheme.categoryColor(
+        categoryId = categoryId,
+        colorHex = categoryColorHex
+    )
+
+    val baseColors = AppCardDefaults.colors()
+    val cardColors = when {
+        isSelected -> baseColors.copy(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+           border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
         )
+        MaterialTheme.colorScheme.isDark -> baseColors.copy(containerColor = transparent)
+        else -> baseColors
     }
 
     // Hoisted string resources: resolved once per card slot (cached across recompositions)
@@ -123,25 +150,11 @@ fun TransactionCard(
     val titleStyle = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
     val metaStyle = MaterialTheme.typography.labelSmall
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .then(
-                if (isSelected) {
-                    Modifier.background(MaterialTheme.colorScheme.primaryContainer)
-                } else {
-                    Modifier.background(transparent)
-                }
-            )
-            .border(
-                border = cardBorder,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+    AppCard(
+        onClick = onClick,
+        onLongClick = onLongClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = cardColors
     ) {
         Row(
             modifier = Modifier
@@ -165,6 +178,12 @@ fun TransactionCard(
                     contentDescription = note,
                     size = 50.dp,
                     iconSize = 25.dp,
+                    tint = categoryColor,
+                    // The palette's own wash rather than AppIconBox's flat 10%, so the tile
+                    // follows the same light-10/dark-14 split the rest of the system uses:
+                    // 14% of a light pastel over the near-black card is a wash, while the
+                    // same 14% of a deep tone over white reads as a stain.
+                    backgroundColor = MaterialTheme.colorScheme.categorySoft(categoryColor),
                     border = iconBorder
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -200,7 +219,7 @@ fun TransactionCard(
                     Text(
                         text = displayNote,
                         color = if (isNoteEmpty) {
-                            NeutralGray
+                            MaterialTheme.colorScheme.textTertiary
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
@@ -233,7 +252,16 @@ fun TransactionCard(
 
                     Text(
                         text = amount,
-                        color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else Color.White,
+                        // An expense amount used to be drawn white outright, which was right
+                        // while the row was transparent over the dark field - but light now
+                        // makes the row a white card, where white ink disappears. Income
+                        // keeps its semantic green; an expense takes the card's primary ink
+                        // in light and stays white in dark, which is unchanged.
+                        color = when {
+                            transactionTypeId == 1 -> MaterialTheme.colorScheme.income
+                            MaterialTheme.colorScheme.isDark -> Color.White
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
                         maxLines = 1,
                         softWrap = false,
                         style = titleStyle
@@ -312,10 +340,24 @@ fun TransactionCard(
                                     }
 
                                     if (showTypeLabel) {
+                                        val typeInk = if (transactionTypeId == 1) {
+                                            MaterialTheme.colorScheme.income
+                                        } else {
+                                            MaterialTheme.colorScheme.expense
+                                        }
+                                        // The wash sits behind the semantic ink to name the type at a
+                                        // glance. Those inks are the spec's bright pair (#2DD4BF /
+                                        // #FF7597) and the dark card is transparent, so the same 12%
+                                        // that reads as a tint on the light card reads as a lit block on
+                                        // the dark background. The wash is halved in dark so the pill
+                                        // stays a label rather than a surface.
+                                        val typeWash = typeInk.copy(
+                                            alpha = if (MaterialTheme.colorScheme.isDark) 0.06f else 0.12f
+                                        )
                                         TransactionPill(
                                             text = if (transactionTypeId == 1) incomeLabel else expenseLabel,
-                                            color = if (transactionTypeId == 1) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
-                                            backgroundColor = if (transactionTypeId == 1) MaterialTheme.colorScheme.income.copy(alpha = 0.12f) else MaterialTheme.colorScheme.expense.copy(alpha = 0.12f),
+                                            color = typeInk,
+                                            backgroundColor = typeWash,
                                             style = metaStyle
                                         )
                                     }
@@ -323,8 +365,8 @@ fun TransactionCard(
                                     if (showCategoryLabel && categoryLabel.isNotBlank()) {
                                         TransactionPill(
                                             text = categoryLabel,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                            color = MaterialTheme.colorScheme.accentInk,
+                                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
                                             style = metaStyle
                                         )
                                     }
@@ -384,7 +426,7 @@ fun TransactionCard(
                                                     R.string.desc_view_full_note
                                                 }
                                             ),
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -452,7 +494,7 @@ fun TransactionCard(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.cta)
                         .border(
                             width = 1.5.dp,
                             color = MaterialTheme.colorScheme.surface,

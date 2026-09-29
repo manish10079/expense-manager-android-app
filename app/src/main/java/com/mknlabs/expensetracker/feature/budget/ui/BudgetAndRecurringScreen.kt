@@ -2,6 +2,13 @@
 
 package com.mknlabs.expensetracker.feature.budget.ui
 
+import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+
+import androidx.compose.material3.FilterChipDefaults
+
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,7 +22,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,20 +43,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
+
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
@@ -71,6 +78,9 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +92,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.menu
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -91,9 +109,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -107,20 +125,21 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.mknlabs.expensetracker.R
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
@@ -128,23 +147,44 @@ import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
+import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringPlanEdit
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
+import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
-import com.mknlabs.expensetracker.core.ui.components.TabCountBadge
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
-import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
-import com.mknlabs.expensetracker.core.ui.components.tabBadgeSlotWidth
+import com.mknlabs.expensetracker.core.ui.theme.budgetOnTrack
+import com.mknlabs.expensetracker.core.ui.theme.budgetNearLimit
+import com.mknlabs.expensetracker.core.ui.theme.budgetOver
+import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.budgetCardOverspent
+import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -153,6 +193,7 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.income
 
 import com.mknlabs.expensetracker.models.RecurringFrequency
+import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -201,6 +242,11 @@ fun BudgetAndRecurringScreen(
     isProUser: Boolean = false
 ) {
     val budgetViewModel: BudgetAndRecurringViewModel = hiltViewModel()
+
+    LifecycleResumeEffect(Unit) {
+        budgetViewModel.refreshCurrentPeriod()
+        onPauseOrDispose { }
+    }
 
     LaunchedEffect(transactions, availableCategories, currencyId, amountFormatPreferences, recurringRules, monthStartDay) {
         budgetViewModel.updateInputs(
@@ -312,6 +358,7 @@ private fun BudgetAndRecurringContent(
     rememberBindAddFabToScroll(
         if (pagerState.currentPage == 0) budgetsListState else recurringListState
     )
+    val enter = rememberSectionEnterAlphas(4)
 
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
@@ -357,30 +404,44 @@ private fun BudgetAndRecurringContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                    .alpha(enter[0])
             ) {
                 AppHeader(title = stringResource(id = R.string.title_budget_recurring), onBackClick = onBackClick)
             }
 
-            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding).alpha(enter[1])) {
                 CurrentPeriodIndicator(
                     startMillis = uiState.currentPeriodStartMillis,
                     endMillis = uiState.currentPeriodEndMillis,
                     monthStartDay = uiState.monthStartDay,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
 
-            // Tab Row
-            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)) {
-                BudgetTabRow(
-                    selectedTab = uiState.selectedTab,
-                    // Counted from the very lists the tabs render, so the badge can never
-                    // disagree with the cards below it — including the budget tab's
-                    // period filter, which changes how many budgets are on screen.
-                    budgetCount = uiState.categoryBudgets.size,
-                    recurringCount = uiState.recurringExpenses.size,
-                    isProUser = isProUser,
-                    onTabSelected = onSelectTab
+            Box(modifier = Modifier.padding(horizontal = Dimens.ScreenPadding).alpha(enter[2])) {
+                AnimatedTabSwitcher(
+                    items = listOf(
+                        TabItem(
+                            id = BudgetTab.Budgets,
+                            label = stringResource(id = R.string.label_tab_budgets),
+                            badgeCount = tabBadgeCount(
+                                count = uiState.categoryBudgets.size,
+                                isSelected = uiState.selectedTab == BudgetTab.Budgets,
+                                isProUser = isProUser
+                            )
+                        ),
+                        TabItem(
+                            id = BudgetTab.Recurring,
+                            label = stringResource(id = R.string.label_tab_recurring),
+                            badgeCount = tabBadgeCount(
+                                count = uiState.recurringExpenses.size,
+                                isSelected = uiState.selectedTab == BudgetTab.Recurring,
+                                isProUser = isProUser
+                            )
+                        )
+                    ),
+                    selectedItemId = uiState.selectedTab,
+                    onItemSelected = onSelectTab
                 )
             }
 
@@ -388,7 +449,8 @@ private fun BudgetAndRecurringContent(
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(enter[3]),
                 verticalAlignment = Alignment.Top
             ) { page ->
                 // Both pages open with content rather than a heading, so they share one inset.
@@ -412,6 +474,8 @@ private fun BudgetAndRecurringContent(
                             ) { status, onCustomMonthClick ->
                                 BudgetPeriodRow(
                                     selectedPeriod = uiState.selectedPeriod,
+                                    thisMonthLabel = uiState.thisMonthChipLabel,
+                                    lastMonthLabel = uiState.lastMonthChipLabel,
                                     isCustomMonthLocked = status !is AccessStatus.Granted,
                                     onPeriodSelected = { period ->
                                         if (period == BudgetPeriodFilter.CustomMonth) {
@@ -486,8 +550,8 @@ private fun BudgetAndRecurringContent(
                         item {
                             val canAdd = uiState.canAddBudget
                             BudgetActionButton(
-                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_new_budget),
-                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else Icons.Filled.Add,
+                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_budget),
+                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else null,
                                 enabled = canAdd,
                                 onClick = {
                                     editingBudgetId = null
@@ -676,7 +740,7 @@ private fun BudgetAndRecurringContent(
             recurringName = pendingDeleteRecurring.title,
             onDismiss = { pendingDeleteRecurringId = null },
             onConfirm = {
-                // Stage for animated exit — the actual delete fires once the
+                // Stage for animated exit â€” the actual delete fires once the
                 // AnimatedVisibility exit animation completes (see list below).
                 deletingRecurringIds.add(pendingDeleteRecurring.id)
                 pendingDeleteRecurringId = null
@@ -720,7 +784,7 @@ private fun BudgetAndRecurringContent(
     }
 
     // A plan converted back to REGULAR (or deleted) while its ledger is open has
-    // no slots left to show — the sheet closes with it.
+    // no slots left to show â€” the sheet closes with it.
     val ledgerExpense = uiState.recurringExpenses
         .firstOrNull { it.id == ledgerRuleId && it.isInstallment }
     if (ledgerExpense != null) {
@@ -794,11 +858,42 @@ private fun BudgetAndRecurringContent(
 }
 
 
+/**
+ * The three budget health states.
+ *
+ * Deliberately separate from [budgetAccentColor], which reads as the obvious place to
+ * put these colours but serves two unrelated meanings of [BudgetAccent] at once: a
+ * budget's health, and a recurring expense's cadence. Repointing that function would
+ * paint "Weekly" amber and "Monthly" green along with the budgets. Only the five
+ * budget-health call sites resolve through here.
+ *
+ * This also corrects an inversion. The near-limit state resolved through the scheme's
+ * `tertiary`, which the light scheme sets to #0D9488 â€” the same teal that means "on
+ * track" â€” so a warning was drawn in the success colour, on the bar and on its label
+ * and on its icon at once.
+ *
+ * The colour never carries the state alone: each bar is accompanied by "SAFE" /
+ * "NEAR LIMIT" / "EXCEEDED", which is what makes the meaning survive red-green
+ * deficiency, where amber and red are only 4.4 Î”E76 apart.
+ */
+@Composable
+private fun budgetHealthColor(accent: BudgetAccent): Color {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (accent) {
+        BudgetAccent.Primary -> colorScheme.budgetOnTrack
+        BudgetAccent.Warning -> colorScheme.budgetNearLimit
+        BudgetAccent.Overspent -> colorScheme.budgetOver
+        // Unreachable for a budget, which only ever gets the three above. Left to the
+        // cadence resolver rather than duplicated so the `when` stays exhaustive.
+        else -> budgetAccentColor(accent)
+    }
+}
+
 @Composable
 private fun budgetAccentColor(accent: BudgetAccent): Color {
     val colorScheme = MaterialTheme.colorScheme
     return when (accent) {
-        BudgetAccent.Primary -> colorScheme.primary
+        BudgetAccent.Primary -> colorScheme.accentInk
         BudgetAccent.Warning -> colorScheme.tertiary
         BudgetAccent.Overspent -> colorScheme.error
         BudgetAccent.Disabled -> colorScheme.outline
@@ -818,7 +913,7 @@ private fun BoxScope.BudgetGlow() {
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.26f),
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
                         MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f),
                         MaterialTheme.colorScheme.background.copy(alpha = 0f)
                     )
@@ -831,63 +926,73 @@ private fun BoxScope.BudgetGlow() {
 @Composable
 private fun BudgetPeriodRow(
     selectedPeriod: BudgetPeriodFilter,
+    thisMonthLabel: String,
+    lastMonthLabel: String,
     isCustomMonthLocked: Boolean,
     onPeriodSelected: (BudgetPeriodFilter) -> Unit
 ) {
     // Chips rather than the shared AnimatedTabSwitcher bar, matching the period selector on
     // Analytics. An equal-segment bar divides the whole width between three short labels, so
-    // most of it is empty pill, and the chips also let this row wrap instead of squeezing.
+    // most of it is empty pill.
     //
-    // The label size stays labelSmall, which is what this row already used. These labels are
-    // all caps and longer than the Analytics ones, and at labelLarge three of them no longer
-    // fit on one line on a phone.
-    FlowRow(
+    // This / last month keep their natural width. Custom month takes whatever is left
+    // so the row stays full-bleed without stretching the short month names.
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        BudgetPeriodFilter.entries.forEach { period ->
-            val isLocked = period == BudgetPeriodFilter.CustomMonth && isCustomMonthLocked
-
-            PeriodChip(
-                modifier = Modifier.weight(1f),
-                label = when (period) {
-                    BudgetPeriodFilter.ThisMonth -> stringResource(id = R.string.label_this_month_caps)
-                    BudgetPeriodFilter.LastMonth -> stringResource(id = R.string.label_last_month)
-                    BudgetPeriodFilter.CustomMonth -> stringResource(id = R.string.label_custom_month_caps)
-                },
-                isSelected = period == selectedPeriod,
-                isLocked = isLocked,
-                textStyle = MaterialTheme.typography.labelSmall,
-                onClick = { onPeriodSelected(period) }
-            )
-        }
+        PeriodChip(
+            label = lastMonthLabel,
+            isSelected = selectedPeriod == BudgetPeriodFilter.LastMonth,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.LastMonth) }
+        )
+        PeriodChip(
+            label = thisMonthLabel,
+            isSelected = selectedPeriod == BudgetPeriodFilter.ThisMonth,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.ThisMonth) }
+        )
+        PeriodChip(
+            label = stringResource(id = R.string.label_custom_month_caps),
+            isSelected = selectedPeriod == BudgetPeriodFilter.CustomMonth,
+            isLocked = isCustomMonthLocked,
+            textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            onClick = { onPeriodSelected(BudgetPeriodFilter.CustomMonth) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 @Composable
 private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
-    Column(
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 26.dp,
-                shape = RoundedCornerShape(24.dp),
-                ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
-            )
-            .clip(RoundedCornerShape(24.dp))
-            .background(standardCardGradient())
-            .border(
-
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(horizontal = 18.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .then(
+                // The card's lift is a tinted one the theme supplies rather than the card
+                // spec's: scrim is what carries it against the dark field, and this card
+                // has always carried it. Light takes the shared soft lift instead.
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier.shadow(
+                        elevation = 26.dp,
+                        shape = RoundedCornerShape(24.dp),
+                        ambientColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.34f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(24.dp),
     ) {
-        // Line 1 — month (left) + total budget (right) on a single row.
+        Box(modifier = Modifier.matchParentSize().heroBloom())
+        Column(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+        // Line 1 â€” month (left) + total budget (right) on a single row.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -926,7 +1031,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             }
         }
 
-        // Line 2 — Spent and Remaining, each on its own row.
+        // Line 2 â€” Spent and Remaining, each on its own row.
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             BudgetInlineRow(
                 title = stringResource(id = R.string.title_spent),
@@ -937,11 +1042,11 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             BudgetInlineRow(
                 title = if (summary.remainingAmount >= 0.0) stringResource(id = R.string.label_remaining) else stringResource(id = R.string.label_over),
                 value = summary.remainingLabel.asString(),
-                valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                valueColor = if (summary.remainingAmount >= 0.0) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.error
             )
         }
 
-        // Line 3 — usage %, progress bar, and daily allowance / limit inline.
+        // Line 3 â€” usage %, progress bar, and daily allowance / limit inline.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -967,7 +1072,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             Text(
                 text = trailingLabel,
                 color = if (summary.dailyAllowanceLabel != null) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.accentInk
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 },
@@ -979,6 +1084,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
     }
 }
 
@@ -1008,7 +1114,7 @@ private fun BudgetInlineRow(
         Text(
             text = value,
             color = valueColor,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1,
@@ -1030,17 +1136,11 @@ private fun SectionTitle(title: String) {
 
 @Composable
 private fun EmptySectionCard(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha =  0.65f),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(18.dp)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        brush = darkOnlyGradient(standardCardGradient()),
+        shape = AppCardDefaults.shape(20.dp),
+        contentPadding = PaddingValues(18.dp),
     ) {
         Text(
             text = message,
@@ -1103,7 +1203,7 @@ private fun BudgetEditorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
@@ -1116,7 +1216,7 @@ private fun BudgetEditorDialog(
                 )
                 Text(
                     text = monthLabel,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -1130,6 +1230,7 @@ private fun BudgetEditorDialog(
                     onValueChange = { nameInput = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
                     placeholder = {
                         val placeholder = when {
@@ -1139,15 +1240,7 @@ private fun BudgetEditorDialog(
                         }
                         Text(placeholder)
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1178,20 +1271,13 @@ private fun BudgetEditorDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
                     label = { Text(stringResource(id = R.string.label_monthly_limit)) },
                     placeholder = {
                         Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors = AppOutlinedFieldDefaults.colors()
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1209,6 +1295,10 @@ private fun BudgetEditorDialog(
                                 selected = selectedPeriod == period,
                                 onClick = { selectedPeriod = period },
                                 label = { Text(stringResource(period.labelRes)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                                ),
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -1217,7 +1307,7 @@ private fun BudgetEditorDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = {
                     if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
                         onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
@@ -1229,7 +1319,7 @@ private fun BudgetEditorDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1269,7 +1359,7 @@ private fun BudgetCategoryPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
@@ -1295,18 +1385,12 @@ private fun BudgetCategoryPickerSheet(
 
             if (conflictingTrackedCategories.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(10.dp))
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                Text(
+                    text = stringResource(id = R.string.tip_duplicate_budget_tracking),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.tip_duplicate_budget_tracking),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -1345,7 +1429,7 @@ private fun BudgetCategoryPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         tempSelectedIds = categories.map { it.id }.toSet()
                     },
@@ -1359,7 +1443,7 @@ private fun BudgetCategoryPickerSheet(
                     )
                 }
 
-                OutlinedButton(
+                AppOutlinedButton(
                     onClick = {
                         tempSelectedIds = categories
                             .filter { categoryTrackedMap[it.id].isNullOrEmpty() }
@@ -1379,14 +1463,25 @@ private fun BudgetCategoryPickerSheet(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Button(
-                onClick = {
-                    onSelectionChanged(tempSelectedIds)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+            // The Add Transaction screen's CTA, in both its fill and its ink: confirming this
+            // picker is the same brand surface the user just pressed to get here, so it wears
+            // `brandGradient()` -- the same ramp the selected rows' check marks already use --
+            // rather than the flat `primary` a stock Button paints, which in dark mode is a
+            // different, harder violet than the Add Transaction button beside it.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient())
+                    .clickable { onSelectionChanged(tempSelectedIds) }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(id = R.string.label_add))
+                Text(
+                    text = stringResource(id = R.string.label_add),
+                    color = MaterialTheme.colorScheme.onCta,
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1408,7 +1503,7 @@ private fun BudgetCategoryMultiPickerRow(
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
             .border(
                 width = 1.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                color = if (isSelected) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f)
                 else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(16.dp)
             )
@@ -1422,17 +1517,27 @@ private fun BudgetCategoryMultiPickerRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f)
         ) {
+            // Same rule as the single-select picker below: an unselected row wears the
+            // category's own colour, and the selected row keeps the brand wash the checked
+            // state is built from, so "selected" stays legible as one thing across the app.
+            val categoryColor = MaterialTheme.colorScheme.categoryColor(
+                categoryId = category.id,
+                colorHex = category.colorHex
+            )
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.accentSoft
+                        else MaterialTheme.colorScheme.categorySoft(categoryColor)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = category.icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = if (isSelected) MaterialTheme.colorScheme.accentInk else categoryColor,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1446,7 +1551,7 @@ private fun BudgetCategoryMultiPickerRow(
                 if (!trackedInBudgets.isNullOrEmpty()) {
                     Text(
                         text = stringResource(id = R.string.label_already_tracked_in, trackedInBudgets.joinToString(", ")),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
@@ -1458,13 +1563,13 @@ private fun BudgetCategoryMultiPickerRow(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(brush = brandGradient()),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onCta,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -1491,7 +1596,7 @@ private fun DeleteBudgetDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
@@ -1506,12 +1611,15 @@ private fun DeleteBudgetDialog(
             Text(stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(id = R.string.label_delete_1))
+            AppTextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(id = R.string.label_delete_1),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1562,7 +1670,7 @@ private fun SelectionDialogField(
 
                 Text(
                     text = actionLabel,
-                    color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+                    color = if (enabled) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                         letterSpacing = 0.7.sp
@@ -1586,7 +1694,7 @@ private fun BudgetCategoryPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         LazyColumn(
@@ -1643,7 +1751,7 @@ private fun BudgetCategoryPickerRow(
             .clip(RoundedCornerShape(24.dp))
             .background(
                 if (isSelected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
                 } else {
                     MaterialTheme.colorScheme.surfaceVariant
                 }
@@ -1658,7 +1766,7 @@ private fun BudgetCategoryPickerRow(
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (isSelected) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
                     } else {
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     }
@@ -1668,7 +1776,18 @@ private fun BudgetCategoryPickerRow(
             Icon(
                 imageVector = category.icon,
                 contentDescription = category.name,
-                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                // Unselected rows carry the category's own colour, so this picker reads as the
+                // same set of categories the rest of the app draws. Selected keeps the brand
+                // ink: the violet fill and the SELECTED label are that state's signal, and a
+                // category colour under them would look like a second, unrelated emphasis.
+                tint = if (isSelected) {
+                    MaterialTheme.colorScheme.accentInk
+                } else {
+                    MaterialTheme.colorScheme.categoryColor(
+                        categoryId = category.id,
+                        colorHex = category.colorHex
+                    )
+                },
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1696,7 +1815,7 @@ private fun BudgetCategoryPickerRow(
         if (isSelected) {
             Text(
                 text = stringResource(id = R.string.label_selected),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
@@ -1713,7 +1832,7 @@ private fun DeleteRecurringDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
@@ -1728,12 +1847,15 @@ private fun DeleteRecurringDialog(
             Text(stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(id = R.string.label_delete_1))
+            AppTextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(id = R.string.label_delete_1),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }
@@ -1750,7 +1872,7 @@ private fun MuteRecurringDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
@@ -1779,7 +1901,7 @@ private fun MuteRecurringDialog(
                         checked = dontShowAgain,
                         onCheckedChange = { dontShowAgain = it },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.primary,
+                            checkedColor = MaterialTheme.colorScheme.accentInk,
                             uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
@@ -1792,12 +1914,12 @@ private fun MuteRecurringDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(dontShowAgain) }) {
+            AppTextButton(onClick = { onConfirm(dontShowAgain) }) {
                 Text(stringResource(id = R.string.label_mute_yes))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_no))
             }
         }
@@ -1806,6 +1928,13 @@ private fun MuteRecurringDialog(
 
 
 
+/**
+ * The budget card's three headline labels run 10% under their type-scale role: at full
+ * size the category name, the amount pair and the SPENT / LIMIT caption crowd each other
+ * on a narrow card.
+ */
+private const val BUDGET_CARD_TEXT_SCALE = 0.9f
+
 @Composable
 private fun CategoryBudgetCard(
     budget: BudgetCategoryBudgetUi,
@@ -1813,54 +1942,34 @@ private fun CategoryBudgetCard(
     onDeleteClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
-    val containerBrush = when {
-        budget.spentAmount > budget.limitAmount -> Brush.verticalGradient(
-            colors = listOf(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
-        )
-
-        budget.progressFraction >= 0.85f -> Brush.verticalGradient(
-            colors = listOf(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f), MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f))
-        )
-
-        else -> standardCardGradient()
+    // The card's ink, through the scheme both times: the theme's own accent ink while the
+    // budget holds, amber once it is past its limit. The rail below the header reads it as one
+    // value, so its lit edge can never disagree with the state the card is in. The rail ramps
+    // it, like every other bar in the app.
+    val cardInk = if (budget.spentAmount > budget.limitAmount) {
+        MaterialTheme.colorScheme.budgetCardOverspent
+    } else {
+        MaterialTheme.colorScheme.accentInk
     }
-    val iconContainer = when {
-        budget.spentAmount > budget.limitAmount -> MaterialTheme.colorScheme.errorContainer
-        budget.progressFraction >= 0.85f -> MaterialTheme.colorScheme.tertiaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
+    val progressAccent: Brush = deepenedRamp(cardInk)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(containerBrush)
+            // The recurring rule card's chrome: its fill and its single brand hairline,
+            // the same in every state, so the two card types sitting in the same list read
+            // as one family. Health is carried by the progress bar and the status labels
+            // instead of by the container.
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .border(
                 width = 1.dp,
-                color = budgetAccentColor(budget.accent).copy(alpha = 0.24f),
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(iconContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = budget.icon,
-                    contentDescription = budget.title,
-                    tint = budgetAccentColor(budget.accent),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -1870,7 +1979,8 @@ private fun CategoryBudgetCard(
                         text = budget.title,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -1885,25 +1995,20 @@ private fun CategoryBudgetCard(
                             .clickable(onClick = onInfoClick)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = budget.statusValueLabel.asString(),
-                    color = budgetAccentColor(budget.accent),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                        letterSpacing = 0.8.sp
-                    )
-                )
             }
 
             Column(horizontalAlignment = Alignment.End) {
+                // The spent / limit pair prints in the title's own ink -- `onSurface`,
+                // the token the category name above it reads -- so the two stay one pair
+                // in safe, near limit and overspent alike. Health is left to the rail and
+                // the labels beside it rather than recolouring the card's second line of
+                // identity in all three states.
                 Text(
                     text = budget.summaryLabel,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                     )
                 )
 
@@ -1914,7 +2019,8 @@ private fun CategoryBudgetCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        letterSpacing = 0.7.sp
+                        letterSpacing = 0.7.sp,
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize * BUDGET_CARD_TEXT_SCALE
                     )
                 )
             }
@@ -1939,9 +2045,10 @@ private fun CategoryBudgetCard(
 
         BudgetProgressBar(
             progress = budget.progressFraction,
-            accent = Brush.horizontalGradient(
-                colors = listOf(budgetAccentColor(budget.accent), budgetAccentColor(budget.accent).copy(alpha = 0.8f))
-            )
+            accent = progressAccent,
+            // The goals card's bar: a slimmer rail sitting on the dedicated track token.
+            height = 8.dp,
+            trackColor = MaterialTheme.colorScheme.track
         )
 
         Row(
@@ -1949,31 +2056,55 @@ private fun CategoryBudgetCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = budget.statusCaption.asString(),
-                color = budgetAccentColor(budget.accent),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    letterSpacing = 1.sp
+            // Two pills: the verdict, and the money left as a share of the limit --
+            // "Safe" beside "Rs 3,800 (48%) Left". Each is filled with its own ink at 20%, the
+            // recipe the recurring card's meta chips already use, so the two card types keep
+            // one chrome. The status word stays in the muted ink the SPENT / LIMIT label
+            // carries; the figure keeps full ink, which is what makes it the readout. Past the
+            // limit both go negative -- "-Rs 2,000 (-20%)" -- rather than flipping to an
+            // amount over, so one sign says where the budget stands in every state.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                RecurringMetaChip(
+                    label = budget.statusCaption.asString(),
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fillAlpha = 0.2f
                 )
-            )
+
+                RecurringMetaChip(
+                    label = stringResource(
+                        id = R.string.format_remaining_pill,
+                        budget.remainingLabel,
+                        budget.remainingPercent
+                    ),
+                    accent = MaterialTheme.colorScheme.onSurface,
+                    fillAlpha = 0.2f
+                )
+            }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BudgetCardAction(
                     icon = Icons.Default.Edit,
                     contentDescription = stringResource(id = R.string.label_edit),
-                    accent = MaterialTheme.colorScheme.primary,
+                    // The recurring rule card inks its edit action with the neutral
+                    // variant rather than brand, which keeps the row's only loud glyph
+                    // the destructive one.
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
                     isLocked = !budget.canEdit,
+                    filled = false,
                     onClick = { if (budget.canEdit) onEditClick() }
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 BudgetCardAction(
-                    icon = Icons.Default.Delete,
+                    icon = Icons.Rounded.Close,
                     contentDescription = stringResource(id = R.string.label_delete),
                     accent = MaterialTheme.colorScheme.error,
                     isLocked = !budget.canEdit,
+                    filled = false,
                     onClick = { if (budget.canEdit) onDeleteClick() }
                 )
             }
@@ -1986,9 +2117,10 @@ private fun BudgetCardAction(
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     label: String? = null,
     contentDescription: String? = null,
-    accent: Color = MaterialTheme.colorScheme.primary,
+    accent: Color = MaterialTheme.colorScheme.accentInk,
     isLocked: Boolean = false,
     enabled: Boolean = true,
+    filled: Boolean = true,
     onClick: () -> Unit
 ) {
     val finalAccent = if (isLocked) MaterialTheme.colorScheme.outline else accent
@@ -1998,14 +2130,24 @@ private fun BudgetCardAction(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(finalAccent.copy(alpha = backgroundAlpha))
-            .border(
-                width = 1.dp,
-                color = finalAccent.copy(alpha = borderAlpha),
-                shape = RoundedCornerShape(12.dp)
+            .then(
+                if (filled) {
+                    Modifier
+                        .background(finalAccent.copy(alpha = backgroundAlpha))
+                        .border(
+                            width = 1.dp,
+                            color = finalAccent.copy(alpha = borderAlpha),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                } else {
+                    Modifier
+                }
             )
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = if (label != null) 12.dp else 10.dp, vertical = 8.dp)
+            .padding(
+                horizontal = if (label != null) 12.dp else if (filled) 10.dp else 4.dp,
+                vertical = if (filled) 8.dp else 4.dp
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -2049,25 +2191,45 @@ private fun BudgetCardAction(
 private fun BudgetProgressBar(
     progress: Float,
     accent: Brush,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Defaults are the hero summary bar's 12dp rail; a card passes the goals styling. */
+    height: Dp = 12.dp,
+    trackColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
 ) {
+    val view = LocalView.current
+    var visibleOnScreen by remember { mutableStateOf(false) }
+    val targetProgress = if (visibleOnScreen) progress.coerceIn(0f, 1f) else 0f
     val animatedProgress by animateFloatAsState(
-        targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+        targetValue = targetProgress,
+        animationSpec = if (visibleOnScreen) {
+            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+        } else {
+            snap()
+        },
         label = "budget_progress_animation"
     )
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(12.dp)
+            .height(height)
+            .onGloballyPositioned { coords ->
+                val bounds = coords.boundsInWindow()
+                val window = Rect(0f, 0f, view.width.toFloat(), view.height.toFloat())
+                val onScreen = bounds.width > 0f &&
+                    bounds.height > 0f &&
+                    bounds.overlaps(window)
+                if (onScreen != visibleOnScreen) {
+                    visibleOnScreen = onScreen
+                }
+            }
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(trackColor)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(animatedProgress)
-                .height(12.dp)
+                .height(height)
                 .clip(CircleShape)
                 .background(accent)
         )
@@ -2077,7 +2239,7 @@ private fun BudgetProgressBar(
 @Composable
 private fun BudgetActionButton(
     title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -2092,26 +2254,28 @@ private fun BudgetActionButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(28.dp))
             .background(backgroundBrush)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 18.dp),
+            .padding(vertical = 14.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(18.dp)
-        )
+        icon?.let { iconVector ->
+            Icon(
+                imageVector = iconVector,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.onCta,
+                modifier = Modifier.size(18.dp)
+            )
 
-        Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+        }
 
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onCta,
+            style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                 letterSpacing = 1.2.sp
             )
@@ -2126,47 +2290,50 @@ private fun RecurringExpenseCard(
     onNotificationsEnabledChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    /** Non-null only for an EMI rule with slots — opens the installment ledger. */
+    /** Non-null only for an EMI rule with slots â€” opens the installment ledger. */
     onLedgerClick: (() -> Unit)? = null
 ) {
     val isUrgent = expense.isEnabled && (expense.accent == BudgetAccent.Overspent || expense.accent == BudgetAccent.Warning)
-    
-    Column(
+    val categoryInk = MaterialTheme.colorScheme.onSurfaceVariant
+    val titleColor = if (expense.isEnabled) MaterialTheme.colorScheme.onSurface else categoryInk
+    val frequencyAccent = if (expense.isEnabled) MaterialTheme.colorScheme.income else categoryInk
+    val installmentAccent = if (expense.isEnabled) MaterialTheme.colorScheme.expense else categoryInk
+    // A countdown (due today / tomorrow / in N days) borrows the installment pill's
+    // ink so an approaching date stands out; a calendar date stays neutral.
+    val dueColor = when {
+        !expense.isEnabled -> categoryInk
+        expense.isDueSoon -> installmentAccent
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    val chipFillAlpha = if (expense.isEnabled) 0.07f else 0.14f
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            // One edge for every state: the normal rule's brand hairline. A rule that is
+            // due soon, overdue, daily, yearly or switched off no longer repaints its
+            // outline, so state is told by the sparkle, the due ink and the chips instead.
             .border(
                 width = 1.dp,
-                color = budgetAccentColor(expense.accent).copy(alpha = 0.18f),
-                shape = RoundedCornerShape(20.dp)
+                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
+                shape = RoundedCornerShape(15.dp)
             )
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        Box(modifier = Modifier.matchParentSize().heroBloom())
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = expense.icon,
-                    contentDescription = expense.title,
-                    tint = budgetAccentColor(expense.accent),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = expense.title,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = titleColor,
                         style = MaterialTheme.typography.titleSmall
                             .copy(
                            fontWeight = FontWeight.Medium
@@ -2196,13 +2363,26 @@ private fun RecurringExpenseCard(
             }
 
             Switch(
+                modifier = Modifier.scale(0.9f),
                 checked = expense.isEnabled,
                 onCheckedChange = onEnabledChange,
+                thumbContent = if (expense.isEnabled) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                            tint = MaterialTheme.colorScheme.switchOnTick
+                        )
+                    }
+                } else {
+                    null
+                },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
+                    checkedTrackColor = MaterialTheme.colorScheme.switchOnTrack,
                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     uncheckedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
@@ -2211,15 +2391,17 @@ private fun RecurringExpenseCard(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             RecurringMetaChip(
                 label = expense.categoryLabel,
-                accent = budgetAccentColor(expense.accent)
+                accent = categoryInk
             )
             RecurringMetaChip(
                 label = expense.frequencyLabel,
-                accent = budgetAccentColor(expense.accent)
+                accent = frequencyAccent,
+                fillAlpha = chipFillAlpha
             )
             RecurringMetaChip(
                 label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
-                accent = budgetAccentColor(expense.accent)
+                accent = installmentAccent,
+                fillAlpha = chipFillAlpha
             )
         }
 
@@ -2232,14 +2414,16 @@ private fun RecurringExpenseCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = expense.dueLabel.asString(),
-                        color = budgetAccentColor(expense.accent),
+                        color = dueColor,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                             letterSpacing = 0.8.sp
                         )
                     )
                     
-                    if (expense.dueLabel.asString().contains("TODAY")) {
+                    if (expense.dueLabel.asString()
+                            .equals(stringResource(id = R.string.label_due_today), ignoreCase = true)
+                    ) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
@@ -2261,13 +2445,14 @@ private fun RecurringExpenseCard(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (onLedgerClick != null) {
                     BudgetCardAction(
                         icon = Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(id = R.string.action_view_installments),
-                        accent = budgetAccentColor(expense.accent),
+                        accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                        filled = false,
                         onClick = onLedgerClick
                     )
                 }
@@ -2275,7 +2460,8 @@ private fun RecurringExpenseCard(
                 BudgetCardAction(
                     icon = if (expense.notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                     contentDescription = if (expense.notificationsEnabled) stringResource(id = R.string.label_mute_recurring_title) else stringResource(id = R.string.label_notifications),
-                    accent = MaterialTheme.colorScheme.primary,
+                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                    filled = false,
                     onClick = {
                         if (expense.notificationsEnabled) {
                             onNotificationsEnabledChange(false)
@@ -2293,17 +2479,302 @@ private fun RecurringExpenseCard(
                     BudgetCardAction(
                         icon = Icons.Default.Edit,
                         contentDescription = stringResource(id = R.string.label_edit),
-                        accent = MaterialTheme.colorScheme.primary,
+                        accent = MaterialTheme.colorScheme.onSurfaceVariant,
                         isLocked = status !is AccessStatus.Granted,
+                        filled = false,
                         onClick = onClick
                     )
                 }
 
                 BudgetCardAction(
-                    icon = Icons.Default.Delete,
+                    icon = Icons.Rounded.Close,
                     contentDescription = stringResource(id = R.string.label_delete),
                     accent = MaterialTheme.colorScheme.error,
+                    filled = false,
                     onClick = onDeleteClick
+                )
+            }
+        }
+        }
+    }
+}
+
+/**
+ * Every state [RecurringExpenseCard] can be in, so the light and dark hosts below can
+ * show the whole matrix on one screen instead of across a dozen separate previews.
+ *
+ * Order runs from the calm states to the loud ones: a plain calendar date, the countdown
+ * labels, the frequency accents, a muted rule, a switched-off rule, and an EMI with its
+ * ledger affordance.
+ */
+private fun recurringExpenseCardStates(): List<BudgetRecurringExpenseUi> = listOf(
+    previewRecurringExpense(
+        id = "preview-regular",
+        title = "Rent",
+        dueLabel = "01 Oct",
+        accent = BudgetAccent.Primary
+    ),
+    // Due today: countdown ink plus the red dot.
+    previewRecurringExpense(
+        id = "preview-due-today",
+        title = "Internet",
+        amountLabel = "Rs 999 / Month",
+        dueLabel = "Due Today",
+        accent = BudgetAccent.Overspent,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-due-soon",
+        title = "Insurance",
+        amountLabel = "Rs 2,400 / Month",
+        dueLabel = "In 2 days",
+        accent = BudgetAccent.Warning,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-daily",
+        title = "Coffee",
+        amountLabel = "Rs 150 / Day",
+        frequency = RecurringFrequency.Daily,
+        frequencyLabel = "Daily",
+        dueLabel = "Tomorrow",
+        accent = BudgetAccent.Daily,
+        isDueSoon = true
+    ),
+    previewRecurringExpense(
+        id = "preview-weekly",
+        title = "Groceries",
+        amountLabel = "Rs 3,000 / Week",
+        frequency = RecurringFrequency.Weekly,
+        frequencyLabel = "Weekly",
+        dueLabel = "Fri 03 Oct",
+        accent = BudgetAccent.Warning
+    ),
+    previewRecurringExpense(
+        id = "preview-yearly",
+        title = "Domain",
+        amountLabel = "Rs 1,099 / Year",
+        frequency = RecurringFrequency.Yearly,
+        frequencyLabel = "Yearly",
+        dueLabel = "12 Mar",
+        accent = BudgetAccent.Yearly
+    ),
+    // Notifications off: the bell action flips to the muted glyph.
+    previewRecurringExpense(
+        id = "preview-muted",
+        title = "Streaming",
+        amountLabel = "Rs 199 / Month",
+        dueLabel = "20 Oct",
+        accent = BudgetAccent.Primary,
+        notificationsEnabled = false
+    ),
+    // Switched off: every ink on the card drops to the muted variant.
+    previewRecurringExpense(
+        id = "preview-disabled",
+        title = "Gym",
+        amountLabel = "Rs 1,200 / Month",
+        dueLabel = "12 Oct",
+        accent = BudgetAccent.Disabled,
+        isEnabled = false
+    ),
+    // EMI: adds the installment chip row and the ledger action.
+    previewRecurringExpense(
+        id = "preview-emi",
+        title = "Phone EMI",
+        amountLabel = "Rs 4,500 / Month",
+        categoryLabel = "Electronics",
+        dueLabel = "15 Oct",
+        accent = BudgetAccent.Primary,
+        isInstallment = true
+    )
+)
+
+@Preview(
+    name = "RecurringExpenseCard States Light",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1800
+)
+@Composable
+private fun RecurringExpenseCardStatesLightPreview() {
+    RecurringExpenseCardStatesHost()
+}
+
+@Preview(
+    name = "RecurringExpenseCard States Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 412,
+    heightDp = 1800
+)
+@Composable
+private fun RecurringExpenseCardStatesDarkPreview() {
+    RecurringExpenseCardStatesHost()
+}
+
+/**
+ * The shared light/dark host: one scrolling column holding every card state. The scroll
+ * matters in interactive mode (the column is taller than the preview) and is harmless in a
+ * static render, which simply clips at the preview's height.
+ */
+@Composable
+private fun RecurringExpenseCardStatesHost() {
+    val states = remember { recurringExpenseCardStates() }
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                states.forEach { state ->
+                    RecurringExpenseCard(
+                        expense = state,
+                        onEnabledChange = {},
+                        onNotificationsEnabledChange = {},
+                        onEditClick = {},
+                        onDeleteClick = {},
+                        onLedgerClick = if (state.isInstallment) ({}) else null
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun previewRecurringExpense(
+    id: String = "preview-recurring",
+    title: String,
+    amountLabel: String = "Rs 12,000 / Month",
+    categoryLabel: String = "Housing",
+    frequency: RecurringFrequency = RecurringFrequency.Monthly,
+    frequencyLabel: String = "Monthly",
+    dueLabel: String,
+    sourceDateLabel: String = "01 Jan 2026",
+    accent: BudgetAccent,
+    isEnabled: Boolean = true,
+    notificationsEnabled: Boolean = true,
+    isInstallment: Boolean = false,
+    isDueSoon: Boolean = false
+): BudgetRecurringExpenseUi = BudgetRecurringExpenseUi(
+    id = id,
+    transactionId = "tx-$id",
+    title = title,
+    amountLabel = amountLabel,
+    categoryLabel = categoryLabel,
+    frequency = frequency,
+    frequencyLabel = frequencyLabel,
+    repeatCount = 12,
+    currentInstallment = 3,
+    totalInstallments = 12,
+    sourceDateLabel = UiText.dynamic(sourceDateLabel),
+    dueLabel = UiText.dynamic(dueLabel),
+    isDueSoon = isDueSoon,
+    dueAmountLabel = amountLabel,
+    icon = Icons.Filled.DateRange,
+    accent = accent,
+    nextDueAt = 0L,
+    isEnabled = isEnabled,
+    notificationsEnabled = notificationsEnabled,
+    isInstallment = isInstallment,
+    recurringType = if (isInstallment) RecurringType.INSTALLMENT else RecurringType.REGULAR,
+    installmentTotalAmount = if (isInstallment) 54000.0 else 0.0,
+    installmentPerAmount = if (isInstallment) 4500.0 else 0.0,
+    installmentPaidCount = if (isInstallment) 3 else 0,
+    installmentRemainingLabel = if (isInstallment) "Rs 40,500 left" else "",
+    installmentProgressFraction = if (isInstallment) 0.25f else 0f,
+    installmentPlanStatus = if (isInstallment) InstallmentStatus.ACTIVE else null,
+    firstDueAt = 0L,
+    slots = if (isInstallment) {
+        listOf(
+            InstallmentSlotUi(
+                id = "slot-1",
+                index = 4,
+                dueAt = 0L,
+                amountLabel = "Rs 4,500",
+                status = InstallmentOccurrenceStatus.PENDING,
+                paidAt = null
+            )
+        )
+    } else {
+        emptyList()
+    }
+)
+@Preview(name = "CategoryBudgetCard Light", showBackground = true)
+@Preview(name = "CategoryBudgetCard Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CategoryBudgetCardPreview() {
+    ExpenseTrackerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // The labels below are the ones the view model actually produces for a
+                // healthy budget: Safe beside the SPENT / LIMIT caption.
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-food",
+                        categoryId = 1,
+                        title = "Food",
+                        summaryLabel = "Rs 4,200 / Rs 8,000",
+                        remainingLabel = "Rs 3,800",
+                        remainingPercent = 48,
+                        statusCaption = UiText.res(R.string.label_safe),
+                        totalCaption = UiText.res(R.string.label_spent_limit),
+                        progressFraction = 0.525f,
+                        spentAmount = 4200.0,
+                        limitAmount = 8000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Primary
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
+                )
+                // Near limit: the Near Limit caption and the amber rail.
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-near",
+                        categoryId = 3,
+                        title = "Travel",
+                        summaryLabel = "Rs 10,500 / Rs 12,000",
+                        remainingLabel = "Rs 1,500",
+                        remainingPercent = 13,
+                        statusCaption = UiText.res(R.string.label_near_limit),
+                        totalCaption = UiText.res(R.string.label_spent_limit),
+                        progressFraction = 0.875f,
+                        spentAmount = 10500.0,
+                        limitAmount = 12000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Warning
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
+                )
+                // Overspent: the Overspent caption and EXCEEDED.
+                CategoryBudgetCard(
+                    budget = BudgetCategoryBudgetUi(
+                        id = "preview-over",
+                        categoryId = 2,
+                        title = "Shopping",
+                        summaryLabel = "Rs 12,000 / Rs 10,000",
+                        remainingLabel = "-Rs 2,000",
+                        remainingPercent = -20,
+                        statusCaption = UiText.res(R.string.label_budget_status_label),
+                        totalCaption = UiText.res(R.string.label_exceeded),
+                        progressFraction = 1f,
+                        spentAmount = 12000.0,
+                        limitAmount = 10000.0,
+                        icon = Icons.Filled.DateRange,
+                        accent = BudgetAccent.Overspent
+                    ),
+                    onEditClick = {},
+                    onDeleteClick = {},
+                    onInfoClick = {}
                 )
             }
         }
@@ -2313,16 +2784,17 @@ private fun RecurringExpenseCard(
 @Composable
 private fun RecurringMetaChip(
     label: String,
-    accent: Color
+    accent: Color,
+    fillAlpha: Float = 0.14f
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(accent.copy(alpha = 0.14f))
+            .clip(RoundedCornerShape(10.dp))
+            .background(accent.copy(alpha = fillAlpha))
             .border(
                 width = 1.dp,
-                color = accent.copy(alpha = 0.26f),
-                shape = RoundedCornerShape(8.dp)
+                color = accent.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(10.dp)
             )
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
@@ -2337,17 +2809,12 @@ private fun RecurringMetaChip(
     }
 }
 
-@Preview(
-    name = "Budget Screen",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
+
 /**
  * Installment ledger for one EMI rule: every scheduled slot with what it is
  * worth, what happened to it, and the three settlement actions.
  *
- * Paying is per slot and multi-selectable — the selected slots go up in one
+ * Paying is per slot and multi-selectable â€” the selected slots go up in one
  * action, and the repository's per-slot idempotency makes a double submission
  * (or a slot the worker settled meanwhile) harmless. Skipping waives the cycle
  * without withdrawing the money owed, and undo returns either kind of settled
@@ -2390,7 +2857,7 @@ private fun InstallmentLedgerSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = sheetState
     ) {
         Column(
@@ -2423,7 +2890,7 @@ private fun InstallmentLedgerSheet(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "$progressLabel • $remainingLabel",
+                        text = "$progressLabel \u2022 $remainingLabel",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -2493,7 +2960,7 @@ private fun InstallmentSlotRow(
 ) {
     val isPending = slot.status == InstallmentOccurrenceStatus.PENDING
     val statusColor = when (slot.status) {
-        InstallmentOccurrenceStatus.PAID -> MaterialTheme.colorScheme.primary
+        InstallmentOccurrenceStatus.PAID -> MaterialTheme.colorScheme.accentInk
         InstallmentOccurrenceStatus.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
         InstallmentOccurrenceStatus.OVERDUE -> MaterialTheme.colorScheme.error
         InstallmentOccurrenceStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -2516,7 +2983,7 @@ private fun InstallmentSlotRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Multi-select only ever applies to slots that can still be paid — a
+        // Multi-select only ever applies to slots that can still be paid â€” a
         // settled slot changes through UNDO instead.
         if (isPending) {
             Box(
@@ -2553,7 +3020,7 @@ private fun InstallmentSlotRow(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = slot.paidAt?.let { paidAt ->
-                    slot.amountLabel + " • " + formatDate(paidAt)
+                    slot.amountLabel + " \u2022 " + formatDate(paidAt)
                 } ?: slot.amountLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodySmall
@@ -2573,7 +3040,7 @@ private fun InstallmentSlotRow(
                     accent = accent,
                     onClick = onPay
                 )
-                TextButton(onClick = onSkip) {
+                AppTextButton(onClick = onSkip) {
                     Text(
                         text = stringResource(R.string.action_skip_caps),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2581,10 +3048,10 @@ private fun InstallmentSlotRow(
                     )
                 }
             } else {
-                TextButton(onClick = onUndo) {
+                AppTextButton(onClick = onUndo) {
                     Text(
                         text = stringResource(R.string.action_undo_caps),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold)
                     )
                 }
@@ -2622,153 +3089,6 @@ private fun BudgetAndRecurringScreenPreview() {
 }
 
 @Composable
-private fun BudgetTabRow(
-    selectedTab: BudgetTab,
-    budgetCount: Int,
-    recurringCount: Int,
-    isProUser: Boolean,
-    onTabSelected: (BudgetTab) -> Unit
-) {
-    val tabs = remember { BudgetTab.entries }
-    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
-    
-    val density = LocalDensity.current
-    var containerWidthPx by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .onSizeChanged { containerWidthPx = it.width }
-            .clip(RoundedCornerShape(26.dp))
-            .background(standardCardGradient())
-            .padding(4.dp)
-    ) {
-        val tabWidth = with(density) { (containerWidthPx.toDp() - 8.dp) / tabs.size }
-        
-        val indicatorOffset by animateDpAsState(
-            targetValue = tabWidth * selectedIndex,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "tab_indicator_offset"
-        )
-
-        // Sliding indicator (Pill)
-        if (containerWidthPx > 0) {
-            Box(
-                modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(tabWidth)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(brandGradient())
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            tabs.forEach { tab ->
-                BudgetTabChip(
-                    label = when (tab) {
-                        BudgetTab.Budgets -> stringResource(id = R.string.label_tab_budgets)
-                        BudgetTab.Recurring -> stringResource(id = R.string.label_tab_recurring)
-                    },
-                    count = tabBadgeCount(
-                        count = when (tab) {
-                            BudgetTab.Budgets -> budgetCount
-                            BudgetTab.Recurring -> recurringCount
-                        },
-                        isSelected = tab == selectedTab,
-                        isProUser = isProUser
-                    ),
-                    selected = tab == selectedTab,
-                    onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BudgetTabChip(
-    label: String,
-    count: Int?,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val animatedColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "tab_text_color"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // The badge is only ever passed for the selected tab, so whatever is drawn here sits
-        // on the brand-gradient indicator where `onPrimary` is the readable colour. Its slot is
-        // emitted either way, so the label never moves when the badge comes or goes.
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = label.uppercase(),
-                color = animatedColor,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
-            )
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            TabBadgeSlot(count = count)
-        }
-    }
-}
-
-/**
- * The badge's place in a tab pill, occupied whether or not there is a badge to draw.
- *
- * Keeping the slot at a fixed width is what stops the label from being re-centred and jumping
- * sideways every time a badge appears or vanishes, which happens on each tab switch: the count
- * is only ever supplied for the selected tab. The badge fades into space that is already there.
- *
- * The width follows the system font scale, because the badge is text and would otherwise be
- * clipped at larger scales for the sake of a number that fits at the default one. The fade is
- * short so it reads as the number arriving, not as a second animation competing with the pill
- * sliding underneath it.
- *
- * Deliberately not inlined into [BudgetTabChip]'s `Row`: inside a row's content lambda Compose
- * resolves `AnimatedVisibility` to its `RowScope` overload, which is not what is wanted here.
- */
-@Composable
-private fun TabBadgeSlot(count: Int?) {
-    Box(
-        modifier = Modifier.width(tabBadgeSlotWidth()),
-        contentAlignment = Alignment.Center
-    ) {
-        AnimatedVisibility(
-            visible = count != null,
-            enter = fadeIn(animationSpec = tween(durationMillis = 160)) +
-                scaleIn(initialScale = 0.7f, animationSpec = tween(durationMillis = 160)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                scaleOut(targetScale = 0.7f, animationSpec = tween(durationMillis = 160)),
-            label = "tab_badge"
-        ) {
-            // Only reachable with a count, and it is the same badge the pill drew before: a null
-            // count leaves the reserved slot above empty.
-            if (count != null) {
-                TabCountBadge(count = count)
-            }
-        }
-    }
-}
-
-@Composable
 private fun RecurringRuleEditorModal(
     rule: BudgetRecurringExpenseUi,
     onDismiss: () -> Unit,
@@ -2783,7 +3103,7 @@ private fun RecurringRuleEditorModal(
     var installmentsInput by remember { mutableStateOf(rule.totalInstallments.toString()) }
     var isFrequencyDropdownExpanded by remember { mutableStateOf(false) }
 
-    // EMI fields — prefilled from the rule when it already carries a plan, so
+    // EMI fields â€” prefilled from the rule when it already carries a plan, so
     // editing an existing loan shows its real terms.
     var totalInput by remember { mutableStateOf(rule.installmentTotalAmount.formatForInput()) }
     var installmentInput by remember { mutableStateOf(rule.installmentPerAmount.formatForInput()) }
@@ -2797,10 +3117,10 @@ private fun RecurringRuleEditorModal(
     val totalAmount = totalInput.toDoubleOrNull() ?: 0.0
     val installmentAmount = installmentInput.toDoubleOrNull() ?: 0.0
     val planValid = count > 0 && totalAmount > 0.0 && installmentAmount > 0.0
-    // The recurring date is 12:00 local — slot dates inherit it, so "same
-    // total as count × installment" stays exact regardless of month lengths.
+    // The recurring date is 12:00 local â€” slot dates inherit it, so "same
+    // total as count Ã— installment" stays exact regardless of month lengths.
     val planConsistent = totalAmount == installmentAmount * count
-    // Nothing editable changed — saving would rewrite sync timestamps for no
+    // Nothing editable changed â€” saving would rewrite sync timestamps for no
     // visible reason, so the button stays disabled. (count <= 0 mirrors the old
     // guard that never let a REGULAR rule save a zero repeat count.)
     val regularInvalid = selectedType == RecurringType.REGULAR && count <= 0
@@ -2829,7 +3149,7 @@ private fun RecurringRuleEditorModal(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f),
         dragHandle = {
             // The drag-handle slot is laid out as a Box by the sheet host, so padding
@@ -2864,7 +3184,7 @@ private fun RecurringRuleEditorModal(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                // Type selector — REGULAR stays exactly the legacy editor;
+                // Type selector â€” REGULAR stays exactly the legacy editor;
                 // INSTALLMENT swaps the repeat-count row for the plan terms.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
@@ -2882,7 +3202,11 @@ private fun RecurringRuleEditorModal(
                                     selectedType = RecurringType.REGULAR
                                 }
                             },
-                            label = { Text(stringResource(id = R.string.label_type_regular)) }
+                            label = { Text(stringResource(id = R.string.label_type_regular)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                            )
                         )
                         FilterChip(
                             selected = selectedType == RecurringType.INSTALLMENT,
@@ -2892,7 +3216,11 @@ private fun RecurringRuleEditorModal(
                                     autoCalculateTotal(installmentInput, count)
                                 }
                             },
-                            label = { Text(stringResource(id = R.string.label_type_emi)) }
+                            label = { Text(stringResource(id = R.string.label_type_emi)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                            )
                         )
                     }
                 }
@@ -2916,7 +3244,7 @@ private fun RecurringRuleEditorModal(
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = MaterialTheme.colorScheme.accentInk
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -2936,7 +3264,7 @@ private fun RecurringRuleEditorModal(
                             expanded = isFrequencyDropdownExpanded,
                             onDismissRequest = { isFrequencyDropdownExpanded = false },
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surface)
+                                .background(MaterialTheme.colorScheme.menu)
                                 .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                         ) {
                             RecurringFrequency.entries.forEach { frequency ->
@@ -2944,7 +3272,7 @@ private fun RecurringRuleEditorModal(
                                     text = {
                                         Text(
                                             text = frequency.label,
-                                            color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            color = if (frequency == selectedFrequency) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurface
                                         )
                                     },
                                     onClick = {
@@ -2987,16 +3315,9 @@ private fun RecurringRuleEditorModal(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
-                                shape = RoundedCornerShape(14.dp),
+                                shape = AppOutlinedFieldDefaults.shape,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
+                                colors = AppOutlinedFieldDefaults.colors()
                             )
                         }
                     } else {
@@ -3042,16 +3363,9 @@ private fun RecurringRuleEditorModal(
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true,
-                                    shape = RoundedCornerShape(14.dp),
+                                    shape = AppOutlinedFieldDefaults.shape,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
+                                    colors = AppOutlinedFieldDefaults.colors()
                                 )
                             }
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3073,7 +3387,7 @@ private fun RecurringRuleEditorModal(
                                         Icon(
                                             imageVector = Icons.Default.DateRange,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary
+                                            tint = MaterialTheme.colorScheme.accentInk
                                         )
                                     },
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -3103,14 +3417,14 @@ private fun RecurringRuleEditorModal(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TextButton(
+                AppTextButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(id = R.string.label_cancel_caps), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
-                TextButton(
+                AppTextButton(
                     onClick = {
                         when {
                             selectedType == RecurringType.REGULAR -> onSave(selectedFrequency, count)
@@ -3129,7 +3443,7 @@ private fun RecurringRuleEditorModal(
                     modifier = Modifier
                         .weight(1f)
                         .background(
-                            MaterialTheme.colorScheme.primary.copy(
+                            MaterialTheme.colorScheme.accentInk.copy(
                                 alpha = if (
                                     if (selectedType == RecurringType.REGULAR) regularUnchanged
                                     else (planUnchanged || !planValid || !planConsistent)
@@ -3168,11 +3482,11 @@ private fun RecurringRuleEditorModal(
     if (showRegularConfirm) {
         AlertDialog(
             onDismissRequest = { showRegularConfirm = false },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.sheet,
             title = { Text(stringResource(id = R.string.label_type_regular)) },
             text = { Text(stringResource(id = R.string.msg_convert_to_regular_info)) },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showRegularConfirm = false
                     onConvertToRegular()
                 }) {
@@ -3180,7 +3494,7 @@ private fun RecurringRuleEditorModal(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRegularConfirm = false }) {
+                AppTextButton(onClick = { showRegularConfirm = false }) {
                     Text(stringResource(id = R.string.label_cancel_caps))
                 }
             }
@@ -3194,7 +3508,7 @@ private fun EditorAmountField(
     value: String,
     onValueChange: (String) -> Unit,
     supportingText: String? = null,
-    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(14.dp)
+    shape: androidx.compose.ui.graphics.Shape = AppOutlinedFieldDefaults.shape
 ) {
     OutlinedTextField(
         value = value,
@@ -3208,14 +3522,7 @@ private fun EditorAmountField(
         shape = shape,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         supportingText = supportingText?.let { { Text(it) } },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors = AppOutlinedFieldDefaults.colors()
     )
 }
 
@@ -3239,16 +3546,16 @@ private fun BudgetGroupInfoSheet(
         categories.filter { it.id in budget.categoryIds }
     }
 
-    // Odd-index (0, 2, 4...) → category pill style from TransactionCard
-    val oddColor = MaterialTheme.colorScheme.primary
-    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-    // Even-index (1, 3, 5...) → payment-method pill style from TransactionCard
+    // Odd-index (0, 2, 4...) â†’ category pill style from TransactionCard
+    val oddColor = MaterialTheme.colorScheme.accentInk
+    val oddBackground = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+    // Even-index (1, 3, 5...) â†’ payment-method pill style from TransactionCard
     val evenColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+    val evenBackground = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         sheetState = sheetState
     ) {
         Column(
@@ -3268,7 +3575,7 @@ private fun BudgetGroupInfoSheet(
                 Icon(
                     imageVector = Icons.Outlined.Info,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(22.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -3338,12 +3645,12 @@ private fun CopyPreviousMonthBudgetsAction(
     val contentColor = if (isLocked) {
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     } else {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.accentInk
     }
     val borderColor = if (isLocked) {
         MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     } else {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.45f)
     }
 
     Row(
@@ -3406,7 +3713,7 @@ private fun CopyPreviousMonthBudgetsSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
     ) {
         Column(
@@ -3442,19 +3749,33 @@ private fun CopyPreviousMonthBudgetsSheet(
                 Button(
                     onClick = onCopyAll,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onCta
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = R.string.action_copy_all),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(brush = brandGradient(), shape = RoundedCornerShape(16.dp))
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ContentCopy,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onCta,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.action_copy_all),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        )
+                    }
                 }
 
                 LazyColumn(
@@ -3485,12 +3806,30 @@ private fun CopyPreviousMonthBudgetsSheet(
                     onClick = { onCopySelected(checkedIds.toList()) },
                     enabled = checkedIds.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onCta,
+                        disabledContentColor = MaterialTheme.colorScheme.onCta.copy(alpha = 0.6f)
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.action_copy_selected),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = brandGradient(alpha = if (checkedIds.isNotEmpty()) 1f else 0.45f),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.action_copy_selected),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                        )
+                    }
                 }
             }
         }
@@ -3526,7 +3865,7 @@ private fun CopyBudgetRow(
             .border(
                 width = 1.dp,
                 color = if (isChecked) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f)
                 } else {
                     MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                 },
@@ -3545,13 +3884,13 @@ private fun CopyBudgetRow(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    .background(MaterialTheme.colorScheme.accentSoft),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = firstCategory?.icon ?: Icons.Filled.DateRange,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -3575,7 +3914,7 @@ private fun CopyBudgetRow(
                         currencyId = currencyId,
                         amountFormatPreferences = amountFormatPreferences
                     ),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
@@ -3591,13 +3930,13 @@ private fun CopyBudgetRow(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(brush = brandGradient()),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onCta,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -3673,7 +4012,7 @@ private fun ConfirmCopyBudgetsDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.sheet,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
@@ -3688,12 +4027,12 @@ private fun ConfirmCopyBudgetsDialog(
             Text(stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(stringResource(id = R.string.action_copy))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         }

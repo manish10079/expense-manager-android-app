@@ -51,6 +51,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val recurringRuleDao: RecurringRuleDao,
     private val installmentOccurrenceDao: com.mknlabs.expensetracker.data.local.room.dao.InstallmentOccurrenceDao,
     private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
+    private val favoriteTransactionDao: com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao,
     private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : SyncRepository {
 
@@ -253,6 +254,7 @@ class SyncRepositoryImpl @Inject constructor(
                     budgetDao.purgeOldDeleted(threshold)
                     recurringRuleDao.purgeOldDeleted(threshold)
                     installmentOccurrenceDao.purgeOldDeleted(threshold)
+                    favoriteTransactionDao.purgeOldDeleted(threshold)
                 }
                 android.util.Log.i("Sync", "Successfully purged local synced deleted records older than 30 days.")
             } catch (e: Exception) {
@@ -622,6 +624,10 @@ class SyncRepositoryImpl @Inject constructor(
             allTasks.add(SyncTask.InstallmentOccurrenceTask(it))
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
         }
+        favoriteTransactionDao.getUnsynced().forEach {
+            allTasks.add(SyncTask.FavoriteTask(it))
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
         goalDao.getUnsynced().forEach { 
             allTasks.add(SyncTask.GoalTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
@@ -670,6 +676,9 @@ class SyncRepositoryImpl @Inject constructor(
 
                 val goalIds = chunk.filterIsInstance<SyncTask.GoalTask>().map { it.entity.id }
                 if (goalIds.isNotEmpty()) goalDao.updateSyncStates(goalIds, SyncState.SYNCED.name)
+
+                val favIds = chunk.filterIsInstance<SyncTask.FavoriteTask>().map { it.entity.id }
+                if (favIds.isNotEmpty()) favoriteTransactionDao.updateSyncStates(favIds, SyncState.SYNCED.name)
 
             } catch (e: Exception) {
                 // If a batch fails, we skip it and continue to the next one to ensure other data is synced
@@ -748,6 +757,20 @@ class SyncRepositoryImpl @Inject constructor(
                 budgetDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, budgetMax)
+
+            val favMax = pullCollection(userDoc, "favorite_transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity ->
+                // The unique index on transaction_id allows one favorite per transaction
+                // per device, but two devices can favorite the same transaction on their
+                // own. The incoming row is merged onto the local row for that transaction
+                // rather than colliding with the index, which would drop the pull.
+                val existing = cloudItem.transactionId?.let { favoriteTransactionDao.findByTransactionId(it) }
+                if (existing != null && existing.id != cloudItem.id) {
+                    favoriteTransactionDao.upsert(cloudItem.copy(id = existing.id, syncState = SyncState.SYNCED))
+                } else {
+                    favoriteTransactionDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                }
+            }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, favMax)
         } catch (e: Exception) {
             android.util.Log.e("Sync", "Relational data pull failed", e)
         } finally {
@@ -810,6 +833,11 @@ class SyncRepositoryImpl @Inject constructor(
                             val name = doc.getString("name").orEmpty()
                             val transactionTypeId = doc.getLong("transactionTypeId")?.toInt() ?: 0
                             val iconKey = doc.getString("iconKey").orEmpty()
+                            // Read by hand rather than falling through to `toObject`, because
+                            // this entity has a branch of its own. A field the branch does not
+                            // name is simply absent from the pulled row, which would have shown
+                            // up as "my colours reset after syncing" rather than as an error.
+                            val colorHex = doc.getString("colorHex")
                             val isSystem = doc.getBoolean("isSystem") ?: false
                             val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
@@ -817,23 +845,26 @@ class SyncRepositoryImpl @Inject constructor(
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity(
                                 id = id, name = name, transactionTypeId = transactionTypeId,
-                                iconKey = iconKey, isSystem = isSystem, sortOrder = sortOrder,
-                                isDeleted = isDeleted, createdAt = createdAt, updatedAt = updatedAt
+                                iconKey = iconKey, colorHex = colorHex, isSystem = isSystem,
+                                sortOrder = sortOrder, isDeleted = isDeleted, createdAt = createdAt,
+                                updatedAt = updatedAt
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity::class -> {
                             val id = doc.getLong("id")?.toInt() ?: 0
                             val name = doc.getString("name").orEmpty()
                             val iconKey = doc.getString("iconKey").orEmpty()
+                            // Read by hand for the same reason as the category branch above.
+                            val colorHex = doc.getString("colorHex")
                             val isSystem = doc.getBoolean("isSystem") ?: false
                             val sortOrder = doc.getLong("sortOrder")?.toInt() ?: 0
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
                             val createdAt = doc.getLong("createdAt") ?: 0L
                             val updatedAt = doc.getLong("updatedAt") ?: 0L
                             com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity(
-                                id = id, name = name, iconKey = iconKey, isSystem = isSystem,
-                                sortOrder = sortOrder, isDeleted = isDeleted, createdAt = createdAt,
-                                updatedAt = updatedAt
+                                id = id, name = name, iconKey = iconKey, colorHex = colorHex,
+                                isSystem = isSystem, sortOrder = sortOrder, isDeleted = isDeleted,
+                                createdAt = createdAt, updatedAt = updatedAt
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.GoalEntity::class -> {
@@ -959,6 +990,27 @@ class SyncRepositoryImpl @Inject constructor(
                                 createdAt = createdAt, updatedAt = updatedAt, editCount = editCount, isDeleted = isDeleted
                             ) as T
                         }
+                        com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val transactionId = doc.getString("transactionId")
+                            val title = doc.getString("title").orEmpty()
+                            val amountMinor = doc.getLong("amountMinor") ?: 0L
+                            val transactionTypeId = doc.getLong("transactionTypeId")?.toInt() ?: 2
+                            val categoryId = doc.getLong("categoryId")?.toInt() ?: 0
+                            val paymentTypeId = doc.getLong("paymentTypeId")?.toInt() ?: 0
+                            val note = doc.getString("note").orEmpty()
+                            val isPinned = doc.getBoolean("isPinned") ?: true
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity(
+                                id = id, transactionId = transactionId, title = title,
+                                amountMinor = amountMinor, transactionTypeId = transactionTypeId,
+                                categoryId = categoryId, paymentTypeId = paymentTypeId, note = note,
+                                isPinned = isPinned, createdAt = createdAt, updatedAt = updatedAt,
+                                isDeleted = isDeleted
+                            ) as T
+                        }
                         else -> doc.toObject(T::class.java)
                     }
                     if (item != null) {
@@ -1004,6 +1056,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
                 "transactionTypeId" to entity.transactionTypeId, "isSystem" to entity.isSystem,
                 "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "colorHex" to entity.colorHex,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
             )
         }
@@ -1024,6 +1077,7 @@ class SyncRepositoryImpl @Inject constructor(
             override fun toCloudMap() = mapOf(
                 "id" to entity.id, "name" to entity.name, "iconKey" to entity.iconKey,
                 "isSystem" to entity.isSystem, "sortOrder" to entity.sortOrder, "isDeleted" to entity.isDeleted,
+                "colorHex" to entity.colorHex,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
             )
         }
@@ -1065,6 +1119,18 @@ class SyncRepositoryImpl @Inject constructor(
                 "id" to entity.id, "name" to entity.name, "targetAmountMinor" to entity.targetAmountMinor,
                 "currentAmountMinor" to entity.currentAmountMinor, "deadlineAt" to entity.deadlineAt,
                 "iconKey" to entity.iconKey, "colorHex" to entity.colorHex, "isCompleted" to entity.isCompleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
+            )
+        }
+        data class FavoriteTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "favorite_transactions"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "transactionId" to entity.transactionId, "title" to entity.title,
+                "amountMinor" to entity.amountMinor, "transactionTypeId" to entity.transactionTypeId,
+                "categoryId" to entity.categoryId, "paymentTypeId" to entity.paymentTypeId,
+                "note" to entity.note, "isPinned" to entity.isPinned,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
             )
         }

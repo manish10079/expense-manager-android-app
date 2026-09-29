@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -13,6 +15,8 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -104,7 +108,7 @@ fun VerificationBottomSheet(
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.accentInk,
                     textAlign = TextAlign.Center
                 )
             } else if (remainingTimeMs != null && remainingTimeMs!! == 0L) {
@@ -152,6 +156,7 @@ fun VerificationBottomSheet(
                 if (isChecking) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -162,7 +167,7 @@ fun VerificationBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Resend Button
-            OutlinedButton(
+            AppOutlinedButton(
                 onClick = {
                     scope.launch {
                         isResending = true
@@ -183,6 +188,7 @@ fun VerificationBottomSheet(
                 if (isResending) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -203,7 +209,7 @@ fun VerificationBottomSheet(
                 Text(
                     text = statusText,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isVerified) MaterialTheme.colorScheme.primary
+                    color = if (isVerified) MaterialTheme.colorScheme.accentInk
                             else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
@@ -215,7 +221,7 @@ fun VerificationBottomSheet(
 
             // Cancel button (only show if not verified)
             if (!isVerified) {
-                TextButton(
+                AppTextButton(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth()
                 ) {

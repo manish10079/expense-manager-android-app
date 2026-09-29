@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -78,6 +79,7 @@ class PaywallRenderTest {
         onRestore: () -> Unit = {},
         onRetry: () -> Unit = {},
         onOpenUrl: (String) -> Unit = {},
+        isOpeningStore: Boolean = false,
     ) {
         compose.setContent {
             ExpenseTrackerTheme {
@@ -87,6 +89,7 @@ class PaywallRenderTest {
                     onRestoreClick = onRestore,
                     onRetryClick = onRetry,
                     onOpenUrl = onOpenUrl,
+                    isOpeningStore = isOpeningStore,
                 )
             }
         }
@@ -208,6 +211,23 @@ class PaywallRenderTest {
         val restoreLabel = text(R.string.btn_restore_purchase)
         scrollTo(restoreLabel)
         compose.onNodeWithText(restoreLabel).assertIsNotEnabled()
+    }
+
+    @Test
+    fun subscribeShowsSpinnerWhileOpeningPlaySheet() {
+        renderPaywall(
+            state = PaywallUiState(
+                offers = listOf(monthly),
+                isLoadingOffers = false,
+                purchaseState = PurchaseState.InProgress(PurchaseState.Operation.Purchase)
+            ),
+            isOpeningStore = true
+        )
+
+        val opening = text(R.string.content_desc_opening_play_store)
+        compose.onNode(hasScrollAction()).performScrollToNode(hasContentDescription(opening))
+        compose.onNodeWithContentDescription(opening).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.btn_paywall_subscribe)).assertDoesNotExist()
     }
 
     @Test

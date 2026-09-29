@@ -2,10 +2,10 @@ package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
@@ -26,33 +25,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardDarkEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightStart
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLightEnd
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconBgLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardIconLight
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelDark
-import com.mknlabs.expensetracker.core.ui.theme.SmallCardLabelLight
 
-
+/**
+ * One quick-action card on the home row.
+ *
+ * A neutral card like every other surface in both themes. It used to raise a violet-tinted
+ * gradient of its own (indexmockup.html's `--qcard-bg`) in dark, which made two of the
+ * smallest objects on the first screen the only brand-filled surfaces on it — the exact
+ * over-purple case the redesign removes. The card now reads the shared card ladder, and
+ * the brand lives where the spec puts it on a neutral surface: `--accentSoft` behind the
+ * glyph and `--accent` on it.
+ */
 @Composable
 fun SmallHomeCard(
     title: String,
@@ -63,33 +57,13 @@ fun SmallHomeCard(
     onClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
-    val shape = RoundedCornerShape(18.dp)
 
-    // Theme-aware gradient background matching indexmockup.html --qcard-bg
-    val gradientBrush = if (isDark) {
-        Brush.linearGradient(listOf(SmallCardDarkStart, SmallCardDarkEnd))
-    } else {
-        Brush.linearGradient(listOf(SmallCardLightStart, SmallCardLightEnd))
-    }
-
-    // Border matching indexmockup.html --qcard-bd
-    val borderColor = if (isDark) SmallCardBorderDark else SmallCardBorderLight
-
-    // Icon background & tint matching indexmockup.html --qicon-bg & --qicon-c
-    val iconBgColor = if (isDark) SmallCardIconBgDark else SmallCardIconBgLight
-    val iconTintColor = if (isDark) SmallCardIconDark else SmallCardIconLight
-
-    // Label color matching indexmockup.html --t-secondary (#A5A1B8 in dark mode)
-    val labelColor = if (isDark) SmallCardLabelDark else SmallCardLabelLight
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .clickable(onClick = onClick)
-            .background(brush = gradientBrush)
-            .border(width = 1.dp, color = borderColor, shape = shape)
-            .padding(12.dp)
+    AppCard(
+        onClick = onClick,
+        modifier = modifier,
+        shape = AppCardDefaults.shape(),
+        colors = AppCardDefaults.colors(),
+        contentPadding = PaddingValues(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -107,13 +81,13 @@ fun SmallHomeCard(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape)
-                            .background(iconBgColor),
+                            .background(colorScheme.accentSoft),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = iconTintColor,
+                            tint = colorScheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -125,13 +99,13 @@ fun SmallHomeCard(
                                 .offset(x = 4.dp, y = (-4).dp)
                                 .size(18.dp)
                                 .clip(CircleShape)
-                                .background(colorScheme.primary)
+                                .background(colorScheme.accentInk)
                                 .border(1.5.dp, colorScheme.surface, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             LabelText(
                                 text = badgeCount.toString(),
-                                color = colorScheme.onPrimary
+                                color = if (colorScheme.isDark) colorScheme.background else colorScheme.onPrimary
                             )
                         }
                     }
@@ -142,7 +116,7 @@ fun SmallHomeCard(
                 Column {
                     LabelText(
                         text = title,
-                        color = labelColor,
+                        color = colorScheme.onSurfaceVariant,
                         maxLines = 1
                     )
 
@@ -161,7 +135,7 @@ fun SmallHomeCard(
             Icon(
                 imageVector = PhosphorIcons.Regular.CaretRight,
                 contentDescription = null,
-                tint = if (isDark) Color.White.copy(alpha = 0.3f) else colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 modifier = Modifier.size(14.dp)
             )
         }

@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker
 
+import com.mknlabs.expensetracker.core.ui.theme.sheet
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -57,6 +59,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -66,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.AppLockPreferences
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
@@ -1273,7 +1278,7 @@ fun MainScreen(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false
                 ),
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_ad_expiry_warning),
@@ -1306,7 +1311,7 @@ fun MainScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showAdExpiryWarningDialog = false }) {
+                    AppTextButton(onClick = { showAdExpiryWarningDialog = false }) {
                         Text(stringResource(id = R.string.btn_maybe_later))
                     }
                 }
@@ -1324,7 +1329,7 @@ fun MainScreen(
             }
             AlertDialog(
                 onDismissRequest = acknowledgeIntegrityNotice,
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_device_integrity_notice),
@@ -1340,7 +1345,7 @@ fun MainScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = acknowledgeIntegrityNotice) {
+                    AppTextButton(onClick = acknowledgeIntegrityNotice) {
                         Text(stringResource(id = R.string.btn_got_it))
                     }
                 }
@@ -1350,7 +1355,7 @@ fun MainScreen(
         if (showLogoutDialog && isUiInteractive) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.sheet,
                 title = {
                     Text(
                         text = stringResource(id = R.string.label_logout),
@@ -1366,7 +1371,7 @@ fun MainScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             showLogoutDialog = false
                             authViewModel.signOut()
@@ -1377,7 +1382,7 @@ fun MainScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showLogoutDialog = false }) {
+                    AppTextButton(onClick = { showLogoutDialog = false }) {
                         Text(text = stringResource(id = R.string.label_cancel))
                     }
                 }
@@ -1598,7 +1603,7 @@ fun MainScreen(
                         updatedAt = now,
                         sourceRecurringRuleId = null
                     )
-                    mainViewModel.saveTransaction(transaction, null, null)
+                    // A voice entry is never a favorite template: the star lives
                     speechRecognizer.cancel()
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)
@@ -1674,7 +1679,7 @@ fun MainScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(56.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.accentInk,
                         strokeWidth = 4.dp
                     )
                     Spacer(Modifier.height(20.dp))
