@@ -70,7 +70,7 @@ service cloud.firestore {
                     && request.auth.uid == uid
                     && request.resource.data.uid == uid
                     && (!('accountTier' in request.resource.data)
-                        || request.resource.data.accountTier == 'FREE')
+                        || request.resource.data.accountTier in ['Free', 'FREE'])
                     && (!('proExpiryTimestamp' in request.resource.data)
                         || request.resource.data.proExpiryTimestamp == 0)
                     && (!('isSubscription' in request.resource.data)
@@ -78,7 +78,7 @@ service cloud.firestore {
 
       // Update own profile document
       // Prevents changing uid field. Pro fields may not be modified by clients;
-      // the sole exception is pushing accountTier=FREE (expired-premium
+      // the sole exception is pushing accountTier=Free/FREE (expired-premium
       // downgrade) so the cloud never re-grants Pro on the next pull.
       allow update: if request.auth != null
                     && request.auth.uid == uid
@@ -90,7 +90,7 @@ service cloud.firestore {
                     && (!request.resource.data.diff(resource.data)
                           .affectedKeys()
                           .hasAny(['accountTier'])
-                        || request.resource.data.accountTier == 'FREE');
+                        || request.resource.data.accountTier in ['Free', 'FREE']);
 
       // Allow user to delete their own profile
       allow delete: if request.auth != null

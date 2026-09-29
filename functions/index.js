@@ -243,7 +243,7 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       userRef,
       {
         uid,
-        accountTier: "PREMIUM",
+        accountTier: "Pro_Pass",
         proExpiryTimestamp: newExpiry,
         profileUpdatedAtMillis: Date.now()
       },
@@ -376,31 +376,36 @@ exports.onRcCustomerWritten = onDocumentWritten(
     const after = event.data?.after;
     if (!after?.exists) return;
 
-    if (!activeSubscription(after.data())) return;
-
     const uid = event.params.uid;
     const userRef = db.collection("users").doc(uid);
-    const userSnap = await userRef.get();
-    if (!userSnap.exists) return;
+    const isSubActive = activeSubscription(after.data());
 
-    const user = userSnap.data();
-    const passExpiry = Number(user.proExpiryTimestamp ?? 0);
-    // 0 is a permanent grant; a past expiry has already lapsed and belongs to
-    // expireProPasses.
-    const hasRunningPass =
-      user.accountTier === "PREMIUM" && (passExpiry === 0 || passExpiry > Date.now());
-    if (!hasRunningPass) return;
-
-    await userRef.set(
-      {
-        accountTier: "FREE",
-        proExpiryTimestamp: 0,
-        profileUpdatedAtMillis: Date.now()
-      },
-      { merge: true }
-    );
-
-    console.log(`Pro Pass retired for ${uid}: a store subscription is now active`);
+    if (isSubActive) {
+      await userRef.set(
+        {
+          accountTier: "Paid_Subscription",
+          proExpiryTimestamp: 0,
+          profileUpdatedAtMillis: Date.now()
+        },
+        { merge: true }
+      );
+      console.log(`Updated accountTier to Paid_Subscription for ${uid}`);
+    } else {
+      const userSnap = await userRef.get();
+      if (userSnap.exists) {
+        const currentTier = userSnap.data()?.accountTier;
+        if (currentTier === "Paid_Subscription") {
+          await userRef.set(
+            {
+              accountTier: "Free",
+              profileUpdatedAtMillis: Date.now()
+            },
+            { merge: true }
+          );
+          console.log(`Reset accountTier to Free for ${uid} after subscription ended`);
+        }
+      }
+    }
   }
 );
 
@@ -410,7 +415,7 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
  * Phase C: Scheduled Financial Insights Engine (PubSub Weekly Cron).
  * Runs every Sunday at 12:00 PM UTC.
  * Analyzes user transactions in Firestore for spending trends, category spikes, and budget risk.
- * Enforces server-side premium checks (accountTier === "PREMIUM").
+ * Enforces server-side premium checks (accountTier in ["Paid_Subscription", "Pro_Pass", "PREMIUM"]).
  */
 exports.scheduledFinancialInsights = onSchedule(
   {
@@ -432,11 +437,12 @@ exports.scheduledFinancialInsights = onSchedule(
       const uid = userDoc.id;
 
       // Server-side Premium Enforcement
-      const isPremium =
-        userData.accountTier === "PREMIUM" &&
-        Number(userData.proExpiryTimestamp ?? 0) > now;
+      const isPro =
+        userData.accountTier === "Paid_Subscription" ||
+        ((userData.accountTier === "Pro_Pass" || userData.accountTier === "PREMIUM") &&
+          (Number(userData.proExpiryTimestamp ?? 0) === 0 || Number(userData.proExpiryTimestamp) > now));
 
-      if (!isPremium) continue;
+      if (!isPro) continue;
 
       try {
         // Query user's recent transactions
@@ -521,25 +527,26 @@ exports.expireProPasses = onSchedule(
   { schedule: "30 3 * * *", timeZone: "UTC", region: "us-central1" },
   async () => {
     const now = Date.now();
-    const premiumSnap = await db
-      .collection("users")
-      .where("accountTier", "==", "PREMIUM")
-      .get();
+    const [proPassSnap, legacyPremiumSnap] = await Promise.all([
+      db.collection("users").where("accountTier", "==", "Pro_Pass").get(),
+      db.collection("users").where("accountTier", "==", "PREMIUM").get()
+    ]);
 
-    if (premiumSnap.empty) return;
+    const docs = [...proPassSnap.docs, ...legacyPremiumSnap.docs];
+    if (docs.length === 0) return;
 
     let batch = db.batch();
     let pending = 0;
     let retired = 0;
 
-    for (const userDoc of premiumSnap.docs) {
+    for (const userDoc of docs) {
       const expiry = Number(userDoc.data().proExpiryTimestamp ?? 0);
       // 0 means the grant never expires (EntitlementResolver reads it as permanent).
       if (expiry === 0 || expiry >= now) continue;
 
       batch.set(
         userDoc.ref,
-        { accountTier: "FREE", proExpiryTimestamp: 0, profileUpdatedAtMillis: now },
+        { accountTier: "Free", proExpiryTimestamp: 0, profileUpdatedAtMillis: now },
         { merge: true }
       );
       pending++;

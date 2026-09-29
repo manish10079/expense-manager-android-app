@@ -27,13 +27,23 @@ import com.mknlabs.expensetracker.models.UserTier
  */
 object EntitlementResolver {
 
-    /**
-     * The `accountTier` value meaning Pro, as written by the `redeemProPass` function.
-     *
-     * Shared with [ProExpiryResolver] rather than repeated, so the two rules cannot come to
-     * disagree about which tier string counts as Pro.
-     */
-    internal const val PREMIUM_TIER = "PREMIUM"
+    const val TIER_FREE = "Free"
+    const val TIER_PRO_PASS = "Pro_Pass"
+    const val TIER_PAID_SUBSCRIPTION = "Paid_Subscription"
+
+    // Legacy support
+    internal const val LEGACY_PREMIUM_TIER = "PREMIUM"
+    internal const val LEGACY_FREE_TIER = "FREE"
+
+    /** Deprecated alias maintained for backwards compatibility in existing tests/callers. */
+    internal const val PREMIUM_TIER = LEGACY_PREMIUM_TIER
+
+    /** Returns true if the given accountTier string represents any active Pro tier. */
+    fun isProTier(accountTier: String): Boolean {
+        return accountTier == TIER_PRO_PASS ||
+            accountTier == TIER_PAID_SUBSCRIPTION ||
+            accountTier == LEGACY_PREMIUM_TIER
+    }
 
     /**
      * @param appSettingsTier the locally mirrored tier.
@@ -53,12 +63,14 @@ object EntitlementResolver {
         // The store is authoritative and current; nothing local can override it.
         if (revenueCatEntitlementActive) return true
 
-        val isExpired = accountTier == PREMIUM_TIER && proExpiryTimestamp in 1..<now
+        val isPro = isProTier(accountTier)
+        val isPass = accountTier == TIER_PRO_PASS || accountTier == LEGACY_PREMIUM_TIER
+        val isExpired = isPass && proExpiryTimestamp in 1..<now
 
         return !isExpired && (
             appSettingsTier == UserTier.PREMIUM ||
-                (accountTier == PREMIUM_TIER &&
-                    (proExpiryTimestamp == 0L || proExpiryTimestamp > now))
+                accountTier == TIER_PAID_SUBSCRIPTION ||
+                (isPro && (proExpiryTimestamp == 0L || proExpiryTimestamp > now))
             )
     }
 }

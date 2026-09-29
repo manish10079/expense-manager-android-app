@@ -22,6 +22,7 @@ import com.mknlabs.expensetracker.models.CURRENT_TERMS_VERSION
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.parseDate
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -328,11 +329,11 @@ class SyncRepositoryImpl @Inject constructor(
         // First check if local profile is expired
         val localProfile = UserProfileDataStore.getUserProfileFlow(context).first()
         val now = System.currentTimeMillis()
-        val isLocalExpired = localProfile.accountTier == "PREMIUM" && localProfile.proExpiryTimestamp in 1..<now
+        val isLocalExpired = EntitlementResolver.isProTier(localProfile.accountTier) && localProfile.proExpiryTimestamp in 1..<now
         if (isLocalExpired) {
             android.util.Log.d("Sync", "Local Premium has expired. Downgrading locally before sync.")
             val updatedProfile = localProfile.copy(
-                accountTier = "FREE",
+                accountTier = EntitlementResolver.TIER_FREE,
                 updatedAtMillis = now
             )
             UserProfileDataStore.setUserProfile(context, updatedProfile)
@@ -444,9 +445,9 @@ class SyncRepositoryImpl @Inject constructor(
         android.util.Log.d("Sync", "Push Decision - isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
 
         val now = System.currentTimeMillis()
-        val isRemotePremiumExpired = remoteAccountTier == "PREMIUM" && remoteProExpiryTimestamp in 1..<now
+        val isRemotePremiumExpired = EntitlementResolver.isProTier(remoteAccountTier) && remoteProExpiryTimestamp in 1..<now
 
-        if (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM" && !isRemotePremiumExpired) {
+        if (!EntitlementResolver.isProTier(localProfile.accountTier) && EntitlementResolver.isProTier(remoteAccountTier) && !isRemotePremiumExpired) {
             android.util.Log.d("Sync", "Skipping push: Remote is active PREMIUM, local is not.")
             return
         }
@@ -535,10 +536,10 @@ class SyncRepositoryImpl @Inject constructor(
         // server-authoritative — only the redeemProPass Cloud Function writes
         // them (see implementation_plans/security_implementation_plan.md, Items
         // 14/22). The single client write the Firestore rules allow is pushing
-        // accountTier=FREE when the local premium has expired, so the cloud
+        // accountTier=Free when the local premium has expired, so the cloud
         // stops re-granting Pro on the next pull.
-        if (localProfile.accountTier != "PREMIUM") {
-            profileData["accountTier"] = "FREE"
+        if (!EntitlementResolver.isProTier(localProfile.accountTier)) {
+            profileData["accountTier"] = EntitlementResolver.TIER_FREE
         }
 
         try {
@@ -572,7 +573,7 @@ class SyncRepositoryImpl @Inject constructor(
         val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
         val remoteAccountTier = snapshot.getString("accountTier") ?: ""
         val shouldPull = remoteUpdatedAt > localProfile.updatedAtMillis || 
-                         (localProfile.accountTier != "PREMIUM" && remoteAccountTier == "PREMIUM") ||
+                         (!EntitlementResolver.isProTier(localProfile.accountTier) && EntitlementResolver.isProTier(remoteAccountTier)) ||
                          localProfile.accountTier.isBlank()
 
         if (!shouldPull) return
@@ -599,14 +600,14 @@ class SyncRepositoryImpl @Inject constructor(
 
         // Industry Standard: Handle automatic downgrade if PREMIUM has expired
         val now = System.currentTimeMillis()
-        val isExpired = remoteAccountTier == "PREMIUM" && remoteProfile.proExpiryTimestamp in 1..<now
+        val isExpired = EntitlementResolver.isProTier(remoteAccountTier) && remoteProfile.proExpiryTimestamp in 1..<now
         
-        val finalTier = if (isExpired) "FREE" else remoteAccountTier
-        val finalProfile = if (isExpired) remoteProfile.copy(accountTier = "FREE", updatedAtMillis = now) else remoteProfile
+        val finalTier = if (isExpired) EntitlementResolver.TIER_FREE else remoteAccountTier
+        val finalProfile = if (isExpired) remoteProfile.copy(accountTier = EntitlementResolver.TIER_FREE, updatedAtMillis = now) else remoteProfile
 
         UserProfileDataStore.setUserProfile(context, finalProfile)
         
-        val tier = com.mknlabs.expensetracker.models.UserTier.entries.firstOrNull { it.name == finalTier } ?: com.mknlabs.expensetracker.models.UserTier.FREE
+        val tier = if (EntitlementResolver.isProTier(finalTier)) com.mknlabs.expensetracker.models.UserTier.PREMIUM else com.mknlabs.expensetracker.models.UserTier.FREE
         
         // Update tier and automatically enable sync if user is Premium
         AppSettingsDataStore.updateAppSettings(context) { current ->

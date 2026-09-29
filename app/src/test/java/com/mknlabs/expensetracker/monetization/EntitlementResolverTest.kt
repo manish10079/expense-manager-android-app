@@ -125,5 +125,23 @@ class EntitlementResolverTest {
     @Test
     fun `a non-PREMIUM account tier is not Pro`() {
         assertFalse(isPremium(accountTier = "FREE", proExpiryTimestamp = now + 60_000))
+        assertFalse(isPremium(accountTier = "Free", proExpiryTimestamp = now + 60_000))
+    }
+
+    // --- Explicit Account Tiers (Free, Pro_Pass, Paid_Subscription) -------------------
+
+    @Test
+    fun `an unexpired Pro_Pass is Pro`() {
+        assertTrue(isPremium(accountTier = "Pro_Pass", proExpiryTimestamp = now + 60_000))
+    }
+
+    @Test
+    fun `an expired Pro_Pass is not Pro`() {
+        assertFalse(isPremium(accountTier = "Pro_Pass", proExpiryTimestamp = now - 1))
+    }
+
+    @Test
+    fun `Paid_Subscription tier is always Pro`() {
+        assertTrue(isPremium(accountTier = "Paid_Subscription"))
     }
 }
