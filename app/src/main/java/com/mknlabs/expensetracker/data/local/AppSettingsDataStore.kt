@@ -164,7 +164,7 @@ object AppSettingsDataStore {
         // What granting Pro means for the bonus defaults, deliberately without the store: those
         // fire on a transition, and a subscriber's local tier never changes, so counting the
         // store would fire on every write and pin the defaults on for good.
-        val isProfilePremium = profile.accountTier == "PREMIUM" && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)
+        val isProfilePremium = EntitlementResolver.isProTier(profile.accountTier) && (profile.proExpiryTimestamp == 0L || profile.proExpiryTimestamp > now)
 
         // The one rule the rest of the app decides Pro with, so the enforcer below can never
         // disagree with the screen that shows the setting in the first place.

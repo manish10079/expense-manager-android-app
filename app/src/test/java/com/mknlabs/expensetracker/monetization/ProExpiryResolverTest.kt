@@ -99,8 +99,27 @@ class ProExpiryResolverTest {
         // A store subscription never writes this tier, so there is no local grant to expire —
         // and the store reports the subscription's end itself.
         assertEquals(ProExpiryAction.None, action("FREE", now - 1_000, UserTier.FREE))
+        assertEquals(ProExpiryAction.None, action("Free", now - 1_000, UserTier.FREE))
+        assertEquals(ProExpiryAction.None, action("Paid_Subscription", now - 1_000, UserTier.PREMIUM))
         assertEquals(ProExpiryAction.None, action("", 0L, UserTier.FREE))
         assertEquals(ProExpiryAction.None, action("", now + TEN_DAYS, UserTier.FREE))
+    }
+
+    @Test
+    fun `a running Pro_Pass is held until its expiry`() {
+        val expiry = now + TEN_DAYS
+        assertEquals(
+            ProExpiryAction.Hold(expiry),
+            action(accountTier = "Pro_Pass", proExpiryTimestamp = expiry, resolvedTier = UserTier.PREMIUM)
+        )
+    }
+
+    @Test
+    fun `a lapsed Pro_Pass is downgraded`() {
+        assertEquals(
+            ProExpiryAction.Downgrade,
+            action(accountTier = "Pro_Pass", proExpiryTimestamp = now - 1_000, resolvedTier = UserTier.FREE)
+        )
     }
 
     @Test

@@ -54,9 +54,9 @@ object ProExpiryResolver {
         resolvedTier: UserTier,
         now: Long,
     ): ProExpiryAction {
-        // No locally recorded grant: a subscription needs no expiry monitor, since the store
-        // reports its own state and the resolver reads it directly.
-        if (accountTier != EntitlementResolver.PREMIUM_TIER) return ProExpiryAction.None
+        // Only time-limited Pro Pass grants need client expiry monitoring.
+        val isPass = accountTier == EntitlementResolver.TIER_PRO_PASS || accountTier == EntitlementResolver.LEGACY_PREMIUM_TIER
+        if (!isPass) return ProExpiryAction.None
 
         if (proExpiryTimestamp > now) return ProExpiryAction.Hold(proExpiryTimestamp)
 
