@@ -45,6 +45,8 @@ object UserProfileDataStore {
         val isSubscription = androidx.datastore.preferences.core.booleanPreferencesKey("is_subscription")
         val updatedAtMillis = longPreferencesKey("updated_at_millis")
         val authProvider = stringPreferencesKey("auth_provider")
+        val termsAcceptedAt = longPreferencesKey("terms_accepted_at")
+        val termsVersion = stringPreferencesKey("terms_version")
     }
 
     fun getUserProfileFlow(context: Context): Flow<UserProfile> {
@@ -104,7 +106,9 @@ object UserProfileDataStore {
                 ?: defaultUserProfile.proExpiryTimestamp,
             isSubscription = this[Keys.isSubscription] ?: defaultUserProfile.isSubscription,
             updatedAtMillis = this[Keys.updatedAtMillis] ?: defaultUserProfile.updatedAtMillis,
-            authProvider = this[Keys.authProvider] ?: defaultUserProfile.authProvider
+            authProvider = this[Keys.authProvider] ?: defaultUserProfile.authProvider,
+            termsAcceptedAt = this[Keys.termsAcceptedAt] ?: defaultUserProfile.termsAcceptedAt,
+            termsVersion = this[Keys.termsVersion] ?: defaultUserProfile.termsVersion
         )
     }
 
@@ -143,6 +147,8 @@ object UserProfileDataStore {
         this[Keys.isSubscription] = profile.isSubscription
         this[Keys.updatedAtMillis] = profile.updatedAtMillis
         this[Keys.authProvider] = profile.authProvider
+        this[Keys.termsAcceptedAt] = profile.termsAcceptedAt
+        this[Keys.termsVersion] = profile.termsVersion
     }
 
     suspend fun clearAll(context: Context) {

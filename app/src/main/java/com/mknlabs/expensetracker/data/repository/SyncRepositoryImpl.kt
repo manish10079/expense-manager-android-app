@@ -18,6 +18,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.RecurringRuleDao
 import com.mknlabs.expensetracker.domain.repository.ConfigurationRepository
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
+import com.mknlabs.expensetracker.models.CURRENT_TERMS_VERSION
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.models.defaultUserProfile
@@ -408,6 +409,9 @@ class SyncRepositoryImpl @Inject constructor(
         var remotePhoneNumber = ""
         var remoteDateOfBirthOn = ""
         var remoteFinancialGoal = ""
+        var remoteTermsAcceptedAt = 0L
+        var remoteTermsVersion = ""
+        var remoteCreatedAt = 0L
 
         if (!isNewUser) {
             try {
@@ -424,6 +428,9 @@ class SyncRepositoryImpl @Inject constructor(
                     remotePhoneNumber = snapshot.getString("phoneNumber").orEmpty()
                     remoteDateOfBirthOn = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn")).orEmpty()
                     remoteFinancialGoal = snapshot.getString("financialGoal").orEmpty()
+                    remoteTermsAcceptedAt = snapshot.getLong("termsAcceptedAt") ?: 0L
+                    remoteTermsVersion = snapshot.getString("termsVersion").orEmpty()
+                    remoteCreatedAt = snapshot.getLong("createdAt") ?: 0L
                 }
             } catch (e: Exception) {
                 android.util.Log.e("Sync", "Failed to fetch remote profile", e)
@@ -474,7 +481,24 @@ class SyncRepositoryImpl @Inject constructor(
             .orEmpty()
             .ifBlank { remoteDateOfBirthOn }
 
-        val profileData = mutableMapOf(
+        val finalTermsAcceptedAt = when {
+            remoteTermsAcceptedAt != 0L -> remoteTermsAcceptedAt
+            localProfile.termsAcceptedAt != 0L -> localProfile.termsAcceptedAt
+            else -> now
+        }
+        val finalTermsVersion = when {
+            remoteTermsVersion.isNotBlank() -> remoteTermsVersion
+            localProfile.termsVersion.isNotBlank() -> localProfile.termsVersion
+            else -> CURRENT_TERMS_VERSION
+        }
+        val finalCreatedAt = when {
+            remoteCreatedAt != 0L -> remoteCreatedAt
+            localProfile.accountCreatedMillis != 0L -> localProfile.accountCreatedMillis
+            else -> now
+        }
+        val finalUpdatedAt = if (localProfile.updatedAtMillis == 0L) now else localProfile.updatedAtMillis
+
+        val profileData = mutableMapOf<String, Any?>(
             "uid" to uid,
             "fullName" to finalFullName,
             "emailAddress" to localProfile.emailAddress.ifBlank { currentUser?.email ?: "" },
@@ -495,12 +519,16 @@ class SyncRepositoryImpl @Inject constructor(
                     currentUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
                 }
             },
-            "profileUpdatedAtMillis" to if (localProfile.updatedAtMillis == 0L) System.currentTimeMillis() else localProfile.updatedAtMillis
+            "profileUpdatedAtMillis" to finalUpdatedAt,
+            "createdAt" to finalCreatedAt,
+            "updatedAt" to finalUpdatedAt,
+            "termsAcceptedAt" to finalTermsAcceptedAt,
+            "termsVersion" to finalTermsVersion
         )
 
         // Always push creation date if it's a first-time init or missing in cloud
         if (isFirstTimeInitialization) {
-            profileData["accountCreatedOn"] = formatDate(localProfile.accountCreatedMillis, "dd MMMM yyyy")
+            profileData["accountCreatedOn"] = formatDate(finalCreatedAt, "dd MMMM yyyy")
         }
 
         // Security: accountTier / proExpiryTimestamp / isSubscription are
