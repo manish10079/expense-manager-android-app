@@ -119,7 +119,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.fill.Star
+import com.adamglin.phosphoricons.regular.Star
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
@@ -767,7 +769,7 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -797,7 +799,7 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
-                                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
@@ -829,9 +831,9 @@ internal fun AddTransactionScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                imageVector = if (isFavorite) PhosphorIcons.Fill.Star else PhosphorIcons.Regular.Star,
                                 contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                tint = if (isFavorite) colorScheme.accentInk else colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }

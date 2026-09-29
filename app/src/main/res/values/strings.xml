@@ -1963,7 +1963,7 @@
     <string name="msg_subscription_billing_issue">We couldn\'t collect your last payment. Update your payment method in Google Play to keep Pro.</string>
     <string name="msg_pro_active_no_expiry">Your Pro access is active.</string>
     <string name="label_na">N/A</string>
-    <string name="btn_sign_in_register">Sign In / Register</string>
+    <string name="btn_sign_in_register">Sign In / Sign Up</string>
     <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
     <string name="label_free_tier">Free Tier</string>
     <string name="label_pro_benefit_adfree">Zero Ads. Pure Focus</string>

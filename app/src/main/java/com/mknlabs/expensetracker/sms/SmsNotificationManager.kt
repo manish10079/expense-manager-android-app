@@ -531,8 +531,11 @@ object SmsNotificationManager {
      */
     // Public so the receiver that recorded the detection can persist the same id on
     // its inbox row, letting the notification's actions resolve that row later.
-    fun notificationIdFor(smsTimestamp: Long): Int {
-        if (smsTimestamp > 0) return (smsTimestamp and 0x7FFFFFFFL).toInt()
+    fun notificationIdFor(smsTimestamp: Long, uniqueness: Int = 0): Int {
+        if (smsTimestamp > 0) {
+            val mixed = (smsTimestamp xor (uniqueness.toLong() and 0xFFFFFFFFL)) and 0x7FFFFFFFL
+            return if (mixed == 0L) 1 else mixed.toInt()
+        }
         return FALLBACK_BASE_ID + fallbackCounter.incrementAndGet()
     }
 

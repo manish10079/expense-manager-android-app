@@ -127,8 +127,8 @@ internal sealed interface MembershipFact {
  * billed, or that it is not billed at all.
  */
 internal data class MembershipPanel(
-    val glyph: MembershipGlyph,
-    @StringRes val headlineRes: Int,
+    val glyph: MembershipGlyph? = null,
+    @StringRes val headlineRes: Int? = null,
     @StringRes val bodyRes: Int,
 )
 
@@ -278,8 +278,6 @@ private fun proPassCardSpec(proExpiryTimestamp: Long, now: Long): MembershipCard
             emptyList()
         },
         panel = MembershipPanel(
-            glyph = MembershipGlyph.TICKET,
-            headlineRes = R.string.label_membership_pass_headline,
             // The pass sentence says the access dies on its own; that is exactly what is
             // untrue of a permanent grant, so the legacy state says something else.
             bodyRes = if (isRunning) {

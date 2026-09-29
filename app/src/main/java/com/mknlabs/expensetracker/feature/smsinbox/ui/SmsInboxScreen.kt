@@ -77,6 +77,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -106,8 +107,7 @@ import com.mknlabs.expensetracker.sms.SmsConfidence
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.TransactionDateHeader
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
-import com.mknlabs.expensetracker.core.ui.theme.BadgeExpenseFill
-import com.mknlabs.expensetracker.core.ui.theme.BadgeIncomeFill
+import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -316,8 +316,8 @@ private fun SmsInboxContent(
             ) {
                 ExtendedFloatingActionButton(
                     onClick = onClearAll,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    containerColor = MaterialTheme.colorScheme.expense,
+                    contentColor = MaterialTheme.colorScheme.onError,
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Delete,
@@ -1072,9 +1072,9 @@ private fun DetectionCard(
 private fun AmountBadge(isIncome: Boolean, symbol: String) {
     Box(
         modifier = Modifier
-            .size(18.dp)
+            .size(22.dp)
             .clip(CircleShape)
-            .background(if (isIncome) BadgeIncomeFill else BadgeExpenseFill),
+            .background(if (isIncome) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense),
         contentAlignment = Alignment.Center
     ) {
         Text(

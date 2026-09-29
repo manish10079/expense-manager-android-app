@@ -97,6 +97,10 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.menu
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -107,6 +111,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -168,6 +173,7 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.budgetCardOverspent
 import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
@@ -981,6 +987,7 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
         brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(24.dp),
     ) {
+        Box(modifier = Modifier.matchParentSize().heroBloom())
         Column(
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -1378,18 +1385,12 @@ private fun BudgetCategoryPickerSheet(
 
             if (conflictingTrackedCategories.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(10.dp))
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                Text(
+                    text = stringResource(id = R.string.tip_duplicate_budget_tracking),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.tip_duplicate_budget_tracking),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -2195,9 +2196,16 @@ private fun BudgetProgressBar(
     height: Dp = 12.dp,
     trackColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
 ) {
+    val view = LocalView.current
+    var visibleOnScreen by remember { mutableStateOf(false) }
+    val targetProgress = if (visibleOnScreen) progress.coerceIn(0f, 1f) else 0f
     val animatedProgress by animateFloatAsState(
-        targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+        targetValue = targetProgress,
+        animationSpec = if (visibleOnScreen) {
+            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+        } else {
+            snap()
+        },
         label = "budget_progress_animation"
     )
 
@@ -2205,6 +2213,16 @@ private fun BudgetProgressBar(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
+            .onGloballyPositioned { coords ->
+                val bounds = coords.boundsInWindow()
+                val window = Rect(0f, 0f, view.width.toFloat(), view.height.toFloat())
+                val onScreen = bounds.width > 0f &&
+                    bounds.height > 0f &&
+                    bounds.overlaps(window)
+                if (onScreen != visibleOnScreen) {
+                    visibleOnScreen = onScreen
+                }
+            }
             .clip(CircleShape)
             .background(trackColor)
     ) {
@@ -2289,7 +2307,7 @@ private fun RecurringExpenseCard(
     }
     val chipFillAlpha = if (expense.isEnabled) 0.07f else 0.14f
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
@@ -2302,9 +2320,14 @@ private fun RecurringExpenseCard(
                 color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(15.dp)
             )
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        Box(modifier = Modifier.matchParentSize().heroBloom())
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -2471,6 +2494,7 @@ private fun RecurringExpenseCard(
                     onClick = onDeleteClick
                 )
             }
+        }
         }
     }
 }

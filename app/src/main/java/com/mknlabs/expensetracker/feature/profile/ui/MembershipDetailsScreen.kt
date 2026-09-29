@@ -83,6 +83,7 @@ import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.premiumGold
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
@@ -401,9 +402,17 @@ private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalet
         surface = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
         border = if (isDark) HeroOutlineDark else HeroOutlineLight,
         foreground = colorScheme.onSurface,
-        headerLabel = colorScheme.onSurfaceVariant,
+        headerLabel = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
+            colorScheme.premiumGold
+        } else {
+            colorScheme.onSurfaceVariant
+        },
         bodyText = colorScheme.onSurfaceVariant,
-        accent = colorScheme.accentInk,
+        accent = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
+            colorScheme.premiumGold
+        } else {
+            colorScheme.accentInk
+        },
         panelBackground = colorScheme.onSurface.copy(alpha = 0.05f),
         // The one thing the states still say in colour: a subscriber holds access the store
         // keeps, a pass holds access that runs out, and neither is the other's claim. The
@@ -457,7 +466,7 @@ private fun MembershipCard(
         // rather than announced as an upcoming renewal.
         now = System.currentTimeMillis()
     )
-    val cardShape = RoundedCornerShape(spacing.cardRadius + 12.dp)
+    val cardShape = RoundedCornerShape(spacing.cardRadius + 10.dp)
 
     Box(
         modifier = Modifier
@@ -626,23 +635,28 @@ private fun MembershipCardPanel(panel: MembershipPanel, palette: MembershipCardP
             .padding(Dimens.spacingDefault),
         verticalArrangement = Arrangement.spacedBy(Dimens.spacingTiny)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = glyphIcon(panel.glyph),
-                contentDescription = null,
-                tint = palette.panelIcon,
-                modifier = Modifier.size(18.dp)
-            )
+        if (panel.glyph != null || panel.headlineRes != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                panel.glyph?.let { glyph ->
+                    Icon(
+                        imageVector = glyphIcon(glyph),
+                        contentDescription = null,
+                        tint = palette.panelIcon,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+                }
 
-            Spacer(modifier = Modifier.width(Dimens.spacingSmall))
-
-            Text(
-                text = stringResource(panel.headlineRes),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = palette.panelHeadline,
-                modifier = Modifier.weight(1f)
-            )
+                panel.headlineRes?.let { headlineRes ->
+                    Text(
+                        text = stringResource(headlineRes),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = palette.panelHeadline,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
 
         Text(
@@ -667,6 +681,7 @@ private fun MembershipCardActions(
         verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
     ) {
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = onUpgradeClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(

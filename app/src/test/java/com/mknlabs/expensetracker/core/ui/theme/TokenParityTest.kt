@@ -144,7 +144,7 @@ class TokenParityTest {
         assertEquals(Color(0x1A6A4DFF), light.accentSoft) // --accentSoft light
 
         assertEquals(Color(0x389E84FF), dark.glow)        // --glow dark
-        assertEquals(Color(0x1A6A4DFF), light.glow)       // --glow light
+        assertEquals(Color(0x406A4DFF), light.glow)       // --glow light
     }
 
 
@@ -210,6 +210,8 @@ class TokenParityTest {
         assertEquals(Color(0xFF5838FA), PremiumGradientStart) // master table Premium
         assertEquals(Color(0xFF3713EC), PremiumGradientEnd)
         assertEquals(Color(0xFFFFD700), PremiumGold)
+        assertEquals(PremiumGold, light.premiumGold)
+        assertEquals(PremiumGold, dark.premiumGold)
         assertEquals(Color(0xFFB388FF), PremiumBorder)
     }
 }

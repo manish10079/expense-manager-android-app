@@ -168,7 +168,7 @@ val BrandGradientCompanionDark = Color(0xFF4F46E5)  // indigo-600, cools the lav
 // catching the corner; the same alpha on white would read as a stain, so light takes
 // 10% and the accent stands at full strength only in the rail.
 val HeroBloomDark = Color(0x389E84FF)          // accent, 22% alpha
-val HeroBloomLight = Color(0x1A6A4DFF)         // accent, 10% alpha
+val HeroBloomLight = Color(0x406A4DFF)         // accent, 25% alpha
 
 // The net-balance inset steps one rung off the card surface and the period pill two, in
 // each theme's own direction: shallower in light, where the card is the lighter of the
@@ -236,6 +236,9 @@ val PremiumGradientStart = Color(0xFF5838FA) // spec Premium = --cta
 val PremiumGradientEnd = Color(0xFF3713EC)   // spec Premium = --cta2
 val PremiumBorder = Color(0xFFB388FF)
 val PremiumGold = Color(0xFFFFD700)
+
+val ColorScheme.premiumGold: Color
+    get() = PremiumGold
 val PremiumOnGradient = Color(0xFFFFFFFF)
 val PremiumShadowNeutral = Color(0xFF000000)
 

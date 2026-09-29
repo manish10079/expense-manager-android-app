@@ -13,6 +13,7 @@ import com.mknlabs.expensetracker.data.local.SmsLearningStore
 import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.NewSmsDetection
 import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.RecordSmsOutcome
 import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.SmsInboxRepository
+import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsFingerprint
 import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.RecordDetectedSmsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -72,15 +73,10 @@ class SmsReceiver : BroadcastReceiver() {
                 }
                 if (fullBody.isBlank()) return@launch
 
+
                 // Carriers/OEMs can deliver SMS_RECEIVED_ACTION more than once for
                 // the same PDU — never show a second notification for one SMS event.
                 // Sweep stale keys (excluding the one just added) keeps the set bounded.
-                if (smsTimestamp > 0) {
-                    if (!notifiedKeys.add(smsTimestamp)) return@launch
-                    val cutoff = System.currentTimeMillis() - NOTIFY_WINDOW_MS
-                    notifiedKeys.removeIf { it != smsTimestamp && it < cutoff }
-                }
-
                 val parsed = SmsParser.parse(
                     body = fullBody,
                     sender = sender,
@@ -88,6 +84,20 @@ class SmsReceiver : BroadcastReceiver() {
                     userOverrides = userOverrides,
                     currencySymbol = currencySymbol
                 ) ?: return@launch
+
+                // Dedup on content fingerprint, not timestamp alone. Emulator and
+                // some carriers stamp several distinct messages with the same
+                // millisecond, which used to drop all but the first.
+                val notifyKey = SmsFingerprint.of(
+                    sender = parsed.sender,
+                    body = parsed.body,
+                    amountMinor = parsed.amountMinor,
+                    smsTimestamp = parsed.smsTimestamp
+                )
+                val now = System.currentTimeMillis()
+                if (notifiedKeys.putIfAbsent(notifyKey, now) != null) return@launch
+                val cutoff = now - NOTIFY_WINDOW_MS
+                notifiedKeys.entries.removeIf { it.key != notifyKey && it.value < cutoff }
 
                 // Durable capture FIRST. The inbox row is the only copy of this
                 // detection that survives a dismissed notification, a reboot, or the
@@ -122,7 +132,10 @@ class SmsReceiver : BroadcastReceiver() {
                 // Add/Ignore/Edit actions resolve the row by id, tapping it opens that
                 // row, and the in-app paths know which card to clear. Deriving the id
                 // twice would drift whenever the SMS carries no usable timestamp.
-                val notificationId = SmsNotificationManager.notificationIdFor(parsed.smsTimestamp)
+                val notificationId = SmsNotificationManager.notificationIdFor(
+                    parsed.smsTimestamp,
+                    notifyKey.hashCode()
+                )
                 smsInboxRepository.attachNotification(detectionId, notificationId)
 
                 SmsNotificationManager.showImportNotification(
@@ -151,6 +164,6 @@ class SmsReceiver : BroadcastReceiver() {
         private const val NOTIFY_WINDOW_MS = 10L * 60L * 1000L
 
         /** SMS timestamps already notified in this process — duplicate deliveries are dropped. */
-        private val notifiedKeys = ConcurrentHashMap.newKeySet<Long>()
+        private val notifiedKeys = ConcurrentHashMap<String, Long>()
     }
 }

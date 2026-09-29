@@ -231,7 +231,7 @@ class MembershipStatusTest {
         assertEquals(R.string.label_expires_on, expiryFact.labelRes)
         assertEquals(passExpiry, expiryFact.valueMillis)
 
-        assertEquals(R.string.label_membership_pass_headline, spec.panel?.headlineRes)
+        assertNull(spec.panel?.headlineRes)
         assertEquals(R.string.msg_membership_pass_body, spec.panel?.bodyRes)
     }
 
@@ -258,7 +258,7 @@ class MembershipStatusTest {
         )
 
         assertTrue(spec.facts.isEmpty())
-        assertEquals(R.string.label_membership_pass_headline, spec.panel?.headlineRes)
+        assertNull(spec.panel?.headlineRes)
         assertEquals(R.string.msg_pro_active_no_expiry, spec.panel?.bodyRes)
     }
 
