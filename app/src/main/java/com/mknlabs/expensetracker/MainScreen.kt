@@ -477,7 +477,7 @@ fun MainScreen(
     ) { isShowingOnboarding ->
         if (isShowingOnboarding) {
             OnboardingScreen(
-                onFinish = { name, gender, dobMillis, financialGoal ->
+                onFinish = { name, gender, dobMillis ->
                     navigationState.navigateTo(AppRoute.Home)
                     navigationState.updateBottomBarVisibility(false)
                     coroutineScope.launch {
@@ -505,7 +505,6 @@ fun MainScreen(
                                 fullName = name.ifBlank { "Guest User" },
                                 gender = gender,
                                 dateOfBirthMillis = dobMillis,
-                                financialGoal = financialGoal,
                                 accountCreatedMillis = if (profile.accountCreatedMillis == 0L) now else profile.accountCreatedMillis,
                                 updatedAtMillis = now,
                                 authProvider = resolvedAuthProvider,

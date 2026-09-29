@@ -102,20 +102,11 @@ sealed class UpdateEmailUiState {
  */
 data class ReturningUserProfile(
     val fullName: String,
-    val gender: String,
-    val financialGoal: String
+    val gender: String
 ) {
     val hasName: Boolean get() = fullName.isNotBlank() && fullName != "Guest User"
     val hasGender: Boolean get() = gender.isNotBlank()
-    val hasGoal: Boolean get() = financialGoal.isNotBlank()
 
-    /**
-     * Identity only: a name and a gender. The financial goal is deliberately left
-     * out. It is a preference the user can change at any time, and requiring it
-     * meant a returning user whose goal was missing — including one whose stored
-     * goal had been erased by an empty local value — was pushed back through the
-     * goal page instead of being recognised and welcomed.
-     */
     val isComplete: Boolean get() = hasName && hasGender
 }
 
@@ -135,9 +126,7 @@ enum class ReturningUserStep {
 /**
  * Maps a returning user's cloud profile to the onboarding step to show.
  *
- * Only the identity fields decide it — see [ReturningUserProfile.isComplete]. A
- * missing financial goal is never a reason to re-run onboarding; the goal page
- * still runs for new and guest users, who start the flow from the beginning.
+ * Only the identity fields decide it — see [ReturningUserProfile.isComplete].
  */
 fun resolveReturningUserStep(profile: ReturningUserProfile): ReturningUserStep =
     if (profile.isComplete) ReturningUserStep.WELCOME_BACK else ReturningUserStep.SETUP_PROFILE
@@ -180,7 +169,7 @@ class AuthViewModel @Inject constructor(
      * Used by [OnboardingScreen] to skip already-completed setup steps on a fresh install.
      *
      * On failure the profile is set to an empty one (never null) so onboarding
-     * falls through to the normal goal/setup pages instead of getting stuck on
+     * falls through to the normal setup pages instead of getting stuck on
      * the auth screen.
      */
     fun fetchReturningUserProfile(uid: String) {
@@ -203,12 +192,11 @@ class AuthViewModel @Inject constructor(
                 }
                 _returningUserProfile.value = ReturningUserProfile(
                     fullName = profile?.fullName.orEmpty(),
-                    gender = profile?.gender.orEmpty(),
-                    financialGoal = profile?.financialGoal.orEmpty()
+                    gender = profile?.gender.orEmpty()
                 )
             } catch (e: Exception) {
                 android.util.Log.e("AuthVM", "fetchReturningUserProfile failed", e)
-                _returningUserProfile.value = ReturningUserProfile("", "", "")
+                _returningUserProfile.value = ReturningUserProfile("", "")
             }
         }
     }

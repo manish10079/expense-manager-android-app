@@ -476,7 +476,7 @@ class SyncRepositoryImpl @Inject constructor(
         }
 
         // Robust Detection: Treat as new if flag is true OR doc doesn't exist OR critical field missing
-        val isFirstTimeInitialization = isNewUser || !docExists || remoteAccountCreatedOn == null
+        val isFirstTimeInitialization = isNewUser || !docExists || (remoteCreatedAt == 0L && remoteAccountCreatedOn == null)
         val isMissingTermsInCloud = docExists && (remoteTermsAcceptedAt == 0L || remoteTermsVersion.isBlank()) && (localProfile.termsAcceptedAt != 0L || localProfile.termsVersion.isNotBlank())
         val isMissingCreatedAtInCloud = docExists && remoteCreatedAt == 0L
 
@@ -546,13 +546,7 @@ class SyncRepositoryImpl @Inject constructor(
             "phoneNumber" to localProfile.phoneNumber.ifBlank { remotePhoneNumber },
             "dateOfBirthOn" to formattedDateOfBirth,
             "gender" to localProfile.gender.ifBlank { remoteGender },
-            // Guarded like the fields around it: an empty local goal used to be pushed
-            // as-is, which erased the stored goal. That silently cost returning users
-            // the "Welcome back" screen, because the onboarding skip treats a profile
-            // with no goal as incomplete and sends them through the goal page again.
-            "financialGoal" to localProfile.financialGoal.ifBlank { remoteFinancialGoal },
             "photoUri" to finalPhotoUri,
-            "isAnonymous" to (currentUser?.isAnonymous ?: false),
             "authProvider" to if (localProfile.authProvider.isNotBlank()) localProfile.authProvider else {
                 if (currentUser?.isAnonymous == true) "anonymous" else {
                     currentUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
@@ -560,17 +554,9 @@ class SyncRepositoryImpl @Inject constructor(
             },
             "profileUpdatedAtMillis" to finalUpdatedAt,
             "createdAt" to finalCreatedAt,
-            "updatedAt" to finalUpdatedAt,
             "termsAcceptedAt" to finalTermsAcceptedAt,
             "termsVersion" to finalTermsVersion
         )
-
-        // Immutability: Never change accountCreatedOn if it already exists in the cloud
-        if (remoteAccountCreatedOn != null && remoteAccountCreatedOn.isNotBlank()) {
-            profileData["accountCreatedOn"] = remoteAccountCreatedOn
-        } else {
-            profileData["accountCreatedOn"] = formatDate(finalCreatedAt, "dd MMMM yyyy")
-        }
 
         // Security: accountTier / proExpiryTimestamp / isSubscription are
         // server-authoritative — only the redeemProPass Cloud Function writes

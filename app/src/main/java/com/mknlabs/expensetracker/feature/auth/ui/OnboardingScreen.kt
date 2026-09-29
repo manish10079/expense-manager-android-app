@@ -143,7 +143,7 @@ private data class OnboardingPage(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun OnboardingScreen(
-    onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit = { _, _, _, _ -> },
+    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
     onSignUpSuccess: (() -> Unit)? = null,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -177,7 +177,7 @@ private fun OnboardingScreenContent(
     initialPage: Int = 0,
     currentUser: com.google.firebase.auth.FirebaseUser? = null,
     returningUserProfile: ReturningUserProfile? = null,
-    onFinish: (name: String, gender: String, dobMillis: Long?, financialGoal: String) -> Unit = { _, _, _, _ -> },
+    onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
     onSignUpSuccess: (() -> Unit)? = null,
     onCancelGuestSignIn: () -> Unit = {},
     onResetAuthState: () -> Unit = {},
@@ -234,21 +234,14 @@ private fun OnboardingScreenContent(
                 titleLineHeight = 40.sp,
                 illustration = { SecureTrackerIllustration() } 
             ),
-            // Page 6: Financial Goal
-            OnboardingPage(
-                title = context.getString(R.string.label_financial_goal_title),
-                description = context.getString(R.string.label_financial_zen),
-                actionLabel = context.getString(R.string.label_next),
-                illustration = { GoalIllustration() }
-            ),
-            // Page 7: Setup Profile
+            // Page 6: Setup Profile
             OnboardingPage(
                 title = context.getString(R.string.title_lets_get_started),
                 description = context.getString(R.string.desc_tell_us_about_yourself),
                 actionLabel = context.getString(R.string.label_get_started),
                 illustration = { /* No illustration for setup page */ }
             ),
-            // Page 8: WelcomeBack — shown to returning users who already have a complete profile
+            // Page 7: WelcomeBack — shown to returning users who already have a complete profile
             OnboardingPage(
                 title = "",   // Title rendered separately in WelcomeBackPage composable
                 description = "",
@@ -261,9 +254,8 @@ private fun OnboardingScreenContent(
     val page = onboardingPages[currentPage]
     val isConsentPage = currentPage == 4
     val isAuthPage = currentPage == 5
-    val isGoalPage = currentPage == 6
-    val isSetupPage = currentPage == 7
-    val isWelcomeBackPage = currentPage == 8
+    val isSetupPage = currentPage == 6
+    val isWelcomeBackPage = currentPage == 7
     val scrollState = rememberScrollState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
@@ -279,7 +271,6 @@ private fun OnboardingScreenContent(
     // Setup state
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
-    var userFinancialGoal by remember { mutableStateOf("") }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val nameFocusRequester = remember { FocusRequester() }
@@ -303,7 +294,7 @@ private fun OnboardingScreenContent(
         if (currentPage != 5) return@LaunchedEffect
         val user = currentUser ?: return@LaunchedEffect
         if (user.isAnonymous) {
-            // Anonymous / guest user — go straight to the goal page
+            // Anonymous / guest user — go straight to setup profile page
             currentPage = 6
         } else {
             Log.d("Onboarding", "Existing user detected — fetching profile from Firestore.")
@@ -320,16 +311,12 @@ private fun OnboardingScreenContent(
                 // Pre-fill local state from existing data so onFinish has correct values
                 userName = profile.fullName
                 userGender = profile.gender
-                userFinancialGoal = profile.financialGoal
                 Log.d("Onboarding", "Returning user with complete profile — showing WelcomeBack.")
-                currentPage = 8
+                currentPage = 7
             }
             ReturningUserStep.SETUP_PROFILE -> {
-                // Profile exists but name/gender missing. Carry the goal across so a
-                // returning user is not asked for one they already chose.
-                userFinancialGoal = profile.financialGoal.ifBlank { userFinancialGoal }
                 Log.d("Onboarding", "Returning user — missing name/gender, going to setup page.")
-                currentPage = 7
+                currentPage = 6
             }
         }
     }
@@ -358,33 +345,12 @@ private fun OnboardingScreenContent(
         }
     }
 
-    val goalHome = stringResource(id = R.string.label_goal_home)
-    val goalTravel = stringResource(id = R.string.label_goal_travel)
-    val goalDebt = stringResource(id = R.string.label_goal_debt)
-    val goalRetirement = stringResource(id = R.string.label_goal_retirement)
-    val goalSavings = stringResource(id = R.string.label_goal_savings)
-    val goalCar = stringResource(id = R.string.label_goal_car)
-    val goalEducation = stringResource(id = R.string.label_goal_education)
-    val goalBusiness = stringResource(id = R.string.label_goal_business)
-    val goalInvest = stringResource(id = R.string.label_goal_invest)
-    val goalOther = stringResource(id = R.string.label_goal_other)
-    
-    val goalOptions = listOf(goalHome, goalTravel, goalDebt, goalRetirement, goalSavings, goalCar, goalEducation, goalBusiness, goalInvest, goalOther)
-    val goalIcons = listOf(
-        Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Security, Icons.Filled.Savings, 
-        Icons.Filled.Analytics, Icons.Filled.Money, Icons.Filled.Analytics, Icons.Filled.Money, 
-        Icons.Filled.Analytics, Icons.Filled.Money
-    )
-
-    var customGoalText by remember { mutableStateOf("") }
-
     val onCompleteInternal: () -> Unit = {
-        val finalGoal = if (userFinancialGoal == goalOther) customGoalText else userFinancialGoal
-        onFinish(userName, userGender, null, finalGoal)
+        onFinish(userName, userGender, null)
     }
 
     BackHandler(enabled = currentPage > 0) {
-        if (currentPage == 8) {
+        if (currentPage == 7) {
             // Returning from WelcomeBack — reset profile fetch so we don't re-enter
             onResetReturningProfile()
         }
@@ -444,7 +410,7 @@ private fun OnboardingScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
-                if (!isConsentPage && !isSetupPage && !isAuthPage && !isGoalPage && !isWelcomeBackPage) {
+                if (!isConsentPage && !isSetupPage && !isAuthPage && !isWelcomeBackPage) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -474,7 +440,6 @@ private fun OnboardingScreenContent(
                     // WelcomeBack takes over the full content area
                     WelcomeBackPage(
                         userName = userName,
-                        userFinancialGoal = userFinancialGoal,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
@@ -492,8 +457,7 @@ private fun OnboardingScreenContent(
                     val current = onboardingPages[pageIndex]
                     val isConsentOnThisPageIndex = pageIndex == 4
                     val isAuthOnThisPageIndex = pageIndex == 5
-                    val isGoalOnThisPageIndex = pageIndex == 6
-                    val isSetupOnThisPageIndex = pageIndex == 7
+                    val isSetupOnThisPageIndex = pageIndex == 6
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -612,71 +576,6 @@ private fun OnboardingScreenContent(
                                     modifier = Modifier.padding(16.dp)
                                 )
                             }
-                        } else if (isGoalOnThisPageIndex) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                goalOptions.forEachIndexed { index, goal ->
-                                    val isSelected = userFinancialGoal == goal
-                                    val isOther = goal == goalOther
-
-                                    Column {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clip(RoundedCornerShape(24.dp))
-                                                .background(
-                                                    if (isSelected) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
-                                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                                )
-                                                .clickable { 
-                                                    userFinancialGoal = goal 
-                                                }
-                                                .padding(horizontal = 20.dp, vertical = 18.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = goalIcons[index],
-                                                contentDescription = null,
-                                                tint = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.size(24.dp)
-                                            )
-                                            Spacer(Modifier.width(16.dp))
-                                            Text(
-                                                text = goal,
-                                                style = MaterialTheme.typography.titleMedium.copy(
-                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                                ),
-                                                color = if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurface
-                                            )
-                                            Spacer(Modifier.weight(1f))
-                                            if (isSelected) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.CheckCircle,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.accentInk,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        }
-
-                                        if (isOther && isSelected) {
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            InputFieldCard(
-                                                title = "",
-                                                value = customGoalText,
-                                                onValueChange = { customGoalText = it },
-                                                inputType = InputType.Text,
-                                                placeholder = stringResource(id = R.string.placeholder_enter_custom_goal),
-                                                modifier = Modifier.padding(horizontal = 4.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
                         } else if (isSetupOnThisPageIndex) {
                             // Auto-focus the name field when the setup page first appears
                             LaunchedEffect(Unit) {
@@ -753,26 +652,11 @@ private fun OnboardingScreenContent(
                         enabled = if (isConsentPage) isTermsAccepted else true,
                         onClick = {
                             when {
-                                currentPage == 8 -> { // WelcomeBack Page
+                                currentPage == 7 -> { // WelcomeBack Page
                                     onResetReturningProfile()
                                     onCompleteInternal()
                                 }
-                                currentPage == 6 -> { // Goal Page
-                                    val isOther = userFinancialGoal == goalOther
-                                    if (userFinancialGoal.isNotEmpty() && (!isOther || customGoalText.trim().isNotEmpty())) {
-                                        // Skip the name/gender screen when they are already known
-                                        // (pre-filled from the returning user's cloud profile).
-                                        if (userName.isNotBlank() && userGender.isNotBlank()) {
-                                            onCompleteInternal()
-                                        } else {
-                                            currentPage += 1
-                                        }
-                                    } else {
-                                        toastMessage = if (isOther) context.getString(R.string.placeholder_enter_custom_goal)
-                                                       else context.getString(R.string.label_financial_goal_title)
-                                    }
-                                }
-                                currentPage == 7 -> { // Setup Page (name/gender)
+                                currentPage == 6 -> { // Setup Page (name/gender)
                                     val missingFields = mutableListOf<String>()
                                     if (userName.trim().isEmpty()) missingFields.add(nameStr)
 
@@ -853,7 +737,6 @@ private fun OnboardingScreenContent(
 @Composable
 private fun WelcomeBackPage(
     userName: String,
-    userFinancialGoal: String,
     modifier: Modifier = Modifier,
     onContinue: (() -> Unit)? = null
 ) {
@@ -890,19 +773,9 @@ private fun WelcomeBackPage(
         animationSpec = tween(700, delayMillis = 300, easing = FastOutSlowInEasing),
         label = "sub_offset"
     )
-    val cardAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
-        label = "card_alpha"
-    )
-    val cardOffset by animateDpAsState(
-        targetValue = if (visible) 0.dp else 20.dp,
-        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
-        label = "card_offset"
-    )
     val buttonAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 700, easing = FastOutSlowInEasing),
+        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
         label = "button_alpha"
     )
 
@@ -980,48 +853,6 @@ private fun WelcomeBackPage(
                 )
         )
 
-        if (userFinancialGoal.isNotBlank()) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Goal reminder card
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.accentSoft)
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-                    .graphicsLayer(
-                        alpha = cardAlpha,
-                        translationY = cardOffset.value
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "\uD83C\uDFAF",
-                    fontSize = 28.sp
-                )
-                Column {
-                    Text(
-                        text = stringResource(R.string.label_your_goal),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.accentInk,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 0.8.sp
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = userFinancialGoal,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(48.dp))
 
         if (onContinue != null) {
@@ -1064,11 +895,12 @@ private fun BottomControls(
     onNextClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
-    val isAuthPage = currentPage == 4
-    val isGoalPage = currentPage == 5
+    val isConsentPage = currentPage == 4
+    val isAuthPage = currentPage == 5
     val isSetupPage = currentPage == 6
+    val isWelcomeBackPage = currentPage == 7
 
-    if (isAuthPage || isSetupPage || isGoalPage) {
+    if (isAuthPage || isSetupPage || isWelcomeBackPage) {
         Spacer(modifier = Modifier.height(56.dp)) 
         return
     }
@@ -2277,96 +2109,67 @@ private fun PreviewOnboardingPage6_Auth_Light() {
     }
 }
 
-// ── Screen 7: Financial Goal Selection ───────────────────────────────────────
+// ── Screen 7: Profile Setup ──────────────────────────────────────────────────
 @Preview(
-    name = "7. Goal Selection - Dark",
+    name = "7. Profile Setup - Dark",
     showBackground = true,
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun PreviewOnboardingPage7_GoalSelection_Dark() {
+private fun PreviewOnboardingPage7_ProfileSetup_Dark() {
     ExpenseTrackerTheme(darkTheme = true) {
         OnboardingScreenContent(initialPage = 6)
     }
 }
 
 @Preview(
-    name = "7. Goal Selection - Light",
+    name = "7. Profile Setup - Light",
     showBackground = true,
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun PreviewOnboardingPage7_GoalSelection_Light() {
+private fun PreviewOnboardingPage7_ProfileSetup_Light() {
     ExpenseTrackerTheme(darkTheme = false) {
         OnboardingScreenContent(initialPage = 6)
     }
 }
 
-// ── Screen 8: Profile Setup ──────────────────────────────────────────────────
+// ── Screen 8: Welcome Back (Returning Cloud User) ────────────────────────────
 @Preview(
-    name = "8. Profile Setup - Dark",
+    name = "8. Welcome Back - Dark",
     showBackground = true,
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun PreviewOnboardingPage8_ProfileSetup_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 7)
-    }
-}
-
-@Preview(
-    name = "8. Profile Setup - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage8_ProfileSetup_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 7)
-    }
-}
-
-// ── Screen 9: Welcome Back (Returning Cloud User) ────────────────────────────
-@Preview(
-    name = "9. Welcome Back - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage9_WelcomeBack_Dark() {
+private fun PreviewOnboardingPage8_WelcomeBack_Dark() {
     ExpenseTrackerTheme(darkTheme = true) {
         OnboardingScreenContent(
-            initialPage = 8,
+            initialPage = 7,
             returningUserProfile = ReturningUserProfile(
                 fullName = "Alex Morgan",
-                gender = "Non-Binary",
-                financialGoal = "Emergency Savings"
+                gender = "Non-Binary"
             )
         )
     }
 }
 
 @Preview(
-    name = "9. Welcome Back - Light",
+    name = "8. Welcome Back - Light",
     showBackground = true,
     showSystemUi = true,
     device = "spec:width=412dp,height=915dp,dpi=420"
 )
 @Composable
-private fun PreviewOnboardingPage9_WelcomeBack_Light() {
+private fun PreviewOnboardingPage8_WelcomeBack_Light() {
     ExpenseTrackerTheme(darkTheme = false) {
         OnboardingScreenContent(
-            initialPage = 8,
+            initialPage = 7,
             returningUserProfile = ReturningUserProfile(
                 fullName = "Alex Morgan",
-                gender = "Non-Binary",
-                financialGoal = "Emergency Savings"
+                gender = "Non-Binary"
             )
         )
     }

@@ -244,10 +244,8 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
       {
         uid,
         accountTier: "Pro_Pass",
-        isSubscription: false,
         proExpiryTimestamp: newExpiry,
-        profileUpdatedAtMillis: Date.now(),
-        updatedAt: Date.now()
+        profileUpdatedAtMillis: Date.now()
       },
       { merge: true }
     );
@@ -386,14 +384,12 @@ exports.onRcCustomerWritten = onDocumentWritten(
       await userRef.set(
         {
           accountTier: "Paid_Subscription",
-          isSubscription: true,
           proExpiryTimestamp: 0,
-          profileUpdatedAtMillis: Date.now(),
-          updatedAt: Date.now()
+          profileUpdatedAtMillis: Date.now()
         },
         { merge: true }
       );
-      console.log(`Updated accountTier to Paid_Subscription and isSubscription to true for ${uid}`);
+      console.log(`Updated accountTier to Paid_Subscription for ${uid}`);
     } else {
       const userSnap = await userRef.get();
       if (userSnap.exists) {
@@ -402,13 +398,11 @@ exports.onRcCustomerWritten = onDocumentWritten(
           await userRef.set(
             {
               accountTier: "Free",
-              isSubscription: false,
-              profileUpdatedAtMillis: Date.now(),
-              updatedAt: Date.now()
+              profileUpdatedAtMillis: Date.now()
             },
             { merge: true }
           );
-          console.log(`Reset accountTier to Free and isSubscription to false for ${uid} after subscription ended`);
+          console.log(`Reset accountTier to Free for ${uid} after subscription ended`);
         }
       }
     }
@@ -552,7 +546,7 @@ exports.expireProPasses = onSchedule(
 
       batch.set(
         userDoc.ref,
-        { accountTier: "Free", isSubscription: false, proExpiryTimestamp: 0, profileUpdatedAtMillis: now, updatedAt: now },
+        { accountTier: "Free", proExpiryTimestamp: 0, profileUpdatedAtMillis: now },
         { merge: true }
       );
       pending++;
