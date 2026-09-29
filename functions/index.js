@@ -245,7 +245,8 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
         uid,
         accountTier: "Pro_Pass",
         proExpiryTimestamp: newExpiry,
-        profileUpdatedAtMillis: Date.now()
+        profileUpdatedAtMillis: Date.now(),
+        updatedAt: Date.now()
       },
       { merge: true }
     );
@@ -385,7 +386,8 @@ exports.onRcCustomerWritten = onDocumentWritten(
         {
           accountTier: "Paid_Subscription",
           proExpiryTimestamp: 0,
-          profileUpdatedAtMillis: Date.now()
+          profileUpdatedAtMillis: Date.now(),
+          updatedAt: Date.now()
         },
         { merge: true }
       );
@@ -398,7 +400,8 @@ exports.onRcCustomerWritten = onDocumentWritten(
           await userRef.set(
             {
               accountTier: "Free",
-              profileUpdatedAtMillis: Date.now()
+              profileUpdatedAtMillis: Date.now(),
+              updatedAt: Date.now()
             },
             { merge: true }
           );
@@ -546,7 +549,7 @@ exports.expireProPasses = onSchedule(
 
       batch.set(
         userDoc.ref,
-        { accountTier: "Free", proExpiryTimestamp: 0, profileUpdatedAtMillis: now },
+        { accountTier: "Free", proExpiryTimestamp: 0, profileUpdatedAtMillis: now, updatedAt: now },
         { merge: true }
       );
       pending++;

@@ -52,17 +52,55 @@ class TermsConsentTrackingTest {
     }
 
     @Test
-    fun consentResolution_usesLocalConsentTimestampWhenRemoteIsMissing() {
-        val localConsentTime = 1740000000000L
-        val remoteTermsAcceptedAt = 0L
-        val localTermsAcceptedAt = localConsentTime
+    fun accountCreationResolution_preservesOriginalRemoteTimestamp() {
+        val originalCloudCreationTime = 1680000000000L
+        val freshInstallLocalTime = 1740000000000L
 
-        val finalTermsAcceptedAt = when {
-            remoteTermsAcceptedAt != 0L -> remoteTermsAcceptedAt
-            localTermsAcceptedAt != 0L -> localTermsAcceptedAt
+        val remoteCreatedAt = originalCloudCreationTime
+        val localAccountCreatedMillis = freshInstallLocalTime
+
+        val finalCreatedAt = when {
+            remoteCreatedAt != 0L -> remoteCreatedAt
+            localAccountCreatedMillis != 0L -> localAccountCreatedMillis
             else -> 1750000000000L
         }
 
-        assertEquals(localConsentTime, finalTermsAcceptedAt)
+        assertEquals(originalCloudCreationTime, finalCreatedAt)
+        assertNotEquals(freshInstallLocalTime, finalCreatedAt)
+    }
+
+    @Test
+    fun accountCreationResolution_usesLocalWhenRemoteIsMissing() {
+        val localCreationTime = 1740000000000L
+        val remoteCreatedAt = 0L
+        val localAccountCreatedMillis = localCreationTime
+
+        val finalCreatedAt = when {
+            remoteCreatedAt != 0L -> remoteCreatedAt
+            localAccountCreatedMillis != 0L -> localAccountCreatedMillis
+            else -> 1750000000000L
+        }
+
+        assertEquals(localCreationTime, finalCreatedAt)
+    }
+
+    @Test
+    fun pushGate_doesNotSkipWhenTermsOrCreatedAtMissingInCloud() {
+        val docExists = true
+        val localProfileUpdatedAt = 1700000000000L
+        val remoteUpdatedAt = 1700000000000L // local <= remote
+        val isFirstTimeInitialization = false
+        val remoteTermsAcceptedAt = 0L
+        val remoteTermsVersion = ""
+        val localTermsAcceptedAt = 1740000000000L
+        val localTermsVersion = "1.0"
+        val remoteCreatedAt = 0L
+
+        val isMissingTermsInCloud = docExists && (remoteTermsAcceptedAt == 0L || remoteTermsVersion.isBlank()) && (localTermsAcceptedAt != 0L || localTermsVersion.isNotBlank())
+        val isMissingCreatedAtInCloud = docExists && remoteCreatedAt == 0L
+
+        val wouldSkipPush = docExists && localProfileUpdatedAt <= remoteUpdatedAt && !isFirstTimeInitialization && !isMissingTermsInCloud && !isMissingCreatedAtInCloud
+
+        assertEquals(false, wouldSkipPush)
     }
 }

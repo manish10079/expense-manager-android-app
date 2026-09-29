@@ -9,6 +9,7 @@ import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.utils.GoogleAuthHelper
 import com.mknlabs.expensetracker.utils.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
@@ -186,6 +187,20 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val profile = syncRepository.fetchUserProfileFromCloud(uid)
+                if (profile != null) {
+                    UserProfileDataStore.updateUserProfile(context) { local ->
+                        local.copy(
+                            fullName = if (local.fullName.isBlank() || local.fullName == defaultUserProfile.fullName) profile.fullName else local.fullName,
+                            gender = if (local.gender.isBlank()) profile.gender else local.gender,
+                            financialGoal = if (local.financialGoal.isBlank()) profile.financialGoal else local.financialGoal,
+                            accountCreatedMillis = if (local.accountCreatedMillis == 0L && profile.accountCreatedMillis != 0L) profile.accountCreatedMillis else local.accountCreatedMillis,
+                            termsAcceptedAt = if (local.termsAcceptedAt == 0L && profile.termsAcceptedAt != 0L) profile.termsAcceptedAt else local.termsAcceptedAt,
+                            termsVersion = if (local.termsVersion.isBlank() && profile.termsVersion.isNotBlank()) profile.termsVersion else local.termsVersion,
+                            accountTier = if (local.accountTier.isBlank() && profile.accountTier.isNotBlank()) profile.accountTier else local.accountTier,
+                            proExpiryTimestamp = if (local.proExpiryTimestamp == 0L && profile.proExpiryTimestamp != 0L) profile.proExpiryTimestamp else local.proExpiryTimestamp
+                        )
+                    }
+                }
                 _returningUserProfile.value = ReturningUserProfile(
                     fullName = profile?.fullName.orEmpty(),
                     gender = profile?.gender.orEmpty(),
