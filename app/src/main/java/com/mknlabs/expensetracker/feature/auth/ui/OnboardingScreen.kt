@@ -77,7 +77,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
+import com.mknlabs.expensetracker.models.CURRENT_TERMS_VERSION
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -265,6 +269,7 @@ private fun OnboardingScreenContent(
 
     // Terms & Conditions consent state
     var isTermsAccepted by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     // Reset scroll position on page change
     LaunchedEffect(currentPage) {
@@ -781,6 +786,15 @@ private fun OnboardingScreenContent(
                                 }
                                 currentPage == 4 -> { // Consent Page
                                     if (isTermsAccepted) {
+                                        val consentTimestamp = System.currentTimeMillis()
+                                        coroutineScope.launch {
+                                            UserProfileDataStore.updateUserProfile(context) { profile ->
+                                                profile.copy(
+                                                    termsAcceptedAt = if (profile.termsAcceptedAt == 0L) consentTimestamp else profile.termsAcceptedAt,
+                                                    termsVersion = if (profile.termsVersion.isBlank()) CURRENT_TERMS_VERSION else profile.termsVersion
+                                                )
+                                            }
+                                        }
                                         currentPage = 5
                                     }
                                 }

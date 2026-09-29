@@ -2,6 +2,8 @@ package com.mknlabs.expensetracker.models
 
 import androidx.compose.runtime.Immutable
 
+const val CURRENT_TERMS_VERSION = "1.0"
+
 @Immutable
 data class UserProfile(
     val fullName: String,
@@ -16,7 +18,9 @@ data class UserProfile(
     val proExpiryTimestamp: Long = 0L,
     val isSubscription: Boolean = false,
     val updatedAtMillis: Long = 0L,
-    val authProvider: String = ""
+    val authProvider: String = "",
+    val termsAcceptedAt: Long = 0L,
+    val termsVersion: String = ""
 )
 
 val defaultUserProfile = UserProfile(
@@ -28,7 +32,9 @@ val defaultUserProfile = UserProfile(
     accountCreatedMillis = 0L,
     accountTier = "",
     proExpiryTimestamp = 0L,
-    authProvider = ""
+    authProvider = "",
+    termsAcceptedAt = 0L,
+    termsVersion = ""
 )
 
 fun UserProfile.firstName(): String {

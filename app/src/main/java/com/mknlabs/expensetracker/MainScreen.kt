@@ -78,6 +78,7 @@ import com.mknlabs.expensetracker.domain.repository.JsonImportResult
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.models.CURRENT_TERMS_VERSION
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
@@ -507,7 +508,9 @@ fun MainScreen(
                                 financialGoal = financialGoal,
                                 accountCreatedMillis = if (profile.accountCreatedMillis == 0L) now else profile.accountCreatedMillis,
                                 updatedAtMillis = now,
-                                authProvider = resolvedAuthProvider
+                                authProvider = resolvedAuthProvider,
+                                termsAcceptedAt = if (profile.termsAcceptedAt == 0L) now else profile.termsAcceptedAt,
+                                termsVersion = if (profile.termsVersion.isBlank()) CURRENT_TERMS_VERSION else profile.termsVersion
                             )
                         }
 
