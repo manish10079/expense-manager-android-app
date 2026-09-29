@@ -80,10 +80,17 @@ service cloud.firestore {
       // Prevents changing uid field. Pro fields may not be modified by clients;
       // the sole exception is pushing accountTier=Free/FREE (expired-premium
       // downgrade) so the cloud never re-grants Pro on the next pull.
+      // Immutability: once accountCreatedOn or createdAt exists, it cannot be modified to a different value.
       allow update: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.uid == uid
                     && resource.data.uid == uid
+                    && (!('accountCreatedOn' in resource.data)
+                        || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['accountCreatedOn'])
+                        || request.resource.data.accountCreatedOn == resource.data.accountCreatedOn)
+                    && (!('createdAt' in resource.data)
+                        || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['createdAt'])
+                        || request.resource.data.createdAt == resource.data.createdAt)
                     && !request.resource.data.diff(resource.data)
                           .affectedKeys()
                           .hasAny(['proExpiryTimestamp', 'isSubscription'])

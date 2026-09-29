@@ -275,19 +275,33 @@ class SyncRepositoryImpl @Inject constructor(
         try {
             val snapshot = firestore.collection("users").document(uid).get().await()
             if (!snapshot.exists()) return@withContext null
+            val remoteAccountCreatedOn = snapshot.getString("accountCreatedOn")
+                ?: snapshot.getString("AccountCreatedOn")
+                ?: snapshot.getString("createdOn")
+            val remoteCreatedAt = snapshot.getLong("createdAt")
+                ?: snapshot.getLong("createdOn")
+                ?: remoteAccountCreatedOn?.let { parseDate(it, "dd MMMM yyyy") }
+                ?: 0L
+            val remoteTermsAcceptedAt = snapshot.getLong("termsAcceptedAt") ?: 0L
+            val remoteTermsVersion = snapshot.getString("termsVersion").orEmpty()
+            val remoteDob = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn"))
+                ?.let { parseDate(it, "dd MMMM yyyy") }
+
             UserProfile(
                 fullName = snapshot.getString("fullName").orEmpty(),
                 emailAddress = snapshot.getString("emailAddress").orEmpty(),
                 phoneNumber = snapshot.getString("phoneNumber").orEmpty(),
-                dateOfBirthMillis = null,
+                dateOfBirthMillis = remoteDob,
                 gender = snapshot.getString("gender").orEmpty(),
                 financialGoal = snapshot.getString("financialGoal").orEmpty(),
-                accountCreatedMillis = 0L,
+                accountCreatedMillis = remoteCreatedAt,
                 accountTier = snapshot.getString("accountTier").orEmpty(),
                 photoUri = snapshot.getString("photoUri"),
                 proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: 0L,
                 isSubscription = snapshot.getBoolean("isSubscription") ?: false,
-                updatedAtMillis = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+                updatedAtMillis = snapshot.getLong("profileUpdatedAtMillis") ?: snapshot.getLong("updatedAt") ?: 0L,
+                termsAcceptedAt = remoteTermsAcceptedAt,
+                termsVersion = remoteTermsVersion
             )
         } catch (e: Exception) {
             android.util.Log.e("Sync", "fetchUserProfileFromCloud failed", e)
@@ -367,7 +381,10 @@ class SyncRepositoryImpl @Inject constructor(
         val needsGender = localProfile.gender.isBlank()
         val needsPhone = localProfile.phoneNumber.isBlank()
         val needsDob = localProfile.dateOfBirthMillis == null || localProfile.dateOfBirthMillis == 0L
-        if (!needsName && !needsGender && !needsPhone && !needsDob) return
+        val needsGoal = localProfile.financialGoal.isBlank()
+        val needsCreated = localProfile.accountCreatedMillis == 0L
+        val needsTerms = localProfile.termsAcceptedAt == 0L || localProfile.termsVersion.isBlank()
+        if (!needsName && !needsGender && !needsPhone && !needsDob && !needsGoal && !needsCreated && !needsTerms) return
 
         val snapshot = try {
             firestore.collection("users").document(uid).get().await()
@@ -382,12 +399,26 @@ class SyncRepositoryImpl @Inject constructor(
         val cloudPhone = snapshot.getString("phoneNumber").orEmpty()
         val cloudDob = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn"))
             ?.let { parseDate(it, "dd MMMM yyyy") }
+        val cloudGoal = snapshot.getString("financialGoal").orEmpty()
+        val cloudAccountCreatedOn = snapshot.getString("accountCreatedOn")
+            ?: snapshot.getString("AccountCreatedOn")
+            ?: snapshot.getString("createdOn")
+        val cloudCreatedAt = snapshot.getLong("createdAt")
+            ?: snapshot.getLong("createdOn")
+            ?: cloudAccountCreatedOn?.let { parseDate(it, "dd MMMM yyyy") }
+            ?: 0L
+        val cloudTermsAcceptedAt = snapshot.getLong("termsAcceptedAt") ?: 0L
+        val cloudTermsVersion = snapshot.getString("termsVersion").orEmpty()
 
         val hydrated = localProfile.copy(
             fullName = if (needsName && cloudName.isNotBlank()) cloudName else localProfile.fullName,
             gender = if (needsGender && cloudGender.isNotBlank()) cloudGender else localProfile.gender,
             phoneNumber = if (needsPhone && cloudPhone.isNotBlank()) cloudPhone else localProfile.phoneNumber,
-            dateOfBirthMillis = if (needsDob && cloudDob != null) cloudDob else localProfile.dateOfBirthMillis
+            dateOfBirthMillis = if (needsDob && cloudDob != null) cloudDob else localProfile.dateOfBirthMillis,
+            financialGoal = if (needsGoal && cloudGoal.isNotBlank()) cloudGoal else localProfile.financialGoal,
+            accountCreatedMillis = if (needsCreated && cloudCreatedAt != 0L) cloudCreatedAt else localProfile.accountCreatedMillis,
+            termsAcceptedAt = if (localProfile.termsAcceptedAt == 0L && cloudTermsAcceptedAt != 0L) cloudTermsAcceptedAt else localProfile.termsAcceptedAt,
+            termsVersion = if (localProfile.termsVersion.isBlank() && cloudTermsVersion.isNotBlank()) cloudTermsVersion else localProfile.termsVersion
         )
         if (hydrated != localProfile) {
             UserProfileDataStore.setUserProfile(context, hydrated)
@@ -419,9 +450,11 @@ class SyncRepositoryImpl @Inject constructor(
                 val snapshot = userDoc.get().await()
                 docExists = snapshot.exists()
                 if (docExists) {
-                    remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+                    remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: snapshot.getLong("updatedAt") ?: 0L
                     remoteAccountTier = snapshot.getString("accountTier") ?: ""
-                    remoteAccountCreatedOn = snapshot.getString("accountCreatedOn") ?: snapshot.getString("AccountCreatedOn")
+                    remoteAccountCreatedOn = snapshot.getString("accountCreatedOn")
+                        ?: snapshot.getString("AccountCreatedOn")
+                        ?: snapshot.getString("createdOn")
                     remoteProExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: 0L
                     // Capture cloud profile values so blank local fields never overwrite them.
                     remoteFullName = snapshot.getString("fullName").orEmpty()
@@ -431,7 +464,10 @@ class SyncRepositoryImpl @Inject constructor(
                     remoteFinancialGoal = snapshot.getString("financialGoal").orEmpty()
                     remoteTermsAcceptedAt = snapshot.getLong("termsAcceptedAt") ?: 0L
                     remoteTermsVersion = snapshot.getString("termsVersion").orEmpty()
-                    remoteCreatedAt = snapshot.getLong("createdAt") ?: 0L
+                    remoteCreatedAt = snapshot.getLong("createdAt")
+                        ?: snapshot.getLong("createdOn")
+                        ?: remoteAccountCreatedOn?.let { parseDate(it, "dd MMMM yyyy") }
+                        ?: 0L
                 }
             } catch (e: Exception) {
                 android.util.Log.e("Sync", "Failed to fetch remote profile", e)
@@ -441,8 +477,10 @@ class SyncRepositoryImpl @Inject constructor(
 
         // Robust Detection: Treat as new if flag is true OR doc doesn't exist OR critical field missing
         val isFirstTimeInitialization = isNewUser || !docExists || remoteAccountCreatedOn == null
+        val isMissingTermsInCloud = docExists && (remoteTermsAcceptedAt == 0L || remoteTermsVersion.isBlank()) && (localProfile.termsAcceptedAt != 0L || localProfile.termsVersion.isNotBlank())
+        val isMissingCreatedAtInCloud = docExists && remoteCreatedAt == 0L
 
-        android.util.Log.d("Sync", "Push Decision - isInit: $isFirstTimeInitialization, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
+        android.util.Log.d("Sync", "Push Decision - isInit: $isFirstTimeInitialization, isMissingTerms: $isMissingTermsInCloud, isMissingCreated: $isMissingCreatedAtInCloud, localUp: ${localProfile.updatedAtMillis}, remoteUp: $remoteUpdatedAt")
 
         val now = System.currentTimeMillis()
         val isRemotePremiumExpired = EntitlementResolver.isProTier(remoteAccountTier) && remoteProExpiryTimestamp in 1..<now
@@ -451,15 +489,20 @@ class SyncRepositoryImpl @Inject constructor(
             android.util.Log.d("Sync", "Skipping push: Remote is active PREMIUM, local is not.")
             return
         }
-        if (docExists && localProfile.updatedAtMillis <= remoteUpdatedAt && !isFirstTimeInitialization) {
+        if (docExists && localProfile.updatedAtMillis <= remoteUpdatedAt && !isFirstTimeInitialization && !isMissingTermsInCloud && !isMissingCreatedAtInCloud) {
             android.util.Log.d("Sync", "Skipping push: Cloud is up-to-date or newer.")
             return
         }
 
-        // Initialize local creation timestamp if missing
-        if (localProfile.accountCreatedMillis == 0L) {
-            val creationTime = System.currentTimeMillis()
-            localProfile = localProfile.copy(accountCreatedMillis = creationTime)
+        val finalCreatedAt = when {
+            remoteCreatedAt != 0L -> remoteCreatedAt
+            localProfile.accountCreatedMillis != 0L -> localProfile.accountCreatedMillis
+            else -> now
+        }
+
+        // Initialize / fix local creation timestamp if missing or out of sync with cloud
+        if (localProfile.accountCreatedMillis == 0L || (remoteCreatedAt != 0L && localProfile.accountCreatedMillis != remoteCreatedAt)) {
+            localProfile = localProfile.copy(accountCreatedMillis = finalCreatedAt)
             UserProfileDataStore.setUserProfile(context, localProfile)
         }
 
@@ -492,11 +535,6 @@ class SyncRepositoryImpl @Inject constructor(
             localProfile.termsVersion.isNotBlank() -> localProfile.termsVersion
             else -> CURRENT_TERMS_VERSION
         }
-        val finalCreatedAt = when {
-            remoteCreatedAt != 0L -> remoteCreatedAt
-            localProfile.accountCreatedMillis != 0L -> localProfile.accountCreatedMillis
-            else -> now
-        }
         val finalUpdatedAt = if (localProfile.updatedAtMillis == 0L) now else localProfile.updatedAtMillis
 
         val profileData = mutableMapOf<String, Any?>(
@@ -527,8 +565,10 @@ class SyncRepositoryImpl @Inject constructor(
             "termsVersion" to finalTermsVersion
         )
 
-        // Always push creation date if it's a first-time init or missing in cloud
-        if (isFirstTimeInitialization) {
+        // Immutability: Never change accountCreatedOn if it already exists in the cloud
+        if (remoteAccountCreatedOn != null && remoteAccountCreatedOn.isNotBlank()) {
+            profileData["accountCreatedOn"] = remoteAccountCreatedOn
+        } else {
             profileData["accountCreatedOn"] = formatDate(finalCreatedAt, "dd MMMM yyyy")
         }
 
@@ -570,13 +610,41 @@ class SyncRepositoryImpl @Inject constructor(
             return
         }
 
-        val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: 0L
+        val remoteUpdatedAt = snapshot.getLong("profileUpdatedAtMillis") ?: snapshot.getLong("updatedAt") ?: 0L
         val remoteAccountTier = snapshot.getString("accountTier") ?: ""
+        val remoteAccountCreatedOn = snapshot.getString("accountCreatedOn")
+            ?: snapshot.getString("AccountCreatedOn")
+            ?: snapshot.getString("createdOn")
+        val remoteCreatedAt = snapshot.getLong("createdAt")
+            ?: snapshot.getLong("createdOn")
+            ?: remoteAccountCreatedOn?.let { parseDate(it, "dd MMMM yyyy") }
+            ?: 0L
+        val remoteTermsAcceptedAt = snapshot.getLong("termsAcceptedAt") ?: 0L
+        val remoteTermsVersion = snapshot.getString("termsVersion").orEmpty()
+
         val shouldPull = remoteUpdatedAt > localProfile.updatedAtMillis || 
                          (!EntitlementResolver.isProTier(localProfile.accountTier) && EntitlementResolver.isProTier(remoteAccountTier)) ||
-                         localProfile.accountTier.isBlank()
+                         localProfile.accountTier.isBlank() ||
+                         (localProfile.accountCreatedMillis == 0L && remoteCreatedAt != 0L) ||
+                         (localProfile.termsAcceptedAt == 0L && remoteTermsAcceptedAt != 0L)
 
         if (!shouldPull) return
+
+        val finalCreatedMillis = when {
+            remoteCreatedAt != 0L -> remoteCreatedAt
+            localProfile.accountCreatedMillis != 0L -> localProfile.accountCreatedMillis
+            else -> 0L
+        }
+        val finalTermsAcceptedAt = when {
+            localProfile.termsAcceptedAt != 0L -> localProfile.termsAcceptedAt
+            remoteTermsAcceptedAt != 0L -> remoteTermsAcceptedAt
+            else -> 0L
+        }
+        val finalTermsVersion = when {
+            localProfile.termsVersion.isNotBlank() -> localProfile.termsVersion
+            remoteTermsVersion.isNotBlank() -> remoteTermsVersion
+            else -> ""
+        }
 
         val remoteProfile = UserProfile(
             fullName = snapshot.getString("fullName") ?: (if (localProfile.fullName == defaultUserProfile.fullName) authUser?.displayName else null) ?: localProfile.fullName,
@@ -585,7 +653,7 @@ class SyncRepositoryImpl @Inject constructor(
             dateOfBirthMillis = (snapshot.getString("dateOfBirthOn") ?: snapshot.getString("DateOfBirthOn"))?.let { parseDate(it, "dd MMMM yyyy") } ?: localProfile.dateOfBirthMillis,
             gender = snapshot.getString("gender") ?: localProfile.gender,
             financialGoal = snapshot.getString("financialGoal") ?: localProfile.financialGoal,
-            accountCreatedMillis = localProfile.accountCreatedMillis, // Don't pull from cloud, keep local
+            accountCreatedMillis = finalCreatedMillis,
             accountTier = remoteAccountTier,
             proExpiryTimestamp = snapshot.getLong("proExpiryTimestamp") ?: localProfile.proExpiryTimestamp,
             isSubscription = snapshot.getBoolean("isSubscription") ?: localProfile.isSubscription,
@@ -595,7 +663,9 @@ class SyncRepositoryImpl @Inject constructor(
                     authUser?.providerData?.firstOrNull { it.providerId != "firebase" }?.providerId ?: "email"
                 }
             },
-            updatedAtMillis = remoteUpdatedAt
+            updatedAtMillis = remoteUpdatedAt,
+            termsAcceptedAt = finalTermsAcceptedAt,
+            termsVersion = finalTermsVersion
         )
 
         // Industry Standard: Handle automatic downgrade if PREMIUM has expired
