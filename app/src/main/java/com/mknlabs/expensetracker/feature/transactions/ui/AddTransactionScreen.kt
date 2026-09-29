@@ -159,6 +159,7 @@ import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
@@ -1351,8 +1352,10 @@ private fun RecurringTransactionSection(
                 colors = androidx.compose.material3.SwitchDefaults.colors(
                     checkedThumbColor = colorScheme.switchOnThumb,
                     checkedTrackColor = colorScheme.switchOnTrack,
-                    uncheckedThumbColor = colorScheme.outline,
-                    uncheckedTrackColor = colorScheme.surfaceVariant
+                    checkedBorderColor = Color.Transparent,
+                    uncheckedThumbColor = colorScheme.textTertiary,
+                    uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    uncheckedBorderColor = colorScheme.textTertiary
                 )
             )
         }

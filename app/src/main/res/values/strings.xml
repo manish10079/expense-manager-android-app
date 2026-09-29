@@ -2104,4 +2104,24 @@
     <string name="paywall_error_configuration">Subscriptions aren\'t set up correctly right now. Please try again later.</string>
     <string name="paywall_error_billing_not_configured">Subscriptions aren\'t available in this build.</string>
     <string name="paywall_error_unknown">Something went wrong. Please try again.</string>
+
+    <!-- Onboarding Consent Step Strings -->
+    <string name="desc_terms_conditions_requirement">You must accept these terms to continue using ExpenseTracker as a guest or with a registered account.</string>
+    <string name="label_bullet_app_usage_title">App Usage</string>
+    <string name="label_bullet_app_usage_desc">Personal budgeting and tracking. No unauthorized redistribution or reverse engineering.</string>
+    <string name="label_bullet_privacy_title">Data &amp; Privacy</string>
+    <string name="label_bullet_privacy_desc">Offline-first on your device. Sync is optional and protected with end-to-end encryption.</string>
+    <string name="label_bullet_subscriptions_title">Subscriptions</string>
+    <string name="label_bullet_subscriptions_desc">Pro access managed securely via Google Play Billing. Auto-renews unless cancelled.</string>
+    <string name="label_bullet_cancellation_title">Cancellation &amp; Export</string>
+    <string name="label_bullet_cancellation_desc">Cancel Pro anytime in Play Store. Export or delete 100% of your data on demand.</string>
+    <string name="label_terms_clause_1">1. Acceptance of Terms: By accessing or using the App, you acknowledge and agree to these Terms &amp; Conditions and our Privacy Policy. These terms bind all users (guest or registered).</string>
+    <string name="label_terms_clause_2">2. License: We grant you a limited, revocable, non-exclusive license for personal non-commercial financial management.</string>
+    <string name="label_terms_clause_3">3. Local-First Storage: Your financial data stays stored securely on your local device in an encrypted database by default.</string>
+    <string name="label_terms_clause_4">4. In-App Purchases: Subscriptions are billed through Google Play according to store policies.</string>
+    <string name="label_terms_clause_5">5. Disclaimers: ExpenseTracker is an organizational tool and does not provide certified financial advice.</string>
+    <string name="label_agree_terms_checkbox">I have read and agree to the Terms &amp; Conditions</string>
+    <string name="label_agree_privacy_checkbox">I agree to the Privacy Policy and data handling terms</string>
+    <string name="cd_terms_checkbox">Terms and Conditions consent checkbox</string>
+    <string name="cd_privacy_checkbox">Privacy Policy consent checkbox</string>
 </resources>
