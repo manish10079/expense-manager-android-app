@@ -5,22 +5,17 @@ import com.mknlabs.expensetracker.models.UserTier
 /**
  * The single decision point for "is this user Pro?".
  *
- * Three independent sources can grant Pro, and they disagree in ways that matter:
+ * Independent sources can grant Pro, and they disagree in ways that matter:
  *
  *  - **A live store entitlement** ([revenueCatEntitlementActive]) — the store's own verdict,
  *    refreshed after every purchase, restore and login. It wins outright: it is the only
  *    source that reflects a real payment, and the only one that cannot go stale.
  *  - **A ProPass grant** — persisted by the `redeemProPass` Cloud Function as
- *    `accountTier = "PREMIUM"` with `proExpiryTimestamp` set to the grant's end, so it is
- *    time-limited and expires by itself.
- *  - **The local `AppSettings.userTier` mirror** — retained for installs that predate the
- *    server-authoritative fields.
+ *    `accountTier = "Pro_Pass"` or legacy `"PREMIUM"` with `proExpiryTimestamp` set to the
+ *    grant's end, so it is time-limited and expires by itself.
  *
- * <b>Why the store entitlement short-circuits instead of being OR-ed into the expiry
- * maths.</b> A subscription's local `proExpiryTimestamp` is a *cache* of a fact only the
- * store knows; a renewal it has not learned about yet would read as expired and lock a
- * paying subscriber out. The entitlement check has no such failure mode, so it is decided
- * first and never weakened by a stale local timestamp.
+ * A cancelled or expired Play subscription must not stay Pro via `Paid_Subscription` or the
+ * local `AppSettings.userTier` mirror. Those are caches of a store fact that is already gone.
  *
  * Pure by construction — no Android, no DataStore, no clock of its own — so every
  * combination is unit-testable without a device.
@@ -46,12 +41,14 @@ object EntitlementResolver {
     }
 
     /**
-     * @param appSettingsTier the locally mirrored tier.
+     * @param appSettingsTier the locally mirrored tier (ignored unless the store or a pass grants Pro).
      * @param accountTier the server-authoritative tier string on the user's profile.
      * @param proExpiryTimestamp when the ProPass grant ends; `0` means "no expiry recorded".
      * @param revenueCatEntitlementActive whether the store reports an active `premium`
      *   entitlement right now.
      * @param now the current time, passed in so the expiry rules are deterministic in tests.
+     * @param isSignedIn false after logout / guest-anonymous: Pro is account-bound, so the
+     *   membership card and gates must not keep a previous paid or redeemed grant.
      */
     fun isPremium(
         appSettingsTier: UserTier,
@@ -59,18 +56,18 @@ object EntitlementResolver {
         proExpiryTimestamp: Long,
         revenueCatEntitlementActive: Boolean,
         now: Long,
+        isSignedIn: Boolean = true,
     ): Boolean {
-        // The store is authoritative and current; nothing local can override it.
+        if (!isSignedIn) return false
         if (revenueCatEntitlementActive) return true
+        return hasActiveProPassGrant(accountTier, proExpiryTimestamp, now)
+    }
 
-        val isPro = isProTier(accountTier)
+    /** True when Pro came from a redeemed pass, not from Google Play. */
+    fun hasActiveProPassGrant(accountTier: String, proExpiryTimestamp: Long, now: Long): Boolean {
         val isPass = accountTier == TIER_PRO_PASS || accountTier == LEGACY_PREMIUM_TIER
-        val isExpired = isPass && proExpiryTimestamp in 1..<now
-
-        return !isExpired && (
-            appSettingsTier == UserTier.PREMIUM ||
-                accountTier == TIER_PAID_SUBSCRIPTION ||
-                (isPro && (proExpiryTimestamp == 0L || proExpiryTimestamp > now))
-            )
+        if (!isPass) return false
+        if (proExpiryTimestamp == 0L) return true
+        return proExpiryTimestamp > now
     }
 }

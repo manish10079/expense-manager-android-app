@@ -98,8 +98,8 @@ class EntitlementResolverTest {
     // --- The legacy local mirror -------------------------------------------------------
 
     @Test
-    fun `the legacy local tier alone still grants Pro`() {
-        assertTrue(isPremium(appSettingsTier = UserTier.PREMIUM, accountTier = "FREE"))
+    fun `the legacy local tier alone does not grant Pro`() {
+        assertFalse(isPremium(appSettingsTier = UserTier.PREMIUM, accountTier = "FREE"))
     }
 
     @Test
@@ -141,7 +141,26 @@ class EntitlementResolverTest {
     }
 
     @Test
-    fun `Paid_Subscription tier is always Pro`() {
-        assertTrue(isPremium(accountTier = "Paid_Subscription"))
+    fun `Paid_Subscription without a live store entitlement is not Pro`() {
+        assertFalse(isPremium(accountTier = "Paid_Subscription"))
+    }
+
+    @Test
+    fun `Paid_Subscription with a live store entitlement is Pro`() {
+        assertTrue(isPremium(accountTier = "Paid_Subscription", revenueCatEntitlementActive = true))
+    }
+
+    @Test
+    fun `a signed-out session is never Pro`() {
+        assertFalse(
+            EntitlementResolver.isPremium(
+                appSettingsTier = UserTier.PREMIUM,
+                accountTier = "PREMIUM",
+                proExpiryTimestamp = now + 60_000,
+                revenueCatEntitlementActive = true,
+                now = now,
+                isSignedIn = false,
+            )
+        )
     }
 }

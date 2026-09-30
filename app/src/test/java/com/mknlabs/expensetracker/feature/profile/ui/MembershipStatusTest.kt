@@ -59,13 +59,27 @@ class MembershipStatusTest {
     }
 
     @Test
-    fun `premium without a store entitlement is a pro pass`() {
+    fun `premium without a store entitlement is a pro pass only when a pass was granted`() {
         assertEquals(
             MembershipStatus.PRO_PASS,
             resolveMembershipStatus(
                 userTier = UserTier.PREMIUM,
                 isAnonymous = false,
-                hasActiveStoreSubscription = false
+                hasActiveStoreSubscription = false,
+                hasProPassGrant = true,
+            )
+        )
+    }
+
+    @Test
+    fun `cancelled store access without a pass grant is free`() {
+        assertEquals(
+            MembershipStatus.FREE,
+            resolveMembershipStatus(
+                userTier = UserTier.PREMIUM,
+                isAnonymous = false,
+                hasActiveStoreSubscription = false,
+                hasProPassGrant = false,
             )
         )
     }

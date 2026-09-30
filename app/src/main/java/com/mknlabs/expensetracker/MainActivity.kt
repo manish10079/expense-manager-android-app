@@ -1,525 +1,529 @@
-package com.mknlabs.expensetracker
-
-import android.content.Intent
-import android.content.res.Configuration
-import android.os.Build
-import android.os.Bundle
-import android.view.WindowManager
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.Modifier
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
-import com.mknlabs.expensetracker.data.local.UserProfileDataStore
-import com.mknlabs.expensetracker.models.AppThemeMode
-import com.mknlabs.expensetracker.models.defaultUserProfile
-import com.mknlabs.expensetracker.notifications.NotificationHelper
-import com.mknlabs.expensetracker.sms.ParsedSms
-import com.mknlabs.expensetracker.sms.SmsNotificationManager
-import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
-import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
-import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
-import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
-import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
-import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
-import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
-import com.mknlabs.expensetracker.utils.PlayStoreLink
-import android.net.Uri
-import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
-import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
-import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
-import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.utils.BiometricAuthManager
-import com.mknlabs.expensetracker.utils.findFragmentActivity
-import com.mknlabs.expensetracker.utils.ThemePreferenceSync
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import com.mknlabs.expensetracker.feature.auth.ui.InitTask
-import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
-import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
-import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
-import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
-import com.mknlabs.expensetracker.core.ui.theme.AppLockLoadingBackground
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import dagger.hilt.android.AndroidEntryPoint
-
-import androidx.activity.SystemBarStyle
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-
-import com.mknlabs.expensetracker.monetization.AdsCoordinator
-import com.google.firebase.auth.FirebaseAuth
-import com.mknlabs.expensetracker.domain.repository.AuthRepository
-import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
-import com.mknlabs.expensetracker.monetization.MonetizationViewModel
-import com.mknlabs.expensetracker.models.PinVisualMode
-import com.mknlabs.expensetracker.models.UserTier
-import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
-import javax.inject.Inject
-
-@AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var adsCoordinator: AdsCoordinator
-
-    @Inject
-    lateinit var authRepository: AuthRepository
-
-    private val splashViewModel: SplashViewModel by viewModels()
-    private val appLockViewModel: AppLockViewModel by viewModels()
-    
-    // AuthViewModel is provided at the Composable level to avoid activity scope leaks,
-    // but we can use it to handle incoming intents.
-    private var currentIntent by mutableStateOf<Intent?>(null)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        android.util.Log.d("AUTH", "MainActivity: onCreate")
-        // Task 2: Apply Theme BEFORE super.onCreate()
-        val syncTheme = ThemePreferenceSync.getTheme(this)
-        val mode = when (syncTheme) {
-            "LIGHT" -> AppCompatDelegate.MODE_NIGHT_NO
-            "DARK" -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
-        AppCompatDelegate.setDefaultNightMode(mode)
-
-        val splashScreen = installSplashScreen()
-        
-        splashScreen.setKeepOnScreenCondition {
-            splashViewModel.currentTask.value == InitTask.Start
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
-                splashScreenViewProvider.view
-                    .animate()
-                    .alpha(0f)
-                    .setDuration(180L)
-                    .withEndAction { splashScreenViewProvider.remove() }
-                    .start()
-            }
-        }
-
-        super.onCreate(savedInstanceState)
-        
-        currentIntent = intent
-
-        // Benchmark hooks (ADS_UI_JANK_FIX_PLAN Phase 0): BuildConfig.BUILD_TYPE is a
-        // compile-time constant, so R8 constant-folds this gate to false and strips the
-        // whole block (and BenchmarkHooks) from release/debug APKs — it only exists in the
-        // non-debuggable "benchmark" build type that Macrobenchmark measures.
-        if (BuildConfig.BUILD_TYPE == "benchmark") {
-            BenchmarkHooks.readExtras(intent)
-            BenchmarkHooks.prepare(this)
-        }
-
-        // Monitor Firebase Auth State
-        com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
-            android.util.Log.d("AUTH", "Firebase Auth State Change")
-        }
-
-        // Initialize AdMob with Privacy Flow (UMP)
-        adsCoordinator.initPrivacyFlow(this) {
-            // Ads are ready to be loaded or SDK is initialized
-        }
-
-        enableEdgeToEdge()
-
-        setContent {
-            AppRoot(splashViewModel, appLockViewModel, currentIntent)
-        }
-
-        // Hide the status bar in landscape (immersive), restore it in portrait.
-        applyImmersiveStatusBarForLandscape()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        android.util.Log.d("AUTH", "MainActivity: onResume")
-        // System UI can be restored (e.g. after notification shade or returning
-        // from another app), so re-apply the landscape immersive state.
-        applyImmersiveStatusBarForLandscape()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // MainActivity handles config changes itself (android:configChanges), so
-        // rotation reaches us here instead of recreating the activity.
-        applyImmersiveStatusBarForLandscape()
-    }
-
-    private fun applyImmersiveStatusBarForLandscape() {
-        val controller = WindowCompat.getInsetsController(window, window.decorView)
-        val isLandscape =
-            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        if (isLandscape) {
-            controller.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.hide(WindowInsetsCompat.Type.statusBars())
-        } else {
-            controller.show(WindowInsetsCompat.Type.statusBars())
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        android.util.Log.d("AUTH", "MainActivity: onStart")
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        // Keep the activity's intent property in sync with the Compose state so
-        // any code reading `intent` directly (e.g. in onResume) sees the latest
-        // notification tap instead of the stale creation-time intent.
-        setIntent(intent)
-        currentIntent = intent
-    }
-
-    @Composable
-    private fun AppRoot(
-        splashViewModel: SplashViewModel,
-        appLockViewModel: AppLockViewModel,
-        intent: Intent?
-    ) {
-        val isReady by splashViewModel.isReady.collectAsStateWithLifecycle()
-        val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsStateWithLifecycle()
-        val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsStateWithLifecycle()
-        val appLockState by appLockViewModel.state.collectAsStateWithLifecycle()
-        val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsStateWithLifecycle()
-        val context = LocalContext.current
-        val activity = context.findFragmentActivity()
-        
-        // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
-        val authViewModel: AuthViewModel = hiltViewModel()
-        val monetizationViewModel: MonetizationViewModel = hiltViewModel()
-        val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
-        val updateViewModel: UpdateViewModel = hiltViewModel()
-        val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
-        
-        val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
-
-        // Smart SMS Import "Open" action prefill (plan §8) — amount + note + category + type draft.
-        val initialAddTransactionAmount = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_AMOUNT)
-        val initialAddTransactionNote = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_NOTE)
-        val initialAddTransactionCategoryId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID) == true) {
-            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID, 0)
-        } else null
-        val initialAddTransactionTypeId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID) == true) {
-            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID, 0)
-        } else null
-
-        // Smart SMS Import "Change" action payload (plan §8 / Phase 4) — the
-        // full ParsedSms rides in PendingIntent extras and is consumed by the
-        // lightweight Change bottom sheet. Null for every other launch path.
-        val initialParsedSms: ParsedSms? = intent?.toParsedSms()
-
-        // Detected-SMS notification focus (plan §8): the inbox row the card's tap — or
-        // its Edit action — was about. Absent for every other launch path.
-        val initialSmsInboxDetectionId = intent?.getStringExtra(SmsNotificationManager.EXTRA_DETECTION_ID)
-        val initialSmsInboxOpenEditor =
-            intent?.getBooleanExtra(SmsNotificationManager.EXTRA_OPEN_EDITOR, false) == true
-
-        // Handle App Shortcut Intents
-        val shortcutAction = intent?.action
-        val shortcutTransactionTypeId = intent?.let {
-            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)) {
-                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID, 0)
-                if (intVal != 0) intVal
-                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)?.toIntOrNull()
-            } else null
-        }
-        val shortcutCategoryId = intent?.let {
-            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)) {
-                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID, 0)
-                if (intVal != 0) intVal
-                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)?.toIntOrNull()
-            } else null
-        }
-        val shortcutAmount = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_AMOUNT)
-        val shortcutNote = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_NOTE)
-
-        val appSettings by AppSettingsDataStore
-            .getAppSettingsFlow(context)
-            .collectAsStateWithLifecycle(initialValue = null)
-        val userProfile by UserProfileDataStore
-            .getUserProfileFlow(context)
-            .collectAsStateWithLifecycle(initialValue = defaultUserProfile)
-            
-        val systemDarkTheme = isSystemInDarkTheme()
-        val syncTheme = remember { ThemePreferenceSync.getTheme(context) }
-        
-        val darkTheme = if (appSettings == null) {
-            when (syncTheme) {
-                "LIGHT" -> false
-                "DARK" -> true
-                else -> systemDarkTheme
-            }
-        } else {
-            when (appSettings!!.themeMode) {
-                AppThemeMode.SYSTEM -> systemDarkTheme
-                AppThemeMode.LIGHT -> false
-                AppThemeMode.DARK -> true
-            }
-        }
-
-        // Keep AppCompat's night mode, which is what decides whether the window is built
-        // from `values/` or `values-night/`, in step with the theme the user actually chose.
-        // `ThemePreferenceSync` is the synchronous copy MainActivity reads before
-        // `super.onCreate`, so it is written here too. Without this the window can be built
-        // from the night theme while the app paints light, and the light theme's declared
-        // `windowLightStatusBar` never reaches the window - the status bar icons stayed white.
-        val themeMode = appSettings?.themeMode
-        LaunchedEffect(themeMode) {
-            if (themeMode == null) return@LaunchedEffect
-            val mode = when (themeMode) {
-                AppThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-                AppThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
-                AppThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            }
-            ThemePreferenceSync.setTheme(context, themeMode.name)
-            if (AppCompatDelegate.getDefaultNightMode() != mode) {
-                AppCompatDelegate.setDefaultNightMode(mode)
-            }
-        }
-
-        DisposableEffect(darkTheme) {
-            enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.auto(
-                    android.graphics.Color.TRANSPARENT,
-                    android.graphics.Color.TRANSPARENT,
-                    detectDarkMode = { darkTheme }
-                ),
-                navigationBarStyle = SystemBarStyle.auto(
-                    android.graphics.Color.TRANSPARENT,
-                    android.graphics.Color.TRANSPARENT,
-                    detectDarkMode = { darkTheme }
-                )
-            )
-            onDispose { }
-        }
-
-        // Dynamic typography based on font preference
-        val fontMode = appSettings?.fontMode ?: com.mknlabs.expensetracker.models.FontMode.APP
-        val customFontFileName = appSettings?.activeCustomFontFileName
-        val customFontFamily = remember(customFontFileName) {
-            customFontFileName?.let {
-                com.mknlabs.expensetracker.utils.FontFileHelper.loadFontFamily(context, it)
-            }
-        }
-        val dynamicTypography = remember(fontMode, customFontFileName) {
-            com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
-        }
-
-        ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
-            CompositionLocalProvider(
-                LocalAppWindowInfo provides rememberAppWindowInfo(),
-                LocalFontScaleInfo provides rememberFontScaleInfo()
-            ) {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-            ) {
-                appSettings?.let { settings ->
-                    LaunchedEffect(
-                        settings.blurInRecentsEnabled,
-                        settings.screenshotProtectionEnabled
-                    ) {
-                        applyPrivacySettings(
-                            shouldBlurInRecents = settings.blurInRecentsEnabled,
-                            shouldBlockScreenshots = settings.screenshotProtectionEnabled
-                        )
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when {
-                        isUnderMaintenance -> {
-                            MaintenanceScreen()
-                        }
-                        isUpdateRequired -> {
-                            UpdateRequiredScreen(onUpdateClick = {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${packageName}"))
-                                    startActivity(intent)
-                                } catch (e: Exception) {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${packageName}"))
-                                    startActivity(intent)
-                                }
-                            })
-                        }
-                        isReady && appSettings != null -> {
-                            val settings = appSettings!!
-                            
-                            // Layer 1: Main App Content (Always in composition to preserve NavController state)
-                            MainScreen(
-                                isReady = true,
-                                appSettings = settings,
-                                userProfile = userProfile,
-                                initialNavDestination = initialNavDestination,
-                                initialAddTransactionAmount = initialAddTransactionAmount,
-                                initialAddTransactionNote = initialAddTransactionNote,
-                                initialAddTransactionCategoryId = initialAddTransactionCategoryId,
-                                initialAddTransactionTypeId = initialAddTransactionTypeId,
-                                initialParsedSms = initialParsedSms,
-                                initialSmsInboxDetectionId = initialSmsInboxDetectionId,
-                                initialSmsInboxOpenEditor = initialSmsInboxOpenEditor,
-                                notificationIntent = intent,
-                                isRecoveryPerformed = recoveryPerformed,
-                                onRecoveryConsumed = { appLockViewModel.consumeRecovery() },
-                                shortcutAction = shortcutAction,
-                                shortcutTransactionTypeId = shortcutTransactionTypeId,
-                                shortcutCategoryId = shortcutCategoryId,
-                                shortcutAmount = shortcutAmount,
-                                shortcutNote = shortcutNote,
-                                // Suppress MainScreen's root-level bottom sheets/dialogs while
-                                // the cold-start/auto-lock overlay is active: any dialog window
-                                // created AFTER the lock's own window would cover the lock.
-                                isAppLockActive = appLockState !is AppLockState.Unlocked
-                            )
-
-                            // Layer 2: App Lock Overlay
-                            AnimatedContent(
-                                targetState = appLockState,
-                                transitionSpec = {
-                                    if (targetState is AppLockState.Unlocked) {
-                                        (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
-                                            scaleIn(
-                                                initialScale = 0.92f,
-                                                animationSpec = tween(500, easing = LinearOutSlowInEasing)
-                                            ))
-                                            .togetherWith(
-                                                fadeOut(animationSpec = tween(400)) +
-                                                    scaleOut(
-                                                        targetScale = 1.08f,
-                                                        animationSpec = tween(400)
-                                                    )
-                                            )
-                                    } else {
-                                        fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
-                                            animationSpec = tween(300)
-                                        )
-                                    }
-                                },
-                                label = "app_lock_transition",
-                                modifier = Modifier.fillMaxSize()
-                            ) { state ->
-                                when (state) {
-                                    is AppLockState.Loading -> {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(AppLockLoadingBackground)
-                                        )
-                                    }
-
-                                    is AppLockState.Locked -> {
-                                        val biometricAuthenticator = remember(activity) {
-                                            activity?.let(BiometricAuthManager::createAuthenticator)
-                                        }
-
-                                        AppLockOverlay(
-                                            isReady = true,
-                                            appSettings = settings,
-                                            // Non-null onDismiss switches AppLockOverlay into its
-                                            // fullscreen Dialog mode: the lock renders in its OWN
-                                            // window, created after any open ModalBottomSheet /
-                                            // AlertDialog, so it always sits ABOVE them (an inline
-                                            // overlay inside the main window would be hidden behind
-                                            // bottom sheets, which live in separate dialog windows).
-                                            onDismiss = {},
-                                            onUnlockSuccess = { appLockViewModel.unlock() },
-                                            autoTriggerBiometricOnShow = true,
-                                            onBiometricClick = {
-                                                biometricAuthenticator?.authenticate(
-                                                    title = context.getString(R.string.title_unlock_expense_tracker),
-                                                    subtitle = context.getString(R.string.title_verify_your_biometric_to_conti),
-                                                    negativeButtonText = context.getString(R.string.btn_use_pin),
-                                                    onSuccess = { appLockViewModel.unlock() }
-                                                )
-                                            },
-                                            onForgotPinRecovery = appLockViewModel::disableLock,
-                                            pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL,
-                                            scrambledPinKeypadEnabled = effectiveUserTier == UserTier.PREMIUM
-                                        )
-                                    }
-
-                                    is AppLockState.Unlocked -> {
-                                        // Empty Box when unlocked to reveal MainScreen underneath
-                                        Box(Modifier.fillMaxSize())
-                                    }
-                                }
-                            }
-                        }
-                        !isReady -> {
-                            SplashOverlay(viewModel = splashViewModel)
-                        }
-                    }
-                }
-
-                // In-app update dialog (Firebase Remote Config driven). Optional
-                // updates show once per launch; force updates cannot be dismissed.
-                // Suppressed while the app lock overlay is active so the lock's
-                // own dialog window always stays on top.
-                val updateAvailable = updateState as? UpdateUiState.UpdateAvailable
-                if (isReady && updateAvailable != null && appLockState is AppLockState.Unlocked) {
-                    UpdateDialog(
-                        info = updateAvailable.info,
-                        force = updateAvailable.force,
-                        onUpdateNow = {
-                            PlayStoreLink.openPlayStore(context)
-                            updateViewModel.onUpdateNow()
-                        },
-                        onLater = updateViewModel::onLater
-                    )
-                }
-            }
-            }
-        }
-    }
-
-    private fun applyPrivacySettings(
-        shouldBlurInRecents: Boolean,
-        shouldBlockScreenshots: Boolean
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            setRecentsScreenshotEnabled(!shouldBlurInRecents)
-        }
-
-        val shouldUseSecureFlag = shouldBlockScreenshots ||
-            (shouldBlurInRecents && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-
-        if (shouldUseSecureFlag) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
-}
+package com.mknlabs.expensetracker
+
+import android.content.Intent
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import android.view.WindowManager
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
+import com.mknlabs.expensetracker.models.AppThemeMode
+import com.mknlabs.expensetracker.models.defaultUserProfile
+import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.sms.ParsedSms
+import com.mknlabs.expensetracker.sms.SmsNotificationManager
+import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
+import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
+import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
+import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
+import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
+import com.mknlabs.expensetracker.utils.PlayStoreLink
+import android.net.Uri
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.utils.BiometricAuthManager
+import com.mknlabs.expensetracker.utils.findFragmentActivity
+import com.mknlabs.expensetracker.utils.ThemePreferenceSync
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.mknlabs.expensetracker.feature.auth.ui.InitTask
+import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
+import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
+import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
+import com.mknlabs.expensetracker.core.ui.theme.AppLockLoadingBackground
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
+
+import androidx.activity.SystemBarStyle
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
+import com.mknlabs.expensetracker.monetization.AdsCoordinator
+import com.google.firebase.auth.FirebaseAuth
+import com.mknlabs.expensetracker.domain.repository.AuthRepository
+import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
+import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+import com.mknlabs.expensetracker.models.PinVisualMode
+import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var adsCoordinator: AdsCoordinator
+
+    @Inject
+    lateinit var authRepository: AuthRepository
+
+    private val splashViewModel: SplashViewModel by viewModels()
+    private val appLockViewModel: AppLockViewModel by viewModels()
+    
+    // AuthViewModel is provided at the Composable level to avoid activity scope leaks,
+    // but we can use it to handle incoming intents.
+    private var currentIntent by mutableStateOf<Intent?>(null)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        android.util.Log.d("AUTH", "MainActivity: onCreate")
+        // Task 2: Apply Theme BEFORE super.onCreate()
+        val syncTheme = ThemePreferenceSync.getTheme(this)
+        val mode = when (syncTheme) {
+            "LIGHT" -> AppCompatDelegate.MODE_NIGHT_NO
+            "DARK" -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        AppCompatDelegate.setDefaultNightMode(mode)
+
+        val splashScreen = installSplashScreen()
+        
+        splashScreen.setKeepOnScreenCondition {
+            splashViewModel.currentTask.value == InitTask.Start
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
+                splashScreenViewProvider.view
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(180L)
+                    .withEndAction { splashScreenViewProvider.remove() }
+                    .start()
+            }
+        }
+
+        super.onCreate(savedInstanceState)
+        
+        currentIntent = intent
+
+        // Benchmark hooks (ADS_UI_JANK_FIX_PLAN Phase 0): BuildConfig.BUILD_TYPE is a
+        // compile-time constant, so R8 constant-folds this gate to false and strips the
+        // whole block (and BenchmarkHooks) from release/debug APKs — it only exists in the
+        // non-debuggable "benchmark" build type that Macrobenchmark measures.
+        if (BuildConfig.BUILD_TYPE == "benchmark") {
+            BenchmarkHooks.readExtras(intent)
+            BenchmarkHooks.prepare(this)
+        }
+
+        // Monitor Firebase Auth State
+        com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            android.util.Log.d("AUTH", "Firebase Auth State Change")
+        }
+
+        // Initialize AdMob with Privacy Flow (UMP)
+        adsCoordinator.initPrivacyFlow(this) {
+            // Ads are ready to be loaded or SDK is initialized
+        }
+
+        enableEdgeToEdge()
+
+        setContent {
+            AppRoot(splashViewModel, appLockViewModel, currentIntent)
+        }
+
+        // Hide the status bar in landscape (immersive), restore it in portrait.
+        applyImmersiveStatusBarForLandscape()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        android.util.Log.d("AUTH", "MainActivity: onResume")
+        // System UI can be restored (e.g. after notification shade or returning
+        // from another app), so re-apply the landscape immersive state.
+        applyImmersiveStatusBarForLandscape()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // MainActivity handles config changes itself (android:configChanges), so
+        // rotation reaches us here instead of recreating the activity.
+        applyImmersiveStatusBarForLandscape()
+    }
+
+    private fun applyImmersiveStatusBarForLandscape() {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        val isLandscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (isLandscape) {
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.statusBars())
+        } else {
+            controller.show(WindowInsetsCompat.Type.statusBars())
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        android.util.Log.d("AUTH", "MainActivity: onStart")
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Keep the activity's intent property in sync with the Compose state so
+        // any code reading `intent` directly (e.g. in onResume) sees the latest
+        // notification tap instead of the stale creation-time intent.
+        setIntent(intent)
+        currentIntent = intent
+    }
+
+    @Composable
+    private fun AppRoot(
+        splashViewModel: SplashViewModel,
+        appLockViewModel: AppLockViewModel,
+        intent: Intent?
+    ) {
+        val isReady by splashViewModel.isReady.collectAsStateWithLifecycle()
+        var splashGone by remember { mutableStateOf(false) }
+        val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsStateWithLifecycle()
+        val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsStateWithLifecycle()
+        val appLockState by appLockViewModel.state.collectAsStateWithLifecycle()
+        val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsStateWithLifecycle()
+        val context = LocalContext.current
+        val activity = context.findFragmentActivity()
+        
+        // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
+        val authViewModel: AuthViewModel = hiltViewModel()
+        val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+        val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
+        val updateViewModel: UpdateViewModel = hiltViewModel()
+        val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
+        
+        val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
+
+        // Smart SMS Import "Open" action prefill (plan §8) — amount + note + category + type draft.
+        val initialAddTransactionAmount = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_AMOUNT)
+        val initialAddTransactionNote = intent?.getStringExtra(SmsNotificationManager.EXTRA_OPEN_NOTE)
+        val initialAddTransactionCategoryId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID) == true) {
+            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_CATEGORY_ID, 0)
+        } else null
+        val initialAddTransactionTypeId = if (intent?.hasExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID) == true) {
+            intent.getIntExtra(SmsNotificationManager.EXTRA_OPEN_TRANSACTION_TYPE_ID, 0)
+        } else null
+
+        // Smart SMS Import "Change" action payload (plan §8 / Phase 4) — the
+        // full ParsedSms rides in PendingIntent extras and is consumed by the
+        // lightweight Change bottom sheet. Null for every other launch path.
+        val initialParsedSms: ParsedSms? = intent?.toParsedSms()
+
+        // Detected-SMS notification focus (plan §8): the inbox row the card's tap — or
+        // its Edit action — was about. Absent for every other launch path.
+        val initialSmsInboxDetectionId = intent?.getStringExtra(SmsNotificationManager.EXTRA_DETECTION_ID)
+        val initialSmsInboxOpenEditor =
+            intent?.getBooleanExtra(SmsNotificationManager.EXTRA_OPEN_EDITOR, false) == true
+
+        // Handle App Shortcut Intents
+        val shortcutAction = intent?.action
+        val shortcutTransactionTypeId = intent?.let {
+            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)) {
+                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID, 0)
+                if (intVal != 0) intVal
+                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_TRANSACTION_TYPE_ID)?.toIntOrNull()
+            } else null
+        }
+        val shortcutCategoryId = intent?.let {
+            if (it.hasExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)) {
+                val intVal = it.getIntExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID, 0)
+                if (intVal != 0) intVal
+                else it.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_CATEGORY_ID)?.toIntOrNull()
+            } else null
+        }
+        val shortcutAmount = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_AMOUNT)
+        val shortcutNote = intent?.getStringExtra(com.mknlabs.expensetracker.utils.AppShortcutManager.EXTRA_NOTE)
+
+        val appSettings by AppSettingsDataStore
+            .getAppSettingsFlow(context)
+            .collectAsStateWithLifecycle(initialValue = null)
+        val userProfile by UserProfileDataStore
+            .getUserProfileFlow(context)
+            .collectAsStateWithLifecycle(initialValue = defaultUserProfile)
+            
+        val systemDarkTheme = isSystemInDarkTheme()
+        val syncTheme = remember { ThemePreferenceSync.getTheme(context) }
+        
+        val darkTheme = if (appSettings == null) {
+            when (syncTheme) {
+                "LIGHT" -> false
+                "DARK" -> true
+                else -> systemDarkTheme
+            }
+        } else {
+            when (appSettings!!.themeMode) {
+                AppThemeMode.SYSTEM -> systemDarkTheme
+                AppThemeMode.LIGHT -> false
+                AppThemeMode.DARK -> true
+            }
+        }
+
+        // Keep AppCompat's night mode, which is what decides whether the window is built
+        // from `values/` or `values-night/`, in step with the theme the user actually chose.
+        // `ThemePreferenceSync` is the synchronous copy MainActivity reads before
+        // `super.onCreate`, so it is written here too. Without this the window can be built
+        // from the night theme while the app paints light, and the light theme's declared
+        // `windowLightStatusBar` never reaches the window - the status bar icons stayed white.
+        val themeMode = appSettings?.themeMode
+        LaunchedEffect(themeMode) {
+            if (themeMode == null) return@LaunchedEffect
+            val mode = when (themeMode) {
+                AppThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                AppThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                AppThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+            ThemePreferenceSync.setTheme(context, themeMode.name)
+            if (AppCompatDelegate.getDefaultNightMode() != mode) {
+                AppCompatDelegate.setDefaultNightMode(mode)
+            }
+        }
+
+        DisposableEffect(darkTheme) {
+            enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT,
+                    detectDarkMode = { darkTheme }
+                ),
+                navigationBarStyle = SystemBarStyle.auto(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT,
+                    detectDarkMode = { darkTheme }
+                )
+            )
+            onDispose { }
+        }
+
+        // Dynamic typography based on font preference
+        val fontMode = appSettings?.fontMode ?: com.mknlabs.expensetracker.models.FontMode.APP
+        val customFontFileName = appSettings?.activeCustomFontFileName
+        val customFontFamily = remember(customFontFileName) {
+            customFontFileName?.let {
+                com.mknlabs.expensetracker.utils.FontFileHelper.loadFontFamily(context, it)
+            }
+        }
+        val dynamicTypography = remember(fontMode, customFontFileName) {
+            com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
+        }
+
+        ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
+            CompositionLocalProvider(
+                LocalAppWindowInfo provides rememberAppWindowInfo(),
+                LocalFontScaleInfo provides rememberFontScaleInfo()
+            ) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+            ) {
+                appSettings?.let { settings ->
+                    LaunchedEffect(
+                        settings.blurInRecentsEnabled,
+                        settings.screenshotProtectionEnabled
+                    ) {
+                        applyPrivacySettings(
+                            shouldBlurInRecents = settings.blurInRecentsEnabled,
+                            shouldBlockScreenshots = settings.screenshotProtectionEnabled
+                        )
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when {
+                        isUnderMaintenance -> {
+                            MaintenanceScreen()
+                        }
+                        isUpdateRequired -> {
+                            UpdateRequiredScreen(onUpdateClick = {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${packageName}"))
+                                    startActivity(intent)
+                                } catch (e: Exception) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${packageName}"))
+                                    startActivity(intent)
+                                }
+                            })
+                        }
+                        isReady && appSettings != null -> {
+                            val settings = appSettings!!
+                            
+                            // Layer 1: Main App Content (Always in composition to preserve NavController state)
+                            MainScreen(
+                                isReady = true,
+                                appSettings = settings,
+                                userProfile = userProfile,
+                                initialNavDestination = initialNavDestination,
+                                initialAddTransactionAmount = initialAddTransactionAmount,
+                                initialAddTransactionNote = initialAddTransactionNote,
+                                initialAddTransactionCategoryId = initialAddTransactionCategoryId,
+                                initialAddTransactionTypeId = initialAddTransactionTypeId,
+                                initialParsedSms = initialParsedSms,
+                                initialSmsInboxDetectionId = initialSmsInboxDetectionId,
+                                initialSmsInboxOpenEditor = initialSmsInboxOpenEditor,
+                                notificationIntent = intent,
+                                isRecoveryPerformed = recoveryPerformed,
+                                onRecoveryConsumed = { appLockViewModel.consumeRecovery() },
+                                shortcutAction = shortcutAction,
+                                shortcutTransactionTypeId = shortcutTransactionTypeId,
+                                shortcutCategoryId = shortcutCategoryId,
+                                shortcutAmount = shortcutAmount,
+                                shortcutNote = shortcutNote,
+                                // Suppress MainScreen's root-level bottom sheets/dialogs while
+                                // the cold-start/auto-lock overlay is active: any dialog window
+                                // created AFTER the lock's own window would cover the lock.
+                                isAppLockActive = appLockState !is AppLockState.Unlocked
+                            )
+
+                            // Layer 2: App Lock Overlay
+                            AnimatedContent(
+                                targetState = appLockState,
+                                transitionSpec = {
+                                    if (targetState is AppLockState.Unlocked) {
+                                        (fadeIn(animationSpec = tween(500, easing = LinearOutSlowInEasing)) +
+                                            scaleIn(
+                                                initialScale = 0.92f,
+                                                animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                                            ))
+                                            .togetherWith(
+                                                fadeOut(animationSpec = tween(400)) +
+                                                    scaleOut(
+                                                        targetScale = 1.08f,
+                                                        animationSpec = tween(400)
+                                                    )
+                                            )
+                                    } else {
+                                        fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
+                                            animationSpec = tween(300)
+                                        )
+                                    }
+                                },
+                                label = "app_lock_transition",
+                                modifier = Modifier.fillMaxSize()
+                            ) { state ->
+                                when (state) {
+                                    is AppLockState.Loading -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(AppLockLoadingBackground)
+                                        )
+                                    }
+
+                                    is AppLockState.Locked -> {
+                                        val biometricAuthenticator = remember(activity) {
+                                            activity?.let(BiometricAuthManager::createAuthenticator)
+                                        }
+
+                                        AppLockOverlay(
+                                            isReady = true,
+                                            appSettings = settings,
+                                            // Non-null onDismiss switches AppLockOverlay into its
+                                            // fullscreen Dialog mode: the lock renders in its OWN
+                                            // window, created after any open ModalBottomSheet /
+                                            // AlertDialog, so it always sits ABOVE them (an inline
+                                            // overlay inside the main window would be hidden behind
+                                            // bottom sheets, which live in separate dialog windows).
+                                            onDismiss = {},
+                                            onUnlockSuccess = { appLockViewModel.unlock() },
+                                            autoTriggerBiometricOnShow = true,
+                                            onBiometricClick = {
+                                                biometricAuthenticator?.authenticate(
+                                                    title = context.getString(R.string.title_unlock_expense_tracker),
+                                                    subtitle = context.getString(R.string.title_verify_your_biometric_to_conti),
+                                                    negativeButtonText = context.getString(R.string.btn_use_pin),
+                                                    onSuccess = { appLockViewModel.unlock() }
+                                                )
+                                            },
+                                            onForgotPinRecovery = appLockViewModel::disableLock,
+                                            pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL,
+                                            scrambledPinKeypadEnabled = effectiveUserTier == UserTier.PREMIUM
+                                        )
+                                    }
+
+                                    is AppLockState.Unlocked -> {
+                                        // Empty Box when unlocked to reveal MainScreen underneath
+                                        Box(Modifier.fillMaxSize())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!splashGone && !isUnderMaintenance && !isUpdateRequired) {
+                        SplashOverlay(
+                            viewModel = splashViewModel,
+                            onExitFinished = { splashGone = true },
+                        )
+                    }
+                }
+
+                // In-app update dialog (Firebase Remote Config driven). Optional
+                // updates show once per launch; force updates cannot be dismissed.
+                // Suppressed while the app lock overlay is active so the lock's
+                // own dialog window always stays on top.
+                val updateAvailable = updateState as? UpdateUiState.UpdateAvailable
+                if (isReady && updateAvailable != null && appLockState is AppLockState.Unlocked) {
+                    UpdateDialog(
+                        info = updateAvailable.info,
+                        force = updateAvailable.force,
+                        onUpdateNow = {
+                            PlayStoreLink.openPlayStore(context)
+                            updateViewModel.onUpdateNow()
+                        },
+                        onLater = updateViewModel::onLater
+                    )
+                }
+            }
+            }
+        }
+    }
+
+    private fun applyPrivacySettings(
+        shouldBlurInRecents: Boolean,
+        shouldBlockScreenshots: Boolean
+    ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setRecentsScreenshotEnabled(!shouldBlurInRecents)
+        }
+
+        val shouldUseSecureFlag = shouldBlockScreenshots ||
+            (shouldBlurInRecents && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+
+        if (shouldUseSecureFlag) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+}

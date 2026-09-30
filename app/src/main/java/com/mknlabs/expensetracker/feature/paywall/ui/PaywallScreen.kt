@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,8 +57,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -334,13 +335,26 @@ internal fun PaywallContent(
 
 @Composable
 private fun RenewalDisclosure() {
-    Text(
-        text = stringResource(R.string.msg_paywall_renewal_disclosure),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
+    Column(
         modifier = Modifier.fillMaxWidth(),
-    )
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.msg_paywall_renewal_disclosure),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            text = stringResource(R.string.msg_paywall_play_account_billing),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 /**
@@ -393,20 +407,13 @@ private fun PaywallHero() {
             modifier = Modifier
                 .size(64.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.accentInk,
-                            MaterialTheme.colorScheme.secondary,
-                        )
-                    )
-                ),
+                .background(brush = brandGradient()),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Filled.AutoAwesome,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onCta,
                 modifier = Modifier.size(32.dp),
             )
         }
@@ -495,9 +502,16 @@ private fun PlanCard(
     isEnabled: Boolean,
     onSelect: () -> Unit,
 ) {
+    val shape = RoundedCornerShape(Dimens.CardRadius)
+    val selectedBorder = Modifier.border(width = 1.dp, brush = brandGradient(), shape = shape)
+    val idleBorder = Modifier.border(
+        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+        shape,
+    )
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (isSelected) selectedBorder else idleBorder)
             // `selectable` rather than a plain click: it publishes the selected state to
             // accessibility services with a radio-button role, so the choice is announced
             // instead of just looking different.
@@ -507,7 +521,7 @@ private fun PlanCard(
                 role = Role.RadioButton,
                 onClick = onSelect,
             ),
-        shape = RoundedCornerShape(Dimens.CardRadius),
+        shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
@@ -515,14 +529,8 @@ private fun PlanCard(
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             },
         ),
-        border = BorderStroke(
-            width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) {
-                MaterialTheme.colorScheme.accentInk
-            } else {
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-            },
-        ),
+        border = null,
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
@@ -594,32 +602,47 @@ private fun SubscribeAction(
     isLoading: Boolean,
     onSubscribeClick: () -> Unit,
 ) {
+    val shape = RoundedCornerShape(20.dp)
+    val enabled = isEnabled && !isLoading
     Button(
         onClick = onSubscribeClick,
-        enabled = isEnabled && !isLoading,
-        shape = RoundedCornerShape(20.dp),
+        enabled = enabled,
+        shape = shape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.accentInk,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onCta,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = MaterialTheme.colorScheme.onCta.copy(alpha = 0.6f),
         ),
+        contentPadding = PaddingValues(0.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
     ) {
-        if (isLoading) {
-            val openingStore = stringResource(R.string.content_desc_opening_play_store)
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(24.dp)
-                    .semantics { contentDescription = openingStore },
-                color = MaterialTheme.colorScheme.onPrimary,
-                strokeWidth = 2.dp,
-            )
-        } else {
-            Text(
-                text = stringResource(R.string.btn_paywall_subscribe),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(shape)
+                .alpha(if (enabled) 1f else 0.45f)
+                .background(brush = brandGradient()),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isLoading) {
+                val openingStore = stringResource(R.string.content_desc_opening_play_store)
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .semantics { contentDescription = openingStore },
+                    color = MaterialTheme.colorScheme.onCta,
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.btn_paywall_subscribe),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onCta,
+                )
+            }
         }
     }
 }
@@ -719,19 +742,23 @@ private val PaywallPreviewState = PaywallUiState(
             id = "monthly",
             planLabelRes = R.string.paywall_plan_monthly,
             periodLabelRes = R.string.paywall_period_month,
-            priceText = "₹149.00",
+            priceText = "₹99.00",
         ),
         SubscriptionOffer(
             id = "six_months",
             planLabelRes = R.string.paywall_plan_six_months,
             periodLabelRes = R.string.paywall_period_months,
-            priceText = "₹749.00",
+            priceText = "₹474.00",
+            discountPercent = 20,
+            strikethroughPriceText = "₹594.00",
         ),
         SubscriptionOffer(
             id = "annual",
             planLabelRes = R.string.paywall_plan_twelve_months,
             periodLabelRes = R.string.paywall_period_year,
-            priceText = "₹1,299.00",
+            priceText = "₹708.00",
+            discountPercent = 40,
+            strikethroughPriceText = "₹1188.00",
         ),
     ),
     isLoadingOffers = false,

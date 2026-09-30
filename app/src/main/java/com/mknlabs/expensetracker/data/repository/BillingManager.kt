@@ -12,6 +12,8 @@ import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 import com.mknlabs.expensetracker.monetization.SubscriptionOfferMapper
+import com.mknlabs.expensetracker.monetization.billingPeriodMonths
+import com.mknlabs.expensetracker.monetization.comparisonFromMonthly
 import com.mknlabs.expensetracker.monetization.discountPercentOf
 import com.mknlabs.expensetracker.monetization.toPurchaseState
 import com.mknlabs.expensetracker.workers.SyncWorker
@@ -153,15 +155,33 @@ class BillingManager @Inject constructor(
      */
     override val offers: StateFlow<List<SubscriptionOffer>> = _offerings
         .map { offerings ->
-            offerings?.current?.availablePackages.orEmpty().map { pkg ->
+            val packages = offerings?.current?.availablePackages.orEmpty()
+            val monthly = packages.firstOrNull { it.packageType.name == "MONTHLY" }
+            val monthlyFormatted = monthly?.product?.price?.formatted
+            val monthlyMicros = monthly?.product?.price?.amountMicros
+            packages.map { pkg ->
                 val pricing = planPricing(pkg.product)
-
+                val months = billingPeriodMonths(pkg.packageType.name)
+                val comparison = if (
+                    pricing.strikethroughPriceText == null &&
+                    monthlyFormatted != null &&
+                    monthlyMicros != null
+                ) {
+                    comparisonFromMonthly(
+                        monthlyFormatted = monthlyFormatted,
+                        monthlyMicros = monthlyMicros,
+                        months = months,
+                        saleMicros = pkg.product.price.amountMicros,
+                    )
+                } else {
+                    null
+                }
                 SubscriptionOfferMapper.from(
                     packageIdentifier = pkg.identifier,
                     packageTypeName = pkg.packageType.name,
                     storeFormattedPrice = pricing.priceText,
-                    discountPercent = pricing.discountPercent,
-                    strikethroughPriceText = pricing.strikethroughPriceText,
+                    discountPercent = pricing.discountPercent ?: comparison?.discountPercent,
+                    strikethroughPriceText = pricing.strikethroughPriceText ?: comparison?.listPriceText,
                 )
             }
         }

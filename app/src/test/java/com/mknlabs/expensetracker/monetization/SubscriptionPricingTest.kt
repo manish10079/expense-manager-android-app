@@ -74,4 +74,41 @@ class SubscriptionPricingTest {
             discountPercentOf(fullPriceMicros = 100_000L, discountedPriceMicros = 99_999L)
         )
     }
+
+    @Test
+    fun `six months list price is monthly times six`() {
+        assertEquals("₹594.00", scalePriceText("₹99.00", 6))
+        assertEquals(6, billingPeriodMonths("SIX_MONTH"))
+    }
+
+    @Test
+    fun `annual list price is monthly times twelve`() {
+        assertEquals("₹1188.00", scalePriceText("₹99.00", 12))
+        assertEquals(12, billingPeriodMonths("ANNUAL"))
+    }
+
+    @Test
+    fun `comparison uses monthly as the base when the store has no own discount`() {
+        val comparison = comparisonFromMonthly(
+            monthlyFormatted = "₹99.00",
+            monthlyMicros = 99_000_000L,
+            months = 6,
+            saleMicros = 474_000_000L,
+        )
+        assertEquals("₹594.00", comparison?.listPriceText)
+        assertEquals(20, comparison?.discountPercent)
+    }
+
+    @Test
+    fun `monthly itself has no comparison strikethrough`() {
+        assertEquals(
+            null,
+            comparisonFromMonthly(
+                monthlyFormatted = "₹99.00",
+                monthlyMicros = 99_000_000L,
+                months = 1,
+                saleMicros = 99_000_000L,
+            )
+        )
+    }
 }

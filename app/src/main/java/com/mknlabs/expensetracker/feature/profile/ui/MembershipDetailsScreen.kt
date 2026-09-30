@@ -94,6 +94,7 @@ import com.mknlabs.expensetracker.monetization.StoreEntitlement
 @Composable
 fun MembershipDetailsScreen(
     userTier: UserTier = UserTier.FREE,
+    accountTier: String = "",
     proExpiryTimestamp: Long = 0L,
     isAnonymous: Boolean = false,
     onBackClick: () -> Unit = {},
@@ -129,6 +130,7 @@ fun MembershipDetailsScreen(
 
     MembershipDetailsContent(
         userTier = userTier,
+        accountTier = accountTier,
         proExpiryTimestamp = proExpiryTimestamp,
         isAnonymous = isAnonymous,
         storeEntitlement = storeEntitlement,
@@ -143,6 +145,7 @@ fun MembershipDetailsScreen(
 @Composable
 internal fun MembershipDetailsContent(
     userTier: UserTier,
+    accountTier: String = "",
     proExpiryTimestamp: Long,
     isAnonymous: Boolean,
     storeEntitlement: StoreEntitlement?,
@@ -155,7 +158,12 @@ internal fun MembershipDetailsContent(
         userTier = userTier,
         isAnonymous = isAnonymous,
         // The entitlement itself, not a cached boolean: the card needs its date too.
-        hasActiveStoreSubscription = storeEntitlement != null
+        hasActiveStoreSubscription = storeEntitlement != null,
+        hasProPassGrant = com.mknlabs.expensetracker.monetization.EntitlementResolver.hasActiveProPassGrant(
+            accountTier = accountTier,
+            proExpiryTimestamp = proExpiryTimestamp,
+            now = System.currentTimeMillis(),
+        ),
     )
     val isPremium = status.isPro
     val colorScheme = MaterialTheme.colorScheme

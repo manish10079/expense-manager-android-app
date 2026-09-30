@@ -64,6 +64,7 @@ class MembershipDetailsRenderTest {
 
     private fun renderScreen(
         userTier: UserTier = UserTier.FREE,
+        accountTier: String = "",
         proExpiryTimestamp: Long = 0L,
         isAnonymous: Boolean = false,
         storeEntitlement: StoreEntitlement? = null,
@@ -76,6 +77,7 @@ class MembershipDetailsRenderTest {
                 CompositionLocalProvider(LocalUpgradeToPro provides onUpgradeToPro) {
                     MembershipDetailsContent(
                         userTier = userTier,
+                        accountTier = accountTier,
                         proExpiryTimestamp = proExpiryTimestamp,
                         isAnonymous = isAnonymous,
                         storeEntitlement = storeEntitlement,
@@ -213,6 +215,7 @@ class MembershipDetailsRenderTest {
 
         renderScreen(
             userTier = UserTier.PREMIUM,
+            accountTier = "Pro_Pass",
             proExpiryTimestamp = passExpiry,
             storeEntitlement = null,
             onUpgradeToPro = { paywallOpened = true }
@@ -278,7 +281,7 @@ class MembershipDetailsRenderTest {
         // arrives — the screen cannot know they subscribe yet, so it resolves the one state
         // it can justify. Worth knowing: no date is printed either way, which is the property
         // this test pins.
-        renderScreen(userTier = UserTier.PREMIUM, proExpiryTimestamp = 0L, storeEntitlement = null)
+        renderScreen(userTier = UserTier.PREMIUM, accountTier = "PREMIUM", proExpiryTimestamp = 0L, storeEntitlement = null)
 
         compose.onNodeWithText(text(R.string.label_membership_pass_headline)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.msg_pro_active_no_expiry)).assertIsDisplayed()

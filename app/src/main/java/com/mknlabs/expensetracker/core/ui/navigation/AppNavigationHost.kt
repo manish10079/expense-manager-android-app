@@ -805,6 +805,7 @@ fun AppNavigationHost(
                     val isAnonymousUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isAnonymous ?: true
                     MembershipDetailsScreen(
                         userTier = userTier,
+                        accountTier = userProfile.accountTier,
                         proExpiryTimestamp = userProfile.proExpiryTimestamp,
                         isAnonymous = isAnonymousUser,
                         // Whether Pro came from the store is read from the entitlement

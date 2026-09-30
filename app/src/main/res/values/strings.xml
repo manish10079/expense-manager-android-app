@@ -2070,7 +2070,8 @@
     <string name="btn_paywall_retry">Retry</string>
     <string name="content_desc_loading_plans">Loading plans</string>
     <string name="btn_paywall_subscribe">Subscribe</string>
-    <string name="msg_paywall_renewal_disclosure">Your subscription renews automatically until you cancel. Cancel anytime from Google Play.</string>
+    <string name="msg_paywall_renewal_disclosure">Your subscription renews automatically until you cancel. Cancel anytime from Google Play.</string>
+    <string name="msg_paywall_play_account_billing">Google Play bills the Google account signed in on this device. It is not charged to your Expense Tracker email.</string>
     <string name="msg_paywall_already_pro">You\'re on Pro. Thanks for supporting the app.</string>
     <string name="content_desc_paywall_plan_selected">Selected plan</string>
     <string name="paywall_plan_weekly">1 week</string>

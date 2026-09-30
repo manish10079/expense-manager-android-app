@@ -54,14 +54,13 @@ internal fun resolveMembershipStatus(
     userTier: UserTier,
     isAnonymous: Boolean,
     hasActiveStoreSubscription: Boolean,
+    hasProPassGrant: Boolean = false,
 ): MembershipStatus {
     if (isAnonymous) return MembershipStatus.OFFLINE
     if (userTier != UserTier.PREMIUM) return MembershipStatus.FREE
-    return if (hasActiveStoreSubscription) {
-        MembershipStatus.SUBSCRIPTION
-    } else {
-        MembershipStatus.PRO_PASS
-    }
+    if (hasActiveStoreSubscription) return MembershipStatus.SUBSCRIPTION
+    if (hasProPassGrant) return MembershipStatus.PRO_PASS
+    return MembershipStatus.FREE
 }
 
 /**
