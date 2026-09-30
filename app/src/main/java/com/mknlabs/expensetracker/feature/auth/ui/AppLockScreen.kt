@@ -545,9 +545,9 @@ private fun AppLockScreenContent(
     // Hoisted so the card can be scrolled to the answer field when the keyboard opens.
     val cardScrollState = rememberScrollState()
 
-    // Landscape phones are short: compact the keypad/dimensions so the layout
-    // fits without much scrolling (the card stays scrollable as a safety net).
-    val compact = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    // Always use standard portrait dimensions so AppLockOverlay and Security Questions
+    // screens render identically regardless of device orientation.
+    val compact = false
 
     // Tracks whether the answer field itself is focused. This is the deterministic trigger
     // for the keyboard layout (WindowInsets.isImeVisible can report false even with the IME
