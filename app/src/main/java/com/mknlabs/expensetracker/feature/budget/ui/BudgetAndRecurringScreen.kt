@@ -2179,7 +2179,10 @@ private fun BudgetCardAction(
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = stringResource(R.string.content_desc_locked_formatted, contentDescription ?: label ?: ""),
-                    tint = finalAccent.copy(alpha = 0.7f),
+                    // The gate's own ink, not the dimmed accent of the control it sits in: this
+                    // is the same gold the analytics period pill and the other locked controls
+                    // mark Pro-only options with, so "locked" looks the same wherever it appears.
+                    tint = MaterialTheme.colorScheme.featureGateLock,
                     modifier = Modifier.size(12.dp)
                 )
             }

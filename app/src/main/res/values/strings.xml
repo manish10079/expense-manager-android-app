@@ -533,7 +533,7 @@
     <string name="title_architecture">ARCHITECTURE</string>
     <string name="title_auto_backup">Auto Backup</string>
     <string name="title_automated_backup_every_val_day">Automated backup every %1$s days.</string>
-    <string name="title_avg_daily">AVG DAILY</string>
+    <string name="title_avg_daily">Daily Avg</string>
     <string name="title_backup">Backup</string>
     <string name="title_backup_frequency">Backup Frequency</string>
     <string name="title_blur_in_recents">Blur In Recents</string>
@@ -575,7 +575,7 @@
     <string name="title_rate_app">Rate App</string>
     <string name="title_report_bug">Report Bug</string>
     <string name="title_restore">Restore</string>
-    <string name="title_savings">SAVINGS</string>
+    <string name="title_savings">Savings</string>
     <string name="title_secure_private">Secure &amp; Private</string>
     <string name="title_security_privacy">Security &amp; Privacy</string>
     <string name="title_security_privacy_1">SECURITY &amp; PRIVACY</string>
@@ -1373,7 +1373,7 @@
     <string name="label_week_short_4">W4</string>
     <string name="label_week_short_5">W5</string>
     <string name="label_period_short">P%1$d</string>
-    <string name="format_percent">%1$s%%</string>
+    <string name="format_percent">(%1$s%%)</string>
     <string name="format_percent_signed">%1$s%2$s%%</string>
     <!-- Cash Flow Ratio card badge: the period's income to expense ratio, normalised to income = 1. -->
     <string name="format_cash_flow_ratio">%1$s Ratio</string>

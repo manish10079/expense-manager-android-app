@@ -24,8 +24,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -115,6 +118,7 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -350,17 +354,19 @@ fun AnalyticsScreenContent(
                     ) { status, onClick ->
                         val isLocked = status !is AccessStatus.Granted
                         Box {
-                            CategoryCard(
-                                modifier = Modifier.lockedBlur(isLocked),
-                                snapshot = snapshot,
-                                onViewAllClick = { isCategorySheetVisible = true },
-                                onShowTransactions = { id, label ->
-                                    selectedFilterId = id
-                                    selectedFilterLabel = label
-                                    filterByPayment = false
-                                    isTransactionSheetVisible = true
-                                }
-                            )
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                CategoryCard(
+                                    modifier = gated,
+                                    snapshot = snapshot,
+                                    onViewAllClick = { isCategorySheetVisible = true },
+                                    onShowTransactions = { id, label ->
+                                        selectedFilterId = id
+                                        selectedFilterLabel = label
+                                        filterByPayment = false
+                                        isTransactionSheetVisible = true
+                                    }
+                                )
+                            }
                             if (isLocked) {
                                 PremiumLockedOverlay(
                                     displayText = stringResource(id = R.string.label_unlock_breakdown),
@@ -378,17 +384,19 @@ fun AnalyticsScreenContent(
                     ) { status, onClick ->
                         val isLocked = status !is AccessStatus.Granted
                         Box {
-                            PaymentTypeCard(
-                                modifier = Modifier.lockedBlur(isLocked),
-                                snapshot = snapshot,
-                                onViewAllClick = { isPaymentSheetVisible = true },
-                                onShowTransactions = { id, label ->
-                                    selectedFilterId = id
-                                    selectedFilterLabel = label
-                                    filterByPayment = true
-                                    isTransactionSheetVisible = true
-                                }
-                            )
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                PaymentTypeCard(
+                                    modifier = gated,
+                                    snapshot = snapshot,
+                                    onViewAllClick = { isPaymentSheetVisible = true },
+                                    onShowTransactions = { id, label ->
+                                        selectedFilterId = id
+                                        selectedFilterLabel = label
+                                        filterByPayment = true
+                                        isTransactionSheetVisible = true
+                                    }
+                                )
+                            }
                             if (isLocked) {
                                 PremiumLockedOverlay(
                                     displayText = stringResource(id = R.string.label_unlock_breakdown),
@@ -423,12 +431,14 @@ fun AnalyticsScreenContent(
                     ) { status, onClick ->
                         Box {
                             val isLocked = status !is AccessStatus.Granted
-                            TopSpendingCard(
-                                modifier = Modifier.lockedBlur(isLocked),
-                                topTransactions = snapshot.topTransactions,
-                                dateFormatPattern = dateFormatPattern,
-                                onViewAllClick = { isTopSpendingSheetVisible = true }
-                            )
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                TopSpendingCard(
+                                    modifier = gated,
+                                    topTransactions = snapshot.topTransactions,
+                                    dateFormatPattern = dateFormatPattern,
+                                    onViewAllClick = { isTopSpendingSheetVisible = true }
+                                )
+                            }
                             if (isLocked) {
                                 PremiumLockedOverlay(
                                     displayText = stringResource(id = R.string.label_unlock_top_spending),
@@ -446,10 +456,12 @@ fun AnalyticsScreenContent(
                     ) { status, onClick ->
                         Box {
                             val isLocked = status !is AccessStatus.Granted
-                            SmartTipCard(
-                                modifier = Modifier.lockedBlur(isLocked),
-                                tip = snapshot.smartTip
-                            )
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                SmartTipCard(
+                                    modifier = gated,
+                                    tip = snapshot.smartTip
+                                )
+                            }
                             if (isLocked) {
                                 PremiumLockedOverlay(
                                     displayText = stringResource(id = R.string.label_unlock_insights),
@@ -1154,6 +1166,10 @@ private fun InsightStatCard(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            // The icon and the card's name share the top line, the name pushed to the card's
+            // right edge; the amount and its percentage share the line below in the same
+            // arrangement, so the name, the amount's percentage and the amount itself all line up
+            // down the right of the card.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1174,6 +1190,54 @@ private fun InsightStatCard(
                     )
                 }
 
+                Text(
+                    text = title,
+                    color = labelColor,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 13.sp
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    // Lifted clear of the icon's optical centre: centred on the 36dp badge the
+                    // name read as if it belonged to the number below it, so it rides a few dp
+                    // above that line and pairs with the icon instead.
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .offset(y = (-3).dp)
+                )
+            }
+
+            // A quarter below the step the amount picks: headlineSmall / titleLarge /
+            // titleMedium are 24 / 20 / 18sp, so the amount lands at 18 / 15 / 13.5.sp. The
+            // line height shrinks with it, or the row keeps the taller line box and the
+            // percentage floats away from the number it belongs to.
+            val valueStyle = when {
+                value.length > 10 -> MaterialTheme.typography.titleMedium
+                value.length > 7 -> MaterialTheme.typography.titleLarge
+                else -> MaterialTheme.typography.headlineSmall
+            }.copy(fontWeight = FontWeight.Bold).let {
+                it.copy(fontSize = it.fontSize * 0.75f, lineHeight = it.lineHeight * 0.75f)
+            }
+
+            // The amount and the change in it share a line, the percentage hard against the
+            // card's right edge. The amount is what gives up width if the pair is long, so the
+            // pill stays whole: it ellipsizes rather than pushing the percentage out.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = valueStyle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -1190,41 +1254,59 @@ private fun InsightStatCard(
                     )
                 }
             }
-
-            Column {
-                Text(
-                    text = title,
-                    color = labelColor,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 11.5.sp
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                val valueStyle = when {
-                    value.length > 10 -> MaterialTheme.typography.titleMedium
-                    value.length > 7 -> MaterialTheme.typography.titleLarge
-                    else -> MaterialTheme.typography.headlineSmall
-                }.copy(fontWeight = FontWeight.Bold)
-
-                Text(
-                    text = value,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = valueStyle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
+    }
+}
+
+/**
+ * The reveal every share bar on analytics plays: a 0..1 value the bar multiplies its fill by, so
+ * the bar and the percentage that labels it arrive together instead of the number snapping in
+ * above an empty track.
+ *
+ * Keyed on the values it is passed, and only those, so it replays when the data behind a bar
+ * changes — and not when the card recomposes for some unrelated reason.
+ */
+@Composable
+private fun rememberShareReveal(vararg keys: Any?): Float {
+    val reveal = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(*keys) {
+        reveal.snapTo(0f)
+        reveal.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
+        )
+    }
+    return reveal.value
+}
+
+/**
+ * The single-colour share bar the breakdown sheets print under each row. Its fill is scaled by
+ * [progress] so it grows in from the left on the same reveal the cash flow card's two-segment bar
+ * uses; at `progress = 1` it is the plain fraction it displays.
+ */
+@Composable
+private fun ShareBar(fraction: Float, color: Color, progress: Float = 1f) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth((fraction * progress).coerceIn(0f, 1f))
+                .height(8.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
     }
 }
 
 @Composable
 private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
+    val reveal = rememberShareReveal(snapshot.incomeFraction, snapshot.incomePercent)
+
     AppCard(
         modifier = Modifier.fillMaxWidth(),
         // The gradient is the dark surface and this card's only fill, so the container
@@ -1237,7 +1319,11 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(22.dp)
+                // Horizontal padding stays at the hero's 22.dp; the vertical pair is tighter than
+                // the padding this card was built with (22.dp all round), which is most of what
+                // its extra height was: the header, bar and foot sit close enough now that the
+                // top and bottom no longer need the same inset as the sides.
+                .padding(horizontal = 22.dp, vertical = 18.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1247,39 +1333,43 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
                 Text(
                     text = stringResource(id = R.string.label_cash_flow_ratio),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    // labelSmall is the size of the ratio badge beside it; the title is a fifth
+                    // larger (11.sp -> 13.2.sp), which keeps it leading the pill without the
+                    // uneven jump back to titleMedium.
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 13.2.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
                 )
                 RatioBadge(snapshot.ratioDisplay)
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            // The bar and its two percentages are one block: the labels sit under the ends of
-            // the segments they describe, so the gap between the two is tight and fixed.
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CashFlowBar(
-                    snapshot.incomeFraction,
-                    MaterialTheme.colorScheme.income,
-                    MaterialTheme.colorScheme.expense
-                )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    SharePercent(snapshot.incomePercent, MaterialTheme.colorScheme.income)
-                    SharePercent(snapshot.expensePercent, MaterialTheme.colorScheme.expense)
-                }
-            }
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(14.dp))
+            CashFlowBar(
+                snapshot.incomeFraction,
+                MaterialTheme.colorScheme.income,
+                MaterialTheme.colorScheme.expense,
+                progress = reveal
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            // Each side is annotated under the end of the segment it belongs to: the amount
+            // first, then that side's percentage in brackets, hard left for income and hard
+            // right for expense so the pair sits under the bar it describes.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Bottom
             ) {
                 CashFlowStat(
-                    label = stringResource(id = R.string.label_income).uppercase(),
                     amount = snapshot.incomeDisplay,
-                    accent = MaterialTheme.colorScheme.income
+                    percent = (snapshot.incomePercent * reveal).roundToInt(),
+                    accent = MaterialTheme.colorScheme.income,
+                    modifier = Modifier.weight(1f)
                 )
                 CashFlowStat(
-                    label = stringResource(id = R.string.label_expense).uppercase(),
                     amount = snapshot.expenseDisplay,
+                    percent = (snapshot.expensePercent * reveal).roundToInt(),
                     accent = MaterialTheme.colorScheme.expense,
+                    modifier = Modifier.weight(1f),
                     alignEnd = true
                 )
             }
@@ -1304,55 +1394,43 @@ private fun RatioBadge(ratio: String) {
     }
 }
 
-/** One of the bar's two shares, printed under the end of the segment it belongs to. */
-@Composable
-private fun SharePercent(percent: Int, accent: Color) {
-    Text(
-        text = stringResource(id = R.string.format_percent, percent.toString()),
-        color = accent,
-        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
-    )
-}
-
 /**
- * One half of the card's foot: the legend dot and its label, then the period's total in that
- * direction. Both halves take the same width, so the two amounts stay lined up with the bar's
- * ends whichever of them happens to be the longer number.
+ * One side of the card's foot, read against the end of the bar segment it describes: the period's
+ * total in that direction, then its share of the period in brackets. The half it sits in is what
+ * puts it on the left or the right, so a short amount still reaches its own edge of the card.
+ *
+ * The amount is the only child allowed to give up width, and it ellipsizes rather than pushing the
+ * percentage out: the share is the part a glance needs, because the totals are also printed in the
+ * hero above.
  */
 @Composable
-private fun RowScope.CashFlowStat(
-    label: String,
+private fun CashFlowStat(
     amount: String,
+    percent: Int,
     accent: Color,
+    modifier: Modifier = Modifier,
     alignEnd: Boolean = false
 ) {
-    Column(
-        modifier = Modifier.weight(1f),
-        horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+    Row(
+        modifier = modifier,
+        horizontalArrangement = if (alignEnd) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom
     ) {
-        LegendDot(label, accent)
         Text(
             text = amount,
             color = accent,
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            // labelMedium, the size of the bracketed share beside it: the pair reads as one
+            // figure, so only the weight separates the total from its percentage.
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false)
         )
-    }
-}
-
-@Composable
-private fun LegendDot(label: String, color: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = label,
+            text = stringResource(id = R.string.format_percent, percent.toString()),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
         )
     }
 }
@@ -1395,7 +1473,12 @@ private fun paymentBreakdownColor(item: PaymentTypeBreakdownUi): Color =
     )
 
 @Composable
-private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor: Color) {
+private fun CashFlowBar(
+    incomeFraction: Float,
+    incomeColor: Color,
+    expenseColor: Color,
+    progress: Float = 1f
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1404,18 +1487,32 @@ private fun CashFlowBar(incomeFraction: Float, incomeColor: Color, expenseColor:
             .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val incomeWidth = size.width * incomeFraction.coerceIn(0f, 1f)
-            drawRoundRect(
-                color = incomeColor,
-                size = Size(incomeWidth, size.height),
-                cornerRadius = CornerRadius(size.height / 2f, size.height / 2f)
-            )
-            drawRoundRect(
-                color = expenseColor,
-                topLeft = Offset(incomeWidth, 0f),
-                size = Size(size.width - incomeWidth, size.height),
-                cornerRadius = CornerRadius(size.height / 2f, size.height / 2f)
-            )
+            val fraction = incomeFraction.coerceIn(0f, 1f)
+            val radius = CornerRadius(size.height / 2f, size.height / 2f)
+            val gap = 4.dp.toPx()
+            val showGap = fraction > 0f && fraction < 1f && size.width > gap
+            val usable = if (showGap) size.width - gap else size.width
+            val reveal = progress.coerceIn(0f, 1f)
+            // Each share grows out of its own end of the bar — income from the left, expense from
+            // the right — so the two fill towards their junction as the percentages count up. At
+            // reveal = 1 the geometry is exactly the static one: the segments meet `gap` apart.
+            val incomeWidth = usable * fraction * reveal
+            val expenseWidth = usable * (1f - fraction) * reveal
+            if (incomeWidth > 0f) {
+                drawRoundRect(
+                    color = incomeColor,
+                    size = Size(incomeWidth, size.height),
+                    cornerRadius = radius
+                )
+            }
+            if (expenseWidth > 0f) {
+                drawRoundRect(
+                    color = expenseColor,
+                    topLeft = Offset(size.width - expenseWidth, 0f),
+                    size = Size(expenseWidth, size.height),
+                    cornerRadius = radius
+                )
+            }
         }
     }
 }
@@ -1427,6 +1524,9 @@ private fun CategoryCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
+    // One reveal for the whole card, so the donut's arcs and the percentages in the rows under it
+    // arrive on the same clock rather than as two animations that happen to overlap.
+    val reveal = rememberShareReveal(snapshot.categoryBreakdown)
     AppCard(
         modifier = modifier,
         // The gradient is the dark surface and this card's only fill, so the container
@@ -1476,7 +1576,11 @@ private fun CategoryCard(
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
-            SpendingDonutChart(snapshot.categoryBreakdown, modifier = Modifier.align(Alignment.CenterHorizontally))
+            SpendingDonutChart(
+                snapshot.categoryBreakdown,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                progress = reveal
+            )
             Spacer(modifier = Modifier.height(20.dp))
             if (snapshot.categoryBreakdown.isEmpty()) {
                 Text(
@@ -1516,7 +1620,10 @@ private fun CategoryCard(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = stringResource(id = R.string.format_percentage, category.percentLabel),
+                                    text = stringResource(
+                                        R.string.format_percentage,
+                                        (category.percentLabel * reveal).roundToInt()
+                                    ),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleMedium
                                 )
@@ -1601,6 +1708,7 @@ private fun CategoryBreakdownRow(
     category: CategoryBreakdownUi,
     onShowTransactions: (Int, String) -> Unit
 ) {
+    val reveal = rememberShareReveal(category.id, category.fraction)
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
@@ -1656,7 +1764,10 @@ private fun CategoryBreakdownRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.format_percentage, category.percentLabel),
+                        text = stringResource(
+                            R.string.format_percentage,
+                            (category.percentLabel * reveal).roundToInt()
+                        ),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
@@ -1675,21 +1786,11 @@ private fun CategoryBreakdownRow(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(category.fraction.coerceIn(0f, 1f))
-                        .height(8.dp)
-                        .clip(CircleShape)
-                        .background(categoryBreakdownColor(category))
-                )
-            }
+            ShareBar(
+                fraction = category.fraction,
+                color = categoryBreakdownColor(category),
+                progress = reveal
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -1709,7 +1810,11 @@ private fun CategoryBreakdownRow(
  * show that the colour on screen is the colour the row resolved to. The whole screen cannot host
  * that test — it composes a gated action that needs a Hilt container.
  */
-internal fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: Modifier = Modifier) {
+internal fun SpendingDonutChart(
+    breakdown: List<CategoryBreakdownUi>,
+    modifier: Modifier = Modifier,
+    progress: Float = 1f
+) {
     val trackColor = MaterialTheme.colorScheme.track
     val segmentColors = breakdown.map { categoryBreakdownColor(it) }
 
@@ -1725,15 +1830,23 @@ internal fun SpendingDonutChart(breakdown: List<CategoryBreakdownUi>, modifier: 
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
+            // The ring is revealed the way a clock hand sweeps past it: a slice draws only the
+            // part of itself the hand has already passed, so the arcs arrive in the same order, at
+            // the same pace and on the same clock as the bars and percentages beside them.
+            val revealedSweep = progress.coerceIn(0f, 1f) * 360f
             breakdown.forEachIndexed { index, segment ->
                 val sweep = (segment.fraction * 360f) - gap
-                drawArc(
-                    color = segmentColors[index],
-                    startAngle = startAngle,
-                    sweepAngle = sweep,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
+                val visibleSweep = (revealedSweep - (startAngle + 180f))
+                    .coerceIn(0f, sweep.coerceAtLeast(0f))
+                if (visibleSweep > 0f) {
+                    drawArc(
+                        color = segmentColors[index],
+                        startAngle = startAngle,
+                        sweepAngle = visibleSweep,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    )
+                }
                 startAngle += sweep + gap
             }
         }
@@ -1944,6 +2057,9 @@ private fun PaymentTypeCard(
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
+    // Same shared reveal as the category card: the donut and the shares listed beneath it move
+    // together.
+    val reveal = rememberShareReveal(snapshot.paymentTypeBreakdown)
     AppCard(
         modifier = modifier,
         // The gradient is the dark surface and this card's only fill, so the container
@@ -1993,7 +2109,11 @@ private fun PaymentTypeCard(
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
-            PaymentDonutChart(snapshot.paymentTypeBreakdown, modifier = Modifier.align(Alignment.CenterHorizontally))
+            PaymentDonutChart(
+                snapshot.paymentTypeBreakdown,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                progress = reveal
+            )
             Spacer(modifier = Modifier.height(20.dp))
             if (snapshot.paymentTypeBreakdown.isEmpty()) {
                 Text(
@@ -2039,7 +2159,10 @@ private fun PaymentTypeCard(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = stringResource(id = R.string.format_percentage, item.percentLabel),
+                                    text = stringResource(
+                                        R.string.format_percentage,
+                                        (item.percentLabel * reveal).roundToInt()
+                                    ),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleMedium
                                 )
@@ -2062,7 +2185,11 @@ private fun PaymentTypeCard(
 
 @Composable
 /** The payment donut. Internal for the same reason as [SpendingDonutChart]. */
-internal fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier: Modifier = Modifier) {
+internal fun PaymentDonutChart(
+    breakdown: List<PaymentTypeBreakdownUi>,
+    modifier: Modifier = Modifier,
+    progress: Float = 1f
+) {
     val trackColor = MaterialTheme.colorScheme.track
     val segmentColors = breakdown.map { paymentBreakdownColor(it) }
 
@@ -2078,15 +2205,23 @@ internal fun PaymentDonutChart(breakdown: List<PaymentTypeBreakdownUi>, modifier
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
+            // The ring is revealed the way a clock hand sweeps past it: a slice draws only the
+            // part of itself the hand has already passed, so the arcs arrive in the same order, at
+            // the same pace and on the same clock as the bars and percentages beside them.
+            val revealedSweep = progress.coerceIn(0f, 1f) * 360f
             breakdown.forEachIndexed { index, segment ->
                 val sweep = (segment.fraction * 360f) - gap
-                drawArc(
-                    color = segmentColors[index],
-                    startAngle = startAngle,
-                    sweepAngle = sweep,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
+                val visibleSweep = (revealedSweep - (startAngle + 180f))
+                    .coerceIn(0f, sweep.coerceAtLeast(0f))
+                if (visibleSweep > 0f) {
+                    drawArc(
+                        color = segmentColors[index],
+                        startAngle = startAngle,
+                        sweepAngle = visibleSweep,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    )
+                }
                 startAngle += sweep + gap
             }
         }
@@ -2175,6 +2310,7 @@ private fun PaymentBreakdownRow(
     item: PaymentTypeBreakdownUi,
     onShowTransactions: (Int, String) -> Unit
 ) {
+    val reveal = rememberShareReveal(item.id, item.fraction)
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
@@ -2230,7 +2366,10 @@ private fun PaymentBreakdownRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.format_percentage, item.percentLabel),
+                        text = stringResource(
+                            R.string.format_percentage,
+                            (item.percentLabel * reveal).roundToInt()
+                        ),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
@@ -2249,21 +2388,11 @@ private fun PaymentBreakdownRow(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(item.fraction.coerceIn(0f, 1f))
-                        .height(8.dp)
-                        .clip(CircleShape)
-                        .background(paymentBreakdownColor(item))
-                )
-            }
+            ShareBar(
+                fraction = item.fraction,
+                color = paymentBreakdownColor(item),
+                progress = reveal
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -2464,9 +2593,48 @@ private fun resolveSummaryLabel(label: SummaryLabelUi): String {
     }
 }
 
+/**
+ * One gated analytics card and the frost it hides behind while locked.
+ *
+ * Haze rather than `Modifier.blur`, which softened the card's own node: the blur took the card's
+ * edge, its 30dp corners and its shadow with it, so a locked card was a visibly different shape
+ * from the same card unlocked. This samples the card from behind it instead, so the silhouette,
+ * the corner radius and the bloom stay exactly what they are when unlocked and only what is
+ * *inside* the card goes soft. It is the same frost the bottom bar draws, so "frosted" means one
+ * thing in this app.
+ *
+ * [card] has to put the modifier it is handed on its own root — that modifier is the haze source,
+ * and it is the node the veil samples. The scrim, the lock badge and the unlock copy stay
+ * [PremiumLockedOverlay]'s job and are drawn over the veil, so the blur never has to carry them.
+ */
 @Composable
-private fun Modifier.lockedBlur(isLocked: Boolean): Modifier =
-    if (isLocked) blur(6.dp) else this
+private fun GatedCardContent(
+    isLocked: Boolean,
+    card: @Composable (Modifier) -> Unit
+) {
+    val hazeState = remember { HazeState() }
+    Box {
+        card(if (isLocked) Modifier.hazeSource(state = hazeState) else Modifier)
+        if (isLocked) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .hazeEffect(
+                        state = hazeState,
+                        style = HazeStyle(
+                            // Transparent: the veil contributes the blur alone. The scrim on top
+                            // is what darkens the card, and a second tint here would just stack
+                            // with it.
+                            backgroundColor = Color.Transparent,
+                            blurRadius = 12.dp,
+                            noiseFactor = 0f,
+                            tints = emptyList()
+                        )
+                    )
+            )
+        }
+    }
+}
 
 @Composable
 private fun resolveSmartTip(tip: SmartTipUi): String {
@@ -2740,5 +2908,185 @@ private fun SmartTipCardUnlockedPreviewDark() {
 private fun SmartTipCardUnlockedPreviewLight() {
     ExpenseTrackerTheme(darkTheme = false) {
         SmartTipCardUnlockedPreview()
+    }
+}
+
+@Composable
+private fun CashFlowRatioCardPreviewBody() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
+    ) {
+        CashFlowCard(snapshot = buildPreviewAnalyticsUiState().snapshot)
+    }
+}
+
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Cash Flow Ratio (Dark)")
+@Composable
+private fun CashFlowRatioCardPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        CashFlowRatioCardPreviewBody()
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO,
+    name = "Cash Flow Ratio (Light)"
+)
+@Composable
+private fun CashFlowRatioCardPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        CashFlowRatioCardPreviewBody()
+    }
+}
+
+/**
+ * The Avg Daily and Savings cards share [StatsRow], and they are the only pair on the screen laid
+ * out side by side at half width each: the preview has to render both, at a real width, or the
+ * amount-size fallback in [InsightStatCard] never gets the chance to fire the way it does on a
+ * narrow phone.
+ */
+@Composable
+private fun StatsRowPreviewBody() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
+    ) {
+        StatsRow(buildPreviewAnalyticsUiState().snapshot)
+    }
+}
+
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Avg and Savings Cards (Dark)")
+@Composable
+private fun StatsRowPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        StatsRowPreviewBody()
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO,
+    name = "Avg and Savings Cards (Light)"
+)
+@Composable
+private fun StatsRowPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        StatsRowPreviewBody()
+    }
+}
+
+// ──────────────────────────────────────────────
+// Locked analytics card previews (Haze frost)
+// ──────────────────────────────────────────────
+
+/**
+ * The four gated cards, all forced locked, so the Haze frost each one draws behind its lock badge
+ * can be reviewed from the IDE without unlocking anything on a device. The card is composed
+ * through exactly the gate the screen uses — [GatedCardContent] plus [PremiumLockedOverlay] — since
+ * the point is to see the real frost, not a hand-rolled stand-in for it.
+ *
+ * [GatedCardContent] wraps each card in a lone `Box`, so the veil never reaches the Surface behind
+ * it and the frost stops at the card's own edge. That is what makes the silhouette and the 30dp
+ * corners identical to the unlocked card; the scrim and the lock badge are painted over the veil
+ * afterwards.
+ */
+@Composable
+private fun GatedPreviewCard(
+    unlockText: String,
+    icon: ImageVector = Icons.Filled.Lock,
+    card: @Composable (Modifier) -> Unit
+) {
+    Box {
+        GatedCardContent(isLocked = true) { gated -> card(gated) }
+        PremiumLockedOverlay(
+            displayText = unlockText,
+            icon = icon,
+            onClick = {}
+        )
+    }
+}
+
+/**
+ * All four locked cards in one column, stacked on the app's own background so the veil and the
+ * scrim are judged against the same surface they sit on in the running screen.
+ */
+@Composable
+private fun LockedAnalyticsCardsPreviewBody() {
+    val snapshot = buildPreviewAnalyticsUiState().snapshot
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            GatedPreviewCard(
+                unlockText = stringResource(id = R.string.label_unlock_breakdown)
+            ) { gated ->
+                CategoryCard(
+                    modifier = gated,
+                    snapshot = snapshot,
+                    onViewAllClick = {},
+                    onShowTransactions = { _, _ -> }
+                )
+            }
+            GatedPreviewCard(
+                unlockText = stringResource(id = R.string.label_unlock_breakdown)
+            ) { gated ->
+                PaymentTypeCard(
+                    modifier = gated,
+                    snapshot = snapshot,
+                    onViewAllClick = {},
+                    onShowTransactions = { _, _ -> }
+                )
+            }
+            GatedPreviewCard(
+                unlockText = stringResource(id = R.string.label_unlock_top_spending)
+            ) { gated ->
+                TopSpendingCard(
+                    modifier = gated,
+                    topTransactions = snapshot.topTransactions,
+                    dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
+                    onViewAllClick = {}
+                )
+            }
+            GatedPreviewCard(
+                unlockText = stringResource(id = R.string.label_unlock_insights),
+                icon = Icons.Filled.AutoAwesome
+            ) { gated ->
+                SmartTipCard(
+                    modifier = gated,
+                    tip = buildPreviewSmartTip()
+                )
+            }
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
+    name = "Locked Analytics Cards (Dark)"
+)
+@Composable
+private fun LockedAnalyticsCardsPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        LockedAnalyticsCardsPreviewBody()
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO,
+    name = "Locked Analytics Cards (Light)"
+)
+@Composable
+private fun LockedAnalyticsCardsPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        LockedAnalyticsCardsPreviewBody()
     }
 }

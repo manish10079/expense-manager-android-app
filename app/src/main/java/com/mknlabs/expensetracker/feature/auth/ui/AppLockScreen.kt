@@ -48,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -1178,7 +1179,7 @@ private fun AppLockBiometricDarkPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Dark")
+@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Light")
 @Composable
 private fun AppLockBiometricLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
@@ -1191,27 +1192,115 @@ private fun AppLockBiometricLightPreview() {
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Dark")
-//@Composable
-//private fun AppLockSetupDarkPreview() {
-//    ExpenseTrackerTheme(darkTheme = true) {
-//        AppLockScreen(
-//            mode = AppLockScreenMode.Setup,
-//            onBackClick = {}
-//        )
-//    }
-//}
-//
-//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Setup Light")
-//@Composable
-//private fun AppLockSetupLightPreview() {
-//    ExpenseTrackerTheme(darkTheme = false) {
-//        AppLockScreen(
-//            mode = AppLockScreenMode.Setup,
-//            onBackClick = {}
-//        )
-//    }
-//}
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Setup Dark")
+@Composable
+private fun SecurityQuestionSetupDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface {
+            SetupSecurityQuestionContent(
+                selectedQuestionId = appLockSecurityQuestions.first().id,
+                answer = "Fluffy",
+                onQuestionSelected = {},
+                onAnswerChange = {},
+                onDone = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Setup Light")
+@Composable
+private fun SecurityQuestionSetupLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            SetupSecurityQuestionContent(
+                selectedQuestionId = appLockSecurityQuestions.first().id,
+                answer = "Fluffy",
+                onQuestionSelected = {},
+                onAnswerChange = {},
+                onDone = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Recovery Dark")
+@Composable
+private fun SecurityQuestionRecoveryDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface {
+            RecoveryQuestionContent(
+                questionPrompt = "What was the name of your first pet?",
+                answer = "Fluffy",
+                onAnswerChange = {},
+                onDone = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Recovery Light")
+@Composable
+private fun SecurityQuestionRecoveryLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            RecoveryQuestionContent(
+                questionPrompt = "What was the name of your first pet?",
+                answer = "Fluffy",
+                onAnswerChange = {},
+                onDone = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Card Dark")
+@Composable
+private fun SecurityQuestionCardDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SecurityQuestionCard(
+                    prompt = "What was the name of your first pet?",
+                    isSelected = true,
+                    onClick = {}
+                )
+                SecurityQuestionCard(
+                    prompt = "What city were you born in?",
+                    isSelected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, name = "Security Question Card Light")
+@Composable
+private fun SecurityQuestionCardLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SecurityQuestionCard(
+                    prompt = "What was the name of your first pet?",
+                    isSelected = true,
+                    onClick = {}
+                )
+                SecurityQuestionCard(
+                    prompt = "What city were you born in?",
+                    isSelected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
 
 private suspend fun Animatable<Float, AnimationVector1D>.animateAppLockKeypadError() {
     val shakeOffsets = listOf(-10f, 10f, -6f, 6f, -3f, 3f, 0f)
