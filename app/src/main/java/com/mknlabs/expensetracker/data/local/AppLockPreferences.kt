@@ -452,13 +452,70 @@ object AppLockPreferences {
             return false
         }
 
+        val isValid = verifySecurityAnswerHash(context, answer)
+        if (isValid) {
+            resetFailedAttempts(context)
+        } else {
+            registerFailedAttempt(context)
+        }
+        return isValid
+    }
+
+    /**
+     * Validates a recovery attempt that must match BOTH the saved security question
+     * and its answer. Used by the hardened recovery flow, which presents the real
+     * question alongside randomly chosen decoys so an attacker cannot tell which
+     * question was configured.
+     *
+     * A wrong question OR a wrong answer counts as one failed attempt and arms an
+     * immediate, escalating lockout (1min -> 2min -> 4min ... capped at 15min),
+     * mirroring the PIN brute-force protection. Attempts made while already locked
+     * out are rejected without touching the counter.
+     *
+     * The answer hash is verified UNCONDITIONALLY, even when the question is wrong,
+     * so the verification cost (~PBKDF2) cannot be used as a timing oracle to
+     * discover which of the presented questions is the real one.
+     */
+    fun validateSecurityQuestionAnswer(
+        context: Context,
+        questionId: String,
+        answer: String
+    ): Boolean {
+        if (isLockedOut(context)) {
+            return false
+        }
+
+        val savedQuestionId = getSecurityQuestionId(context)
+        val isQuestionCorrect = !savedQuestionId.isNullOrBlank() &&
+            MessageDigest.isEqual(
+                savedQuestionId.toByteArray(),
+                questionId.toByteArray()
+            )
+        val isAnswerCorrect = verifySecurityAnswerHash(context, answer)
+        val isValid = isQuestionCorrect && isAnswerCorrect
+
+        if (isValid) {
+            resetFailedAttempts(context)
+        } else {
+            registerFailedAttempt(context, immediateLockout = true)
+        }
+        return isValid
+    }
+
+    /**
+     * Verifies [answer] against the persisted security-answer hash (any supported
+     * hash version), upgrading a legacy hash to PBKDF2 in place on a match. Performs
+     * no lockout bookkeeping — callers own that so the counter/escalation policy can
+     * differ between the answer-only and question+answer flows.
+     */
+    private fun verifySecurityAnswerHash(context: Context, answer: String): Boolean {
         val preferences = prefs(context)
         val normalizedAnswer = normalizeAnswer(answer)
         val savedHash = preferences.getString(KEY_SECURITY_ANSWER_HASH, null) ?: return false
         val salt = preferences.getString(KEY_SECURITY_ANSWER_SALT, null) ?: return false
         val version = preferences.getString(KEY_SECURITY_ANSWER_HASH_VERSION, HASH_VERSION_FAST_SHA256_V1)
 
-        val isValid = when (version) {
+        return when (version) {
             HASH_VERSION_PBKDF2_SHA256_V1, HASH_VERSION_PBKDF2_SHA1_V1 -> {
                 val iterations = preferences.getInt(KEY_SECURITY_ANSWER_ITERATIONS, PBKDF2_ITERATIONS)
                 val algorithm = if (version == HASH_VERSION_PBKDF2_SHA256_V1) PBKDF2_ALGORITHM_SHA256 else PBKDF2_ALGORITHM_SHA1
@@ -480,13 +537,6 @@ object AppLockPreferences {
                 legacyValid
             }
         }
-
-        if (isValid) {
-            resetFailedAttempts(context)
-        } else {
-            registerFailedAttempt(context)
-        }
-        return isValid
     }
 
     fun markBackgrounded(
@@ -536,10 +586,16 @@ object AppLockPreferences {
      * 4th -> 1min, 5th -> 2min, 6th -> 4min, ... capped at 15 min.
      * The counter is persisted so the escalation survives app restarts, and attempts
      * made DURING a lockout window are ignored (they neither extend it nor advance the counter).
+     *
+     * [immediateLockout] is used by the security-question recovery flow, where NO free
+     * attempts are granted: the 1st failure -> 1min, 2nd -> 2min, 3rd -> 4min, ... capped
+     * at 15 min. The two flows share the same counter so a successful unlock (PIN,
+     * biometric, or correct recovery answer) clears the escalation entirely.
      */
     fun registerFailedAttempt(
         context: Context,
-        currentTimeMillis: Long = System.currentTimeMillis()
+        currentTimeMillis: Long = System.currentTimeMillis(),
+        immediateLockout: Boolean = false
     ) {
         val preferences = prefs(context)
         if (isLockedOut(context, currentTimeMillis)) {
@@ -549,8 +605,15 @@ object AppLockPreferences {
         val newCount = preferences.getInt(KEY_FAILED_ATTEMPT_COUNT, 0) + 1
         val editor = preferences.edit().putInt(KEY_FAILED_ATTEMPT_COUNT, newCount)
 
-        // After the first 3 free attempts, each subsequent failure triggers immediate lockout
-        if (newCount > FREE_ATTEMPTS_BEFORE_LOCKOUT) {
+        if (immediateLockout) {
+            // Recovery failures lock out right away, escalating per failure:
+            // 1st failure -> block 0 (1min), 2nd -> block 1 (2min), ...
+            editor.putLong(
+                KEY_LOCKOUT_UNTIL_MILLIS,
+                currentTimeMillis + computeLockoutDurationMillis(newCount - 1)
+            )
+        } else if (newCount > FREE_ATTEMPTS_BEFORE_LOCKOUT) {
+            // After the first 3 free attempts, each subsequent failure triggers immediate lockout
             // Calculate lockout block index: 4th attempt = block 0, 5th = block 1, etc.
             val lockoutBlockIndex = newCount - FREE_ATTEMPTS_BEFORE_LOCKOUT - 1
             editor.putLong(

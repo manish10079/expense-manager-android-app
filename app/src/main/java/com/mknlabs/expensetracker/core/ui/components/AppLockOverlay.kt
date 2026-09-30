@@ -28,7 +28,8 @@ import com.mknlabs.expensetracker.feature.auth.ui.AppLockScreen
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockScreenMode
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.BiometricAvailability
-import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
+import com.mknlabs.expensetracker.data.constants.AppLockSecurityQuestion
+import com.mknlabs.expensetracker.data.constants.buildRecoveryQuestionOptions
 import kotlinx.coroutines.delay
 
 import com.mknlabs.expensetracker.models.PinVisualMode
@@ -51,14 +52,16 @@ fun AppLockOverlay(
     biometricEnabled: Boolean = appSettings.biometricLockEnabled,
     scrambledPinKeypadEnabled: Boolean = appSettings.scrambledPinKeypadEnabled,
     isBiometricAvailable: Boolean? = null,
-    securityQuestionPrompt: Int? = null,
+    // Optional override for the recovery question set (real question + decoys).
+    // When null, AppLockOverlay derives it from the saved security question.
+    recoveryQuestions: List<AppLockSecurityQuestion>? = null,
     onBackClick: (() -> Unit)? = onDismiss,
     onBiometricClick: (() -> Unit)? = null,
     autoTriggerBiometricOnShow: Boolean = false,
     onSetupComplete: ((String, String, String) -> Unit)? = null,
     validateUnlockPin: ((String) -> Boolean)? = null,
     onForgotPinRecovery: (() -> Unit)? = null,
-    validateSecurityAnswer: ((String) -> Boolean)? = null,
+    validateSecurityAnswer: ((String, String) -> Boolean)? = null,
     getLockoutRemainingMillis: (() -> Long)? = null,
     getFailedAttemptCount: (() -> Int)? = null,
     pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
@@ -76,16 +79,16 @@ fun AppLockOverlay(
     
     // Compute defaults if not provided
     val effectiveBiometricAvailable = isBiometricAvailable ?: biometricAvailability.isAvailable
-    val detectedSecurityQuestionPromptResId = remember(context, isInPreview) {
+    // Real saved question + random decoys, recomputed only when the saved question
+    // changes so the presented set stays stable throughout a recovery session.
+    val detectedRecoveryQuestions = remember(context, isInPreview) {
         if (isInPreview) {
-            null
+            emptyList()
         } else {
-            val questionId = AppLockPreferences.getSecurityQuestionId(context)
-            appLockSecurityQuestions.firstOrNull { it.id == questionId }?.promptResId
+            buildRecoveryQuestionOptions(AppLockPreferences.getSecurityQuestionId(context))
         }
     }
-    val effectiveSecurityQuestionPromptResId =
-        securityQuestionPrompt ?: detectedSecurityQuestionPromptResId
+    val effectiveRecoveryQuestions = recoveryQuestions ?: detectedRecoveryQuestions
     var hasAutoTriggeredBiometric by remember(initialFlow) { mutableStateOf(false) }
 
     // If we are in "Overlay" mode (onDismiss is not null), we use a full-screen dialog.
@@ -128,7 +131,7 @@ fun AppLockOverlay(
                 biometricEnabled = biometricEnabled,
                 scrambledPinKeypadEnabled = scrambledPinKeypadEnabled,
                 isBiometricAvailable = effectiveBiometricAvailable,
-                securityQuestionPrompt = effectiveSecurityQuestionPromptResId,
+                recoveryQuestions = effectiveRecoveryQuestions,
                 onBackClick = if (flow == AppLockFlow.Setup) onBackClick else null,
                 onBiometricClick = if (flow == AppLockFlow.Unlock) onBiometricClick else null,
                 onSetupComplete = onSetupComplete ?: { _, _, _ -> },
@@ -137,8 +140,8 @@ fun AppLockOverlay(
                     AppLockPreferences.validatePin(context, pin) 
                 },
                 onForgotPinRecovery = onForgotPinRecovery ?: {},
-                validateSecurityAnswer = validateSecurityAnswer ?: { answer ->
-                    AppLockPreferences.validateSecurityAnswer(context, answer)
+                validateSecurityAnswer = validateSecurityAnswer ?: { questionId, answer ->
+                    AppLockPreferences.validateSecurityQuestionAnswer(context, questionId, answer)
                 },
                 getLockoutRemainingMillis = getLockoutRemainingMillis ?: {
                     AppLockPreferences.getLockoutRemainingMillis(context)
@@ -184,7 +187,7 @@ private fun AppLockOverlayDarkPreview() {
             isBiometricAvailable = true,
             onBiometricClick = {},
             validateUnlockPin = { false },
-            validateSecurityAnswer = { false },
+            validateSecurityAnswer = { _, _ -> false },
             getLockoutRemainingMillis = { 0L },
             getFailedAttemptCount = { 0 }
         )
@@ -207,7 +210,7 @@ private fun AppLockOverlayLightPreview() {
             isBiometricAvailable = true,
             onBiometricClick = {},
             validateUnlockPin = { false },
-            validateSecurityAnswer = { false },
+            validateSecurityAnswer = { _, _ -> false },
             getLockoutRemainingMillis = { 0L },
             getFailedAttemptCount = { 0 }
         )

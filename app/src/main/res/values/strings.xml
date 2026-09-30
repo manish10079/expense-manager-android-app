@@ -63,7 +63,9 @@
     <string name="label_welcome_back">Welcome Back</string>
     <string name="label_confirm_pin">Confirm PIN</string>
     <string name="label_security_question">Security Question</string>
-    <string name="msg_answer_saved_security_question">Answer your saved security question to disable app lock.</string>
+    <string name="msg_answer_saved_security_question">Answer your saved security question to disable app lock.</string>
+    <string name="msg_select_your_security_question">Select the security question you saved, then enter your answer.</string>
+    <string name="msg_select_a_security_question">Select the security question you saved.</string>
     <string name="msg_biometric_or_pin_to_continue">Use your biometric or enter your PIN to continue.</string>
     <string name="msg_enter_pin_to_continue">Enter your PIN to continue.</string>
     <string name="msg_choose_question_remember">Choose one of the five questions and enter an answer you will remember.</string>

@@ -1,9 +1,13 @@
 package com.mknlabs.expensetracker.data.local
 
+import com.mknlabs.expensetracker.data.constants.APP_LOCK_RECOVERY_QUESTION_COUNT
+import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
+import com.mknlabs.expensetracker.data.constants.buildRecoveryQuestionOptions
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.random.Random
 
 /**
  * Tests for the Item 10 app-lock hardening primitives in [AppLockPreferences]:
@@ -95,5 +99,48 @@ class AppLockHardeningTest {
     @Test
     fun lockoutDuration_negativeBlockIsZero() {
         assertEquals(0L, AppLockPreferences.computeLockoutDurationMillis(-1))
+    }
+
+    // --- Recovery question decoys -----------------------------------------
+
+    @Test
+    fun recoveryOptions_returnsEmptyForUnknownSavedQuestion() {
+        assertTrue(buildRecoveryQuestionOptions(null).isEmpty())
+        assertTrue(buildRecoveryQuestionOptions("not_a_real_question").isEmpty())
+    }
+
+    @Test
+    fun recoveryOptions_includeRealQuestionAndRequestedCountDistinctEntries() {
+        val savedId = "birth_city"
+        val options = buildRecoveryQuestionOptions(savedId, random = Random(42))
+
+        assertEquals(APP_LOCK_RECOVERY_QUESTION_COUNT, options.size)
+        assertTrue(options.any { it.id == savedId })
+        assertEquals(options.size, options.map { it.id }.toSet().size)
+    }
+
+    @Test
+    fun recoveryOptions_areDeterministicForASeededRandom() {
+        val a = buildRecoveryQuestionOptions("pet_name", random = Random(7))
+        val b = buildRecoveryQuestionOptions("pet_name", random = Random(7))
+        assertEquals(a.map { it.id }, b.map { it.id })
+    }
+
+    @Test
+    fun recoveryOptions_neverExceedPoolSize() {
+        // optionCount larger than the pool must still return only the pool, real question included.
+        val options = buildRecoveryQuestionOptions(
+            savedQuestionId = "first_school",
+            random = Random(1),
+            optionCount = 100
+        )
+        assertEquals(appLockSecurityQuestions.size, options.size)
+        assertTrue(options.any { it.id == "first_school" })
+    }
+
+    @Test
+    fun recoveryOptions_singleOptionReturnsOnlyRealQuestion() {
+        val options = buildRecoveryQuestionOptions("first_school", random = Random(1), optionCount = 1)
+        assertEquals(listOf("first_school"), options.map { it.id })
     }
 }

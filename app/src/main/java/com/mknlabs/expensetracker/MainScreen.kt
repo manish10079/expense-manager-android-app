@@ -1635,7 +1635,7 @@ fun MainScreen(
                 biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
                 scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
                 isBiometricAvailable = biometricAvailability.isAvailable,
-                securityQuestionPrompt = null, // Handled internally by AppLockOverlay
+                // Recovery questions (real + decoys) are derived internally by AppLockOverlay.
                 onBackClick = { appLockFlow = null },
                 autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
                 onBiometricClick = unlockWithBiometric,
@@ -1663,8 +1663,8 @@ fun MainScreen(
                 onForgotPinRecovery = {
                     disableAppLock(true)
                 },
-                validateSecurityAnswer = { answer ->
-                    AppLockPreferences.validateSecurityAnswer(context, answer)
+                validateSecurityAnswer = { questionId, answer ->
+                    AppLockPreferences.validateSecurityQuestionAnswer(context, questionId, answer)
                 },
                 pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL
             )

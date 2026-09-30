@@ -91,6 +91,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.data.constants.AppLockSecurityQuestion
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
@@ -145,14 +146,15 @@ fun AppLockScreen(
     biometricEnabled: Boolean = false,
     scrambledPinKeypadEnabled: Boolean = false,
     isBiometricAvailable: Boolean = false,
-    securityQuestionPrompt: Int? = null,
+    recoveryQuestions: List<AppLockSecurityQuestion> = emptyList(),
     onBackClick: (() -> Unit)? = null,
     onBiometricClick: (() -> Unit)? = null,
     onSetupComplete: (String, String, String) -> Unit = { _, _, _ -> },
     onUnlockSuccess: () -> Unit = {},
     onForgotPinRecovery: () -> Unit = {},
     validateUnlockPin: (String) -> Boolean = { false },
-    validateSecurityAnswer: (String) -> Boolean = { false },
+    // (selected security question id, answer) -> valid?
+    validateSecurityAnswer: (String, String) -> Boolean = { _, _ -> false },
     getLockoutRemainingMillis: () -> Long = { 0L },
     getFailedAttemptCount: () -> Int = { 0 },
     pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
@@ -196,6 +198,9 @@ fun AppLockScreen(
     }
     var securityAnswer by rememberSaveable(mode) { mutableStateOf("") }
     var isRecoveryMode by rememberSaveable(mode) { mutableStateOf(false) }
+    // Which of the (real + decoy) recovery questions the user selected. Null until
+    // they explicitly tap one, so the flow cannot be submitted by default.
+    var selectedRecoveryQuestionId by rememberSaveable(mode) { mutableStateOf<String?>(null) }
     var recoveryAnswer by rememberSaveable(mode) { mutableStateOf("") }
     var keypadLayout by remember(mode, scrambledPinKeypadEnabled) {
         mutableStateOf(
@@ -256,8 +261,9 @@ fun AppLockScreen(
         } else {
             failedUnlockAttempts = 0
             enteredPin = ""
-            if (mode == AppLockScreenMode.Unlock && securityQuestionPrompt != null) {
+            if (mode == AppLockScreenMode.Unlock && recoveryQuestions.isNotEmpty()) {
                 isRecoveryMode = true
+                selectedRecoveryQuestionId = null
                 recoveryAnswer = ""
                 message = null
             } else if (mode == AppLockScreenMode.Unlock) {
@@ -341,6 +347,7 @@ fun AppLockScreen(
         isRecoveryMode -> {
             {
                 isRecoveryMode = false
+                selectedRecoveryQuestionId = null
                 recoveryAnswer = ""
                 message = null
             }
@@ -383,13 +390,14 @@ fun AppLockScreen(
     // Compose disposed + recreated the content on the first keystroke â€” dropping the
     // answer field's focus and hiding the IME. All conditionals below are pure string
     // logic with no composable calls.
-    val savedQuestionMsg = stringResource(R.string.msg_answer_saved_security_question)
+    val recoveryInstructionMsg = stringResource(R.string.msg_select_your_security_question)
     val noRecoveryQuestionMsg = stringResource(R.string.msg_recovery_question_is_not_confi)
+    val selectRecoveryQuestionMsg = stringResource(R.string.msg_select_a_security_question)
     val biometricContinueMsg = stringResource(R.string.msg_biometric_or_pin_to_continue)
     val enterPinMsg = stringResource(R.string.msg_enter_pin_to_continue)
     val chooseQuestionRememberMsg = stringResource(R.string.msg_choose_question_remember)
     val supportText = lockoutMessage ?: message ?: when {
-        isRecoveryMode -> if (securityQuestionPrompt != null) savedQuestionMsg else noRecoveryQuestionMsg
+        isRecoveryMode -> if (recoveryQuestions.isNotEmpty()) recoveryInstructionMsg else noRecoveryQuestionMsg
 
         mode == AppLockScreenMode.Unlock -> if (biometricEnabled && isBiometricAvailable) {
             biometricContinueMsg
@@ -410,15 +418,18 @@ fun AppLockScreen(
     val enterAnswerToDisableMsg = stringResource(R.string.msg_enter_your_answer_to_disable_a)
     val onPrimaryActionClick: () -> Unit = {
         if (isRecoveryMode) {
-            if (securityQuestionPrompt == null) {
+            val chosenQuestionId = selectedRecoveryQuestionId
+            if (recoveryQuestions.isEmpty()) {
                 message = recoveryQuestionNotFoundMsg
+            } else if (chosenQuestionId == null) {
+                message = selectRecoveryQuestionMsg
             } else if (recoveryAnswer.isBlank()) {
                 message = enterAnswerToDisableMsg
             } else {
                 coroutineScope.launch {
                     // PBKDF2 verification is ~50-150ms: keep it off the main thread.
                     val isValid = withContext(Dispatchers.Default) {
-                        validateSecurityAnswer(recoveryAnswer)
+                        validateSecurityAnswer(chosenQuestionId, recoveryAnswer)
                     }
                     if (isValid) {
                         onForgotPinRecovery()
@@ -492,7 +503,12 @@ fun AppLockScreen(
             securityAnswer = it
             message = null
         },
-        securityQuestionPromptText = securityQuestionPrompt?.let { stringResource(it) },
+        recoveryQuestions = recoveryQuestions,
+        selectedRecoveryQuestionId = selectedRecoveryQuestionId,
+        onRecoveryQuestionSelected = {
+            selectedRecoveryQuestionId = it
+            message = null
+        },
         recoveryAnswer = recoveryAnswer,
         onRecoveryAnswerChange = {
             recoveryAnswer = it
@@ -533,7 +549,9 @@ private fun AppLockScreenContent(
     securityAnswer: String,
     onQuestionSelected: (String) -> Unit,
     onSecurityAnswerChange: (String) -> Unit,
-    securityQuestionPromptText: String?,
+    recoveryQuestions: List<AppLockSecurityQuestion>,
+    selectedRecoveryQuestionId: String?,
+    onRecoveryQuestionSelected: (String) -> Unit,
     recoveryAnswer: String,
     onRecoveryAnswerChange: (String) -> Unit
 ) {
@@ -719,7 +737,9 @@ private fun AppLockScreenContent(
                     when {
                         isRecoveryMode -> {
                             RecoveryQuestionContent(
-                                questionPrompt = securityQuestionPromptText,
+                                questions = recoveryQuestions,
+                                selectedQuestionId = selectedRecoveryQuestionId,
+                                onQuestionSelected = onRecoveryQuestionSelected,
                                 answer = recoveryAnswer,
                                 onAnswerChange = onRecoveryAnswerChange,
                                 onDone = onPrimaryActionClick,
@@ -913,7 +933,9 @@ private fun SetupSecurityQuestionContent(
 
 @Composable
 private fun RecoveryQuestionContent(
-    questionPrompt: String?,
+    questions: List<AppLockSecurityQuestion>,
+    selectedQuestionId: String?,
+    onQuestionSelected: (String) -> Unit,
     answer: String,
     onAnswerChange: (String) -> Unit,
     onDone: () -> Unit,
@@ -923,20 +945,33 @@ private fun RecoveryQuestionContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(26.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 18.dp, vertical = 18.dp)
-        ) {
-            Text(
-                text = questionPrompt ?: stringResource(R.string.msg_no_recovery_question_saved),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
+        if (questions.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = 18.dp, vertical = 18.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.msg_no_recovery_question_saved),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
-            )
+            }
+        } else {
+            // Present the real question shuffled among randomly chosen decoys. The
+            // user must pick the one they saved; the selection is verified locally
+            // together with the answer.
+            questions.forEach { question ->
+                SecurityQuestionCard(
+                    prompt = stringResource(question.promptResId),
+                    isSelected = question.id == selectedQuestionId,
+                    onClick = { onQuestionSelected(question.id) }
+                )
+            }
         }
 
         AppLockAnswerField(
@@ -1259,7 +1294,9 @@ private fun SecurityQuestionRecoveryDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface {
             RecoveryQuestionContent(
-                questionPrompt = "What was the name of your first pet?",
+                questions = appLockSecurityQuestions.take(3),
+                selectedQuestionId = appLockSecurityQuestions.first().id,
+                onQuestionSelected = {},
                 answer = "Fluffy",
                 onAnswerChange = {},
                 onDone = {}
@@ -1274,7 +1311,9 @@ private fun SecurityQuestionRecoveryLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
         Surface {
             RecoveryQuestionContent(
-                questionPrompt = "What was the name of your first pet?",
+                questions = appLockSecurityQuestions.take(3),
+                selectedQuestionId = appLockSecurityQuestions.first().id,
+                onQuestionSelected = {},
                 answer = "Fluffy",
                 onAnswerChange = {},
                 onDone = {}
