@@ -112,39 +112,25 @@ private fun SplashOverlayContent(
     val progressTween = tween<Float>(durationMillis = 600, easing = FastOutSlowInEasing)
 
     LaunchedEffect(titleText, subtitleText, taglineText) {
-        // TEMP: replay enter + progress + ash for 1 minute.
-        val deadline = System.currentTimeMillis() + 60_000L
-        val ashSpec = tween<Float>(durationMillis = 1_150, easing = LinearEasing)
-        while (System.currentTimeMillis() < deadline) {
-            ashT.snapTo(0f)
-            titleEnter.snapTo(0f)
-            subtitleEnter.snapTo(0f)
-            taglineEnter.snapTo(0f)
-            loadingProgress.snapTo(0f)
-            displayedTask = InitTask.Start
-            coroutineScope {
-                launch {
-                    displayedTask = InitTask.Start
-                    loadingProgress.animateTo(0.4f, progressTween)
-                    displayedTask = InitTask.Syncing
-                    loadingProgress.animateTo(0.8f, progressTween)
-                    displayedTask = InitTask.Securing
-                    loadingProgress.animateTo(1f, progressTween)
-                    displayedTask = InitTask.Complete
-                }
-                launch {
-                    titleEnter.animateTo(1f, SplashInertiaSpring)
-                    delay(40)
-                    coroutineScope {
-                        launch { subtitleEnter.animateTo(1f, SplashInertiaSpring) }
-                        launch { taglineEnter.animateTo(1f, SplashInertiaSpring) }
-                    }
-                }
-            }
-            delay(5)
-            ashT.animateTo(1f, ashSpec)
+        titleEnter.animateTo(1f, SplashInertiaSpring)
+        delay(40)
+        coroutineScope {
+            launch { subtitleEnter.animateTo(1f, SplashInertiaSpring) }
+            launch { taglineEnter.animateTo(1f, SplashInertiaSpring) }
         }
-        onExitFinished()
+    }
+
+    LaunchedEffect(currentTask) {
+        displayedTask = currentTask
+        loadingProgress.animateTo(currentTask.progress / 100f, progressTween)
+        if (currentTask is InitTask.Complete) {
+            delay(5)
+            ashT.animateTo(
+                1f,
+                tween(durationMillis = 1_150, easing = LinearEasing),
+            )
+            onExitFinished()
+        }
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
@@ -318,8 +304,8 @@ private fun SplashAshField(
                 y0 = 0.28f + rng.nextFloat() * 0.28f,
                 vx = (rng.nextFloat() - 0.5f) * 0.55f,
                 vy = -0.12f - rng.nextFloat() * 0.55f,
-                width = 1.6f + rng.nextFloat() * 5.5f,
-                height = 1.2f + rng.nextFloat() * 3.2f,
+                width = 3.2f + rng.nextFloat() * 8.5f,
+                height = 2.4f + rng.nextFloat() * 5.0f,
                 spin = (rng.nextFloat() - 0.5f) * 420f,
                 start = rng.nextFloat() * 0.18f,
                 lift = 0.7f + rng.nextFloat() * 0.6f,

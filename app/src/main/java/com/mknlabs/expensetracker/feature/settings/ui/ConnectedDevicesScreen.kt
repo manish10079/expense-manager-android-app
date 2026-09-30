@@ -115,7 +115,7 @@ private fun ConnectedDevicesContent(
     ) {
         val enter = rememberSectionEnterAlphas(2)
         AppHeader(
-            title = stringResource(R.string.title_cloud_sync),
+            title = stringResource(R.string.title_cloud_sync_devices),
             onBackClick = onBackClick,
             modifier = Modifier.padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding).alpha(enter[0])
         )
@@ -298,72 +298,72 @@ private fun DeviceListContent(
                     )
                 ),
             ) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = stringResource(R.string.title_force_sync),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.title_force_sync),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        IconButton(
+                            onClick = { showForceSyncInfo = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = stringResource(R.string.desc_force_sync),
+                                tint = MaterialTheme.colorScheme.accentInk,
+                                modifier = Modifier.size(16.dp)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            IconButton(
-                                onClick = { showForceSyncInfo = true },
-                                modifier = Modifier.size(24.dp)
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (isSyncing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.accentInk,
+                                strokeWidth = 2.5.dp
+                            )
+                        } else {
+                            Button(
+                                onClick = onForceSyncClick,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.accentInk,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = stringResource(R.string.desc_force_sync),
-                                    tint = MaterialTheme.colorScheme.accentInk,
-                                    modifier = Modifier.size(16.dp)
+                                    imageVector = Icons.Rounded.CloudSync,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = stringResource(R.string.btn_sync_now),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                                 )
                             }
                         }
-                        val lastSyncText = if (lastSyncTimeMillis > 0L) {
-                            stringResource(R.string.label_last_synced, formatDate(lastSyncTimeMillis, "MMM dd, yyyy · hh:mm a"))
-                        } else {
-                            stringResource(R.string.label_never_synced)
-                        }
-                        Text(
-                            text = lastSyncText,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    if (isSyncing) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.accentInk,
-                            strokeWidth = 2.5.dp
-                        )
+                    val lastSyncText = if (lastSyncTimeMillis > 0L) {
+                        stringResource(R.string.label_last_synced, formatDate(lastSyncTimeMillis, "MMM dd, yyyy · hh:mm a"))
                     } else {
-                        Button(
-                            onClick = onForceSyncClick,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.accentInk,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.CloudSync,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.btn_sync_now),
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                        }
+                        stringResource(R.string.label_never_synced)
                     }
+                    Text(
+                        text = lastSyncText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
         }
@@ -383,39 +383,42 @@ private fun DeviceListContent(
             ),
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = stringResource(R.string.label_devices_used, devices.size, maxDevices),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                val filled = devices.size.coerceIn(0, maxDevices)
+                val atCap = devices.size >= maxDevices
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.label_devices_used, devices.size, maxDevices),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "${(devices.size.toFloat() / maxDevices * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.accentInk
-                    )
+                    repeat(maxDevices.coerceAtLeast(1)) { index ->
+                        val on = index < filled
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(
+                                    when {
+                                        on && atCap -> MaterialTheme.colorScheme.error
+                                        on -> MaterialTheme.colorScheme.accentInk
+                                        else -> MaterialTheme.colorScheme.track
+                                    }
+                                )
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                LinearProgressIndicator(
-                    progress = { devices.size.toFloat() / maxDevices },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(CircleShape),
-                    color = if (devices.size >= maxDevices) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.accentInk,
-                    trackColor = MaterialTheme.colorScheme.track
-                )
             }
         }
 
         Text(
             text = stringResource(R.string.desc_connected_devices),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = Dimens.ScreenPadding + 8.dp, vertical = 8.dp)
         )
 
@@ -466,10 +469,16 @@ private fun DeviceListContent(
                 )
             },
             text = {
-                Text(
-                    text = stringResource(R.string.desc_force_sync),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = stringResource(R.string.desc_force_sync),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.desc_last_synced_info),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             },
             confirmButton = {
                 AppTextButton(onClick = { showForceSyncInfo = false }) {
@@ -540,26 +549,37 @@ private fun DeviceItem(
                 )
                 
                 if (device.isCurrentDevice) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(6.dp),
-                        modifier = Modifier.padding(vertical = 2.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(6.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.label_this_device),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
                         Text(
-                            text = stringResource(R.string.label_this_device),
+                            text = stringResource(R.string.label_active_now),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            color = MaterialTheme.colorScheme.accentInk,
                         )
                     }
+                } else {
+                    Text(
+                        text = stringResource(
+                            R.string.label_last_active,
+                            formatDate(device.lastActiveMillis, "dd MMM, HH:mm"),
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-
-                Text(
-                    text = if (device.isCurrentDevice) stringResource(R.string.label_active_now) 
-                           else stringResource(R.string.label_last_active, formatDate(device.lastActiveMillis, "dd MMM, HH:mm")),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             if (!device.isCurrentDevice) {

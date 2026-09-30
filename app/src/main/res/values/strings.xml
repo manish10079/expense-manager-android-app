@@ -1690,7 +1690,7 @@
     <string name="desc_sync_premium_subtitle">Sync data across 4 devices (Pro)</string>
     <string name="desc_sync_active_subtitle">Automatic cloud backup is active</string>
     <string name="desc_sync_disabled_subtitle">Automatic cloud backup is disabled</string>
-    <string name="desc_connected_devices">Manage up to 4 devices for automatic cloud sync.</string>
+    <string name="desc_connected_devices">Connected Devices List</string>
     <string name="label_active_now">Active Now</string>
     <string name="label_last_active">Last active: %1$s</string>
     <string name="label_this_device">This Device</string>
@@ -1913,7 +1913,8 @@
 
     <!-- Force Cloud Sync -->
     <string name="title_force_sync">Trouble Syncing?</string>
-    <string name="desc_force_sync">If changes are not syncing automatically, you can force a full sync.</string>
+    <string name="desc_force_sync">If changes are not syncing automatically, you can force a full sync.</string>
+    <string name="desc_last_synced_info">Last synced is the date and time this device last finished a successful cloud sync. Never synced means no completed sync has been recorded yet.</string>
     <string name="btn_sync_now">Sync Now</string>
     <string name="toast_force_sync_success">Sync completed successfully!</string>
     <string name="toast_force_sync_failed">Sync failed: %1$s</string>
