@@ -48,6 +48,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -65,6 +67,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -154,12 +158,22 @@ fun AppLockScreen(
     pinVisualMode: PinVisualMode = PinVisualMode.NORMAL
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     val isInPreview = LocalInspectionMode.current
-    DisposableEffect(isInPreview) {
+
+    DisposableEffect(isInPreview, context, view) {
         if (!isInPreview) {
-            val activity = context as? Activity
+            val activity = context.findActivity()
             val previousOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+            val dialogWindow = (view.parent as? DialogWindowProvider)?.window
+            dialogWindow?.let { window ->
+                val attrs = window.attributes
+                attrs.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                window.attributes = attrs
+            }
+
             onDispose {
                 activity?.requestedOrientation = previousOrientation
             }
@@ -1435,4 +1449,10 @@ private fun PinSlot(
             }
         }
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
