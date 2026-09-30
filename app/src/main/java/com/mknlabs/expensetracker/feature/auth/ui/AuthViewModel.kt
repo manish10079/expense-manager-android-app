@@ -32,7 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 enum class AuthLoadingType {
     GOOGLE,
     EMAIL,
-    MAGIC_LINK,
     GUEST,
     GENERIC
 }
@@ -42,7 +41,6 @@ sealed class AuthState {
     data class Loading(val type: AuthLoadingType = AuthLoadingType.GENERIC) : AuthState()
     data class Success(val isNewUser: Boolean = false) : AuthState()
     object ResetEmailSent : AuthState()
-    object MagicLinkSent : AuthState()
     object NoGoogleAccounts : AuthState()
     data class EmailVerificationRequired(
         val isLoading: Boolean = false,
@@ -149,10 +147,6 @@ class AuthViewModel @Inject constructor(
     private val _updateEmailState = MutableStateFlow<UpdateEmailUiState>(UpdateEmailUiState.Idle)
     val updateEmailState: StateFlow<UpdateEmailUiState> = _updateEmailState.asStateFlow()
 
-    private val _cooldownSeconds = MutableStateFlow(0)
-    val cooldownSeconds: StateFlow<Int> = _cooldownSeconds.asStateFlow()
-
-    private var cooldownJob: kotlinx.coroutines.Job? = null
     private var guestSignInSessionId: Long = 0L
 
     val currentUser = authRepository.currentUser
@@ -295,7 +289,7 @@ class AuthViewModel @Inject constructor(
                             .onFailure { error ->
                                 android.util.Log.e("AUTH", "Firebase Google credential sign-in failed in AuthViewModel: class=[${error.javaClass.name}], message=[${error.message}]", error)
                                 if (!silent) {
-                                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                                    _authState.value = AuthState.Error(mapFirebaseAuthError(error))
                                 }
                             }
                     } else {
@@ -365,7 +359,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Success(isNewUser)
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
+                    _authState.value = AuthState.Error(mapFirebaseAuthError(error))
                 }
         }
     }
@@ -396,16 +390,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Success(isNewUser = true)
                 }
                 .onFailure { error ->
-                    val isCollision = error is com.google.firebase.auth.FirebaseAuthUserCollisionException || 
-                                     (error.message?.contains("already in use") == true) ||
-                                     (error.message?.contains("already exists") == true)
-                    
-                    if (isCollision) {
-                        android.util.Log.i("AuthVM", "Email already in use, trying to sign in instead")
-                        signInWithEmail(email, password)
-                    } else {
-                        _authState.value = AuthState.Error(mapFirebaseError(error))
-                    }
+                    _authState.value = AuthState.Error(mapFirebaseAuthError(error, isSignUp = true))
                 }
         }
     }
@@ -449,7 +434,7 @@ class AuthViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
-                    val errorRes = mapFirebaseError(error)
+                    val errorRes = mapFirebaseAuthError(error)
                     _authState.value = AuthState.Error(errorRes)
                     launch {
                         kotlinx.coroutines.delay(10000L)
@@ -458,66 +443,6 @@ class AuthViewModel @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    fun sendMagicLink(email: String) {
-        if (!networkMonitor.isConnected()) {
-            _authState.value = AuthState.Error(R.string.error_no_internet)
-            return
-        }
-
-        if (_cooldownSeconds.value > 0) return
-
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading(AuthLoadingType.MAGIC_LINK)
-            
-            // 1. Store email locally for verification when user clicks the link
-            AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = email) }
-            
-            // 2. Send the link
-            authRepository.sendMagicLink(email)
-                .onSuccess { 
-                    _authState.value = AuthState.MagicLinkSent
-                    startCooldown()
-                }
-                .onFailure { error ->
-                    _authState.value = AuthState.Error(mapFirebaseError(error))
-                }
-        }
-    }
-
-    private fun startCooldown() {
-        cooldownJob?.cancel()
-        cooldownJob = viewModelScope.launch {
-            _cooldownSeconds.value = 60
-            while (_cooldownSeconds.value > 0) {
-                kotlinx.coroutines.delay(1000)
-                _cooldownSeconds.value -= 1
-            }
-        }
-    }
-
-    fun completeMagicLinkSignIn(emailLink: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading(AuthLoadingType.MAGIC_LINK)
-            
-            // 1. Retrieve the email we stored earlier
-            val pendingEmail = AppSettingsDataStore.getAppSettingsFlow(context).first().pendingAuthEmail
-            
-            if (pendingEmail != null) {
-                authRepository.completeSignInWithLink(pendingEmail, emailLink)
-                    .onSuccess { isNewUser ->
-                        _authState.value = AuthState.Success(isNewUser)
-                        // Clear the pending email
-                        AppSettingsDataStore.updateAppSettings(context) { it.copy(pendingAuthEmail = null) }
-                    }
-                    .onFailure { error ->
-                        _authState.value = AuthState.Error(mapFirebaseError(error))
-                    }
-            } else {
-                _authState.value = AuthState.Error(R.string.error_auth_generic_fail)
-            }
         }
     }
 
@@ -544,35 +469,6 @@ class AuthViewModel @Inject constructor(
 
     fun cancelGuestSignIn() {
         guestSignInSessionId = 0L
-    }
-
-    private fun mapFirebaseError(error: Throwable): Int {
-        if (error is FirebaseAuthException) {
-            val errorCode = error.errorCode
-            android.util.Log.w("AuthVM", "Mapping Firebase Auth Exception: $errorCode")
-            return when (errorCode) {
-                "ERROR_USER_NOT_FOUND" -> R.string.error_auth_user_not_found
-                "ERROR_WRONG_PASSWORD" -> R.string.error_auth_wrong_password
-                "ERROR_INVALID_CREDENTIAL" -> R.string.error_auth_invalid_credentials
-                "ERROR_EMAIL_ALREADY_IN_USE", "ERROR_CREDENTIAL_ALREADY_IN_USE", "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> R.string.error_auth_email_already_in_use
-                "ERROR_USER_DISABLED" -> R.string.error_auth_user_disabled
-                "ERROR_TOO_MANY_REQUESTS" -> R.string.error_auth_too_many_requests
-                "ERROR_WEAK_PASSWORD" -> R.string.error_auth_weak_password
-                else -> R.string.error_auth_generic_fail
-            }
-        }
-
-        val message = error.message ?: ""
-        return when {
-            message.contains("user-not-found") -> R.string.error_auth_user_not_found
-            message.contains("wrong-password") -> R.string.error_auth_wrong_password
-            message.contains("invalid-credential") -> R.string.error_auth_invalid_credentials
-            message.contains("email-already-in-use") || message.contains("already exists") || message.contains("already-in-use") -> R.string.error_auth_email_already_in_use
-            message.contains("user-disabled") -> R.string.error_auth_user_disabled
-            message.contains("too-many-requests") -> R.string.error_auth_too_many_requests
-            message.contains("weak-password") -> R.string.error_auth_weak_password
-            else -> R.string.error_auth_generic_fail
-        }
     }
 
     private fun mapGoogleAuthError(error: Throwable): Int = when {
@@ -682,7 +578,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.EmailVerificationRequired(isResendSuccess = true)
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseError(error))
+                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseAuthError(error))
                 }
         }
     }
@@ -718,7 +614,7 @@ class AuthViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
-                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseError(error))
+                    _authState.value = AuthState.EmailVerificationRequired(errorRes = mapFirebaseAuthError(error))
                 }
         }
     }
@@ -736,7 +632,7 @@ class AuthViewModel @Inject constructor(
                     _updatePasswordState.value = UpdatePasswordState.Success
                 }
                 .onFailure { error ->
-                    val errorRes = mapFirebaseError(error)
+                    val errorRes = mapFirebaseAuthError(error)
                     val finalErrorRes = if (errorRes == R.string.error_auth_generic_fail) {
                         R.string.error_password_update_failed
                     } else {
