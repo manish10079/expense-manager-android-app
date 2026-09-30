@@ -364,12 +364,7 @@ fun AppLockScreen(
     }
     val eyebrow = when {
         isRecoveryMode -> stringResource(R.string.label_verify_security_question)
-        mode == AppLockScreenMode.Unlock -> if (biometricEnabled) {
-            stringResource(R.string.label_biometric_security_active)
-        } else {
-            stringResource(R.string.label_pin_security_active)
-        }
-
+        mode == AppLockScreenMode.Unlock -> ""
         setupStage == PinSetupStage.Create -> stringResource(R.string.label_create_4digit_pin)
         setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_your_pin)
         else -> ""
