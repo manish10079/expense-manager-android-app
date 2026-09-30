@@ -3,6 +3,9 @@ package com.mknlabs.expensetracker.feature.profile.ui
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -202,6 +205,19 @@ private fun ProfileScreenContent(
         }
     }
 
+    var pendingSaveProfile by remember { mutableStateOf<UserProfile?>(null) }
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (pendingSaveProfile != null) 0f else 1f,
+        animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing),
+        finishedListener = { value ->
+            val saved = pendingSaveProfile
+            if (saved != null && value == 0f) {
+                onSaveClick(saved)
+            }
+        },
+        label = "editProfileSaveFade"
+    )
+
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -236,6 +252,7 @@ private fun ProfileScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
+            .alpha(contentAlpha)
     ) {
         val enter = rememberSectionEnterAlphas(2)
         AppHeader(
@@ -494,21 +511,21 @@ private fun ProfileScreenContent(
         ) {
             Button(
                 onClick = {
-                    onSaveClick(
-                        userProfile.copy(
-                            fullName = fullName.trim().ifBlank { guestUserPlaceholder },
-                            emailAddress = userProfile.emailAddress.trim(),
-                            phoneNumber = if (localPhoneNumber.trim().isEmpty()) "" else "${selectedCountryCode.trim()}${localPhoneNumber.trim()}",
-                            dateOfBirthMillis = dateOfBirthMillis,
-                            gender = gender,
-                            photoUri = photoUri
-                        )
+                    if (pendingSaveProfile != null) return@Button
+                    val updated = userProfile.copy(
+                        fullName = fullName.trim().ifBlank { guestUserPlaceholder },
+                        emailAddress = userProfile.emailAddress.trim(),
+                        phoneNumber = if (localPhoneNumber.trim().isEmpty()) "" else "${selectedCountryCode.trim()}${localPhoneNumber.trim()}",
+                        dateOfBirthMillis = dateOfBirthMillis,
+                        gender = gender,
+                        photoUri = photoUri
                     )
                     if (initialPhotoUri != photoUri) {
                         initialPhotoUri?.let(ProfilePhotoManager::deleteManagedPhoto)
                     }
+                    pendingSaveProfile = updated
                 },
-                enabled = !isPhotoProcessing,
+                enabled = !isPhotoProcessing && pendingSaveProfile == null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 64.dp, max = 80.dp)

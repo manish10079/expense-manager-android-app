@@ -22,7 +22,10 @@ import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +59,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
 
 // ── Responsive helpers ─────────────────────────────────────────────────
@@ -102,7 +109,7 @@ private fun rememberDialogMetrics(): DialogMetrics {
         // ── Padding scales with screen width ────────────────────────
         val outerPad = when (windowInfo.width) {
             AppWindowSize.Compact   -> 20.dp
-            AppWindowSize.Medium    -> 24.dp
+            AppWindowSize.Medium    -> 16.dp
             AppWindowSize.Expanded  -> 28.dp
             else                    -> 32.dp
         }
@@ -117,8 +124,8 @@ private fun rememberDialogMetrics(): DialogMetrics {
             outerPadding = outerPad,
             innerPadding = innerPad,
             cornerRadius = when {
-                windowInfo.width >= AppWindowSize.Expanded -> 24.dp
-                else -> 20.dp
+                windowInfo.width >= AppWindowSize.Expanded -> 8.dp
+                else -> 8.dp
             },
             iconSize = when (windowInfo.width) {
                 AppWindowSize.Compact -> 28.dp
@@ -171,9 +178,7 @@ fun UpdateDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onUpdateNow) {
-                Text(stringResource(R.string.btn_update_now))
-            }
+            UpdateNowButton(onClick = onUpdateNow)
         },
         dismissButton = {
             if (!force) {
@@ -184,6 +189,36 @@ fun UpdateDialog(
         },
         shape = RoundedCornerShape(metrics.cornerRadius)
     )
+}
+
+
+@Composable
+private fun UpdateNowButton(onClick: () -> Unit) {
+    val shape = ButtonDefaults.shape
+    Button(
+        onClick = onClick,
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onCta
+        ),
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier.defaultMinSize(minHeight = 40.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .background(brush = brandGradient())
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.btn_update_now),
+                color = MaterialTheme.colorScheme.onCta,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
 }
 
 // ── Extracted content ──────────────────────────────────────────────────
@@ -329,6 +364,62 @@ private fun PreviewForced() {
     }
 }
 
+@Preview(
+    name = "Compact portrait dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 360,
+    heightDp = 740
+)
+@Composable
+private fun PreviewCompactPortraitDark() {
+    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
+        PreviewDialogCard(force = false) {
+            UpdateDialogContent(
+                info = UpdateInfo(
+                    latestVersion = "2.102.0",
+                    updateTitle = "",
+                    updateMessage = buildRemoteConfigMessage(),
+                    forceUpdate = false
+                )
+            )
+        }
+    }
+}
+
+@Preview(
+    name = "Forced update dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 360,
+    heightDp = 740
+)
+@Composable
+private fun PreviewForcedDark() {
+    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
+        PreviewDialogCard(force = true) {
+            UpdateDialogContent(
+                info = UpdateInfo(
+                    latestVersion = "3.0.0",
+                    updateTitle = "Critical Security Update",
+                    updateMessage = "Critical security update \u2014 please update now:\n\n" +
+                        "\u2022 Fixed authentication token leak on background sync\n" +
+                        "\u2022 End-to-end encryption for cloud backups\n" +
+                        "\u2022 Patched biometric bypass on rooted devices\n" +
+                        "\u2022 Removed deprecated Firebase SDK calls\n" +
+                        "\u2022 Hardened PIN against brute-force attempts\n" +
+                        "\u2022 Resolved crash on Samsung Galaxy S24 during export\n" +
+                        "\u2022 Fixed duplicate notifications on Pixel 8 Pro\n" +
+                        "\u2022 Improved offline mode reliability\n" +
+                        "\u2022 Corrected currency formatting for JPY and KRW\n" +
+                        "\u2022 Fixed dark theme contrast on Settings screen",
+                    forceUpdate = true
+                )
+            )
+        }
+    }
+}
+
 // ── Preview helpers ────────────────────────────────────────────────────
 
 @Composable
@@ -399,7 +490,7 @@ private fun buildRemoteConfigMessage(): String = listOf(
 @Composable
 private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(8.dp),
         tonalElevation = 3.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -413,9 +504,7 @@ private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Button(onClick = {}) {
-                    Text(stringResource(R.string.btn_update_now))
-                }
+                UpdateNowButton(onClick = {})
             }
         }
     }
