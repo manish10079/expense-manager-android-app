@@ -1208,27 +1208,7 @@ private fun AppLockKey(
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Dark")
-//@Composable
-//private fun AppLockUnlockDarkPreview() {
-//    ExpenseTrackerTheme(darkTheme = true) {
-//        AppLockScreen(
-//            mode = AppLockScreenMode.Unlock,
-//            securityQuestionPrompt = "What was the name of your first school?"
-//        )
-//    }
-//}
 
-//@Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Unlock Light")
-//@Composable
-//private fun AppLockUnlockLightPreview() {
-//    ExpenseTrackerTheme(darkTheme = false) {
-//        AppLockScreen(
-//            mode = AppLockScreenMode.Unlock,
-//            securityQuestionPrompt = "What was the name of your first school?"
-//        )
-//    }
-//}
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 780, name = "Biometric Unlock Dark")
 @Composable
