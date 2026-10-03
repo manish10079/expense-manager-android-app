@@ -173,6 +173,7 @@ fun SettingsScreen(
         onAdFreeAccessClick = onAdFreeAccessClick,
         onRedeemProPassClick = { showRedeemDialog = true },
         onManageCategoryClick = onManageCategoryClick,
+        onManageTagsClick = onManageTagsClick,
         onAppPreferencesClick = onPreferencesClick,
         onNotificationsClick = onNotificationsClick,
         onTransactionCardCustomizeClick = onTransactionCardCustomizeClick,
