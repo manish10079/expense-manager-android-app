@@ -43,17 +43,20 @@ class TransactionsViewModelTest {
 
     private lateinit var viewModel: TransactionsViewModel
     private lateinit var fakeRepository: FakeTransactionRepository
+    private lateinit var fakeTagRepository: FakeTagRepository
     private lateinit var fakeMonetizationRepository: FakeMonetizationRepository
     private lateinit var observeAccessStatusUseCase: ObserveAccessStatusUseCase
 
     @Before
     fun setup() {
         fakeRepository = FakeTransactionRepository()
+        fakeTagRepository = FakeTagRepository()
         fakeMonetizationRepository = FakeMonetizationRepository()
         observeAccessStatusUseCase = ObserveAccessStatusUseCase(fakeMonetizationRepository)
         viewModel = TransactionsViewModel(
             application = android.app.Application(),
             transactionRepository = fakeRepository,
+            tagRepository = fakeTagRepository,
             observeAccessStatusUseCase = observeAccessStatusUseCase
         )
         // Run filter updates without a debounce delay.
@@ -377,6 +380,31 @@ class TransactionsViewModelTest {
         override suspend fun hasTransactionsInRange(startMillis: Long, endMillis: Long): Boolean {
             return stubTransactions.any { it.createdAt in startMillis until endMillis }
         }
+    }
+
+    /**
+     * Minimal tag repository. The ViewModel only observes tags here, so the writes are
+     * no-ops; the filter behaviour that matters is asserted through [TransactionQuery].
+     */
+    private class FakeTagRepository : com.mknlabs.expensetracker.domain.repository.TagRepository {
+        var stubTags: List<com.mknlabs.expensetracker.models.Tag> = emptyList()
+
+        override fun observeActiveTags(): Flow<List<com.mknlabs.expensetracker.models.Tag>> =
+            flowOf(stubTags)
+        override fun observeTagStats(): Flow<Map<String, com.mknlabs.expensetracker.models.TagStats>> =
+            flowOf(emptyMap())
+        override fun observeTagsForTransaction(transactionId: String): Flow<List<com.mknlabs.expensetracker.models.Tag>> =
+            flowOf(emptyList())
+        override fun observeAllTransactionTags(): Flow<Map<String, List<com.mknlabs.expensetracker.models.Tag>>> =
+            flowOf(emptyMap())
+        override suspend fun getTagIdsForTransaction(transactionId: String): List<String> = emptyList()
+        override suspend fun createTag(name: String, colorHex: String?): com.mknlabs.expensetracker.models.Tag =
+            com.mknlabs.expensetracker.models.Tag(id = name, name = name)
+        override suspend fun renameTag(id: String, newName: String) {}
+        override suspend fun updateTagColor(id: String, colorHex: String?) {}
+        override suspend fun deleteTag(id: String) {}
+        override suspend fun mergeTags(sourceId: String, targetId: String) {}
+        override suspend fun setTransactionTags(transactionId: String, tagIds: List<String>) {}
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {

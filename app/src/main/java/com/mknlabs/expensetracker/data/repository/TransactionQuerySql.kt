@@ -4,6 +4,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.models.TagMatchMode
 import java.util.Locale
 
 /** A SQL statement plus its ordered bind arguments, before Room sees it. */
@@ -92,7 +93,63 @@ object TransactionQuerySql {
             args += it
         }
 
+        if (query.tagIds.isNotEmpty()) {
+            appendTagFilter(selection, args, query)
+        }
+
         return selection.toString() to args
+    }
+
+    /**
+     * Restricts the selection to transactions carrying the chosen tags.
+     *
+     * The join table is queried with a sub-select on `transactions.id` rather than a
+     * `JOIN` in the outer statement. Two reasons: the same `selection()` feeds the
+     * paging, id and totals statements, and a `JOIN` would change the row count the
+     * totals aggregate sees (a transaction with two matching tags would be counted
+     * twice); and the sub-select keeps the outer query's columns and `ORDER BY`
+     * untouched.
+     *
+     * `OR` asks for any one of the tags; `AND` asks for all of them, which is expressed
+     * as "the number of distinct chosen tags on this transaction equals the number
+     * chosen". `COUNT(DISTINCT tag_id)` is the count that cannot be inflated by a
+     * duplicate join row, so the two modes cannot disagree about a transaction that
+     * carries a tag twice.
+     *
+     * Both branches exclude soft-deleted tags and transactions, so a filter can never
+     * match through a row the ledger would not show.
+     */
+    private fun appendTagFilter(
+        selection: StringBuilder,
+        args: MutableList<Any>,
+        query: TransactionQuery
+    ) {
+        when (query.tagMatchMode) {
+            TagMatchMode.OR -> {
+                selection.append(
+                    " AND id IN (" +
+                        "SELECT tt.transaction_id FROM transaction_tags tt " +
+                        "JOIN tags ON tags.id = tt.tag_id " +
+                        "JOIN transactions t2 ON t2.id = tt.transaction_id " +
+                        "WHERE tags.is_deleted = 0 AND t2.is_deleted = 0 " +
+                        "AND tt.tag_id IN (${query.tagIds.tagPlaceholders()}))"
+                )
+                args.addAll(query.tagIds)
+            }
+            TagMatchMode.AND -> {
+                selection.append(
+                    " AND id IN (" +
+                        "SELECT tt.transaction_id FROM transaction_tags tt " +
+                        "JOIN tags ON tags.id = tt.tag_id " +
+                        "JOIN transactions t2 ON t2.id = tt.transaction_id " +
+                        "WHERE tags.is_deleted = 0 AND t2.is_deleted = 0 " +
+                        "AND tt.tag_id IN (${query.tagIds.tagPlaceholders()}) " +
+                        "GROUP BY tt.transaction_id HAVING COUNT(DISTINCT tt.tag_id) = ?)"
+                )
+                args.addAll(query.tagIds)
+                args += query.tagIds.size
+            }
+        }
     }
 
     fun paging(query: TransactionQuery): TransactionSqlQuery {
@@ -136,3 +193,10 @@ object TransactionQuerySql {
 
 /** `?,?,?` — one placeholder per id, used to build `IN (...)` with bind args. */
 private fun List<Int>.placeholders(): String = joinToString(separator = ",") { "?" }
+
+/**
+ * The same, for the string tag ids. Named differently from the int overload rather than
+ * overloaded, because both erase to the same JVM signature and the compiler rejects the
+ * pair.
+ */
+private fun List<String>.tagPlaceholders(): String = joinToString(separator = ",") { "?" }

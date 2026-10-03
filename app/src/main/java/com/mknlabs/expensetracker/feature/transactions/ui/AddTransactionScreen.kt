@@ -176,6 +176,7 @@ import com.mknlabs.expensetracker.models.RecurringTransactionDraft
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -247,12 +248,23 @@ fun AddTransactionScreen(
     onCalculatorClick: () -> Unit = {},
     onAmountInputChange: (String) -> Unit = {},
     onNoteChange: (String) -> Unit = {},
-    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> }
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean, List<String>) -> Unit = { _, _, _, _ -> }
 ) {
     // --- Route layer: Hilt collaborators and the Android voice plumbing. ---
     val paymentMethodPredictorViewModel: PaymentMethodPredictorViewModel = hiltViewModel()
     val predictedPaymentMethodId by paymentMethodPredictorViewModel.predictedPaymentMethodId
         .collectAsStateWithLifecycle()
+
+    // Tags are their own ViewModel because they are the one part of this form backed by a
+    // repository: the catalogue is observed and the selection is reconciled against it.
+    val tagsViewModel: TransactionTagsViewModel = hiltViewModel()
+    val allTags by tagsViewModel.allTags.collectAsStateWithLifecycle()
+    val selectedTags by tagsViewModel.selectedTags.collectAsStateWithLifecycle()
+
+    // Edit mode seeds the selection from what the transaction already carries, once.
+    LaunchedEffect(existingTransaction?.id) {
+        existingTransaction?.id?.let(tagsViewModel::seedFromTransaction)
+    }
 
     // Voice lives in its own file because it touches android.speech, which the Compose
     // preview renderer does not ship. See [rememberTransactionVoiceInput].
@@ -283,6 +295,12 @@ fun AddTransactionScreen(
         onCalculatorClick = onCalculatorClick,
         onAmountInputChange = onAmountInputChange,
         onNoteChange = onNoteChange,
+        allTags = allTags,
+        selectedTags = selectedTags,
+        onToggleTag = tagsViewModel::toggleTag,
+        onAddTagByName = tagsViewModel::addTagByName,
+        // The Content already holds `selectedTags`, so it supplies the ids on the save
+        // call and this passes the callback straight through.
         onSaveClick = onSaveClick,
         predictedPaymentMethodId = predictedPaymentMethodId,
         onPredictNote = { paymentMethodPredictorViewModel.predict(it) },
@@ -325,7 +343,12 @@ internal fun AddTransactionScreenContent(
     onCalculatorClick: () -> Unit = {},
     onAmountInputChange: (String) -> Unit = {},
     onNoteChange: (String) -> Unit = {},
-    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean) -> Unit = { _, _, _ -> },
+    /** Tag catalogue for suggestions, and the tags currently applied to this draft. */
+    allTags: List<Tag> = emptyList(),
+    selectedTags: List<Tag> = emptyList(),
+    onToggleTag: (String) -> Unit = {},
+    onAddTagByName: (String) -> Unit = {},
+    onSaveClick: (Transaction, RecurringTransactionDraft?, Boolean, List<String>) -> Unit = { _, _, _, _ -> },
     predictedPaymentMethodId: Int? = null,
     onPredictNote: (String) -> Unit = {},
     onLearnPaymentMethod: (String, Int) -> Unit = { _, _ -> },
@@ -877,6 +900,23 @@ internal fun AddTransactionScreenContent(
                     }
                 }
 
+                // Tags sit directly below Category (PRD §3): both are ways of labelling
+                // the same transaction, so they belong beside each other rather than
+                // among the date/recurring controls on the other pane.
+                val tagsBlock: @Composable () -> Unit = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                    ) {
+                        SectionHeader(title = stringResource(R.string.title_tags))
+                        TransactionTagField(
+                            allTags = allTags,
+                            selectedTags = selectedTags,
+                            onToggle = onToggleTag,
+                            onAddByName = onAddTagByName
+                        )
+                    }
+                }
+
                 val dateRecurringBlock: @Composable () -> Unit = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -933,6 +973,7 @@ internal fun AddTransactionScreenContent(
                         ) {
                             tabAndAmountBlock()
                             categoryBlock()
+                            tagsBlock()
                             paymentBlock()
                         }
                         Column(
@@ -959,6 +1000,7 @@ internal fun AddTransactionScreenContent(
                         quickFavoritesBlock()
                         noteBlock()
                         categoryBlock()
+                        tagsBlock()
                         paymentBlock()
                         dateRecurringBlock()
                     }
@@ -1024,7 +1066,7 @@ internal fun AddTransactionScreenContent(
                             if (note.isNotBlank()) {
                                 onLearnPaymentMethod(note, payment.id)
                             }
-                            onSaveClick(transaction, recurringDraft, isFavorite)
+                            onSaveClick(transaction, recurringDraft, isFavorite, selectedTags.map { it.id })
                         }
                     )
 
@@ -1170,7 +1212,7 @@ internal fun AddTransactionScreenContent(
                         pendingSaveTransaction = null
                         pendingSaveDraft = null
                         keyboardController?.hide()
-                        if (tx != null) onSaveClick(tx, draft, isFavorite)
+                        if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
                     }) {
                         Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
                     }

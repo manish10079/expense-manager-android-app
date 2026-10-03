@@ -41,6 +41,9 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.Tag
+import com.mknlabs.expensetracker.models.TagMatchMode
+import com.mknlabs.expensetracker.core.ui.theme.parseHexColorOrNull
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -87,6 +90,9 @@ fun FilterBottomSheet(
     selectedCategoryIds: Set<Int>,
     paymentModes: List<PaymentType>,
     selectedPaymentTypeIds: Set<Int>,
+    availableTags: List<Tag> = emptyList(),
+    selectedTagIds: Set<String> = emptySet(),
+    selectedTagMatchMode: TagMatchMode = TagMatchMode.OR,
     minAmount: String,
     maxAmount: String,
     onSortChange: (String) -> Unit,
@@ -96,6 +102,8 @@ fun FilterBottomSheet(
     onTransactionTypeToggle: (Int) -> Unit,
     onCategoryToggle: (Int) -> Unit,
     onPaymentModeToggle: (Int) -> Unit,
+    onTagToggle: (String) -> Unit = {},
+    onTagMatchModeChange: (TagMatchMode) -> Unit = {},
     onMinAmountChange: (String) -> Unit,
     onMaxAmountChange: (String) -> Unit,
     onApply: () -> Unit,
@@ -507,6 +515,44 @@ fun FilterBottomSheet(
                         )
                     }
                 }
+
+                // Tags are free-form, so unlike categories there is no fixed palette of
+                // chips to render: the list is whatever the user has made. It is hidden
+                // entirely until at least one tag exists, so a fresh install's filter
+                // sheet is not cluttered with an empty section.
+                if (availableTags.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    FilterGroup(title = stringResource(R.string.label_filter_tags)) {
+                        // The AND/OR choice only means something once two tags are picked;
+                        // with one tag both modes describe the same set, so the toggle
+                        // stays out of the way until it can change the result.
+                        if (selectedTagIds.size > 1) {
+                            TagMatchModeToggle(
+                                mode = selectedTagMatchMode,
+                                onModeChange = onTagMatchModeChange
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            availableTags.forEach { tag ->
+                                FilterChip(
+                                    title = tag.name,
+                                    icon = null,
+                                    iconTint = parseHexColorOrNull(tag.colorHex)
+                                        ?: colorScheme.accentInk,
+                                    selected = selectedTagIds.contains(tag.id),
+                                    selectedBrush = chipSelectedBrush,
+                                    unselectedBrush = chipUnselectedBrush,
+                                    onClick = { onTagToggle(tag.id) }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -736,6 +782,45 @@ private fun AmountFilterField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         colors = AppOutlinedFieldDefaults.colors()
     )
+}
+
+/**
+ * The All/Any switch above the tag chips.
+ *
+ * Two chips rather than a `Switch`: the two labels name the two modes directly, so the
+ * user is choosing a word they can read back ("All") rather than interpreting an
+ * on/off position, and it matches the chip language the rest of the sheet uses.
+ */
+@Composable
+private fun TagMatchModeToggle(
+    mode: TagMatchMode,
+    onModeChange: (TagMatchMode) -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.desc_filter_tags_match_mode),
+            style = MaterialTheme.typography.bodySmall,
+            color = colorScheme.onSurfaceVariant
+        )
+        FilterChip(
+            title = stringResource(R.string.label_tag_match_all),
+            selected = mode == TagMatchMode.AND,
+            selectedBrush = SolidColor(colorScheme.chipSelected),
+            unselectedBrush = subtlePrimaryGradient(),
+            onClick = { onModeChange(TagMatchMode.AND) }
+        )
+        FilterChip(
+            title = stringResource(R.string.label_tag_match_any),
+            selected = mode == TagMatchMode.OR,
+            selectedBrush = SolidColor(colorScheme.chipSelected),
+            unselectedBrush = subtlePrimaryGradient(),
+            onClick = { onModeChange(TagMatchMode.OR) }
+        )
+    }
 }
 
 @Composable

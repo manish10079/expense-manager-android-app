@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.parseHexColorOrNull
+import com.mknlabs.expensetracker.models.Tag
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
@@ -113,6 +115,14 @@ fun TransactionCard(
     showNoteTooltip: Boolean = true,
     isProUser: Boolean = false,
     isRecurring: Boolean = false,
+    /**
+     * The transaction's tags, drawn as pills after the category.
+     *
+     * Defaulted to empty so the five call sites that predate tagging — favorites, the
+     * home feed, previews — compile and render unchanged, and only the ledger passes a
+     * real list. Order is the caller's; the ledger sorts by name.
+     */
+    tags: List<Tag> = emptyList(),
     isSelected: Boolean = false,
     selectionMode: Boolean = false,
     onClick: () -> Unit = {},
@@ -367,6 +377,20 @@ fun TransactionCard(
                                             text = categoryLabel,
                                             color = MaterialTheme.colorScheme.accentInk,
                                             backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                                            style = metaStyle
+                                        )
+                                    }
+
+                                    // Tag pills trail the category, in the same scrollable
+                                    // strip, so a long tag list scrolls with the other meta
+                                    // pills rather than widening the card.
+                                    tags.forEach { tag ->
+                                        val tagColor = parseHexColorOrNull(tag.colorHex)
+                                            ?: MaterialTheme.colorScheme.accentInk
+                                        TransactionPill(
+                                            text = tag.name,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            backgroundColor = tagColor.copy(alpha = 0.18f),
                                             style = metaStyle
                                         )
                                     }

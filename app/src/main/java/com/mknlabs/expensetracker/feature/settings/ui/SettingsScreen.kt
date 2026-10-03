@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Info
@@ -109,6 +110,7 @@ fun SettingsScreen(
     onAdFreeAccessClick: () -> Unit = {},
     onRedeemProPassClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
+    onManageTagsClick: () -> Unit = {},
     onAppPreferencesClick: () -> Unit = {},
     onPreferencesClick: () -> Unit = onAppPreferencesClick,
     onNotificationsClick: () -> Unit = {},
@@ -202,6 +204,7 @@ fun SettingsScreenContent(
     onAdFreeAccessClick: () -> Unit = {},
     onRedeemProPassClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
+    onManageTagsClick: () -> Unit = {},
     onAppPreferencesClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onTransactionCardCustomizeClick: () -> Unit = {},
@@ -376,6 +379,12 @@ fun SettingsScreenContent(
                                     subtitleRes = R.string.label_manage_category_subtitle,
                                     icon = Icons.Filled.Category,
                                     onClick = onManageCategoryClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_manage_tags,
+                                    subtitleRes = R.string.label_manage_tags_subtitle,
+                                    icon = Icons.Filled.Sell,
+                                    onClick = onManageTagsClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_app_preferences,

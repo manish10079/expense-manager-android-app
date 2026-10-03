@@ -7,6 +7,7 @@ import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrenceEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
+import com.mknlabs.expensetracker.data.local.room.entities.TagEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.CategoryType
@@ -15,6 +16,7 @@ import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.models.InstallmentOccurrence
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
 
 fun GoalEntity.toDomain(): Goal {
@@ -106,6 +108,31 @@ fun PaymentType.toEntity(): PaymentMethodEntity {
         colorHex = colorHex,
         isSystem = isSystem,
         sortOrder = sortOrder,
+        isDeleted = isDeleted,
+        syncState = syncState,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}
+
+fun TagEntity.toDomain(): Tag {
+    return Tag(
+        id = id,
+        name = name,
+        colorHex = colorHex,
+        isDeleted = isDeleted,
+        syncState = syncState,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}
+
+fun Tag.toEntity(): TagEntity {
+    return TagEntity(
+        id = id,
+        name = name,
+        nameLower = name.lowercase(),
+        colorHex = colorHex,
         isDeleted = isDeleted,
         syncState = syncState,
         createdAt = createdAt,

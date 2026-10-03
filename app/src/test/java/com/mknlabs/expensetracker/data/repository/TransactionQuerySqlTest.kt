@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.data.repository
 
 import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.models.TagMatchMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -171,6 +172,65 @@ class TransactionQuerySqlTest {
     }
 
     @Test
+    fun `no tag filter leaves the query untouched`() {
+        val result = TransactionQuerySql.paging(TransactionQuery())
+
+        assertFalse(result.sql.contains("transaction_tags"))
+        assertEquals(listOf<Any>(1, 2), result.args)
+    }
+
+    @Test
+    fun `tag OR filter matches any selected tag`() {
+        val result = TransactionQuerySql.paging(
+            TransactionQuery(tagIds = listOf("t1", "t2"), tagMatchMode = TagMatchMode.OR)
+        )
+
+        assertTrue(result.sql.contains("SELECT tt.transaction_id FROM transaction_tags tt"))
+        assertTrue(result.sql.contains("tt.tag_id IN (?,?)"))
+        // OR must not group-and-count: it asks for at least one tag, not all of them.
+        assertFalse(result.sql.contains("HAVING"))
+        assertEquals(listOf<Any>(1, 2, "t1", "t2"), result.args)
+    }
+
+    @Test
+    fun `tag AND filter requires every selected tag`() {
+        val result = TransactionQuerySql.paging(
+            TransactionQuery(tagIds = listOf("t1", "t2"), tagMatchMode = TagMatchMode.AND)
+        )
+
+        assertTrue(result.sql.contains("GROUP BY tt.transaction_id"))
+        assertTrue(result.sql.contains("HAVING COUNT(DISTINCT tt.tag_id) = ?"))
+        // The count bound is the number of tags asked for, and it follows their ids.
+        assertEquals(listOf<Any>(1, 2, "t1", "t2", 2), result.args)
+    }
+
+    @Test
+    fun `tag filter excludes soft-deleted tags and transactions`() {
+        val result = TransactionQuerySql.paging(
+            TransactionQuery(tagIds = listOf("t1"), tagMatchMode = TagMatchMode.OR)
+        )
+
+        assertTrue(result.sql.contains("tags.is_deleted = 0"))
+        assertTrue(result.sql.contains("t2.is_deleted = 0"))
+    }
+
+    @Test
+    fun `tag filter applies to the totals query too`() {
+        val query = TransactionQuery(tagIds = listOf("t1"), tagMatchMode = TagMatchMode.AND)
+
+        val paging = TransactionQuerySql.paging(query)
+        val totals = TransactionQuerySql.totals(query)
+        val ids = TransactionQuerySql.ids(query)
+
+        // The summary, the list and "select all" must cover the same rows.
+        assertTrue(paging.sql.contains("transaction_tags"))
+        assertTrue(totals.sql.contains("transaction_tags"))
+        assertTrue(ids.sql.contains("transaction_tags"))
+        assertEquals(paging.args, totals.args)
+        assertEquals(paging.args, ids.args)
+    }
+
+    @Test
     fun `every placeholder has a matching bind argument`() {
         val queries = listOf(
             TransactionQuery(),
@@ -183,6 +243,8 @@ class TransactionQuerySqlTest {
                 transactionTypeIds = listOf(1),
                 categoryIds = listOf(4, 5, 6),
                 paymentTypeIds = listOf(7),
+                tagIds = listOf("a", "b", "c"),
+                tagMatchMode = TagMatchMode.AND,
                 minAmountMinor = 8L,
                 maxAmountMinor = 9L
             )

@@ -14,6 +14,8 @@ import com.mknlabs.expensetracker.data.constants.paymentTypeMap
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.models.Tag
+import com.mknlabs.expensetracker.models.TagMatchMode
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.core.ui.components.FILTER_DATE_LAST_15_DAYS
@@ -35,6 +37,7 @@ import java.util.Locale
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mknlabs.expensetracker.domain.repository.TransactionQuery
+import com.mknlabs.expensetracker.domain.repository.TagRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import androidx.lifecycle.viewModelScope
@@ -72,6 +75,10 @@ data class TransactionsScreenUiState(
     val selectedTransactionTypeIds: Set<Int> = setOf(1, 2),
     val selectedCategoryIds: Set<Int> = emptySet(),
     val selectedPaymentTypeIds: Set<Int> = emptySet(),
+    val selectedTagIds: Set<String> = emptySet(),
+    val selectedTagMatchMode: TagMatchMode = TagMatchMode.OR,
+    /** Every live tag, for the filter sheet's tag picker. */
+    val availableTags: List<Tag> = emptyList(),
     val selectedMinAmount: String = "",
     val selectedMaxAmount: String = "",
     val selectedPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY,
@@ -112,11 +119,29 @@ private const val DEFAULT_YEAR_PATTERN = "yyyy"
 class TransactionsViewModel @Inject constructor(
     private val application: Application,
     private val transactionRepository: TransactionRepository,
+    private val tagRepository: TagRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
 
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentPaymentMethods: List<PaymentType> = emptyList()
+    private var currentTags: List<Tag> = emptyList()
+
+    /**
+     * Every live transaction's tags, keyed by transaction id, for the row chips.
+     *
+     * Exposed as its own state flow rather than folded into the paged items: the list is
+     * a `PagingData` stream, and re-emitting pages whenever a tag is edited elsewhere
+     * would fight Paging's own invalidation. The screen joins this map onto the rows it
+     * has already loaded, so a tag rename repaints the chips without reloading pages.
+     */
+    val transactionTags: StateFlow<Map<String, List<Tag>>> =
+        tagRepository.observeAllTransactionTags()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyMap()
+            )
 
     private val _selectedTransactionIds = MutableStateFlow<Set<String>>(emptySet())
     private val _isSelectionMode = MutableStateFlow(false)
@@ -136,6 +161,8 @@ class TransactionsViewModel @Inject constructor(
     private var selectedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var selectedCategoryIds: Set<Int> = emptySet()
     private var selectedPaymentTypeIds: Set<Int> = emptySet()
+    private var selectedTagIds: Set<String> = emptySet()
+    private var selectedTagMatchMode: TagMatchMode = TagMatchMode.OR
     private var selectedMinAmount: String = ""
     private var selectedMaxAmount: String = ""
 
@@ -146,6 +173,8 @@ class TransactionsViewModel @Inject constructor(
     private var appliedTransactionTypeIds: Set<Int> = setOf(1, 2)
     private var appliedCategoryIds: Set<Int> = emptySet()
     private var appliedPaymentTypeIds: Set<Int> = emptySet()
+    private var appliedTagIds: Set<String> = emptySet()
+    private var appliedTagMatchMode: TagMatchMode = TagMatchMode.OR
     private var appliedMinAmount: String = ""
     private var appliedMaxAmount: String = ""
 
@@ -196,10 +225,21 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         observeAdvancedSearchAccess()
+        observeTags()
         publishUiState()
         pagedQuery.value = buildQuery()
         observeSummaryTotals()
         refreshNavigationFlags()
+    }
+
+    /** Keeps the filter sheet's tag picker current as tags are created, renamed or deleted. */
+    private fun observeTags() {
+        viewModelScope.launch {
+            tagRepository.observeActiveTags().collect { tags ->
+                currentTags = tags
+                publishUiState()
+            }
+        }
     }
 
     private fun observeAdvancedSearchAccess() {
@@ -293,6 +333,16 @@ class TransactionsViewModel @Inject constructor(
         applyFilters()
     }
 
+    fun toggleTag(tagId: String) {
+        selectedTagIds = selectedTagIds.toggle(tagId)
+        applyFilters()
+    }
+
+    fun updateTagMatchMode(mode: TagMatchMode) {
+        selectedTagMatchMode = mode
+        applyFilters()
+    }
+
     fun updateMinAmount(amount: String) {
         selectedMinAmount = amount
         publishUiState()
@@ -327,6 +377,8 @@ class TransactionsViewModel @Inject constructor(
         appliedTransactionTypeIds = selectedTransactionTypeIds
         appliedCategoryIds = selectedCategoryIds
         appliedPaymentTypeIds = selectedPaymentTypeIds
+        appliedTagIds = selectedTagIds
+        appliedTagMatchMode = selectedTagMatchMode
         appliedMinAmount = selectedMinAmount
         appliedMaxAmount = selectedMaxAmount
         resetAndReload()
@@ -344,6 +396,8 @@ class TransactionsViewModel @Inject constructor(
         selectedTransactionTypeIds = setOf(1, 2)
         selectedCategoryIds = emptySet()
         selectedPaymentTypeIds = emptySet()
+        selectedTagIds = emptySet()
+        selectedTagMatchMode = TagMatchMode.OR
         selectedMinAmount = ""
         selectedMaxAmount = ""
         applyFilters()
@@ -471,6 +525,8 @@ class TransactionsViewModel @Inject constructor(
                 selectedTransactionTypeIds = selectedTransactionTypeIds,
                 selectedCategoryIds = selectedCategoryIds,
                 selectedPaymentTypeIds = selectedPaymentTypeIds,
+                selectedTagIds = selectedTagIds,
+                selectedTagMatchMode = selectedTagMatchMode,
                 selectedMinAmount = selectedMinAmount,
                 selectedMaxAmount = selectedMaxAmount,
                 selectedPeriodFilter = selectedPeriodFilter,
@@ -484,6 +540,7 @@ class TransactionsViewModel @Inject constructor(
                     .filter { selectedTransactionTypeIds.contains(it.transactionTypeId) }
                     .sortedBy { it.name },
                 paymentModes = paymentTypeMap.values.toList(),
+                availableTags = currentTags,
                 customizationSettings = currentCustomizationSettings,
                 isFilterActive = computeIsFilterActive()
             )
@@ -494,6 +551,7 @@ class TransactionsViewModel @Inject constructor(
         return appliedDateRange != null ||
             appliedCategoryIds.isNotEmpty() ||
             appliedPaymentTypeIds.isNotEmpty() ||
+            appliedTagIds.isNotEmpty() ||
             appliedMinAmount.isNotBlank() ||
             appliedMaxAmount.isNotBlank() ||
             appliedTransactionTypeIds.size < 2 ||
@@ -594,6 +652,8 @@ class TransactionsViewModel @Inject constructor(
             transactionTypeIds = appliedTransactionTypeIds.toList().sorted(),
             categoryIds = appliedCategoryIds.toList().sorted(),
             paymentTypeIds = appliedPaymentTypeIds.toList().sorted(),
+            tagIds = appliedTagIds.toList().sorted(),
+            tagMatchMode = appliedTagMatchMode,
             minAmountMinor = appliedMinAmount.toDoubleOrNull()?.toMinorUnits(),
             maxAmountMinor = appliedMaxAmount.toDoubleOrNull()?.toMinorUnits(),
             sort = appliedSortType
@@ -749,5 +809,9 @@ private fun shiftPeriod(
 }
 
 private fun Set<Int>.toggle(id: Int): Set<Int> {
+    return if (contains(id)) this - id else this + id
+}
+
+private fun Set<String>.toggle(id: String): Set<String> {
     return if (contains(id)) this - id else this + id
 }

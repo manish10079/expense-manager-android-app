@@ -14,6 +14,7 @@ enum class AppRoute(
     SecurityPrivacy("security_privacy", false),
     TransactionCardCustomize("transaction_card_customize", false),
     CategoryManagement("category_management", false),
+    TagManagement("tag_management", false),
     DataManagement("data_management", false),
     About("about", false),
     NotificationSettings("notification_settings", false),

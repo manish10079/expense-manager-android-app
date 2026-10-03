@@ -44,7 +44,8 @@ class DataManagementRepository @Inject constructor(
     private val paymentMethodDao: PaymentMethodDao,
     private val budgetDao: BudgetDao,
     private val recurringRuleDao: RecurringRuleDao,
-    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao
+    private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
+    private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao
 ) : DomainDataManagementRepository {
     private val appContext = context.applicationContext
 
@@ -123,6 +124,10 @@ class DataManagementRepository @Inject constructor(
         val budgets = budgetDao.getActiveBudgets()
         val recurringRules = recurringRuleDao.getActiveRules()
         val goals = goalDao.getActiveGoals()
+        val tags = tagDao.getActiveTags()
+        // Only the live links are exported: a tombstone is sync bookkeeping, not data the
+        // user would expect to find in a backup.
+        val tagLinks = tagDao.exportableLinks()
 
         val payload = JSONObject().apply {
             put("schemaVersion", JSON_SCHEMA_VERSION)
@@ -145,6 +150,12 @@ class DataManagementRepository @Inject constructor(
             put("goals", JSONArray().apply {
                 goals.forEach { put(it.toJson()) }
             })
+            put("tags", JSONArray().apply {
+                tags.forEach { put(it.toJson()) }
+            })
+            put("transactionTags", JSONArray().apply {
+                tagLinks.forEach { put(it.toJson()) }
+            })
         }
 
         writeTextToUri(
@@ -158,7 +169,9 @@ class DataManagementRepository @Inject constructor(
             exportedRecurringRules = recurringRules.size,
             exportedCategories = categories.size,
             exportedPaymentMethods = paymentMethods.size,
-            exportedGoals = goals.size
+            exportedGoals = goals.size,
+            exportedTags = tags.size,
+            exportedTagLinks = tagLinks.size
         )
     }
 
@@ -181,6 +194,8 @@ class DataManagementRepository @Inject constructor(
         val importedBudgets = root.optJSONArray("budgets").toBudgetEntities()
         val importedRecurringRules = root.optJSONArray("recurringRules").toRecurringRuleEntities()
         val importedGoals = root.optJSONArray("goals").toGoalEntities()
+        val importedTags = root.optJSONArray("tags").toTagEntities()
+        val importedTagLinks = root.optJSONArray("transactionTags").toTransactionTagEntities()
 
         var importedCategoryCount = 0
         var skippedCategoryCount = 0
@@ -194,12 +209,16 @@ class DataManagementRepository @Inject constructor(
         var skippedRecurringRuleCount = 0
         var importedGoalCount = 0
         var skippedGoalCount = 0
+        var importedTagCount = 0
+        var skippedTagCount = 0
+        var importedTagLinkCount = 0
 
         database.withTransaction {
             val categoryIdMap = mutableMapOf<Int, Int>()
             val paymentMethodIdMap = mutableMapOf<Int, Int>()
             val transactionIdMap = mutableMapOf<String, String>()
             val ruleIdMap = mutableMapOf<String, String>()
+            val tagIdMap = mutableMapOf<String, String>()
             val pendingTransactionRuleLinks = mutableMapOf<String, String>()
 
             val existingCategories = categoryDao.getActiveCategories().toMutableList()
@@ -424,6 +443,56 @@ class DataManagementRepository @Inject constructor(
                 existingGoals += finalGoal
                 importedGoalCount++
             }
+
+            // Tags are deduped case-insensitively, the same rule the repository enforces:
+            // importing a backup that spells a tag differently from one already here must
+            // attach to the existing tag rather than collide with the unique index.
+            val existingTags = tagDao.getAllTags().toMutableList()
+            importedTags.forEach { imported ->
+                val existingTag = existingTags.firstOrNull {
+                    it.name.lowercase() == imported.name.lowercase()
+                }
+                if (existingTag != null) {
+                    tagIdMap[imported.id] = existingTag.id
+                    skippedTagCount++
+                    return@forEach
+                }
+
+                val finalTag = if (imported.id.isBlank() || existingTags.any { it.id == imported.id }) {
+                    imported.copy(id = UUID.randomUUID().toString())
+                } else {
+                    imported
+                }
+                tagDao.upsert(finalTag.copy(isDeleted = false, syncState = SyncState.PENDING_UPLOAD))
+                existingTags += finalTag
+                tagIdMap[imported.id] = finalTag.id
+                importedTagCount++
+            }
+
+            // Links last, and only where both ends resolved: a link whose tag or
+            // transaction was skipped (or absent from the file) has nothing to point at.
+            val tagLinkUpdatedAt = System.currentTimeMillis()
+            importedTagLinks.forEach { imported ->
+                val resolvedTransactionId = transactionIdMap[imported.transactionId]
+                    ?: imported.transactionId.takeIf { id -> existingTransactions.any { it.id == id } }
+                val resolvedTagId = tagIdMap[imported.tagId]
+                    ?: imported.tagId.takeIf { id -> existingTags.any { it.id == id } }
+                if (resolvedTransactionId == null || resolvedTagId == null) {
+                    return@forEach
+                }
+                tagDao.upsertLinks(
+                    listOf(
+                        imported.copy(
+                            transactionId = resolvedTransactionId,
+                            tagId = resolvedTagId,
+                            updatedAt = tagLinkUpdatedAt,
+                            syncState = SyncState.PENDING_UPLOAD,
+                            isDeleted = false
+                        )
+                    )
+                )
+                importedTagLinkCount++
+            }
         }
 
         JsonImportResult(
@@ -438,7 +507,10 @@ class DataManagementRepository @Inject constructor(
             importedPaymentMethods = importedPaymentMethodCount,
             skippedPaymentMethods = skippedPaymentMethodCount,
             importedGoals = importedGoalCount,
-            skippedGoals = skippedGoalCount
+            skippedGoals = skippedGoalCount,
+            importedTags = importedTagCount,
+            skippedTags = skippedTagCount,
+            importedTagLinks = importedTagLinkCount
         )
     }
 
@@ -541,6 +613,50 @@ private fun JSONArray?.toGoalEntities(): List<GoalEntity> {
     }
 }
 
+private fun JSONArray?.toTagEntities(): List<com.mknlabs.expensetracker.data.local.room.entities.TagEntity> {
+    if (this == null) return emptyList()
+    return buildList(length()) {
+        for (index in 0 until length()) {
+            val obj = getJSONObject(index)
+            val name = obj.getString("name")
+            add(
+                com.mknlabs.expensetracker.data.local.room.entities.TagEntity(
+                    id = obj.getString("id"),
+                    name = name,
+                    // Derived, never read from the file: the lower-case key is a function of
+                    // the name, and trusting a stored copy would let a hand-edited backup
+                    // import a tag whose key disagreed with its name.
+                    nameLower = name.lowercase(),
+                    colorHex = obj.optNullableString("colorHex"),
+                    isDeleted = obj.optBoolean("isDeleted", false),
+                    syncState = SyncState.PENDING_UPLOAD,
+                    createdAt = obj.optLong("createdAt", 0L),
+                    updatedAt = obj.optLong("updatedAt", obj.optLong("createdAt", 0L))
+                )
+            )
+        }
+    }
+}
+
+private fun JSONArray?.toTransactionTagEntities(): List<com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity> {
+    if (this == null) return emptyList()
+    return buildList(length()) {
+        for (index in 0 until length()) {
+            val obj = getJSONObject(index)
+            add(
+                com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity(
+                    transactionId = obj.getString("transactionId"),
+                    tagId = obj.getString("tagId"),
+                    createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
+                    updatedAt = obj.optLong("createdAt", System.currentTimeMillis()),
+                    syncState = SyncState.PENDING_UPLOAD,
+                    isDeleted = false
+                )
+            )
+        }
+    }
+}
+
 private fun CategoryEntity.toJson(): JSONObject {
     return JSONObject().apply {
         put("id", id)
@@ -588,6 +704,27 @@ private fun TransactionEntity.toJson(): JSONObject {
         put("syncState", syncState.name)
         putNullable("contentHash", contentHash)
         putNullable("sourceRecurringRuleId", sourceRecurringRuleId)
+    }
+}
+
+private fun com.mknlabs.expensetracker.data.local.room.entities.TagEntity.toJson(): JSONObject {
+    return JSONObject().apply {
+        put("id", id)
+        put("name", name)
+        // The lower-case key is derived on import from the name, so it is not written —
+        // exporting it would let a hand-edited file disagree with the name beside it.
+        putNullable("colorHex", colorHex)
+        put("isDeleted", isDeleted)
+        put("createdAt", createdAt)
+        put("updatedAt", updatedAt)
+    }
+}
+
+private fun com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity.toJson(): JSONObject {
+    return JSONObject().apply {
+        put("transactionId", transactionId)
+        put("tagId", tagId)
+        put("createdAt", createdAt)
     }
 }
 

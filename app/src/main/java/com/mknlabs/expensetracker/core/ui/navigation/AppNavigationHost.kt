@@ -40,6 +40,7 @@ import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringScreen
 import com.mknlabs.expensetracker.feature.settings.ui.AddCategoryScreen
 import com.mknlabs.expensetracker.feature.calendar.ui.CalendarScreen
 import com.mknlabs.expensetracker.feature.settings.ui.CategoryManagementScreen
+import com.mknlabs.expensetracker.feature.settings.ui.TagManagementScreen
 import com.mknlabs.expensetracker.feature.settings.ui.DataManagementScreen
 import com.mknlabs.expensetracker.feature.goals.ui.GoalsScreen
 import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
@@ -137,7 +138,7 @@ fun AppNavigationHost(
     onSelectedTransactionChange: (Transaction?) -> Unit,
     onAddTransactionDraftAmountChange: (String?) -> Unit,
     onAddTransactionDraftNoteChange: (String?) -> Unit,
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
@@ -434,6 +435,10 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.CategoryManagement)
                         },
+                        onManageTagsClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.TagManagement)
+                        },
                         onGoalsClick = onGoalsClick,
                         onConnectedDevicesClick = {
                             onBottomBarVisibilityChange(false)
@@ -593,6 +598,16 @@ fun AppNavigationHost(
                     )
                 }
 
+                AppRoute.TagManagement -> {
+                    TagManagementScreen(
+                        currencyId = selectedCurrencyId,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Settings)
+                        }
+                    )
+                }
+
                 AppRoute.CategoryManagement -> {
                     CategoryManagementScreen(
                         isAdsEnabled = isAdsEnabled,
@@ -725,7 +740,7 @@ fun AppNavigationHost(
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
-                        onSaveClick = { draftTransaction, recurringDraft, isFavorite ->
+                        onSaveClick = { draftTransaction, recurringDraft, isFavorite, tagIds ->
                             val isEdit = selectedTransaction != null
                             // Only a draft that came from the inbox carries a detection.
                             val detectionId = if (isEdit) null else smsInboxDraftDetectionId
@@ -746,7 +761,8 @@ fun AppNavigationHost(
                                 transactionToSave,
                                 recurringDraft,
                                 selectedRecurringRule,
-                                isFavorite
+                                isFavorite,
+                                tagIds
                             )
                             if (isFavorite != wasFavorite) {
                                 Toast.makeText(

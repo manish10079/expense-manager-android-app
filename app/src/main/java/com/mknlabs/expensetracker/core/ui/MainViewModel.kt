@@ -88,6 +88,7 @@ class MainViewModel @Inject constructor(
     private val configurationRepository: com.mknlabs.expensetracker.domain.repository.ConfigurationRepository,
     private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase,
     private val favoriteTransactionRepository: FavoriteTransactionRepository,
+    private val tagRepository: com.mknlabs.expensetracker.domain.repository.TagRepository,
     private val attachSmsDetectionToTransaction: com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.AttachSmsDetectionToTransactionUseCase
 ) : ViewModel() {
 
@@ -325,10 +326,16 @@ class MainViewModel @Inject constructor(
         transaction: Transaction,
         recurringDraft: RecurringTransactionDraft?,
         existingRule: RecurringTransactionRule?,
-        isFavorite: Boolean
+        isFavorite: Boolean,
+        tagIds: List<String> = emptyList()
     ) {
         viewModelScope.launch {
             val savedTransaction = transactionRepository.upsertTransaction(transaction)
+            // Tags are written after the transaction exists, because the link table keys
+            // on the transaction's id — which the repository may have just minted. The
+            // repository reconciles the whole set in one database transaction, so an
+            // edit that removes a tag and adds another cannot leave a half-applied set.
+            tagRepository.setTransactionTags(savedTransaction.id, tagIds)
             // The Add Transaction star is applied only here, once Add/Update was
             // pressed, so backing out of that screen leaves the favorites alone.
             // This coroutine runs to the end before the screen is told the save

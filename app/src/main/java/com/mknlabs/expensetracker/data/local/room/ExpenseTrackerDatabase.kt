@@ -24,6 +24,9 @@ import com.mknlabs.expensetracker.data.local.room.entities.InstallmentOccurrence
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
 import com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
+import com.mknlabs.expensetracker.data.local.room.entities.TagEntity
+import com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity
+import com.mknlabs.expensetracker.data.local.room.dao.TagDao
 import com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.CountryCodeEntity
 import com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity
@@ -43,9 +46,11 @@ import java.io.File
         CountryCodeEntity::class,
         FavoriteTransactionEntity::class,
         InstallmentOccurrenceEntity::class,
-        DetectedSmsNotificationEntity::class
+        DetectedSmsNotificationEntity::class,
+        TagEntity::class,
+        TransactionTagEntity::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -62,6 +67,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun favoriteTransactionDao(): FavoriteTransactionDao
     abstract fun installmentOccurrenceDao(): InstallmentOccurrenceDao
     abstract fun detectedSmsNotificationDao(): DetectedSmsNotificationDao
+    abstract fun tagDao(): TagDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -76,8 +82,60 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        /**
+         * User-defined tags and their many-to-many link to transactions.
+         *
+         * Purely additive: two new tables that no existing row references, so nothing is
+         * read, moved or rewritten and the migration is O(1) however many transactions the
+         * user has. The only foreign keys point *out* of the new tables, so no existing
+         * table gains a constraint it did not have.
+         *
+         * `transaction_tags` carries the same sync bookkeeping as every other table,
+         * including `is_deleted`. A link is its own document in the cloud, so detaching a
+         * tag has to leave a tombstone the other devices can read; a bare delete would
+         * simply leave them still showing the tag until they happened to resync the tag
+         * itself.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `tags` (
+                        `id` TEXT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `name_lower` TEXT NOT NULL,
+                        `color_hex` TEXT,
+                        `is_deleted` INTEGER NOT NULL,
+                        `sync_state` TEXT NOT NULL,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_tags_name_lower` ON `tags` (`name_lower`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_tags_is_deleted_name_lower` ON `tags` (`is_deleted`, `name_lower`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `transaction_tags` (
+                        `transaction_id` TEXT NOT NULL,
+                        `tag_id` TEXT NOT NULL,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL,
+                        `sync_state` TEXT NOT NULL,
+                        `is_deleted` INTEGER NOT NULL,
+                        PRIMARY KEY(`transaction_id`, `tag_id`),
+                        FOREIGN KEY(`transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY(`tag_id`) REFERENCES `tags`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_tags_tag_id` ON `transaction_tags` (`tag_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_tags_transaction_id` ON `transaction_tags` (`transaction_id`)")
             }
         }
 

@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.domain.repository
 
 import androidx.paging.PagingData
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.models.TagMatchMode
 import com.mknlabs.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
 
@@ -93,6 +94,16 @@ data class TransactionQuery(
     val paymentTypeIds: List<Int> = emptyList(),
     val minAmountMinor: Long? = null,
     val maxAmountMinor: Long? = null,
+    /**
+     * Tags a transaction must match. Empty means "any tag", the historical behaviour.
+     *
+     * [tagMatchMode] decides how the ids combine: every one of them, or any one of
+     * them. The two are separate fields rather than a single pre-built predicate so the
+     * query stays a plain description of what the user selected, and the SQL builder is
+     * the only place that has to know how a selection becomes a `WHERE`.
+     */
+    val tagIds: List<String> = emptyList(),
+    val tagMatchMode: TagMatchMode = TagMatchMode.OR,
     val sort: SortType = SortType.NEWEST
 ) {
     companion object {

@@ -54,6 +54,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val installmentOccurrenceDao: com.mknlabs.expensetracker.data.local.room.dao.InstallmentOccurrenceDao,
     private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
     private val favoriteTransactionDao: com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao,
+    private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao,
     private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : SyncRepository {
 
@@ -693,6 +694,18 @@ class SyncRepositoryImpl @Inject constructor(
             allTasks.add(SyncTask.CategoryTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
         }
+        // Tags before the links that reference them: a pull of the link table joins on
+        // tag ids, so the tag rows should already be on the other device when its own
+        // pull runs. Ordering within one push does not guarantee that across devices, but
+        // it keeps the common case — one device, one batch — self-consistent.
+        tagDao.getUnsynced().forEach {
+            allTasks.add(SyncTask.TagTask(it))
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
+        tagDao.getUnsyncedLinks().forEach {
+            allTasks.add(SyncTask.TransactionTagTask(it))
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
         paymentMethodDao.getUnsynced().forEach { 
             allTasks.add(SyncTask.PaymentMethodTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
@@ -765,6 +778,22 @@ class SyncRepositoryImpl @Inject constructor(
                 val favIds = chunk.filterIsInstance<SyncTask.FavoriteTask>().map { it.entity.id }
                 if (favIds.isNotEmpty()) favoriteTransactionDao.updateSyncStates(favIds, SyncState.SYNCED.name)
 
+                val tagIds = chunk.filterIsInstance<SyncTask.TagTask>().map { it.entity.id }
+                if (tagIds.isNotEmpty()) tagDao.updateSyncStates(tagIds, SyncState.SYNCED.name)
+
+                val linkTasks = chunk.filterIsInstance<SyncTask.TransactionTagTask>()
+                if (linkTasks.isNotEmpty()) {
+                    // A link has no id column of its own, so it is acknowledged by re-writing
+                    // the rows the push just sent with SYNCED. The tombstoned ones are then
+                    // purged, which is the only place a link row is ever hard-deleted on the
+                    // normal path.
+                    tagDao.markLinksSynced(
+                        linkTasks.map { it.entity.transactionId },
+                        linkTasks.map { it.entity.tagId }
+                    )
+                    tagDao.purgeDeletedLinks()
+                }
+
             } catch (e: Exception) {
                 // If a batch fails, we skip it and continue to the next one to ensure other data is synced
                 android.util.Log.e("Sync", "Batch failed", e)
@@ -825,6 +854,27 @@ class SyncRepositoryImpl @Inject constructor(
                 transactionDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, txMax)
+
+            // After tags and transactions, both of which the link references.
+            val tagPullMax = pullCollection(userDoc, "tags", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TagEntity ->
+                // Dedup by name, case-insensitively, so the same tag created on two devices
+                // collapses to the local row rather than colliding with the unique index.
+                val existing = tagDao.findActiveByNameLower(cloudItem.nameLower)
+                if (existing != null && existing.id != cloudItem.id) {
+                    tagDao.upsert(cloudItem.copy(id = existing.id, syncState = SyncState.SYNCED))
+                } else {
+                    tagDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+                }
+            }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, tagPullMax)
+
+            val linkMax = pullCollection(userDoc, "transaction_tags", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity ->
+                // The pair is the key, so an incoming row simply replaces the local one.
+                // A tombstone (`isDeleted = true`) is written through as well, so an
+                // untag on another device detaches here too.
+                tagDao.upsertLinks(listOf(cloudItem.copy(syncState = SyncState.SYNCED)))
+            }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, linkMax)
 
             val rrMax = pullCollection(userDoc, "recurring_rules", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity ->
                 recurringRuleDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
@@ -1096,6 +1146,34 @@ class SyncRepositoryImpl @Inject constructor(
                                 isDeleted = isDeleted
                             ) as T
                         }
+                        com.mknlabs.expensetracker.data.local.room.entities.TagEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val name = doc.getString("name").orEmpty()
+                            // `nameLower` is the unique key, so it must never arrive blank on a
+                            // document written before the field existed; deriving it from the
+                            // name is the only safe fallback.
+                            val nameLower = doc.getString("nameLower")?.takeIf { it.isNotBlank() }
+                                ?: name.lowercase()
+                            val colorHex = doc.getString("colorHex")
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            com.mknlabs.expensetracker.data.local.room.entities.TagEntity(
+                                id = id, name = name, nameLower = nameLower, colorHex = colorHex,
+                                isDeleted = isDeleted, createdAt = createdAt, updatedAt = updatedAt
+                            ) as T
+                        }
+                        com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity::class -> {
+                            val transactionId = doc.getString("transactionId").orEmpty()
+                            val tagId = doc.getString("tagId").orEmpty()
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: createdAt
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity(
+                                transactionId = transactionId, tagId = tagId, createdAt = createdAt,
+                                updatedAt = updatedAt, isDeleted = isDeleted
+                            ) as T
+                        }
                         else -> doc.toObject(T::class.java)
                     }
                     if (item != null) {
@@ -1131,6 +1209,29 @@ class SyncRepositoryImpl @Inject constructor(
                 "transactionTypeId" to entity.transactionTypeId, "categoryId" to entity.categoryId,
                 "paymentMethodId" to entity.paymentMethodId, "isDeleted" to entity.isDeleted,
                 "contentHash" to entity.contentHash, "sourceRecurringRuleId" to entity.sourceRecurringRuleId
+            )
+        }
+        data class TagTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.TagEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "tags"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "name" to entity.name, "nameLower" to entity.nameLower,
+                "colorHex" to entity.colorHex, "isDeleted" to entity.isDeleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt
+            )
+        }
+        data class TransactionTagTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.TransactionTagEntity) : SyncTask() {
+            // The pair is the identity. A single string rather than a nested map so the
+            // Firestore document id is stable and readable, and so a re-push of the same
+            // link lands on the same document instead of creating a second one.
+            override val id = "${entity.transactionId}_${entity.tagId}"
+            override val collectionName = "transaction_tags"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "transactionId" to entity.transactionId, "tagId" to entity.tagId,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt,
+                "isDeleted" to entity.isDeleted
             )
         }
         data class CategoryTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity) : SyncTask() {

@@ -53,6 +53,7 @@ fun resolveBackNavigationRoute(
         AppRoute.SecurityPrivacy,
         AppRoute.TransactionCardCustomize,
         AppRoute.CategoryManagement,
+        AppRoute.TagManagement,
         AppRoute.DataManagement,
         AppRoute.About,
         AppRoute.NotificationSettings,

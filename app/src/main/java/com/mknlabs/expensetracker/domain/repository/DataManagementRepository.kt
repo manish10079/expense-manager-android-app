@@ -18,7 +18,10 @@ data class JsonExportResult(
     val exportedRecurringRules: Int,
     val exportedCategories: Int,
     val exportedPaymentMethods: Int,
-    val exportedGoals: Int
+    val exportedGoals: Int,
+    /** Tags and their transaction links; defaulted so older call sites compile unchanged. */
+    val exportedTags: Int = 0,
+    val exportedTagLinks: Int = 0
 )
 
 data class JsonImportResult(
@@ -33,5 +36,9 @@ data class JsonImportResult(
     val importedPaymentMethods: Int,
     val skippedPaymentMethods: Int,
     val importedGoals: Int,
-    val skippedGoals: Int
+    val skippedGoals: Int,
+    /** Tags and their transaction links; defaulted so older call sites compile unchanged. */
+    val importedTags: Int = 0,
+    val skippedTags: Int = 0,
+    val importedTagLinks: Int = 0
 )
