@@ -54,6 +54,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
@@ -438,7 +439,9 @@ private fun TagNameDialog(
                 value = name,
                 onValueChange = { name = it },
                 singleLine = true,
-                label = { Text(stringResource(R.string.label_tag_name)) }
+                label = { Text(stringResource(R.string.label_tag_name)) },
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors()
             )
         },
         confirmButton = {
