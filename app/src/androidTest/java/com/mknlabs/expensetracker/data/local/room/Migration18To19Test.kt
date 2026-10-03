@@ -36,7 +36,7 @@ class Migration18To19Test {
         helper.createDatabase(db, 18).apply {
             execSQL(
                 "INSERT INTO transactions (id, note, amount_minor, occurred_at, created_at, updated_at, " +
-                    "transaction_type_id, category_id, payment_type_id, is_deleted, sync_state) " +
+                    "transaction_type_id, category_id, payment_method_id, is_deleted, sync_state) " +
                     "VALUES ('tx-1', 'Coffee', 4500, $occurredAt, $occurredAt, $occurredAt, 2, 1, 1, 0, 'SYNCED')"
             )
             close()
