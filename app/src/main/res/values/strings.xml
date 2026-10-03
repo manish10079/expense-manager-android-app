@@ -127,14 +127,14 @@
     <string name="desc_hide_full_note">Hide full note</string>
     <string name="label_off">Off</string>
     <string name="label_weekly">Weekly</string>
-    <string name="label_recurring">RECURRING</string>
+    <string name="label_recurring">Recurring</string>
     <string name="label_save_note">Save Note</string>
     <string name="label_what_is_this_for">What\'s this for?</string>
     <string name="placeholder_add_note">Add a note...</string>
     <string name="desc_clear_fields">Clear fields</string>
 
     <!-- Favorite Transactions -->
-    <string name="title_quick_favorites">QUICK FAVORITES</string>
+    <string name="title_quick_favorites">Quick Favorites</string>
     <string name="label_all_favorites">All</string>
     <string name="title_favorite_templates">Favorite Templates</string>
     <string name="placeholder_search_favorites">Search templates...</string>
@@ -179,7 +179,7 @@
     <string name="label_delete_all_transactions">Delete all transactions?</string>
     <string name="label_delete_budget">Delete Budget</string>
     <string name="label_delete_transactions">Delete Transactions</string>
-    <string name="label_enter_amount">ENTER AMOUNT</string>
+    <string name="label_enter_amount">Enter Amount</string>
     <string name="label_expense">EXPENSE</string>
     <string name="label_expense_category">Expense category</string>
     <string name="label_expense_tracker">Budget &amp; Spend</string>
@@ -224,7 +224,7 @@
     <string name="title_amount_range">Amount Range</string>
     <string name="title_budget_recurring">Budget &amp; Recurring</string>
     <string name="title_category">Category</string>
-    <string name="title_category_1">CATEGORY</string>
+    <string name="title_category_1">Category</string>
     <string name="title_budget_category">Budget Category</string>
     <string name="title_custom_expense_category">Custom expense category</string>
     <string name="title_custom_income_category">Custom income category</string>
@@ -421,7 +421,7 @@
     <string name="label_clear">Clear</string>
     <string name="label_custom_duration">Custom Duration</string>
     <string name="label_customize_how_your_data_is_vis">Customize how your data is visualized</string>
-    <string name="label_date">DATE</string>
+    <string name="label_date">Date</string>
     <string name="label_date_of_birth">DATE OF BIRTH</string>
     <string name="label_default_is_off_turn_it_on_to_t">Default is off. Turn it on to track this expense in Budget &amp; Recurring.</string>
     <string name="label_delete">DELETE</string>
@@ -456,7 +456,7 @@
     <string name="label_no_countries_matched_your_sear">No countries matched your search.</string>
     <string name="label_no_payment_data_found_in_this">No payment data found in this range.</string>
     <string name="label_not_now">NOT NOW</string>
-    <string name="label_note">NOTE</string>
+    <string name="label_note">Note</string>
     <string name="label_personalize_your_vault">PERSONALIZE YOUR VAULT</string>
     <string name="label_phone_number">PHONE NUMBER</string>
     <string name="label_pick_a_preset_in_5minute_steps">Pick a preset in 5-minute steps up to 60, or enter a custom value in minutes.</string>
@@ -592,7 +592,7 @@
     <string name="title_missed_entry_reminder">Missed Entry Reminder</string>
     <string name="title_number_format">Number Format</string>
     <string name="title_order">Order</string>
-    <string name="title_payment_method">PAYMENT METHOD</string>
+    <string name="title_payment_method">Payment Method</string>
     <string name="title_payment_mode">Payment Mode</string>
     <string name="title_premium_by_designnprivate_by_n">Premium by Design,\nPrivate by Nature</string>
     <string name="title_privacy_policy">Privacy Policy</string>

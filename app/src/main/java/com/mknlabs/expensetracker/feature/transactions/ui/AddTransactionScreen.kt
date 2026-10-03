@@ -669,7 +669,10 @@ internal fun AddTransactionScreenContent(
                             )
                         },
                         selectedItemId = selectedTransactionTypeId,
-                        onItemSelected = { selectedTransactionTypeId = it }
+                        onItemSelected = { selectedTransactionTypeId = it },
+                        // Shorter bar than the shared default: this screen stacks it directly
+                        // above the amount card, so the pair should read as one unit.
+                        verticalPaddingOverride = if (dense) 5.dp else 7.dp
                     )
 
                     Column(
@@ -866,7 +869,7 @@ internal fun AddTransactionScreenContent(
 
                 val categoryBlock: @Composable () -> Unit = {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
                     ) {
                         SectionHeader(title = stringResource(R.string.title_category_1))
                         ChoiceChipRow(
@@ -884,7 +887,7 @@ internal fun AddTransactionScreenContent(
 
                 val paymentBlock: @Composable () -> Unit = {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
                     ) {
                         SectionHeader(title = stringResource(R.string.title_payment_method))
                         ChoiceChipRow(
@@ -905,7 +908,7 @@ internal fun AddTransactionScreenContent(
                 // among the date/recurring controls on the other pane.
                 val tagsBlock: @Composable () -> Unit = {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
                     ) {
                         SectionHeader(title = stringResource(R.string.title_tags))
                         TransactionTagField(
@@ -969,7 +972,7 @@ internal fun AddTransactionScreenContent(
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                         ) {
                             tabAndAmountBlock()
                             categoryBlock()
@@ -981,7 +984,7 @@ internal fun AddTransactionScreenContent(
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                         ) {
                             quickFavoritesBlock()
                             noteBlock()
@@ -994,7 +997,7 @@ internal fun AddTransactionScreenContent(
                         modifier = Modifier
                             .weight(1f)
                             .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 12.dp else 16.dp)
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                     ) {
                         tabAndAmountBlock()
                         quickFavoritesBlock()
@@ -2345,7 +2348,7 @@ private fun QuickFavoritesRow(
             text = stringResource(R.string.title_quick_favorites),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
         )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 4.dp),

@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedFill
 import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
@@ -56,7 +57,13 @@ fun <T> AnimatedTabSwitcher(
     selectedItemId: T?,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    /**
+     * Optional per-call override for the tab's own vertical padding, so a caller that
+     * needs a shorter bar (the Add Transaction screen) can tighten it without changing
+     * the height every other screen relies on. Null keeps the tier default below.
+     */
+    verticalPaddingOverride: Dp? = null
 ) {
     if (items.isEmpty()) return
 
@@ -68,7 +75,7 @@ fun <T> AnimatedTabSwitcher(
     val pillRadius = if (compact) 10.dp else 20.dp
     val innerRadius = if (compact) 10.dp else 18.dp
     // ~5% slimmer than the previous 12dp variant, applied on every screen.
-    val verticalPadding = if (compact) 6.dp else 11.dp
+    val verticalPadding = verticalPaddingOverride ?: if (compact) 6.dp else 11.dp
     val fontSize = if (compact) 10.sp else 15.sp
 
     Box(
