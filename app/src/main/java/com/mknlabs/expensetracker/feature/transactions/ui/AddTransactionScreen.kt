@@ -131,7 +131,8 @@ import com.adamglin.phosphoricons.fill.Star
 import com.adamglin.phosphoricons.regular.Star
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
-import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
+import com.mknlabs.expensetracker.core.ui.components.PeriodChipColors
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
@@ -141,7 +142,6 @@ import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
-import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowAmbientLight
 import com.mknlabs.expensetracker.core.ui.theme.CardShadowSpotLight
@@ -669,26 +669,39 @@ internal fun AddTransactionScreenContent(
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {
-                    AnimatedTabSwitcher(
-                        items = transactionModes.map { mode ->
-                            TabItem(
-                                id = mode.id,
+                    // Income/Expense are picked with the same chips Analytics uses for its
+                    // period selector — shape, border and fill animation are shared — but
+                    // the pair keeps this screen's own palette rather than the brand chip
+                    // tokens: the selected chip is a wash of the direction's amount ink
+                    // (mint income, coral expense) with the label in that ink, so the chip
+                    // and the figure it heads read as one colour. Both chips share the row
+                    // evenly to mirror the segmented control they replace.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        transactionModes.forEach { mode ->
+                            val accent = if (mode.id == incomeTypeId) {
+                                MaterialTheme.colorScheme.income
+                            } else {
+                                MaterialTheme.colorScheme.expense
+                            }
+                            PeriodChip(
                                 label = stringResource(mode.label),
-                                // The selected half wears its own amount ink, so the tab and the
-                                // figure it heads read as one colour: mint income, coral expense.
-                                selectedColor = if (mode.id == incomeTypeId) {
-                                    MaterialTheme.colorScheme.income
-                                } else {
-                                    MaterialTheme.colorScheme.expense
-                                }
+                                isSelected = mode.id == selectedTransactionTypeId,
+                                onClick = { selectedTransactionTypeId = mode.id },
+                                modifier = Modifier.weight(1f),
+                                textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                colors = PeriodChipColors(
+                                    selectedContainer = accent.copy(alpha = 0.20f),
+                                    selectedContent = accent,
+                                    unselectedContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                    unselectedBorder = MaterialTheme.colorScheme.outlineVariant,
+                                    unselectedContent = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             )
-                        },
-                        selectedItemId = selectedTransactionTypeId,
-                        onItemSelected = { selectedTransactionTypeId = it },
-                        // Shorter bar than the shared default: this screen stacks it directly
-                        // above the amount card, so the pair should read as one unit.
-                        verticalPaddingOverride = if (dense) 5.dp else 7.dp
-                    )
+                        }
+                    }
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -704,6 +717,7 @@ internal fun AddTransactionScreenContent(
                             // closes, Compose's focus-restoration pass doesn't re-focus
                             // this field and pop the numeric keyboard back up.
                             canFocus = !isNoteSheetVisible,
+                            onCalculatorClick = onCalculatorClick,
                             onAmountChange = {
                                 val validated = validateAmountChange(it, amountInput)
                                 if (validated != amountInput) {
@@ -811,36 +825,6 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Mic,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(if (compact) 40.dp else 44.dp)
-                                .shadow(
-                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
-                                    shape = RoundedCornerShape(16.dp),
-                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
-                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
-                                )
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
-                                .border(
-                                    width = 1.dp,
-                                    color = micBorderColor,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .clickable(onClick = {
-                                    keyboardController?.hide()
-                                    onCalculatorClick()
-                                }),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Calculate,
-                                contentDescription = stringResource(R.string.desc_open_calculator),
                                 tint = colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
@@ -1834,7 +1818,8 @@ private fun CurrencyAmountCard(
     canFocus: Boolean = true,
     onAmountChange: (String) -> Unit,
     onClick: () -> Unit = {},
-    onImeNext: () -> Unit = {}
+    onImeNext: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(if (compact) 20.dp else 24.dp)
     val currency = getCurrency(currencyId)
@@ -1846,13 +1831,40 @@ private fun CurrencyAmountCard(
         MaterialTheme.colorScheme.expense
     }
 
+    // A lone "0" is the untouched state rather than a figure the user typed, so it is
+    // drawn as a placeholder: the same income/expense ink, at reduced strength. Keeping
+    // the hue rather than a neutral grey is what tells the user which colour the amount
+    // will take before they type; once a real value arrives the ink returns to full
+    // strength. The caret keeps the full ink so it stays legible over the dimmed digits.
+    val isPlaceholder = amountText == "0"
+    val amountInk = if (isPlaceholder) amountColor.copy(alpha = 0.35f) else amountColor
+
+    // The figure and its currency share one size and both sit at regular weight: they read
+    // as a single line of text rather than a bold headline with a smaller symbol pinned to
+    // it. Declared once so the two can never drift apart.
+    val amountTextStyle = MaterialTheme.typography.headlineMedium.copy(
+        fontWeight = FontWeight.Normal,
+        fontSize = if (compact) 22.sp else 24.sp,
+        lineHeight = if (compact) 26.sp else 28.sp,
+        color = amountInk
+    )
+
     val density = LocalDensity.current
     val labelTranslationY = with(density) { 2.dp.toPx() }
+    // Side of the calculator button on the amount row. The row mirrors it with a spacer of
+    // the same size, so this one value governs both the button and the figure's centre.
+    val calculatorSize = if (compact) 36.dp else 40.dp
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = if (compact) 104.dp else 122.dp) // Tightened height
+            // The card is sized by this minimum alone: its only child uses
+            // matchParentSize, so it never contributes height of its own. That makes
+            // the figure below the single knob for the card's height — the label row
+            // plus the amount's own line height need about 84dp (compact) / 98dp, so
+            // these values close the slack around them without clipping the digits.
+            .heightIn(min = if (compact) 90.dp else 104.dp)
             .shadow(
                 elevation = if (MaterialTheme.colorScheme.isDark) 8.dp else 12.dp,
                 shape = shape,
@@ -1902,113 +1914,122 @@ private fun CurrencyAmountCard(
                 )
             }
 
-            // Middle/Bottom Section: Amount Display
+            // Middle/Bottom Section: Amount Display. The symbol and figure are left-aligned
+            // to the card's own padding, so typing grows the amount away from the currency
+            // instead of sliding the pair around a centre. The calculator sits at the card's
+            // trailing edge — it edits this figure, so it belongs beside the currency rather
+            // than in the note row below.
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (currency.position == CurrencyPosition.PREFIX) {
-                    Text(
-                        text = currency.currencySymbol,
-                        color = amountColor,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 22.sp else 24.sp
-                        ),
-                        modifier = Modifier.padding(bottom = if (compact) 4.dp else 5.dp, end = 8.dp)
-                    )
-                }
-
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = amountText,
-                        color = Color.Transparent,
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 40.sp else 48.sp,
-                            lineHeight = if (compact) 44.sp else 52.sp
-                        ),
-                        maxLines = 1
-                    )
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    var textFieldValue by remember {
-                        mutableStateOf(
-                            TextFieldValue(
-                                text = amountText,
-                                selection = TextRange(amountText.length)
-                            )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (currency.position == CurrencyPosition.PREFIX) {
+                        Text(
+                            text = currency.currencySymbol,
+                            color = amountColor,
+                            style = amountTextStyle,
+                            modifier = Modifier.padding(end = 8.dp)
                         )
                     }
-                    // Sync text from parent while preserving the cursor position
-                    // so mid-text insertion keeps working after validation.
-                    LaunchedEffect(amountText) {
-                        if (textFieldValue.text != amountText) {
-                            val cursorPos = textFieldValue.selection.start
-                                .coerceAtMost(amountText.length)
-                            textFieldValue = TextFieldValue(
-                                text = amountText,
-                                selection = TextRange(cursorPos)
+
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = amountText,
+                            color = Color.Transparent,
+                            style = amountTextStyle.copy(color = Color.Transparent),
+                            maxLines = 1
+                        )
+                        var textFieldValue by remember {
+                            mutableStateOf(
+                                TextFieldValue(
+                                    text = amountText,
+                                    selection = TextRange(amountText.length)
+                                )
                             )
                         }
+                        // Sync text from parent while preserving the cursor position
+                        // so mid-text insertion keeps working after validation.
+                        LaunchedEffect(amountText) {
+                            if (textFieldValue.text != amountText) {
+                                val cursorPos = textFieldValue.selection.start
+                                    .coerceAtMost(amountText.length)
+                                textFieldValue = TextFieldValue(
+                                    text = amountText,
+                                    selection = TextRange(cursorPos)
+                                )
+                            }
+                        }
+                        BasicTextField(
+                            value = textFieldValue,
+                            onValueChange = { newValue ->
+                                val validated = validateAmountChange(
+                                    newValue.text, textFieldValue.text
+                                )
+                                // Special case: if the field became "0" after validation
+                                // (e.g., user deleted the last digit), place cursor at the end
+                                val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
+                                    validated.length
+                                } else {
+                                    newValue.selection.start.coerceAtMost(validated.length)
+                                }
+                                // Always update so cursor taps are honoured
+                                textFieldValue = TextFieldValue(
+                                    text = validated,
+                                    selection = TextRange(cursorPos)
+                                )
+                                // Only propagate when the text actually changed
+                                if (validated != amountText) {
+                                    onAmountChange(validated)
+                                }
+                            },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .focusProperties { this.canFocus = canFocus }
+                                .fillMaxWidth(),                            textStyle = amountTextStyle.copy(textAlign = TextAlign.Start),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Decimal,
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = { onImeNext() }
+                            ),
+                            singleLine = true,
+                            cursorBrush = SolidColor(amountColor)
+                        )
                     }
-                    BasicTextField(
-                        value = textFieldValue,
-                        onValueChange = { newValue ->
-                            val validated = validateAmountChange(
-                                newValue.text, textFieldValue.text
-                            )
-                            // Special case: if the field became "0" after validation
-                            // (e.g., user deleted the last digit), place cursor at the end
-                            val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
-                                validated.length
-                            } else {
-                                newValue.selection.start.coerceAtMost(validated.length)
-                            }
-                            // Always update so cursor taps are honoured
-                            textFieldValue = TextFieldValue(
-                                text = validated,
-                                selection = TextRange(cursorPos)
-                            )
-                            // Only propagate when the text actually changed
-                            if (validated != amountText) {
-                                onAmountChange(validated)
-                            }
-                        },
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .focusProperties { this.canFocus = canFocus }
-                            .fillMaxWidth(),
-                        textStyle = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 40.sp else 48.sp,
-                            lineHeight = if (compact) 44.sp else 52.sp,
+
+                    if (currency.position == CurrencyPosition.POSTFIX) {
+                        Text(
+                            text = currency.currencySymbol,
                             color = amountColor,
-                            textAlign = TextAlign.Center
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { onImeNext() }
-                        ),
-                        singleLine = true,
-                        cursorBrush = SolidColor(amountColor)
-                    )
+                            style = amountTextStyle,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
                 }
 
-                if (currency.position == CurrencyPosition.POSTFIX) {
-                    Text(
-                        text = currency.currencySymbol,
-                        color = amountColor,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = if (compact) 22.sp else 24.sp
-                        ),
-                        modifier = Modifier.padding(start = 8.dp, bottom = 6.dp)
+                Box(
+                    modifier = Modifier
+                        .size(calculatorSize)
+                        .clip(CircleShape)
+                        .clickable(onClick = {
+                            keyboardController?.hide()
+                            onCalculatorClick()
+                        }),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Calculate,
+                        contentDescription = stringResource(R.string.desc_open_calculator),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                     )
                 }
             }

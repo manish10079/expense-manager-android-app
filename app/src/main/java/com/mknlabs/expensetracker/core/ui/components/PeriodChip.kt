@@ -57,6 +57,23 @@ import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 
 
+/**
+ * Per-state colours for a [PeriodChip] whose two options carry a semantic colour of their own
+ * rather than the shared brand chip tokens — the Add Transaction screen's income/expense pair.
+ * Aimed at the five parts a chip paints (fill/ink in each state, plus the idle outline); the
+ * chosen chip's own edge is deliberately absent from the set because it is always transparent.
+ *
+ * Colours arrive from [MaterialTheme.colorScheme] at the call site, so a chip built with this
+ * still follows light/dark like every [PeriodChip].
+ */
+data class PeriodChipColors(
+    val selectedContainer: Color,
+    val selectedContent: Color,
+    val unselectedContainer: Color,
+    val unselectedBorder: Color,
+    val unselectedContent: Color
+)
+
 @Composable
 fun PeriodChip(
     label: String,
@@ -64,28 +81,34 @@ fun PeriodChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isLocked: Boolean = false,
-    textStyle: TextStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+    textStyle: TextStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+    /**
+     * Optional palette override. Null (every current caller but Add Transaction) keeps the
+     * shared tokens below; providing one swaps only the colours, never the chip's shape,
+     * border weight, animation or touch target.
+     */
+    colors: PeriodChipColors? = null
 ) {
     // The spec's five chip tokens, in place of the old twelve: --chip / --chipLine /
     // --chipInkOff when idle, --chipSel / --chipInk when chosen. The selected chip has no
     // edge of its own in the mock, so its border goes transparent rather than being drawn
     // in a second brand weight.
     val targetContainerColor = if (isSelected) {
-        MaterialTheme.colorScheme.chipSelected
+        colors?.selectedContainer ?: MaterialTheme.colorScheme.chipSelected
     } else {
-        MaterialTheme.colorScheme.chip
+        colors?.unselectedContainer ?: MaterialTheme.colorScheme.chip
     }
 
     val targetBorderColor = if (isSelected) {
         Color.Transparent
     } else {
-        MaterialTheme.colorScheme.chipOutline
+        colors?.unselectedBorder ?: MaterialTheme.colorScheme.chipOutline
     }
 
     val targetContentColor = if (isSelected) {
-        MaterialTheme.colorScheme.chipSelectedInk
+        colors?.selectedContent ?: MaterialTheme.colorScheme.chipSelectedInk
     } else {
-        MaterialTheme.colorScheme.chipInkOff
+        colors?.unselectedContent ?: MaterialTheme.colorScheme.chipInkOff
     }
 
     val containerColor by animateColorAsState(
