@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -23,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,7 +97,23 @@ fun TransactionTagField(
     // that tag, never mint a second one.
     val canCreate = trimmed.isNotEmpty() && suggestions.none { it.name.equals(trimmed, ignoreCase = true) }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    // The field can sit low in a scrolling form, and the keyboard overlays the window
+    // rather than resizing it. Whenever the suggestion panel opens it grows downward
+    // from the field, so scroll the whole block (field, chips and matches) into view:
+    // because the screen reserves the IME's height, "into view" lands it just above the
+    // keyboard and the user can see what they are typing.
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    LaunchedEffect(trimmed, suggestions) {
+        if (suggestions.isNotEmpty() || canCreate) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(bringIntoViewRequester)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
