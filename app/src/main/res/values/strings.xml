@@ -254,7 +254,19 @@
     <string name="label_tag_prefixed">#%1$s</string>
     <string name="msg_tag_color_hint">Pick a colour for this tag</string>
     <string name="msg_merge_pick_target">Merging \"%1$s\" — tap the tag to merge it into.</string>
+    <string name="label_merge_tags">Merge</string>
+    <string name="label_delete_tags">Delete</string>
+    <string name="msg_select_tags_to_merge">Select 2 or more tags to merge them into one</string>
+    <string name="msg_select_tags_to_delete">Select the tags to delete</string>
+    <string name="title_merge_tags">Merge tags</string>
+    <string name="msg_merge_choose_target">Choose the tag to keep. The others will be merged into it.</string>
+    <string name="label_merge_selected">Merge %1$d</string>
+    <string name="label_delete_selected">Delete %1$d</string>
+    <string name="msg_delete_tags_confirm">Delete %1$d tags? They will be removed from every transaction, but the transactions themselves are kept.</string>
     <string name="title_tags">Tags</string>
+    <string name="label_note_colon">Note:</string>
+    <string name="label_tags_colon">Tags:</string>
+    <string name="label_close">Close</string>
     <string name="label_add_tag">Add tag</string>
     <string name="placeholder_search_tags">Search or create a tag</string>
     <string name="label_create_tag_named">Create #%1$s</string>
@@ -1791,6 +1803,7 @@
     <string name="label_fund_amount">Amount to Add</string>
     <string name="label_goal_name">Goal Name</string>
     <string name="label_target_amount">Target Amount</string>
+    <string name="label_initial_saved_amount">Initial Saved Amount</string>
     <string name="label_goal_name_hint">e.g. New Car, Vacation</string>
     <string name="msg_no_goals">No goals yet. Tap + to start saving!</string>
     <string name="cd_add_goal">Add Goal</string>

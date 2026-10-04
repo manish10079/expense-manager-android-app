@@ -20,6 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -66,7 +70,6 @@ import com.mknlabs.expensetracker.utils.formatTime
 import com.mknlabs.expensetracker.utils.getPaymentTypeName
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -109,7 +112,10 @@ fun TransactionCard(
     showTransactionTime: Boolean = true,
     showCategoryIcon: Boolean = true,
     showCategoryLabel: Boolean = true,
-    // Pro-gated: the full-note tooltip (info icon) only renders for Pro users.
+    // Tag names to list in the row's info popup. The card no longer draws tags, so this is
+    // the only way a tag reaches the ledger surface.
+    tags: List<String> = emptyList(),
+    // Pro-gated: the row's info popup (info icon) only renders for Pro users.
     showNoteTooltip: Boolean = true,
     isProUser: Boolean = false,
     isRecurring: Boolean = false,
@@ -149,6 +155,10 @@ fun TransactionCard(
     // date·time to another, so neither pair can drift apart in size or weight.
     val titleStyle = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
     val metaStyle = MaterialTheme.typography.labelSmall
+
+    // Opens the row's info popup (full note + tags). Hoisted to the card rather than held
+    // next to the icon so the dialog outlives the row's own recompositions.
+    var showDetailsDialog by remember { mutableStateOf(false) }
 
     AppCard(
         onClick = onClick,
@@ -205,8 +215,6 @@ fun TransactionCard(
                 // the width but which still holds more lines, so nothing ellipsizes.
                 val noteLineCount = remember(displayNote) { displayNote.count { it == '\n' } + 1 }
                 var noteTruncated by remember(displayNote) { mutableStateOf(false) }
-                val noteTooltipState = rememberTooltipState()
-                val noteTooltipScope = rememberCoroutineScope()
 
                 // Row 1 — the note shares this row with the amount. The amount is
                 // deliberately unweighted, so it is measured at its full intrinsic
@@ -277,7 +285,7 @@ fun TransactionCard(
                 // The icon is deliberately not gated on hasMetaRow: the note's full-text
                 // tooltip must survive a user hiding every pill and the date, so the row
                 // below stays alive whenever there is an icon to place on it.
-                val showNoteInfo = showNoteTooltip && noteTruncated && !isNoteEmpty
+                val showNoteInfo = showNoteTooltip && (noteTruncated || tags.isNotEmpty())
 
                 // Row 2 — the payment, income/expense and category pills on the left, the
                 // date·time pinned to the right edge. The pills live in their own
@@ -380,57 +388,29 @@ fun TransactionCard(
                             // long-press enters multi-select — only the icon carries the
                             // tooltip.
                             if (showNoteInfo) {
-                                TooltipBox(
-                                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                                        TooltipAnchorPosition.Above
-                                    ),
-                                    tooltip = {
-                                        PlainTooltip {
-                                            Text(
-                                                text = note,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                modifier = Modifier.widthIn(max = 280.dp)
-                                            )
-                                        }
-                                    },
-                                    state = noteTooltipState,
-                                    onDismissRequest = { noteTooltipState.dismiss() },
-                                    enableUserInput = false
+                                // The 16.dp glyph is centred in a 24.dp hit target, so a
+                                // 2.dp start padding leaves 6.dp of clear space before the
+                                // glyph — the same gap the pills keep between each other
+                                // via spacedBy, which is what makes the icon read as the
+                                // tail of the pill run rather than a separate element.
+                                //
+                                // The icon opens the card's info popup rather than a
+                                // tooltip: the popup is the one surface that can hold the
+                                // whole multi-line note and the tags the row no longer draws.
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 2.dp)
+                                        .size(24.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .clickable { showDetailsDialog = true },
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    // The 16.dp glyph is centred in a 24.dp hit target, so a
-                                    // 2.dp start padding leaves 6.dp of clear space before the
-                                    // glyph — the same gap the pills keep between each other
-                                    // via spacedBy, which is what makes the icon read as the
-                                    // tail of the pill run rather than a separate element.
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(start = 2.dp)
-                                            .size(24.dp)
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .clickable {
-                                                noteTooltipScope.launch {
-                                                    if (noteTooltipState.isVisible) {
-                                                        noteTooltipState.dismiss()
-                                                    } else {
-                                                        noteTooltipState.show()
-                                                    }
-                                                }
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Info,
-                                            contentDescription = stringResource(
-                                                if (noteTooltipState.isVisible) {
-                                                    R.string.desc_hide_full_note
-                                                } else {
-                                                    R.string.desc_view_full_note
-                                                }
-                                            ),
-                                            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Outlined.Info,
+                                        contentDescription = stringResource(R.string.desc_view_full_note),
+                                        tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.7f),
+                                        modifier = Modifier.size(16.dp)
+                                    )
                                 }
                             }
                         }
@@ -521,6 +501,14 @@ fun TransactionCard(
                 }
             }
         }
+
+        if (showDetailsDialog) {
+            TransactionDetailsDialog(
+                note = note,
+                tags = tags,
+                onDismiss = { showDetailsDialog = false }
+            )
+        }
     }
 }
 
@@ -557,6 +545,89 @@ private fun TransactionPill(
             style = style
         )
     }
+}
+
+/**
+ * The card's info popup: the note in full, however many lines it runs to, and the tags the
+ * row itself no longer shows, closed by a single button.
+ *
+ * The note is drawn with no [maxLines], which is the whole point of the popup — a card can
+ * only ever surface its first line, so this is the one place a wrapped note is whole. The
+ * tags are joined with single spaces so they read as one list rather than a column of pills.
+ */
+@Composable
+private fun TransactionDetailsDialog(
+    note: String,
+    tags: List<String>,
+    onDismiss: () -> Unit
+) {
+    val sectionStyle = MaterialTheme.typography.labelLarge.copy(
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.accentInk
+    )
+    val bodyStyle = MaterialTheme.typography.bodyMedium.copy(
+        color = MaterialTheme.colorScheme.onSurface
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.sheet,
+        tonalElevation = 0.dp,
+        shape = RoundedCornerShape(28.dp),
+        text = {
+            Column {
+                Text(
+                    text = stringResource(R.string.label_note_colon),
+                    style = sectionStyle
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (note.isBlank()) stringResource(R.string.label_no_note) else note,
+                    // The empty-note placeholder keeps the gray italic it has on the card, so
+                    // the popup and the row agree about what "no note" looks like.
+                    color = if (note.isBlank()) {
+                        MaterialTheme.colorScheme.textTertiary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    style = if (note.isBlank()) {
+                        bodyStyle.copy(fontStyle = FontStyle.Italic)
+                    } else {
+                        bodyStyle
+                    }
+                )
+
+                if (tags.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.label_tags_colon),
+                        style = sectionStyle
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = tags.joinToString(" "),
+                        style = bodyStyle
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.accentInk,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.label_close),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)

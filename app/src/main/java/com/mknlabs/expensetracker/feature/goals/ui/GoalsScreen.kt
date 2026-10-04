@@ -103,7 +103,9 @@ fun GoalsScreen(
         amountFormatPreferences = amountFormatPreferences,
         dateFormatPattern = dateFormatPattern,
         onBackClick = onBackClick,
-        onAddGoal = { name, amount, deadline, iconKey -> viewModel.addGoal(name, amount, deadline, iconKey) },
+        onAddGoal = { name, amount, deadline, iconKey, initial ->
+            viewModel.addGoal(name, amount, deadline, iconKey, initial)
+        },
         onFundGoal = { id, amount -> viewModel.fundGoal(id, amount) },
         onEditGoal = { id, name, amount, deadline, iconKey ->
             viewModel.updateGoal(id, name, amount, deadline, iconKey)
@@ -123,7 +125,7 @@ private fun GoalsScreenContent(
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     onBackClick: () -> Unit,
-    onAddGoal: (String, Double, Long?, String) -> Unit,
+    onAddGoal: (String, Double, Long?, String, Double) -> Unit,
     onFundGoal: (String, Double) -> Unit,
     onEditGoal: (String, String, Double, Long?, String) -> Unit,
     onDeleteGoal: (Goal) -> Unit,
@@ -254,8 +256,8 @@ private fun GoalsScreenContent(
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             onDismiss = { isAddGoalDialogVisible = false },
-            onSave = { name, amount, deadline, iconKey ->
-                onAddGoal(name, amount, deadline, iconKey)
+            onSave = { name, amount, deadline, iconKey, initial ->
+                onAddGoal(name, amount, deadline, iconKey, initial)
                 isAddGoalDialogVisible = false
             }
         )
@@ -412,16 +414,19 @@ fun AddGoalDialog(
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     onDismiss: () -> Unit,
-    onSave: (String, Double, Long?, String) -> Unit
+    onSave: (String, Double, Long?, String, Double) -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var amountInput by rememberSaveable { mutableStateOf("") }
+    var initialAmountInput by rememberSaveable { mutableStateOf("") }
     var deadlineAt by rememberSaveable { mutableStateOf<Long?>(null) }
     var iconKey by rememberSaveable { mutableStateOf("savings") }
     var isDeadlinePickerVisible by rememberSaveable { mutableStateOf(false) }
     var isIconPickerVisible by rememberSaveable { mutableStateOf(false) }
 
     val targetAmount = amountInput.toDoubleOrNull() ?: 0.0
+    // Optional: an empty box simply means the goal starts from nothing.
+    val initialAmount = initialAmountInput.toDoubleOrNull() ?: 0.0
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
 
     AlertDialog(
@@ -460,6 +465,20 @@ fun AddGoalDialog(
                     colors = AppOutlinedFieldDefaults.colors()
                 )
 
+                // Optional starting balance: money already set aside toward the goal.
+                OutlinedTextField(
+                    value = initialAmountInput,
+                    onValueChange = { updatedValue ->
+                        initialAmountInput = updatedValue.filter { it.isDigit() || it == '.' }
+                    },
+                    label = { Text(stringResource(R.string.label_initial_saved_amount)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    colors = AppOutlinedFieldDefaults.colors()
+                )
+
                 DeadlinePickerRow(
                     deadlineAt = deadlineAt,
                     dateFormatPattern = dateFormatPattern,
@@ -476,7 +495,7 @@ fun AddGoalDialog(
         confirmButton = {
             AppDialogConfirmButton(
                 text = stringResource(R.string.label_save_1),
-                onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
+                onClick = { onSave(name, targetAmount, deadlineAt, iconKey, initialAmount) },
                 enabled = isSaveEnabled
             )
         },
@@ -1239,7 +1258,7 @@ private fun GoalsScreenPreview() {
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             onBackClick = {},
-            onAddGoal = { _, _, _, _ -> },
+            onAddGoal = { _, _, _, _, _ -> },
             onFundGoal = { _, _ -> },
             onEditGoal = { _, _, _, _, _ -> },
             onDeleteGoal = {},

@@ -142,6 +142,7 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SortType
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.TagMatchMode
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -226,6 +227,9 @@ fun TransactionScreen(
     }
     val uiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = transactionsViewModel.transactions.collectAsLazyPagingItems()
+    // Tags for each row's info popup, keyed by transaction id. Collected here rather than
+    // folded into the paged rows so a tag rename repaints the popup without reloading pages.
+    val transactionTags by transactionsViewModel.transactionTags.collectAsStateWithLifecycle()
 
     // Paging 3 gives the screen the loaded pages; the feed builder turns them into
     // the grouped list (date headers, summaries, ads) the LazyColumn renders.
@@ -294,6 +298,7 @@ fun TransactionScreen(
         pinnedSummary = transactionsFeed.pinnedSummary,
         pagingItems = pagingItems,
         pagingIndexById = pagingIndexById,
+        transactionTags = transactionTags,
         isRefreshing = pagingItems.loadState.refresh is LoadState.Loading,
         isAppending = pagingItems.loadState.append is LoadState.Loading,
         isRefreshError = pagingItems.loadState.refresh is LoadState.Error,
@@ -387,6 +392,9 @@ private fun TransactionScreenContent(
     pinnedSummary: TransactionListItemUi.SummaryCard? = null,
     pagingItems: LazyPagingItems<Transaction>? = null,
     pagingIndexById: Map<String, Int> = emptyMap(),
+    // Tags keyed by transaction id, for each row's info popup. Empty by default so the
+    // previews and any other caller render without tags.
+    transactionTags: Map<String, List<Tag>> = emptyMap(),
     isRefreshing: Boolean = false,
     isAppending: Boolean = false,
     isRefreshError: Boolean = false,
@@ -955,6 +963,7 @@ private fun TransactionScreenContent(
                                             showTransactionTime = uiState.customizationSettings.showTransactionTime,
                                             showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                                             showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                                            tags = transactionTags[card.id].orEmpty().map { it.name },
                                             showNoteTooltip = isProUser,
                                             isProUser = isProUser,
                                             isRecurring = card.isRecurring,

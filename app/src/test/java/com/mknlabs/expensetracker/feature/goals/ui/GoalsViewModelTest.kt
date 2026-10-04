@@ -147,6 +147,27 @@ class GoalsViewModelTest {
     }
 
     @Test
+    fun `addGoal seeds the saved amount from the initial amount`() = runTest {
+        // Act
+        viewModel.addGoal("Vacation", 500.0, null, "savings", initialAmount = 100.0)
+
+        // Assert
+        val goal = fakeRepository.getAll().single()
+        assertEquals(10_000, goal.currentAmountMinor)
+        assertEquals(50_000, goal.targetAmountMinor)
+        assertFalse(goal.isCompleted)
+    }
+
+    @Test
+    fun `addGoal marks the goal complete when the initial amount meets the target`() = runTest {
+        // Act
+        viewModel.addGoal("Vacation", 500.0, null, "savings", initialAmount = 500.0)
+
+        // Assert
+        assertTrue(fakeRepository.getAll().single().isCompleted)
+    }
+
+    @Test
     fun `updateGoal updates icon`() = runTest {
         // Arrange
         fakeRepository.upsertGoal(goal("g1", targetMinor = 10_000, currentMinor = 0))

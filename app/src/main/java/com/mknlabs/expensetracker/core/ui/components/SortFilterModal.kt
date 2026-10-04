@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,12 +48,14 @@ import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.core.ui.theme.subtlePrimaryGradient
 import com.mknlabs.expensetracker.utils.getDefaultOrder
 import com.mknlabs.expensetracker.utils.getOrderOptions
 import com.mknlabs.expensetracker.monetization.Feature
@@ -114,11 +116,6 @@ fun FilterBottomSheet(
 
     // PERFORMANCE: Cache the brushes to prevent per-frame allocation.
     val cardBrush = standardCardGradient()
-    // The selected chip is the spec's --chipSel fill with the spec's --chipInk label,
-    // not a tint of the accent: a 20% brand wash under a brand label was neither the
-    // mock's fill nor its ink.
-    val chipSelectedBrush = SolidColor(colorScheme.chipSelected)
-    val chipUnselectedBrush = subtlePrimaryGradient()
 
     // UI-only expansion states to hide categories by default
     var isExpenseExpanded by remember { mutableStateOf(false) }
@@ -224,8 +221,6 @@ fun FilterBottomSheet(
                             title = label,
                             icon = icon,
                             selected = selectedSort == key,
-                            selectedBrush = chipSelectedBrush,
-                            unselectedBrush = chipUnselectedBrush,
                             onClick = {
                                 onSortChange(key)
                                 onOrderChange(getDefaultOrder(key))
@@ -284,8 +279,6 @@ fun FilterBottomSheet(
                                 title = label,
                                 icon = Icons.Default.DateRange,
                                 selected = selectedDateRange == dateFilter,
-                                selectedBrush = chipSelectedBrush,
-                                unselectedBrush = chipUnselectedBrush,
                                 onClick = {
                                     onDateRangeChange(if (selectedDateRange == dateFilter) null else dateFilter)
                                 }
@@ -309,8 +302,6 @@ fun FilterBottomSheet(
                                 title = customRangeText,
                                 icon = Icons.Default.DateRange,
                                 selected = selectedDateRange == KEY_CUSTOM_RANGE,
-                                selectedBrush = chipSelectedBrush,
-                                unselectedBrush = chipUnselectedBrush,
                                 locked = isLocked,
                                 onClick = { if (isLocked) gatedOnClick() else showDatePicker = true }
                             )
@@ -345,8 +336,6 @@ fun FilterBottomSheet(
                         FilterChip(
                             title = stringResource(R.string.title_expense),
                             selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_EXPENSE),
-                            selectedBrush = chipSelectedBrush,
-                            unselectedBrush = chipUnselectedBrush,
                             onClick = { 
                                 if (isAllTypesActive) {
                                     onTransactionTypeToggle(FILTER_TYPE_INCOME)
@@ -361,8 +350,6 @@ fun FilterBottomSheet(
                         FilterChip(
                             title = stringResource(R.string.title_income),
                             selected = !isAllTypesActive && selectedTransactionTypeIds.contains(FILTER_TYPE_INCOME),
-                            selectedBrush = chipSelectedBrush,
-                            unselectedBrush = chipUnselectedBrush,
                             onClick = { 
                                 if (isAllTypesActive) {
                                     onTransactionTypeToggle(FILTER_TYPE_EXPENSE)
@@ -411,8 +398,6 @@ fun FilterBottomSheet(
                                                     colorHex = category.colorHex
                                                 ),
                                                 selected = selectedCategoryIds.contains(category.id),
-                                                selectedBrush = chipSelectedBrush,
-                                                unselectedBrush = chipUnselectedBrush,
                                                 onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
                                             )
                                         }
@@ -442,8 +427,6 @@ fun FilterBottomSheet(
                                                     colorHex = category.colorHex
                                                 ),
                                                 selected = selectedCategoryIds.contains(category.id),
-                                                selectedBrush = chipSelectedBrush,
-                                                unselectedBrush = chipUnselectedBrush,
                                                 onClick = { if (isLocked) onClick() else onCategoryToggle(category.id) }
                                             )
                                         }
@@ -487,8 +470,6 @@ fun FilterBottomSheet(
                                         colorHex = paymentType.colorHex
                                     ),
                                     selected = selectedPaymentTypeIds.contains(paymentType.id),
-                                    selectedBrush = chipSelectedBrush,
-                                    unselectedBrush = chipUnselectedBrush,
                                     onClick = { if (isLocked) onClick() else onPaymentModeToggle(paymentType.id) }
                                 )
                             }
@@ -544,8 +525,6 @@ fun FilterBottomSheet(
                                     iconTint = parseHexColorOrNull(tag.colorHex)
                                         ?: colorScheme.accentInk,
                                     selected = selectedTagIds.contains(tag.id),
-                                    selectedBrush = chipSelectedBrush,
-                                    unselectedBrush = chipUnselectedBrush,
                                     onClick = { onTagToggle(tag.id) }
                                 )
                             }
@@ -709,29 +688,39 @@ private fun FilterChip(
      * identity colour to carry.
      */
     iconTint: Color? = null,
-    selectedBrush: Brush? = null,
-    unselectedBrush: Brush? = null,
     locked: Boolean = false
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    val bgModifier = if (selected) {
-        Modifier.background(selectedBrush ?: SolidColor(colorScheme.chipSelected))
-    } else {
-        Modifier.background(unselectedBrush ?: SolidColor(colorScheme.surfaceVariant.copy(alpha = 0.35f)))
-    }
+    // The same five spec chip tokens the Analytics period chips read (--chip / --chipLine /
+    // --chipInkOff idle, --chipSel / --chipInk chosen), so a filter chip and a period chip
+    // cannot disagree about what selected/unselected looks like. The fill animates rather
+    // than jumping, matching the period chips.
+    val containerColor by animateColorAsState(
+        targetValue = if (selected) colorScheme.chipSelected else colorScheme.chip,
+        animationSpec = tween(durationMillis = 180),
+        label = "filter_chip_container"
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) Color.Transparent else colorScheme.chipOutline,
+        animationSpec = tween(durationMillis = 180),
+        label = "filter_chip_border"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) colorScheme.chipSelectedInk else colorScheme.chipInkOff,
+        animationSpec = tween(durationMillis = 180),
+        label = "filter_chip_content"
+    )
 
-    // The mock's selected chip has no edge of its own; the fill is the whole signal.
-    val borderColor = if (selected) Color.Transparent else colorScheme.outlineVariant.copy(alpha = 0.4f)
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(18.dp)
 
     Row(
         modifier = modifier
             .clip(shape)
-            .then(bgModifier)
+            .background(containerColor)
             .border(width = 1.dp, color = borderColor, shape = shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 9.dp),
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -745,7 +734,7 @@ private fun FilterChip(
                 tint = when {
                     selected -> colorScheme.chipSelectedInk
                     iconTint != null -> iconTint
-                    else -> colorScheme.onSurfaceVariant
+                    else -> contentColor
                 },
                 modifier = Modifier.size(16.dp)
             )
@@ -754,10 +743,10 @@ private fun FilterChip(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-            ),
-            color = if (selected) colorScheme.chipSelectedInk else colorScheme.onSurfaceVariant
+            // Medium in both states, as on the period chips: selection is carried by the
+            // fill and ink, not by a weight change.
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            color = contentColor
         )
 
         if (locked) {
@@ -823,15 +812,11 @@ private fun TagMatchModeToggle(
         FilterChip(
             title = stringResource(R.string.label_tag_match_all),
             selected = mode == TagMatchMode.AND,
-            selectedBrush = SolidColor(colorScheme.chipSelected),
-            unselectedBrush = subtlePrimaryGradient(),
             onClick = { onModeChange(TagMatchMode.AND) }
         )
         FilterChip(
             title = stringResource(R.string.label_tag_match_any),
             selected = mode == TagMatchMode.OR,
-            selectedBrush = SolidColor(colorScheme.chipSelected),
-            unselectedBrush = subtlePrimaryGradient(),
             onClick = { onModeChange(TagMatchMode.OR) }
         )
     }
@@ -868,7 +853,7 @@ private fun FilterSection(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                    .background(colorScheme.primaryContainer.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -928,7 +913,7 @@ private fun OrderOption(
     val selected = value == selectedOrder
     val shape = RoundedCornerShape(14.dp)
 
-    val bgColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.4f) else colorScheme.surfaceVariant.copy(alpha = 0.25f)
+    val bgColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.3f) else colorScheme.surfaceVariant.copy(alpha = 0.25f)
     val borderColor = if (selected) colorScheme.accentInk.copy(alpha = 0.3f) else colorScheme.outlineVariant.copy(alpha = 0.3f)
 
     Row(
@@ -950,7 +935,7 @@ private fun OrderOption(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(if (selected) colorScheme.primaryContainer else colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                .background(if (selected) colorScheme.primaryContainer.copy(alpha = 0.3f) else colorScheme.surfaceVariant.copy(alpha = 0.6f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(

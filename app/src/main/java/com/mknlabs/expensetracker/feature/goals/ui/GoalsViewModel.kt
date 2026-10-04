@@ -61,18 +61,25 @@ class GoalsViewModel @Inject constructor(
         name: String,
         targetAmount: Double,
         deadlineAtMillis: Long? = null,
-        iconKey: String = "savings"
+        iconKey: String = "savings",
+        initialAmount: Double = 0.0
     ) {
         viewModelScope.launch {
+            val targetMinor = (targetAmount * 100).toLong()
+            val initialMinor = (initialAmount * 100).toLong()
             val newGoal = Goal(
                 id = UUID.randomUUID().toString(),
                 name = name,
-                targetAmountMinor = (targetAmount * 100).toLong(),
-                currentAmountMinor = 0,
+                targetAmountMinor = targetMinor,
+                // The initial saved amount seeds the goal's progress, so a goal created with
+                // money already put aside does not start from zero.
+                currentAmountMinor = initialMinor,
                 deadlineAt = deadlineAtMillis,
                 iconKey = iconKey,
                 colorHex = DEFAULT_GOAL_COLOR_HEX,
-                isCompleted = false,
+                // A goal created already at (or past) its target is complete, the same rule
+                // fundGoal applies when a deposit reaches the target.
+                isCompleted = initialMinor >= targetMinor,
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis(),
                 syncState = SyncState.PENDING_UPLOAD

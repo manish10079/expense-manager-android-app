@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -19,14 +20,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CallMerge
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +51,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +68,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
+import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -91,12 +99,18 @@ fun TagManagementScreen(
         onBackClick = onBackClick,
         onCreateTag = viewModel::createTag,
         onRenameTag = viewModel::renameTag,
-        onDeleteTag = viewModel::deleteTag,
-        onToggleMerge = viewModel::toggleMerge,
-        onCancelMerge = viewModel::cancelMerge,
+        onDeleteTags = viewModel::deleteTags,
+        onMergeTags = viewModel::mergeTags,
         onUpdateColor = viewModel::updateColor
     )
 }
+
+/**
+ * The bulk action the list is currently collecting tags for, or null when no selection is
+ * in progress. Merge needs at least two tags (one to keep, the rest to fold in); delete
+ * needs at least one.
+ */
+private enum class TagSelectionAction { MERGE, DELETE }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,15 +120,34 @@ internal fun TagManagementContent(
     onBackClick: () -> Unit,
     onCreateTag: (String, String?) -> Unit,
     onRenameTag: (String, String) -> Unit,
-    onDeleteTag: (String) -> Unit,
-    onToggleMerge: (String) -> Unit,
-    onCancelMerge: () -> Unit,
+    onDeleteTags: (List<String>) -> Unit,
+    onMergeTags: (targetId: String, sourceIds: List<String>) -> Unit,
     onUpdateColor: (String, String?) -> Unit
 ) {
     var colorEditingItem by remember { mutableStateOf<TagManagementItemUi?>(null) }
     var renameEditingItem by remember { mutableStateOf<TagManagementItemUi?>(null) }
-    var deleteCandidate by remember { mutableStateOf<TagManagementItemUi?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+
+    // Selection mode is screen state, not ViewModel state: it is a transient way of
+    // picking the rows an operation applies to, and nothing outside this screen reads it.
+    var selectionAction by remember { mutableStateOf<TagSelectionAction?>(null) }
+    var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var showMergeTargetDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    fun exitSelection() {
+        selectionAction = null
+        selectedIds = emptySet()
+    }
+
+    fun enterSelection(action: TagSelectionAction, preselect: String? = null) {
+        selectionAction = action
+        selectedIds = if (preselect != null) setOf(preselect) else emptySet()
+    }
+
+    fun toggleSelected(id: String) {
+        selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
+    }
 
     Box(
         modifier = Modifier
@@ -140,15 +173,100 @@ internal fun TagManagementContent(
             )
 
             Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
-                if (uiState.isMerging) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    MergeBanner(
-                        sourceName = uiState.mergeSource?.name.orEmpty(),
-                        onCancel = onCancelMerge
-                    )
-                }
+                // The two bulk actions read as the period chips on Analytics: one option
+                // per chip, the active one filled. Tapping the active chip leaves the mode,
+                // so the same control that enters selection is the one that cancels it.
+                if (uiState.items.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    val action = selectionAction
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        PeriodChip(
+                            label = stringResource(R.string.label_merge_tags),
+                            isSelected = action == TagSelectionAction.MERGE,
+                            onClick = {
+                                if (action == TagSelectionAction.MERGE) {
+                                    exitSelection()
+                                } else {
+                                    enterSelection(TagSelectionAction.MERGE)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                        PeriodChip(
+                            label = stringResource(R.string.label_delete_tags),
+                            isSelected = action == TagSelectionAction.DELETE,
+                            onClick = {
+                                if (action == TagSelectionAction.DELETE) {
+                                    exitSelection()
+                                } else {
+                                    enterSelection(TagSelectionAction.DELETE)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    if (action != null) {
+                        val hasEnoughSelected = if (action == TagSelectionAction.MERGE) {
+                            selectedIds.size >= 2
+                        } else {
+                            selectedIds.isNotEmpty()
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    if (action == TagSelectionAction.MERGE) {
+                                        R.string.msg_select_tags_to_merge
+                                    } else {
+                                        R.string.msg_select_tags_to_delete
+                                    }
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Button(
+                                onClick = {
+                                    when (action) {
+                                        TagSelectionAction.MERGE -> showMergeTargetDialog = true
+                                        TagSelectionAction.DELETE -> showDeleteConfirm = true
+                                    }
+                                },
+                                enabled = hasEnoughSelected,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.accentInk,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = if (action == TagSelectionAction.MERGE) {
+                                        stringResource(R.string.label_merge_selected, selectedIds.size)
+                                    } else {
+                                        stringResource(R.string.label_delete_selected, selectedIds.size)
+                                    },
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 Text(
                     text = stringResource(R.string.label_tags_count, uiState.items.size),
@@ -171,15 +289,19 @@ internal fun TagManagementContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(items = uiState.items, key = { it.id }) { item ->
+                            val action = selectionAction
                             TagManagementCard(
                                 item = item,
                                 currencyId = currencyId,
-                                isMergeSource = item.id == uiState.mergeSourceId,
-                                isMerging = uiState.isMerging,
+                                selectionMode = action != null,
+                                isSelected = item.id in selectedIds,
+                                onCardClick = {
+                                    if (action != null) toggleSelected(item.id)
+                                },
                                 onColorClick = { colorEditingItem = item },
                                 onRenameClick = { renameEditingItem = item },
-                                onDeleteClick = { deleteCandidate = item },
-                                onMergeClick = { onToggleMerge(item.id) }
+                                onDeleteClick = { enterSelection(TagSelectionAction.DELETE, item.id) },
+                                onMergeClick = { enterSelection(TagSelectionAction.MERGE, item.id) }
                             )
                         }
                     }
@@ -224,44 +346,6 @@ internal fun TagManagementContent(
         )
     }
 
-    deleteCandidate?.let { item ->
-        AlertDialog(
-            onDismissRequest = { deleteCandidate = null },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(R.string.label_delete_confirm),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(R.string.msg_delete_tag_confirm, item.name),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    onDeleteTag(item.id)
-                    deleteCandidate = null
-                }) {
-                    Text(
-                        text = stringResource(R.string.label_delete_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { deleteCandidate = null }) {
-                    Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
-
     colorEditingItem?.let { item ->
         TagColorSheet(
             item = item,
@@ -272,29 +356,56 @@ internal fun TagManagementContent(
             }
         )
     }
-}
 
-@Composable
-private fun MergeBanner(sourceName: String, onCancel: () -> Unit) {
-    AppCard(
-        modifier = Modifier.fillMaxWidth(),
-        brush = darkOnlyGradient(standardCardGradient()),
-        shape = AppCardDefaults.shape(18.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.msg_merge_pick_target, sourceName),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-            AppTextButton(onClick = onCancel) {
-                Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
+    if (showMergeTargetDialog) {
+        MergeTargetDialog(
+            tags = uiState.items.filter { it.id in selectedIds },
+            onDismiss = { showMergeTargetDialog = false },
+            onConfirm = { targetId ->
+                onMergeTags(targetId, selectedIds.toList())
+                showMergeTargetDialog = false
+                exitSelection()
             }
-        }
+        )
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            containerColor = MaterialTheme.colorScheme.sheet,
+            title = {
+                Text(
+                    text = stringResource(R.string.label_delete_confirm),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.msg_delete_tags_confirm, selectedIds.size),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                AppTextButton(onClick = {
+                    onDeleteTags(selectedIds.toList())
+                    showDeleteConfirm = false
+                    exitSelection()
+                }) {
+                    Text(
+                        text = stringResource(R.string.label_delete_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                AppTextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 }
 
@@ -302,8 +413,9 @@ private fun MergeBanner(sourceName: String, onCancel: () -> Unit) {
 private fun TagManagementCard(
     item: TagManagementItemUi,
     currencyId: Int,
-    isMergeSource: Boolean,
-    isMerging: Boolean,
+    selectionMode: Boolean,
+    isSelected: Boolean,
+    onCardClick: () -> Unit,
     onColorClick: () -> Unit,
     onRenameClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -312,12 +424,13 @@ private fun TagManagementCard(
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            // Tapping the card while merging names the target; otherwise it is inert, so
-            // a stray tap cannot delete or rename.
-            .clickable(enabled = isMerging, onClick = onMergeClick),
+            // The card itself only reacts while a bulk action is collecting tags, where a
+            // tap toggles the row in or out of the selection. Outside that mode it is inert,
+            // so a stray tap cannot delete or rename.
+            .clickable(enabled = selectionMode, onClick = onCardClick),
         brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(20.dp),
-        colors = if (isMergeSource) {
+        colors = if (isSelected) {
             AppCardDefaults.colors(
                 darkContainer = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.16f)
             )
@@ -344,22 +457,38 @@ private fun TagManagementCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                IconAction(
-                    icon = Icons.Filled.Edit,
-                    description = stringResource(R.string.desc_rename_tag, item.name),
-                    onClick = onRenameClick
-                )
-                IconAction(
-                    icon = Icons.Filled.CallMerge,
-                    description = stringResource(R.string.desc_merge_tag, item.name),
-                    onClick = onMergeClick
-                )
-                IconAction(
-                    icon = Icons.Filled.Close,
-                    description = stringResource(R.string.desc_delete_tag, item.name),
-                    tint = MaterialTheme.colorScheme.error,
-                    onClick = onDeleteClick
-                )
+
+                if (selectionMode) {
+                    // While picking tags the per-row actions give way to a single check, so
+                    // the whole row is one obvious toggle and nothing competes with the tap.
+                    Icon(
+                        imageVector = if (isSelected) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
+                        contentDescription = null,
+                        tint = if (isSelected) {
+                            MaterialTheme.colorScheme.accentInk
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    IconAction(
+                        icon = Icons.Filled.Edit,
+                        description = stringResource(R.string.desc_rename_tag, item.name),
+                        onClick = onRenameClick
+                    )
+                    IconAction(
+                        icon = Icons.Filled.CallMerge,
+                        description = stringResource(R.string.desc_merge_tag, item.name),
+                        onClick = onMergeClick
+                    )
+                    IconAction(
+                        icon = Icons.Filled.Close,
+                        description = stringResource(R.string.desc_delete_tag, item.name),
+                        tint = MaterialTheme.colorScheme.error,
+                        onClick = onDeleteClick
+                    )
+                }
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -386,17 +515,25 @@ private fun TagManagementCard(
 
 @Composable
 private fun IconAction(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     description: String,
     onClick: () -> Unit,
-    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant
+    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     // Kept as the row's tallest element, so this is what sets the card's height. It sits
     // below the 48dp a11y guideline to keep the card compact; the glyph stays 20dp inside.
+    //
+    // The ripple is suppressed on purpose: these glyphs are small and sit tight against
+    // each other, and the spray of ripples among three adjacent icons read as noise. The
+    // tap still lands — only the ink response is gone.
     Box(
         modifier = Modifier
             .size(40.dp)
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -406,6 +543,92 @@ private fun IconAction(
             modifier = Modifier.size(20.dp)
         )
     }
+}
+
+/**
+ * Lets the user pick which of the tags they selected should survive the merge. The chosen
+ * one keeps its name and colour; every other selected tag is folded into it.
+ */
+@Composable
+private fun MergeTargetDialog(
+    tags: List<TagManagementItemUi>,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var targetId by remember { mutableStateOf(tags.firstOrNull()?.id) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.sheet,
+        title = {
+            Text(
+                text = stringResource(R.string.title_merge_tags),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = stringResource(R.string.msg_merge_choose_target),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                tags.forEach { tag ->
+                    val isChosen = tag.id == targetId
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { targetId = tag.id }
+                            .padding(horizontal = 8.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isChosen) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
+                            contentDescription = null,
+                            tint = if (isChosen) {
+                                MaterialTheme.colorScheme.accentInk
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.label_tag_prefixed, tag.name),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            AppTextButton(
+                enabled = targetId != null,
+                onClick = { targetId?.let(onConfirm) }
+            ) {
+                Text(
+                    text = stringResource(R.string.label_merge_tags),
+                    fontWeight = FontWeight.Bold,
+                    color = if (targetId != null) {
+                        MaterialTheme.colorScheme.accentInk
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+        },
+        dismissButton = {
+            AppTextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
+            }
+        }
+    )
 }
 
 @Composable
@@ -551,8 +774,9 @@ private fun TagManagementCardPreviewContent() {
             expenseMinor = 48_250L
         ),
         currencyId = 0,
-        isMergeSource = false,
-        isMerging = false,
+        selectionMode = false,
+        isSelected = false,
+        onCardClick = {},
         onColorClick = {},
         onRenameClick = {},
         onDeleteClick = {},

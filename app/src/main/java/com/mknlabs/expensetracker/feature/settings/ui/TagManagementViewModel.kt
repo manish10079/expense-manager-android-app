@@ -35,14 +35,9 @@ data class TagManagementItemUi(
 @Immutable
 data class TagManagementUiState(
     val items: List<TagManagementItemUi> = emptyList(),
-    /** True while the user is picking a second tag to merge the first into. */
-    val mergeSourceId: String? = null,
     /** A transient message (a merge that was refused, a rename that clashed). */
     val message: String? = null
-) {
-    val isMerging: Boolean get() = mergeSourceId != null
-    val mergeSource: TagManagementItemUi? get() = items.firstOrNull { it.id == mergeSourceId }
-}
+)
 
 /**
  * Backs the Tag Management screen.
@@ -98,36 +93,36 @@ class TagManagementViewModel @Inject constructor(
         viewModelScope.launch { tagRepository.updateTagColor(id, colorHex) }
     }
 
-    fun deleteTag(id: String) {
+    /**
+     * Soft-deletes every tag in [ids]. Each one is detached from its transactions first,
+     * so a bulk delete is only a loop over the single-tag operation and cannot leave a
+     * tag half-removed.
+     */
+    fun deleteTags(ids: Collection<String>) {
+        val targets = ids.toList()
+        if (targets.isEmpty()) return
         viewModelScope.launch {
-            tagRepository.deleteTag(id)
-            _uiState.update { it.copy(mergeSourceId = it.mergeSourceId.takeIf { s -> s != id }) }
+            targets.forEach { tagRepository.deleteTag(it) }
         }
     }
 
     /**
-     * Starts a merge from [id], or completes it when one is already pending.
+     * Merges every id in [sourceIds] into [targetId], one source at a time.
      *
-     * A two-tap flow rather than a dialog: the first tap arms a source, the second
-     * names the target, and the banner tells the user which tag is being merged away.
-     * That keeps the whole interaction on the list the user is looking at, which is
-     * where the decision is actually being made.
+     * Sequential single merges rather than a new bulk SQL path: each merge already
+     * re-points the source's links, collapses duplicates on the target and tombstones
+     * the source in one transaction, so doing them in order produces exactly the state
+     * a single merge of all the sources would. The target survives; every source is
+     * soft-deleted.
      */
-    fun toggleMerge(id: String) {
-        val current = _uiState.value
-        val source = current.mergeSourceId
-        when {
-            source == null -> _uiState.update { it.copy(mergeSourceId = id, message = null) }
-            source == id -> _uiState.update { it.copy(mergeSourceId = null) }
-            else -> viewModelScope.launch {
-                tagRepository.mergeTags(sourceId = source, targetId = id)
-                _uiState.update { it.copy(mergeSourceId = null) }
+    fun mergeTags(targetId: String, sourceIds: Collection<String>) {
+        val sources = sourceIds.filter { it != targetId }
+        if (sources.isEmpty()) return
+        viewModelScope.launch {
+            sources.forEach { source ->
+                tagRepository.mergeTags(sourceId = source, targetId = targetId)
             }
         }
-    }
-
-    fun cancelMerge() {
-        _uiState.update { it.copy(mergeSourceId = null) }
     }
 
     fun clearMessage() {
