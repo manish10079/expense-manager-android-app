@@ -72,13 +72,15 @@ import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -93,6 +95,7 @@ import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.AppLockSecurityQuestion
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
+import com.mknlabs.expensetracker.core.ui.theme.accentInkGradient
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
@@ -1381,6 +1384,11 @@ private fun PinSlot(
     }
 
     var currentState by remember { mutableStateOf<PinSlotState>(PinSlotState.Empty) }
+    // The brand as an ink, not a fill: this is the ramp the theme reserves for painting a
+    // glyph, and it is the one that stays legible in dark. One brush is built here and
+    // reused by both the animated icons and the dot they settle into, so the sequence
+    // never ends on a different colour than it animated through.
+    val brandInk = accentInkGradient()
 
     LaunchedEffect(isFilled, pinVisualMode) {
         if (!isFilled) {
@@ -1439,11 +1447,21 @@ private fun PinSlot(
                     )
                 }
                 is PinSlotState.AnimatedIcon -> {
+                    // `tint` on an Icon takes a solid colour only, so the glyph is drawn
+                    // white and the ramp is punched through its alpha with SrcIn, which
+                    // keeps each icon's own silhouette. The offscreen layer fences the
+                    // blend in so it cannot erase what was drawn around the slot.
                     Icon(
                         imageVector = state.icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(24.dp)
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(brush = brandInk, blendMode = BlendMode.SrcIn)
+                            }
                     )
                 }
                 is PinSlotState.Dot -> {
@@ -1451,7 +1469,7 @@ private fun PinSlot(
                         modifier = Modifier
                             .size(18.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.cta)
+                            .background(brush = brandInk)
                             .shadow(
                                 elevation = 14.dp,
                                 shape = CircleShape,
