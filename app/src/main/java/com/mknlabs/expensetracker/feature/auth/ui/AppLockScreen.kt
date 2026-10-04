@@ -66,6 +66,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
@@ -130,6 +131,14 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+/**
+ * How long the IME must stay hidden before the answer field gives up focus.
+ *
+ * Long enough to ride out a momentary false reading from `isImeVisible` (which would
+ * otherwise close a keyboard the user is typing on), short enough to feel immediate.
+ */
+private const val APP_LOCK_IME_SETTLE_MS = 250L
 
 enum class AppLockScreenMode {
     Setup,
@@ -586,6 +595,21 @@ private fun AppLockScreenContent(
         }
     }
 
+    // Focus outlives the keyboard. Dismissing the IME — the Done action on the answer field,
+    // or the system Back press the platform consumes before the app sees it — hides the keys
+    // without clearing focus, so the card stayed parked at the bottom of an empty screen once
+    // the keyboard was gone. Once the IME has stayed away for a moment, drop focus and the
+    // layout falls back to its top alignment. The delay is the debounce: a momentary false
+    // reading while the keyboard is genuinely up flips this effect's key back and cancels it
+    // before it fires, so a live keyboard can never be closed from here.
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(isKeyboardOpen) {
+        if (!isKeyboardOpen) {
+            delay(APP_LOCK_IME_SETTLE_MS)
+            focusManager.clearFocus()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -792,11 +816,17 @@ private fun AppLockScreenContent(
                 }
             }
 
-            if (!isPinEntryVisible && !isKeyboardOpen) {
+            // The Save/Disable action stays mounted while the keyboard is up, not only when
+            // it is closed. This column already reserves the IME, so the button lands
+            // directly above the keyboard and the user can finish the security-question
+            // form without dismissing it first. The gap tightens from the usual 24dp to
+            // 12dp in that state so the button reads as sitting on the keyboard's edge
+            // rather than floating away from it.
+            if (!isPinEntryVisible) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp)
+                        .padding(bottom = if (answerFieldFocused || isKeyboardOpen) 12.dp else 24.dp)
                 ) {
                     PrimaryActionButton(
                         label = primaryActionLabel,
