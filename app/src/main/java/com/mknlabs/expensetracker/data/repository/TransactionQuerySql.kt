@@ -60,6 +60,17 @@ object TransactionQuerySql {
                 selection.append(" OR payment_method_id IN (${query.searchPaymentTypeIds.placeholders()})")
                 args.addAll(query.searchPaymentTypeIds)
             }
+            if (query.searchTagIds.isNotEmpty()) {
+                // Tag names live in the tags table, so a name match is resolved to tag ids
+                // upstream and matched here through the join table. Soft-deleted tags are
+                // excluded; the surrounding `is_deleted = 0` already guards the transaction.
+                selection.append(
+                    " OR id IN (SELECT tt.transaction_id FROM transaction_tags tt " +
+                        "JOIN tags ON tags.id = tt.tag_id " +
+                        "WHERE tags.is_deleted = 0 AND tt.tag_id IN (${query.searchTagIds.tagPlaceholders()}))"
+                )
+                args.addAll(query.searchTagIds)
+            }
             selection.append(")")
         }
 

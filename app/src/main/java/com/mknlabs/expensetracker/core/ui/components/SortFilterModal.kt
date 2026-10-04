@@ -50,7 +50,6 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
-import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -540,7 +539,7 @@ fun FilterBottomSheet(
                         ) {
                             availableTags.forEach { tag ->
                                 FilterChip(
-                                    title = tag.name,
+                                    title = stringResource(R.string.label_tag_prefixed, tag.name),
                                     icon = null,
                                     iconTint = parseHexColorOrNull(tag.colorHex)
                                         ?: colorScheme.accentInk,
@@ -604,33 +603,48 @@ fun FilterBottomSheet(
                     )
                 }
 
-                // Apply button
+                // Apply button — painted with the brand ramp, the same fill every
+                // primary CTA in the app uses. A transparent container with the
+                // gradient drawn on an inner Box keeps the Button's ripple, semantics
+                // and disabled handling while letting the ramp cover the whole 52dp
+                // area, not just the glyph row.
                 Button(
                     onClick = onApply,
                     modifier = Modifier
                         .weight(3f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(0.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.cta,
+                        containerColor = Color.Transparent,
                         contentColor = colorScheme.onCta
                     )
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.label_apply_filters),
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Clip
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(brush = brandGradient()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.label_apply_filters),
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Clip
+                            )
+                        }
+                    }
                 }
             }
         }

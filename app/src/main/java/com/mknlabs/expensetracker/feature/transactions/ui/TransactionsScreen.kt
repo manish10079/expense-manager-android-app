@@ -142,7 +142,6 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.SortType
-import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.TagMatchMode
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -227,9 +226,6 @@ fun TransactionScreen(
     }
     val uiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = transactionsViewModel.transactions.collectAsLazyPagingItems()
-    // Tags per transaction, joined onto the loaded rows so a rename elsewhere repaints
-    // the chips without reloading pages.
-    val transactionTags by transactionsViewModel.transactionTags.collectAsStateWithLifecycle()
 
     // Paging 3 gives the screen the loaded pages; the feed builder turns them into
     // the grouped list (date headers, summaries, ads) the LazyColumn renders.
@@ -294,7 +290,6 @@ fun TransactionScreen(
 
     TransactionScreenContent(
         uiState = uiState,
-        transactionTags = transactionTags,
         transactionItems = transactionsFeed.items,
         pinnedSummary = transactionsFeed.pinnedSummary,
         pagingItems = pagingItems,
@@ -388,7 +383,6 @@ private fun HeaderCircleActionButton(
 @Composable
 private fun TransactionScreenContent(
     uiState: TransactionsScreenUiState,
-    transactionTags: Map<String, List<Tag>> = emptyMap(),
     transactionItems: List<TransactionListItemUi> = emptyList(),
     pinnedSummary: TransactionListItemUi.SummaryCard? = null,
     pagingItems: LazyPagingItems<Transaction>? = null,
@@ -964,7 +958,6 @@ private fun TransactionScreenContent(
                                             showNoteTooltip = isProUser,
                                             isProUser = isProUser,
                                             isRecurring = card.isRecurring,
-                                            tags = transactionTags[card.id].orEmpty(),
                                             isSelected = uiState.selectedTransactionIds.contains(card.id),
                                             selectionMode = uiState.isSelectionMode,
                                             onClick = {

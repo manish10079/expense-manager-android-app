@@ -89,6 +89,8 @@ data class TransactionQuery(
     val searchCategoryIds: List<Int> = emptyList(),
     /** Payment methods whose name matches [search] (advanced search); OR-ed into the search clause. */
     val searchPaymentTypeIds: List<Int> = emptyList(),
+    /** Tags whose name matches [search] (advanced search); OR-ed into the search clause. */
+    val searchTagIds: List<String> = emptyList(),
     val transactionTypeIds: List<Int> = listOf(1, 2),
     val categoryIds: List<Int> = emptyList(),
     val paymentTypeIds: List<Int> = emptyList(),

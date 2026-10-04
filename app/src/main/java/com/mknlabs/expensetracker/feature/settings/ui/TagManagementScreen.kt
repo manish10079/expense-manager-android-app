@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.CallMerge
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,10 +63,12 @@ import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 
 /**
@@ -304,12 +309,6 @@ private fun TagManagementCard(
     onDeleteClick: () -> Unit,
     onMergeClick: () -> Unit
 ) {
-    // The card's colour is the tag's identity, and a tag with no colour of its own draws
-    // from the neutral surface rather than a palette slot — tags are not numbered, so
-    // there is no stable index to derive a palette colour from the way categories do.
-    val identityColor = com.mknlabs.expensetracker.core.ui.theme.parseHexColorOrNull(item.colorHex)
-        ?: MaterialTheme.colorScheme.onSurfaceVariant
-
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -329,46 +328,22 @@ private fun TagManagementCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // A colour dot rather than an icon: a tag has no icon, and the colour is
-                // the only visual anchor it carries (PRD §2).
-                Box(
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clip(CircleShape)
-                        .background(identityColor)
-                )
                 Text(
-                    text = item.name,
+                    text = stringResource(R.string.label_tag_prefixed, item.name),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-            }
-
-            Text(
-                text = stringResource(
-                    R.string.msg_tag_usage,
-                    item.transactionCount,
-                    formatCurrencyValue(item.expenseMinor / 100.0, currencyId)
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 IconAction(
                     icon = Icons.Filled.Edit,
                     description = stringResource(R.string.desc_rename_tag, item.name),
@@ -386,6 +361,25 @@ private fun TagManagementCard(
                     onClick = onDeleteClick
                 )
             }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.msg_tag_transaction_count, item.transactionCount),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = formatCurrencyValue(item.expenseMinor / 100.0, currencyId),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
@@ -397,10 +391,11 @@ private fun IconAction(
     onClick: () -> Unit,
     tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
-    // The 48dp a11y minimum touch target, with the glyph drawn smaller inside it.
+    // Kept as the row's tallest element, so this is what sets the card's height. It sits
+    // below the 48dp a11y guideline to keep the card compact; the glyph stays 20dp inside.
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(40.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -487,7 +482,7 @@ private fun TagColorSheet(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = item.name,
+                text = stringResource(R.string.label_tag_prefixed, item.name),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 maxLines = 1,
@@ -524,5 +519,43 @@ private fun BoxScope.TagManagementGlow() {
                 ),
                 shape = CircleShape
             )
+    )
+}
+
+/**
+ * The tag card in both themes. The tag reads in its "#name" form, and the summary line
+ * carries the transaction count and the expense the card exists to show.
+ */
+@Preview(showBackground = true, widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Tag Card (Light)")
+@Composable
+private fun TagManagementCardLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        TagManagementCardPreviewContent()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Tag Card (Dark)")
+@Composable
+private fun TagManagementCardDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        TagManagementCardPreviewContent()
+    }
+}
+
+@Composable
+private fun TagManagementCardPreviewContent() {
+    TagManagementCard(
+        item = TagManagementItemUi(
+            tag = Tag(id = "preview-tag", name = "Groceries", colorHex = "#5B2EED"),
+            transactionCount = 12,
+            expenseMinor = 48_250L
+        ),
+        currencyId = 0,
+        isMergeSource = false,
+        isMerging = false,
+        onColorClick = {},
+        onRenameClick = {},
+        onDeleteClick = {},
+        onMergeClick = {}
     )
 }

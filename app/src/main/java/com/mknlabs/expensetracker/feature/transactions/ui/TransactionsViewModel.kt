@@ -623,7 +623,7 @@ class TransactionsViewModel @Inject constructor(
     /**
      * Builds the SQL-backed query from the committed filters. Search is matched in
      * SQL against the note and amount; when advanced search is granted, names of
-     * matching categories/payment methods are resolved to ids and OR-ed in.
+     * matching categories, payment methods and tags are resolved to ids and OR-ed in.
      */
     private fun buildQuery(): TransactionQuery {
         val window = currentQueryWindow()
@@ -646,6 +646,13 @@ class TransactionsViewModel @Inject constructor(
                     .filter { it.name.contains(searchText, ignoreCase = true) }
                     .map { it.id }
                     .distinct()
+            } else {
+                emptyList()
+            },
+            searchTagIds = if (advancedSearch) {
+                currentTags
+                    .filter { it.name.contains(searchText, ignoreCase = true) }
+                    .map { it.id }
             } else {
                 emptyList()
             },

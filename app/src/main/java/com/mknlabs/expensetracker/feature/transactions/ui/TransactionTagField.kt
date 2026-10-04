@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -33,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -181,8 +179,7 @@ fun TransactionTagField(
             ) {
                 suggestions.forEach { tag ->
                     SuggestionRow(
-                        label = tag.name,
-                        leadingColor = parseHexColorOrNull(tag.colorHex),
+                        label = stringResource(R.string.label_tag_prefixed, tag.name),
                         onClick = {
                             onToggle(tag.id)
                             query = ""
@@ -192,7 +189,6 @@ fun TransactionTagField(
                 if (canCreate) {
                     SuggestionRow(
                         label = stringResource(R.string.label_create_tag_named, trimmed),
-                        leadingColor = null,
                         isCreate = true,
                         onClick = {
                             onAddByName(trimmed)
@@ -208,7 +204,6 @@ fun TransactionTagField(
 @Composable
 private fun SuggestionRow(
     label: String,
-    leadingColor: Color?,
     isCreate: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -226,13 +221,6 @@ private fun SuggestionRow(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(16.dp)
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(leadingColor ?: MaterialTheme.colorScheme.onSurfaceVariant)
             )
         }
         Text(
@@ -276,14 +264,8 @@ fun TagChip(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(identity)
-            )
             Text(
-                text = tag.name,
+                text = stringResource(R.string.label_tag_prefixed, tag.name),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,

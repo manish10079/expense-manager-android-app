@@ -86,6 +86,21 @@ class TransactionQuerySqlTest {
     }
 
     @Test
+    fun `advanced search ORs resolved tag ids in through the join table`() {
+        val result = TransactionQuerySql.paging(
+            TransactionQuery(
+                search = "food",
+                searchTagIds = listOf("t1", "t2")
+            )
+        )
+
+        assertTrue(result.sql.contains("OR id IN (SELECT tt.transaction_id FROM transaction_tags tt"))
+        assertTrue(result.sql.contains("tags.is_deleted = 0"))
+        assertTrue(result.sql.contains("tt.tag_id IN (?,?)"))
+        assertEquals(listOf<Any>("%food%", "%food%", "t1", "t2", 1, 2), result.args)
+    }
+
+    @Test
     fun `type filter uses an IN clause with one placeholder per type`() {
         val result = TransactionQuerySql.paging(TransactionQuery(transactionTypeIds = listOf(1)))
 
@@ -240,6 +255,7 @@ class TransactionQuerySqlTest {
                 search = "x",
                 searchCategoryIds = listOf(1, 2),
                 searchPaymentTypeIds = listOf(3),
+                searchTagIds = listOf("st"),
                 transactionTypeIds = listOf(1),
                 categoryIds = listOf(4, 5, 6),
                 paymentTypeIds = listOf(7),
