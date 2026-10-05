@@ -2,6 +2,14 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import com.adamglin.phosphoricons.regular.MagnifyingGlass
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +25,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Surface
+import androidx.compose.ui.window.Dialog
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Info
+import com.mknlabs.expensetracker.core.ui.components.sortedByCatalog
+import com.mknlabs.expensetracker.core.ui.components.CatalogSortSheet
+import com.mknlabs.expensetracker.core.ui.components.CatalogSort
+import com.adamglin.phosphoricons.regular.SortAscending
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -43,6 +63,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.delay
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -134,6 +158,18 @@ internal fun TagManagementContent(
     var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showMergeTargetDialog by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showTagsInfo by remember { mutableStateOf(false) }
+    var isSearchExpanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var catalogSort by remember { mutableStateOf(CatalogSort.Newest) }
+    var showSortSheet by remember { mutableStateOf(false) }
+    val searchFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            delay(80)
+            searchFocusRequester.requestFocus()
+        }
+    }
 
     fun exitSelection() {
         selectionAction = null
@@ -268,15 +304,105 @@ internal fun TagManagementContent(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                Text(
-                    text = stringResource(R.string.label_tags_count, uiState.items.size),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                val visibleTags = (if (searchQuery.isBlank()) {
+                    uiState.items
+                } else {
+                    uiState.items.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                }).sortedByCatalog(catalogSort, createdAt = { it.tag.createdAt }, name = { it.name })
+                val countColor = MaterialTheme.colorScheme.onSurfaceVariant
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_tags_count, visibleTags.size),
+                        color = countColor,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = PhosphorIcons.Regular.MagnifyingGlass,
+                        contentDescription = stringResource(R.string.desc_search_tags),
+                        tint = countColor,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clickable { isSearchExpanded = true }
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Icon(
+                        imageVector = PhosphorIcons.Regular.SortAscending,
+                        contentDescription = stringResource(R.string.desc_sort),
+                        tint = countColor,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clickable { showSortSheet = true }
+                    )
+                    Icon(
+                        imageVector = PhosphorIcons.Regular.Info,
+                        contentDescription = stringResource(R.string.desc_tags_info),
+                        tint = countColor,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clickable { showTagsInfo = true }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = isSearchExpanded,
+                    enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { -it / 2 }) + fadeOut()
+                ) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.placeholder_search_manage_tags),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .focusRequester(searchFocusRequester),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = PhosphorIcons.Regular.MagnifyingGlass,
+                                contentDescription = stringResource(R.string.desc_search),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                searchQuery = ""
+                                isSearchExpanded = false
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = stringResource(R.string.desc_close_search),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            cursorColor = MaterialTheme.colorScheme.accentInk,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (uiState.items.isEmpty()) {
+                if (visibleTags.isEmpty()) {
                     Text(
                         text = stringResource(R.string.msg_no_tags_yet),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -288,7 +414,7 @@ internal fun TagManagementContent(
                         contentPadding = PaddingValues(bottom = 120.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(items = uiState.items, key = { it.id }) { item ->
+                        items(items = visibleTags, key = { it.id }) { item ->
                             val action = selectionAction
                             TagManagementCard(
                                 item = item,
@@ -354,6 +480,17 @@ internal fun TagManagementContent(
                 onUpdateColor(item.id, colorHex)
                 colorEditingItem = null
             }
+        )
+    }
+
+    if (showTagsInfo) {
+        TagsInfoDialog(onDismiss = { showTagsInfo = false })
+    }
+    if (showSortSheet) {
+        CatalogSortSheet(
+            selected = catalogSort,
+            onSelect = { catalogSort = it },
+            onDismiss = { showSortSheet = false }
         )
     }
 
@@ -748,6 +885,74 @@ private fun BoxScope.TagManagementGlow() {
  * The tag card in both themes. The tag reads in its "#name" form, and the summary line
  * carries the transaction count and the expense the card exists to show.
  */
+
+@Composable
+private fun TagsInfoDialog(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.sheet,
+            tonalElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = stringResource(R.string.title_what_are_tags),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.msg_tags_what),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.msg_tags_where),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.label_tags_example),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "#",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.accentInk
+                    )
+                    Text(
+                        text = stringResource(R.string.label_tag_example_name),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brandGradient())
+                        .clickable(onClick = onDismiss)
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_close),
+                        color = MaterialTheme.colorScheme.onBrandGradient,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Tag Card (Light)")
 @Composable
 private fun TagManagementCardLightPreview() {

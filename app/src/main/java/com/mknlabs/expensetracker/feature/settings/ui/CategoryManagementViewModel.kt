@@ -151,7 +151,8 @@ private fun buildCategoryManagementItems(
             title = category.name,
             icon = category.icon,
             isUserCreated = !category.isSystem,
-            colorHex = category.colorHex
+            colorHex = category.colorHex,
+            createdAt = category.createdAt
         )
     }
 }
@@ -172,7 +173,8 @@ private fun buildPaymentManagementItems(
             // Payment ids restart at 1, so this flag is what keeps UPI's card from drawing Food's
             // colour — and from writing to the categories table.
             colorHex = paymentType.colorHex,
-            isPaymentMethod = true
+            isPaymentMethod = true,
+            createdAt = paymentType.createdAt
         )
     }
 }

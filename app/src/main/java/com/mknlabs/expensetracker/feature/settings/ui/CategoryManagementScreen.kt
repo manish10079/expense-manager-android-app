@@ -2,6 +2,28 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.ui.window.Dialog
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Info
+import com.mknlabs.expensetracker.core.ui.components.sortedByCatalog
+import com.mknlabs.expensetracker.core.ui.components.CatalogSortSheet
+import com.mknlabs.expensetracker.core.ui.components.CatalogSort
+import com.adamglin.phosphoricons.regular.SortAscending
+import com.adamglin.phosphoricons.regular.MagnifyingGlass
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +60,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.delay
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
@@ -183,6 +208,18 @@ private fun CategoryManagementContent(
     // whole item means the sheet shows the row's current colour without a second lookup that could
     // disagree with the grid behind it.
     var colorEditingItem by remember { mutableStateOf<CategoryManagementItemUi?>(null) }
+    var isSearchExpanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var catalogSort by remember { mutableStateOf(CatalogSort.Newest) }
+    var showSortSheet by remember { mutableStateOf(false) }
+    val searchFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            delay(80)
+            searchFocusRequester.requestFocus()
+        }
+    }
+    var showCategoriesInfo by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -230,44 +267,140 @@ private fun CategoryManagementContent(
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
+            val tabItems = when (activeTab) {
+                CategoryManagementTab.Income -> uiState.incomeItems
+                CategoryManagementTab.Expense -> uiState.expenseItems
+                CategoryManagementTab.Payment -> uiState.paymentItems
+            }
+            val visibleItems = (if (searchQuery.isBlank()) {
+                tabItems
+            } else {
+                tabItems.filter { it.title.contains(searchQuery, ignoreCase = true) }
+            }).sortedByCatalog(catalogSort, createdAt = { it.createdAt }, name = { it.title })
+            val countColor = MaterialTheme.colorScheme.onSurfaceVariant
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = when (activeTab) {
+                        CategoryManagementTab.Income -> stringResource(R.string.label_income_categories_count, visibleItems.size)
+                        CategoryManagementTab.Expense -> stringResource(R.string.label_expense_categories_count, visibleItems.size)
+                        CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, visibleItems.size)
+                    },
+                    color = countColor,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = PhosphorIcons.Regular.MagnifyingGlass,
+                    contentDescription = stringResource(R.string.desc_search_categories),
+                    tint = countColor,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable { isSearchExpanded = true }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Icon(
+                    imageVector = PhosphorIcons.Regular.SortAscending,
+                    contentDescription = stringResource(R.string.desc_sort),
+                    tint = countColor,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable { showSortSheet = true }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Icon(
+                    imageVector = PhosphorIcons.Regular.Info,
+                    contentDescription = stringResource(R.string.desc_categories_info),
+                    tint = countColor,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable { showCategoriesInfo = true }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isSearchExpanded,
+                enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it / 2 }) + fadeOut()
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.placeholder_search_manage_categories),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                        .focusRequester(searchFocusRequester),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.MagnifyingGlass,
+                            contentDescription = stringResource(R.string.desc_search),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            searchQuery = ""
+                            isSearchExpanded = false
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.desc_close_search),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f),
                 beyondViewportPageCount = 1
             ) { pageIndex ->
                 val currentTab = CategoryManagementTab.entries[pageIndex]
-                val animatingItems = when (currentTab) {
+                val pageItems = when (currentTab) {
                     CategoryManagementTab.Income -> uiState.incomeItems
                     CategoryManagementTab.Expense -> uiState.expenseItems
                     CategoryManagementTab.Payment -> uiState.paymentItems
                 }
+                val animatingItems = (if (searchQuery.isBlank()) {
+                    pageItems
+                } else {
+                    pageItems.filter { it.title.contains(searchQuery, ignoreCase = true) }
+                }).sortedByCatalog(catalogSort, createdAt = { it.createdAt }, name = { it.title })
 
                 val gridState = rememberLazyGridState()
-                // A newly added card is prepended. LazyGrid keeps the previously
-                // visible keys on screen, so the viewport stays on the built-ins
-                // and the new row sits above the fold. Jump to the real top when
-                // the leading item changes.
                 LaunchedEffect(animatingItems.firstOrNull()?.id) {
                     gridState.scrollToItem(0)
                 }
 
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Text(
-                        text = when (currentTab) {
-                            CategoryManagementTab.Income -> stringResource(R.string.label_income_categories_count, animatingItems.size)
-                            CategoryManagementTab.Expense -> stringResource(R.string.label_expense_categories_count, animatingItems.size)
-                            CategoryManagementTab.Payment -> stringResource(R.string.label_payment_methods_count, animatingItems.size)
-                        },
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-
-                    Spacer(modifier = Modifier.height(22.dp))
-
-                    AdaptiveContent(
-                        maxWidth = 640.dp,
-                        modifier = Modifier.weight(1f)
-                    ) {
+                AdaptiveContent(
+                    maxWidth = 640.dp,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     // A grid, not a list. Each card is a glyph and a name, so it reads
                     // fine two-up and the list was wasting the horizontal half of every
                     // row. Adaptive columns fill whatever width the window offers — two
@@ -297,7 +430,6 @@ private fun CategoryManagementContent(
                         }
                     }
                     }
-                }
             }
             }
         }
@@ -315,6 +447,17 @@ private fun CategoryManagementContent(
                 .padding(end = 22.dp, bottom = 28.dp),
             contentDescription = stringResource(R.string.desc_add_category),
             shadowElevation = 22.dp
+        )
+    }
+
+    if (showCategoriesInfo) {
+        CategoriesInfoDialog(onDismiss = { showCategoriesInfo = false })
+    }
+    if (showSortSheet) {
+        CatalogSortSheet(
+            selected = catalogSort,
+            onSelect = { catalogSort = it },
+            onDismiss = { showSortSheet = false }
         )
     }
 
@@ -602,6 +745,67 @@ private fun defaultIconIdFor(tab: CategoryManagementTab): String {
         CategoryManagementTab.Income -> "wallet"
         CategoryManagementTab.Expense -> "shopping_cart"
         CategoryManagementTab.Payment -> "payments"
+    }
+}
+
+
+@Composable
+private fun CategoriesInfoDialog(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.sheet,
+            tonalElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = stringResource(R.string.title_what_are_categories),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.msg_categories_what),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.msg_categories_where),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.label_categories_example),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.label_category_example_name),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brandGradient())
+                        .clickable(onClick = onDismiss)
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_close),
+                        color = MaterialTheme.colorScheme.onBrandGradient,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
     }
 }
 

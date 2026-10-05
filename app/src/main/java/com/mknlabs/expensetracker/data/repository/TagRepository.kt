@@ -85,6 +85,7 @@ class TagRepository @Inject constructor(
                     nameLower = nameLower,
                     colorHex = color ?: deleted.colorHex,
                     isDeleted = false,
+                    createdAt = now,
                     updatedAt = now,
                     syncState = SyncState.PENDING_UPLOAD
                 )

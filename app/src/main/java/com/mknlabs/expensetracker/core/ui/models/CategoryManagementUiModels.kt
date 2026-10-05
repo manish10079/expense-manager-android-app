@@ -37,7 +37,8 @@ data class CategoryManagementItemUi(
      * Which palette this row resolves against. Categories and payment methods are numbered
      * from 1 independently — id 1 is Food *and* UPI — so the two cannot share one lookup.
      */
-    val isPaymentMethod: Boolean = false
+    val isPaymentMethod: Boolean = false,
+    val createdAt: Long = 0L
 )
 
 @Immutable

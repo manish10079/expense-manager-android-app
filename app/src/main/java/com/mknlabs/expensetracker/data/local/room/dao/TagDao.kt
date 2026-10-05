@@ -26,13 +26,13 @@ interface TagDao {
 
     // ─── Tags ────────────────────────────────────────────────────────────────
 
-    @Query("SELECT * FROM tags WHERE is_deleted = 0 ORDER BY name_lower ASC")
+    @Query("SELECT * FROM tags WHERE is_deleted = 0 ORDER BY created_at DESC, name_lower ASC")
     fun observeActiveTags(): Flow<List<TagEntity>>
 
-    @Query("SELECT * FROM tags WHERE is_deleted = 0 ORDER BY name_lower ASC")
+    @Query("SELECT * FROM tags WHERE is_deleted = 0 ORDER BY created_at DESC, name_lower ASC")
     suspend fun getActiveTags(): List<TagEntity>
 
-    @Query("SELECT * FROM tags ORDER BY name_lower ASC")
+    @Query("SELECT * FROM tags ORDER BY created_at DESC, name_lower ASC")
     suspend fun getAllTags(): List<TagEntity>
 
     @Query("SELECT * FROM tags WHERE id = :id LIMIT 1")
