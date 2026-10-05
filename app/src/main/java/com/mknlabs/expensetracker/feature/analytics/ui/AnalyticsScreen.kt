@@ -81,6 +81,7 @@ import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -152,17 +153,20 @@ fun AnalyticsScreen(
     monthStartDay: Int = 1,
     onBackClick: () -> Unit = {},
     analyticsViewModel: AnalyticsViewModel = hiltViewModel(),
+    tagLinksViewModel: AnalyticsTagLinksViewModel = hiltViewModel(),
     isAdsEnabled: Boolean = false,
     isProUser: Boolean = false
 ) {
-    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences, monthStartDay) {
+    val transactionTags by tagLinksViewModel.transactionTags.collectAsStateWithLifecycle()
+    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences, monthStartDay, transactionTags) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
             categories = categories,
             paymentTypes = paymentMethods,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
-            monthStartDay = monthStartDay
+            monthStartDay = monthStartDay,
+            transactionTags = transactionTags
         )
     }
     val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()
@@ -180,7 +184,8 @@ fun AnalyticsScreen(
         onBackClick = onBackClick,
         onDateRangeSelected = { analyticsViewModel.selectPeriod(it) },
         onCustomRangeApplied = { start, end -> analyticsViewModel.applyCustomRange(start, end) },
-        onClearCustomRange = analyticsViewModel::clearCustomRange
+        onClearCustomRange = analyticsViewModel::clearCustomRange,
+        transactionTags = transactionTags
     )
 }
 
@@ -198,27 +203,57 @@ fun AnalyticsScreenContent(
     onBackClick: () -> Unit,
     onDateRangeSelected: (AnalyticsPeriod) -> Unit,
     onCustomRangeApplied: (Long, Long) -> Unit,
-    onClearCustomRange: () -> Unit
+    onClearCustomRange: () -> Unit,
+    transactionTags: Map<String, List<Tag>> = emptyMap()
 ) {
     var isCustomRangePickerVisible by rememberSaveable { mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
     var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isIncomeSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isTagSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTopSpendingSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTransactionSheetVisible by rememberSaveable { mutableStateOf(false) }
     var heroDisplayMode by rememberSaveable { mutableStateOf(HeroDisplayMode.EXPENSE) }
 
     var selectedFilterId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var selectedFilterTagId by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedFilterLabel by rememberSaveable { mutableStateOf("") }
     var filterByPayment by rememberSaveable { mutableStateOf(false) }
+    var filterByIncome by rememberSaveable { mutableStateOf(false) }
 
-    val filteredTransactions = remember(selectedFilterId, uiState.activeRange, filterByPayment, transactions) {
-        if (selectedFilterId == null) emptyList()
-        else {
-            transactions.filter {
-                it.createdAt in uiState.activeRange &&
+    val filteredTransactions = remember(
+        selectedFilterId,
+        selectedFilterTagId,
+        uiState.activeRange,
+        filterByPayment,
+        filterByIncome,
+        transactions,
+        transactionTags
+    ) {
+        val range = uiState.activeRange
+        when {
+            selectedFilterTagId != null -> {
+                transactions.filter { tx ->
+                    tx.createdAt in range &&
+                        tx.transactionTypeId == 2 &&
+                        transactionTags[tx.id].orEmpty().any { it.id == selectedFilterTagId }
+                }.sortedByDescending { it.createdAt }
+            }
+            selectedFilterId == null -> emptyList()
+            filterByIncome -> {
+                transactions.filter {
+                    it.createdAt in range &&
+                        it.transactionTypeId == 1 &&
+                        it.categoryId == selectedFilterId
+                }.sortedByDescending { it.createdAt }
+            }
+            else -> {
+                transactions.filter {
+                    it.createdAt in range &&
                         it.transactionTypeId == 2 &&
                         (if (filterByPayment) it.paymentTypeId == selectedFilterId else it.categoryId == selectedFilterId)
-            }.sortedByDescending { it.createdAt }
+                }.sortedByDescending { it.createdAt }
+            }
         }
     }
     val customRange = uiState.customRange
@@ -365,8 +400,10 @@ fun AnalyticsScreenContent(
                                     onViewAllClick = { isCategorySheetVisible = true },
                                     onShowTransactions = { id, label ->
                                         selectedFilterId = id
+                                        selectedFilterTagId = null
                                         selectedFilterLabel = label
                                         filterByPayment = false
+                                        filterByIncome = false
                                         isTransactionSheetVisible = true
                                     }
                                 )
@@ -395,8 +432,86 @@ fun AnalyticsScreenContent(
                                     onViewAllClick = { isPaymentSheetVisible = true },
                                     onShowTransactions = { id, label ->
                                         selectedFilterId = id
+                                        selectedFilterTagId = null
                                         selectedFilterLabel = label
                                         filterByPayment = true
+                                        filterByIncome = false
+                                        isTransactionSheetVisible = true
+                                    }
+                                )
+                            }
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_breakdown),
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                    }
+                )
+                }
+            }
+
+            item {
+                Box(Modifier.alpha(enter[3])) {
+                AnalyticsSectionRow(
+                    isWide = isWide,
+                    first = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
+                        displayName = stringResource(id = R.string.title_full_income_breakdown),
+                        onAction = {}
+                    ) { status, onClick ->
+                        val isLocked = status !is AccessStatus.Granted
+                        Box {
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                CategoryCard(
+                                    modifier = gated,
+                                    snapshot = snapshot,
+                                    titleRes = R.string.label_income_breakdown,
+                                    breakdown = snapshot.incomeBreakdown,
+                                    allBreakdown = snapshot.allIncomeBreakdown,
+                                    emptyRes = R.string.label_no_income_breakdown,
+                                    onViewAllClick = { isIncomeSheetVisible = true },
+                                    onShowTransactions = { id, label ->
+                                        selectedFilterId = id
+                                        selectedFilterTagId = null
+                                        selectedFilterLabel = label
+                                        filterByPayment = false
+                                        filterByIncome = true
+                                        isTransactionSheetVisible = true
+                                    }
+                                )
+                            }
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_breakdown),
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                    },
+                    second = {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
+                        displayName = stringResource(id = R.string.title_full_tag_breakdown),
+                        onAction = {}
+                    ) { status, onClick ->
+                        val isLocked = status !is AccessStatus.Granted
+                        Box {
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                TagBreakdownCard(
+                                    modifier = gated,
+                                    snapshot = snapshot,
+                                    onViewAllClick = { isTagSheetVisible = true },
+                                    onShowTransactions = { id, label ->
+                                        selectedFilterId = null
+                                        selectedFilterTagId = id
+                                        selectedFilterLabel = label
+                                        filterByPayment = false
+                                        filterByIncome = false
                                         isTransactionSheetVisible = true
                                     }
                                 )
@@ -529,6 +644,62 @@ fun AnalyticsScreenContent(
         }
     }
 
+    if (isIncomeSheetVisible) {
+        GatedAction(
+            feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
+            displayName = stringResource(id = R.string.title_full_income_breakdown),
+            onAction = { isIncomeSheetVisible = true }
+        ) { status, onClick ->
+            if (status is AccessStatus.Granted) {
+                CategoryBreakdownBottomSheet(
+                    categories = snapshot.allIncomeBreakdown,
+                    onDismiss = { isIncomeSheetVisible = false },
+                    onShowTransactions = { id, label ->
+                        selectedFilterId = id
+                        selectedFilterTagId = null
+                        selectedFilterLabel = label
+                        filterByPayment = false
+                        filterByIncome = true
+                        isTransactionSheetVisible = true
+                    }
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    isIncomeSheetVisible = false
+                    onClick()
+                }
+            }
+        }
+    }
+
+    if (isTagSheetVisible) {
+        GatedAction(
+            feature = Feature.ANALYTICS_CATEGORY_BREAKDOWN,
+            displayName = stringResource(id = R.string.title_full_tag_breakdown),
+            onAction = { isTagSheetVisible = true }
+        ) { status, onClick ->
+            if (status is AccessStatus.Granted) {
+                TagBreakdownBottomSheet(
+                    tags = snapshot.allTagBreakdown,
+                    onDismiss = { isTagSheetVisible = false },
+                    onShowTransactions = { id, label ->
+                        selectedFilterId = null
+                        selectedFilterTagId = id
+                        selectedFilterLabel = label
+                        filterByPayment = false
+                        filterByIncome = false
+                        isTransactionSheetVisible = true
+                    }
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    isTagSheetVisible = false
+                    onClick()
+                }
+            }
+        }
+    }
+
     if (isPaymentSheetVisible) {
         GatedAction(
             feature = Feature.ANALYTICS_PAYMENT_BREAKDOWN,
@@ -568,6 +739,7 @@ fun AnalyticsScreenContent(
             onDismiss = {
                 isTransactionSheetVisible = false
                 selectedFilterId = null
+                selectedFilterTagId = null
             }
         )
     }
@@ -1279,7 +1451,7 @@ private fun InsightStatCard(
  * changes — and not when the card recomposes for some unrelated reason.
  */
 @Composable
-private fun rememberShareReveal(vararg keys: Any?): Float {
+internal fun rememberShareReveal(vararg keys: Any?): Float {
     val reveal = remember { androidx.compose.animation.core.Animatable(0f) }
     LaunchedEffect(*keys) {
         reveal.snapTo(0f)
@@ -1533,12 +1705,16 @@ private fun CashFlowBar(
 private fun CategoryCard(
     modifier: Modifier = Modifier,
     snapshot: AnalyticsSnapshotUi,
+    titleRes: Int = R.string.label_top_spending_by_category,
+    breakdown: List<CategoryBreakdownUi>? = null,
+    allBreakdown: List<CategoryBreakdownUi>? = null,
+    emptyRes: Int = R.string.label_no_category_spending_found_in,
     onViewAllClick: () -> Unit,
     onShowTransactions: (Int, String) -> Unit
 ) {
-    // One reveal for the whole card, so the donut's arcs and the percentages in the rows under it
-    // arrive on the same clock rather than as two animations that happen to overlap.
-    val reveal = rememberShareReveal(snapshot.categoryBreakdown)
+    val items = breakdown ?: snapshot.categoryBreakdown
+    val allItems = allBreakdown ?: snapshot.allCategoryBreakdown
+    val reveal = rememberShareReveal(items)
     AppCard(
         modifier = modifier,
         // The gradient is the dark surface and this card's only fill, so the container
@@ -1559,13 +1735,13 @@ private fun CategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(id = R.string.label_top_spending_by_category),
+                    text = stringResource(id = titleRes),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleSmall,
                 )
-                if (snapshot.allCategoryBreakdown.isNotEmpty()) {
+                if (allItems.isNotEmpty()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable(onClick = onViewAllClick)
@@ -1589,20 +1765,20 @@ private fun CategoryCard(
             }
             Spacer(modifier = Modifier.height(18.dp))
             SpendingDonutChart(
-                snapshot.categoryBreakdown,
+                items,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 progress = reveal
             )
             Spacer(modifier = Modifier.height(20.dp))
-            if (snapshot.categoryBreakdown.isEmpty()) {
+            if (items.isEmpty()) {
                 Text(
-                    text = stringResource(id = R.string.label_no_category_spending_found_in),
+                    text = stringResource(id = emptyRes),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge
                 )
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    snapshot.categoryBreakdown.forEach { category ->
+                    items.forEach { category ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,

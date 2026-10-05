@@ -211,8 +211,16 @@
     <string name="title_spent">Spent</string>
     <string name="label_spent_today">Spent Today</string>
     <string name="label_top_spending">Top Spending</string>
-    <string name="label_top_spending_by_category">Top Spending by\nCategory</string>
-    <string name="label_top_spending_by_payment_mode">Top Spending by\nPayment Mode</string>
+    <string name="label_top_spending_by_category">Expense breakdown</string>
+    <string name="label_top_spending_by_payment_mode">Payment breakdown</string>
+    <string name="label_income_breakdown">Income breakdown</string>
+    <string name="label_tags_breakdown">Tags breakdown</string>
+    <string name="label_no_income_breakdown">No income in this period</string>
+    <string name="label_no_tag_breakdown">No tagged spending in this period</string>
+    <string name="label_all_income_categories">All income</string>
+    <string name="label_all_tags_breakdown">All tags</string>
+    <string name="title_full_income_breakdown">Income breakdown</string>
+    <string name="title_full_tag_breakdown">Tags breakdown</string>
     <string name="label_total_amount">TOTAL AMOUNT</string>
     <string name="label_total_expenses">TOTAL EXPENSES</string>
     <string name="label_total_income">TOTAL INCOME</string>

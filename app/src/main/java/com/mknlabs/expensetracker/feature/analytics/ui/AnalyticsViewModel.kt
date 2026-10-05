@@ -5,10 +5,15 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import com.mknlabs.expensetracker.domain.repository.TagRepository
+import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -17,6 +22,8 @@ import com.mknlabs.expensetracker.utils.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -52,6 +59,17 @@ data class CategoryBreakdownUi(
      * toggle recolours them together rather than freezing whichever theme was active when the
      * snapshot was built.
      */
+    val colorHex: String? = null,
+    val isOther: Boolean = false
+)
+
+@Immutable
+data class TagBreakdownUi(
+    val id: String,
+    val label: String,
+    val amountDisplay: String,
+    val fraction: Float,
+    val percentLabel: Int,
     val colorHex: String? = null,
     val isOther: Boolean = false
 )
@@ -126,6 +144,10 @@ data class AnalyticsSnapshotUi(
     val allCategoryBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val paymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
     val allPaymentTypeBreakdown: List<PaymentTypeBreakdownUi> = emptyList(),
+    val incomeBreakdown: List<CategoryBreakdownUi> = emptyList(),
+    val allIncomeBreakdown: List<CategoryBreakdownUi> = emptyList(),
+    val tagBreakdown: List<TagBreakdownUi> = emptyList(),
+    val allTagBreakdown: List<TagBreakdownUi> = emptyList(),
     val topTransactions: List<TopSpendingItemUi> = emptyList(),
     val allTopTransactions: List<TopSpendingItemUi> = emptyList(),
     val smartTip: SmartTipUi = SmartTipUi(resId = R.string.msg_unlock_insights_hint),
@@ -170,6 +192,7 @@ class AnalyticsViewModel : ViewModel() {
     private var currentTransactions: List<Transaction> = emptyList()
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentPaymentTypes: List<PaymentType> = emptyList()
+    private var currentTransactionTags: Map<String, List<Tag>> = emptyMap()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 
@@ -188,11 +211,13 @@ class AnalyticsViewModel : ViewModel() {
         paymentTypes: List<PaymentType>,
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
-        monthStartDay: Int = 1
+        monthStartDay: Int = 1,
+        transactionTags: Map<String, List<Tag>> = emptyMap()
     ) {
         currentTransactions = transactions
         currentCategories = categories
         currentPaymentTypes = paymentTypes
+        currentTransactionTags = transactionTags
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentMonthStartDay = monthStartDay
@@ -251,6 +276,7 @@ class AnalyticsViewModel : ViewModel() {
                     transactions = currentTransactions,
                     categories = currentCategories,
                     paymentTypes = currentPaymentTypes,
+                    transactionTags = currentTransactionTags,
                     customRange = range,
                     monthStartDay = currentMonthStartDay
                 )
@@ -266,6 +292,7 @@ private fun buildAnalyticsSnapshot(
     transactions: List<Transaction>,
     categories: List<CategoryType>,
     paymentTypes: List<PaymentType>,
+    transactionTags: Map<String, List<Tag>> = emptyMap(),
     customRange: LongRange? = null,
     monthStartDay: Int = 1
 ): AnalyticsSnapshotUi {
@@ -343,6 +370,51 @@ private fun buildAnalyticsSnapshot(
     }
     val paymentBreakdown = allPaymentBreakdown.take(3)
 
+    val incomeTotals = currentTransactions
+        .filter { it.transactionTypeId == 1 }
+        .groupBy { it.categoryId }
+        .mapValues { (_, items) -> items.sumOf { it.amount } }
+        .toList()
+        .sortedByDescending { it.second }
+    val totalIncomeForShare = incomeTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
+    val allIncomeBreakdown = incomeTotals.map { (categoryId, amount) ->
+        val category = categoryMap[categoryId]
+        CategoryBreakdownUi(
+            id = categoryId,
+            label = category?.name ?: "",
+            isOther = category == null,
+            amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
+            fraction = (amount / totalIncomeForShare).toFloat(),
+            percentLabel = ((amount / totalIncomeForShare) * 100).toInt(),
+            colorHex = category?.colorHex
+        )
+    }
+    val incomeBreakdown = allIncomeBreakdown.take(3)
+
+    val tagAmounts = linkedMapOf<String, Double>()
+    val tagMeta = linkedMapOf<String, Tag>()
+    currentTransactions.filter { it.transactionTypeId == 2 }.forEach { tx ->
+        transactionTags[tx.id].orEmpty().forEach { tag ->
+            tagAmounts[tag.id] = (tagAmounts[tag.id] ?: 0.0) + tx.amount
+            tagMeta[tag.id] = tag
+        }
+    }
+    val tagTotals = tagAmounts.entries.map { it.key to it.value }.sortedByDescending { it.second }
+    val totalTagForShare = tagTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
+    val allTagBreakdown = tagTotals.map { (tagId, amount) ->
+        val tag = tagMeta[tagId]
+        TagBreakdownUi(
+            id = tagId,
+            label = tag?.name ?: "",
+            isOther = tag == null,
+            amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
+            fraction = (amount / totalTagForShare).toFloat(),
+            percentLabel = ((amount / totalTagForShare) * 100).toInt(),
+            colorHex = tag?.colorHex
+        )
+    }
+    val tagBreakdown = allTagBreakdown.take(3)
+
     val sortedTransactions = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .sortedByDescending { it.amount }
@@ -414,6 +486,10 @@ private fun buildAnalyticsSnapshot(
         allCategoryBreakdown = allBreakdown,
         paymentTypeBreakdown = paymentBreakdown,
         allPaymentTypeBreakdown = allPaymentBreakdown,
+        incomeBreakdown = incomeBreakdown,
+        allIncomeBreakdown = allIncomeBreakdown,
+        tagBreakdown = tagBreakdown,
+        allTagBreakdown = allTagBreakdown,
         topTransactions = topTransactions,
         allTopTransactions = allTopTransactions,
         smartTip = buildSmartTip(
@@ -817,3 +893,15 @@ private fun daysBetween(
 
 private val categoryFallbackIcon: ImageVector
     get() = Icons.Filled.Analytics
+
+@HiltViewModel
+class AnalyticsTagLinksViewModel @Inject constructor(
+    tagRepository: TagRepository
+) : ViewModel() {
+    val transactionTags = tagRepository.observeAllTransactionTags()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap()
+        )
+}
