@@ -39,6 +39,7 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -163,6 +164,10 @@ internal fun TagManagementContent(
     var searchQuery by remember { mutableStateOf("") }
     var catalogSort by remember { mutableStateOf(CatalogSort.Newest) }
     var showSortSheet by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    LaunchedEffect(catalogSort) {
+        listState.scrollToItem(0)
+    }
     val searchFocusRequester = remember { FocusRequester() }
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -337,6 +342,7 @@ internal fun TagManagementContent(
                             .size(18.dp)
                             .clickable { showSortSheet = true }
                     )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Icon(
                         imageVector = PhosphorIcons.Regular.Info,
                         contentDescription = stringResource(R.string.desc_tags_info),
@@ -410,6 +416,7 @@ internal fun TagManagementContent(
                     )
                 } else {
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 120.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)

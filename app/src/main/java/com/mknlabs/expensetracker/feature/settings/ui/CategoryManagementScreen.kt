@@ -393,7 +393,7 @@ private fun CategoryManagementContent(
                 }).sortedByCatalog(catalogSort, createdAt = { it.createdAt }, name = { it.title })
 
                 val gridState = rememberLazyGridState()
-                LaunchedEffect(animatingItems.firstOrNull()?.id) {
+                LaunchedEffect(catalogSort, animatingItems.firstOrNull()?.id) {
                     gridState.scrollToItem(0)
                 }
 
