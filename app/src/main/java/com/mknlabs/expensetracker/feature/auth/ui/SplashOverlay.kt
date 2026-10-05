@@ -99,7 +99,6 @@ private fun SplashOverlayContent(
     currentTask: InitTask,
     onExitFinished: () -> Unit = {},
 ) {
-    val loadingProgress = remember { Animatable(0f) }
     val titleEnter = remember { Animatable(0f) }
     val subtitleEnter = remember { Animatable(0f) }
     val taglineEnter = remember { Animatable(0f) }
@@ -107,24 +106,20 @@ private fun SplashOverlayContent(
     val titleText = stringResource(id = R.string.label_app_name_display)
     val subtitleText = stringResource(id = R.string.label_budget_and_spend)
     val taglineText = stringResource(id = R.string.label_splash_tagline)
-    var displayedTask by remember { mutableStateOf<InitTask>(InitTask.Start) }
-
-    val progressTween = tween<Float>(durationMillis = 600, easing = FastOutSlowInEasing)
-
+    var enterDone by remember { mutableStateOf(false) }
     LaunchedEffect(titleText, subtitleText, taglineText) {
+        val slide = tween<Float>(durationMillis = 780, easing = FastOutSlowInEasing)
         titleEnter.animateTo(1f, SplashInertiaSpring)
-        delay(40)
-        coroutineScope {
-            launch { subtitleEnter.animateTo(1f, SplashInertiaSpring) }
-            launch { taglineEnter.animateTo(1f, SplashInertiaSpring) }
-        }
+        delay(280)
+        subtitleEnter.animateTo(1f, slide)
+        delay(180)
+        taglineEnter.animateTo(1f, slide)
+        delay(2_200)
+        enterDone = true
     }
 
-    LaunchedEffect(currentTask) {
-        displayedTask = currentTask
-        loadingProgress.animateTo(currentTask.progress / 100f, progressTween)
-        if (currentTask is InitTask.Complete) {
-            delay(5)
+    LaunchedEffect(currentTask, enterDone) {
+        if (enterDone && currentTask is InitTask.Complete) {
             ashT.animateTo(
                 1f,
                 tween(durationMillis = 1_150, easing = LinearEasing),
@@ -135,19 +130,19 @@ private fun SplashOverlayContent(
 
     val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
     val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.96f,
-        targetValue = 1.04f,
+        initialValue = 0.88f,
+        targetValue = 1.12f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "logo_pulse_scale"
     )
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.05f,
-        targetValue = 0.15f,
+        initialValue = 0.12f,
+        targetValue = 0.42f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glow_alpha"
@@ -200,11 +195,6 @@ private fun SplashOverlayContent(
                     taglineEnter = taglineEnter.value,
                     compact = true,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                SplashProgressBlock(
-                    progress = { loadingProgress.value },
-                    displayedTask = displayedTask,
-                )
             }
         } else {
             Column(
@@ -237,19 +227,6 @@ private fun SplashOverlayContent(
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = 64.dp)
-                    .width(200.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                SplashProgressBlock(
-                    progress = { loadingProgress.value },
-                    displayedTask = displayedTask,
-                )
-            }
         }
 
         Text(
@@ -399,12 +376,14 @@ private fun SplashCopyBlock(
             letterSpacing = (-0.5).sp
         )
     }
+    val slidePx = with(androidx.compose.ui.platform.LocalDensity.current) { 96.dp.toPx() }
     SplashFloatLine(
         text = titleText,
         progress = titleEnter,
         riseFromBelow = true,
         fromLeft = false,
         curvePx = if (compact) 18f else 36f,
+        travelPx = slidePx,
         color = MaterialTheme.colorScheme.onBackground,
         style = titleStyle,
     )
@@ -414,6 +393,7 @@ private fun SplashCopyBlock(
         riseFromBelow = false,
         fromLeft = true,
         curvePx = 0f,
+        travelPx = slidePx,
         color = MaterialTheme.colorScheme.accentInk,
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Medium,
@@ -427,6 +407,7 @@ private fun SplashCopyBlock(
         riseFromBelow = false,
         fromLeft = false,
         curvePx = 0f,
+        travelPx = slidePx,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.bodyMedium.copy(
             letterSpacing = 3.sp,
@@ -436,43 +417,13 @@ private fun SplashCopyBlock(
 }
 
 @Composable
-private fun SplashProgressBlock(
-    progress: () -> Float,
-    displayedTask: InitTask,
-) {
-    LinearProgressIndicator(
-        progress = progress,
-        modifier = Modifier
-            .width(200.dp)
-            .height(3.dp)
-            .clip(CircleShape),
-        color = MaterialTheme.colorScheme.accentInk,
-        trackColor = MaterialTheme.colorScheme.accentSoft
-    )
-    Spacer(modifier = Modifier.height(12.dp))
-    AnimatedContent(
-        targetState = displayedTask,
-        transitionSpec = {
-            fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(300))
-        },
-        label = "TaskAnimation"
-    ) { task ->
-        Text(
-            text = stringResource(id = task.labelResId).lowercase(),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
 private fun SplashFloatLine(
     text: String,
     progress: Float,
     riseFromBelow: Boolean,
     fromLeft: Boolean,
     curvePx: Float,
+    travelPx: Float,
     color: Color,
     style: TextStyle,
 ) {
@@ -485,12 +436,11 @@ private fun SplashFloatLine(
             .fillMaxWidth()
             .graphicsLayer {
                 val settle = 1f - progress
-                val dist = size.width
                 val side = if (fromLeft) -1f else 1f
                 translationX = if (riseFromBelow) {
                     side * curvePx * sin(settle.coerceAtLeast(0f) * PI.toFloat())
                 } else {
-                    settle * side * dist
+                    settle * side * travelPx
                 }
                 translationY = if (riseFromBelow) settle * 96f else 0f
                 alpha = progress.coerceIn(0f, 1f)

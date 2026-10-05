@@ -264,6 +264,12 @@ private fun CalendarScreenContent(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 PeriodChip(
+                                    label = stringResource(id = R.string.label_today),
+                                    isSelected = false,
+                                    onClick = onJumpToToday,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                PeriodChip(
                                     label = stringResource(id = R.string.label_month_1),
                                     isSelected = !uiState.isYearView,
                                     onClick = { onSetYearView(false) },
@@ -274,12 +280,6 @@ private fun CalendarScreenContent(
                                     isSelected = uiState.isYearView,
                                     isLocked = isYearLocked,
                                     onClick = { if (isYearLocked) onClick() else onSetYearView(true) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                                PeriodChip(
-                                    label = stringResource(id = R.string.label_today),
-                                    isSelected = false,
-                                    onClick = onJumpToToday,
                                     modifier = Modifier.weight(1f)
                                 )
                             }

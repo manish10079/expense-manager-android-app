@@ -635,7 +635,7 @@ private fun CustomRangeSelector(
     }
 
     val textColor = if (isSelected) {
-        MaterialTheme.colorScheme.chipSelectedInk
+        MaterialTheme.colorScheme.accentInk
     } else {
         MaterialTheme.colorScheme.chipInkOff
     }

@@ -376,7 +376,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             })
                         }
-                        isReady && appSettings != null -> {
+                        splashGone && isReady && appSettings != null -> {
                             val settings = appSettings!!
                             
                             // Layer 1: Main App Content (Always in composition to preserve NavController state)

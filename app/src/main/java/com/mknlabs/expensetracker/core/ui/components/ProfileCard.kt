@@ -54,9 +54,9 @@ import kotlinx.coroutines.launch
 
 /**
  * The tier chip ("PRO" / "FREE") is drawn at 90% of the label style and padding it borrows,
- * so it reads as an aside beside the name rather than competing with it.
+ * so it stays a chip beside the name without matching the name size.
  */
-private const val TIER_BADGE_SCALE = 0.9f
+private const val TIER_BADGE_SCALE = 1.15f
 
 @Composable
 fun ProfileCard(

@@ -116,14 +116,16 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.PinSlotState
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Eco
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Diamond
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.RocketLaunch
-import androidx.compose.material.icons.filled.Spa
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.fill.Diamond
+import com.adamglin.phosphoricons.fill.FlowerLotus
+import com.adamglin.phosphoricons.fill.Heart
+import com.adamglin.phosphoricons.fill.Leaf
+import com.adamglin.phosphoricons.fill.PawPrint
+import com.adamglin.phosphoricons.fill.RocketLaunch
+import com.adamglin.phosphoricons.fill.Sparkle
+import com.adamglin.phosphoricons.fill.Star
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -1402,14 +1404,14 @@ private fun PinSlot(
 ) {
     val iconPool = remember {
         listOf(
-            Icons.Filled.Pets,
-            Icons.Filled.Eco,
-            Icons.Filled.Favorite,
-            Icons.Filled.Star,
-            Icons.Filled.Diamond,
-            Icons.Filled.AutoAwesome,
-            Icons.Filled.RocketLaunch,
-            Icons.Filled.Spa
+            PhosphorIcons.Fill.PawPrint,
+            PhosphorIcons.Fill.Leaf,
+            PhosphorIcons.Fill.Heart,
+            PhosphorIcons.Fill.Star,
+            PhosphorIcons.Fill.Diamond,
+            PhosphorIcons.Fill.Sparkle,
+            PhosphorIcons.Fill.RocketLaunch,
+            PhosphorIcons.Fill.FlowerLotus
         )
     }
 
@@ -1469,12 +1471,7 @@ private fun PinSlot(
         ) { state ->
             when (state) {
                 is PinSlotState.Empty -> {
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.outlineVariant)
-                    )
+                    Box(modifier = Modifier.size(18.dp))
                 }
                 is PinSlotState.AnimatedIcon -> {
                     // `tint` on an Icon takes a solid colour only, so the glyph is drawn

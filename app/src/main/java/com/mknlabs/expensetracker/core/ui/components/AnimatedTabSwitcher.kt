@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedFill
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
@@ -95,7 +96,7 @@ fun <T> AnimatedTabSwitcher(
             label = "tab_indicator_wash"
         )
         val selectedInk = selectedItem?.selectedColor
-            ?: MaterialTheme.colorScheme.tabSwitcherSelectedInk
+            ?: MaterialTheme.colorScheme.accentInk
 
         val indicatorOffset by animateDpAsState(
             targetValue = tabWidth * selectedIndex,
@@ -149,21 +150,13 @@ fun <T> AnimatedTabSwitcher(
                     // edge. The outer Box keeps that cluster in the horizontal centre.
                     Box {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            val brandSelected = selected && selectedItem?.selectedColor == null
-                            val selectedRamp = if (brandSelected) brandGradient() else null
                             Text(
                                 text = item.label,
-                                color = if (selectedRamp != null) Color.Transparent else animatedColor,
+                                color = animatedColor,
                                 fontSize = fontSize,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
-                                textAlign = TextAlign.Center,
-                                style = androidx.compose.ui.text.TextStyle(
-                                    brush = selectedRamp,
-                                    fontSize = fontSize,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
+                                textAlign = TextAlign.Center
                             )
                             if (item.isLocked) {
                                 Spacer(modifier = Modifier.width(6.dp))

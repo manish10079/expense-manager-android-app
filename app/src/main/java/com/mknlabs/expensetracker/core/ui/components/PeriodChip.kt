@@ -55,6 +55,7 @@ import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
 import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 
 
@@ -107,7 +108,7 @@ fun PeriodChip(
     }
 
     val targetContentColor = if (isSelected) {
-        colors?.selectedContent ?: MaterialTheme.colorScheme.chipSelectedInk
+        colors?.selectedContent ?: MaterialTheme.colorScheme.accentInk
     } else {
         colors?.unselectedContent ?: MaterialTheme.colorScheme.chipInkOff
     }
@@ -142,13 +143,12 @@ fun PeriodChip(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
     ) {
-        val selectedRamp = if (isSelected && colors == null) brandGradient() else null
         Text(
             text = label,
-            color = if (selectedRamp != null) Color.Transparent else contentColor,
+            color = contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = textStyle.copy(brush = selectedRamp)
+            style = textStyle
         )
 
         // A gated option has to say so, or the gate stays invisible until the user taps it.

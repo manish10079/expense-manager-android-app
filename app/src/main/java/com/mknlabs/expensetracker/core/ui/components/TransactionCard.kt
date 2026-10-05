@@ -1,6 +1,18 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.background
+import kotlinx.coroutines.coroutineScope
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -561,6 +573,45 @@ private fun TransactionDetailsDialog(
     tags: List<String>,
     onDismiss: () -> Unit
 ) {
+    val scale = remember { Animatable(0.14f) }
+    val fade = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    var closing by remember { mutableStateOf(false) }
+
+    fun dismissAnimated() {
+        if (closing) return
+        closing = true
+        scope.launch {
+            coroutineScope {
+                launch {
+                    scale.animateTo(
+                        0.14f,
+                        tween(durationMillis = 220, easing = FastOutSlowInEasing)
+                    )
+                }
+                launch {
+                    fade.animateTo(0f, tween(durationMillis = 180))
+                }
+            }
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        coroutineScope {
+            launch {
+                scale.animateTo(
+                    1f,
+                    spring(
+                        dampingRatio = 0.72f,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                )
+            }
+            launch { fade.animateTo(1f, tween(durationMillis = 200)) }
+        }
+    }
+
     val sectionStyle = MaterialTheme.typography.labelLarge.copy(
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.accentInk
@@ -569,13 +620,21 @@ private fun TransactionDetailsDialog(
         color = MaterialTheme.colorScheme.onSurface
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        tonalElevation = 0.dp,
-        shape = RoundedCornerShape(28.dp),
-        text = {
-            Column {
+    Dialog(onDismissRequest = { dismissAnimated() }) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                    alpha = fade.value
+                    transformOrigin = TransformOrigin(1f, 0f)
+                },
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.sheet,
+            tonalElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
                 Text(
                     text = stringResource(R.string.label_note_colon),
                     style = sectionStyle
@@ -583,8 +642,6 @@ private fun TransactionDetailsDialog(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (note.isBlank()) stringResource(R.string.label_no_note) else note,
-                    // The empty-note placeholder keeps the gray italic it has on the card, so
-                    // the popup and the row agree about what "no note" looks like.
                     color = if (note.isBlank()) {
                         MaterialTheme.colorScheme.textTertiary
                     } else {
@@ -613,25 +670,26 @@ private fun TransactionDetailsDialog(
                         style = bodyStyle
                     )
                 }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.accentInk,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.label_close),
-                    fontWeight = FontWeight.Bold
-                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brandGradient())
+                        .clickable(onClick = { dismissAnimated() })
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_close),
+                        color = MaterialTheme.colorScheme.onBrandGradient,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
-    )
+    }
 }
 
 @Preview(showBackground = true)
