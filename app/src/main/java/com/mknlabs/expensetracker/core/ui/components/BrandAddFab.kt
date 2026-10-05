@@ -44,9 +44,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.HeroRailEndLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroRailStartLight
-import com.mknlabs.expensetracker.core.ui.theme.fabGradient
+import com.mknlabs.expensetracker.core.ui.theme.BrandGradientCompanionDark
+import com.mknlabs.expensetracker.core.ui.theme.BrandGradientCompanionLight
+import com.mknlabs.expensetracker.core.ui.theme.BrandGradientStartDark
+import com.mknlabs.expensetracker.core.ui.theme.BrandGradientStartLight
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import kotlinx.coroutines.delay
 
@@ -140,13 +143,20 @@ fun BrandAddFab(
     iconSize: Dp = BrandAddFabDefaults.IconSize,
     brush: Brush? = null,
     contentColor: Color? = null,
-    accentStart: Color = HeroRailStartLight,
-    accentEnd: Color = HeroRailEndLight,
+    accentStart: Color = Color.Unspecified,
+    accentEnd: Color = Color.Unspecified,
     glow: Boolean = true,
     glowOffset: Dp = 0.dp,
     shadowElevation: Dp = BrandAddFabDefaults.ShadowElevation
 ) {
-    val fill = brush ?: fabGradient()
+    val isDark = MaterialTheme.colorScheme.isDark
+    val fill = brush ?: brandGradient()
+    val glowStart = if (accentStart == Color.Unspecified) {
+        if (isDark) BrandGradientStartDark else BrandGradientStartLight
+    } else accentStart
+    val glowEnd = if (accentEnd == Color.Unspecified) {
+        if (isDark) BrandGradientCompanionDark else BrandGradientCompanionLight
+    } else accentEnd
     val ink = contentColor ?: MaterialTheme.colorScheme.onBrandGradient
 
     Box(
@@ -161,8 +171,8 @@ fun BrandAddFab(
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                accentStart.copy(alpha = BrandAddFabDefaults.GlowStartAlpha),
-                                accentEnd.copy(alpha = BrandAddFabDefaults.GlowEndAlpha),
+                                glowStart.copy(alpha = BrandAddFabDefaults.GlowStartAlpha),
+                                glowEnd.copy(alpha = BrandAddFabDefaults.GlowEndAlpha),
                                 Color.Transparent
                             )
                         ),
@@ -190,8 +200,8 @@ fun BrandAddFab(
                 .shadow(
                     elevation = shadowElevation,
                     shape = shape,
-                    ambientColor = accentStart.copy(alpha = BrandAddFabDefaults.ShadowAmbientAlpha),
-                    spotColor = accentEnd.copy(alpha = BrandAddFabDefaults.ShadowSpotAlpha)
+                    ambientColor = glowStart.copy(alpha = BrandAddFabDefaults.ShadowAmbientAlpha),
+                    spotColor = glowEnd.copy(alpha = BrandAddFabDefaults.ShadowSpotAlpha)
                 )
         ) {
             Box(

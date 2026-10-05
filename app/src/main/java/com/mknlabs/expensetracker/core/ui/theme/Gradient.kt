@@ -133,7 +133,7 @@ fun accentInkGradient(): Brush {
 @Composable
 fun brandGradient(alpha: Float = 1f): Brush {
     val isDark = MaterialTheme.colorScheme.isDark
-    val start = MaterialTheme.colorScheme.accentInk.copy(alpha = alpha)
+    val start = (if (isDark) BrandGradientStartDark else BrandGradientStartLight).copy(alpha = alpha)
     val end = (if (isDark) BrandGradientCompanionDark else BrandGradientCompanionLight).copy(alpha = alpha)
     return remember(start, end) {
         Brush.linearGradient(

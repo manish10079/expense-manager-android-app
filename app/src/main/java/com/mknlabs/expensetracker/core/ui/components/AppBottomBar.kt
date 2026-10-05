@@ -70,13 +70,14 @@ import com.mknlabs.expensetracker.core.ui.theme.NavOffDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOffLight
 import com.mknlabs.expensetracker.core.ui.theme.NavOnDark
 import com.mknlabs.expensetracker.core.ui.theme.NavOnLight
-import com.mknlabs.expensetracker.core.ui.theme.fabGradient
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
+import android.os.Build
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 
@@ -275,10 +276,18 @@ private fun AppBottomBarContent(
     // card grid, so its edge is drawn a touch warmer and lighter than the grid's. Dark
     // keeps both the elevated tone and the outline wash it has always used.
     val isDark = MaterialTheme.colorScheme.isDark
-    val containerColor = if (isDark) {
-        MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp).copy(alpha = 0.80f)
+    // RenderEffect (Haze frost) needs API 31. On Android 11 and lower the capsule
+    // would otherwise be a see-through empty bar, so fill it with an opaque surface.
+    val hazeSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val solidContainerColor = if (isDark) {
+        MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
     } else {
-        MaterialTheme.colorScheme.surface.copy(alpha = 0.80f)
+        MaterialTheme.colorScheme.surface
+    }
+    val containerColor = if (hazeSupported) {
+        solidContainerColor.copy(alpha = 0.80f)
+    } else {
+        solidContainerColor
     }
     val capsuleBorderColor = if (isDark) {
         MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)
@@ -373,7 +382,7 @@ private fun AppBottomBarContent(
                             )
                             .clip(capsuleShape)
                             .then(
-                                if (hazeState != null) {
+                                if (hazeSupported && hazeState != null) {
                                     Modifier.hazeEffect(
                                         state = hazeState,
                                         style = HazeStyle(
@@ -485,7 +494,7 @@ private fun BottomBarRevealHandle(onClick: () -> Unit) {
                     spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
                 )
                 .clip(handleShape)
-                .background(brush = fabGradient())
+                .background(brush = brandGradient())
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {

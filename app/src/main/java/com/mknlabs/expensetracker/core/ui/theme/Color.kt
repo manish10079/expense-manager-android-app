@@ -159,10 +159,11 @@ val HeroRailEndDark = Color(0xFF3713EC)        // purple-700, white ink 8.51:1
 val HeroRailStartLight = Color(0xFF6A4DFF)     // 5.10:1 with white ink
 val HeroRailEndLight = Color(0xFF5B45D6)       // the deeper end of the same ramp
 
-// Second stop of [brandGradient], paired with accentInk. Different per theme so the
-// ramp still reads on white cards and on near-black ones.
-val BrandGradientCompanionLight = Color(0xFF4338CA) // indigo-700, white ink ~8:1
-val BrandGradientCompanionDark = Color(0xFF4F46E5)  // indigo-600, cools the lavender accent
+// [brandGradient] stops from versionCode 100 (primary → secondary).
+val BrandGradientStartLight = Color(0xFF6A4DFF)
+val BrandGradientStartDark = Color(0xFF6A4DFF)
+val BrandGradientCompanionLight = Color(0xFF6750A4)
+val BrandGradientCompanionDark = Color(0xFF6750A4)
 
 // One bloom, at the accent's own hue. 22% over a near-black card reads as light
 // catching the corner; the same alpha on white would read as a stain, so light takes
@@ -470,8 +471,8 @@ internal val AccentInkDark = Color(0xFF9E84FF)
 val ColorScheme.accentInk: Color
     get() = if (isDark) AccentInkDark else AccentInkLight
 
-// ── AnimatedTabSwitcher selected state ───────────────────────────────────────
-// Both themes use the dark accent (#9E84FF) so the pill reads as one identity
+// AnimatedTabSwitcher selected state
+// Both themes use the dark accent so the pill reads as one identity
 // across the light/dark switch. Fill is a 20% tint; the label is the same hue
 // at 90% so it stays an ink on that wash rather than a solid block.
 val TabSwitcherSelectedFill = Color(0x339E84FF) // #9E84FF at 20%
