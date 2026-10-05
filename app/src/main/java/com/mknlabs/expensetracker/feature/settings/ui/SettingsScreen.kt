@@ -717,4 +717,43 @@ private fun SettingsScreenDarkPreview() {
     }
 }
 
+private val previewSignedInProfile = defaultUserProfile.copy(
+    fullName = "Johnathan Doe",
+    emailAddress = "john.doe@example.com",
+    gender = "Male",
+    authProvider = "google"
+)
+
+@Preview(
+    name = "Settings Screen Signed In Light",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1000
+)
+@Composable
+private fun SettingsScreenSignedInLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        SettingsScreenContent(
+            userProfile = previewSignedInProfile,
+            userTier = UserTier.PREMIUM
+        )
+    }
+}
+
+@Preview(
+    name = "Settings Screen Signed In Dark",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 1000
+)
+@Composable
+private fun SettingsScreenSignedInDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        SettingsScreenContent(
+            userProfile = previewSignedInProfile,
+            userTier = UserTier.PREMIUM
+        )
+    }
+}
+
 

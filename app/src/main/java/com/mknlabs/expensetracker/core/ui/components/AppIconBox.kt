@@ -11,15 +11,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
-import androidx.compose.ui.graphics.Brush
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 
 @Composable
 fun AppIconBox(
@@ -29,6 +31,7 @@ fun AppIconBox(
     size: Dp = 42.dp,
     iconSize: Dp = 20.dp,
     tint: Color = MaterialTheme.colorScheme.accentInk,
+    tintBrush: Brush? = null,
     backgroundAlpha: Float = 0.1f,
     backgroundColor: Color = tint.copy(alpha = backgroundAlpha),
     backgroundBrush: Brush? = null,
@@ -53,8 +56,23 @@ fun AppIconBox(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint,
-            modifier = Modifier.size(iconSize)
+            tint = if (tintBrush != null) Color.White else tint,
+            modifier = Modifier
+                .size(iconSize)
+                .then(
+                    if (tintBrush != null) {
+                        Modifier
+                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                            .drawWithCache {
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(brush = tintBrush, blendMode = BlendMode.SrcIn)
+                                }
+                            }
+                    } else {
+                        Modifier
+                    }
+                )
         )
     }
 }

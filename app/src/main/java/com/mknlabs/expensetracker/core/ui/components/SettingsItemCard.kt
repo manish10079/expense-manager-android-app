@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -147,12 +148,14 @@ fun SettingsItemCard(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val brandIcon = !isGated && finalEnabled && !isDanger
             AppIconBox(
                 icon = if (isGated) Icons.Rounded.Lock else icon,
                 contentDescription = title,
                 size = 40.dp,
                 iconSize = 24.dp,
-                tint = iconTint,
+                tint = if (brandIcon) Color.White else iconTint,
+                tintBrush = if (brandIcon) brandGradient() else null,
                 backgroundColor = iconBackground
             )
 

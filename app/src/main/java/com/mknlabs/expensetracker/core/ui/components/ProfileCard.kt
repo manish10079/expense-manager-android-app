@@ -174,7 +174,8 @@ fun ProfileCard(
                 size = 64.dp,
                 showGlow = isPremium,
                 showBorder = true,
-                backgroundColor = colorScheme.accentInk.copy(alpha = 0.1f),
+                backgroundBrush = if (isDark) brandGradient(alpha = 0.12f) else null,
+                backgroundColor = if (isDark) null else colorScheme.accentInk.copy(alpha = 0.1f),
                 userTier = userTier,
                 isSyncing = isSyncing,
                 isAnonymous = isAnonymous
@@ -206,7 +207,8 @@ fun ProfileCard(
                     val tierBadgeLabelStyle = MaterialTheme.typography.labelSmall
                     val tierBadgeTextStyle = tierBadgeLabelStyle.copy(
                         fontSize = tierBadgeLabelStyle.fontSize * TIER_BADGE_SCALE,
-                        lineHeight = tierBadgeLabelStyle.lineHeight * TIER_BADGE_SCALE
+                        lineHeight = tierBadgeLabelStyle.lineHeight * TIER_BADGE_SCALE,
+                        brush = if (isDark) brandGradient() else null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
@@ -226,6 +228,13 @@ fun ProfileCard(
                             // the longer "Free Tier" wording.
                             text = if (isPremium) stringResource(com.mknlabs.expensetracker.R.string.label_pro) else stringResource(com.mknlabs.expensetracker.R.string.label_free),
                             style = tierBadgeTextStyle,
+                            color = if (isDark) {
+                                Color.Transparent
+                            } else if (isPremium) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             modifier = Modifier.padding(
                                 horizontal = 8.dp * TIER_BADGE_SCALE,
                                 vertical = 2.dp * TIER_BADGE_SCALE

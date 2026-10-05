@@ -41,6 +41,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithCache
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -307,11 +312,20 @@ private fun AboutInfoCard(
             modifier = Modifier.padding(24.dp)
         ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            val iconRamp = brandGradient()
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(20.dp)
+                tint = Color.White,
+                modifier = Modifier
+                    .size(20.dp)
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                        }
+                    }
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -402,11 +416,20 @@ private fun AboutActionItem(
             .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val iconRamp = brandGradient()
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.8f),
-            modifier = Modifier.size(20.dp)
+            tint = Color.White,
+            modifier = Modifier
+                .size(20.dp)
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                    }
+                }
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(

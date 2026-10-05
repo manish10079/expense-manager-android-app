@@ -41,6 +41,7 @@ import coil.transform.CircleCropTransformation
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 @Composable
@@ -63,6 +64,8 @@ fun ProfileAvatar(
     isAnonymous: Boolean = false
 ) {
     val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
+    val isDark = MaterialTheme.colorScheme.isDark
+    val circleRamp = if (isDark) brandGradient() else null
 
     val infiniteTransition = rememberInfiniteTransition(label = "SyncRingTransition")
     val rotation by infiniteTransition.animateFloat(
@@ -110,19 +113,35 @@ fun ProfileAvatar(
                         .size(size)
                         .rotate(rotation)
                 ) {
-                    drawArc(
-                        color = ringColor,
-                        startAngle = 0f,
-                        sweepAngle = 280f,
-                        useCenter = false,
-                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                    )
+                    if (circleRamp != null) {
+                        drawArc(
+                            brush = circleRamp,
+                            startAngle = 0f,
+                            sweepAngle = 280f,
+                            useCenter = false,
+                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    } else {
+                        drawArc(
+                            color = ringColor,
+                            startAngle = 0f,
+                            sweepAngle = 280f,
+                            useCenter = false,
+                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
                 }
             } else {
                 Box(
                     modifier = Modifier
                         .size(size)
-                        .border(width = 2.dp, color = ringColor, shape = CircleShape)
+                        .then(
+                            if (circleRamp != null) {
+                                Modifier.border(width = 2.dp, brush = circleRamp, shape = CircleShape)
+                            } else {
+                                Modifier.border(width = 2.dp, color = ringColor, shape = CircleShape)
+                            }
+                        )
                 )
             }
         }
@@ -157,10 +176,11 @@ fun ProfileAvatar(
                 )
                 .then(
                     if (showBorder && !isPremium && !isAnonymous) {
-                        if (borderBrush != null) {
+                        val resolvedBorder = borderBrush ?: circleRamp
+                        if (resolvedBorder != null) {
                             Modifier.border(
                                 width = 2.dp,
-                                brush = borderBrush,
+                                brush = resolvedBorder,
                                 shape = CircleShape
                             )
                         } else {
