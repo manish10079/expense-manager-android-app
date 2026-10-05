@@ -598,6 +598,10 @@ private fun TransactionDetailsDialog(
                 )
 
                 if (tags.isNotEmpty()) {
+                    val pattern = stringResource(R.string.label_tag_prefixed)
+                    val tagLine = tags.joinToString(" ") { tag ->
+                        pattern.format(tag.removePrefix("#"))
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(R.string.label_tags_colon),
@@ -605,7 +609,7 @@ private fun TransactionDetailsDialog(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = tags.joinToString(" "),
+                        text = tagLine,
                         style = bodyStyle
                     )
                 }
