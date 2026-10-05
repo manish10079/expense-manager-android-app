@@ -49,8 +49,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -75,9 +81,8 @@ import com.mknlabs.expensetracker.core.ui.components.ProfileCard
 import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.disabled
-import com.mknlabs.expensetracker.core.ui.theme.isDark
+
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
@@ -273,18 +278,16 @@ fun SettingsScreenContent(
                     item {
                         val accountSecurityItems = mutableListOf<SettingsRowData>()
 
-                        // There is no "Sign up / Sign In" row any more: the profile card above
-                        // is the way in — it opens the auth sheet whenever there is no account
-                        // — so a second invitation a few rows down only said it twice.
-                        if (!isAnonymous) {
-                            accountSecurityItems.add(
-                                SettingsRowData(
-                                    titleRes = R.string.label_edit_profile,
-                                    subtitleRes = R.string.label_edit_profile_subtitle,
-                                    icon = Icons.Filled.Person,
-                                    onClick = onProfileClick
-                                )
+                        // Local profile is always editable. Cloud device list needs an account.
+                        accountSecurityItems.add(
+                            SettingsRowData(
+                                titleRes = R.string.label_edit_profile,
+                                subtitleRes = R.string.label_edit_profile_subtitle,
+                                icon = Icons.Filled.Person,
+                                onClick = onProfileClick
                             )
+                        )
+                        if (!isAnonymous) {
                             accountSecurityItems.add(
                                 SettingsRowData(
                                     titleRes = R.string.title_cloud_sync_devices,
@@ -455,16 +458,13 @@ private fun SettingsSectionContainer(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
-
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(headerRes),
             style = MaterialTheme.typography.labelMedium,
-            // The label sits above the card as an aside rather than as an accent on it:
-            // brand purple here competed with the icon pucks inside the card, so light
-            // mode reads it as the third ink weight instead. Dark keeps the purple.
-            color = if (isDark) colorScheme.accentInk else TextSecondaryLight,
+            // Same third-ink weight as light in both themes so the label stays an aside
+            // above the card rather than competing with the brand-gradient icon pucks.
+            color = colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 6.dp)
         )
@@ -507,7 +507,8 @@ private fun SettingsRowItemView(
     val isEnabled = data.isEnabled
     val colorScheme = MaterialTheme.colorScheme
 
-    val iconTint = if (isEnabled) colorScheme.accentInk else colorScheme.disabled
+    val iconTint = if (isEnabled) Color.White else colorScheme.disabled
+    val iconRamp = if (isEnabled) brandGradient() else null
     val iconBg = if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
     val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.disabled
     val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.disabled
@@ -537,7 +538,24 @@ private fun SettingsRowItemView(
                 imageVector = data.icon,
                 contentDescription = stringResource(data.titleRes),
                 tint = iconTint,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(
+                        if (iconRamp != null) {
+                            Modifier
+                                .graphicsLayer {
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                                    }
+                                }
+                        } else {
+                            Modifier
+                        }
+                    )
             )
         }
 

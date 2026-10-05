@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,19 +26,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.CardLight
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.utils.toTitleCase
@@ -223,20 +234,57 @@ fun ProfileCard(
                     }
                 }
                 Spacer(Modifier.padding(top = 5.dp))
-                val subtext = if (isAnonymous) {
-                    stringResource(com.mknlabs.expensetracker.R.string.label_tap_to_sync)
-                } else {
-                    email
-                }
-
-                if (subtext.isNotEmpty()) {
+                if (isAnonymous) {
+                    val inviteRamp = brandGradient()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.CloudOff,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush = inviteRamp, blendMode = BlendMode.SrcIn)
+                                    }
+                                }
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(com.mknlabs.expensetracker.R.string.label_backup_sync_is_off),
+                            style = MaterialTheme.typography.bodyMedium.copy(brush = inviteRamp),
+                            color = Color.Unspecified,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = stringResource(com.mknlabs.expensetracker.R.string.label_turn_on),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                brush = inviteRamp
+                            ),
+                            color = Color.Unspecified,
+                            maxLines = 1
+                        )
+                    }
                     Text(
-                        text = subtext,
+                        text = stringResource(com.mknlabs.expensetracker.R.string.label_sign_in_keep_data_safe),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else if (email.isNotEmpty()) {
+                    Text(
+                        text = email,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (isAnonymous) MaterialTheme.colorScheme.accentInk else colorScheme.onSurfaceVariant,
-                        // The invitation is written as two lines of its own, so this is a cap
-                        // rather than a wrap: if a large font scale pushes one line over, the
-                        // card still stops at two instead of growing without limit.
+                        color = colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
