@@ -44,6 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithCache
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -547,18 +551,35 @@ private fun RowScope.FloatingCapsuleNavItem(
                 .fillMaxWidth()
                 .heightIn(min = NavItemMinHeight)
         ) {
+            val selectedRamp = if (selected) brandGradient() else null
             Icon(
                 imageVector = if (selected) item.selectedIcon else item.icon,
                 contentDescription = stringResource(item.titleRes),
-                tint = iconTint,
-                modifier = Modifier.size(24.dp)
+                tint = if (selectedRamp != null) Color.White else iconTint,
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(
+                        if (selectedRamp != null) {
+                            Modifier
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush = selectedRamp, blendMode = BlendMode.SrcIn)
+                                    }
+                                }
+                        } else {
+                            Modifier
+                        }
+                    )
             )
 
             Text(
                 text = stringResource(item.titleRes),
-                color = labelColor,
+                color = if (selectedRamp != null) Color.Transparent else labelColor,
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                    brush = selectedRamp
                 ),
                 // User-facing copy: wrap to a second line as the font scale rises
                 // rather than truncate. The pill and the capsule both flex via

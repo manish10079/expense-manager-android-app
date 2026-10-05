@@ -40,6 +40,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -1152,7 +1156,7 @@ private fun InsightStatCard(
     val colorScheme = MaterialTheme.colorScheme
     // A neutral card; the brand is the icon tile, per the spec's accentSoft/accent pairing.
     val iconBgColor = colorScheme.accentSoft
-    val iconTintColor = colorScheme.accentInk
+    val iconRamp = brandGradient()
     val labelColor = colorScheme.onSurfaceVariant
 
     AppCard(
@@ -1185,8 +1189,16 @@ private fun InsightStatCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
-                        tint = iconTintColor,
-                        modifier = Modifier.size(18.dp)
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                            .drawWithCache {
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                                }
+                            }
                     )
                 }
 

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -141,12 +142,13 @@ fun PeriodChip(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
     ) {
+        val selectedRamp = if (isSelected && colors == null) brandGradient() else null
         Text(
             text = label,
-            color = contentColor,
+            color = if (selectedRamp != null) Color.Transparent else contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = textStyle
+            style = textStyle.copy(brush = selectedRamp)
         )
 
         // A gated option has to say so, or the gate stays invisible until the user taps it.

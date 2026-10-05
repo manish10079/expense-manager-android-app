@@ -94,6 +94,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -2113,7 +2117,7 @@ private fun ChoiceChip(
                 )
                 .then(
                     if (isSelected) {
-                        Modifier.border(1.dp, MaterialTheme.colorScheme.accentInk, CircleShape)
+                        Modifier.border(1.dp, brandGradient(), CircleShape)
                     } else {
                         Modifier
                     }
@@ -2129,11 +2133,27 @@ private fun ChoiceChip(
                 // accent ink and rings the tile Ã¢â‚¬â€ the pair the icon picker uses for its chosen
                 // tile Ã¢â‚¬â€ so a chip reads as chosen against a grid of tinted siblings.
                 tint = when {
-                    isSelected -> MaterialTheme.colorScheme.accentInk
+                    isSelected -> Color.White
                     identityColor != null -> identityColor
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
-                modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+                modifier = Modifier
+                    .size(if (compact) 18.dp else 20.dp)
+                    .then(
+                        if (isSelected) {
+                            val selectedRamp = brandGradient()
+                            Modifier
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush = selectedRamp, blendMode = BlendMode.SrcIn)
+                                    }
+                                }
+                        } else {
+                            Modifier
+                        }
+                    )
             )
         }
 
@@ -2395,27 +2415,36 @@ private fun QuickFavoritesRow(
                     selected = false,
                     onClick = onOpenAllSheet,
                     label = {
+                        val allRamp = brandGradient()
                         Text(
                             text = stringResource(R.string.label_all_favorites),
-                            color = MaterialTheme.colorScheme.accentInk,
-                            maxLines = 1
+                            color = Color.Transparent,
+                            maxLines = 1,
+                            style = MaterialTheme.typography.labelLarge.copy(brush = allRamp)
                         )
                     },
                     leadingIcon = {
+                        val allRamp = brandGradient()
                         Icon(
                             imageVector = PhosphorIcons.Fill.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.accentInk,
-                            modifier = Modifier.size(16.dp)
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush = allRamp, blendMode = BlendMode.SrcIn)
+                                    }
+                                }
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant,
-                        labelColor = MaterialTheme.colorScheme.accentInk
+                        labelColor = Color.Unspecified
                     ),
-                    // The outline wears the label's own ink, so the chip reads as one control
-                    // rather than a purple label sitting inside a grey shell.
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk)
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.chipOutline)
                 )
             }
             items(favorites, key = { it.id }) { favorite ->

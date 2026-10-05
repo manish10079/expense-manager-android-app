@@ -31,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -147,13 +149,21 @@ fun <T> AnimatedTabSwitcher(
                     // edge. The outer Box keeps that cluster in the horizontal centre.
                     Box {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            val brandSelected = selected && selectedItem?.selectedColor == null
+                            val selectedRamp = if (brandSelected) brandGradient() else null
                             Text(
                                 text = item.label,
-                                color = animatedColor,
+                                color = if (selectedRamp != null) Color.Transparent else animatedColor,
                                 fontSize = fontSize,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                style = androidx.compose.ui.text.TextStyle(
+                                    brush = selectedRamp,
+                                    fontSize = fontSize,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
+                                )
                             )
                             if (item.isLocked) {
                                 Spacer(modifier = Modifier.width(6.dp))
