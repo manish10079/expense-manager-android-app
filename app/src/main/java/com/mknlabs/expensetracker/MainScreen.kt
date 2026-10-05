@@ -1385,7 +1385,7 @@ fun MainScreen(
                 },
                 dismissButton = {
                     AppTextButton(onClick = { showLogoutDialog = false }) {
-                        Text(text = stringResource(id = R.string.label_cancel))
+                        Text(text = stringResource(id = R.string.label_cancel_1))
                     }
                 }
             )

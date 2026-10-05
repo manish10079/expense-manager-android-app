@@ -444,7 +444,7 @@ private fun AuthContentBody(
 
     val coroutineScope = rememberCoroutineScope()
 
-    var isTermsAccepted by remember { mutableStateOf(false) }
+    var isTermsAccepted by remember { mutableStateOf(true) }
 
     var showTermsRequiredDialog by remember { mutableStateOf(false) }
 
