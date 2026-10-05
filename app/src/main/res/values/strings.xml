@@ -218,7 +218,7 @@
     <string name="label_total_income">TOTAL INCOME</string>
     <string name="label_transaction_note">Transaction Note</string>
     <string name="label_transactionid">transactionId</string>
-    <string name="label_transactions">TRANSACTIONS</string>
+    <string name="label_transactions">Transactions</string>
     <string name="label_your_highest_expenses_in_the_s">Your highest expenses in the selected period.</string>
     <string name="title_amount">Amount</string>
     <string name="title_amount_range">Amount Range</string>

@@ -408,6 +408,12 @@ private fun CalendarScreenContent(
                                     }
 
                                     val dayDetailsBlock: @Composable () -> Unit = {
+                                        Text(
+                                            text = uiState.selectedDayTitle,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+
                                         DailyTotalsRow(
                                             expenseLabel = uiState.selectedDayExpenseLabel.asString(),
                                             incomeLabel = uiState.selectedDayIncomeLabel.asString()
@@ -420,8 +426,10 @@ private fun CalendarScreenContent(
                                             NativeAdCard(placement = AdPlacement.BUDGET_CALENDAR)
                                         }
 
-                                        TransactionSectionHeader(
-                                            selectedDayTitle = uiState.selectedDayTitle
+                                        Text(
+                                            text = stringResource(id = R.string.label_transactions),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.labelSmall
                                         )
                                         if (uiState.selectedDayTransactions.isEmpty()) {
                                             EmptyTransactionsCard(
@@ -461,8 +469,10 @@ private fun CalendarScreenContent(
                                             }
                                         }
                                     } else {
-                                        monthCalendarBlock()
-                                        dayDetailsBlock()
+                                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                            monthCalendarBlock()
+                                            dayDetailsBlock()
+                                        }
                                     }
                                 }
                             }
@@ -608,7 +618,7 @@ private fun MonthCalendarCard(
                     Text(
                         text = day,
                         color = when (index) {
-                            5, 6 -> MaterialTheme.colorScheme.tertiary
+                            6 -> MaterialTheme.colorScheme.expense
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         style = MaterialTheme.typography.labelSmall,
@@ -722,25 +732,6 @@ private fun DailyTotalsRow(
             text = incomeLabel,
             color = getAmountColor(1),
             style = MaterialTheme.typography.labelMedium
-        )
-    }
-}
-
-@Composable
-private fun TransactionSectionHeader(
-    selectedDayTitle: String
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(id = R.string.label_transactions),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelSmall
-        )
-
-        Text(
-            text = selectedDayTitle,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium
         )
     }
 }
