@@ -1,6 +1,11 @@
 package com.mknlabs.expensetracker.core.ui.theme
 
+import android.provider.Settings
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -9,8 +14,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp as lerpFloat
 import androidx.compose.material3.MaterialTheme
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Standardized gradients for the application to ensure brand consistency.
@@ -78,14 +88,88 @@ fun Modifier.heroRail(): Modifier {
 @Composable
 fun Modifier.heroBloom(): Modifier {
     val bloom = MaterialTheme.colorScheme.glow
+    val freezeBloom = animatorDurationScaleIsOff()
+    val cycle = remember { Animatable(0f) }
+    LaunchedEffect(freezeBloom) {
+        if (freezeBloom) {
+            cycle.snapTo(1f)
+        } else {
+            cycle.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 22_000, easing = LinearEasing)
+            )
+        }
+    }
+    val progress = cycle.value
+    val land = if (freezeBloom) 1f else heroBloomLand(progress)
+    val x = if (freezeBloom) {
+        HeroBloomRestX
+    } else {
+        lerpFloat(heroBloomWanderX(progress), HeroBloomRestX, land)
+    }
+    val y = if (freezeBloom) {
+        HeroBloomRestY
+    } else {
+        lerpFloat(heroBloomWanderY(progress), HeroBloomRestY, land)
+    }
 
     return this.drawWithCache {
         val brush = Brush.radialGradient(
             colors = listOf(bloom, Color.Transparent),
-            center = Offset(size.width * 0.92f, size.height * 0.18f),
+            center = Offset(size.width * x, size.height * y),
             radius = size.width * 0.30f
         )
         onDrawBehind { drawRect(brush) }
+    }
+}
+
+private const val HeroBloomRestX = 0.92f
+private const val HeroBloomRestY = 0.18f
+
+/** 0 = flying, 1 = settled on the rest corner. */
+private fun heroBloomLand(cycle: Float): Float = when {
+    cycle < 0.08f -> 1f - smooth01(0f, 0.08f, cycle)
+    cycle < 0.74f -> 0f
+    cycle < 0.88f -> smooth01(0.74f, 0.88f, cycle)
+    else -> 1f
+}
+
+private fun heroBloomWanderX(cycle: Float): Float {
+    val a = cycle * (2f * PI.toFloat())
+    return (
+        0.50f +
+            0.32f * sin(a) +
+            0.18f * sin(a * 2.31f + 1.2f) +
+            0.09f * sin(a * 5.17f + 0.4f) +
+            0.04f * sin(a * 11.3f + 2.4f)
+        ).coerceIn(0.10f, 0.92f)
+}
+
+private fun heroBloomWanderY(cycle: Float): Float {
+    val a = cycle * (2f * PI.toFloat())
+    return (
+        0.48f +
+            0.30f * cos(a * 0.87f + 0.5f) +
+            0.16f * sin(a * 1.73f + 1.8f) +
+            0.08f * cos(a * 4.61f + 0.2f) +
+            0.04f * sin(a * 9.7f + 3.1f)
+        ).coerceIn(0.12f, 0.88f)
+}
+
+private fun smooth01(from: Float, to: Float, value: Float): Float {
+    val u = ((value - from) / (to - from)).coerceIn(0f, 1f)
+    return u * u * (3f - 2f * u)
+}
+
+@Composable
+private fun animatorDurationScaleIsOff(): Boolean {
+    val context = LocalContext.current
+    return remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) == 0f
     }
 }
 

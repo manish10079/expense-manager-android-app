@@ -24,11 +24,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
-
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -2737,7 +2732,7 @@ private fun BoxScope.PremiumLockedOverlay(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f)
+            color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -2838,43 +2833,22 @@ private fun resolveSummaryLabel(label: SummaryLabelUi): String {
 }
 
 /**
- * One gated analytics card and the frost it hides behind while locked.
- *
- * Haze rather than `Modifier.blur`, which softened the card's own node: the blur took the card's
- * edge, its 30dp corners and its shadow with it, so a locked card was a visibly different shape
- * from the same card unlocked. This samples the card from behind it instead, so the silhouette,
- * the corner radius and the bloom stay exactly what they are when unlocked and only what is
- * *inside* the card goes soft. It is the same frost the bottom bar draws, so "frosted" means one
- * thing in this app.
- *
- * [card] has to put the modifier it is handed on its own root — that modifier is the haze source,
- * and it is the node the veil samples. The scrim, the lock badge and the unlock copy stay
- * [PremiumLockedOverlay]'s job and are drawn over the veil, so the blur never has to carry them.
+ * Locked analytics cards keep their silhouette; content is covered by an opaque-enough
+ * surface veil. Haze/RenderEffect frost is skipped so Android 11 and below still hide the card.
  */
 @Composable
 private fun GatedCardContent(
     isLocked: Boolean,
     card: @Composable (Modifier) -> Unit
 ) {
-    val hazeState = remember { HazeState() }
     Box {
-        card(if (isLocked) Modifier.hazeSource(state = hazeState) else Modifier)
+        card(Modifier)
         if (isLocked) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .hazeEffect(
-                        state = hazeState,
-                        style = HazeStyle(
-                            // Transparent: the veil contributes the blur alone. The scrim on top
-                            // is what darkens the card, and a second tint here would just stack
-                            // with it.
-                            backgroundColor = Color.Transparent,
-                            blurRadius = 12.dp,
-                            noiseFactor = 0f,
-                            tints = emptyList()
-                        )
-                    )
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
             )
         }
     }
@@ -3224,19 +3198,12 @@ private fun StatsRowPreviewLight() {
 }
 
 // ──────────────────────────────────────────────
-// Locked analytics card previews (Haze frost)
+// Locked analytics card previews
 // ──────────────────────────────────────────────
 
 /**
- * The four gated cards, all forced locked, so the Haze frost each one draws behind its lock badge
- * can be reviewed from the IDE without unlocking anything on a device. The card is composed
- * through exactly the gate the screen uses — [GatedCardContent] plus [PremiumLockedOverlay] — since
- * the point is to see the real frost, not a hand-rolled stand-in for it.
- *
- * [GatedCardContent] wraps each card in a lone `Box`, so the veil never reaches the Surface behind
- * it and the frost stops at the card's own edge. That is what makes the silhouette and the 30dp
- * corners identical to the unlocked card; the scrim and the lock badge are painted over the veil
- * afterwards.
+ * The gated cards, all forced locked, composed through [GatedCardContent] plus
+ * [PremiumLockedOverlay] so the veil matches the running screen.
  */
 @Composable
 private fun GatedPreviewCard(

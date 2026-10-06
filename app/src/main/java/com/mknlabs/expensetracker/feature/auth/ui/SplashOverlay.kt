@@ -45,10 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -63,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import kotlin.math.PI
@@ -138,34 +135,25 @@ private fun SplashOverlayContent(
         ),
         label = "logo_pulse_scale"
     )
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.12f,
-        targetValue = 0.42f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
-
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val logoSize = if (isLandscape) SplashLogoSizeLandscape else SplashLogoSizePortrait
-    val glowMul = if (isLandscape) 1.45f else 2.2f
     val textOffsetY = if (isLandscape) {
-        0.dp
+        configuration.screenHeightDp.dp * 0.04f
     } else {
-        -(configuration.screenHeightDp.dp * 0.10f)
+        configuration.screenHeightDp.dp * 0.08f
     }
 
     val ash = ashT.value
     val contentAlpha = (1f - ash / 0.28f).coerceIn(0f, 1f)
+    val overlayAlpha = (1f - ((ash - 0.55f) / 0.45f)).coerceIn(0f, 1f)
     val nameInk = MaterialTheme.colorScheme.onBackground
     val subtitleInk = MaterialTheme.colorScheme.accentInk
     val taglineInk = MaterialTheme.colorScheme.onSurfaceVariant
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .graphicsLayer { alpha = overlayAlpha }
             .background(MaterialTheme.colorScheme.background)
     ) {
         Box(modifier = Modifier.fillMaxSize().graphicsLayer { alpha = contentAlpha }) {
@@ -181,20 +169,23 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
-                    glowMul = glowMul,
                     pulseScale = pulseScale,
-                    glowAlpha = glowAlpha,
                 )
-                Spacer(modifier = Modifier.height(2.dp))
-                SplashCopyBlock(
-                    titleText = titleText,
-                    subtitleText = subtitleText,
-                    taglineText = taglineText,
-                    titleEnter = titleEnter.value,
-                    subtitleEnter = subtitleEnter.value,
-                    taglineEnter = taglineEnter.value,
-                    compact = true,
-                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Column(
+                    modifier = Modifier.offset(y = textOffsetY),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    SplashCopyBlock(
+                        titleText = titleText,
+                        subtitleText = subtitleText,
+                        taglineText = taglineText,
+                        titleEnter = titleEnter.value,
+                        subtitleEnter = subtitleEnter.value,
+                        taglineEnter = taglineEnter.value,
+                        compact = true,
+                    )
+                }
             }
         } else {
             Column(
@@ -206,11 +197,9 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
-                    glowMul = glowMul,
                     pulseScale = pulseScale,
-                    glowAlpha = glowAlpha,
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Column(
                     modifier = Modifier.offset(y = textOffsetY),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -319,40 +308,18 @@ private fun SplashAshField(
 @Composable
 private fun SplashLogoMark(
     logoSize: Dp,
-    glowMul: Float,
     pulseScale: Float,
-    glowAlpha: Float,
 ) {
-    val brandPurple = PurplePrimary
-    Box(
+    Image(
+        painter = painterResource(id = R.drawable.splash_logo),
+        contentDescription = null,
         modifier = Modifier
-            .size(logoSize * glowMul)
+            .size(logoSize)
             .graphicsLayer {
                 scaleX = pulseScale
                 scaleY = pulseScale
             }
-            .drawBehind {
-                val radius = this.size.minDimension / 2.2f
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        0.0f to Color.Transparent,
-                        0.45f to brandPurple.copy(alpha = glowAlpha * 0.4f),
-                        0.6f to brandPurple.copy(alpha = glowAlpha),
-                        1.0f to Color.Transparent,
-                        center = center,
-                        radius = radius
-                    ),
-                    radius = radius
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.splash_logo),
-            contentDescription = null,
-            modifier = Modifier.size(logoSize)
-        )
-    }
+    )
 }
 
 @Composable
