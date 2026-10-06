@@ -13,7 +13,7 @@ val PurplePrimary = Color(0xFF7B61FF)
 
 val BackgroundDark = Color(0xFF0A0A0A)
 
-val SurfaceDark = Color(0xFF141418)   // spec --s1
+val SurfaceDark = Color(0xFF18181A)   // trial card/surface; was spec --s1 #141418
 
 
 val TextPrimaryDark = Color(0xFFF2F2F5)   // spec --tp

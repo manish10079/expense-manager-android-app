@@ -111,6 +111,7 @@ import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.utils.ExpenseTrackerIconRegistry
 import androidx.compose.foundation.BorderStroke
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
@@ -809,18 +810,90 @@ private fun CategoriesInfoDialog(onDismiss: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
+private fun previewCategoryItem(
+    id: Int,
+    title: String,
+    iconKey: String,
+    isPaymentMethod: Boolean = false,
+    isUserCreated: Boolean = false
+) = CategoryManagementItemUi(
+    id = id,
+    title = title,
+    icon = ExpenseTrackerIconRegistry.iconForKey(iconKey),
+    isUserCreated = isUserCreated,
+    isPaymentMethod = isPaymentMethod
+)
+
+private val previewExpenseItems = listOf(
+    previewCategoryItem(1, "Food", "utensils"),
+    previewCategoryItem(2, "Travel", "plane"),
+    previewCategoryItem(3, "Shopping", "package"),
+    previewCategoryItem(4, "Bills", "receipt", isUserCreated = true)
+)
+
+private val previewIncomeItems = listOf(
+    previewCategoryItem(11, "Salary", "wallet"),
+    previewCategoryItem(12, "Freelance", "laptop"),
+    previewCategoryItem(13, "Interest", "trending-up")
+)
+
+private val previewPaymentItems = listOf(
+    previewCategoryItem(21, "UPI", "qr-code", isPaymentMethod = true),
+    previewCategoryItem(22, "Card", "credit-card", isPaymentMethod = true),
+    previewCategoryItem(23, "Cash", "banknote", isPaymentMethod = true)
+)
+
 @Composable
-private fun CategoryManagementScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
+private fun CategoryManagementPreviewHost(tab: CategoryManagementTab) {
+    ExpenseTrackerTheme {
         CategoryManagementContent(
-            uiState = CategoryManagementUiState(),
-            pagerState = rememberPagerState(initialPage = 0) { CategoryManagementTab.entries.size },
-            isAdsEnabled = true,
+            uiState = CategoryManagementUiState(
+                selectedTab = tab,
+                incomeItems = previewIncomeItems,
+                expenseItems = previewExpenseItems,
+                paymentItems = previewPaymentItems
+            ),
+            pagerState = rememberPagerState(initialPage = tab.ordinal) {
+                CategoryManagementTab.entries.size
+            },
+            isAdsEnabled = false,
             onBackClick = {},
             onDeleteCustomCategory = {},
             onDeleteCustomPaymentType = {},
             onAddCategoryClick = {}
         )
     }
+}
+
+@Preview(name = "Expense — Light", showBackground = true)
+@Preview(
+    name = "Expense — Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun CategoryManagementExpensePreview() {
+    CategoryManagementPreviewHost(CategoryManagementTab.Expense)
+}
+
+@Preview(name = "Income — Light", showBackground = true)
+@Preview(
+    name = "Income — Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun CategoryManagementIncomePreview() {
+    CategoryManagementPreviewHost(CategoryManagementTab.Income)
+}
+
+@Preview(name = "Payment — Light", showBackground = true)
+@Preview(
+    name = "Payment — Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun CategoryManagementPaymentPreview() {
+    CategoryManagementPreviewHost(CategoryManagementTab.Payment)
 }

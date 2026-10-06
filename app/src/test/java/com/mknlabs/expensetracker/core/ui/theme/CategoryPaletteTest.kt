@@ -77,29 +77,18 @@ class CategoryPaletteTest {
     @Test
     fun `expense and income colours match the design`() {
         val expectedLight = mapOf(
-            1 to Color(0xFF5B2EED), 2 to Color(0xFF0288D1), 3 to Color(0xFFD97706),
-            4 to Color(0xFF059669), 5 to Color(0xFFDC2626), 6 to Color(0xFF9333EA),
-            7 to Color(0xFFEA580C), 8 to Color(0xFF059669), 9 to Color(0xFF2563EB),
-            10 to Color(0xFF7C3AED), 11 to Color(0xFF0288D1), 12 to Color(0xFFD97706),
-            13 to Color(0xFF9333EA), 14 to Color(0xFFEA580C), 15 to Color(0xFF2563EB),
-            16 to Color(0xFFDC2626), 17 to Color(0xFFD97706), 18 to Color(0xFF9333EA),
-            19 to Color(0xFF059669), 20 to Color(0xFF4B5563), 22 to Color(0xFF0288D1),
-            23 to Color(0xFF4B5563),
-            101 to Color(0xFF059669), 102 to Color(0xFF5B2EED), 103 to Color(0xFF7C3AED),
-            104 to Color(0xFF2563EB), 105 to Color(0xFF4B5563)
+            1 to Color(0xFFFB923C), 2 to Color(0xFF38BDF8), 3 to Color(0xFFFBBF24),
+            4 to Color(0xFFFACC15), 5 to Color(0xFFFB7185), 6 to Color(0xFFC084FC),
+            7 to Color(0xFF60A5FA), 8 to Color(0xFF34D399), 9 to Color(0xFF2DD4BF),
+            10 to Color(0xFFA78BFA), 11 to Color(0xFF4ADE80), 12 to Color(0xFFF472B6),
+            13 to Color(0xFFE07A5F), 14 to Color(0xFFD97706), 15 to Color(0xFFA3E635),
+            16 to Color(0xFFE11D48), 17 to Color(0xFFD4A373), 18 to Color(0xFFE879F9),
+            19 to Color(0xFF2B9348), 20 to Color(0xFF00B4D8), 22 to Color(0xFF6366F1),
+            23 to Color(0xFFCBD5E1),
+            101 to Color(0xFF10B981), 102 to Color(0xFF06B6D4), 103 to Color(0xFF14B8A6),
+            104 to Color(0xFF8B5CF6), 105 to Color(0xFFCBD5E1)
         )
-        val expectedDark = mapOf(
-            1 to Color(0xFF7A52FF), 2 to Color(0xFF4FC3F7), 3 to Color(0xFFF5C542),
-            4 to Color(0xFF3DDC97), 5 to Color(0xFFFF5C5C), 6 to Color(0xFFC77DFF),
-            7 to Color(0xFFFF9F45), 8 to Color(0xFF3DDC97), 9 to Color(0xFF6BA6FF),
-            10 to Color(0xFFA78BFA), 11 to Color(0xFF4FC3F7), 12 to Color(0xFFF5C542),
-            13 to Color(0xFFC77DFF), 14 to Color(0xFFFF9F45), 15 to Color(0xFF6BA6FF),
-            16 to Color(0xFFFF6B6B), 17 to Color(0xFFF5C542), 18 to Color(0xFFC77DFF),
-            19 to Color(0xFF3DDC97), 20 to Color(0xFFA5A1B8), 22 to Color(0xFF4FC3F7),
-            23 to Color(0xFFA5A1B8),
-            101 to Color(0xFF3DDC97), 102 to Color(0xFF7A52FF), 103 to Color(0xFFA78BFA),
-            104 to Color(0xFF6BA6FF), 105 to Color(0xFFA5A1B8)
-        )
+        val expectedDark = expectedLight
 
         assertEquals(expectedLight, CategoryAccentLight)
         assertEquals(expectedDark, CategoryAccentDark)
@@ -109,26 +98,20 @@ class CategoryPaletteTest {
     fun `payment method colours match the design`() {
         assertEquals(
             mapOf(
-                1 to Color(0xFF5B2EED), 2 to Color(0xFF059669), 3 to Color(0xFF2563EB),
-                4 to Color(0xFF9333EA), 5 to Color(0xFF4B5563), 6 to Color(0xFF059669)
+                1 to Color(0xFF9D4EDD), 2 to Color(0xFF52B788), 3 to Color(0xFF3A86FF),
+                4 to Color(0xFF7209B7), 5 to Color(0xFFCBD5E1), 6 to Color(0xFF10B981)
             ),
             PaymentAccentLight
         )
-        assertEquals(
-            mapOf(
-                1 to Color(0xFF7A52FF), 2 to Color(0xFF3DDC97), 3 to Color(0xFF6BA6FF),
-                4 to Color(0xFFC77DFF), 5 to Color(0xFFA5A1B8), 6 to Color(0xFF3DDC97)
-            ),
-            PaymentAccentDark
-        )
+        assertEquals(PaymentAccentLight, PaymentAccentDark)
     }
 
     @Test
     fun `the payment ids do not follow the order they were supplied in`() {
         // SalaryDeposit is 6 and OtherPayment is 5. The palette arrived with them the other
         // way round, so this is the specific mis-transcription the map is exposed to.
-        assertEquals(Color(0xFF059669), PaymentAccentLight[6])
-        assertEquals(Color(0xFF4B5563), PaymentAccentLight[5])
+        assertEquals(Color(0xFF10B981), PaymentAccentLight[6])
+        assertEquals(Color(0xFFCBD5E1), PaymentAccentLight[5])
         assertNotEquals(PaymentAccentLight[5], PaymentAccentLight[6])
     }
 
@@ -158,8 +141,8 @@ class CategoryPaletteTest {
         // as 26/255. Asserting to four decimal places would be asserting against the
         // storage format rather than against the design.
         val byteStep = 1f / 255f
-        assertTrue(CategorySoftAlphaLight < CategorySoftAlphaDark)
-        val color = Color(0xFF5B2EED)
+        assertEquals(CategorySoftAlphaLight, CategorySoftAlphaDark, 0f)
+        val color = Color(0xFFFB923C)
         assertEquals(CategorySoftAlphaLight, light.categorySoft(color).alpha, byteStep)
         assertEquals(CategorySoftAlphaDark, dark.categorySoft(color).alpha, byteStep)
         assertEquals(color.red, light.categorySoft(color).red, byteStep)
@@ -170,9 +153,9 @@ class CategoryPaletteTest {
 
     @Test
     fun `a seeded category resolves to its own palette colour`() {
-        assertEquals(Color(0xFF5B2EED), light.categoryColor(1))
-        assertEquals(Color(0xFF7A52FF), dark.categoryColor(1))
-        assertEquals(Color(0xFF059669), light.paymentColor(2))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1))
+        assertEquals(Color(0xFFFB923C), dark.categoryColor(1))
+        assertEquals(Color(0xFF52B788), light.paymentColor(2))
     }
 
     @Test
@@ -188,10 +171,10 @@ class CategoryPaletteTest {
     fun `an unparseable stored colour falls through to the palette`() {
         // Rather than drawing nothing, or drawing an arbitrary colour derived from a
         // malformed string.
-        assertEquals(Color(0xFF5B2EED), light.categoryColor(1, "not a colour"))
-        assertEquals(Color(0xFF5B2EED), light.categoryColor(1, ""))
-        assertEquals(Color(0xFF5B2EED), light.categoryColor(1, null))
-        assertEquals(Color(0xFF5B2EED), light.categoryColor(1, "#12345"))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1, "not a colour"))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1, ""))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1, null))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1, "#12345"))
     }
 
     @Test
@@ -240,8 +223,8 @@ class CategoryPaletteTest {
         // Shopping is #D97706 at 3.19:1 on the white card — the closest any entry comes to
         // the floor. It must arrive verbatim, because the design signed off on that value;
         // running the palette through the adapter is what the file comment forbids.
-        assertEquals(Color(0xFFD97706), light.categoryColor(3))
-        assertEquals(Color(0xFFD97706), light.categoryColor(12))
-        assertEquals(Color(0xFFD97706), light.categoryColor(17))
+        assertEquals(Color(0xFFFBBF24), light.categoryColor(3))
+        assertEquals(Color(0xFFF472B6), light.categoryColor(12))
+        assertEquals(Color(0xFFD4A373), light.categoryColor(17))
     }
 }

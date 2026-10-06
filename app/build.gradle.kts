@@ -19,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 265
-        versionName = "2.184.1"
+        versionName = "2.185.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -209,6 +209,8 @@ dependencies {
 
     // Phosphor Icons (Light, Thin, Regular, Bold, Fill, Duotone)
     implementation(libs.phosphor.icon)
+    // Lucide Icons for Compose
+    implementation(libs.lucide.icons)
 
     // Hilt
     implementation(libs.hilt.android)

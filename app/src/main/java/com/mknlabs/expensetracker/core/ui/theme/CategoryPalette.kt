@@ -48,86 +48,86 @@ import androidx.compose.ui.graphics.Color
  */
 
 // ── 01. Expense categories, light ─────────────────────────────────────────────
-internal val FoodLight = Color(0xFF5B2EED)
-internal val TravelLight = Color(0xFF0288D1)
-internal val ShoppingLight = Color(0xFFD97706)
-internal val BillsLight = Color(0xFF059669)
-internal val HealthLight = Color(0xFFDC2626)
-internal val EntertainmentLight = Color(0xFF9333EA)
-internal val RentLight = Color(0xFFEA580C)
-internal val GroceriesLight = Color(0xFF059669)
-internal val EducationLight = Color(0xFF2563EB)
-internal val SubscriptionsLight = Color(0xFF7C3AED)
-internal val InsuranceLight = Color(0xFF0288D1)
-internal val GiftsLight = Color(0xFFD97706)
-internal val PersonalCareLight = Color(0xFF9333EA)
-internal val FuelLight = Color(0xFFEA580C)
-internal val MaintenanceLight = Color(0xFF2563EB)
-internal val TaxesLight = Color(0xFFDC2626)
-internal val PetsLight = Color(0xFFD97706)
-internal val ChildcareLight = Color(0xFF9333EA)
-internal val DonationsLight = Color(0xFF059669)
-internal val MiscellaneousLight = Color(0xFF4B5563)
-internal val TransportLight = Color(0xFF0288D1)
-internal val OtherExpenseLight = Color(0xFF4B5563)
+internal val FoodLight = Color(0xFFFB923C)
+internal val TravelLight = Color(0xFF38BDF8)
+internal val ShoppingLight = Color(0xFFFBBF24)
+internal val BillsLight = Color(0xFFFACC15)
+internal val HealthLight = Color(0xFFFB7185)
+internal val EntertainmentLight = Color(0xFFC084FC)
+internal val RentLight = Color(0xFF60A5FA)
+internal val GroceriesLight = Color(0xFF34D399)
+internal val EducationLight = Color(0xFF2DD4BF)
+internal val SubscriptionsLight = Color(0xFFA78BFA)
+internal val InsuranceLight = Color(0xFF4ADE80)
+internal val GiftsLight = Color(0xFFF472B6)
+internal val PersonalCareLight = Color(0xFFE07A5F)
+internal val FuelLight = Color(0xFFD97706)
+internal val MaintenanceLight = Color(0xFFA3E635)
+internal val TaxesLight = Color(0xFFE11D48)
+internal val PetsLight = Color(0xFFD4A373)
+internal val ChildcareLight = Color(0xFFE879F9)
+internal val DonationsLight = Color(0xFF2B9348)
+internal val MiscellaneousLight = Color(0xFF00B4D8)
+internal val TransportLight = Color(0xFF6366F1)
+internal val OtherExpenseLight = Color(0xFFCBD5E1)
 
 // ── 01. Expense categories, dark ──────────────────────────────────────────────
-internal val FoodDark = Color(0xFF7A52FF)
-internal val TravelDark = Color(0xFF4FC3F7)
-internal val ShoppingDark = Color(0xFFF5C542)
-internal val BillsDark = Color(0xFF3DDC97)
-internal val HealthDark = Color(0xFFFF5C5C)
-internal val EntertainmentDark = Color(0xFFC77DFF)
-internal val RentDark = Color(0xFFFF9F45)
-internal val GroceriesDark = Color(0xFF3DDC97)
-internal val EducationDark = Color(0xFF6BA6FF)
+internal val FoodDark = Color(0xFFFB923C)
+internal val TravelDark = Color(0xFF38BDF8)
+internal val ShoppingDark = Color(0xFFFBBF24)
+internal val BillsDark = Color(0xFFFACC15)
+internal val HealthDark = Color(0xFFFB7185)
+internal val EntertainmentDark = Color(0xFFC084FC)
+internal val RentDark = Color(0xFF60A5FA)
+internal val GroceriesDark = Color(0xFF34D399)
+internal val EducationDark = Color(0xFF2DD4BF)
 internal val SubscriptionsDark = Color(0xFFA78BFA)
-internal val InsuranceDark = Color(0xFF4FC3F7)
-internal val GiftsDark = Color(0xFFF5C542)
-internal val PersonalCareDark = Color(0xFFC77DFF)
-internal val FuelDark = Color(0xFFFF9F45)
-internal val MaintenanceDark = Color(0xFF6BA6FF)
-internal val TaxesDark = Color(0xFFFF6B6B)
-internal val PetsDark = Color(0xFFF5C542)
-internal val ChildcareDark = Color(0xFFC77DFF)
-internal val DonationsDark = Color(0xFF3DDC97)
-internal val MiscellaneousDark = Color(0xFFA5A1B8)
-internal val TransportDark = Color(0xFF4FC3F7)
-internal val OtherExpenseDark = Color(0xFFA5A1B8)
+internal val InsuranceDark = Color(0xFF4ADE80)
+internal val GiftsDark = Color(0xFFF472B6)
+internal val PersonalCareDark = Color(0xFFE07A5F)
+internal val FuelDark = Color(0xFFD97706)
+internal val MaintenanceDark = Color(0xFFA3E635)
+internal val TaxesDark = Color(0xFFE11D48)
+internal val PetsDark = Color(0xFFD4A373)
+internal val ChildcareDark = Color(0xFFE879F9)
+internal val DonationsDark = Color(0xFF2B9348)
+internal val MiscellaneousDark = Color(0xFF00B4D8)
+internal val TransportDark = Color(0xFF6366F1)
+internal val OtherExpenseDark = Color(0xFFCBD5E1)
 
 // ── 02. Income categories, light ──────────────────────────────────────────────
-internal val SalaryLight = Color(0xFF059669)
-internal val BusinessLight = Color(0xFF5B2EED)
-internal val InvestmentLight = Color(0xFF7C3AED)
-internal val FreelanceLight = Color(0xFF2563EB)
-internal val OtherIncomeLight = Color(0xFF4B5563)
+internal val SalaryLight = Color(0xFF10B981)
+internal val BusinessLight = Color(0xFF06B6D4)
+internal val InvestmentLight = Color(0xFF14B8A6)
+internal val FreelanceLight = Color(0xFF8B5CF6)
+internal val OtherIncomeLight = Color(0xFFCBD5E1)
 
 // ── 02. Income categories, dark ───────────────────────────────────────────────
-internal val SalaryDark = Color(0xFF3DDC97)
-internal val BusinessDark = Color(0xFF7A52FF)
-internal val InvestmentDark = Color(0xFFA78BFA)
-internal val FreelanceDark = Color(0xFF6BA6FF)
-internal val OtherIncomeDark = Color(0xFFA5A1B8)
+internal val SalaryDark = Color(0xFF10B981)
+internal val BusinessDark = Color(0xFF06B6D4)
+internal val InvestmentDark = Color(0xFF14B8A6)
+internal val FreelanceDark = Color(0xFF8B5CF6)
+internal val OtherIncomeDark = Color(0xFFCBD5E1)
 
 // ── 03. Payment methods, light ────────────────────────────────────────────────
 // Card ships as CardPayment*, not Card*: `Color.kt` already declares `CardLight` as the
 // surface behind chips and search bars, and one name cannot mean both a payment method and
 // a card. Suffixing says which is which at the call site rather than leaving a reader to
 // check the import.
-internal val UpiLight = Color(0xFF5B2EED)
-internal val CashLight = Color(0xFF059669)
-internal val BankLight = Color(0xFF2563EB)
-internal val CardPaymentLight = Color(0xFF9333EA)
-internal val SalaryDepositLight = Color(0xFF059669)
-internal val OtherPaymentLight = Color(0xFF4B5563)
+internal val UpiLight = Color(0xFF9D4EDD)
+internal val CashLight = Color(0xFF52B788)
+internal val BankLight = Color(0xFF3A86FF)
+internal val CardPaymentLight = Color(0xFF7209B7)
+internal val SalaryDepositLight = Color(0xFF10B981)
+internal val OtherPaymentLight = Color(0xFFCBD5E1)
 
 // ── 03. Payment methods, dark ─────────────────────────────────────────────────
-internal val UpiDark = Color(0xFF7A52FF)
-internal val CashDark = Color(0xFF3DDC97)
-internal val BankDark = Color(0xFF6BA6FF)
-internal val CardPaymentDark = Color(0xFFC77DFF)
-internal val SalaryDepositDark = Color(0xFF3DDC97)
-internal val OtherPaymentDark = Color(0xFFA5A1B8)
+internal val UpiDark = Color(0xFF9D4EDD)
+internal val CashDark = Color(0xFF52B788)
+internal val BankDark = Color(0xFF3A86FF)
+internal val CardPaymentDark = Color(0xFF7209B7)
+internal val SalaryDepositDark = Color(0xFF10B981)
+internal val OtherPaymentDark = Color(0xFFCBD5E1)
 
 // ── The maps ──────────────────────────────────────────────────────────────────
 // Built once at class load rather than resolved per frame, and addressable by iteration
@@ -246,8 +246,8 @@ val ColorScheme.categoryAccentFallback: Color
  * light pastel over the near-black field reads as a wash, while the same 14% of a deep
  * tone over white reads as a stain. Light gets the lighter hand.
  */
-internal const val CategorySoftAlphaLight = 0.10f
-internal const val CategorySoftAlphaDark = 0.14f
+internal const val CategorySoftAlphaLight = 31f / 255f // 0x1F wash from lucide palette
+internal const val CategorySoftAlphaDark = 31f / 255f
 
 /** [color]'s wash for the active theme, for the tile behind its glyph. */
 fun ColorScheme.categorySoft(color: Color): Color = color.copy(

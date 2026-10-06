@@ -59,7 +59,7 @@ class AnalyticsDonutColorRenderTest {
 
         assertTrue(
             "no pixel of the donut carried Health's dark palette colour",
-            bitmap.containsExactly(Color(0xFFFF5C5C))
+            bitmap.containsExactly(Color(0xFFFB7185))
         )
     }
 
@@ -110,11 +110,11 @@ class AnalyticsDonutColorRenderTest {
 
         assertTrue(
             "no pixel of the donut carried the payment palette colour",
-            bitmap.containsExactly(Color(0xFF4B5563))
+            bitmap.containsExactly(Color(0xFFCBD5E1))
         )
         assertFalse(
             "the donut resolved a payment method against the category palette",
-            bitmap.containsExactly(Color(0xFFDC2626))
+            bitmap.containsExactly(Color(0xFFFB7185))
         )
     }
 

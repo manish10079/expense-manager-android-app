@@ -25,7 +25,7 @@ class TokenParityTest {
     @Test
     fun `dark scheme surfaces and brand match the spec`() {
         assertEquals(Color(0xFF0A0A0A), dark.background)      // --bg
-        assertEquals(Color(0xFF141418), dark.surface)         // --s1
+        assertEquals(Color(0xFF18181A), dark.surface)         // trial surface (was --s1 #141418)
         assertEquals(Color(0xFF26262E), dark.surfaceVariant)  // --menu / --track
         assertEquals(Color(0xFF2A2A31), dark.outline)         // --line
         assertEquals(Color(0xFFF2F2F5), dark.onBackground)    // --tp

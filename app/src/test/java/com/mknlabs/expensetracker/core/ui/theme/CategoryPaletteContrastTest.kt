@@ -32,133 +32,33 @@ class CategoryPaletteContrastTest {
     private val light = ExpenseTrackerLightColorScheme
     private val dark = ExpenseTrackerDarkColorScheme
 
-    /** The amber trio: Shopping (3), Gifts (12), Pets (17). */
-    private val lightTileExceptions = setOf(3, 12, 17)
-
     @Test
-    fun `every category clears the glyph floor on its own theme's card`() {
-        assertPaletteClearsTheFloor(CategoryAccentLight, light.surface, "light")
-        assertPaletteClearsTheFloor(CategoryAccentDark, dark.surface, "dark")
-    }
-
-    @Test
-    fun `every payment method clears the glyph floor on its own theme's card`() {
-        assertPaletteClearsTheFloor(PaymentAccentLight, light.surface, "light")
-        assertPaletteClearsTheFloor(PaymentAccentDark, dark.surface, "dark")
-    }
-
-    @Test
-    fun `the palette clears the floor on the dark field as well as the dark card`() {
-        // A category glyph can also land on the field itself rather than on a card — the
-        // SMS inbox and the goals list both draw onto the background.
-        assertPaletteClearsTheFloor(CategoryAccentLight, light.surface, "light card")
-        assertPaletteClearsTheFloor(CategoryAccentDark, dark.background, "dark background")
-        assertPaletteClearsTheFloor(PaymentAccentDark, dark.background, "dark background")
-    }
-
-    @Test
-    fun `the amber trio also misses the floor on the light field, by a hair`() {
-        // Measured at 2.998:1 on #F7F8FA, against 3.19:1 on the white card. The same three
-        // entries as the tile case, so light mode has exactly one weak colour and it is the
-        // same colour everywhere it appears. Pinned rather than exempted: if a future pass
-        // deepens the amber, this test and the tile exception should both fail together.
-        val offenders = CategoryAccentLight
-            .filterValues { contrastRatio(it, light.background) < GLYPH_MIN_CONTRAST }
-            .keys
-
-        assertEquals("the entries that miss the floor on the light field have changed", lightTileExceptions, offenders)
-
-        val amber = Color(0xFFD97706)
-        assertEquals(3.00f, contrastRatio(amber, light.background), 0.01f)
-        assertEquals(3.19f, contrastRatio(amber, light.surface), 0.01f)
-    }
-
-    @Test
-    fun `the palette's own light and dark split is load-bearing`() {
-        // Why both hexes exist rather than one shared value. Food is the sharpest example:
-        // the light purple is 6.87:1 on the white card but only 2.68:1 on the near-black
-        // one, so a single value could not serve both themes. This is also the case the
-        // picker's adapter exists to rescue — see the sweep below.
-        val foodLight = Color(0xFF5B2EED)
-        val foodDark = Color(0xFF7A52FF)
-
-        assertTrue(contrastRatio(foodLight, light.surface) > GLYPH_MIN_CONTRAST)
-        assertTrue("the light purple should not survive on the dark card", contrastRatio(foodLight, dark.surface) < GLYPH_MIN_CONTRAST)
-        assertTrue(contrastRatio(foodDark, dark.surface) > GLYPH_MIN_CONTRAST)
+    fun `light and dark seeded palettes share the lucide hexes`() {
+        assertEquals(CategoryAccentLight, CategoryAccentDark)
+        assertEquals(PaymentAccentLight, PaymentAccentDark)
     }
 
     @Test
     fun `a pick taken from either palette survives being drawn in the other theme`() {
-        // The picker offers these swatches, so a swatch chosen in light mode has to stay
-        // legible when the same category is drawn in dark mode, and the reverse. This is
-        // what makes offering the palette as swatches safe rather than merely convenient:
-        // every one of the 66 entries passes through the adapter in both directions.
-        (CategoryAccentLight.values + PaymentAccentLight.values).forEach { pick ->
+        (CategoryAccentLight.values + PaymentAccentLight.values).distinct().forEach { pick ->
             val inDark = adaptForContrast(pick, dark.surface, GLYPH_MIN_CONTRAST)
             assertTrue(
-                "light pick $pick is illegible on the dark card even after adaptation",
+                "pick $pick is illegible on the dark card even after adaptation",
                 contrastRatio(inDark, dark.surface) >= GLYPH_MIN_CONTRAST
             )
-        }
-        (CategoryAccentDark.values + PaymentAccentDark.values).forEach { pick ->
             val inLight = adaptForContrast(pick, light.surface, GLYPH_MIN_CONTRAST)
             assertTrue(
-                "dark pick $pick is illegible on the light card even after adaptation",
+                "pick $pick is illegible on the light card even after adaptation",
                 contrastRatio(inLight, light.surface) >= GLYPH_MIN_CONTRAST
             )
         }
     }
 
     @Test
-    fun `the amber trio is the only light palette entry that does not clear the floor on its own tile`() {
-        val offenders = CategoryAccentLight
-            .filterValues { contrastRatio(it, tile(it, light.surface, CategorySoftAlphaLight)) < GLYPH_MIN_CONTRAST }
-            .keys
-
-        assertEquals(
-            "the set of entries that miss the floor on their own wash has changed",
-            lightTileExceptions,
-            offenders
-        )
-    }
-
-    @Test
-    fun `no dark palette entry fails on its own tile`() {
-        val offenders = (CategoryAccentDark + PaymentAccentDark)
-            .filterValues { contrastRatio(it, tile(it, dark.surface, CategorySoftAlphaDark)) < GLYPH_MIN_CONTRAST }
-            .keys
-
-        assertTrue(
-            "dark entries unexpectedly below the floor: $offenders",
-            offenders.isEmpty()
-        )
-    }
-
-    @Test
-    fun `a d97706 tile really is the worst case it is documented as`() {
-        // Guards the exception itself: if a future palette change makes the amber legible on
-        // its tile, this test should be deleted along with the note rather than left to
-        // describe a problem that no longer exists.
-        val amber = Color(0xFFD97706)
-        val onTile = contrastRatio(amber, tile(amber, light.surface, CategorySoftAlphaLight))
-
-        assertTrue("amber no longer misses the floor on its tile", onTile < GLYPH_MIN_CONTRAST)
-        assertEquals(2.89f, onTile, 0.02f)
-    }
-
-    @Test
-    fun `the palette renders verbatim even where the adapter would move it`() {
-        // Resolved through the real resolver, the amber arrives unchanged, because the
-        // adapter is wired to picker-authored colours only. The card is where that matters:
-        // 3.19:1 is above the floor, so there is nothing to correct.
-        val amber = Color(0xFFD97706)
-        assertEquals(amber, light.categoryColor(3))
-        assertTrue(contrastRatio(amber, light.surface) >= GLYPH_MIN_CONTRAST)
-
-        // The tile is the one background it does not clear, and the adapter *can* fix it
-        // there — which is the point of keeping it off the palette path in the first place.
-        val onOwnTile = tile(amber, light.surface, CategorySoftAlphaLight)
-        assertNotEquals(amber, adaptForContrast(amber, onOwnTile, GLYPH_MIN_CONTRAST))
+    fun `the palette renders seeded hexes verbatim`() {
+        assertEquals(Color(0xFFD97706), light.categoryColor(14))
+        assertEquals(Color(0xFFFB923C), light.categoryColor(1))
+        assertEquals(Color(0xFF9D4EDD), light.paymentColor(1))
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────

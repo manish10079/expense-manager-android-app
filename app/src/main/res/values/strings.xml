@@ -2451,6 +2451,15 @@
     <!-- Icons and Fallbacks -->
 
     <string name="icon_label_shopping_cart">Shopping</string>
+    <string name="icon_label_calculator">EMI</string>
+    <string name="icon_label_security">Insurance</string>
+    <string name="icon_label_package">Shipping</string>
+    <string name="icon_label_fuel">Fuel</string>
+    <string name="icon_label_file_text">Documents</string>
+    <string name="icon_label_hand_coins">Contribution</string>
+    <string name="icon_label_banknote">Cash</string>
+    <string name="icon_label_more_horizontal">Other</string>
+
 
     <string name="icon_label_restaurant">Dining</string>
 

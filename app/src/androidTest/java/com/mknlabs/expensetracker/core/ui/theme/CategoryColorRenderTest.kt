@@ -66,7 +66,7 @@ class CategoryColorRenderTest {
         val color = resolvedUnder(darkTheme = false) {
             MaterialTheme.colorScheme.categoryColor(categoryId = 1)
         }
-        assertEquals(Color(0xFF5B2EED), color) // Food, light
+        assertEquals(Color(0xFFFB923C), color) // Food
     }
 
     @Test
@@ -77,8 +77,7 @@ class CategoryColorRenderTest {
         val color = resolvedUnder(darkTheme = true) {
             MaterialTheme.colorScheme.categoryColor(categoryId = 1)
         }
-        assertEquals(Color(0xFF7A52FF), color) // Food, dark
-        assertNotEquals(Color(0xFF5B2EED), color)
+        assertEquals(Color(0xFFFB923C), color) // Food, same hex in dark
     }
 
     @Test
@@ -87,8 +86,8 @@ class CategoryColorRenderTest {
             MaterialTheme.colorScheme.categoryColor(categoryId = 5)
         }
 
-        assertEquals(Color(0xFFDC2626), light) // Health, light
-        assertEquals(Color(0xFFFF5C5C), dark)  // Health, dark
+        assertEquals(Color(0xFFFB7185), light)
+        assertEquals(Color(0xFFFB7185), dark)
     }
 
     @Test
@@ -106,7 +105,7 @@ class CategoryColorRenderTest {
         }
         composeTestRule.waitForIdle()
 
-        assertEquals(Color(0xFFD97706), seeded) // Shopping, light
+        assertEquals(Color(0xFFFBBF24), seeded) // Shopping
         assertEquals(ExpenseTrackerLightColorScheme.accentInk, unknown)
     }
 
