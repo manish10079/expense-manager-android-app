@@ -158,7 +158,9 @@ fun AnalyticsScreen(
     isProUser: Boolean = false
 ) {
     val transactionTags by tagLinksViewModel.transactionTags.collectAsStateWithLifecycle()
-    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences, monthStartDay, transactionTags) {
+    val analyticsFundsViewModel: AnalyticsFundsViewModel = hiltViewModel()
+    val funds by analyticsFundsViewModel.funds.collectAsStateWithLifecycle()
+    LaunchedEffect(transactions, categories, paymentMethods, currencyId, amountFormatPreferences, monthStartDay, transactionTags, funds) {
         analyticsViewModel.updateInputs(
             transactions = transactions,
             categories = categories,
@@ -166,7 +168,8 @@ fun AnalyticsScreen(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             monthStartDay = monthStartDay,
-            transactionTags = transactionTags
+            transactionTags = transactionTags,
+            funds = funds
         )
     }
     val uiState by analyticsViewModel.uiState.collectAsStateWithLifecycle()
@@ -211,6 +214,7 @@ fun AnalyticsScreenContent(
     var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isIncomeSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTagSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isFundSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTopSpendingSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isTransactionSheetVisible by rememberSaveable { mutableStateOf(false) }
     var heroDisplayMode by rememberSaveable { mutableStateOf(HeroDisplayMode.EXPENSE) }
@@ -528,6 +532,36 @@ fun AnalyticsScreenContent(
                 )
                 }
             }
+            // Funds get their own full-width row rather than a half of one: a bucket name
+            // is longer than a category or a payment method, and the row is about money
+            // moving out of named pools rather than another axis of the same split.
+            item {
+                Box(Modifier.alpha(enter[3])) {
+                    GatedAction(
+                        feature = Feature.ANALYTICS_FUND_BREAKDOWN,
+                        displayName = stringResource(id = R.string.title_full_fund_breakdown),
+                        onAction = {}
+                    ) { status, onClick ->
+                        val isLocked = status !is AccessStatus.Granted
+                        Box {
+                            GatedCardContent(isLocked = isLocked) { gated ->
+                                FundBreakdownCard(
+                                    modifier = gated,
+                                    snapshot = snapshot,
+                                    onViewAllClick = { isFundSheetVisible = true }
+                                )
+                            }
+                            if (isLocked) {
+                                PremiumLockedOverlay(
+                                    displayText = stringResource(id = R.string.label_unlock_breakdown),
+                                    onClick = onClick
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // Single-column: keep the native ad between the payment breakdown
             // and top spending. In the two-column layout it becomes a full-width
             // row at the bottom instead (see below).
@@ -720,6 +754,26 @@ fun AnalyticsScreenContent(
             } else {
                 LaunchedEffect(Unit) { 
                     isPaymentSheetVisible = false
+                    onClick()
+                }
+            }
+        }
+    }
+
+    if (isFundSheetVisible) {
+        GatedAction(
+            feature = Feature.ANALYTICS_FUND_BREAKDOWN,
+            displayName = stringResource(id = R.string.title_full_fund_breakdown),
+            onAction = { isFundSheetVisible = true }
+        ) { status, onClick ->
+            if (status is AccessStatus.Granted) {
+                FundBreakdownBottomSheet(
+                    funds = snapshot.allFundBreakdown,
+                    onDismiss = { isFundSheetVisible = false }
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    isFundSheetVisible = false
                     onClick()
                 }
             }

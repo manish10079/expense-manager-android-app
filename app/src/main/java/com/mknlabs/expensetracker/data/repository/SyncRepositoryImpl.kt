@@ -55,6 +55,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
     private val favoriteTransactionDao: com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao,
     private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao,
+    private val fundDao: com.mknlabs.expensetracker.data.local.room.dao.FundDao,
     private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : SyncRepository {
 
@@ -730,6 +731,12 @@ class SyncRepositoryImpl @Inject constructor(
             allTasks.add(SyncTask.GoalTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
         }
+        // Funds before the transactions that link to them, so a device pulling this batch
+        // in one cycle has the bucket before the spending that references it.
+        fundDao.getUnsynced().forEach {
+            allTasks.add(SyncTask.FundTask(it))
+            maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
+        }
         transactionDao.getUnsynced().forEach { 
             allTasks.add(SyncTask.TransactionTask(it)) 
             maxLocalUpdatedAt = java.lang.Math.max(maxLocalUpdatedAt, it.updatedAt)
@@ -774,6 +781,9 @@ class SyncRepositoryImpl @Inject constructor(
 
                 val goalIds = chunk.filterIsInstance<SyncTask.GoalTask>().map { it.entity.id }
                 if (goalIds.isNotEmpty()) goalDao.updateSyncStates(goalIds, SyncState.SYNCED.name)
+
+                val fundIds = chunk.filterIsInstance<SyncTask.FundTask>().map { it.entity.id }
+                if (fundIds.isNotEmpty()) fundDao.updateSyncStates(fundIds, SyncState.SYNCED.name)
 
                 val favIds = chunk.filterIsInstance<SyncTask.FavoriteTask>().map { it.entity.id }
                 if (favIds.isNotEmpty()) favoriteTransactionDao.updateSyncStates(favIds, SyncState.SYNCED.name)
@@ -848,6 +858,13 @@ class SyncRepositoryImpl @Inject constructor(
                 goalDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
             }
             maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, goalMax)
+
+            // Funds before the transactions that link to them, so the bucket exists locally
+            // by the time a transaction referencing it lands.
+            val fundMax = pullCollection(userDoc, "funds", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.FundEntity ->
+                fundDao.upsert(cloudItem.copy(syncState = SyncState.SYNCED))
+            }
+            maxRemoteUpdatedAt = java.lang.Math.max(maxRemoteUpdatedAt, fundMax)
 
             // Pull Transactions & Rules (Circular Dependency Zone)
             val txMax = pullCollection(userDoc, "transactions", lastSync) { cloudItem: com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity ->
@@ -1021,6 +1038,24 @@ class SyncRepositoryImpl @Inject constructor(
                                 createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
                             ) as T
                         }
+                        com.mknlabs.expensetracker.data.local.room.entities.FundEntity::class -> {
+                            val id = doc.getString("id").orEmpty()
+                            val name = doc.getString("name").orEmpty()
+                            val amountMinor = doc.getLong("amountMinor") ?: 0L
+                            val startDate = doc.getLong("startDate") ?: 0L
+                            val iconKey = doc.getString("iconKey").orEmpty()
+                            val colorHex = doc.getString("colorHex").orEmpty()
+                            val note = doc.getString("note").orEmpty()
+                            val isArchived = doc.getBoolean("isArchived") ?: false
+                            val createdAt = doc.getLong("createdAt") ?: 0L
+                            val updatedAt = doc.getLong("updatedAt") ?: 0L
+                            val isDeleted = doc.getBoolean("isDeleted") ?: false
+                            com.mknlabs.expensetracker.data.local.room.entities.FundEntity(
+                                id = id, name = name, amountMinor = amountMinor, startDate = startDate,
+                                iconKey = iconKey, colorHex = colorHex, note = note, isArchived = isArchived,
+                                createdAt = createdAt, updatedAt = updatedAt, isDeleted = isDeleted
+                            ) as T
+                        }
                         com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity::class -> {
                             val id = doc.getString("id").orEmpty()
                             val note = doc.getString("note").orEmpty()
@@ -1034,11 +1069,15 @@ class SyncRepositoryImpl @Inject constructor(
                             val isDeleted = doc.getBoolean("isDeleted") ?: false
                             val contentHash = doc.getString("contentHash")
                             val sourceRecurringRuleId = doc.getString("sourceRecurringRuleId")
+                            // Carried through so a transaction pulled on another device keeps the
+                            // bucket it was spent from. Absent on rows pushed before funds existed.
+                            val fundId = doc.getString("fundId")
                             com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity(
                                 id = id, note = note, amountMinor = amountMinor, occurredAt = occurredAt,
                                 createdAt = createdAt, updatedAt = updatedAt, transactionTypeId = transactionTypeId,
                                 categoryId = categoryId, paymentMethodId = paymentMethodId, isDeleted = isDeleted,
-                                contentHash = contentHash, sourceRecurringRuleId = sourceRecurringRuleId
+                                contentHash = contentHash, sourceRecurringRuleId = sourceRecurringRuleId,
+                                fundId = fundId
                             ) as T
                         }
                         com.mknlabs.expensetracker.data.local.room.entities.RecurringRuleEntity::class -> {
@@ -1208,7 +1247,8 @@ class SyncRepositoryImpl @Inject constructor(
                 "occurredAt" to entity.occurredAt, "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt,
                 "transactionTypeId" to entity.transactionTypeId, "categoryId" to entity.categoryId,
                 "paymentMethodId" to entity.paymentMethodId, "isDeleted" to entity.isDeleted,
-                "contentHash" to entity.contentHash, "sourceRecurringRuleId" to entity.sourceRecurringRuleId
+                "contentHash" to entity.contentHash, "sourceRecurringRuleId" to entity.sourceRecurringRuleId,
+                "fundId" to entity.fundId
             )
         }
         data class TagTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.TagEntity) : SyncTask() {
@@ -1305,6 +1345,17 @@ class SyncRepositoryImpl @Inject constructor(
                 "id" to entity.id, "name" to entity.name, "targetAmountMinor" to entity.targetAmountMinor,
                 "currentAmountMinor" to entity.currentAmountMinor, "deadlineAt" to entity.deadlineAt,
                 "iconKey" to entity.iconKey, "colorHex" to entity.colorHex, "isCompleted" to entity.isCompleted,
+                "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
+            )
+        }
+        data class FundTask(val entity: com.mknlabs.expensetracker.data.local.room.entities.FundEntity) : SyncTask() {
+            override val id = entity.id
+            override val collectionName = "funds"
+            override val isDeleted = entity.isDeleted
+            override fun toCloudMap() = mapOf(
+                "id" to entity.id, "name" to entity.name, "amountMinor" to entity.amountMinor,
+                "startDate" to entity.startDate, "iconKey" to entity.iconKey, "colorHex" to entity.colorHex,
+                "note" to entity.note, "isArchived" to entity.isArchived,
                 "createdAt" to entity.createdAt, "updatedAt" to entity.updatedAt, "isDeleted" to entity.isDeleted
             )
         }

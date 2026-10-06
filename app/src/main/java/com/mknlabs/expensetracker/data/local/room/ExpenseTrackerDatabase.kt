@@ -31,7 +31,9 @@ import com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao
 import com.mknlabs.expensetracker.data.local.room.entities.CountryCodeEntity
 import com.mknlabs.expensetracker.data.local.room.entities.FavoriteTransactionEntity
 import com.mknlabs.expensetracker.data.local.room.dao.DetectedSmsNotificationDao
+import com.mknlabs.expensetracker.data.local.room.dao.FundDao
 import com.mknlabs.expensetracker.data.local.room.entities.DetectedSmsNotificationEntity
+import com.mknlabs.expensetracker.data.local.room.entities.FundEntity
 import java.io.File
 
 @Database(
@@ -48,9 +50,10 @@ import java.io.File
         InstallmentOccurrenceEntity::class,
         DetectedSmsNotificationEntity::class,
         TagEntity::class,
-        TransactionTagEntity::class
+        TransactionTagEntity::class,
+        FundEntity::class
     ],
-    version = 19,
+    version = 20,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -68,6 +71,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun installmentOccurrenceDao(): InstallmentOccurrenceDao
     abstract fun detectedSmsNotificationDao(): DetectedSmsNotificationDao
     abstract fun tagDao(): TagDao
+    abstract fun fundDao(): FundDao
 
     companion object {
         const val DATABASE_NAME = "expense_tracker.db"
@@ -82,8 +86,52 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     ExpenseTrackerDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
                     .build().also { INSTANCE = it }
+            }
+        }
+
+        /**
+         * Funds (cash buckets) and the nullable link from a transaction to one.
+         *
+         * Almost purely additive: one new table that nothing else references, plus a single
+         * nullable column on `transactions`. No existing row is read, moved or rewritten, so
+         * the migration is O(1) however many transactions the user has.
+         *
+         * `fund_id` is added without a foreign key on purpose. SQLite cannot attach one with
+         * `ALTER TABLE`, and rebuilding the whole `transactions` table to get one would turn
+         * an O(1) migration into an O(n) one on the user's largest table. The behaviour the
+         * constraint would have given — deleting a fund keeps its transactions and only
+         * drops the link — is enforced in `FundRepository.deleteFund`, which is also the only
+         * place a fund is ever removed. The index still exists, because it is what the
+         * per-fund aggregates scan.
+         */
+        // internal (not private) so the androidTest migration suite can run it
+        // through MigrationTestHelper without duplicating its SQL.
+        internal val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `funds` (
+                        `id` TEXT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `amount_minor` INTEGER NOT NULL,
+                        `start_date` INTEGER NOT NULL,
+                        `icon_key` TEXT NOT NULL,
+                        `color_hex` TEXT NOT NULL,
+                        `note` TEXT NOT NULL,
+                        `is_archived` INTEGER NOT NULL,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL,
+                        `is_deleted` INTEGER NOT NULL,
+                        `sync_state` TEXT NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_funds_is_deleted_start_date` ON `funds` (`is_deleted`, `start_date`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_funds_is_deleted_is_archived` ON `funds` (`is_deleted`, `is_archived`)")
+
+                db.execSQL("ALTER TABLE transactions ADD COLUMN fund_id TEXT")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_transactions_fund_id` ON `transactions` (`fund_id`)")
             }
         }
 

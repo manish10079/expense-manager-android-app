@@ -110,6 +110,8 @@ class SmsRepositoryTest {
             amountMinor to createdAt in duplicates
 
         override fun observeActiveTransactions(): Flow<List<TransactionEntity>> = error("unexpected")
+        override fun observeTransactionsByFund(fundId: String): Flow<List<TransactionEntity>> = error("unexpected")
+        override suspend fun getLinkedIncomeByFund(fundId: String): List<TransactionEntity> = error("unexpected")
         override suspend fun getActiveTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getAllTransactions(): List<TransactionEntity> = error("unexpected")
         override suspend fun getById(id: String): TransactionEntity? = error("unexpected")

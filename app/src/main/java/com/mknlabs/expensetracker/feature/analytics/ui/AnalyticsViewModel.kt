@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Fund
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
@@ -71,6 +72,19 @@ data class TagBreakdownUi(
     val fraction: Float,
     val percentLabel: Int,
     val colorHex: String? = null,
+    val isOther: Boolean = false
+)
+
+@Immutable
+data class FundBreakdownUi(
+    val id: String,
+    val label: String,
+    val amountDisplay: String,
+    val fraction: Float,
+    val percentLabel: Int,
+    val colorHex: String? = null,
+    val iconKey: String = "",
+    /** True when the fund was deleted on another device and only its id survives. */
     val isOther: Boolean = false
 )
 
@@ -148,6 +162,8 @@ data class AnalyticsSnapshotUi(
     val allIncomeBreakdown: List<CategoryBreakdownUi> = emptyList(),
     val tagBreakdown: List<TagBreakdownUi> = emptyList(),
     val allTagBreakdown: List<TagBreakdownUi> = emptyList(),
+    val fundBreakdown: List<FundBreakdownUi> = emptyList(),
+    val allFundBreakdown: List<FundBreakdownUi> = emptyList(),
     val topTransactions: List<TopSpendingItemUi> = emptyList(),
     val allTopTransactions: List<TopSpendingItemUi> = emptyList(),
     val smartTip: SmartTipUi = SmartTipUi(resId = R.string.msg_unlock_insights_hint),
@@ -193,6 +209,7 @@ class AnalyticsViewModel : ViewModel() {
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentPaymentTypes: List<PaymentType> = emptyList()
     private var currentTransactionTags: Map<String, List<Tag>> = emptyMap()
+    private var currentFunds: List<Fund> = emptyList()
     private var currentCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var currentAmountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences
 
@@ -212,12 +229,14 @@ class AnalyticsViewModel : ViewModel() {
         currencyId: Int,
         amountFormatPreferences: AmountFormatPreferences,
         monthStartDay: Int = 1,
-        transactionTags: Map<String, List<Tag>> = emptyMap()
+        transactionTags: Map<String, List<Tag>> = emptyMap(),
+        funds: List<Fund> = emptyList()
     ) {
         currentTransactions = transactions
         currentCategories = categories
         currentPaymentTypes = paymentTypes
         currentTransactionTags = transactionTags
+        currentFunds = funds
         currentCurrencyId = currencyId
         currentAmountFormatPreferences = amountFormatPreferences
         currentMonthStartDay = monthStartDay
@@ -277,6 +296,7 @@ class AnalyticsViewModel : ViewModel() {
                     categories = currentCategories,
                     paymentTypes = currentPaymentTypes,
                     transactionTags = currentTransactionTags,
+                    funds = currentFunds,
                     customRange = range,
                     monthStartDay = currentMonthStartDay
                 )
@@ -293,6 +313,7 @@ private fun buildAnalyticsSnapshot(
     categories: List<CategoryType>,
     paymentTypes: List<PaymentType>,
     transactionTags: Map<String, List<Tag>> = emptyMap(),
+    funds: List<Fund> = emptyList(),
     customRange: LongRange? = null,
     monthStartDay: Int = 1
 ): AnalyticsSnapshotUi {
@@ -303,6 +324,7 @@ private fun buildAnalyticsSnapshot(
     val previousTransactions = transactions.filter { it.createdAt in previousRange.first..previousRange.last }
     val categoryMap = categories.associateBy { it.id }
     val paymentTypeMap = paymentTypes.associateBy { it.id }
+    val fundMap = funds.associateBy { it.id }
 
     val income = currentTransactions.filter { it.transactionTypeId == 1 }.sumOf { it.amount }
     val expense = currentTransactions.filter { it.transactionTypeId == 2 }.sumOf { it.amount }
@@ -415,6 +437,31 @@ private fun buildAnalyticsSnapshot(
     }
     val tagBreakdown = allTagBreakdown.take(3)
 
+    // Funds: how the period's spending split across the cash buckets it was drawn from.
+    // Income is excluded (a fund's arrival must not count as spending from it) and so is
+    // spending with no fund, which has no bucket to attribute itself to.
+    val fundTotals = currentTransactions
+        .filter { it.transactionTypeId == 2 && it.fundId != null }
+        .groupBy { it.fundId }
+        .mapValues { (_, items) -> items.sumOf { it.amount } }
+        .toList()
+        .sortedByDescending { it.second }
+    val totalFundForShare = fundTotals.sumOf { it.second }.takeIf { it > 0.0 } ?: 1.0
+    val allFundBreakdown = fundTotals.map { (fundId, amount) ->
+        val fund = fundId?.let { fundMap[it] }
+        FundBreakdownUi(
+            id = fundId.orEmpty(),
+            label = fund?.name.orEmpty(),
+            isOther = fund == null,
+            amountDisplay = formatCurrencyValue(amount, currencyId, amountFormatPreferences),
+            fraction = (amount / totalFundForShare).toFloat(),
+            percentLabel = ((amount / totalFundForShare) * 100).toInt(),
+            colorHex = fund?.colorHex,
+            iconKey = fund?.iconKey.orEmpty()
+        )
+    }
+    val fundBreakdown = allFundBreakdown.take(3)
+
     val sortedTransactions = currentTransactions
         .filter { it.transactionTypeId == 2 }
         .sortedByDescending { it.amount }
@@ -490,6 +537,8 @@ private fun buildAnalyticsSnapshot(
         allIncomeBreakdown = allIncomeBreakdown,
         tagBreakdown = tagBreakdown,
         allTagBreakdown = allTagBreakdown,
+        fundBreakdown = fundBreakdown,
+        allFundBreakdown = allFundBreakdown,
         topTransactions = topTransactions,
         allTopTransactions = allTopTransactions,
         smartTip = buildSmartTip(

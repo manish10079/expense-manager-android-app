@@ -47,7 +47,9 @@ enum class BudgetPeriodFilter {
 
 enum class BudgetTab {
     Budgets,
-    Recurring
+    Recurring,
+    /** Cash buckets, which live alongside budgets because they answer a nearby question. */
+    Funds
 }
 
 enum class BudgetAccent {

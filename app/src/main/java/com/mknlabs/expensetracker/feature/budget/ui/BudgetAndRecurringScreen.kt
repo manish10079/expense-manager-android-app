@@ -81,6 +81,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.feature.funds.ui.FundsScreen
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -348,7 +349,7 @@ private fun BudgetAndRecurringContent(
     val deletingRecurringIds = remember { mutableStateSetOf<String>() }
 
 
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
     // Per-tab scroll states for the two pager pages (Budgets / Recurring). The
     // current page's scroll direction drives the standalone add FAB's auto-hide
@@ -362,7 +363,11 @@ private fun BudgetAndRecurringContent(
 
     // Sync ViewModel tab state with PagerState
     LaunchedEffect(pagerState.currentPage) {
-        val tab = if (pagerState.currentPage == 0) BudgetTab.Budgets else BudgetTab.Recurring
+        val tab = when (pagerState.currentPage) {
+            0 -> BudgetTab.Budgets
+            1 -> BudgetTab.Recurring
+            else -> BudgetTab.Funds
+        }
         if (uiState.selectedTab != tab) {
             onSelectTab(tab)
         }
@@ -370,7 +375,11 @@ private fun BudgetAndRecurringContent(
 
     // Sync PagerState with ViewModel tab state (for programmatic clicks)
     LaunchedEffect(uiState.selectedTab) {
-        val page = if (uiState.selectedTab == BudgetTab.Budgets) 0 else 1
+        val page = when (uiState.selectedTab) {
+            BudgetTab.Budgets -> 0
+            BudgetTab.Recurring -> 1
+            BudgetTab.Funds -> 2
+        }
         if (pagerState.currentPage != page) {
             pagerState.animateScrollToPage(page)
         }
@@ -438,6 +447,10 @@ private fun BudgetAndRecurringContent(
                                 isSelected = uiState.selectedTab == BudgetTab.Recurring,
                                 isProUser = isProUser
                             )
+                        ),
+                        TabItem(
+                            id = BudgetTab.Funds,
+                            label = stringResource(id = R.string.label_tab_funds)
                         )
                     ),
                     selectedItemId = uiState.selectedTab,
@@ -453,6 +466,16 @@ private fun BudgetAndRecurringContent(
                     .alpha(enter[3]),
                 verticalAlignment = Alignment.Top
             ) { page ->
+                // The Funds tab owns the whole page: it is a feature screen of its own
+                // (list, detail, breakdown) rather than another list of budget cards, so it
+                // is composed here instead of being another branch of the LazyColumn below.
+                if (page == 2) {
+                    FundsScreen(
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences
+                    )
+                    return@HorizontalPager
+                }
                 // Both pages open with content rather than a heading, so they share one inset.
                 // It is tighter than the 18.dp that separates the cards below: on the budgets
                 // page this is the gap to the Budgets/Recurring switcher above, two blocks of

@@ -45,7 +45,8 @@ class DataManagementRepository @Inject constructor(
     private val budgetDao: BudgetDao,
     private val recurringRuleDao: RecurringRuleDao,
     private val goalDao: com.mknlabs.expensetracker.data.local.room.dao.GoalDao,
-    private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao
+    private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao,
+    private val fundDao: com.mknlabs.expensetracker.data.local.room.dao.FundDao
 ) : DomainDataManagementRepository {
     private val appContext = context.applicationContext
 
@@ -124,6 +125,7 @@ class DataManagementRepository @Inject constructor(
         val budgets = budgetDao.getActiveBudgets()
         val recurringRules = recurringRuleDao.getActiveRules()
         val goals = goalDao.getActiveGoals()
+        val funds = fundDao.getActiveFunds()
         val tags = tagDao.getActiveTags()
         // Only the live links are exported: a tombstone is sync bookkeeping, not data the
         // user would expect to find in a backup.
@@ -150,6 +152,9 @@ class DataManagementRepository @Inject constructor(
             put("goals", JSONArray().apply {
                 goals.forEach { put(it.toJson()) }
             })
+            put("funds", JSONArray().apply {
+                funds.forEach { put(it.toJson()) }
+            })
             put("tags", JSONArray().apply {
                 tags.forEach { put(it.toJson()) }
             })
@@ -171,7 +176,8 @@ class DataManagementRepository @Inject constructor(
             exportedPaymentMethods = paymentMethods.size,
             exportedGoals = goals.size,
             exportedTags = tags.size,
-            exportedTagLinks = tagLinks.size
+            exportedTagLinks = tagLinks.size,
+            exportedFunds = funds.size
         )
     }
 
@@ -194,6 +200,7 @@ class DataManagementRepository @Inject constructor(
         val importedBudgets = root.optJSONArray("budgets").toBudgetEntities()
         val importedRecurringRules = root.optJSONArray("recurringRules").toRecurringRuleEntities()
         val importedGoals = root.optJSONArray("goals").toGoalEntities()
+        val importedFunds = root.optJSONArray("funds").toFundEntities()
         val importedTags = root.optJSONArray("tags").toTagEntities()
         val importedTagLinks = root.optJSONArray("transactionTags").toTransactionTagEntities()
 
@@ -209,6 +216,8 @@ class DataManagementRepository @Inject constructor(
         var skippedRecurringRuleCount = 0
         var importedGoalCount = 0
         var skippedGoalCount = 0
+        var importedFundCount = 0
+        var skippedFundCount = 0
         var importedTagCount = 0
         var skippedTagCount = 0
         var importedTagLinkCount = 0
@@ -218,6 +227,7 @@ class DataManagementRepository @Inject constructor(
             val paymentMethodIdMap = mutableMapOf<Int, Int>()
             val transactionIdMap = mutableMapOf<String, String>()
             val ruleIdMap = mutableMapOf<String, String>()
+            val fundIdMap = mutableMapOf<String, String>()
             val tagIdMap = mutableMapOf<String, String>()
             val pendingTransactionRuleLinks = mutableMapOf<String, String>()
 
@@ -288,6 +298,34 @@ class DataManagementRepository @Inject constructor(
                 importedPaymentMethodCount++
             }
 
+            // Funds before transactions: a transaction's fund link is remapped onto the
+            // imported bucket, so funds have to exist (and have final ids) first.
+            val existingFunds = fundDao.getActiveFunds().toMutableList()
+            importedFunds.forEach { imported ->
+                val duplicate = existingFunds.firstOrNull {
+                    it.name.normalizedKey() == imported.name.normalizedKey() &&
+                        it.amountMinor == imported.amountMinor
+                }
+                if (duplicate != null) {
+                    fundIdMap[imported.id] = duplicate.id
+                    skippedFundCount++
+                    return@forEach
+                }
+
+                val existingId = fundDao.getById(imported.id)
+                val finalFund = if (imported.id.isBlank() || existingId != null) {
+                    imported.copy(id = UUID.randomUUID().toString())
+                } else {
+                    imported
+                }
+                fundDao.upsert(
+                    finalFund.copy(isDeleted = false, syncState = SyncState.PENDING_UPLOAD)
+                )
+                existingFunds += finalFund
+                fundIdMap[imported.id] = finalFund.id
+                importedFundCount++
+            }
+
             val existingTransactions = transactionDao.getAllTransactions().toMutableList()
 
             importedTransactions.forEach { imported ->
@@ -295,7 +333,10 @@ class DataManagementRepository @Inject constructor(
                     categoryId = categoryIdMap[imported.categoryId] ?: imported.categoryId,
                     paymentMethodId = paymentMethodIdMap[imported.paymentMethodId] ?: imported.paymentMethodId,
                     isDeleted = false,
-                    sourceRecurringRuleId = null
+                    sourceRecurringRuleId = null,
+                    // Remapped onto whatever id the bucket landed on here, and dropped when
+                    // the file's fund was not imported, so the link can never dangle.
+                    fundId = imported.fundId?.let { fundIdMap[it] }
                 )
                 val duplicate = existingTransactions.firstOrNull { existing ->
                     existing.id == resolvedTransaction.id || existing.isLogicalDuplicateOf(resolvedTransaction)
@@ -510,7 +551,9 @@ class DataManagementRepository @Inject constructor(
             skippedGoals = skippedGoalCount,
             importedTags = importedTagCount,
             skippedTags = skippedTagCount,
-            importedTagLinks = importedTagLinkCount
+            importedTagLinks = importedTagLinkCount,
+            importedFunds = importedFundCount,
+            skippedFunds = skippedFundCount
         )
     }
 
@@ -613,6 +656,47 @@ private fun JSONArray?.toGoalEntities(): List<GoalEntity> {
     }
 }
 
+private fun com.mknlabs.expensetracker.data.local.room.entities.FundEntity.toJson(): JSONObject {
+    return JSONObject().apply {
+        put("id", id)
+        put("name", name)
+        put("amountMinor", amountMinor)
+        put("startDate", startDate)
+        put("iconKey", iconKey)
+        put("colorHex", colorHex)
+        put("note", note)
+        put("isArchived", isArchived)
+        put("createdAt", createdAt)
+        put("updatedAt", updatedAt)
+    }
+}
+
+private fun JSONArray?.toFundEntities(): List<com.mknlabs.expensetracker.data.local.room.entities.FundEntity> {
+    if (this == null) return emptyList()
+    return buildList(length()) {
+        for (index in 0 until length()) {
+            add(getJSONObject(index).toFundEntity())
+        }
+    }
+}
+
+private fun JSONObject.toFundEntity(): com.mknlabs.expensetracker.data.local.room.entities.FundEntity {
+    val createdAt = optLong("createdAt", System.currentTimeMillis())
+    return com.mknlabs.expensetracker.data.local.room.entities.FundEntity(
+        id = getString("id"),
+        name = getString("name"),
+        amountMinor = getLong("amountMinor"),
+        startDate = optLong("startDate", createdAt),
+        iconKey = optString("iconKey"),
+        colorHex = optString("colorHex"),
+        note = optString("note"),
+        isArchived = optBoolean("isArchived", false),
+        createdAt = createdAt,
+        updatedAt = optLong("updatedAt", createdAt),
+        syncState = SyncState.PENDING_UPLOAD
+    )
+}
+
 private fun JSONArray?.toTagEntities(): List<com.mknlabs.expensetracker.data.local.room.entities.TagEntity> {
     if (this == null) return emptyList()
     return buildList(length()) {
@@ -704,6 +788,7 @@ private fun TransactionEntity.toJson(): JSONObject {
         put("syncState", syncState.name)
         putNullable("contentHash", contentHash)
         putNullable("sourceRecurringRuleId", sourceRecurringRuleId)
+        putNullable("fundId", fundId)
     }
 }
 
@@ -827,7 +912,8 @@ private fun JSONObject.toTransactionEntity(): TransactionEntity {
         isDeleted = optBoolean("isDeleted", false),
         syncState = optString("syncState").toSyncState(),
         contentHash = optNullableString("contentHash"),
-        sourceRecurringRuleId = optNullableString("sourceRecurringRuleId")
+        sourceRecurringRuleId = optNullableString("sourceRecurringRuleId"),
+        fundId = optNullableString("fundId")
     )
 }
 

@@ -23,6 +23,18 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
     suspend fun getActiveTransactions(): List<TransactionEntity>
 
+    /** Live transactions drawn from one fund, newest first (fund detail screen). */
+    @Query("SELECT * FROM transactions WHERE fund_id = :fundId AND is_deleted = 0 ORDER BY occurred_at DESC")
+    fun observeTransactionsByFund(fundId: String): Flow<List<TransactionEntity>>
+
+    /**
+     * The income row a fund was created with (the money arriving), which is what has to be
+     * restated when the fund's amount changes. Income type only, so it can never pick up a
+     * spending row that happens to share the fund.
+     */
+    @Query("SELECT * FROM transactions WHERE fund_id = :fundId AND transaction_type_id = 1 AND is_deleted = 0")
+    suspend fun getLinkedIncomeByFund(fundId: String): List<TransactionEntity>
+
     // ============================================================================
     // Paging 3
     //

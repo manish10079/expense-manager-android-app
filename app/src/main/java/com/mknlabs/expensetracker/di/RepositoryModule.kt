@@ -6,6 +6,7 @@ import com.mknlabs.expensetracker.data.repository.BillingManager as BillingManag
 import com.mknlabs.expensetracker.data.repository.BudgetRepository as BudgetRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CategoryRepository as CategoryRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.DataManagementRepository as DataManagementRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.FundRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.GoalFundEntryRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.GoalRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.PaymentMethodRepository as PaymentMethodRepositoryImpl
@@ -110,6 +111,12 @@ abstract class RepositoryModule {
     abstract fun bindGoalFundEntryRepository(
         impl: GoalFundEntryRepositoryImpl
     ): GoalFundEntryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFundRepository(
+        impl: FundRepositoryImpl
+    ): FundRepository
 
     @Binds
     @Singleton

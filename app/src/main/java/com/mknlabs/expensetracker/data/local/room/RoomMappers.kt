@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.data.local.room
 
 import com.mknlabs.expensetracker.data.local.room.entities.BudgetEntity
 import com.mknlabs.expensetracker.data.local.room.entities.CategoryEntity
+import com.mknlabs.expensetracker.data.local.room.entities.FundEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalEntity
 import com.mknlabs.expensetracker.data.local.room.entities.GoalFundEntryEntity
 import com.mknlabs.expensetracker.data.local.room.entities.PaymentMethodEntity
@@ -11,6 +12,7 @@ import com.mknlabs.expensetracker.data.local.room.entities.TagEntity
 import com.mknlabs.expensetracker.data.local.room.entities.TransactionEntity
 import com.mknlabs.expensetracker.models.Budget
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Fund
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.models.GoalFundEntry
 import com.mknlabs.expensetracker.models.InstallmentOccurrence
@@ -153,7 +155,8 @@ fun TransactionEntity.toDomain(): Transaction {
         syncState = syncState,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
-        sourceRecurringRuleId = sourceRecurringRuleId
+        sourceRecurringRuleId = sourceRecurringRuleId,
+        fundId = fundId
     )
 }
 
@@ -171,7 +174,42 @@ fun Transaction.toEntity(): TransactionEntity {
         isDeleted = isDeleted,
         syncState = syncState,
         contentHash = contentHash,
-        sourceRecurringRuleId = sourceRecurringRuleId
+        sourceRecurringRuleId = sourceRecurringRuleId,
+        fundId = fundId
+    )
+}
+
+fun FundEntity.toDomain(): Fund {
+    return Fund(
+        id = id,
+        name = name,
+        amountMinor = amountMinor,
+        startDate = startDate,
+        iconKey = iconKey,
+        colorHex = colorHex,
+        note = note,
+        isArchived = isArchived,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        isDeleted = isDeleted,
+        syncState = syncState
+    )
+}
+
+fun Fund.toEntity(): FundEntity {
+    return FundEntity(
+        id = id,
+        name = name,
+        amountMinor = amountMinor,
+        startDate = startDate,
+        iconKey = iconKey,
+        colorHex = colorHex,
+        note = note,
+        isArchived = isArchived,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        isDeleted = isDeleted,
+        syncState = syncState
     )
 }
 

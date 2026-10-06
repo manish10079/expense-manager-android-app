@@ -19,7 +19,9 @@ data class Transaction(
     val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val isDeleted: Boolean = false,
     val updatedAt: Long = createdAt,
-    val sourceRecurringRuleId: String? = null
+    val sourceRecurringRuleId: String? = null,
+    /** The fund (cash bucket) this expense is drawn from, if any. */
+    val fundId: String? = null
 ) {
     constructor(
         id: Long,
@@ -50,7 +52,8 @@ data class Transaction(
         },
         isDeleted = isDeleted,
         updatedAt = createdAt,
-        sourceRecurringRuleId = null
+        sourceRecurringRuleId = null,
+        fundId = null
     )
 
     val amount: Double

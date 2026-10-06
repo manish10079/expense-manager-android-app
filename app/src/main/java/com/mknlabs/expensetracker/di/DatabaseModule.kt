@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.di
 import android.content.Context
 import com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 import com.mknlabs.expensetracker.data.local.room.dao.DetectedSmsNotificationDao
+import com.mknlabs.expensetracker.data.local.room.dao.FundDao
 import com.mknlabs.expensetracker.data.local.room.dao.TagDao
 import dagger.Module
 import dagger.Provides
@@ -57,4 +58,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTagDao(database: ExpenseTrackerDatabase): TagDao = database.tagDao()
+
+    @Provides
+    fun provideFundDao(database: ExpenseTrackerDatabase): FundDao = database.fundDao()
 }

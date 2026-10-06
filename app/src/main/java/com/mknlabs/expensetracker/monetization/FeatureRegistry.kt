@@ -30,6 +30,7 @@ enum class Feature(val id: String, val displayName: String) {
     ANALYTICS_CUSTOM_RANGE("analytics_custom_range", "Custom Range Analytics"),
     ANALYTICS_CATEGORY_BREAKDOWN("analytics_category_breakdown", "Category Breakdown"),
     ANALYTICS_PAYMENT_BREAKDOWN("analytics_payment_breakdown", "Payment Mode Breakdown"),
+    ANALYTICS_FUND_BREAKDOWN("analytics_fund_breakdown", "Fund Breakdown"),
     ANALYTICS_TOP_SPENDING("analytics_top_spending", "Top Spending Insights"),
     ANALYTICS_SMART_TIPS("analytics_smart_tips", "Smart Spending Tips"),
     TRANSACTION_COUNT("transaction_count", "Transaction Statistics"),
@@ -87,6 +88,7 @@ object FeatureRegistry {
         Feature.ANALYTICS_CUSTOM_RANGE to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_CATEGORY_BREAKDOWN to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_PAYMENT_BREAKDOWN to AccessLevel.AD_SUPPORTED,
+        Feature.ANALYTICS_FUND_BREAKDOWN to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_TOP_SPENDING to AccessLevel.AD_SUPPORTED,
         Feature.ANALYTICS_SMART_TIPS to AccessLevel.AD_SUPPORTED,
         

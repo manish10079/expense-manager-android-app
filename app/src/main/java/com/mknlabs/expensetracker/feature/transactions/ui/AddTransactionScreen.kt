@@ -188,6 +188,7 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.RecurringType
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Tag
+import com.mknlabs.expensetracker.models.Fund
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -272,6 +273,11 @@ fun AddTransactionScreen(
     val allTags by tagsViewModel.allTags.collectAsStateWithLifecycle()
     val selectedTags by tagsViewModel.selectedTags.collectAsStateWithLifecycle()
 
+    // Funds the expense can draw from. Their own ViewModel so the form's signature and
+    // every existing caller stay unchanged.
+    val fundsViewModel: AddTransactionFundsViewModel = hiltViewModel()
+    val availableFunds by fundsViewModel.funds.collectAsStateWithLifecycle()
+
     // Edit mode seeds the selection from what the transaction already carries, once.
     LaunchedEffect(existingTransaction?.id) {
         existingTransaction?.id?.let(tagsViewModel::seedFromTransaction)
@@ -290,6 +296,7 @@ fun AddTransactionScreen(
         transactions = transactions,
         availableCategories = availableCategories,
         availablePaymentMethods = availablePaymentMethods,
+        availableFunds = availableFunds,
         existingTransaction = existingTransaction,
         existingRecurringRule = existingRecurringRule,
         activeRecurringRuleCount = activeRecurringRuleCount,
@@ -338,6 +345,8 @@ internal fun AddTransactionScreenContent(
     transactions: List<Transaction> = emptyList(),
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
+    /** Cash buckets this expense can be drawn from; empty hides the selector. */
+    availableFunds: List<Fund> = emptyList(),
     existingTransaction: Transaction? = null,
     existingRecurringRule: RecurringTransactionRule? = null,
     activeRecurringRuleCount: Int = 0,
@@ -391,6 +400,19 @@ internal fun AddTransactionScreenContent(
             )
         }
         val isEditMode = existingTransaction != null
+        // Spent per fund, derived from the transactions the form already holds, so the
+        // overspend check reflects the same data the rest of the app shows.
+        val fundSpentById = remember(transactions) {
+            transactions
+                .filter { it.transactionTypeId == 2 && !it.isDeleted && it.fundId != null }
+                .groupBy { it.fundId }
+                .mapValues { (_, rows) -> rows.sumOf { it.amountMinor } }
+        }
+        val fundRemainingById = remember(availableFunds, fundSpentById) {
+            availableFunds.associate { fund ->
+                fund.id to (fund.amountMinor - (fundSpentById[fund.id] ?: 0L))
+            }
+        }
         // The star is staged: tapping it only records the intent, and Add/Update
         // is what writes or clears the template. Until it is touched it reports
         // what is actually saved, so a template arriving from the favorites flow
@@ -475,6 +497,15 @@ internal fun AddTransactionScreenContent(
         var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
         var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
+        // Fund selection, seeded from the transaction when editing so an existing link is
+        // preserved rather than silently dropped on save.
+        var selectedFundId by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(existingTransaction?.fundId)
+        }
+        var showOverspendWarning by rememberSaveable { mutableStateOf(false) }
+        var pendingOverspendTransaction by remember { mutableStateOf<Transaction?>(null) }
+        var pendingOverspendDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
+        var pendingOverspendFundId by remember { mutableStateOf<String?>(null) }
         val amountFocusRequester = remember { FocusRequester() }
         val noteFocusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -923,6 +954,41 @@ internal fun AddTransactionScreenContent(
                     }
                 }
 
+                // Funds sit beside Category and Payment: one more label on the same
+                // expense. Only shown when the user has a bucket to spend from, and never
+                // for income, which is money arriving rather than money drawn down.
+                val fundBlock: @Composable () -> Unit = {
+                    if (availableFunds.isNotEmpty() && selectedTransactionTypeId != 1) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
+                        ) {
+                            SectionHeader(title = stringResource(R.string.title_spend_from_fund))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)) {
+                                item {
+                                    ChoiceChip(
+                                        label = stringResource(R.string.label_fund_none),
+                                        icon = Icons.Filled.Clear,
+                                        identityColor = null,
+                                        isSelected = selectedFundId == null,
+                                        compact = compact,
+                                        onClick = { selectedFundId = null }
+                                    )
+                                }
+                                items(availableFunds, key = { it.id }) { fund ->
+                                    ChoiceChip(
+                                        label = fund.name,
+                                        icon = fund.icon,
+                                        identityColor = fundChipColor(fund.colorHex),
+                                        isSelected = fund.id == selectedFundId,
+                                        compact = compact,
+                                        onClick = { selectedFundId = fund.id }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 val dateRecurringBlock: @Composable () -> Unit = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -981,6 +1047,7 @@ internal fun AddTransactionScreenContent(
                             categoryBlock()
                             tagsBlock()
                             paymentBlock()
+                            fundBlock()
                         }
                         Column(
                             modifier = Modifier
@@ -1008,6 +1075,7 @@ internal fun AddTransactionScreenContent(
                         categoryBlock()
                         tagsBlock()
                         paymentBlock()
+                        fundBlock()
                         dateRecurringBlock()
                     }
                 }
@@ -1040,7 +1108,8 @@ internal fun AddTransactionScreenContent(
                                 syncState = existingTransaction?.syncState ?: SyncState.PENDING_UPLOAD,
                                 isDeleted = false,
                                 updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
-                                sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId
+                                sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId,
+                                fundId = selectedFundId
                             )
                             // Duplicate detection: check if a rule with same category + amount + frequency exists
                             if (recurringDraft != null && !isEditMode) {
@@ -1064,6 +1133,20 @@ internal fun AddTransactionScreenContent(
                                     pendingSaveTransaction = transaction
                                     pendingSaveDraft = recurringDraft
                                     showDuplicateWarning = true
+                                    return@AddTransactionButton
+                                }
+                            }
+                            // Fund overspend: the expense is larger than what is left in the
+                            // chosen bucket. Unlike the duplicate check this never proceeds
+                            // silently — the shortfall is the whole point.
+                            val chosenFundId = selectedFundId
+                            if (chosenFundId != null && transaction.transactionTypeId == 2) {
+                                val remaining = fundRemainingById[chosenFundId]
+                                if (remaining != null && transaction.amountMinor > remaining) {
+                                    pendingOverspendTransaction = transaction
+                                    pendingOverspendDraft = recurringDraft
+                                    pendingOverspendFundId = chosenFundId
+                                    showOverspendWarning = true
                                     return@AddTransactionButton
                                 }
                             }
@@ -1231,6 +1314,79 @@ internal fun AddTransactionScreenContent(
                         pendingSaveDraft = null
                     }) {
                         Text(stringResource(R.string.label_no), fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
+        }
+
+        // Fund overspend warning. Three ways out, all explicit: spend anyway, go back and
+        // edit the amount, or drop the fund link and save it as ordinary spending.
+        if (showOverspendWarning) {
+            val overspendFundName = availableFunds
+                .firstOrNull { it.id == pendingOverspendFundId }?.name
+                .orEmpty()
+            val overspendRemaining = pendingOverspendFundId?.let { fundRemainingById[it] } ?: 0L
+            AlertDialog(
+                onDismissRequest = {
+                    showOverspendWarning = false
+                    pendingOverspendTransaction = null
+                    pendingOverspendDraft = null
+                    pendingOverspendFundId = null
+                },
+                containerColor = MaterialTheme.colorScheme.sheet,
+                title = {
+                    Text(
+                        text = stringResource(R.string.title_fund_overspend),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            R.string.msg_fund_overspend,
+                            overspendFundName,
+                            formatCurrencyValue(overspendRemaining.coerceAtLeast(0L).toMajorUnits(), currencyId)
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        AppTextButton(onClick = {
+                            val tx = pendingOverspendTransaction
+                            val draft = pendingOverspendDraft
+                            showOverspendWarning = false
+                            pendingOverspendTransaction = null
+                            pendingOverspendDraft = null
+                            pendingOverspendFundId = null
+                            keyboardController?.hide()
+                            if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
+                        }) {
+                            Text(stringResource(R.string.label_spend_anyway), fontWeight = FontWeight.Bold)
+                        }
+                        AppTextButton(onClick = {
+                            showOverspendWarning = false
+                            pendingOverspendTransaction = null
+                            pendingOverspendDraft = null
+                            pendingOverspendFundId = null
+                        }) {
+                            Text(stringResource(R.string.label_edit_amount_action))
+                        }
+                        AppTextButton(onClick = {
+                            val tx = pendingOverspendTransaction?.copy(fundId = null)
+                            val draft = pendingOverspendDraft
+                            showOverspendWarning = false
+                            pendingOverspendTransaction = null
+                            pendingOverspendDraft = null
+                            pendingOverspendFundId = null
+                            selectedFundId = null
+                            keyboardController?.hide()
+                            if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
+                        }) {
+                            Text(stringResource(R.string.label_remove_fund))
+                        }
                     }
                 }
             )
@@ -2051,6 +2207,10 @@ private fun SectionHeader(title: String) {
         style = MaterialTheme.typography.labelSmall
     )
 }
+
+/** A fund's stored `#RRGGBB`, or null when it is absent or malformed. */
+private fun fundChipColor(colorHex: String): Color? =
+    runCatching { Color(android.graphics.Color.parseColor(colorHex)) }.getOrNull()
 
 @Composable
 private fun <T> ChoiceChipRow(

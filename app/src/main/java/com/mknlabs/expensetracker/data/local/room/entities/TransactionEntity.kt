@@ -37,7 +37,8 @@ import com.google.firebase.firestore.PropertyName
         Index(value = ["category_id", "occurred_at"]),
         Index(value = ["payment_method_id", "occurred_at"]),
         Index(value = ["is_deleted", "occurred_at"]),
-        Index(value = ["source_recurring_rule_id"])
+        Index(value = ["source_recurring_rule_id"]),
+        Index(value = ["fund_id"])
     ]
 )
 data class TransactionEntity(
@@ -67,5 +68,14 @@ data class TransactionEntity(
     @ColumnInfo(name = "content_hash")
     val contentHash: String? = null,
     @ColumnInfo(name = "source_recurring_rule_id")
-    val sourceRecurringRuleId: String? = null
+    val sourceRecurringRuleId: String? = null,
+    /**
+     * The cash bucket this expense is drawn from, if any.
+     *
+     * Nullable on purpose, and `ON DELETE SET NULL` to match: deleting a fund keeps every
+     * transaction that pointed at it and only drops the link, so removing a bucket can never
+     * destroy real spending history.
+     */
+    @ColumnInfo(name = "fund_id")
+    val fundId: String? = null
 )

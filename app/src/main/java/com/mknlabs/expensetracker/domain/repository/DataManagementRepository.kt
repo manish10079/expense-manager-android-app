@@ -21,7 +21,9 @@ data class JsonExportResult(
     val exportedGoals: Int,
     /** Tags and their transaction links; defaulted so older call sites compile unchanged. */
     val exportedTags: Int = 0,
-    val exportedTagLinks: Int = 0
+    val exportedTagLinks: Int = 0,
+    /** Cash buckets; defaulted so older call sites compile unchanged. */
+    val exportedFunds: Int = 0
 )
 
 data class JsonImportResult(
@@ -40,5 +42,8 @@ data class JsonImportResult(
     /** Tags and their transaction links; defaulted so older call sites compile unchanged. */
     val importedTags: Int = 0,
     val skippedTags: Int = 0,
-    val importedTagLinks: Int = 0
+    val importedTagLinks: Int = 0,
+    /** Cash buckets; defaulted so older call sites compile unchanged. */
+    val importedFunds: Int = 0,
+    val skippedFunds: Int = 0
 )
