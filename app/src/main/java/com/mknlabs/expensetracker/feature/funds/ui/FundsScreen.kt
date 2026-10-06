@@ -54,12 +54,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.FundStatus
@@ -125,28 +126,28 @@ fun FundsScreen(
     var pendingDelete by remember { mutableStateOf<FundWithProgress?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val selected = uiState.selectedFund
-        if (selected == null) {
-            FundListContent(
-                uiState = uiState,
-                currencyId = currencyId,
-                amountFormatPreferences = amountFormatPreferences,
-                onCreateClick = { isCreateSheetVisible = true },
-                onFundClick = { viewModel.openFund(it.fund.id) }
-            )
-        } else {
-            FundDetailContent(
-                fund = selected,
-                transactions = uiState.selectedTransactions,
-                breakdown = uiState.selectedBreakdown,
-                currencyId = currencyId,
-                amountFormatPreferences = amountFormatPreferences,
-                onBack = { viewModel.closeFund() },
-                onEditAmount = { isEditAmountVisible = true },
-                onArchiveToggle = { viewModel.setArchived(selected.fund.id, !selected.fund.isArchived) },
-                onDelete = { pendingDelete = selected }
-            )
-        }
+        FundListContent(
+            uiState = uiState,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            onCreateClick = { isCreateSheetVisible = true },
+            onFundClick = { viewModel.openFund(it.fund.id) }
+        )
+    }
+
+    val selected = uiState.selectedFund
+    if (selected != null) {
+        FundDetailSheet(
+            fund = selected,
+            transactions = uiState.selectedTransactions,
+            breakdown = uiState.selectedBreakdown,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            onDismiss = { viewModel.closeFund() },
+            onEditAmount = { isEditAmountVisible = true },
+            onArchiveToggle = { viewModel.setArchived(selected.fund.id, !selected.fund.isArchived) },
+            onDelete = { pendingDelete = selected }
+        )
     }
 
     if (isCreateSheetVisible) {
@@ -161,7 +162,6 @@ fun FundsScreen(
         )
     }
 
-    val selected = uiState.selectedFund
     if (isEditAmountVisible && selected != null) {
         EditAmountDialog(
             current = selected,
@@ -419,6 +419,40 @@ private fun FundProgressBar(progress: Float, overspent: Boolean) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FundDetailSheet(
+    fund: FundWithProgress,
+    transactions: List<Transaction>,
+    breakdown: FundBreakdown,
+    currencyId: Int,
+    amountFormatPreferences: AmountFormatPreferences,
+    onDismiss: () -> Unit,
+    onEditAmount: () -> Unit,
+    onArchiveToggle: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.sheet,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        FundDetailContent(
+            fund = fund,
+            transactions = transactions,
+            breakdown = breakdown,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            onEditAmount = onEditAmount,
+            onArchiveToggle = onArchiveToggle,
+            onDelete = onDelete
+        )
+    }
+}
+
 @Composable
 private fun FundDetailContent(
     fund: FundWithProgress,
@@ -426,36 +460,29 @@ private fun FundDetailContent(
     breakdown: FundBreakdown,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
-    onBack: () -> Unit,
     onEditAmount: () -> Unit,
     onArchiveToggle: () -> Unit,
     onDelete: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding(),
+        modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(
             start = Dimens.ScreenPadding,
-            top = 10.dp,
+            top = 4.dp,
             end = Dimens.ScreenPadding,
-            bottom = 126.dp
+            bottom = 32.dp
         ),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.desc_back))
-                }
-                Spacer(Modifier.width(4.dp))
                 Text(
                     text = fund.fund.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
-                Spacer(Modifier.weight(1f))
                 FundStatusBadge(status = fund.status)
             }
         }

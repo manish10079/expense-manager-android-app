@@ -82,6 +82,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.feature.funds.ui.FundsScreen
+import com.mknlabs.expensetracker.feature.funds.ui.FundsViewModel
 import com.mknlabs.expensetracker.models.BudgetPeriod
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -261,10 +262,13 @@ fun BudgetAndRecurringScreen(
     }
 
     val uiState by budgetViewModel.uiState.collectAsStateWithLifecycle()
+    val fundsViewModel: FundsViewModel = hiltViewModel()
+    val fundsUiState by fundsViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     BudgetAndRecurringContent(
         uiState = uiState,
+        fundsCount = fundsUiState.funds.size,
         isAdsEnabled = isAdsEnabled,
         // Counts are a Pro perk; the route resolves that once and the content stays
         // a pure, previewable function.
@@ -304,6 +308,7 @@ fun BudgetAndRecurringScreen(
 @Composable
 private fun BudgetAndRecurringContent(
     uiState: BudgetAndRecurringScreenUiState,
+    fundsCount: Int = 0,
     isAdsEnabled: Boolean,
     isProUser: Boolean = false,
     currencyId: Int,
@@ -450,7 +455,12 @@ private fun BudgetAndRecurringContent(
                         ),
                         TabItem(
                             id = BudgetTab.Funds,
-                            label = stringResource(id = R.string.label_tab_funds)
+                            label = stringResource(id = R.string.label_tab_funds),
+                            badgeCount = tabBadgeCount(
+                                count = fundsCount,
+                                isSelected = uiState.selectedTab == BudgetTab.Funds,
+                                isProUser = isProUser
+                            )
                         )
                     ),
                     selectedItemId = uiState.selectedTab,

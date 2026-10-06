@@ -287,91 +287,93 @@ fun AnalyticsScreenContent(
             AppHeader(title = stringResource(id = R.string.title_analytics), onBackClick = onBackClick)
         }
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = Dimens.ScreenPadding)
+                .alpha(enter[1]),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (hasCurrentPeriodIndicator(uiState.monthStartDay)) {
+                CurrentPeriodIndicator(
+                    startMillis = uiState.currentPeriodStartMillis,
+                    endMillis = uiState.currentPeriodEndMillis,
+                    monthStartDay = uiState.monthStartDay
+                )
+            }
+            GatedAction(
+                feature = Feature.ANALYTICS_PERIOD_YEAR,
+                displayName = stringResource(id = R.string.title_yearly_analytics),
+                onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
+            ) { status, onLockedClick ->
+                val isYearLocked = status !is AccessStatus.Granted
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AnalyticsPeriod.entries
+                            .filter { it != AnalyticsPeriod.CUSTOM }
+                            .forEach { period ->
+                                val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
+                                PeriodChip(
+                                    label = stringResource(id = period.labelRes),
+                                    isSelected = period == uiState.selectedPeriod,
+                                    isLocked = isLocked,
+                                    onClick = {
+                                        if (isLocked) onLockedClick() else onDateRangeSelected(period)
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                    }
+
+                    CustomRangeSelector(
+                        selectedPeriod = uiState.selectedPeriod,
+                        customRange = customRange,
+                        onClick = {
+                            isCustomRangePickerVisible = true
+                        },
+                        onClear = onClearCustomRange,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
         LazyColumn(
             state = analyticsListState,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .navigationBarsPadding(),
-            // Top inset is the gap under the AppHeader, so it is deliberately smaller
-            // than the 18.dp between cards.
-            contentPadding = PaddingValues(start = Dimens.ScreenPadding, top = 0.dp, end = Dimens.ScreenPadding, bottom = 142.dp),
+            contentPadding = PaddingValues(
+                start = Dimens.ScreenPadding,
+                top = 8.dp,
+                end = Dimens.ScreenPadding,
+                bottom = 142.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            // Only added when it will draw. It is invisible on a standard calendar
-            // month, and an invisible lazy item still costs the item spacing above and
-            // below it, which stacked another 18.dp onto the gap under the header.
-            if (hasCurrentPeriodIndicator(uiState.monthStartDay)) {
-                item {
-                    CurrentPeriodIndicator(
-                        startMillis = uiState.currentPeriodStartMillis,
-                        endMillis = uiState.currentPeriodEndMillis,
-                        monthStartDay = uiState.monthStartDay,
-                        modifier = Modifier.alpha(enter[1])
+            item {
+                Box(Modifier.alpha(enter[1])) {
+                    HeroAnalyticsSection(
+                        snapshot = snapshot,
+                        displayMode = heroDisplayMode,
+                        onDisplayModeChange = { heroDisplayMode = it }
                     )
                 }
             }
-            item {
-                // Week / Month / Year, custom range, and the hero share one item so the
-                // list's 18.dp card gap does not sit between them.
-                Column(
-                    modifier = Modifier.fillMaxWidth().alpha(enter[1]),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                GatedAction(
-                    feature = Feature.ANALYTICS_PERIOD_YEAR,
-                    displayName = stringResource(id = R.string.title_yearly_analytics),
-                    onAction = { onDateRangeSelected(AnalyticsPeriod.YEAR) }
-                ) { status, onLockedClick ->
-                    val isYearLocked = status !is AccessStatus.Granted
 
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            AnalyticsPeriod.entries
-                                .filter { it != AnalyticsPeriod.CUSTOM }
-                                .forEach { period ->
-                                    val isLocked = period == AnalyticsPeriod.YEAR && isYearLocked
-                                    PeriodChip(
-                                        label = stringResource(id = period.labelRes),
-                                        isSelected = period == uiState.selectedPeriod,
-                                        isLocked = isLocked,
-                                        onClick = {
-                                            if (isLocked) onLockedClick() else onDateRangeSelected(period)
-                                        },
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
-                        }
-
-                        CustomRangeSelector(
-                            selectedPeriod = uiState.selectedPeriod,
-                            customRange = customRange,
-                            onClick = {
-                                isCustomRangePickerVisible = true
-                            },
-                            onClear = onClearCustomRange,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-                HeroAnalyticsSection(
-                    snapshot = snapshot,
-                    displayMode = heroDisplayMode,
-                    onDisplayModeChange = { heroDisplayMode = it }
-                )
-                }
-            }
             // Guarded on the ad being on at all. AdContainer collapses to nothing when ads are
             // off, but the item it was emitted from is still in the list, and an invisible lazy
-            // item still costs the 18.dp spacing above and below it — the same trap the period
-            // indicator above is kept out of the list to avoid. Measured on a real window with ads
-            // off, the hole left between two cards was 94px where every other pair is 47px.
+            // item still costs the 18.dp spacing above and below it. Measured on a real window
+            // with ads off, the hole left between two cards was 94px where every other pair is 47px.
             if (isAdsEnabled) {
                 item {
                     AdContainer(isAdsEnabled = true) {
