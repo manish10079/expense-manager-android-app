@@ -402,9 +402,10 @@ internal fun AddTransactionScreenContent(
         val isEditMode = existingTransaction != null
         // Spent per fund, derived from the transactions the form already holds, so the
         // overspend check reflects the same data the rest of the app shows.
-        val fundSpentById = remember(transactions) {
+        val fundSpentById = remember(transactions, existingTransaction?.id) {
             transactions
                 .filter { it.transactionTypeId == 2 && !it.isDeleted && it.fundId != null }
+                .filter { it.id != existingTransaction?.id }
                 .groupBy { it.fundId }
                 .mapValues { (_, rows) -> rows.sumOf { it.amountMinor } }
         }
@@ -499,8 +500,16 @@ internal fun AddTransactionScreenContent(
         var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
         // Fund selection, seeded from the transaction when editing so an existing link is
         // preserved rather than silently dropped on save.
+        var fundSelectionTouched by rememberSaveable(existingTransaction?.id) {
+            mutableStateOf(false)
+        }
         var selectedFundId by rememberSaveable(existingTransaction?.id) {
             mutableStateOf(existingTransaction?.fundId)
+        }
+        LaunchedEffect(existingTransaction?.id, existingTransaction?.fundId) {
+            if (!fundSelectionTouched) {
+                selectedFundId = existingTransaction?.fundId
+            }
         }
         var showOverspendWarning by rememberSaveable { mutableStateOf(false) }
         var pendingOverspendTransaction by remember { mutableStateOf<Transaction?>(null) }
@@ -971,7 +980,10 @@ internal fun AddTransactionScreenContent(
                                         identityColor = null,
                                         isSelected = selectedFundId == null,
                                         compact = compact,
-                                        onClick = { selectedFundId = null }
+                                        onClick = {
+                                            fundSelectionTouched = true
+                                            selectedFundId = null
+                                        }
                                     )
                                 }
                                 items(availableFunds, key = { it.id }) { fund ->
@@ -981,7 +993,10 @@ internal fun AddTransactionScreenContent(
                                         identityColor = fundChipColor(fund.colorHex),
                                         isSelected = fund.id == selectedFundId,
                                         compact = compact,
-                                        onClick = { selectedFundId = fund.id }
+                                        onClick = {
+                                            fundSelectionTouched = true
+                                            selectedFundId = fund.id
+                                        }
                                     )
                                 }
                             }
@@ -1096,6 +1111,11 @@ internal fun AddTransactionScreenContent(
                             val category = selectedCategory ?: return@AddTransactionButton
                             val payment = selectedPayment ?: return@AddTransactionButton
                             val amount = amountInput.toDoubleOrNull() ?: return@AddTransactionButton
+                            val fundIdToSave = if (fundSelectionTouched) {
+                                selectedFundId
+                            } else {
+                                selectedFundId ?: existingTransaction?.fundId
+                            }
                             val transaction = Transaction(
                                 id = existingTransaction?.id.orEmpty(),
                                 note = note.trim(),
@@ -1109,7 +1129,7 @@ internal fun AddTransactionScreenContent(
                                 isDeleted = false,
                                 updatedAt = existingTransaction?.updatedAt ?: selectedDateMillis,
                                 sourceRecurringRuleId = existingTransaction?.sourceRecurringRuleId,
-                                fundId = selectedFundId
+                                fundId = fundIdToSave
                             )
                             // Duplicate detection: check if a rule with same category + amount + frequency exists
                             if (recurringDraft != null && !isEditMode) {
@@ -1139,7 +1159,7 @@ internal fun AddTransactionScreenContent(
                             // Fund overspend: the expense is larger than what is left in the
                             // chosen bucket. Unlike the duplicate check this never proceeds
                             // silently — the shortfall is the whole point.
-                            val chosenFundId = selectedFundId
+                            val chosenFundId = fundIdToSave
                             if (chosenFundId != null && transaction.transactionTypeId == 2) {
                                 val remaining = fundRemainingById[chosenFundId]
                                 if (remaining != null && transaction.amountMinor > remaining) {

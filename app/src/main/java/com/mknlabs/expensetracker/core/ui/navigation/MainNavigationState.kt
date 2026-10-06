@@ -196,7 +196,8 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
                     "syncState" to tx.syncState.name,
                     "isDeleted" to tx.isDeleted,
                     "updatedAt" to tx.updatedAt,
-                    "sourceRecurringRuleId" to tx.sourceRecurringRuleId
+                    "sourceRecurringRuleId" to tx.sourceRecurringRuleId,
+                    "fundId" to tx.fundId
                 )
             },
             "addTransactionDraftAmount" to value.addTransactionDraftAmount,
@@ -224,7 +225,8 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
                 }.getOrDefault(SyncState.PENDING_UPLOAD),
                 isDeleted = m["isDeleted"] as? Boolean ?: false,
                 updatedAt = m["updatedAt"] as? Long ?: (m["createdAt"] as? Long ?: 0L),
-                sourceRecurringRuleId = m["sourceRecurringRuleId"] as? String
+                sourceRecurringRuleId = m["sourceRecurringRuleId"] as? String,
+                fundId = m["fundId"] as? String
             )
         }
         state.restoreNavigationState(
