@@ -38,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -54,12 +55,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Info
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -256,13 +264,28 @@ private fun FundSummaryCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(20.dp)
     ) {
+        var showFundsInfo by rememberSaveable { mutableStateOf(false) }
         Column(modifier = Modifier.padding(18.dp)) {
-            Text(
-                text = stringResource(id = R.string.title_funds),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.title_fund_overview),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = PhosphorIcons.Regular.Info,
+                    contentDescription = stringResource(id = R.string.desc_funds_info),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable { showFundsInfo = true }
+                )
+            }
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 SummaryStat(
@@ -286,6 +309,76 @@ private fun FundSummaryCard(
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(id = R.string.title_create_fund))
+            }
+        }
+        if (showFundsInfo) {
+            FundsInfoDialog(onDismiss = { showFundsInfo = false })
+        }
+    }
+}
+
+
+@Composable
+private fun FundsInfoDialog(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.sheet,
+            tonalElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = stringResource(id = R.string.title_what_are_funds),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(id = R.string.msg_funds_what),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(id = R.string.msg_funds_how),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(id = R.string.label_funds_example),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = stringResource(id = R.string.label_fund_example_name),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.accentInk
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(id = R.string.msg_funds_example),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brandGradient())
+                        .clickable(onClick = onDismiss)
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_close),
+                        color = MaterialTheme.colorScheme.onBrandGradient,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
