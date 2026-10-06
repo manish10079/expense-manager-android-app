@@ -2357,7 +2357,6 @@ private fun RecurringExpenseCard(
                 shape = RoundedCornerShape(15.dp)
             )
     ) {
-        Box(modifier = Modifier.matchParentSize().heroBloom())
         Column(
             modifier = Modifier
                 .fillMaxWidth()

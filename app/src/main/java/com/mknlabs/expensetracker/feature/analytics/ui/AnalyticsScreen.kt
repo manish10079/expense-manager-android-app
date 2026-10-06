@@ -2732,7 +2732,7 @@ private fun BoxScope.PremiumLockedOverlay(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f)
+            color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.54f)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -2848,7 +2848,7 @@ private fun GatedCardContent(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(30.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.80f))
             )
         }
     }
