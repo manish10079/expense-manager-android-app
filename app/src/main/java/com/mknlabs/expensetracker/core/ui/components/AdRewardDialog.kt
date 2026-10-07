@@ -98,7 +98,7 @@ fun AdRewardDialog(
                     )
                 }
             }
-        }
+        },
         dismissButton = {
             AppTextButton(
                 onClick = onDismiss,

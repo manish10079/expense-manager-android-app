@@ -4,6 +4,7 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.track
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
@@ -194,16 +197,19 @@ private fun SyncTeaseContent(onUpgradeClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        Button(
-            onClick = onUpgradeClick,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp),
-            shape = RoundedCornerShape(16.dp)
+                .heightIn(min = 56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(brush = brandGradient())
+                .clickable(onClick = onUpgradeClick),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.label_upgrade_to_pro),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBrandGradient
             )
         }
     }

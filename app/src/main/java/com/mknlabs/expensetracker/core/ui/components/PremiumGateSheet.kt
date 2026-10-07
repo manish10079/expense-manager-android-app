@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.core.ui.components
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -165,30 +166,21 @@ fun PremiumGateSheet(
                     .padding(top = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = onUpgradeClick,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height( 56.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                    ),
-                    contentPadding = PaddingValues(0.dp)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(brush = brandGradient())
+                        .clickable(onClick = onUpgradeClick),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(brush = brandGradient()),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.label_upgrade_to_pro),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.onBrandGradient
-                            )
+                    Text(
+                        text = stringResource(R.string.label_upgrade_to_pro),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = MaterialTheme.colorScheme.onBrandGradient
                         )
-                    }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
