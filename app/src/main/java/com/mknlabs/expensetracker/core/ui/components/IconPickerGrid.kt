@@ -30,7 +30,8 @@ import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 /**
  * Shared icon grid for add-category, add-goal, and add-fund.
  *
- * Tiles follow the category picker: identity wash when idle, ring + glyph when chosen.
+ * Idle tiles use [onSurfaceVariant] (same as the add-category type hint).
+ * Only the chosen tile takes [identityColor] from the colour picker.
  */
 @Composable
 fun IconPickerGrid(
@@ -66,6 +67,8 @@ fun IconPickerTile(
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val idle = colorScheme.onSurfaceVariant
+    val glyph = if (selected) identityColor else idle
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,15 +76,15 @@ fun IconPickerTile(
             .shadow(
                 elevation = if (selected) 18.dp else 0.dp,
                 shape = CircleShape,
-                ambientColor = colorScheme.accentInk.copy(alpha = 0.34f),
+                ambientColor = identityColor.copy(alpha = 0.34f),
                 spotColor = colorScheme.secondary.copy(alpha = 0.28f)
             )
             .clip(CircleShape)
             .background(
-                if (selected) colorScheme.background else identityColor.copy(alpha = GlyphTileAlpha)
+                if (selected) colorScheme.background else idle.copy(alpha = GlyphTileAlpha)
             )
             .then(
-                if (selected) Modifier.border(1.dp, colorScheme.accentInk, CircleShape) else Modifier
+                if (selected) Modifier.border(1.dp, identityColor, CircleShape) else Modifier
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -89,7 +92,7 @@ fun IconPickerTile(
         Icon(
             imageVector = option.icon,
             contentDescription = stringResource(option.labelRes),
-            tint = if (selected) colorScheme.accentInk else identityColor,
+            tint = glyph,
             modifier = Modifier.size(20.dp)
         )
     }
