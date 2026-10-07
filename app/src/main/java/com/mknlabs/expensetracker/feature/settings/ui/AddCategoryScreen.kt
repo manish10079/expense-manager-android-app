@@ -221,26 +221,6 @@ private fun AddCategoryScreenContent(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                CategorySectionLabel(text = stringResource(R.string.label_color_section))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.msg_choose_color_info),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // The same row the management screen opens to recolour an existing row, so the
-                // palette a user picks from and the value a tap stores cannot drift between the
-                // screen that creates and the one that edits.
-                CategoryColorRow(
-                    selectedColorHex = uiState.selectedColorHex,
-                    onColorSelected = onColorSelected
-                )
-
-                Spacer(modifier = Modifier.height(28.dp))
-
                 CategorySectionLabel(text = stringResource(R.string.label_select_visual_identity_section))
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -312,6 +292,26 @@ private fun AddCategoryScreenContent(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                CategorySectionLabel(text = stringResource(R.string.label_color_section))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.msg_choose_color_info),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // The same row the management screen opens to recolour an existing row, so the
+                // palette a user picks from and the value a tap stores cannot drift between the
+                // screen that creates and the one that edits.
+                CategoryColorRow(
+                    selectedColorHex = uiState.selectedColorHex,
+                    onColorSelected = onColorSelected
+                )
 
                 Spacer(modifier = Modifier.height(80.dp))
             }
