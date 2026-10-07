@@ -177,15 +177,13 @@ fun <T> ViewPickerDialog(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
+            val cardColors = AppCardDefaults.colors()
             Surface(
                 shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surface,
-                // Material tints an elevated surface towards its surface-tint role, which
-                // this palette never defines, so the dialog picked up a lavender cast in
-                // light. Light draws it flat and lets the shadow do the lifting; dark
-                // keeps the tonal step it has always had.
-                tonalElevation = if (MaterialTheme.colorScheme.isDark) 6.dp else 0.dp,
+                color = cardColors.containerColor,
+                tonalElevation = 0.dp,
                 shadowElevation = 12.dp,
+                border = cardColors.border,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(

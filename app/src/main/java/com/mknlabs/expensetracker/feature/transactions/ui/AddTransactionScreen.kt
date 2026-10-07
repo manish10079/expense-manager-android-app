@@ -1373,7 +1373,11 @@ internal fun AddTransactionScreenContent(
                     )
                 },
                 confirmButton = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
                         AppTextButton(onClick = {
                             val tx = pendingOverspendTransaction
                             val draft = pendingOverspendDraft
@@ -2277,7 +2281,7 @@ private fun ChoiceChip(
     ) {
         Box(
             modifier = Modifier
-                .size(if (compact) 58.dp else 64.dp)
+                .size(if (compact) 46.dp else 52.dp)
                 .shadow(
                     elevation = if (isSelected) 22.dp else 0.dp,
                     shape = CircleShape,

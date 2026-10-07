@@ -4368,7 +4368,7 @@
     <string name="label_fund_spent_of">%1$s of %2$s spent</string>
     <string name="label_fund_remaining_format">%1$s remaining</string>
     <string name="label_fund_status_active">Active</string>
-    <string name="label_fund_status_completed">Completed</string>
+    <string name="label_fund_status_completed">Exhausted</string>
     <string name="label_fund_status_archived">Archived</string>
     <string name="title_fund_breakdown">Spending breakdown</string>
     <string name="label_fund_breakdown_timeline">Over time</string>
@@ -4384,7 +4384,7 @@
     <string name="msg_fund_edit_amount_updates_income">This also updates the income transaction that funds it.</string>
     <string name="title_spend_from_fund">Spend from fund</string>
     <string name="label_fund_none">None</string>
-    <string name="title_fund_overspend">Not enough in this fund</string>
+    <string name="title_fund_overspend">Insufficient Fund</string>
     <string name="msg_fund_overspend">This expense is more than the %2$s left in \u201c%1$s\u201d. Spend it anyway, change the amount, or take the fund off this expense.</string>
     <string name="label_spend_anyway">Spend anyway</string>
     <string name="label_edit_amount_action">Edit amount</string>

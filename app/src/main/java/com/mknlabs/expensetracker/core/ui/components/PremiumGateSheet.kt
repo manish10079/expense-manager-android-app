@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -177,17 +179,13 @@ fun PremiumGateSheet(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(MaterialTheme.colorScheme.accentInk, MaterialTheme.colorScheme.secondary)
-                                )
-                            ),
+                            .background(brush = brandGradient()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = stringResource(R.string.label_upgrade_to_pro),
                             style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onBrandGradient
                             )
                         )
                     }

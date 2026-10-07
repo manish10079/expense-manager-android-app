@@ -1,5 +1,10 @@
 package com.mknlabs.expensetracker.feature.funds.ui
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,12 +29,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,9 +53,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -62,10 +71,25 @@ import com.adamglin.phosphoricons.regular.Info
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
+import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.heroBloom
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.expense
+import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
+import com.mknlabs.expensetracker.core.ui.theme.expenseGradient
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkLight
+import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.sheet
@@ -86,16 +110,16 @@ import java.util.Locale
 private val fundDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
 private val FUND_ICON_KEYS = listOf(
-    "card_giftcard",
-    "school",
-    "attach_money",
-    "volunteer_activism",
-    "shopping_bag",
-    "directions_car",
+    "gift",
+    "graduation-cap",
+    "banknote",
+    "hand-coins",
+    "shopping-cart",
+    "wallet",
     "home",
-    "favorite",
-    "subscriptions",
-    "security"
+    "heart",
+    "repeat",
+    "shield-check"
 )
 
 private val FUND_COLOR_HEXES = listOf(
@@ -259,11 +283,21 @@ private fun FundSummaryCard(
     amountFormatPreferences: AmountFormatPreferences,
     onCreateClick: () -> Unit
 ) {
-    Card(
+    val isDark = MaterialTheme.colorScheme.isDark
+    AppCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
+        colors = AppCardColors(
+            containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            border = BorderStroke(
+                1.dp,
+                if (isDark) HeroOutlineDark else HeroOutlineLight
+            )
+        ),
+        elevation = 0.dp
     ) {
+        Box(modifier = Modifier.matchParentSize().heroBloom())
         var showFundsInfo by rememberSaveable { mutableStateOf(false) }
         Column(modifier = Modifier.padding(18.dp)) {
             Row(
@@ -287,7 +321,10 @@ private fun FundSummaryCard(
                 )
             }
             Spacer(Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
                 SummaryStat(
                     label = stringResource(id = R.string.label_fund_summary_allocated),
                     value = formatCurrencyValue(uiState.totalAllocatedMinor.toMajorUnits(), currencyId, amountFormatPreferences),
@@ -305,10 +342,20 @@ private fun FundSummaryCard(
                 )
             }
             Spacer(Modifier.height(14.dp))
-            Button(onClick = onCreateClick, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Filled.Add, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(id = R.string.title_create_fund))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient())
+                    .clickable(onClick = onCreateClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.title_create_fund),
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
         if (showFundsInfo) {
@@ -386,18 +433,27 @@ private fun FundsInfoDialog(onDismiss: () -> Unit) {
 
 @Composable
 private fun SummaryStat(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(2.dp))
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -418,17 +474,19 @@ private fun FundCard(
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val identityColor = parseHexColor(fund.fund.colorHex)
+                    ?: MaterialTheme.colorScheme.accentInk
                 Box(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(parseHexColor(fund.fund.colorHex) ?: MaterialTheme.colorScheme.primary),
+                        .background(MaterialTheme.colorScheme.categorySoft(identityColor)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = fund.fund.icon,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = identityColor,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -455,7 +513,7 @@ private fun FundCard(
             }
 
             Spacer(Modifier.height(12.dp))
-            FundProgressBar(progress = fund.progress, overspent = fund.isOverspent)
+            FundProgressBar(progress = fund.progress, exhausted = fund.status == FundStatus.Completed || fund.isOverspent)
             Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(
@@ -472,42 +530,70 @@ private fun FundCard(
 @Composable
 private fun FundStatusBadge(status: FundStatus) {
     val (labelRes, tint) = when (status) {
-        FundStatus.Active -> R.string.label_fund_status_active to MaterialTheme.colorScheme.primary
-        FundStatus.Completed -> R.string.label_fund_status_completed to MaterialTheme.colorScheme.tertiary
+        FundStatus.Active -> R.string.label_fund_status_active to MaterialTheme.colorScheme.income
+        FundStatus.Completed -> R.string.label_fund_status_completed to MaterialTheme.colorScheme.expense
         FundStatus.Archived -> R.string.label_fund_status_archived to MaterialTheme.colorScheme.onSurfaceVariant
     }
+    val exhausted = status == FundStatus.Completed
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(tint.copy(alpha = 0.12f))
+            .then(
+                if (exhausted) Modifier.background(expenseGradient(alpha = 0.22f))
+                else Modifier.background(tint.copy(alpha = 0.12f))
+            )
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Text(
             text = stringResource(id = labelRes),
             style = MaterialTheme.typography.labelSmall,
-            color = tint
+            color = if (exhausted) ExpenseInkLight else tint
         )
     }
 }
 
 /** A hand-rolled bar so the fill, the track and the overspent colour are all ours. */
 @Composable
-private fun FundProgressBar(progress: Float, overspent: Boolean) {
+private fun FundProgressBar(progress: Float, exhausted: Boolean) {
+    val view = LocalView.current
+    var visibleOnScreen by remember { mutableStateOf(false) }
+    val targetProgress = if (visibleOnScreen) progress.coerceIn(0f, 1f) else 0f
+    val animatedProgress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = if (visibleOnScreen) {
+            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+        } else {
+            snap()
+        },
+        label = "fund_progress_animation"
+    )
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    val fillColor = if (overspent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(8.dp)
+            .onGloballyPositioned { coords ->
+                val bounds = coords.boundsInWindow()
+                val window = Rect(0f, 0f, view.width.toFloat(), view.height.toFloat())
+                val onScreen = bounds.width > 0f &&
+                    bounds.height > 0f &&
+                    bounds.overlaps(window)
+                if (onScreen != visibleOnScreen) {
+                    visibleOnScreen = onScreen
+                }
+            }
             .clip(RoundedCornerShape(50))
             .background(trackColor)
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .fillMaxWidth(animatedProgress)
                 .height(8.dp)
                 .clip(RoundedCornerShape(50))
-                .background(fillColor)
+                .then(
+                    if (exhausted) Modifier.background(expenseGradient())
+                    else Modifier.background(deepenedRamp(MaterialTheme.colorScheme.accentInk))
+                )
         )
     }
 }
@@ -615,7 +701,7 @@ private fun FundDetailContent(
                         )
                     }
                     Spacer(Modifier.height(14.dp))
-                    FundProgressBar(progress = fund.progress, overspent = fund.isOverspent)
+                    FundProgressBar(progress = fund.progress, exhausted = fund.status == FundStatus.Completed || fund.isOverspent)
                     Spacer(Modifier.height(14.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AppTextButton(onClick = onEditAmount) {
@@ -992,15 +1078,23 @@ private fun CreateFundSheet(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(
-                onClick = {
-                    val resolvedAmount = amountMinor ?: return@Button
-                    onCreate(name.trim(), resolvedAmount, startDate, iconKey, colorHex, note.trim())
-                },
-                enabled = canSave,
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient(alpha = if (canSave) 1f else 0.45f))
+                    .clickable(enabled = canSave) {
+                        val resolvedAmount = amountMinor ?: return@clickable
+                        onCreate(name.trim(), resolvedAmount, startDate, iconKey, colorHex, note.trim())
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(id = R.string.title_create_fund))
+                Text(
+                    text = stringResource(id = R.string.title_create_fund),
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }

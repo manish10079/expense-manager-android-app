@@ -175,11 +175,15 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
-import com.mknlabs.expensetracker.core.ui.theme.budgetCardOverspent
 import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
+import com.mknlabs.expensetracker.core.ui.theme.expenseGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
@@ -521,7 +525,27 @@ private fun BudgetAndRecurringContent(
                             }
                         }
 
-                        item { BudgetSummaryCard(summary = uiState.summary) }
+                        item {
+                            GatedAction(
+                                feature = Feature.BUDGET_COPY_PREVIOUS_MONTH,
+                                displayName = stringResource(id = R.string.title_copy_previous_month_budgets),
+                                onAction = { isCopySheetVisible = true }
+                            ) { status, onCopyClick ->
+                                BudgetSummaryCard(
+                                    summary = uiState.summary,
+                                    showCopyPrevious = uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth,
+                                    copyLocked = status !is AccessStatus.Granted,
+                                    onCopyPrevious = onCopyClick,
+                                    addTitle = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_budget),
+                                    addEnabled = uiState.canAddBudget,
+                                    onAddBudget = {
+                                        editingBudgetId = null
+                                        budgetEditorSessionKey = System.currentTimeMillis()
+                                        isBudgetEditorVisible = true
+                                    }
+                                )
+                            }
+                        }
 
                         // Guarded by the flag as well as by AdContainer, for the same reason as the
                         // per-rule slots on the recurring tab: a hidden slot does collapse to zero
@@ -563,35 +587,6 @@ private fun BudgetAndRecurringContent(
                                     }
                                 )
                             }
-                        }
-
-                        item {
-                            if (uiState.selectedPeriod == BudgetPeriodFilter.ThisMonth) {
-                                GatedAction(
-                                    feature = Feature.BUDGET_COPY_PREVIOUS_MONTH,
-                                    displayName = stringResource(id = R.string.title_copy_previous_month_budgets),
-                                    onAction = { isCopySheetVisible = true }
-                                ) { status, onClick ->
-                                    CopyPreviousMonthBudgetsAction(
-                                        isLocked = status !is AccessStatus.Granted,
-                                        onClick = onClick
-                                    )
-                                }
-                            }
-                        }
-
-                        item {
-                            val canAdd = uiState.canAddBudget
-                            BudgetActionButton(
-                                title = if (uiState.isMonthLocked) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.title_add_budget),
-                                icon = if (uiState.isMonthLocked) Icons.Filled.Lock else null,
-                                enabled = canAdd,
-                                onClick = {
-                                    editingBudgetId = null
-                                    budgetEditorSessionKey = System.currentTimeMillis()
-                                    isBudgetEditorVisible = true
-                                }
-                            )
                         }
 
                         item {
@@ -998,7 +993,15 @@ private fun BudgetPeriodRow(
 }
 
 @Composable
-private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
+private fun BudgetSummaryCard(
+    summary: BudgetSummaryUi,
+    showCopyPrevious: Boolean,
+    copyLocked: Boolean,
+    onCopyPrevious: () -> Unit,
+    addTitle: String,
+    addEnabled: Boolean,
+    onAddBudget: () -> Unit
+) {
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -1079,10 +1082,10 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
             )
         }
 
-        // Line 3 â€” usage %, progress bar, and daily allowance / limit inline.
+        // Line 3 — usage % and daily allowance / limit.
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -1093,12 +1096,6 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                     letterSpacing = 0.6.sp
                 ),
                 maxLines = 1
-            )
-
-            BudgetProgressBar(
-                progress = summary.usageFraction,
-                accent = brandGradient(),
-                modifier = Modifier.weight(1f)
             )
 
             val trailingLabel = summary.dailyAllowanceLabel?.asString() ?: summary.limitLabel.asString()
@@ -1117,7 +1114,79 @@ private fun BudgetSummaryCard(summary: BudgetSummaryUi) {
                 overflow = TextOverflow.Ellipsis
             )
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
+        if (showCopyPrevious) {
+            FundStyleFillButton(
+                title = stringResource(id = R.string.title_copy_previous_month_budgets),
+                isLocked = copyLocked,
+                onClick = onCopyPrevious
+            )
+        }
+        FundStyleFillButton(
+            title = addTitle,
+            enabled = addEnabled,
+            onClick = onAddBudget
+        )
     }
+    }
+}
+
+@Composable
+private fun FundStyleFillButton(
+    title: String,
+    enabled: Boolean = true,
+    isLocked: Boolean = false,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .then(
+                if (isLocked) {
+                    Modifier
+                        .background(MaterialTheme.colorScheme.chip)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.chipOutline,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                } else {
+                    Modifier.background(brush = brandGradient(alpha = if (enabled) 1f else 0.45f))
+                }
+            )
+            .clickable(enabled = enabled || isLocked, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                color = if (isLocked) {
+                    MaterialTheme.colorScheme.chipInkOff
+                } else {
+                    MaterialTheme.colorScheme.onBrandGradient
+                },
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (isLocked) {
+                Icon(
+                    imageVector = Icons.Filled.Lock,
+                    contentDescription = stringResource(
+                        id = R.string.content_desc_locked_formatted,
+                        title
+                    ),
+                    tint = MaterialTheme.colorScheme.featureGateLock,
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }
 
@@ -1979,12 +2048,17 @@ private fun CategoryBudgetCard(
     // budget holds, amber once it is past its limit. The rail below the header reads it as one
     // value, so its lit edge can never disagree with the state the card is in. The rail ramps
     // it, like every other bar in the app.
-    val cardInk = if (budget.spentAmount > budget.limitAmount) {
-        MaterialTheme.colorScheme.budgetCardOverspent
+    val isOverLimit = budget.spentAmount >= budget.limitAmount
+    val cardInk = if (isOverLimit) {
+        MaterialTheme.colorScheme.expense
     } else {
         MaterialTheme.colorScheme.accentInk
     }
-    val progressAccent: Brush = deepenedRamp(cardInk)
+    val progressAccent: Brush = if (isOverLimit) {
+        expenseGradient()
+    } else {
+        deepenedRamp(cardInk)
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -2002,7 +2076,7 @@ private fun CategoryBudgetCard(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -2028,6 +2102,17 @@ private fun CategoryBudgetCard(
                             .clickable(onClick = onInfoClick)
                     )
                 }
+                if (budget.remainingEdits != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (budget.remainingEdits == 0) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.label_edits_left_formatted, budget.remainingEdits),
+                        color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
+                    )
+                }
             }
 
             Column(horizontalAlignment = Alignment.End) {
@@ -2049,28 +2134,11 @@ private fun CategoryBudgetCard(
 
                 Text(
                     text = budget.totalCaption.asString(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (isOverLimit) cardInk else MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         letterSpacing = 0.7.sp,
                         fontSize = MaterialTheme.typography.labelMedium.fontSize * BUDGET_CARD_TEXT_SCALE
-                    )
-                )
-            }
-        }
-
-        if (budget.remainingEdits != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (budget.remainingEdits == 0) stringResource(id = R.string.label_history_locked) else stringResource(id = R.string.label_edits_left_formatted, budget.remainingEdits),
-                    color = if (budget.remainingEdits == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
                     )
                 )
             }
@@ -2112,7 +2180,7 @@ private fun CategoryBudgetCard(
                         budget.remainingLabel,
                         budget.remainingPercent
                     ),
-                    accent = MaterialTheme.colorScheme.onSurface,
+                    accent = if (isOverLimit) cardInk else MaterialTheme.colorScheme.onSurface,
                     fillAlpha = 0.2f
                 )
             }

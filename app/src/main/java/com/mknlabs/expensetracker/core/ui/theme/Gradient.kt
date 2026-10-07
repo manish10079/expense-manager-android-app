@@ -226,6 +226,16 @@ fun brandGradient(alpha: Float = 1f): Brush {
     }
 }
 
+/** Coral-red ramp for overspent / exhausted amounts. */
+@Composable
+fun expenseGradient(alpha: Float = 1f): Brush {
+    val start = ExpenseInkDark.copy(alpha = alpha)
+    val end = ExpenseInkLight.copy(alpha = alpha)
+    return remember(start, end) {
+        Brush.linearGradient(colors = listOf(start, end))
+    }
+}
+
 /**
  * How far a fixed ramp runs past its anchor colour. Enough to read as a lit edge along the
  * bar, not enough to become a second colour.
