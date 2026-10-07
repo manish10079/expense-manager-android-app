@@ -9,10 +9,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +44,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
+import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -57,11 +57,14 @@ import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppDialogDismissButton
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
@@ -103,12 +106,12 @@ fun GoalsScreen(
         amountFormatPreferences = amountFormatPreferences,
         dateFormatPattern = dateFormatPattern,
         onBackClick = onBackClick,
-        onAddGoal = { name, amount, deadline, iconKey, initial ->
-            viewModel.addGoal(name, amount, deadline, iconKey, initial)
+        onAddGoal = { name, amount, deadline, iconKey, initial, colorHex ->
+            viewModel.addGoal(name, amount, deadline, iconKey, initial, colorHex)
         },
         onFundGoal = { id, amount -> viewModel.fundGoal(id, amount) },
-        onEditGoal = { id, name, amount, deadline, iconKey ->
-            viewModel.updateGoal(id, name, amount, deadline, iconKey)
+        onEditGoal = { id, name, amount, deadline, iconKey, colorHex ->
+            viewModel.updateGoal(id, name, amount, deadline, iconKey, colorHex)
         },
         onDeleteGoal = { viewModel.deleteGoal(it.id) },
         onToggleFundHistory = { goalId -> viewModel.toggleGoalHistory(goalId) }
@@ -125,9 +128,9 @@ private fun GoalsScreenContent(
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     onBackClick: () -> Unit,
-    onAddGoal: (String, Double, Long?, String, Double) -> Unit,
+    onAddGoal: (String, Double, Long?, String, Double, String) -> Unit,
     onFundGoal: (String, Double) -> Unit,
-    onEditGoal: (String, String, Double, Long?, String) -> Unit,
+    onEditGoal: (String, String, Double, Long?, String, String) -> Unit,
     onDeleteGoal: (Goal) -> Unit,
     onToggleFundHistory: (String) -> Unit
 ) {
@@ -256,8 +259,8 @@ private fun GoalsScreenContent(
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             onDismiss = { isAddGoalDialogVisible = false },
-            onSave = { name, amount, deadline, iconKey, initial ->
-                onAddGoal(name, amount, deadline, iconKey, initial)
+            onSave = { name, amount, deadline, iconKey, initial, colorHex ->
+                onAddGoal(name, amount, deadline, iconKey, initial, colorHex)
                 isAddGoalDialogVisible = false
             }
         )
@@ -284,8 +287,8 @@ private fun GoalsScreenContent(
                 amountFormatPreferences = amountFormatPreferences,
                 dateFormatPattern = dateFormatPattern,
                 onDismiss = { editingGoalId = null },
-                onSave = { name, amount, deadline, iconKey ->
-                    onEditGoal(id, name, amount, deadline, iconKey)
+                onSave = { name, amount, deadline, iconKey, colorHex ->
+                    onEditGoal(id, name, amount, deadline, iconKey, colorHex)
                     editingGoalId = null
                 }
             )
@@ -408,104 +411,131 @@ fun FundGoalDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddGoalDialog(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     onDismiss: () -> Unit,
-    onSave: (String, Double, Long?, String, Double) -> Unit
+    onSave: (String, Double, Long?, String, Double, String) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var name by rememberSaveable { mutableStateOf("") }
     var amountInput by rememberSaveable { mutableStateOf("") }
     var initialAmountInput by rememberSaveable { mutableStateOf("") }
     var deadlineAt by rememberSaveable { mutableStateOf<Long?>(null) }
     var iconKey by rememberSaveable { mutableStateOf("savings") }
+    var colorHex by rememberSaveable { mutableStateOf("") }
     var isDeadlinePickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isIconPickerVisible by rememberSaveable { mutableStateOf(false) }
 
     val targetAmount = amountInput.toDoubleOrNull() ?: 0.0
-    // Optional: an empty box simply means the goal starts from nothing.
     val initialAmount = initialAmountInput.toDoubleOrNull() ?: 0.0
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
+    val identity = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null })
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = AppDialogDefaults.shape(),
-        containerColor = AppDialogDefaults.containerColor(),
-        title = {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Dimens.ScreenPadding)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
             Text(
                 text = stringResource(R.string.title_add_goal),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.label_goal_name)) },
-                    placeholder = { Text(stringResource(R.string.label_goal_name_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
 
-                OutlinedTextField(
-                    value = amountInput,
-                    onValueChange = { updatedValue ->
-                        amountInput = updatedValue.filter { it.isDigit() || it == '.' }
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.label_goal_name)) },
+                placeholder = { Text(stringResource(R.string.label_goal_name_hint)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            OutlinedTextField(
+                value = amountInput,
+                onValueChange = { updatedValue ->
+                    amountInput = updatedValue.filter { it.isDigit() || it == '.' }
+                },
+                label = { Text(stringResource(R.string.label_target_amount)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            OutlinedTextField(
+                value = initialAmountInput,
+                onValueChange = { updatedValue ->
+                    initialAmountInput = updatedValue.filter { it.isDigit() || it == '.' }
+                },
+                label = { Text(stringResource(R.string.label_initial_saved_amount)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            DeadlinePickerRow(
+                deadlineAt = deadlineAt,
+                dateFormatPattern = dateFormatPattern,
+                onPick = { isDeadlinePickerVisible = true },
+                onClear = { deadlineAt = null }
+            )
+
+            Text(
+                text = stringResource(R.string.label_goal_icon),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            IconPickerGrid(
+                selectedId = iconKey,
+                onSelect = { iconKey = it },
+                identityColor = identity,
+                columns = 6,
+                modifier = Modifier.height(280.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.label_color_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            CategoryColorRow(
+                selectedColorHex = colorHex.ifBlank { null },
+                onColorSelected = { colorHex = it.orEmpty() }
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient(alpha = if (isSaveEnabled) 1f else 0.45f))
+                    .clickable(enabled = isSaveEnabled) {
+                        onSave(name, targetAmount, deadlineAt, iconKey, initialAmount, colorHex)
                     },
-                    label = { Text(stringResource(R.string.label_target_amount)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
-
-                // Optional starting balance: money already set aside toward the goal.
-                OutlinedTextField(
-                    value = initialAmountInput,
-                    onValueChange = { updatedValue ->
-                        initialAmountInput = updatedValue.filter { it.isDigit() || it == '.' }
-                    },
-                    label = { Text(stringResource(R.string.label_initial_saved_amount)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
-
-                DeadlinePickerRow(
-                    deadlineAt = deadlineAt,
-                    dateFormatPattern = dateFormatPattern,
-                    onPick = { isDeadlinePickerVisible = true },
-                    onClear = { deadlineAt = null }
-                )
-
-                GoalIconPickerRow(
-                    iconKey = iconKey,
-                    onPick = { isIconPickerVisible = true }
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.label_save_1),
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-        },
-        confirmButton = {
-            AppDialogConfirmButton(
-                text = stringResource(R.string.label_save_1),
-                onClick = { onSave(name, targetAmount, deadlineAt, iconKey, initialAmount) },
-                enabled = isSaveEnabled
-            )
-        },
-        dismissButton = {
-            AppDialogDismissButton(
-                text = stringResource(R.string.label_cancel_1),
-                onClick = onDismiss
-            )
         }
-    )
+    }
 
     if (isDeadlinePickerVisible) {
         DeadlinePickerModal(
@@ -517,19 +547,9 @@ fun AddGoalDialog(
             }
         )
     }
-
-    if (isIconPickerVisible) {
-        GoalIconPickerModal(
-            selectedIconKey = iconKey,
-            onDismiss = { isIconPickerVisible = false },
-            onConfirm = {
-                iconKey = it
-                isIconPickerVisible = false
-            }
-        )
-    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditGoalDialog(
     goal: Goal,
@@ -537,88 +557,116 @@ fun EditGoalDialog(
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     onDismiss: () -> Unit,
-    onSave: (String, Double, Long?, String) -> Unit
+    onSave: (String, Double, Long?, String, String) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var name by rememberSaveable(goal.id) { mutableStateOf(goal.name) }
     var amountInput by rememberSaveable(goal.id) { mutableStateOf(formatAmountForInput(goal.targetAmountMinor)) }
     var deadlineAt by rememberSaveable(goal.id) { mutableStateOf(goal.deadlineAt) }
     var iconKey by rememberSaveable(goal.id) { mutableStateOf(goal.iconKey) }
+    var colorHex by rememberSaveable(goal.id) { mutableStateOf(goal.colorHex) }
     var isDeadlinePickerVisible by rememberSaveable { mutableStateOf(false) }
-    var isIconPickerVisible by rememberSaveable { mutableStateOf(false) }
 
     val targetAmount = amountInput.toDoubleOrNull() ?: 0.0
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
+    val identity = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null })
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = AppDialogDefaults.shape(),
-        containerColor = AppDialogDefaults.containerColor(),
-        title = {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Dimens.ScreenPadding)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
             Text(
                 text = stringResource(R.string.title_edit_goal),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.label_goal_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
 
-                OutlinedTextField(
-                    value = amountInput,
-                    onValueChange = { updatedValue ->
-                        amountInput = updatedValue.filter { it.isDigit() || it == '.' }
-                    },
-                    label = { Text(stringResource(R.string.label_target_amount)) },
-                    supportingText = {
-                        Text(
-                            text = stringResource(
-                                R.string.label_saved_amount,
-                                formatCurrencyValue(goal.currentAmountMinor / 100.0, currencyId, amountFormatPreferences)
-                            )
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.label_goal_name)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            OutlinedTextField(
+                value = amountInput,
+                onValueChange = { updatedValue ->
+                    amountInput = updatedValue.filter { it.isDigit() || it == '.' }
+                },
+                label = { Text(stringResource(R.string.label_target_amount)) },
+                supportingText = {
+                    Text(
+                        text = stringResource(
+                            R.string.label_saved_amount,
+                            formatCurrencyValue(goal.currentAmountMinor / 100.0, currencyId, amountFormatPreferences)
                         )
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            DeadlinePickerRow(
+                deadlineAt = deadlineAt,
+                dateFormatPattern = dateFormatPattern,
+                onPick = { isDeadlinePickerVisible = true },
+                onClear = { deadlineAt = null }
+            )
+
+            Text(
+                text = stringResource(R.string.label_goal_icon),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            IconPickerGrid(
+                selectedId = iconKey,
+                onSelect = { iconKey = it },
+                identityColor = identity,
+                columns = 6,
+                modifier = Modifier.height(280.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.label_color_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            CategoryColorRow(
+                selectedColorHex = colorHex.ifBlank { null },
+                onColorSelected = { colorHex = it.orEmpty() }
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brush = brandGradient(alpha = if (isSaveEnabled) 1f else 0.45f))
+                    .clickable(enabled = isSaveEnabled) {
+                        onSave(name, targetAmount, deadlineAt, iconKey, colorHex)
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
-
-                DeadlinePickerRow(
-                    deadlineAt = deadlineAt,
-                    dateFormatPattern = dateFormatPattern,
-                    onPick = { isDeadlinePickerVisible = true },
-                    onClear = { deadlineAt = null }
-                )
-
-                GoalIconPickerRow(
-                    iconKey = iconKey,
-                    onPick = { isIconPickerVisible = true }
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.label_save_1),
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-        },
-        confirmButton = {
-            AppDialogConfirmButton(
-                text = stringResource(R.string.label_save_1),
-                onClick = { onSave(name, targetAmount, deadlineAt, iconKey) },
-                enabled = isSaveEnabled
-            )
-        },
-        dismissButton = {
-            AppDialogDismissButton(
-                text = stringResource(R.string.label_cancel_1),
-                onClick = onDismiss
-            )
         }
-    )
+    }
 
     if (isDeadlinePickerVisible) {
         DeadlinePickerModal(
@@ -627,17 +675,6 @@ fun EditGoalDialog(
             onConfirm = {
                 deadlineAt = it
                 isDeadlinePickerVisible = false
-            }
-        )
-    }
-
-    if (isIconPickerVisible) {
-        GoalIconPickerModal(
-            selectedIconKey = iconKey,
-            onDismiss = { isIconPickerVisible = false },
-            onConfirm = {
-                iconKey = it
-                isIconPickerVisible = false
             }
         )
     }
@@ -722,133 +759,6 @@ private fun DeadlinePickerModal(
 }
 
 @Composable
-private fun GoalIconPickerRow(
-    iconKey: String,
-    onPick: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val selectedOption = remember(iconKey) {
-        categoryIconOptions.firstOrNull { it.id == iconKey }
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            // The icon picker's row is a field too, so it takes the secondary surface in
-            // light for the same reason the deadline row above does.
-            .background(
-                if (colorScheme.isDark) colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                else colorScheme.surfaceVariant
-            )
-            .clickable(onClick = onPick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(brush = brandGradient()),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = selectedOption?.icon ?: Icons.Filled.Savings,
-                contentDescription = stringResource(R.string.cd_goal_icon),
-                tint = colorScheme.onCta,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = stringResource(R.string.label_goal_icon),
-            style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = stringResource(R.string.title_choose_icon),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = colorScheme.accentInk
-        )
-    }
-}
-
-@Composable
-private fun GoalIconPickerModal(
-    selectedIconKey: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = AppDialogDefaults.shape(),
-        containerColor = AppDialogDefaults.containerColor(),
-        title = {
-            Text(
-                text = stringResource(R.string.title_choose_icon),
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(5),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 340.dp)
-            ) {
-                items(categoryIconOptions, key = { it.id }) { option ->
-                    GoalIconSelectionItem(
-                        option = option,
-                        selected = option.id == selectedIconKey,
-                        onClick = { onConfirm(option.id) }
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            AppDialogDismissButton(
-                text = stringResource(R.string.label_cancel_1),
-                onClick = onDismiss
-            )
-        }
-    )
-}
-
-@Composable
-private fun GoalIconSelectionItem(
-    option: CategoryIconOption,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .clip(CircleShape)
-            .background(
-                color = if (selected) colorScheme.accentInk else colorScheme.surfaceVariant.copy(alpha = 0.6f)
-            )
-            .border(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f),
-                shape = CircleShape
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = option.icon,
-            contentDescription = stringResource(option.labelRes),
-            tint = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(22.dp)
-        )
-    }
-}
-
-@Composable
 fun GoalItem(
     goal: Goal,
     currencyId: Int,
@@ -902,17 +812,18 @@ fun GoalItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val identity = MaterialTheme.colorScheme.identityColor(goal.colorHex)
                     Box(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer),
+                            .background(identity.copy(alpha = 0.18f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = goalIcon,
                             contentDescription = stringResource(R.string.cd_goal_icon),
-                            tint = MaterialTheme.colorScheme.accentInk,
+                            tint = identity,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -1258,9 +1169,9 @@ private fun GoalsScreenPreview() {
             amountFormatPreferences = defaultAmountFormatPreferences,
             dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN,
             onBackClick = {},
-            onAddGoal = { _, _, _, _, _ -> },
+            onAddGoal = { _, _, _, _, _, _ -> },
             onFundGoal = { _, _ -> },
-            onEditGoal = { _, _, _, _, _ -> },
+            onEditGoal = { _, _, _, _, _, _ -> },
             onDeleteGoal = {},
             onToggleFundHistory = {}
         )

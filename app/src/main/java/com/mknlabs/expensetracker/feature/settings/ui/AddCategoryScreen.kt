@@ -39,13 +39,13 @@ import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
+import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 import com.mknlabs.expensetracker.core.ui.theme.identityColor
-import com.mknlabs.expensetracker.core.ui.theme.GlyphTileAlpha
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
@@ -289,21 +289,13 @@ private fun AddCategoryScreenContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(6),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.fillMaxWidth().weight(1f)
-                ) {
-                    items(filteredIcons) { option ->
-                        IconSelectionItem(
-                            option = option,
-                            selected = option.id == uiState.selectedIconId,
-                            identityColor = identityColor,
-                            onClick = { onIconSelected(option.id) }
-                        )
-                    }
-                }
+                IconPickerGrid(
+                    selectedId = uiState.selectedIconId,
+                    onSelect = onIconSelected,
+                    options = filteredIcons,
+                    identityColor = identityColor,
+                    modifier = Modifier.weight(1f)
+                )
 
                 if (filteredIcons.isEmpty()) {
                     Box(
@@ -455,49 +447,6 @@ private fun TypePreviewChip(targetTab: CategoryManagementTab) {
                 style = MaterialTheme.typography.bodySmall
             )
         }
-    }
-}
-
-@Composable
-private fun IconSelectionItem(
-    option: CategoryIconOption,
-    selected: Boolean,
-    identityColor: Color,
-    onClick: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .shadow(
-                elevation = if (selected) 18.dp else 0.dp,
-                shape = CircleShape,
-                ambientColor = colorScheme.accentInk.copy(alpha = 0.34f),
-                spotColor = colorScheme.secondary.copy(alpha = 0.28f)
-            )
-            .clip(CircleShape)
-            // A tile carries the colour twice over while it is unselected — the wash behind the
-            // glyph is the glyph's own colour, which is how every other glyph tile in the app
-            // reads. The chosen one gives the fill back to the screen and keeps the colour as a
-            // ring and a glyph instead, so the choice stands out against a grid of ninety tinted
-            // siblings rather than being one more of them at a different alpha.
-            .background(
-                if (selected) colorScheme.background else identityColor.copy(alpha = GlyphTileAlpha)
-            )
-            .then(
-                if (selected) Modifier.border(1.dp, colorScheme.accentInk, CircleShape) else Modifier
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = option.icon,
-            contentDescription = stringResource(option.labelRes),
-            tint = if (selected) colorScheme.accentInk else identityColor,
-            modifier = Modifier.size(20.dp)
-        )
     }
 }
 

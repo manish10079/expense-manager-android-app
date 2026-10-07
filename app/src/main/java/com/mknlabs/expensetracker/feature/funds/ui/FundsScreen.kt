@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -75,6 +77,8 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
+import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
@@ -84,6 +88,7 @@ import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
 import com.mknlabs.expensetracker.core.ui.theme.expenseGradient
@@ -94,6 +99,7 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.FundStatus
 import com.mknlabs.expensetracker.models.FundWithProgress
@@ -108,30 +114,6 @@ import java.util.Date
 import java.util.Locale
 
 private val fundDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-
-private val FUND_ICON_KEYS = listOf(
-    "gift",
-    "graduation-cap",
-    "banknote",
-    "hand-coins",
-    "shopping-cart",
-    "wallet",
-    "home",
-    "heart",
-    "repeat",
-    "shield-check"
-)
-
-private val FUND_COLOR_HEXES = listOf(
-    "#F59E0B",
-    "#10B981",
-    "#3B82F6",
-    "#EF4444",
-    "#8B5CF6",
-    "#EC4899",
-    "#14B8A6",
-    "#F97316"
-)
 
 /** Parses an `#RRGGBB` string, or null when it is absent or malformed. */
 private fun parseHexColor(hex: String?): Color? {
@@ -971,8 +953,8 @@ private fun CreateFundSheet(
     var name by rememberSaveable { mutableStateOf("") }
     var amountText by rememberSaveable { mutableStateOf("") }
     var note by rememberSaveable { mutableStateOf("") }
-    var iconKey by rememberSaveable { mutableStateOf(FUND_ICON_KEYS.first()) }
-    var colorHex by rememberSaveable { mutableStateOf(FUND_COLOR_HEXES.first()) }
+    var iconKey by rememberSaveable { mutableStateOf("gift") }
+    var colorHex by rememberSaveable { mutableStateOf("") }
     val startDate = remember { System.currentTimeMillis() }
 
     val amountMinor = amountText.trim().toDoubleOrNull()?.takeIf { it > 0.0 }?.toMinorUnits()
@@ -982,6 +964,7 @@ private fun CreateFundSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = Dimens.ScreenPadding)
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -1024,52 +1007,23 @@ private fun CreateFundSheet(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(FUND_ICON_KEYS) { key ->
-                    val selected = key == iconKey
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (selected) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.surfaceVariant
-                            )
-                            .clickable { iconKey = key },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = ExpenseTrackerIconRegistry.iconForKey(key),
-                            contentDescription = null,
-                            tint = if (selected) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            IconPickerGrid(
+                selectedId = iconKey,
+                onSelect = { iconKey = it },
+                identityColor = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null }),
+                columns = 6,
+                modifier = Modifier.height(280.dp)
+            )
 
             Text(
                 text = stringResource(id = R.string.label_fund_color),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(FUND_COLOR_HEXES) { hex ->
-                    val selected = hex == colorHex
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(parseHexColor(hex) ?: MaterialTheme.colorScheme.primary)
-                            .border(
-                                width = if (selected) 3.dp else 0.dp,
-                                color = if (selected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
-                                shape = CircleShape
-                            )
-                            .clickable { colorHex = hex }
-                    )
-                }
-            }
+            CategoryColorRow(
+                selectedColorHex = colorHex.ifBlank { null },
+                onColorSelected = { colorHex = it.orEmpty() }
+            )
 
             OutlinedTextField(
                 value = note,

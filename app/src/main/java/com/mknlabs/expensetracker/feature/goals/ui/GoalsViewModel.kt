@@ -62,7 +62,8 @@ class GoalsViewModel @Inject constructor(
         targetAmount: Double,
         deadlineAtMillis: Long? = null,
         iconKey: String = "savings",
-        initialAmount: Double = 0.0
+        initialAmount: Double = 0.0,
+        colorHex: String = DEFAULT_GOAL_COLOR_HEX
     ) {
         viewModelScope.launch {
             val targetMinor = (targetAmount * 100).toLong()
@@ -76,7 +77,7 @@ class GoalsViewModel @Inject constructor(
                 currentAmountMinor = initialMinor,
                 deadlineAt = deadlineAtMillis,
                 iconKey = iconKey,
-                colorHex = DEFAULT_GOAL_COLOR_HEX,
+                colorHex = colorHex.ifBlank { DEFAULT_GOAL_COLOR_HEX },
                 // A goal created already at (or past) its target is complete, the same rule
                 // fundGoal applies when a deposit reaches the target.
                 isCompleted = initialMinor >= targetMinor,
@@ -138,7 +139,8 @@ class GoalsViewModel @Inject constructor(
         name: String,
         targetAmount: Double,
         deadlineAtMillis: Long?,
-        iconKey: String = "savings"
+        iconKey: String = "savings",
+        colorHex: String? = null
     ) {
         viewModelScope.launch {
             val goal = goalRepository.getGoalById(id) ?: return@launch
@@ -148,6 +150,7 @@ class GoalsViewModel @Inject constructor(
                 targetAmountMinor = newTargetMinor,
                 deadlineAt = deadlineAtMillis,
                 iconKey = iconKey,
+                colorHex = colorHex?.ifBlank { null } ?: goal.colorHex,
                 // Re-evaluate completion: raising the target above the saved amount re-opens it.
                 isCompleted = goal.currentAmountMinor >= newTargetMinor,
                 updatedAt = System.currentTimeMillis(),

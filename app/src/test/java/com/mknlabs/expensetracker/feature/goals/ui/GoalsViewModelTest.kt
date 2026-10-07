@@ -147,6 +147,12 @@ class GoalsViewModelTest {
     }
 
     @Test
+    fun `addGoal stores colour when provided`() = runTest {
+        viewModel.addGoal("Vacation", 500.0, null, iconKey = "pets", colorHex = "#10B981")
+        assertEquals("#10B981", fakeRepository.getAll().single().colorHex)
+    }
+
+    @Test
     fun `addGoal seeds the saved amount from the initial amount`() = runTest {
         // Act
         viewModel.addGoal("Vacation", 500.0, null, "savings", initialAmount = 100.0)
@@ -177,6 +183,20 @@ class GoalsViewModelTest {
 
         // Assert
         assertEquals("pets", fakeRepository.getGoalById("g1")!!.iconKey)
+    }
+
+    @Test
+    fun `updateGoal updates colour`() = runTest {
+        fakeRepository.upsertGoal(goal("g1", targetMinor = 10_000, currentMinor = 0))
+        viewModel.updateGoal(
+            "g1",
+            name = "New Car",
+            targetAmount = 100.0,
+            deadlineAtMillis = null,
+            iconKey = "pets",
+            colorHex = "#10B981"
+        )
+        assertEquals("#10B981", fakeRepository.getGoalById("g1")!!.colorHex)
     }
 
     private fun goal(

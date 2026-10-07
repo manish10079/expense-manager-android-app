@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.paywall.ui
 
 import android.content.ActivityNotFoundException
+import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -61,6 +62,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -766,6 +768,15 @@ private val PaywallPreviewState = PaywallUiState(
 
 @Composable
 private fun PurchaseSuccessDialog(onConfirm: () -> Unit) {
+    val inspection = LocalInspectionMode.current
+    val needsSignIn = remember(inspection) {
+        if (inspection) {
+            false
+        } else {
+            val user = FirebaseAuth.getInstance().currentUser
+            user == null || user.isAnonymous
+        }
+    }
     val shape = RoundedCornerShape(12.dp)
     AlertDialog(
         onDismissRequest = onConfirm,
@@ -787,7 +798,13 @@ private fun PurchaseSuccessDialog(onConfirm: () -> Unit) {
         },
         text = {
             Text(
-                text = stringResource(id = R.string.msg_paywall_purchase_congrats),
+                text = stringResource(
+                    id = if (needsSignIn) {
+                        R.string.msg_paywall_purchase_sign_in
+                    } else {
+                        R.string.msg_paywall_purchase_congrats
+                    }
+                ),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center

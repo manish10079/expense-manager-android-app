@@ -4268,6 +4268,7 @@
     <string name="title_paywall_purchase_congrats">Congratulations</string>
 
     <string name="msg_paywall_purchase_congrats">You are Pro. Unlimited insights, no ads, and every feature unlocked. Enjoy the upgrade.</string>
+    <string name="msg_paywall_purchase_sign_in">Your payment went through. To use Pro, sign in with Google or email and password. If Pro does not turn on by itself, open Settings, then My membership, and tap Restore purchase.</string>
 
     <string name="content_desc_opening_play_store">Opening Google Play</string>
 
