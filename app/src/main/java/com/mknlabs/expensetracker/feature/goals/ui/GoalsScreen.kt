@@ -9,8 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -438,10 +436,9 @@ fun AddGoalDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = Dimens.ScreenPadding)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = stringResource(R.string.title_add_goal),
@@ -504,7 +501,7 @@ fun AddGoalDialog(
                 onSelect = { iconKey = it },
                 identityColor = identity,
                 columns = 6,
-                modifier = Modifier.height(280.dp)
+                modifier = Modifier.height(112.dp)
             )
 
             Text(
@@ -575,10 +572,9 @@ fun EditGoalDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = Dimens.ScreenPadding)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = stringResource(R.string.title_edit_goal),
@@ -635,7 +631,7 @@ fun EditGoalDialog(
                 onSelect = { iconKey = it },
                 identityColor = identity,
                 columns = 6,
-                modifier = Modifier.height(280.dp)
+                modifier = Modifier.height(112.dp)
             )
 
             Text(
