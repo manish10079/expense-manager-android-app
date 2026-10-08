@@ -22,11 +22,25 @@ data class ReferralSnapshot(
     val code: String,
     val successCount: Int,
     val rewardsThisMonth: Int,
-    val referredByUid: String
+    val referredByUid: String,
+    val accountTier: String = "",
+    val proExpiryTimestamp: Long = 0L
+)
+
+data class ReferralInvite(
+    val refereeUid: String,
+    val displayName: String,
+    val attributedAt: Long,
+    val qualified: Boolean,
+    val rewarded: Boolean
 )
 
 sealed interface ApplyReferralOutcome {
-    data class Success(val welcomeDays: Int, val newExpiry: Long) : ApplyReferralOutcome
+    data class Success(
+        val welcomeDays: Int,
+        val newExpiry: Long,
+        val needsFirstTx: Boolean
+    ) : ApplyReferralOutcome
     data class Failure(val error: ReferralError) : ApplyReferralOutcome
 }
 
@@ -34,4 +48,5 @@ interface ReferralRepository {
     suspend fun ensureCode(): Result<ReferralSnapshot>
     suspend fun applyCode(code: String): ApplyReferralOutcome
     suspend fun qualifyAfterTransaction()
+    suspend fun listMyReferrals(): List<ReferralInvite>
 }

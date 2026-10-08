@@ -53,7 +53,9 @@ function registerReferral({
           successCount: Number(data.referralSuccessCount) || 0,
           rewardsThisMonth: Number(data.referralRewardsThisMonth) || 0,
           monthKey: data.referralRewardMonthKey || utcMonthKey(Date.now()),
-          referredByUid: data.referredByUid || ""
+          referredByUid: data.referredByUid || "",
+          accountTier: data.accountTier || "",
+          proExpiryTimestamp: Number(data.proExpiryTimestamp) || 0
         };
       }
 
@@ -72,12 +74,15 @@ function registerReferral({
         tx.set(codeRef, { uid, createdAt: admin.firestore.FieldValue.serverTimestamp() });
       }
       tx.set(userRef, { uid, referralCode: code, profileUpdatedAtMillis: Date.now() }, { merge: true });
+      const created = userSnap.exists ? userSnap.data() || {} : {};
       return {
         code,
         successCount: 0,
         rewardsThisMonth: 0,
         monthKey: utcMonthKey(Date.now()),
-        referredByUid: userSnap.exists ? userSnap.data()?.referredByUid || "" : ""
+        referredByUid: created.referredByUid || "",
+        accountTier: created.accountTier || "",
+        proExpiryTimestamp: Number(created.proExpiryTimestamp) || 0
       };
     });
   });
@@ -194,36 +199,24 @@ function registerReferral({
       let rewarded = false;
       let newExpiry = Number(data.proExpiryTimestamp) || 0;
       const sub = activeSubscription(rcSnap.exists ? rcSnap.data() : null);
-      if (used < REFERRAL_MONTHLY_CAP && !sub) {
+      const underCap = used < REFERRAL_MONTHLY_CAP;
+      if (underCap) used += 1;
+      if (underCap && !sub) {
         rewarded = true;
-        used += 1;
         newExpiry = stackExpiry(newExpiry, REFERRAL_DAYS, now, DURATION_MS_PER_DAY);
-        tx.set(
-          referrerRef,
-          {
-            uid: referrerUid,
-            accountTier: "Pro_Pass",
-            proExpiryTimestamp: newExpiry,
-            referralRewardsThisMonth: used,
-            referralRewardMonthKey: key,
-            referralSuccessCount: admin.firestore.FieldValue.increment(1),
-            profileUpdatedAtMillis: now
-          },
-          { merge: true }
-        );
-      } else {
-        tx.set(
-          referrerRef,
-          {
-            uid: referrerUid,
-            referralRewardMonthKey: key,
-            referralRewardsThisMonth: used,
-            referralSuccessCount: admin.firestore.FieldValue.increment(1),
-            profileUpdatedAtMillis: now
-          },
-          { merge: true }
-        );
       }
+      const patch = {
+        uid: referrerUid,
+        referralRewardsThisMonth: used,
+        referralRewardMonthKey: key,
+        referralSuccessCount: admin.firestore.FieldValue.increment(1),
+        profileUpdatedAtMillis: now
+      };
+      if (rewarded) {
+        patch.accountTier = "Pro_Pass";
+        patch.proExpiryTimestamp = newExpiry;
+      }
+      tx.set(referrerRef, patch, { merge: true });
 
       tx.set(
         attrRef,
@@ -238,7 +231,38 @@ function registerReferral({
     });
   });
 
-  return { ensureReferralCode, applyReferralCode, qualifyReferral };
+  const listMyReferrals = onCall({ enforceAppCheck: true }, async (request) => {
+    const uid = requireRegisteredUid(HttpsError, request);
+    const snap = await db.collection("referralAttributions").where("referrerUid", "==", uid).get();
+    const items = [];
+    for (const doc of snap.docs) {
+      const d = doc.data() || {};
+      const refereeUid = doc.id;
+      let displayName = "Friend";
+      const userSnap = await db.collection("users").doc(refereeUid).get();
+      if (userSnap.exists) {
+        const name = userSnap.data()?.fullName;
+        if (typeof name === "string" && name.trim()) {
+          displayName = name.trim().split(/\s+/)[0];
+        }
+      }
+      const attributedAt = d.attributedAt && typeof d.attributedAt.toMillis === "function"
+        ? d.attributedAt.toMillis()
+        : 0;
+      const qualified = Boolean(d.qualifiedAt);
+      items.push({
+        refereeUid,
+        displayName,
+        attributedAt,
+        qualified,
+        rewarded: Boolean(d.referrerRewarded)
+      });
+    }
+    items.sort((a, b) => b.attributedAt - a.attributedAt);
+    return { items };
+  });
+
+  return { ensureReferralCode, applyReferralCode, qualifyReferral, listMyReferrals };
 }
 
 module.exports = { registerReferral, referralCodeFromUid };

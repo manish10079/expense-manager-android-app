@@ -5,6 +5,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.MonetizationDataStore
+import com.mknlabs.expensetracker.data.local.ReferPromptStore
+import com.mknlabs.expensetracker.domain.repository.ReferralRepository
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +22,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val syncRepository: SyncRepository,
     private val firebaseAuth: FirebaseAuth,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val referralRepository: ReferralRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -65,6 +68,13 @@ class SyncWorker @AssistedInject constructor(
             // Re-enroll periodic chain so the next scheduled run still fires correctly.
             schedulePeriodic(applicationContext)
             return Result.success()
+        }
+
+        if (ReferPromptStore.isPendingQualify(applicationContext)) {
+            referralRepository.qualifyAfterTransaction()
+        }
+        if (firebaseAuth.currentUser?.isAnonymous != true) {
+            referralRepository.ensureCode()
         }
 
         // 2. Re-read settings AFTER profile sync to get the latest tier

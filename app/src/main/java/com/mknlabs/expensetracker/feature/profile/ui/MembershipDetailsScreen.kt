@@ -45,6 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -65,6 +66,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
@@ -87,6 +91,7 @@ import com.mknlabs.expensetracker.core.ui.theme.premiumGold
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
+import com.mknlabs.expensetracker.feature.settings.ui.ReferAFriendViewModel
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
@@ -98,7 +103,8 @@ fun MembershipDetailsScreen(
     proExpiryTimestamp: Long = 0L,
     isAnonymous: Boolean = false,
     onBackClick: () -> Unit = {},
-    monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    monetizationViewModel: MonetizationViewModel = hiltViewModel(),
+    referralViewModel: ReferAFriendViewModel = hiltViewModel()
 ) {
     // Whether Pro came from the store decides which Pro state this screen is in, so it is
     // read from the entitlement rather than from the profile's `isSubscription` mirror —
@@ -114,6 +120,14 @@ fun MembershipDetailsScreen(
     // — and the card then named a ProPass grant as the source of their Pro.
     LaunchedEffect(Unit) {
         monetizationViewModel.refreshStoreEntitlement()
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) referralViewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     // The restore is announced here because it now runs here. Same pure mapper as the

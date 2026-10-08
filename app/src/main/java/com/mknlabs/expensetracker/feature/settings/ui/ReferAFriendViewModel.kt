@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mknlabs.expensetracker.domain.repository.ApplyReferralOutcome
 import com.mknlabs.expensetracker.domain.repository.ReferralError
 import com.mknlabs.expensetracker.data.local.ReferPromptStore
+import com.mknlabs.expensetracker.domain.repository.ReferralInvite
 import com.mknlabs.expensetracker.domain.repository.ReferralRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,9 @@ data class ReferAFriendUiState(
     val alreadyReferred: Boolean = false,
     val applyBusy: Boolean = false,
     val applyError: ReferralError? = null,
-    val applyWelcomeDays: Int? = null
+    val applyWelcomeDays: Int? = null,
+    val needsFirstTx: Boolean = false,
+    val invites: List<ReferralInvite> = emptyList()
 )
 
 @HiltViewModel
@@ -58,12 +61,14 @@ class ReferAFriendViewModel @Inject constructor(
         viewModelScope.launch {
             referralRepository.ensureCode().onSuccess { snap ->
                 ReferPromptStore.setSuccessCount(appContext, snap.successCount)
+                val invites = referralRepository.listMyReferrals()
                 _uiState.update {
                     it.copy(
                         code = snap.code,
                         successCount = snap.successCount,
                         rewardsThisMonth = snap.rewardsThisMonth,
-                        alreadyReferred = snap.referredByUid.isNotBlank()
+                        alreadyReferred = snap.referredByUid.isNotBlank(),
+                        invites = invites
                     )
                 }
             }
@@ -74,12 +79,16 @@ class ReferAFriendViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(applyBusy = true, applyError = null, applyWelcomeDays = null) }
             when (val outcome = referralRepository.applyCode(code)) {
-                is ApplyReferralOutcome.Success -> _uiState.update {
-                    it.copy(
-                        applyBusy = false,
-                        alreadyReferred = true,
-                        applyWelcomeDays = outcome.welcomeDays
-                    )
+                is ApplyReferralOutcome.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            applyBusy = false,
+                            alreadyReferred = true,
+                            applyWelcomeDays = outcome.welcomeDays,
+                            needsFirstTx = outcome.needsFirstTx
+                        )
+                    }
+                    refresh()
                 }
                 is ApplyReferralOutcome.Failure -> _uiState.update {
                     it.copy(applyBusy = false, applyError = outcome.error)

@@ -5,12 +5,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.functions.FirebaseFunctions
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.google.firebase.functions.FirebaseFunctionsException
+import com.mknlabs.expensetracker.data.local.ReferPromptStore
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.MonetizationDataStore
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.domain.repository.ApplyReferralOutcome
 import com.mknlabs.expensetracker.domain.repository.ReferralError
 import com.mknlabs.expensetracker.domain.repository.ReferralRepository
+import com.mknlabs.expensetracker.domain.repository.ReferralInvite
 import com.mknlabs.expensetracker.domain.repository.ReferralSnapshot
 import com.mknlabs.expensetracker.models.UserTier
 import kotlinx.coroutines.tasks.await
@@ -31,14 +33,16 @@ class ReferralRepositoryImpl @Inject constructor(
         }
         return try {
             val data = call("ensureReferralCode", emptyMap())
-            Result.success(
-                ReferralSnapshot(
-                    code = data["code"] as? String ?: "",
-                    successCount = (data["successCount"] as? Number)?.toInt() ?: 0,
-                    rewardsThisMonth = (data["rewardsThisMonth"] as? Number)?.toInt() ?: 0,
-                    referredByUid = data["referredByUid"] as? String ?: ""
-                )
+            val snap = ReferralSnapshot(
+                code = data["code"] as? String ?: "",
+                successCount = (data["successCount"] as? Number)?.toInt() ?: 0,
+                rewardsThisMonth = (data["rewardsThisMonth"] as? Number)?.toInt() ?: 0,
+                referredByUid = data["referredByUid"] as? String ?: "",
+                accountTier = data["accountTier"] as? String ?: "",
+                proExpiryTimestamp = (data["proExpiryTimestamp"] as? Number)?.toLong() ?: 0L
             )
+            applyRemotePass(snap.proExpiryTimestamp)
+            Result.success(snap)
         } catch (e: Exception) {
             Log.w(TAG, "ensureReferralCode failed", e)
             Result.failure(e)
@@ -54,22 +58,37 @@ class ReferralRepositoryImpl @Inject constructor(
             val data = call("applyReferralCode", mapOf("code" to code))
             val welcomeDays = (data["welcomeDays"] as? Number)?.toInt() ?: 0
             val newExpiry = (data["newExpiry"] as? Number)?.toLong() ?: 0L
-            if (welcomeDays > 0 && newExpiry > 0L) {
-                UserProfileDataStore.updateUserProfile(appContext) { profile ->
-                    profile.copy(
-                        proExpiryTimestamp = newExpiry,
-                        accountTier = "PREMIUM",
-                        updatedAtMillis = System.currentTimeMillis()
-                    )
-                }
-                AppSettingsDataStore.updateUserTier(appContext, UserTier.PREMIUM)
-                MonetizationDataStore.updateGlobalAdAccessExpiry(appContext, 0L)
-            }
-            val outcome = ApplyReferralOutcome.Success(welcomeDays, newExpiry)
+            if (welcomeDays > 0) applyRemotePass(newExpiry)
             qualifyAfterTransaction()
-            outcome
+            ApplyReferralOutcome.Success(
+                welcomeDays = welcomeDays,
+                newExpiry = newExpiry,
+                needsFirstTx = transactionDao.countActive() < 1
+            )
         } catch (e: Exception) {
             ApplyReferralOutcome.Failure(mapError(e))
+        }
+    }
+
+    override suspend fun listMyReferrals(): List<ReferralInvite> {
+        val user = firebaseAuth.currentUser
+        if (user == null || user.isAnonymous) return emptyList()
+        return try {
+            val data = call("listMyReferrals", emptyMap())
+            val raw = data["items"] as? List<*> ?: return emptyList()
+            raw.mapNotNull { row ->
+                val map = row as? Map<*, *> ?: return@mapNotNull null
+                ReferralInvite(
+                    refereeUid = map["refereeUid"] as? String ?: return@mapNotNull null,
+                    displayName = map["displayName"] as? String ?: "Friend",
+                    attributedAt = (map["attributedAt"] as? Number)?.toLong() ?: 0L,
+                    qualified = map["qualified"] as? Boolean ?: false,
+                    rewarded = map["rewarded"] as? Boolean ?: false
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "listMyReferrals failed", e)
+            emptyList()
         }
     }
 
@@ -79,8 +98,10 @@ class ReferralRepositoryImpl @Inject constructor(
         if (transactionDao.countActive() < 1) return
         try {
             call("qualifyReferral", emptyMap())
+            ReferPromptStore.setPendingQualify(appContext, false)
         } catch (e: Exception) {
             Log.w(TAG, "qualifyReferral skipped", e)
+            ReferPromptStore.setPendingQualify(appContext, true)
         }
     }
 
@@ -106,6 +127,19 @@ class ReferralRepositoryImpl @Inject constructor(
             }
         }
         return ReferralError.Network
+    }
+
+    private suspend fun applyRemotePass(newExpiry: Long) {
+        if (newExpiry <= System.currentTimeMillis()) return
+        UserProfileDataStore.updateUserProfile(appContext) { profile ->
+            profile.copy(
+                proExpiryTimestamp = maxOf(profile.proExpiryTimestamp, newExpiry),
+                accountTier = "PREMIUM",
+                updatedAtMillis = System.currentTimeMillis()
+            )
+        }
+        AppSettingsDataStore.updateUserTier(appContext, UserTier.PREMIUM)
+        MonetizationDataStore.updateGlobalAdAccessExpiry(appContext, 0L)
     }
 
     private companion object {
