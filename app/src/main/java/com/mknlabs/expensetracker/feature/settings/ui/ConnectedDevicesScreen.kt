@@ -238,15 +238,9 @@ private fun DeviceListContent(
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
             shape = AppCardDefaults.shape(24.dp),
-            // The brand tint is this card's dark surface and dark keeps it; light takes the
-            // standard white card, which is what the redesign asks of every tinted hero.
-            colors = AppCardDefaults.colors(
-                darkContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                darkBorder = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f)
-                )
-            ),
+            // The shared card in both themes: the brand tint that used to be this card's
+            // dark surface is gone, so it now reads like every other card on the screen.
+            colors = AppCardDefaults.colors(),
         ) {
             Row(
                 modifier = Modifier
@@ -341,14 +335,14 @@ private fun DeviceListContent(
                         } else {
                             Button(
                                 onClick = onForceSyncClick,
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = androidx.compose.ui.graphics.Color.Transparent,
                                     contentColor = MaterialTheme.colorScheme.onBrandGradient
                                 ),
                                 modifier = Modifier.background(
                                     brush = brandGradient(),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(16.dp)
                                 )
                             ) {
                                 Icon(
@@ -371,10 +365,12 @@ private fun DeviceListContent(
                     }
                     Text(
                         text = lastSyncText,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
                     )
                 }
             }
