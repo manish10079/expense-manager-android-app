@@ -56,7 +56,8 @@ class SyncRepositoryImpl @Inject constructor(
     private val favoriteTransactionDao: com.mknlabs.expensetracker.data.local.room.dao.FavoriteTransactionDao,
     private val tagDao: com.mknlabs.expensetracker.data.local.room.dao.TagDao,
     private val fundDao: com.mknlabs.expensetracker.data.local.room.dao.FundDao,
-    private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
+    private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase,
+    private val referralRepository: com.mknlabs.expensetracker.domain.repository.ReferralRepository
 ) : SyncRepository {
 
     private val _registeredDevices = MutableStateFlow<List<RegisteredDevice>>(emptyList())
@@ -762,7 +763,10 @@ class SyncRepositoryImpl @Inject constructor(
 
                 // Mark as SYNCED locally only after batch success
                 val txIds = chunk.filterIsInstance<SyncTask.TransactionTask>().map { it.entity.id }
-                if (txIds.isNotEmpty()) transactionDao.updateSyncStates(txIds, SyncState.SYNCED.name)
+                if (txIds.isNotEmpty()) {
+                    transactionDao.updateSyncStates(txIds, SyncState.SYNCED.name)
+                    referralRepository.qualifyAfterTransaction()
+                }
 
                 val catIds = chunk.filterIsInstance<SyncTask.CategoryTask>().map { it.entity.id }
                 if (catIds.isNotEmpty()) categoryDao.updateSyncStates(catIds, SyncState.SYNCED.name)

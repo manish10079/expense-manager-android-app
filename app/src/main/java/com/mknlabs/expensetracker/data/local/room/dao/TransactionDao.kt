@@ -230,6 +230,9 @@ interface TransactionDao {
     @Query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0")
     fun observeActiveTransactionCount(): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0")
+    suspend fun countActive(): Int
+
     /** Today's total expense in minor units, for the widget. */
     @Query("""
         SELECT COALESCE(SUM(amount_minor), 0)

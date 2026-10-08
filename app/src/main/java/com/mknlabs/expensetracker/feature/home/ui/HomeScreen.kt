@@ -77,6 +77,11 @@ import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.hasPhoneNumber
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.components.*
+import com.mknlabs.expensetracker.core.ui.components.ReferOfferBottomSheet
+import com.mknlabs.expensetracker.data.local.ReferPromptStore
+import com.mknlabs.expensetracker.data.local.RateAppPromptStore
+import com.mknlabs.expensetracker.utils.RateAppPrompt
+import kotlinx.coroutines.launch
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -111,12 +116,14 @@ fun HomeScreen(
     onTransactionClick: (Transaction) -> Unit = {},
     onProfileClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onReferOfferClick: () -> Unit = {},
     onSmsInboxClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {},
     onGoalsClick: () -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
     isAdsEnabled: Boolean = false,
-    isLockOverlayActive: Boolean = false
+    isLockOverlayActive: Boolean = false,
+    transactionCount: Int = 0
 ) {
     val context = LocalContext.current
 
@@ -298,6 +305,37 @@ fun HomeScreen(
         onPeriodChanged = homeViewModel::onPeriodChanged,
         isLockOverlayActive = isLockOverlayActive
     )
+
+    val referPrompt by ReferPromptStore.flow(context).collectAsStateWithLifecycle(ReferPromptStore.State())
+    val ratePrompt by RateAppPromptStore.flow(context).collectAsStateWithLifecycle(
+        com.mknlabs.expensetracker.data.local.RateAppPromptState()
+    )
+    var referDismissed by remember { mutableStateOf(false) }
+    val referScope = rememberCoroutineScope()
+    val rateDue = RateAppPrompt.shouldShow(
+        transactionCount = transactionCount,
+        firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
+        nowMillis = System.currentTimeMillis(),
+        completed = ratePrompt.completed,
+        dismissCount = ratePrompt.dismissCount,
+        lastDismissAtMillis = ratePrompt.lastDismissAtMillis
+    )
+    val showRefer = !isLockOverlayActive && !referDismissed && !rateDue &&
+        ReferPromptStore.shouldShow(referPrompt.lastShownAtMillis)
+    if (showRefer) {
+        ReferOfferBottomSheet(
+            hasReferred = referPrompt.successCount > 0,
+            onRefer = {
+                referDismissed = true
+                referScope.launch { ReferPromptStore.markShown(context) }
+                onReferOfferClick()
+            },
+            onDismiss = {
+                referDismissed = true
+                referScope.launch { ReferPromptStore.markShown(context) }
+            }
+        )
+    }
 }
 
 @Composable

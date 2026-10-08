@@ -127,6 +127,7 @@ fun SettingsScreen(
     onTransactionCardCustomizeClick: () -> Unit = {},
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
+    onReferAFriendClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onLinkAccountClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit = {},
@@ -189,6 +190,7 @@ fun SettingsScreen(
         onTransactionCardCustomizeClick = onTransactionCardCustomizeClick,
         onDataManagementClick = onDataManagementClick,
         onAboutClick = onAboutClick,
+        onReferAFriendClick = onReferAFriendClick,
         onLogoutClick = onLogoutClick,
         onLinkAccountClick = onLinkAccountClick,
         onBackClick = onBackClick
@@ -221,6 +223,7 @@ fun SettingsScreenContent(
     onTransactionCardCustomizeClick: () -> Unit = {},
     onDataManagementClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
+    onReferAFriendClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onLinkAccountClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
@@ -444,13 +447,7 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_refer_a_friend,
                                     subtitleRes = R.string.label_refer_a_friend_subtitle,
                                     icon = Icons.Filled.PersonAdd,
-                                    onClick = {
-                                        val send = Intent(Intent.ACTION_SEND).apply {
-                                            type = "text/plain"
-                                            putExtra(Intent.EXTRA_TEXT, referFriendBody)
-                                        }
-                                        context.startActivity(Intent.createChooser(send, referFriendChooser))
-                                    }
+                                    onClick = onReferAFriendClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_share_app,

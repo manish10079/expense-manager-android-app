@@ -135,7 +135,8 @@ class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val googleAuthHelper: GoogleAuthHelper,
     private val networkMonitor: NetworkMonitor,
-    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository
+    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository,
+    private val referralRepository: com.mknlabs.expensetracker.domain.repository.ReferralRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -150,6 +151,16 @@ class AuthViewModel @Inject constructor(
     private var guestSignInSessionId: Long = 0L
 
     val currentUser = authRepository.currentUser
+
+    init {
+        viewModelScope.launch {
+            authRepository.currentUser.collect { user ->
+                if (user != null && !user.isAnonymous) {
+                    referralRepository.ensureCode()
+                }
+            }
+        }
+    }
 
     private val _verificationExpiry = MutableStateFlow<Long?>(null)
     val verificationExpiry: StateFlow<Long?> = _verificationExpiry.asStateFlow()

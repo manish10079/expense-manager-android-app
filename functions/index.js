@@ -565,5 +565,15 @@ exports.expireProPasses = onSchedule(
   }
 );
 
-
-
+const { registerReferral } = require("./referral");
+const referralFns = registerReferral({
+  onCall,
+  HttpsError,
+  admin,
+  db,
+  activeSubscription,
+  DURATION_MS_PER_DAY
+});
+exports.ensureReferralCode = referralFns.ensureReferralCode;
+exports.applyReferralCode = referralFns.applyReferralCode;
+exports.qualifyReferral = referralFns.qualifyReferral;

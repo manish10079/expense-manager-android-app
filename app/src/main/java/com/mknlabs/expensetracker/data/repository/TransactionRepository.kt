@@ -17,6 +17,7 @@ import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.domain.repository.TransactionSummary
 import com.mknlabs.expensetracker.domain.repository.TransactionTotals
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository as DomainTransactionRepository
+import com.mknlabs.expensetracker.domain.repository.ReferralRepository
 import com.mknlabs.expensetracker.domain.usecase.CheckLargeTransactionUseCase
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
@@ -32,7 +33,8 @@ class TransactionRepository @Inject constructor(
     private val database: ExpenseTrackerDatabase,
     private val dao: TransactionDao,
     private val recurringRuleDao: RecurringRuleDao,
-    private val checkLargeTransactionUseCase: CheckLargeTransactionUseCase
+    private val checkLargeTransactionUseCase: CheckLargeTransactionUseCase,
+    private val referralRepository: ReferralRepository
 ) : DomainTransactionRepository {
 
     companion object {
@@ -147,6 +149,7 @@ class TransactionRepository @Inject constructor(
         // backfill. Batch imports (backup restore, cloud pull, legacy import)
         // bypass the repository deliberately, so they stay silent.
         checkLargeTransactionUseCase(resolved)
+        referralRepository.qualifyAfterTransaction()
         resolved
     }
 

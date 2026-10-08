@@ -93,7 +93,7 @@ service cloud.firestore {
                         || request.resource.data.createdAt == resource.data.createdAt)
                     && !request.resource.data.diff(resource.data)
                           .affectedKeys()
-                          .hasAny(['proExpiryTimestamp', 'isSubscription'])
+                          .hasAny(['proExpiryTimestamp', 'isSubscription', 'referralCode', 'referredByUid', 'referralWelcomeGranted', 'referralRewardsThisMonth', 'referralRewardMonthKey', 'referralSuccessCount'])
                     && (!request.resource.data.diff(resource.data)
                           .affectedKeys()
                           .hasAny(['accountTier'])
@@ -169,6 +169,14 @@ service cloud.firestore {
      * backend/debugging log, not app-facing data.
      ******************************************************************/
     match /rc_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /referralCodes/{code} {
+      allow read, write: if false;
+    }
+
+    match /referralAttributions/{uid} {
       allow read, write: if false;
     }
 

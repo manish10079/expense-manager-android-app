@@ -17,6 +17,7 @@ enum class AppRoute(
     TagManagement("tag_management", false),
     DataManagement("data_management", false),
     About("about", false),
+    ReferAFriend("refer_a_friend", false),
     NotificationSettings("notification_settings", false),
     Profile("profile", false),
     ConnectedDevices("connected_devices", false),

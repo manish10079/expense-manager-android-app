@@ -31,6 +31,7 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.feature.settings.ui.AboutScreen
+import com.mknlabs.expensetracker.feature.settings.ui.ReferAFriendScreen
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
 import com.mknlabs.expensetracker.feature.settings.ui.FeedbackRoute
@@ -228,6 +229,7 @@ fun AppNavigationHost(
                     HomeScreen(
                         isAdsEnabled = isAdsEnabled,
                         isLockOverlayActive = isLockOverlayActive,
+                        transactionCount = transactionCount,
                         userProfile = userProfile,
                         appSettings = appSettings,
                         currencyId = selectedCurrencyId,
@@ -253,6 +255,10 @@ fun AppNavigationHost(
                         onSettingsClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Settings)
+                        },
+                        onReferOfferClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.ReferAFriend)
                         },
                         onSmsInboxClick = {
                             onBottomBarVisibilityChange(false)
@@ -423,6 +429,10 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.About)
                         },
+                        onReferAFriendClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.ReferAFriend)
+                        },
                         onNotificationsClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.NotificationSettings)
@@ -475,6 +485,16 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Paywall)
                         }
+                    )
+                }
+
+                AppRoute.ReferAFriend -> {
+                    ReferAFriendScreen(
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Settings)
+                        },
+                        onLinkAccountClick = onLinkAccountClick
                     )
                 }
 

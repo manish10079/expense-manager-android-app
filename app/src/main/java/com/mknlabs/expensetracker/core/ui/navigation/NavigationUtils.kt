@@ -56,6 +56,7 @@ fun resolveBackNavigationRoute(
         AppRoute.TagManagement,
         AppRoute.DataManagement,
         AppRoute.About,
+        AppRoute.ReferAFriend,
         AppRoute.NotificationSettings,
         AppRoute.ConnectedDevices,
         AppRoute.MembershipDetails -> AppRoute.Settings
