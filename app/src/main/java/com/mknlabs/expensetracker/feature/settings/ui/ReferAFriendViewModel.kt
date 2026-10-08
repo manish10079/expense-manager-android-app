@@ -26,7 +26,9 @@ data class ReferAFriendUiState(
     val applyError: ReferralError? = null,
     val applyWelcomeDays: Int? = null,
     val needsFirstTx: Boolean = false,
-    val invites: List<ReferralInvite> = emptyList()
+    val invites: List<ReferralInvite> = emptyList(),
+    val welcomeExpiryMillis: Long? = null,
+    val referrerRewardInvite: ReferralInvite? = null
 )
 
 @HiltViewModel
@@ -62,13 +64,20 @@ class ReferAFriendViewModel @Inject constructor(
             referralRepository.ensureCode().onSuccess { snap ->
                 ReferPromptStore.setSuccessCount(appContext, snap.successCount)
                 val invites = referralRepository.listMyReferrals()
+                val celebrated = ReferPromptStore.lastCelebratedSuccessCount(appContext)
+                val newReward = if (snap.successCount > celebrated) {
+                    invites.firstOrNull { it.qualified } ?: _uiState.value.referrerRewardInvite
+                } else {
+                    _uiState.value.referrerRewardInvite
+                }
                 _uiState.update {
                     it.copy(
                         code = snap.code,
                         successCount = snap.successCount,
                         rewardsThisMonth = snap.rewardsThisMonth,
                         alreadyReferred = snap.referredByUid.isNotBlank(),
-                        invites = invites
+                        invites = invites,
+                        referrerRewardInvite = newReward
                     )
                 }
             }
@@ -85,7 +94,8 @@ class ReferAFriendViewModel @Inject constructor(
                             applyBusy = false,
                             alreadyReferred = true,
                             applyWelcomeDays = outcome.welcomeDays,
-                            needsFirstTx = outcome.needsFirstTx
+                            needsFirstTx = outcome.needsFirstTx,
+                            welcomeExpiryMillis = if (outcome.welcomeDays > 0) outcome.newExpiry else null
                         )
                     }
                     refresh()
@@ -94,6 +104,17 @@ class ReferAFriendViewModel @Inject constructor(
                     it.copy(applyBusy = false, applyError = outcome.error)
                 }
             }
+        }
+    }
+
+    fun dismissWelcomeCelebration() {
+        _uiState.update { it.copy(welcomeExpiryMillis = null) }
+    }
+
+    fun dismissReferrerCelebration() {
+        viewModelScope.launch {
+            ReferPromptStore.setLastCelebratedSuccessCount(appContext, _uiState.value.successCount)
+            _uiState.update { it.copy(referrerRewardInvite = null) }
         }
     }
 }

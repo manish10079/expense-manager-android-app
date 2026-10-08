@@ -19,6 +19,7 @@ object ReferPromptStore {
     private val lastShownAtMillis = longPreferencesKey("last_shown_at_millis")
     private val successCount = intPreferencesKey("success_count")
     private val pendingQualify = booleanPreferencesKey("pending_qualify")
+    private val lastCelebratedSuccessCount = intPreferencesKey("last_celebrated_success_count")
     private const val INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
 
     data class State(val lastShownAtMillis: Long = 0L, val successCount: Int = 0)
@@ -49,5 +50,12 @@ object ReferPromptStore {
 
     suspend fun setPendingQualify(context: Context, pending: Boolean) {
         context.referPromptDataStore.edit { it[pendingQualify] = pending }
+    }
+
+    suspend fun lastCelebratedSuccessCount(context: Context): Int =
+        context.referPromptDataStore.data.map { it[lastCelebratedSuccessCount] ?: 0 }.first()
+
+    suspend fun setLastCelebratedSuccessCount(context: Context, count: Int) {
+        context.referPromptDataStore.edit { it[lastCelebratedSuccessCount] = count }
     }
 }

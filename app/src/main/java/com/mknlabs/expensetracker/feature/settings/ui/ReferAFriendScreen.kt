@@ -101,6 +101,9 @@ fun ReferAFriendScreen(
     var enterCode by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
     var showHelp by remember { mutableStateOf(false) }
+    var showRefereePopup by remember { mutableStateOf(false) }
+    var showReferrerPopup by remember { mutableStateOf(false) }
+    val dateFmt = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
     val monthLabel = remember {
         SimpleDateFormat("MMMM", Locale.getDefault()).format(Date())
     }
@@ -155,6 +158,11 @@ fun ReferAFriendScreen(
                 .padding(padding)
                 .padding(horizontal = Dimens.spacingMedium)
         ) {
+            ReferralTestPopupBar(
+                onRefereeClick = { showRefereePopup = true },
+                onReferrerClick = { showReferrerPopup = true }
+            )
+            Spacer(Modifier.height(8.dp))
             ReferTabRow(selectedTab = selectedTab, onSelect = { selectedTab = it })
             Spacer(Modifier.height(Dimens.spacingDefault))
             if (selectedTab == 0) {
@@ -240,6 +248,50 @@ fun ReferAFriendScreen(
                 TextButton(onClick = { showHelp = false }) {
                     Text(stringResource(R.string.btn_got_it))
                 }
+            }
+        )
+    }
+    val refereeExpiry = state.welcomeExpiryMillis
+    if (showRefereePopup || refereeExpiry != null) {
+        val until = refereeExpiry?.takeIf { it > 0L } ?: (System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)
+        RefereeCodeAcceptedDialog(
+            validUntilLabel = dateFmt.format(Date(until)),
+            onDismiss = {
+                showRefereePopup = false
+                viewModel.dismissWelcomeCelebration()
+            },
+            onExplore = {
+                showRefereePopup = false
+                viewModel.dismissWelcomeCelebration()
+                onBackClick()
+            },
+            onReferMore = {
+                showRefereePopup = false
+                viewModel.dismissWelcomeCelebration()
+            }
+        )
+    }
+    val rewardInvite = state.referrerRewardInvite
+    if (showReferrerPopup || rewardInvite != null) {
+        ReferrerFirstTxnDialog(
+            friendName = if (showReferrerPopup) {
+                stringResource(R.string.label_test_friend_name)
+            } else {
+                rewardInvite?.displayName?.ifBlank { stringResource(R.string.label_test_friend_name) }
+                    ?: stringResource(R.string.label_test_friend_name)
+            },
+            claimedSlots = if (showReferrerPopup) 2 else state.rewardsThisMonth.coerceAtLeast(1),
+            onDismiss = {
+                showReferrerPopup = false
+                viewModel.dismissReferrerCelebration()
+            },
+            onClaimed = {
+                showReferrerPopup = false
+                viewModel.dismissReferrerCelebration()
+            },
+            onInviteMore = {
+                showReferrerPopup = false
+                viewModel.dismissReferrerCelebration()
             }
         )
     }
