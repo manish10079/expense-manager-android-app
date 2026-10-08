@@ -364,6 +364,7 @@ private fun ProfileScreenContent(
                             onValueChange = {},
                             inputType = InputType.Text,
                             leadingIcon = PhosphorIcons.Regular.EnvelopeSimple,
+                            leadingIconBrush = brandGradient(),
                             placeholder = "",
                             isEnabled = false,
                             trailingContent = if (emailVerifiedState) {
@@ -473,6 +474,7 @@ private fun ProfileScreenContent(
                 onValueChange = { fullName = it },
                 inputType = InputType.Text,
                 leadingIcon = PhosphorIcons.Regular.User,
+                leadingIconBrush = brandGradient(),
                 placeholder = stringResource(id = R.string.placeholder_guest_user)
             )
 
@@ -495,6 +497,7 @@ private fun ProfileScreenContent(
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = PhosphorIcons.Regular.CalendarBlank,
+                leadingIconBrush = brandGradient(),
                 placeholder = stringResource(id = R.string.placeholder_select_dob),
                 onClick = { isDatePickerVisible = true }
             )
@@ -507,6 +510,7 @@ private fun ProfileScreenContent(
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = genderToIcon(gender),
+                leadingIconBrush = brandGradient(),
                 placeholder = selectGenderPlaceholder,
                 onClick = { isGenderPickerVisible = true },
                 trailingContent = {
@@ -801,6 +805,9 @@ private fun PhoneInputFieldCard(
     val accent = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
+    // Hoisted out of the draw lambda: brandGradient() is @Composable and cannot be invoked
+    // from inside drawWithCache.
+    val phoneIconRamp = brandGradient()
     // The same field spec the shared InputFieldCard follows: light takes the 16dp white
     // field on the hairline outline, lit in brand purple while it holds the cursor, and
     // dark keeps the 28dp, the quarter-strength edge and the 8dp lift. This is a second
@@ -851,8 +858,16 @@ private fun PhoneInputFieldCard(
                 Icon(
                     imageVector = PhosphorIcons.Regular.Phone,
                     contentDescription = null,
-                    tint = accent,
-                    modifier = Modifier.size(20.dp)
+                    tint = androidx.compose.ui.graphics.Color.White,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithCache {
+                            onDrawWithContent {
+                                drawContent()
+                                drawRect(brush = phoneIconRamp, blendMode = BlendMode.SrcIn)
+                            }
+                        }
                 )
             }
 

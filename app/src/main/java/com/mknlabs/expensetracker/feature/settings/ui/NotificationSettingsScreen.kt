@@ -24,18 +24,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.BarChart
-import androidx.compose.material.icons.rounded.Bedtime
-import androidx.compose.material.icons.rounded.CloudDone
-import androidx.compose.material.icons.rounded.EventRepeat
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.Payments
-import androidx.compose.material.icons.rounded.PriceCheck
-import androidx.compose.material.icons.rounded.Savings
-import androidx.compose.material.icons.rounded.WbSunny
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.BellRinging
+import com.adamglin.phosphoricons.regular.ChartBar
+import com.adamglin.phosphoricons.regular.CloudCheck
+import com.adamglin.phosphoricons.regular.Info
+import com.adamglin.phosphoricons.regular.Moon
+import com.adamglin.phosphoricons.regular.PiggyBank
+import com.adamglin.phosphoricons.regular.Repeat
+import com.adamglin.phosphoricons.regular.Sparkle
+import com.adamglin.phosphoricons.regular.Sun
+import com.adamglin.phosphoricons.regular.Tag
+import com.adamglin.phosphoricons.regular.Wallet
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -314,7 +315,7 @@ private fun NotificationSettingsContent(
             // Free tier (spec categories 1-4): all functional.
             SettingsGroup {
                 SettingsItemCard(
-                    icon = Icons.Rounded.NotificationsActive,
+                    icon = PhosphorIcons.Regular.BellRinging,
                     title = stringResource(id = R.string.title_expense_reminders),
                     subtitle = stringResource(id = R.string.desc_expense_reminders),
                     type = SettingsItemType.Toggle,
@@ -325,7 +326,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = Icons.Rounded.PriceCheck,
+                    icon = PhosphorIcons.Regular.Tag,
                     title = stringResource(id = R.string.title_budget_limit_alerts),
                     subtitle = stringResource(id = R.string.desc_budget_limit_alerts),
                     type = SettingsItemType.Toggle,
@@ -336,7 +337,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = Icons.Rounded.Payments,
+                    icon = PhosphorIcons.Regular.Wallet,
                     title = stringResource(id = R.string.title_large_transaction_alerts),
                     subtitle = stringResource(id = R.string.desc_large_transaction_alerts),
                     type = SettingsItemType.Toggle,
@@ -349,7 +350,7 @@ private fun NotificationSettingsContent(
                 if (isLargeTransactionAlertsEnabled) {
                     SettingsGroupDivider()
                     SettingsItemCard(
-                        icon = Icons.Rounded.Payments,
+                        icon = PhosphorIcons.Regular.Wallet,
                         title = stringResource(id = R.string.title_large_transaction_threshold),
                         subtitle = formatCurrencyValue(
                             largeTransactionThresholdMinor.toMajorUnits(),
@@ -363,7 +364,7 @@ private fun NotificationSettingsContent(
                 }
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = Icons.Rounded.BarChart,
+                    icon = PhosphorIcons.Regular.ChartBar,
                     title = stringResource(id = R.string.title_weekly_summary),
                     subtitle = stringResource(id = R.string.desc_weekly_summary),
                     type = SettingsItemType.Toggle,
@@ -376,7 +377,7 @@ private fun NotificationSettingsContent(
                 if (isWeeklySummaryEnabled) {
                     SettingsGroupDivider()
                     SettingsItemCard(
-                        icon = Icons.Rounded.BarChart,
+                        icon = PhosphorIcons.Regular.ChartBar,
                         title = stringResource(id = R.string.title_weekly_summary_time),
                         subtitle = weeklyTimeLabel(weeklySummaryTimeMillis, timeFormat),
                         type = SettingsItemType.Navigation,
@@ -393,7 +394,7 @@ private fun NotificationSettingsContent(
             // Premium tier (spec categories 5-8): â­-locked for Free users.
             SettingsGroup {
                 PremiumNotificationCard(
-                    icon = Icons.Rounded.AutoAwesome,
+                    icon = PhosphorIcons.Regular.Sparkle,
                     titleRes = R.string.title_financial_insights,
                     descRes = R.string.desc_financial_insights,
                     isEnabled = isFinancialInsightsEnabled,
@@ -404,7 +405,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 PremiumNotificationCard(
-                    icon = Icons.Rounded.Savings,
+                    icon = PhosphorIcons.Regular.PiggyBank,
                     titleRes = R.string.title_goal_reminders,
                     descRes = R.string.desc_goal_reminders,
                     isEnabled = isGoalRemindersEnabled,
@@ -415,7 +416,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 PremiumNotificationCard(
-                    icon = Icons.Rounded.EventRepeat,
+                    icon = PhosphorIcons.Regular.Repeat,
                     titleRes = R.string.title_recurring_alerts,
                     descRes = R.string.desc_recurring_alerts,
                     isEnabled = isBillRemindersEnabled,
@@ -426,7 +427,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 PremiumNotificationCard(
-                    icon = Icons.Rounded.CloudDone,
+                    icon = PhosphorIcons.Regular.CloudCheck,
                     titleRes = R.string.title_cloud_security_alerts,
                     descRes = R.string.desc_cloud_security_alerts,
                     isEnabled = isCloudSecurityEnabled,
@@ -444,7 +445,7 @@ private fun NotificationSettingsContent(
             // Reminder time windows + test notification (plan Â§Reminders/Phase 2).
             SettingsGroup {
                 SettingsItemCard(
-                    icon = Icons.Rounded.WbSunny,
+                    icon = PhosphorIcons.Regular.Sun,
                     title = stringResource(id = R.string.title_morning_window),
                     subtitle = reminderWindowLabel(
                         startHour = reminderMorningStartHour,
@@ -457,7 +458,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = Icons.Rounded.Bedtime,
+                    icon = PhosphorIcons.Regular.Moon,
                     title = stringResource(id = R.string.title_evening_window),
                     subtitle = reminderWindowLabel(
                         startHour = reminderEveningStartHour,
@@ -470,7 +471,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = Icons.Rounded.NotificationsActive,
+                    icon = PhosphorIcons.Regular.BellRinging,
                     title = stringResource(id = R.string.title_test_notification),
                     subtitle = stringResource(id = R.string.desc_test_notification),
                     type = SettingsItemType.Button,
@@ -1148,7 +1149,7 @@ private fun NotificationPermissionBanner(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Rounded.Info,
+                imageVector = PhosphorIcons.Regular.Info,
                 contentDescription = null,
                 tint = colorScheme.error
             )

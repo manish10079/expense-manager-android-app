@@ -17,13 +17,15 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Paid
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Style
-import androidx.compose.material.icons.outlined.Wallet
-import androidx.compose.material.icons.outlined.Summarize
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowDown
+import com.adamglin.phosphoricons.regular.ArrowUp
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.Clock
+import com.adamglin.phosphoricons.regular.ListChecks
+import com.adamglin.phosphoricons.regular.Tag
+import com.adamglin.phosphoricons.regular.Wallet
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,8 +33,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -240,7 +240,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showDateTitle,
                 subtitle = showDateSubtitle,
-                icon = Icons.Outlined.DateRange,
+                icon = PhosphorIcons.Regular.CalendarBlank,
                 optionId = "showTransactionDate",
                 checked = localSettings.showTransactionDate,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
@@ -248,7 +248,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showCategoryIconTitle,
                 subtitle = showCategoryIconSubtitle,
-                icon = Icons.Outlined.Paid,
+                icon = PhosphorIcons.Regular.Tag,
                 optionId = "showCategoryIcon",
                 checked = localSettings.showCategoryIcon,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
@@ -256,7 +256,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showTimeTitle,
                 subtitle = showTimeSubtitle,
-                icon = Icons.Outlined.Schedule,
+                icon = PhosphorIcons.Regular.Clock,
                 optionId = "showTransactionTime",
                 checked = localSettings.showTransactionTime,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
@@ -264,7 +264,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showCategoryTitle,
                 subtitle = showCategorySubtitle,
-                icon = Icons.Outlined.Paid,
+                icon = PhosphorIcons.Regular.Tag,
                 optionId = "showCategoryLabel",
                 checked = localSettings.showCategoryLabel,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryLabel = it) }
@@ -272,7 +272,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showPaymentMethodTitle,
                 subtitle = showPaymentMethodSubtitle,
-                icon = Icons.Outlined.Wallet,
+                icon = PhosphorIcons.Regular.Wallet,
                 optionId = "showPaymentMethod",
                 checked = localSettings.showPaymentMethod,
                 onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
@@ -280,7 +280,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showDateSeparatorsTitle,
                 subtitle = showDateSeparatorsSubtitle,
-                icon = Icons.Outlined.DateRange,
+                icon = PhosphorIcons.Regular.CalendarBlank,
                 optionId = "showDateSeparators",
                 checked = localSettings.showDateSeparators,
                 onCheckedChange = { localSettings = localSettings.copy(showDateSeparators = it) }
@@ -288,7 +288,7 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showListSummariesTitle,
                 subtitle = showListSummariesSubtitle,
-                icon = Icons.Outlined.Summarize,
+                icon = PhosphorIcons.Regular.ListChecks,
                 optionId = "showTransactionListSummaries",
                 checked = localSettings.showTransactionListSummaries,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionListSummaries = it) }
@@ -814,7 +814,7 @@ private fun PreviewTransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowDownward,
+                        imageVector = PhosphorIcons.Regular.ArrowDown,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.income,
                         modifier = Modifier.size(16.dp)
@@ -834,7 +834,7 @@ private fun PreviewTransactionSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowUpward,
+                        imageVector = PhosphorIcons.Regular.ArrowUp,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.expense,
                         modifier = Modifier.size(16.dp)

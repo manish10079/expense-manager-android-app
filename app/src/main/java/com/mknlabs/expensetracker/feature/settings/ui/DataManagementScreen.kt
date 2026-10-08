@@ -10,10 +10,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Notes
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowCounterClockwise
+import com.adamglin.phosphoricons.regular.ClockCountdown
+import com.adamglin.phosphoricons.regular.ClockCounterClockwise
+import com.adamglin.phosphoricons.regular.CloudArrowUp
+import com.adamglin.phosphoricons.regular.Database
+import com.adamglin.phosphoricons.regular.FileArrowDown
+import com.adamglin.phosphoricons.regular.FileArrowUp
+import com.adamglin.phosphoricons.regular.Note
+import com.adamglin.phosphoricons.regular.Trash
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -213,7 +220,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.title_auto_backup),
                                 subtitle = stringResource(id = R.string.desc_auto_backup_subtitle),
-                                icon = Icons.Rounded.CloudUpload,
+                                icon = PhosphorIcons.Regular.CloudArrowUp,
                                 type = SettingsItemType.Toggle,
                                 accessLevel = accessLevel,
                                 isLocked = status !is AccessStatus.Granted,
@@ -232,7 +239,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.title_backup_frequency),
                                 subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
-                                icon = Icons.Rounded.Timelapse,
+                                icon = PhosphorIcons.Regular.ClockCountdown,
                                 type = SettingsItemType.Value,
                                 valueText = pluralStringResource(id = R.plurals.label_days_count_formatted, count = autoBackupFrequencyDays, autoBackupFrequencyDays),
                                 accessLevel = accessLevel,
@@ -269,7 +276,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.label_export_data_json),
                                 subtitle = stringResource(id = R.string.desc_export_data_subtitle),
-                                icon = Icons.Rounded.FileDownload,
+                                icon = PhosphorIcons.Regular.FileArrowDown,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.label_export),
                                 accessLevel = accessLevel,
@@ -282,7 +289,7 @@ private fun DataManagementContent(
                         SettingsItemCard(
                             title = stringResource(id = R.string.label_import_data_json),
                             subtitle = stringResource(id = R.string.desc_import_data_subtitle),
-                            icon = Icons.Rounded.FileUpload,
+                            icon = PhosphorIcons.Regular.FileArrowUp,
                             type = SettingsItemType.Button,
                             valueText = stringResource(id = R.string.label_import),
                             onClick = {
@@ -304,7 +311,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.label_backup_database_db),
                                 subtitle = stringResource(id = R.string.desc_backup_db_subtitle),
-                                icon = Icons.Rounded.Storage,
+                                icon = PhosphorIcons.Regular.Database,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.title_backup),
                                 accessLevel = accessLevel,
@@ -322,7 +329,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.label_restore_database_db),
                                 subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
-                                icon = Icons.Rounded.SettingsBackupRestore,
+                                icon = PhosphorIcons.Regular.ArrowCounterClockwise,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.title_restore),
                                 accessLevel = accessLevel,
@@ -336,7 +343,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.label_legacy_import),
                                 subtitle = stringResource(id = R.string.desc_legacy_import_subtitle),
-                                icon = Icons.Rounded.History,
+                                icon = PhosphorIcons.Regular.ClockCounterClockwise,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.label_migrate),
                                 onClick = {
@@ -360,7 +367,7 @@ private fun DataManagementContent(
                             SettingsItemCard(
                                 title = stringResource(id = R.string.title_transaction_count),
                                 subtitle = stringResource(id = R.string.desc_transaction_count_subtitle),
-                                icon = Icons.AutoMirrored.Rounded.Notes,
+                                icon = PhosphorIcons.Regular.Note,
                                 type = SettingsItemType.Value,
                                 valueText = transactionCount.toString(),
                                 accessLevel = accessLevel,
@@ -373,7 +380,7 @@ private fun DataManagementContent(
                         SettingsItemCard(
                             title = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
                             subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
-                            icon = Icons.Rounded.DeleteForever,
+                            icon = PhosphorIcons.Regular.Trash,
                             type = SettingsItemType.Button,
                             valueText = stringResource(id = R.string.label_delete_all),
                             isDanger = true,
@@ -484,7 +491,7 @@ private fun DataManagementContent(
                 id = days,
                 title = if (days == 0) stringResource(R.string.label_custom_frequency) else pluralStringResource(id = R.plurals.label_days_count_formatted, count = days, days),
                 subtitle = if (days == 0) stringResource(R.string.label_pick_a_preset_or_enter_a_custo) else pluralStringResource(id = R.plurals.desc_auto_backup_every_days, count = days, days),
-                leadingIcon = Icons.Rounded.Update,
+                leadingIcon = PhosphorIcons.Regular.ClockCountdown,
                 isLocked = status !is AccessStatus.Granted,
                 accessLevel = accessLevel
             )

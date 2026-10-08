@@ -23,7 +23,13 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +63,7 @@ fun InputFieldCard(
     isError: Boolean = false,
     errorText: String? = null,
     leadingIcon: ImageVector? = null,
+    leadingIconBrush: Brush? = null,
     onClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
     focusRequester: FocusRequester? = null
@@ -139,8 +146,25 @@ fun InputFieldCard(
                         Icon(
                             imageVector = leadingIcon,
                             contentDescription = null,
-                            tint = primary,
-                            modifier = Modifier.size(20.dp)
+                            // A caller that passes a brush paints the glyph with it through a
+                            // SrcIn over an offscreen layer; otherwise the field's accent ink.
+                            tint = if (leadingIconBrush != null) Color.White else primary,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .then(
+                                    if (leadingIconBrush != null) {
+                                        Modifier
+                                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                            .drawWithCache {
+                                                onDrawWithContent {
+                                                    drawContent()
+                                                    drawRect(brush = leadingIconBrush, blendMode = BlendMode.SrcIn)
+                                                }
+                                            }
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                         )
                     }
                 }

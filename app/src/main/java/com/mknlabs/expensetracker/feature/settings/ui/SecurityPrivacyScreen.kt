@@ -11,14 +11,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.rounded.BlurOn
-import androidx.compose.material.icons.rounded.Fingerprint
-import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.NoPhotography
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CameraSlash
+import com.adamglin.phosphoricons.regular.EyeSlash
+import com.adamglin.phosphoricons.regular.Fingerprint
+import com.adamglin.phosphoricons.regular.GridFour
+import com.adamglin.phosphoricons.regular.Lock
+import com.adamglin.phosphoricons.regular.Password
+import com.adamglin.phosphoricons.regular.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -177,7 +178,7 @@ private fun SecurityPrivacyContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_app_lock),
                             subtitle = stringResource(R.string.label_secure_app_pin),
-                            icon = Icons.Rounded.Lock,
+                            icon = PhosphorIcons.Regular.Lock,
                             type = SettingsItemType.Toggle,
                             standalone = false,
                             isChecked = isAppLockEnabled,
@@ -187,7 +188,7 @@ private fun SecurityPrivacyContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_auto_lock_duration),
                             subtitle = stringResource(R.string.label_auto_lock_subtitle),
-                            icon = Icons.Filled.AccessTime,
+                            icon = PhosphorIcons.Regular.Timer,
                             type = SettingsItemType.Value,
                             standalone = false,
                             valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
@@ -198,7 +199,7 @@ private fun SecurityPrivacyContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_biometric),
                             subtitle = stringResource(R.string.label_use_biometric_subtitle),
-                            icon = Icons.Rounded.Fingerprint,
+                            icon = PhosphorIcons.Regular.Fingerprint,
                             type = SettingsItemType.Toggle,
                             standalone = false,
                             isEnabled = isAppLockEnabled && hasAppLockPin,
@@ -214,7 +215,7 @@ private fun SecurityPrivacyContent(
                             SettingsItemCard(
                                 title = stringResource(R.string.label_scrambled_keypad),
                                 subtitle = stringResource(R.string.label_scrambled_keypad_subtitle),
-                                icon = Icons.Rounded.GridView,
+                                icon = PhosphorIcons.Regular.GridFour,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -238,7 +239,7 @@ private fun SecurityPrivacyContent(
                             SettingsItemCard(
                                 title = stringResource(R.string.label_blur_in_recents),
                                 subtitle = stringResource(R.string.label_blur_in_recents_subtitle),
-                                icon = Icons.Rounded.BlurOn,
+                                icon = PhosphorIcons.Regular.EyeSlash,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -257,7 +258,7 @@ private fun SecurityPrivacyContent(
                             SettingsItemCard(
                                 title = stringResource(R.string.title_block_screenshots),
                                 subtitle = stringResource(R.string.label_block_screenshots_subtitle),
-                                icon = Icons.Rounded.NoPhotography,
+                                icon = PhosphorIcons.Regular.CameraSlash,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -276,7 +277,7 @@ private fun SecurityPrivacyContent(
                             SettingsItemCard(
                                 title = stringResource(R.string.title_change_password),
                                 subtitle = stringResource(R.string.label_change_password_subtitle),
-                                icon = Icons.Rounded.Lock,
+                                icon = PhosphorIcons.Regular.Password,
                                 type = SettingsItemType.Navigation,
                                 standalone = true,
                                 onClick = { isChangePasswordSheetVisible = true }
@@ -368,7 +369,7 @@ private fun AutoLockDurationPickerSheet(
                                   else stringResource(R.string.title_require_the_pin_again_after_va, duration)
                     
                     SettingsItemCard(
-                        icon = Icons.Filled.AccessTime,
+                        icon = PhosphorIcons.Regular.Timer,
                         title = title,
                         subtitle = subtitle,
                         type = SettingsItemType.Value,
@@ -394,7 +395,7 @@ private fun AutoLockDurationPickerSheet(
                     ) { status, onClick ->
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
-                            icon = Icons.Filled.AccessTime,
+                            icon = PhosphorIcons.Regular.Timer,
                             title = stringResource(R.string.label_val_minutes_away, duration),
                             subtitle = stringResource(R.string.title_require_the_pin_again_after_va, duration),
                             type = SettingsItemType.Value,
@@ -420,7 +421,7 @@ private fun AutoLockDurationPickerSheet(
                     ) { status, onClick ->
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
-                            icon = Icons.Filled.AccessTime,
+                            icon = PhosphorIcons.Regular.Timer,
                             title = stringResource(R.string.label_val_minutes_away, duration),
                             subtitle = stringResource(R.string.title_require_the_pin_again_after_va, duration),
                             type = SettingsItemType.Value,
@@ -455,7 +456,7 @@ private fun AutoLockDurationPickerSheet(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     trailingIcon = {
                         if (isLocked) {
-                            Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.featureGateLock)
+                            Icon(PhosphorIcons.Regular.Lock, null, tint = MaterialTheme.colorScheme.featureGateLock)
                         } else if (customMinutesInput.isNotEmpty()) {
                             AppTextButton(onClick = {
                                 val mins = customMinutesInput.toIntOrNull() ?: 0

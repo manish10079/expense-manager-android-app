@@ -26,19 +26,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.FontDownload
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.rounded.CurrencyRupee
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.MoreTime
-import androidx.compose.material.icons.rounded.CalendarToday
-import androidx.compose.material.icons.rounded.Pin
-import androidx.compose.material.icons.rounded.Straighten
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.CalendarDots
+import com.adamglin.phosphoricons.regular.Check
+import com.adamglin.phosphoricons.regular.Clock
+import com.adamglin.phosphoricons.regular.CurrencyInr
+import com.adamglin.phosphoricons.regular.DownloadSimple
+import com.adamglin.phosphoricons.regular.Lock
+import com.adamglin.phosphoricons.regular.Palette
+import com.adamglin.phosphoricons.regular.PushPin
+import com.adamglin.phosphoricons.regular.Ruler
+import com.adamglin.phosphoricons.regular.SlidersHorizontal
+import com.adamglin.phosphoricons.regular.TextAa
 import androidx.compose.material3.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.*
@@ -223,7 +224,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_currency),
                             subtitle = stringResource(R.string.label_primary_currency),
-                            icon = Icons.Rounded.CurrencyRupee,
+                            icon = PhosphorIcons.Regular.CurrencyInr,
                             valueText = if (uiState.currentCurrencyLabelRes != 0) {
                                 stringResource(uiState.currentCurrencyLabelRes)
                             } else {
@@ -237,7 +238,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_decimal_places),
                             subtitle = stringResource(R.string.label_decimal_places_subtitle),
-                            icon = Icons.Rounded.Straighten,
+                            icon = PhosphorIcons.Regular.Ruler,
                             valueText = uiState.currentDecimalPlacesLabel,
                             type = SettingsItemType.Value,
                             standalone = false,
@@ -247,7 +248,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_number_format),
                             subtitle = stringResource(R.string.label_number_format_subtitle),
-                            icon = Icons.Rounded.Pin,
+                            icon = PhosphorIcons.Regular.PushPin,
                             valueText = stringResource(uiState.currentGroupingLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
@@ -268,7 +269,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_date_format),
                             subtitle = stringResource(R.string.label_date_format_subtitle),
-                            icon = Icons.Rounded.DateRange,
+                            icon = PhosphorIcons.Regular.CalendarBlank,
                             valueText = uiState.currentDateFormatLabel,
                             type = SettingsItemType.Value,
                             standalone = false,
@@ -278,7 +279,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_time_format),
                             subtitle = stringResource(R.string.label_time_format_subtitle),
-                            icon = Icons.Rounded.MoreTime,
+                            icon = PhosphorIcons.Regular.Clock,
                             valueText = stringResource(uiState.currentTimeFormatLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
@@ -288,7 +289,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_month_start_day),
                             subtitle = stringResource(R.string.label_month_start_day_subtitle),
-                            icon = Icons.Rounded.CalendarToday,
+                            icon = PhosphorIcons.Regular.CalendarDots,
                             valueText = if (uiState.monthStartDay == 1) {
                                 stringResource(R.string.label_month_start_day_standard)
                             } else {
@@ -302,7 +303,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_theme),
                             subtitle = stringResource(R.string.label_theme_subtitle),
-                            icon = Icons.Filled.Palette,
+                            icon = PhosphorIcons.Regular.Palette,
                             valueText = stringResource(uiState.currentThemeModeLabelRes),
                             type = SettingsItemType.Value,
                             standalone = false,
@@ -323,7 +324,7 @@ private fun PreferencesScreenContent(
                         SettingsItemCard(
                             title = stringResource(R.string.title_font),
                             subtitle = stringResource(R.string.label_font_subtitle),
-                            icon = Icons.Filled.FontDownload,
+                            icon = PhosphorIcons.Regular.TextAa,
                             valueText = when (uiState.selectedFontMode) {
                                 com.mknlabs.expensetracker.models.FontMode.APP -> stringResource(R.string.label_font_app)
                                 com.mknlabs.expensetracker.models.FontMode.SYSTEM -> stringResource(R.string.label_font_system)
@@ -386,7 +387,7 @@ private fun PreferencesScreenContent(
                             titleRes = option.labelRes,
                             subtitle = "",
                             subtitleRes = option.descriptionRes,
-                            leadingIcon = Icons.Filled.Palette
+                            leadingIcon = PhosphorIcons.Regular.Palette
                         )
                     }
                 }
@@ -407,7 +408,7 @@ private fun PreferencesScreenContent(
                             id = option.pattern,
                             title = option.previewLabel,
                             subtitle = option.pattern,
-                            leadingIcon = Icons.Filled.CalendarMonth
+                            leadingIcon = PhosphorIcons.Regular.CalendarBlank
                         )
                     }
                 }
@@ -429,7 +430,7 @@ private fun PreferencesScreenContent(
                             title = "",
                             titleRes = option.labelRes,
                             subtitle = option.previewLabel,
-                            leadingIcon = Icons.Filled.Tune
+                            leadingIcon = PhosphorIcons.Regular.SlidersHorizontal
                         )
                     }
                 }
@@ -451,7 +452,7 @@ private fun PreferencesScreenContent(
                             id = day.toString(),
                             title = if (day == 1) "1st (Standard)" else "$day${getOrdinalSuffix(day)}",
                             subtitle = null,
-                            leadingIcon = Icons.Filled.CalendarMonth
+                            leadingIcon = PhosphorIcons.Regular.CalendarBlank
                         )
                     }
                 }
@@ -476,7 +477,7 @@ private fun PreferencesScreenContent(
                             title = "",
                             titleRes = option.labelRes,
                             subtitle = option.preview,
-                            leadingIcon = Icons.Filled.Tune
+                            leadingIcon = PhosphorIcons.Regular.SlidersHorizontal
                         )
                     }
                 }
@@ -497,7 +498,7 @@ private fun PreferencesScreenContent(
                             id = option.value,
                             title = option.value.toString(),
                             subtitle = option.preview,
-                            leadingIcon = Icons.Filled.Tune
+                            leadingIcon = PhosphorIcons.Regular.SlidersHorizontal
                         )
                     }
                 }
@@ -675,7 +676,7 @@ private fun FontPickerSheet(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.FontDownload,
+                        imageVector = PhosphorIcons.Regular.DownloadSimple,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -746,14 +747,14 @@ private fun FontOptionItem(
     ) {
         if (isGated) {
             Icon(
-                imageVector = Icons.Rounded.Lock,
+                imageVector = PhosphorIcons.Regular.Lock,
                 contentDescription = null,
                 tint = lockColor,
                 modifier = Modifier.size(20.dp)
             )
         } else if (isSelected) {
             Icon(
-                imageVector = Icons.Filled.Check,
+                imageVector = PhosphorIcons.Regular.Check,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier.size(20.dp)
@@ -775,7 +776,7 @@ private fun FontOptionItem(
                 if (isGated) {
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
-                        imageVector = Icons.Rounded.Lock,
+                        imageVector = PhosphorIcons.Regular.Lock,
                         contentDescription = null,
                         tint = lockColor,
                         modifier = Modifier.size(16.dp)

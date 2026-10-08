@@ -26,14 +26,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Star
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Bug
+import com.adamglin.phosphoricons.regular.Code
+import com.adamglin.phosphoricons.regular.Envelope
+import com.adamglin.phosphoricons.regular.FileText
+import com.adamglin.phosphoricons.regular.Globe
+import com.adamglin.phosphoricons.regular.Info
+import com.adamglin.phosphoricons.regular.Lock
+import com.adamglin.phosphoricons.regular.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -204,7 +206,7 @@ private fun AboutScreenContent(
 
             // About App Card
             AboutInfoCard(
-                icon = Icons.Filled.Info,
+                icon = PhosphorIcons.Regular.Info,
                 title = stringResource(R.string.title_about_app),
                 description = stringResource(R.string.label_about_app_desc)
             )
@@ -231,17 +233,17 @@ private fun AboutScreenContent(
             AboutSectionHeader(title = stringResource(R.string.title_support))
             SupportLegalSection {
                 AboutActionItem(
-                    icon = Icons.Filled.Star,
+                    icon = PhosphorIcons.Regular.Star,
                     title = stringResource(R.string.title_rate_app),
                     onClick = { isRateSheetVisible = true }
                 )
                 AboutActionItem(
-                    icon = Icons.Filled.Email,
+                    icon = PhosphorIcons.Regular.Envelope,
                     title = stringResource(R.string.title_send_feedback),
                     onClick = onFeedbackClick
                 )
                 AboutActionItem(
-                    icon = Icons.Filled.BugReport,
+                    icon = PhosphorIcons.Regular.Bug,
                     title = stringResource(R.string.title_report_bug),
                     onClick = { /* Handle report bug */ }
                 )
@@ -253,12 +255,12 @@ private fun AboutScreenContent(
             AboutSectionHeader(title = stringResource(R.string.title_legal))
             SupportLegalSection {
                 AboutActionItem(
-                    icon = Icons.Filled.Lock,
+                    icon = PhosphorIcons.Regular.Lock,
                     title = stringResource(R.string.title_privacy_policy),
                     onClick = { onOpenUrl(privacyPolicyUrl) }
                 )
                 AboutActionItem(
-                    icon = Icons.Filled.Description,
+                    icon = PhosphorIcons.Regular.FileText,
                     title = stringResource(R.string.title_terms_conditions),
                     onClick = { onOpenUrl(termsConditionsUrl) }
                 )
@@ -274,13 +276,13 @@ private fun AboutScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SocialButton(
-                    icon = Icons.Filled.Public,
+                    icon = PhosphorIcons.Regular.Globe,
                     label = stringResource(R.string.label_website),
                     onClick = { onOpenUrl("https://expense-tracker-2ea00.web.app/") }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 SocialButton(
-                    icon = Icons.Filled.Code,
+                    icon = PhosphorIcons.Regular.Code,
                     label = stringResource(R.string.label_github),
                     onClick = { onOpenUrl("https://github.com/manish10079") }
                 )
