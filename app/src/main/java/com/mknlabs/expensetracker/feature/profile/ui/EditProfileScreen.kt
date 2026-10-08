@@ -25,7 +25,11 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +51,20 @@ import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.EnvelopeSimple
+import com.adamglin.phosphoricons.regular.GenderFemale
+import com.adamglin.phosphoricons.regular.GenderMale
+import com.adamglin.phosphoricons.regular.GenderNeuter
+import com.adamglin.phosphoricons.regular.PencilSimple
+import com.adamglin.phosphoricons.regular.Phone
+import com.adamglin.phosphoricons.regular.SealCheck
+import com.adamglin.phosphoricons.regular.Trash
+import com.adamglin.phosphoricons.regular.User
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
@@ -188,10 +206,10 @@ private fun ProfileScreenContent(
 
     val genderItems = remember(maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel) {
         listOf(
-            SelectionItem(id = "Male", title = maleLabel, leadingIcon = Icons.Rounded.Male),
-            SelectionItem(id = "Female", title = femaleLabel, leadingIcon = Icons.Rounded.Female),
-            SelectionItem(id = "Non-binary", title = nonBinaryLabel, leadingIcon = Icons.Rounded.Transgender),
-            SelectionItem(id = "Prefer not to say", title = preferNotToSayLabel, leadingIcon = Icons.Rounded.Person)
+            SelectionItem(id = "Male", title = maleLabel, leadingIcon = PhosphorIcons.Regular.GenderMale),
+            SelectionItem(id = "Female", title = femaleLabel, leadingIcon = PhosphorIcons.Regular.GenderFemale),
+            SelectionItem(id = "Non-binary", title = nonBinaryLabel, leadingIcon = PhosphorIcons.Regular.GenderNeuter),
+            SelectionItem(id = "Prefer not to say", title = preferNotToSayLabel, leadingIcon = PhosphorIcons.Regular.User)
         )
     }
 
@@ -345,13 +363,13 @@ private fun ProfileScreenContent(
                             value = userProfile.emailAddress,
                             onValueChange = {},
                             inputType = InputType.Text,
-                            leadingIcon = Icons.Rounded.Email,
+                            leadingIcon = PhosphorIcons.Regular.EnvelopeSimple,
                             placeholder = "",
                             isEnabled = false,
                             trailingContent = if (emailVerifiedState) {
                                 {
                                     Icon(
-                                        imageVector = Icons.Rounded.Verified,
+                                        imageVector = PhosphorIcons.Regular.SealCheck,
                                         contentDescription = stringResource(id = R.string.content_desc_email_verified),
                                         modifier = Modifier.size(20.dp),
                                         tint = MaterialTheme.colorScheme.accentInk
@@ -393,7 +411,7 @@ private fun ProfileScreenContent(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Email,
+                                    imageVector = PhosphorIcons.Regular.EnvelopeSimple,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -410,7 +428,7 @@ private fun ProfileScreenContent(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Edit,
+                                    imageVector = PhosphorIcons.Regular.PencilSimple,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -454,7 +472,7 @@ private fun ProfileScreenContent(
                 value = fullName,
                 onValueChange = { fullName = it },
                 inputType = InputType.Text,
-                leadingIcon = Icons.Rounded.Person,
+                leadingIcon = PhosphorIcons.Regular.User,
                 placeholder = stringResource(id = R.string.placeholder_guest_user)
             )
 
@@ -476,7 +494,7 @@ private fun ProfileScreenContent(
                 value = dateOfBirthMillis?.let { formatDate(it, DOB_DATE_FORMAT_PATTERN) }.orEmpty(),
                 onValueChange = {},
                 inputType = InputType.Date,
-                leadingIcon = Icons.Rounded.CalendarMonth,
+                leadingIcon = PhosphorIcons.Regular.CalendarBlank,
                 placeholder = stringResource(id = R.string.placeholder_select_dob),
                 onClick = { isDatePickerVisible = true }
             )
@@ -545,12 +563,7 @@ private fun ProfileScreenContent(
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.accentInk,
-                                    MaterialTheme.colorScheme.secondary
-                                )
-                            ),
+                            brush = brandGradient(),
                             shape = RoundedCornerShape(999.dp)
                         )
                         .padding(horizontal = 24.dp, vertical = 16.dp),
@@ -558,7 +571,7 @@ private fun ProfileScreenContent(
                 ) {
                     Text(
                         text = stringResource(id = R.string.label_save_changes),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onBrandGradient,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1
                     )
@@ -656,7 +669,7 @@ private fun ProfilePhotoSection(
     isAnonymous: Boolean = false
 ) {
     val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
-    val photoActionIconColor = MaterialTheme.colorScheme.secondary
+    val pencilRamp = brandGradient()
     // Removing the photo is destructive, so the trash action carries the same error ink as
     // every other delete control in the app; the edit action beside it keeps the neutral pair.
     val photoDeleteIconColor = MaterialTheme.colorScheme.error
@@ -688,9 +701,17 @@ private fun ProfilePhotoSection(
                 .background(photoActionContainerColor)
         ) {
             Icon(
-                imageVector = Icons.Filled.Edit,
+                imageVector = PhosphorIcons.Regular.PencilSimple,
                 contentDescription = if (photoUri == null) stringResource(id = R.string.content_desc_add_photo) else stringResource(id = R.string.content_desc_edit_photo),
-                tint = photoActionIconColor
+                tint = androidx.compose.ui.graphics.Color.White,
+                modifier = Modifier
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(brush = pencilRamp, blendMode = BlendMode.SrcIn)
+                        }
+                    }
             )
         }
 
@@ -702,7 +723,7 @@ private fun ProfilePhotoSection(
                 .background(photoActionContainerColor)
         ) {
             Icon(
-                imageVector = Icons.Filled.Delete,
+                imageVector = PhosphorIcons.Regular.Trash,
                 contentDescription = stringResource(id = R.string.content_desc_delete_photo),
                 tint = if (photoUri != null && !isPhotoProcessing) {
                     photoDeleteIconColor
@@ -717,11 +738,11 @@ private fun ProfilePhotoSection(
 
 private fun genderToIcon(gender: String): ImageVector {
     return when (gender) {
-        "Male" -> Icons.Rounded.Male
-        "Female" -> Icons.Rounded.Female
-        "Non-binary" -> Icons.Rounded.Transgender
-        "Prefer not to say" -> Icons.Rounded.Person
-        else -> Icons.Rounded.Transgender
+        "Male" -> PhosphorIcons.Regular.GenderMale
+        "Female" -> PhosphorIcons.Regular.GenderFemale
+        "Non-binary" -> PhosphorIcons.Regular.GenderNeuter
+        "Prefer not to say" -> PhosphorIcons.Regular.User
+        else -> PhosphorIcons.Regular.GenderNeuter
     }
 }
 
@@ -828,7 +849,7 @@ private fun PhoneInputFieldCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Call,
+                    imageVector = PhosphorIcons.Regular.Phone,
                     contentDescription = null,
                     tint = accent,
                     modifier = Modifier.size(20.dp)

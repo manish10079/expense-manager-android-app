@@ -24,21 +24,38 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Sell
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.rounded.LocalOffer
-import androidx.compose.material.icons.rounded.WorkspacePremium
+import com.composables.icons.lucide.Bell
+import com.composables.icons.lucide.Cloud
+import com.composables.icons.lucide.CreditCard
+import com.composables.icons.lucide.Database
+import com.composables.icons.lucide.Info
+import com.composables.icons.lucide.LayoutGrid
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Share2
+import com.composables.icons.lucide.Shield
+import com.composables.icons.lucide.SlidersHorizontal
+import com.composables.icons.lucide.Sparkles
+import com.composables.icons.lucide.Star
+import com.composables.icons.lucide.Tags
+import com.composables.icons.lucide.Ticket
+import com.composables.icons.lucide.UserPlus
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.User
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -302,7 +319,7 @@ fun SettingsScreenContent(
                             SettingsRowData(
                                 titleRes = R.string.label_edit_profile,
                                 subtitleRes = R.string.label_edit_profile_subtitle,
-                                icon = Icons.Filled.Person,
+                                icon = PhosphorIcons.Regular.User,
                                 onClick = onProfileClick
                             )
                         )
@@ -311,7 +328,7 @@ fun SettingsScreenContent(
                                 SettingsRowData(
                                     titleRes = R.string.title_cloud_sync_devices,
                                     subtitleRes = R.string.desc_cloud_sync_devices_subtitle,
-                                    icon = Icons.Filled.Cloud,
+                                    icon = Lucide.Cloud,
                                     onClick = if (isProUser) onCloudSyncDevicesClick else { {} },
                                     isEnabled = isProUser
                                 )
@@ -322,7 +339,7 @@ fun SettingsScreenContent(
                             SettingsRowData(
                                 titleRes = R.string.title_security_privacy,
                                 subtitleRes = R.string.label_security_privacy_subtitle,
-                                icon = Icons.Filled.Shield,
+                                icon = Lucide.Shield,
                                 onClick = onSecurityPrivacyClick
                             )
                         )
@@ -343,7 +360,7 @@ fun SettingsScreenContent(
                                 SettingsRowData(
                                     titleRes = R.string.title_membership,
                                     subtitleRes = if (isProUser) R.string.label_pro_active else R.string.label_free_tier,
-                                    icon = Icons.Rounded.WorkspacePremium,
+                                    icon = Lucide.Sparkles,
                                     onClick = onMembershipClick
                                 ),
                                 SettingsRowData(
@@ -368,7 +385,7 @@ fun SettingsScreenContent(
                                     } else {
                                         null
                                     },
-                                    icon = Icons.Filled.Star,
+                                    icon = Lucide.Star,
                                     onClick = if (isProUser || isAdPassActive) { {} } else onAdFreeAccessClick,
                                     isEnabled = !isProUser && !isAdPassActive,
                                     trailing = if (isAdPassActive) adFreeRemainingTime else null
@@ -383,7 +400,7 @@ fun SettingsScreenContent(
                                     } else {
                                         R.string.label_redeem_pro_pass_subtitle
                                     },
-                                    icon = Icons.Rounded.LocalOffer,
+                                    icon = Lucide.Ticket,
                                     onClick = if (hasActiveStoreSubscription) { {} } else onRedeemProPassClick,
                                     isEnabled = !hasActiveStoreSubscription
                                 )
@@ -400,31 +417,31 @@ fun SettingsScreenContent(
                                 SettingsRowData(
                                     titleRes = R.string.title_manage_category,
                                     subtitleRes = R.string.label_manage_category_subtitle,
-                                    icon = Icons.Filled.Category,
+                                    icon = Lucide.LayoutGrid,
                                     onClick = onManageCategoryClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_manage_tags,
                                     subtitleRes = R.string.label_manage_tags_subtitle,
-                                    icon = Icons.Filled.Sell,
+                                    icon = Lucide.Tags,
                                     onClick = onManageTagsClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_app_preferences,
                                     subtitleRes = R.string.label_app_preferences_subtitle,
-                                    icon = Icons.Filled.Tune,
+                                    icon = Lucide.SlidersHorizontal,
                                     onClick = onAppPreferencesClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_notifications,
                                     subtitleRes = R.string.label_notifications_subtitle,
-                                    icon = Icons.Filled.Notifications,
+                                    icon = Lucide.Bell,
                                     onClick = onNotificationsClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_transaction_card,
                                     subtitleRes = R.string.label_transaction_card_subtitle,
-                                    icon = Icons.Filled.CreditCard,
+                                    icon = Lucide.CreditCard,
                                     onClick = onTransactionCardCustomizeClick
                                 )
                             )
@@ -440,19 +457,19 @@ fun SettingsScreenContent(
                                 SettingsRowData(
                                     titleRes = R.string.title_data_management,
                                     subtitleRes = R.string.label_data_management_subtitle,
-                                    icon = Icons.Filled.Storage,
+                                    icon = Lucide.Database,
                                     onClick = onDataManagementClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_refer_a_friend,
                                     subtitleRes = R.string.label_refer_a_friend_subtitle,
-                                    icon = Icons.Filled.PersonAdd,
+                                    icon = Lucide.UserPlus,
                                     onClick = onReferAFriendClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_share_app,
                                     subtitleRes = R.string.label_share_app_subtitle,
-                                    icon = Icons.Filled.Share,
+                                    icon = Lucide.Share2,
                                     onClick = {
                                         val send = Intent(Intent.ACTION_SEND).apply {
                                             type = "text/plain"
@@ -464,7 +481,7 @@ fun SettingsScreenContent(
                                 SettingsRowData(
                                     titleRes = R.string.title_about_app,
                                     subtitleRes = R.string.label_about_app_subtitle,
-                                    icon = Icons.Filled.Info,
+                                    icon = Lucide.Info,
                                     onClick = onAboutClick
                                 )
                             )

@@ -12,11 +12,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudSync
-import androidx.compose.material.icons.rounded.Devices
-import androidx.compose.material.icons.rounded.PhonelinkErase
 import androidx.compose.material.icons.outlined.Info
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CheckCircle
+import com.adamglin.phosphoricons.regular.Desktop
+import com.adamglin.phosphoricons.regular.LinkBreak
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -341,8 +343,12 @@ private fun DeviceListContent(
                                 onClick = onForceSyncClick,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.accentInk,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.onBrandGradient
+                                ),
+                                modifier = Modifier.background(
+                                    brush = brandGradient(),
+                                    shape = RoundedCornerShape(12.dp)
                                 )
                             ) {
                                 Icon(
@@ -533,7 +539,7 @@ private fun DeviceItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Devices,
+                    imageVector = PhosphorIcons.Regular.Desktop,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.onSurfaceVariant
@@ -596,7 +602,7 @@ private fun DeviceItem(
                         .align(Alignment.CenterVertically)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.PhonelinkErase,
+                        imageVector = PhosphorIcons.Regular.LinkBreak,
                         contentDescription = stringResource(R.string.btn_unlink_device),
                         tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                         modifier = Modifier.size(20.dp)
@@ -604,7 +610,7 @@ private fun DeviceItem(
                 }
             } else {
                 Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
+                    imageVector = PhosphorIcons.Regular.CheckCircle,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.accentInk,
                     modifier = Modifier
