@@ -63,6 +63,8 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
+import com.mknlabs.expensetracker.data.local.RateAppPromptStore
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -77,6 +79,11 @@ import com.mknlabs.expensetracker.core.ui.components.AdContainer
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 
 import androidx.activity.compose.BackHandler
 
@@ -135,7 +142,7 @@ private fun AboutScreenContent(
     val scrollState = rememberScrollState()
     val privacyPolicyUrl = stringResource(R.string.url_privacy_policy)
     val termsConditionsUrl = stringResource(R.string.url_terms_conditions)
-    val rateAppUrl = stringResource(R.string.url_rate_app)
+    var isRateSheetVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -226,7 +233,7 @@ private fun AboutScreenContent(
                 AboutActionItem(
                     icon = Icons.Filled.Star,
                     title = stringResource(R.string.title_rate_app),
-                    onClick = { onOpenUrl(rateAppUrl) }
+                    onClick = { isRateSheetVisible = true }
                 )
                 AboutActionItem(
                     icon = Icons.Filled.Email,
@@ -292,6 +299,17 @@ private fun AboutScreenContent(
             Spacer(modifier = Modifier.height(32.dp))
         }
         }
+    }
+
+    if (isRateSheetVisible) {
+        val rateContext = LocalContext.current
+        val rateScope = rememberCoroutineScope()
+        RateAppBottomSheet(
+            onDismiss = { isRateSheetVisible = false },
+            onRated = {
+                rateScope.launch { RateAppPromptStore.markCompleted(rateContext) }
+            }
+        )
     }
 }
 

@@ -654,6 +654,16 @@
 
     <string name="label_about_app_subtitle">Version, license, terms of service</string>
 
+    <string name="title_refer_a_friend">Refer a friend</string>
+    <string name="label_refer_a_friend_subtitle">Send a personal invite</string>
+    <string name="msg_refer_a_friend">I\'m using %1$s to track spending. Try it:\n%2$s</string>
+    <string name="title_share_app">Share app</string>
+    <string name="label_share_app">Share app</string>
+    <string name="label_share_app_subtitle">Send the Play Store link</string>
+    <string name="msg_share_app_chat">Hey! I\'ve been using Expense Tracker Budget &amp; Spend to keep track of my daily spending and budget. It\'s super helpful! Check it out here:\n\n%1$s</string>
+    <string name="msg_share_app_features">Managing money just got easier! I\'ve been using Expense Tracker Budget &amp; Spend to set budgets, track daily expenses, and hit my savings goals.\n\nGive it a try: %1$s</string>
+    <string name="msg_share_app_punchy">Take control of your money! Track your daily spending and set smart budgets with Expense Tracker Budget &amp; Spend: %1$s</string>
+
     <string name="label_notifications_subtitle">Control alerts and reminders</string>
 
     <string name="desc_settings_icon">Settings icon</string>
@@ -1219,6 +1229,11 @@
     <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
 
     <string name="title_rate_app">Rate App</string>
+
+    <string name="title_rate_prompt">Is this app helpful?</string>
+    <string name="label_how_would_you_rate">How would you rate us?</string>
+    <string name="label_submit_rating">Submit</string>
+    <string name="cd_rate_star">Rate %1$d of 5</string>
 
     <string name="title_report_bug">Report Bug</string>
 

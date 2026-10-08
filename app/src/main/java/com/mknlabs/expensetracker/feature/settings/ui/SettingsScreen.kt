@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import android.content.Intent
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +31,8 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storage
@@ -59,6 +63,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -224,6 +229,17 @@ fun SettingsScreenContent(
     val isAdPassActive = !isProUser && adFreeRemainingTime != null
     val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
     val enter = rememberSectionEnterAlphas(4)
+    val context = LocalContext.current
+    val shareAppName = stringResource(R.string.label_app_name_display)
+    val shareAppUrl = stringResource(R.string.url_rate_app)
+    val shareAppBodies = listOf(
+        stringResource(R.string.msg_share_app_chat, shareAppUrl),
+        stringResource(R.string.msg_share_app_features, shareAppUrl),
+        stringResource(R.string.msg_share_app_punchy, shareAppUrl)
+    )
+    val referFriendBody = stringResource(R.string.msg_refer_a_friend, shareAppName, shareAppUrl)
+    val shareAppChooser = stringResource(R.string.label_share_app)
+    val referFriendChooser = stringResource(R.string.title_refer_a_friend)
 
     Box(
         modifier = modifier
@@ -423,6 +439,30 @@ fun SettingsScreenContent(
                                     subtitleRes = R.string.label_data_management_subtitle,
                                     icon = Icons.Filled.Storage,
                                     onClick = onDataManagementClick
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_refer_a_friend,
+                                    subtitleRes = R.string.label_refer_a_friend_subtitle,
+                                    icon = Icons.Filled.PersonAdd,
+                                    onClick = {
+                                        val send = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, referFriendBody)
+                                        }
+                                        context.startActivity(Intent.createChooser(send, referFriendChooser))
+                                    }
+                                ),
+                                SettingsRowData(
+                                    titleRes = R.string.title_share_app,
+                                    subtitleRes = R.string.label_share_app_subtitle,
+                                    icon = Icons.Filled.Share,
+                                    onClick = {
+                                        val send = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, shareAppBodies.random())
+                                        }
+                                        context.startActivity(Intent.createChooser(send, shareAppChooser))
+                                    }
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_about_app,

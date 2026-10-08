@@ -35,6 +35,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
+import com.mknlabs.expensetracker.data.local.RateAppPromptStore
+import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.defaultUserProfile
@@ -45,10 +47,12 @@ import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
 import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
+import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
 import com.mknlabs.expensetracker.utils.PlayStoreLink
+import com.mknlabs.expensetracker.utils.RateAppPrompt
 import android.net.Uri
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
@@ -59,6 +63,8 @@ import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.feature.auth.ui.InitTask
 import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
@@ -82,6 +88,7 @@ import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -92,6 +99,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var authRepository: AuthRepository
+
+    @Inject
+    lateinit var transactionDao: TransactionDao
 
     private val splashViewModel: SplashViewModel by viewModels()
     private val appLockViewModel: AppLockViewModel by viewModels()
@@ -211,11 +221,19 @@ class MainActivity : AppCompatActivity() {
     ) {
         val isReady by splashViewModel.isReady.collectAsStateWithLifecycle()
         var splashGone by remember { mutableStateOf(false) }
+        var rateSheetDismissed by rememberSaveable { mutableStateOf(false) }
         val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsStateWithLifecycle()
         val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsStateWithLifecycle()
         val appLockState by appLockViewModel.state.collectAsStateWithLifecycle()
         val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsStateWithLifecycle()
         val context = LocalContext.current
+        val rateScope = rememberCoroutineScope()
+        LaunchedEffect(Unit) { RateAppPromptStore.ensureFirstOpen(context) }
+        val ratePrompt by RateAppPromptStore.flow(context).collectAsStateWithLifecycle(
+            initialValue = com.mknlabs.expensetracker.data.local.RateAppPromptState()
+        )
+        val transactionCount by transactionDao.observeActiveTransactionCount()
+            .collectAsStateWithLifecycle(initialValue = 0)
         val activity = context.findFragmentActivity()
         
         // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
@@ -502,6 +520,33 @@ class MainActivity : AppCompatActivity() {
                             updateViewModel.onUpdateNow()
                         },
                         onLater = updateViewModel::onLater
+                    )
+                }
+
+                val showRateSheet = splashGone &&
+                    isReady &&
+                    !isUnderMaintenance &&
+                    !isUpdateRequired &&
+                    updateAvailable == null &&
+                    appLockState is AppLockState.Unlocked &&
+                    !rateSheetDismissed &&
+                    RateAppPrompt.shouldShow(
+                        transactionCount = transactionCount,
+                        firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
+                        nowMillis = System.currentTimeMillis(),
+                        completed = ratePrompt.completed,
+                        dismissCount = ratePrompt.dismissCount,
+                        lastDismissAtMillis = ratePrompt.lastDismissAtMillis
+                    )
+                if (showRateSheet) {
+                    RateAppBottomSheet(
+                        onDismiss = {
+                            rateSheetDismissed = true
+                            rateScope.launch { RateAppPromptStore.markDismissed(context) }
+                        },
+                        onRated = {
+                            rateScope.launch { RateAppPromptStore.markCompleted(context) }
+                        }
                     )
                 }
             }
