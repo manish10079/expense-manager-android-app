@@ -1,4 +1,4 @@
-const REFERRAL_DAYS = 7;
+const REFERRAL_DAYS = 4;
 const REFERRAL_MONTHLY_CAP = 4;
 
 function requireRegisteredUid(HttpsError, request) {

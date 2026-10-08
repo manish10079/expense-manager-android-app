@@ -2,6 +2,12 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,32 +16,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +50,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -66,17 +75,22 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Check
 import com.adamglin.phosphoricons.regular.Copy
-import com.adamglin.phosphoricons.regular.Crown
-import com.adamglin.phosphoricons.regular.Gift
+
 import com.adamglin.phosphoricons.regular.Lock
 import com.adamglin.phosphoricons.regular.PaperPlaneTilt
 import com.adamglin.phosphoricons.regular.Question
 import com.adamglin.phosphoricons.regular.Ticket
-import com.adamglin.phosphoricons.regular.ClockCounterClockwise
+
 import com.adamglin.phosphoricons.regular.Star
 import com.adamglin.phosphoricons.regular.UserPlus
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.domain.repository.ReferralError
@@ -85,9 +99,8 @@ import java.util.Date
 import java.util.Locale
 
 private const val MONTHLY_CAP = 4
-private const val DAYS_PER_REWARD = 7
+private const val DAYS_PER_REWARD = 4
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReferAFriendScreen(
     onBackClick: () -> Unit,
@@ -101,6 +114,8 @@ fun ReferAFriendScreen(
     var enterCode by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
     var showHelp by remember { mutableStateOf(false) }
+    var helpTapCount by remember { mutableIntStateOf(0) }
+    var showTestPopups by remember { mutableStateOf(false) }
     var showRefereePopup by remember { mutableStateOf(false) }
     var showReferrerPopup by remember { mutableStateOf(false) }
     val dateFmt = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
@@ -116,55 +131,67 @@ fun ReferAFriendScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = stringResource(R.string.title_refer_earn),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(R.string.label_refer_earn_subtitle),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.desc_back)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showHelp = true }) {
-                        Icon(
-                            PhosphorIcons.Regular.Question,
-                            contentDescription = stringResource(R.string.desc_referral_rules)
-                        )
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        AppHeader(
+            title = stringResource(R.string.title_refer_earn),
+            onBackClick = onBackClick,
+            modifier = Modifier.padding(
+                start = Dimens.ScreenPadding,
+                end = Dimens.ScreenPadding,
+                top = Dimens.HeaderSpacing
+            ),
+            actions = {
+                Icon(
+                    PhosphorIcons.Regular.Question,
+                    contentDescription = stringResource(R.string.desc_referral_rules),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            helpTapCount += 1
+                            if (helpTapCount >= 10) showTestPopups = true
+                            showHelp = true
+                        }
+                )
+            }
+        )
+        Text(
+            text = stringResource(R.string.label_refer_earn_subtitle),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
+        )
+        Spacer(Modifier.height(Dimens.spacingDefault))
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = Dimens.spacingMedium)
+                .weight(1f)
+                .fillMaxWidth()
+                .imePadding()
+                .padding(horizontal = Dimens.ScreenPadding)
         ) {
-            ReferralTestPopupBar(
-                onRefereeClick = { showRefereePopup = true },
-                onReferrerClick = { showReferrerPopup = true }
+            if (showTestPopups) {
+                ReferralTestPopupBar(
+                    onRefereeClick = { showRefereePopup = true },
+                    onReferrerClick = { showReferrerPopup = true }
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+            AnimatedTabSwitcher(
+                items = listOf(
+                    TabItem(0, stringResource(R.string.tab_refer_friends)),
+                    TabItem(1, stringResource(R.string.tab_my_rewards))
+                ),
+                selectedItemId = selectedTab,
+                onItemSelected = { selectedTab = it }
             )
-            Spacer(Modifier.height(8.dp))
-            ReferTabRow(selectedTab = selectedTab, onSelect = { selectedTab = it })
             Spacer(Modifier.height(Dimens.spacingDefault))
+            Box(Modifier.weight(1f).fillMaxWidth()) {
             if (selectedTab == 0) {
                 Column(
                     modifier = Modifier
@@ -172,6 +199,7 @@ fun ReferAFriendScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(Dimens.spacingDefault)
                 ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     HeroCard()
                     if (state.isAnonymous) {
                         GuestRegisterCard(onLinkAccountClick = onLinkAccountClick)
@@ -231,10 +259,12 @@ fun ReferAFriendScreen(
                             onApply = { viewModel.applyCode(enterCode) }
                         )
                     }
+                    }
                     Spacer(Modifier.height(Dimens.spacingLarge))
                 }
             } else {
                 RewardsHistoryTab(successCount = state.successCount, invites = state.invites)
+            }
             }
         }
     }
@@ -253,7 +283,7 @@ fun ReferAFriendScreen(
     }
     val refereeExpiry = state.welcomeExpiryMillis
     if (showRefereePopup || refereeExpiry != null) {
-        val until = refereeExpiry?.takeIf { it > 0L } ?: (System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)
+        val until = refereeExpiry?.takeIf { it > 0L } ?: (System.currentTimeMillis() + 4L * 24 * 60 * 60 * 1000)
         RefereeCodeAcceptedDialog(
             validUntilLabel = dateFmt.format(Date(until)),
             onDismiss = {
@@ -298,95 +328,33 @@ fun ReferAFriendScreen(
 }
 
 @Composable
-private fun ReferTabRow(selectedTab: Int, onSelect: (Int) -> Unit) {
-    val shape = RoundedCornerShape(16.dp)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(4.dp)
-    ) {
-        TabChip(
-            selected = selectedTab == 0,
-            label = stringResource(R.string.tab_refer_friends),
-            icon = PhosphorIcons.Regular.Gift,
-            modifier = Modifier.weight(1f),
-            onClick = { onSelect(0) }
-        )
-        TabChip(
-            selected = selectedTab == 1,
-            label = stringResource(R.string.tab_my_rewards),
-            icon = PhosphorIcons.Regular.ClockCounterClockwise,
-            modifier = Modifier.weight(1f),
-            onClick = { onSelect(1) }
-        )
-    }
-}
-
-@Composable
-private fun TabChip(
-    selected: Boolean,
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    val bg = if (selected) brandGradient() else Brush.linearGradient(
-        listOf(androidx.compose.ui.graphics.Color.Transparent, androidx.compose.ui.graphics.Color.Transparent)
-    )
-    val fg = if (selected) MaterialTheme.colorScheme.onBrandGradient else MaterialTheme.colorScheme.onSurfaceVariant
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(bg)
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp)
-            .semantics { contentDescription = label },
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = fg)
-        Spacer(Modifier.size(6.dp))
-        Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = fg)
-    }
-}
-
-@Composable
 private fun HeroCard() {
-    val shape = RoundedCornerShape(24.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f), shape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(Dimens.spacingMedium)
+    val float = rememberInfiniteTransition(label = "hero_star")
+    val lift by float.animateFloat(
+        initialValue = 6f,
+        targetValue = -18f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hero_star_y"
+    )
+    val tilt by float.animateFloat(
+        initialValue = 0f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hero_star_rot"
+    )
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppCardDefaults.shape(24.dp)
     ) {
+    Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        PhosphorIcons.Regular.Crown,
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = MaterialTheme.colorScheme.tertiary
-                    )
-                    Spacer(Modifier.size(6.dp))
-                    Text(
-                        stringResource(R.string.label_pro_privilege),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
                 Text(
                     stringResource(R.string.title_give_7_get_7),
                     style = MaterialTheme.typography.titleLarge,
@@ -395,6 +363,10 @@ private fun HeroCard() {
             }
             Box(
                 modifier = Modifier
+                    .graphicsLayer {
+                        translationY = lift
+                        rotationZ = tilt
+                    }
                     .size(56.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(brandGradient()),
@@ -415,6 +387,7 @@ private fun HeroCard() {
             StepCell("✓", stringResource(R.string.step_both_get_pro), stringResource(R.string.step_both_get_pro_sub), done = true)
         }
     }
+    }
 }
 
 @Composable
@@ -422,7 +395,7 @@ private fun StepCell(badge: String, title: String, subtitle: String, done: Boole
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 4.dp)) {
         Box(
             modifier = Modifier
-                .size(28.dp)
+                .size(36.dp)
                 .clip(CircleShape)
                 .background(
                     if (done) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
@@ -431,25 +404,22 @@ private fun StepCell(badge: String, title: String, subtitle: String, done: Boole
             contentAlignment = Alignment.Center
         ) {
             if (done) {
-                Icon(PhosphorIcons.Regular.Check, null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.tertiary)
+                Icon(PhosphorIcons.Regular.Check, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.tertiary)
             } else {
-                Text(badge, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(badge, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             }
         }
-        Spacer(Modifier.height(6.dp))
-        Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-        Text(subtitle, style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(title, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+        Text(subtitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
     }
 }
 
 @Composable
 private fun GuestRegisterCard(onLinkAccountClick: () -> Unit) {
+    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(Dimens.spacingMedium),
+        modifier = Modifier.padding(Dimens.spacingMedium),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(stringResource(R.string.msg_refer_register_for_code), style = MaterialTheme.typography.bodyMedium)
@@ -471,24 +441,20 @@ private fun GuestRegisterCard(onLinkAccountClick: () -> Unit) {
             }
         }
     }
+    }
 }
 
 @Composable
 private fun CodeCard(code: String, onCopy: () -> Unit, onShare: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(Dimens.spacingMedium)
-    ) {
+    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
+    Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Text(
             stringResource(R.string.label_your_referral_code),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(2.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -497,26 +463,23 @@ private fun CodeCard(code: String, onCopy: () -> Unit, onShare: () -> Unit) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.label_tap_to_copy),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = code.ifBlank { "••••••••" },
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
-            TextButton(onClick = onCopy) {
+            Text(
+                text = code.ifBlank { "••••••••" },
+                style = MaterialTheme.typography.headlineSmall,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(
+                onClick = onCopy,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.accentInk)
+            ) {
                 Icon(PhosphorIcons.Regular.Copy, contentDescription = stringResource(R.string.btn_copy_code), modifier = Modifier.size(16.dp))
                 Spacer(Modifier.size(6.dp))
                 Text(stringResource(R.string.btn_copy_code))
             }
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(6.dp))
         val shareCd = stringResource(R.string.btn_share_invite_link)
         Box(
             modifier = Modifier
@@ -540,6 +503,7 @@ private fun CodeCard(code: String, onCopy: () -> Unit, onShare: () -> Unit) {
             }
         }
     }
+    }
 }
 
 @Composable
@@ -551,13 +515,8 @@ private fun MonthlyProgressCard(
     val earned = (rewardsThisMonth + if (welcomeClaimed) 1 else 0).coerceIn(0, MONTHLY_CAP)
     val daysEarned = earned * DAYS_PER_REWARD
     val daysLeft = (MONTHLY_CAP - earned) * DAYS_PER_REWARD
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(Dimens.spacingMedium)
-    ) {
+    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
+    Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -600,14 +559,6 @@ private fun MonthlyProgressCard(
             }
         }
         Spacer(Modifier.height(12.dp))
-        LinearProgressIndicator(
-            progress = { earned / MONTHLY_CAP.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(50))
-        )
-        Spacer(Modifier.height(8.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 stringResource(R.string.label_days_left_to_max, daysLeft),
@@ -620,6 +571,7 @@ private fun MonthlyProgressCard(
                 fontWeight = FontWeight.SemiBold
             )
         }
+    }
     }
 }
 
@@ -660,7 +612,7 @@ private fun RewardSlot(index: Int, earned: Int, modifier: Modifier) {
             }
         }
         Spacer(Modifier.height(4.dp))
-        Text("7 Days", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+        Text("4 Days", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
         Text(
             when {
                 claimed -> stringResource(R.string.label_claimed)
@@ -674,6 +626,7 @@ private fun RewardSlot(index: Int, earned: Int, modifier: Modifier) {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun RedeemCodeCard(
     enterCode: String,
     onEnterCode: (String) -> Unit,
@@ -682,19 +635,27 @@ private fun RedeemCodeCard(
     welcomeDays: Int?,
     onApply: () -> Unit
 ) {
-    Column(
+    val bringIntoView = remember { BringIntoViewRequester() }
+    var fieldFocused by remember { mutableStateOf(false) }
+    LaunchedEffect(fieldFocused) {
+        if (fieldFocused) {
+            kotlinx.coroutines.delay(280)
+            bringIntoView.bringIntoView()
+        }
+    }
+    AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(Dimens.spacingMedium)
+            .bringIntoViewRequester(bringIntoView),
+        shape = AppCardDefaults.shape(24.dp)
     ) {
+    Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(PhosphorIcons.Regular.Ticket, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.size(6.dp))
+            Icon(PhosphorIcons.Regular.Ticket, null, modifier = Modifier.size(22.dp), tint = MaterialTheme.colorScheme.accentInk)
+            Spacer(Modifier.size(8.dp))
             Text(
                 stringResource(R.string.label_have_friend_code),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -702,15 +663,29 @@ private fun RedeemCodeCard(
         OutlinedTextField(
             value = enterCode,
             onValueChange = onEnterCode,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { fieldFocused = it.isFocused },
             placeholder = { Text(stringResource(R.string.label_enter_friend_code)) },
             singleLine = true,
             trailingIcon = {
-                TextButton(onClick = onApply, enabled = enterCode.isNotBlank() && !applyBusy) {
+                val hasCode = enterCode.isNotBlank()
+                TextButton(
+                    onClick = onApply,
+                    enabled = hasCode && !applyBusy,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.accentInk,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) {
                     Text(stringResource(R.string.btn_apply_code), fontWeight = FontWeight.SemiBold)
                 }
             },
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                cursorColor = MaterialTheme.colorScheme.accentInk
+            )
         )
         applyError?.let {
             Spacer(Modifier.height(6.dp))
@@ -722,6 +697,7 @@ private fun RedeemCodeCard(
                 Text(stringResource(R.string.msg_welcome_days, days), color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.labelSmall)
             }
         }
+    }
     }
 }
 
@@ -761,10 +737,10 @@ private fun RewardsHistoryTab(successCount: Int, invites: List<ReferralInvite>) 
             Text(
                 stringResource(R.string.label_total_active, successCount),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                    .background(MaterialTheme.colorScheme.accentInk.copy(alpha = 0.1f))
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
@@ -798,30 +774,27 @@ private fun RewardsHistoryTab(successCount: Int, invites: List<ReferralInvite>) 
 @Composable
 private fun InviteRow(invite: ReferralInvite, dateLabel: String) {
     val initials = invite.displayName.take(2).uppercase(Locale.getDefault())
+    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(16.dp)) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(14.dp),
+        modifier = Modifier.padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(initials, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(initials, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.size(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(invite.displayName, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(invite.displayName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             if (dateLabel.isNotBlank()) {
                 Text(
                     stringResource(R.string.label_signed_up_on, dateLabel),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -832,29 +805,30 @@ private fun InviteRow(invite: ReferralInvite, dateLabel: String) {
                     stringResource(
                         if (invite.rewarded) R.string.label_plus_7_days_pro else R.string.label_referral_counted
                     ),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
                     stringResource(R.string.label_completed_transaction),
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 Text(
                     stringResource(R.string.label_pending),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
                     stringResource(R.string.label_awaiting_first_tx),
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
+    }
     }
 }
 

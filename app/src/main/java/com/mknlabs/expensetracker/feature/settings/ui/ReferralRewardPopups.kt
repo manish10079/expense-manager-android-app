@@ -270,7 +270,7 @@ internal fun ReferrerFirstTxnDialog(
     onInviteMore: () -> Unit
 ) {
     val earned = claimedSlots.coerceIn(1, 4)
-    val daysLeft = (4 - earned) * 7
+    val daysLeft = (4 - earned) * 4
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(
             modifier = Modifier
@@ -412,7 +412,7 @@ internal fun ReferrerFirstTxnDialog(
                                     Text(
                                         if (latest) stringResource(R.string.label_claimed)
                                         else if (claimed) stringResource(R.string.label_7_days_slot)
-                                        else stringResource(R.string.label_plus_days, 7),
+                                        else stringResource(R.string.label_plus_days, 4),
                                         color = if (claimed) Color(0xFFA7F3D0) else PopupSlate400,
                                         fontSize = 8.sp,
                                         fontWeight = FontWeight.SemiBold
