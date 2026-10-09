@@ -721,11 +721,11 @@
     <string name="btn_test_referee_code">Referee Code</string>
     <string name="btn_test_first_txn">1st Txn Done</string>
     <string name="label_code_accepted">Code accepted</string>
-    <string name="title_you_unlocked_7_days">You Unlocked\n4 Days Free Pro!</string>
+    <string name="title_you_unlocked_7_days">Step Into Pro Access:\nYour Next 4 Days Are Unlocked</string>
     <string name="msg_referral_code_applied_pro">Your referral code was successfully applied. All Pro features are unlocked for your account for the next 4 days.</string>
-    <string name="label_pro_ai_tools">Full Access to AI Tools &amp; Insights</string>
-    <string name="label_pro_ad_free">100% Ad-Free Experience</string>
-    <string name="label_pro_priority_themes">Priority Support &amp; Custom Themes</string>
+    <string name="label_pro_ai_tools">Full Pro Access - Ad Free</string>
+    <string name="label_pro_ad_free">4 Device Data Sync</string>
+    <string name="label_pro_priority_themes">Many more… Explore</string>
     <string name="label_valid_until">Valid until:</string>
     <string name="label_free_badge">FREE</string>
     <string name="btn_start_exploring_pro">Start Exploring Pro</string>
