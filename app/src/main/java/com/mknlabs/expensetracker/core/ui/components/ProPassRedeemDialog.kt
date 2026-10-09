@@ -254,11 +254,15 @@ fun ProPassRedeemDialogCard(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        Box {
+            if (state is RedemptionState.Success) {
+                LoopingConfettiCanvas(modifier = Modifier.matchParentSize())
+            }
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
             // 🔮 Main Hero Icon Container (Shared across both dialogs)
             Surface(
                 shape = RoundedCornerShape(24.dp),
@@ -541,6 +545,7 @@ fun ProPassRedeemDialogCard(
             }
         }
     }
+}
 }
 
 @Composable
