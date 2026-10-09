@@ -105,6 +105,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -222,6 +223,7 @@ import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import com.mknlabs.expensetracker.voice.VoiceInputUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 private const val incomeTypeId = 1
@@ -3323,7 +3325,8 @@ private fun SelectionCard(
             }
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = title,
@@ -3360,7 +3363,18 @@ private fun CategoryBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
+
+    fun dismissSmoothly() {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -3397,7 +3411,7 @@ private fun CategoryBottomSheet(
                     AppCard(
                         onClick = {
                             onSelectCategory(cat)
-                            onDismissRequest()
+                            dismissSmoothly()
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
@@ -3457,7 +3471,18 @@ private fun PaymentMethodBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
+
+    fun dismissSmoothly() {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -3494,7 +3519,7 @@ private fun PaymentMethodBottomSheet(
                     AppCard(
                         onClick = {
                             onSelectPayment(payment)
-                            onDismissRequest()
+                            dismissSmoothly()
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
@@ -3555,9 +3580,20 @@ private fun TagBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
     var newTagName by remember { mutableStateOf("") }
     val selectedIds = remember(selectedTags) { selectedTags.map { it.id }.toSet() }
+
+    fun dismissSmoothly() {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -3583,7 +3619,7 @@ private fun TagBottomSheet(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = colorScheme.onSurface
                 )
-                AppTextButton(onClick = onDismissRequest) {
+                AppTextButton(onClick = { dismissSmoothly() }) {
                     Text(text = stringResource(R.string.label_done))
                 }
             }
@@ -3705,7 +3741,19 @@ private fun SpendFromFundBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
+
+    fun dismissSmoothly(onComplete: () -> Unit = {}) {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+            onComplete()
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -3733,8 +3781,9 @@ private fun SpendFromFundBottomSheet(
                 )
                 AppOutlinedButton(
                     onClick = {
-                        onDismissRequest()
-                        onCreateFundClick()
+                        dismissSmoothly {
+                            onCreateFundClick()
+                        }
                     }
                 ) {
                     Icon(
@@ -3761,7 +3810,7 @@ private fun SpendFromFundBottomSheet(
                     AppCard(
                         onClick = {
                             onSelectFund(null)
-                            onDismissRequest()
+                            dismissSmoothly()
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
@@ -3815,7 +3864,7 @@ private fun SpendFromFundBottomSheet(
                     AppCard(
                         onClick = {
                             onSelectFund(fund.id)
-                            onDismissRequest()
+                            dismissSmoothly()
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
