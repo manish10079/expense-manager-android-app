@@ -501,7 +501,7 @@ private fun ProPerkRow(text: String) {
 
 @Preview(name = "Referee Code Accepted Popup - Light", showBackground = true)
 @Composable
-private fun RefereeCodeAcceptedDialogPreview() {
+internal fun RefereeCodeAcceptedDialogPreview() {
     MaterialTheme {
         RefereeCodeAcceptedDialog(
             validUntilLabel = "Oct 16, 2026",
@@ -514,7 +514,7 @@ private fun RefereeCodeAcceptedDialogPreview() {
 
 @Preview(name = "Referee Code Accepted Popup - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun RefereeCodeAcceptedDialogDarkPreview() {
+internal fun RefereeCodeAcceptedDialogDarkPreview() {
     MaterialTheme {
         RefereeCodeAcceptedDialog(
             validUntilLabel = "Oct 16, 2026",
@@ -527,7 +527,7 @@ private fun RefereeCodeAcceptedDialogDarkPreview() {
 
 @Preview(name = "Referrer First Txn Popup - Light", showBackground = true)
 @Composable
-private fun ReferrerFirstTxnDialogPreview() {
+internal fun ReferrerFirstTxnDialogPreview() {
     MaterialTheme {
         ReferrerFirstTxnDialog(
             friendName = "Alex",
@@ -541,7 +541,7 @@ private fun ReferrerFirstTxnDialogPreview() {
 
 @Preview(name = "Referrer First Txn Popup - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun ReferrerFirstTxnDialogDarkPreview() {
+internal fun ReferrerFirstTxnDialogDarkPreview() {
     MaterialTheme {
         ReferrerFirstTxnDialog(
             friendName = "Alex",

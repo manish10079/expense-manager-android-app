@@ -865,7 +865,7 @@ private fun referralErrorRes(error: ReferralError): Int = when (error) {
 
 @Preview(name = "Refer A Friend Screen - Light", showBackground = true)
 @Composable
-private fun ReferAFriendScreenLightPreview() {
+internal fun ReferAFriendScreenLightPreview() {
     MaterialTheme {
         ReferAFriendContent(
             state = ReferAFriendUiState(
@@ -899,7 +899,7 @@ private fun ReferAFriendScreenLightPreview() {
 
 @Preview(name = "Refer A Friend Screen - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun ReferAFriendScreenDarkPreview() {
+internal fun ReferAFriendScreenDarkPreview() {
     MaterialTheme {
         ReferAFriendContent(
             state = ReferAFriendUiState(
