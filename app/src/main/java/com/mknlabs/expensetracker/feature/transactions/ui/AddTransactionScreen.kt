@@ -40,6 +40,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -3300,13 +3303,13 @@ private fun SelectionCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 14.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
                     .background(iconBackgroundColor),
                 contentAlignment = Alignment.Center
@@ -3315,7 +3318,7 @@ private fun SelectionCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = iconTint,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
 
@@ -3379,11 +3382,13 @@ private fun CategoryBottomSheet(
                 color = colorScheme.onSurface
             )
 
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .heightIn(max = 400.dp)
             ) {
                 items(categories, key = { it.id }) { cat ->
                     val isSelected = cat.id == selectedCategoryId
@@ -3396,7 +3401,7 @@ private fun CategoryBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isSelected) catColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            containerColor = if (isSelected) catColor.copy(alpha = 0.15f) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isSelected) 1.5.dp else 1.dp,
@@ -3404,16 +3409,16 @@ private fun CategoryBottomSheet(
                             )
                         )
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(40.dp)
                                     .clip(CircleShape)
                                     .background(catColor.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
@@ -3422,25 +3427,19 @@ private fun CategoryBottomSheet(
                                     imageVector = cat.icon,
                                     contentDescription = null,
                                     tint = catColor,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
                             Text(
                                 text = cat.name,
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 ),
                                 color = colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = catColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
                         }
                     }
                 }
@@ -3480,11 +3479,13 @@ private fun PaymentMethodBottomSheet(
                 color = colorScheme.onSurface
             )
 
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .heightIn(max = 400.dp)
             ) {
                 items(paymentMethods, key = { it.id }) { payment ->
                     val isSelected = payment.id == selectedPaymentId
@@ -3497,7 +3498,7 @@ private fun PaymentMethodBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isSelected) payColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            containerColor = if (isSelected) payColor.copy(alpha = 0.15f) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isSelected) 1.5.dp else 1.dp,
@@ -3505,16 +3506,16 @@ private fun PaymentMethodBottomSheet(
                             )
                         )
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(40.dp)
                                     .clip(CircleShape)
                                     .background(payColor.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
@@ -3523,25 +3524,19 @@ private fun PaymentMethodBottomSheet(
                                     imageVector = payment.icon,
                                     contentDescription = null,
                                     tint = payColor,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
                             Text(
                                 text = payment.name,
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 ),
                                 color = colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = payColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
                         }
                     }
                 }
@@ -3629,30 +3624,30 @@ private fun TagBottomSheet(
                 }
             }
 
-            // Existing tags list
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 350.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (allTags.isEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.placeholder_search_tags),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                    }
-                } else {
+            // Existing tags grid
+            if (allTags.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.placeholder_search_tags),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 350.dp)
+                ) {
                     items(allTags, key = { it.id }) { tag ->
                         val isSelected = tag.id in selectedIds
                         AppCard(
-                            onClick = { onToggleTag(tag.name) },
+                            onClick = { onToggleTag(tag.id) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = AppCardColors(
-                                containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.surface,
+                                containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.surface,
                                 contentColor = colorScheme.onSurface,
                                 border = BorderStroke(
                                     width = if (isSelected) 1.5.dp else 1.dp,
@@ -3660,35 +3655,37 @@ private fun TagBottomSheet(
                                 )
                             )
                         ) {
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    .padding(vertical = 12.dp, horizontal = 4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Sell,
-                                    contentDescription = null,
-                                    tint = if (isSelected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                    text = "#${tag.name}",
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-                                    ),
-                                    color = colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.onSurfaceVariant.copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = Icons.Filled.Sell,
                                         contentDescription = null,
-                                        tint = colorScheme.accentInk,
+                                        tint = if (isSelected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
+                                Text(
+                                    text = "#${tag.name}",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    ),
+                                    color = colorScheme.onSurface,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
                     }
@@ -3750,11 +3747,13 @@ private fun SpendFromFundBottomSheet(
                 }
             }
 
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 350.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .heightIn(max = 350.dp)
             ) {
                 // "None" option
                 item {
@@ -3766,7 +3765,7 @@ private fun SpendFromFundBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.surface,
+                            containerColor = if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isNoneSelected) 1.5.dp else 1.dp,
@@ -3774,16 +3773,16 @@ private fun SpendFromFundBottomSheet(
                             )
                         )
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(40.dp)
                                     .clip(CircleShape)
                                     .background(colorScheme.onSurfaceVariant.copy(alpha = 0.12f)),
                                 contentAlignment = Alignment.Center
@@ -3797,20 +3796,14 @@ private fun SpendFromFundBottomSheet(
                             }
                             Text(
                                 text = stringResource(R.string.label_fund_none),
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = if (isNoneSelected) FontWeight.SemiBold else FontWeight.Normal
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isNoneSelected) FontWeight.Bold else FontWeight.Medium
                                 ),
                                 color = colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                            if (isNoneSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = colorScheme.accentInk,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
                         }
                     }
                 }
@@ -3826,7 +3819,7 @@ private fun SpendFromFundBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isSelected) fundColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            containerColor = if (isSelected) fundColor.copy(alpha = 0.15f) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isSelected) 1.5.dp else 1.dp,
@@ -3834,16 +3827,16 @@ private fun SpendFromFundBottomSheet(
                             )
                         )
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(40.dp)
                                     .clip(CircleShape)
                                     .background(fundColor.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
@@ -3852,25 +3845,19 @@ private fun SpendFromFundBottomSheet(
                                     imageVector = fund.icon,
                                     contentDescription = null,
                                     tint = fundColor,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
                             Text(
                                 text = fund.name,
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 ),
                                 color = colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = fundColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
                         }
                     }
                 }
