@@ -1,8 +1,10 @@
 package com.mknlabs.expensetracker.core.ui.components
 
-import com.mknlabs.expensetracker.core.ui.theme.sheet
-
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,9 +16,6 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.AlertDialog
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,29 +23,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.onCta
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
-import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.RedemptionState
 
@@ -58,20 +55,40 @@ fun ProPassRedeemDialog(
 ) {
     var code by remember { mutableStateOf("") }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
-    // Only a *store subscription* is refused up front, because the store is the authority on
-    // one and its answer is already on hand.
-    //
-    // This check used to be `userTier == PREMIUM`, which also refused a ProPass holder Ã¢â‚¬â€ back
-    // when a second code stacked on top of a running pass. Stacking is gone: the server now
-    // refuses a running pass with `PASS_ACTIVE`. That refusal is left to the server instead of
-    // being guessed here, because the pass expiry is a local mirror that a sync may not have
-    // caught up with, and refusing on a stale one would block a redemption the server would
-    // have granted.
     val hasActiveStoreSubscription by viewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val isGoogleAccount = firebaseUser?.providerData?.any { it.providerId == "google.com" } == true
     val isEmailVerified = firebaseUser?.isEmailVerified == true || isGoogleAccount
 
+    ProPassRedeemDialogContent(
+        code = code,
+        onCodeChange = { code = it.uppercase() },
+        state = state,
+        hasActiveStoreSubscription = hasActiveStoreSubscription,
+        isEmailVerified = isEmailVerified,
+        onRedeem = { viewModel.redeemProPass(code) },
+        onDismiss = {
+            viewModel.resetRedemptionState()
+            onDismiss()
+        },
+        onVerifyEmail = {
+            firebaseUser?.sendEmailVerification()
+            onVerifyEmail()
+        }
+    )
+}
+
+@Composable
+fun ProPassRedeemDialogContent(
+    code: String,
+    onCodeChange: (String) -> Unit,
+    state: RedemptionState,
+    hasActiveStoreSubscription: Boolean = false,
+    isEmailVerified: Boolean = true,
+    onRedeem: () -> Unit,
+    onDismiss: () -> Unit,
+    onVerifyEmail: () -> Unit = {}
+) {
     // A subscription already covers the window a new grant would occupy, so the code would
     // run out unused. Say that.
     if (hasActiveStoreSubscription) {
@@ -141,7 +158,6 @@ fun ProPassRedeemDialog(
             },
             confirmButton = {
                 Button(onClick = {
-                    firebaseUser?.sendEmailVerification()
                     onVerifyEmail()
                     onDismiss()
                 }) {
@@ -158,9 +174,8 @@ fun ProPassRedeemDialog(
     }
 
     AlertDialog(
-        onDismissRequest = { 
+        onDismissRequest = {
             if (state !is RedemptionState.Loading) {
-                viewModel.resetRedemptionState()
                 onDismiss()
             }
         },
@@ -182,7 +197,7 @@ fun ProPassRedeemDialog(
         },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                when (val currentState = state) {
+                when (state) {
                     is RedemptionState.Idle, is RedemptionState.Loading -> {
                         Text(
                             text = stringResource(id = R.string.msg_enter_pro_pass_code),
@@ -193,18 +208,18 @@ fun ProPassRedeemDialog(
                         Spacer(modifier = Modifier.height(16.dp))
                         OutlinedTextField(
                             value = code,
-                            onValueChange = { code = it.uppercase() },
+                            onValueChange = onCodeChange,
                             placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
-                            enabled = currentState !is RedemptionState.Loading,
+                            enabled = state !is RedemptionState.Loading,
                             shape = AppOutlinedFieldDefaults.shape,
                             colors = AppOutlinedFieldDefaults.colors()
                         )
                     }
                     is RedemptionState.Success -> {
                         Text(
-                            text = stringResource(id = R.string.msg_pro_pass_activated, currentState.days),
+                            text = stringResource(id = R.string.msg_pro_pass_activated, state.days),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center
@@ -212,9 +227,7 @@ fun ProPassRedeemDialog(
                     }
                     is RedemptionState.Error -> {
                         Text(
-                            // Localized here rather than carried in the state: the server's
-                            // English message is a developer aid, not copy.
-                            text = stringResource(id = redemptionErrorMessageRes(currentState.error)),
+                            text = stringResource(id = redemptionErrorMessageRes(state.error)),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
@@ -222,7 +235,7 @@ fun ProPassRedeemDialog(
                         Spacer(modifier = Modifier.height(16.dp))
                         OutlinedTextField(
                             value = code,
-                            onValueChange = { code = it.uppercase() },
+                            onValueChange = onCodeChange,
                             placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
@@ -238,17 +251,14 @@ fun ProPassRedeemDialog(
             when (state) {
                 is RedemptionState.Success -> {
                     ProPassGradientButton(
-                        onClick = {
-                            viewModel.resetRedemptionState()
-                            onDismiss()
-                        }
+                        onClick = onDismiss
                     ) {
                         Text(stringResource(id = R.string.label_ok))
                     }
                 }
                 else -> {
                     ProPassGradientButton(
-                        onClick = { viewModel.redeemProPass(code) },
+                        onClick = onRedeem,
                         enabled = code.isNotBlank() && state !is RedemptionState.Loading
                     ) {
                         if (state is RedemptionState.Loading) {
@@ -266,10 +276,7 @@ fun ProPassRedeemDialog(
         },
         dismissButton = {
             if (state !is RedemptionState.Success && state !is RedemptionState.Loading) {
-                AppTextButton(onClick = { 
-                    viewModel.resetRedemptionState()
-                    onDismiss() 
-                }) {
+                AppTextButton(onClick = onDismiss) {
                     Text(stringResource(id = R.string.label_cancel))
                 }
             }
@@ -305,5 +312,61 @@ private fun ProPassGradientButton(
         ) {
             content()
         }
+    }
+}
+
+@Preview(name = "Pro Pass Redeem Dialog - Enter Code (Light)", showBackground = true)
+@Composable
+private fun ProPassRedeemDialogEnterCodeLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        ProPassRedeemDialogContent(
+            code = "PROPASS7",
+            onCodeChange = {},
+            state = RedemptionState.Idle,
+            onRedeem = {},
+            onDismiss = {}
+        )
+    }
+}
+
+@Preview(name = "Pro Pass Redeem Dialog - Enter Code (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProPassRedeemDialogEnterCodeDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        ProPassRedeemDialogContent(
+            code = "PROPASS7",
+            onCodeChange = {},
+            state = RedemptionState.Idle,
+            onRedeem = {},
+            onDismiss = {}
+        )
+    }
+}
+
+@Preview(name = "Pro Pass Redeem Dialog - Success (Light)", showBackground = true)
+@Composable
+private fun ProPassRedeemDialogSuccessLightPreview() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        ProPassRedeemDialogContent(
+            code = "PROPASS7",
+            onCodeChange = {},
+            state = RedemptionState.Success(days = 7),
+            onRedeem = {},
+            onDismiss = {}
+        )
+    }
+}
+
+@Preview(name = "Pro Pass Redeem Dialog - Success (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProPassRedeemDialogSuccessDarkPreview() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        ProPassRedeemDialogContent(
+            code = "PROPASS7",
+            onCodeChange = {},
+            state = RedemptionState.Success(days = 7),
+            onRedeem = {},
+            onDismiss = {}
+        )
     }
 }
