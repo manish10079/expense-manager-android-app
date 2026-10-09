@@ -938,7 +938,7 @@ internal fun AddTransactionScreenContent(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                     ) {
-                        // Top Row: Category & Payment Method
+                        // Row 1: Category & Payment Method
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
@@ -972,46 +972,42 @@ internal fun AddTransactionScreenContent(
                             )
                         }
 
-                        // Bottom Row: Tag & Spend from Fund
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
-                        ) {
-                            val tagText = when {
-                                selectedTags.isEmpty() -> stringResource(R.string.placeholder_search_tags)
-                                selectedTags.size == 1 -> "#${selectedTags.first().name}"
-                                else -> "${selectedTags.size} Tags"
-                            }
-
-                            SelectionCard(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.title_tags),
-                                selectedValue = tagText,
-                                icon = Icons.Filled.Sell,
-                                iconTint = if (selectedTags.isNotEmpty()) colorScheme.accentInk else colorScheme.onSurfaceVariant,
-                                onClick = { isTagSheetVisible = true }
-                            )
-
-                            val isIncomeMode = selectedTransactionTypeId == 1
-                            val fund = if (isIncomeMode) null else availableFunds.firstOrNull { it.id == selectedFundId }
-                            val fundText = if (isIncomeMode) {
-                                stringResource(R.string.label_fund_none)
-                            } else {
-                                fund?.name ?: stringResource(R.string.label_fund_none)
-                            }
-                            val fundColor = if (!isIncomeMode && fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
-                            val fundIcon = if (isIncomeMode || fund == null) Icons.Filled.Clear else fund.icon
-
-                            SelectionCard(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.title_spend_from_fund),
-                                selectedValue = fundText,
-                                icon = fundIcon,
-                                iconTint = fundColor,
-                                enabled = !isIncomeMode,
-                                onClick = { isFundSheetVisible = true }
-                            )
+                        // Row 2: Fund Card (Full Width)
+                        val isIncomeMode = selectedTransactionTypeId == 1
+                        val fund = if (isIncomeMode) null else availableFunds.firstOrNull { it.id == selectedFundId }
+                        val fundText = if (isIncomeMode) {
+                            stringResource(R.string.label_fund_none)
+                        } else {
+                            fund?.name ?: stringResource(R.string.label_fund_none)
                         }
+                        val fundColor = if (!isIncomeMode && fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
+                        val fundIcon = if (isIncomeMode || fund == null) Icons.Filled.Clear else fund.icon
+
+                        SelectionCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.title_spend_from_fund),
+                            selectedValue = fundText,
+                            icon = fundIcon,
+                            iconTint = fundColor,
+                            enabled = !isIncomeMode,
+                            onClick = { isFundSheetVisible = true }
+                        )
+
+                        // Row 3: Tag Card (Full Width, before Date & Recurring)
+                        val tagText = when {
+                            selectedTags.isEmpty() -> stringResource(R.string.placeholder_search_tags)
+                            selectedTags.size == 1 -> "#${selectedTags.first().name}"
+                            else -> "${selectedTags.size} Tags"
+                        }
+
+                        SelectionCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.title_tags),
+                            selectedValue = tagText,
+                            icon = Icons.Filled.Sell,
+                            iconTint = if (selectedTags.isNotEmpty()) colorScheme.accentInk else colorScheme.onSurfaceVariant,
+                            onClick = { isTagSheetVisible = true }
+                        )
                     }
                 }
 
