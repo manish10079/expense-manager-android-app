@@ -86,6 +86,11 @@ import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
+import android.os.Build
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -2833,24 +2838,55 @@ private fun resolveSummaryLabel(label: SummaryLabelUi): String {
 }
 
 /**
- * Locked analytics cards keep their silhouette; content is covered by an opaque-enough
- * surface veil. Haze/RenderEffect frost is skipped so Android 11 and below still hide the card.
+ * Locked analytics cards keep their silhouette. On Android 12+ (API 31+), content is veiled
+ * with a Haze frosted glass blur effect. On Android 11 and lower (API <= 30), an opaque surface
+ * background is used as a fallback so older devices hide the card content cleanly.
  */
 @Composable
 private fun GatedCardContent(
     isLocked: Boolean,
     card: @Composable (Modifier) -> Unit
 ) {
-    Box {
-        card(Modifier)
-        if (isLocked) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.80f))
+    if (isLocked) {
+        val hazeSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val hazeState = remember { HazeState() }
+        val overlayShape = RoundedCornerShape(30.dp)
+
+        Box {
+            card(
+                if (hazeSupported) {
+                    Modifier.hazeSource(state = hazeState)
+                } else {
+                    Modifier
+                }
             )
+            if (hazeSupported) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(overlayShape)
+                        .hazeEffect(
+                            state = hazeState,
+                            style = HazeStyle(
+                                backgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.65f),
+                                blurRadius = 24.dp,
+                                noiseFactor = 0.03f,
+                                tints = emptyList()
+                            )
+                        )
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.20f))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(overlayShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                )
+            }
         }
+    } else {
+        card(Modifier)
     }
 }
 
