@@ -92,6 +92,7 @@ import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
 import com.mknlabs.expensetracker.feature.paywall.ui.purchaseMessageRes
 import com.mknlabs.expensetracker.feature.settings.ui.ReferAFriendViewModel
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
@@ -767,8 +768,8 @@ private fun renewingSubscription() = StoreEntitlement(
     hasBillingIssue = false
 )
 
-@Preview(name = "Subscription State")
-@Preview(name = "Subscription State (Dark)", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Subscription State", showBackground = true)
+@Preview(name = "Subscription State (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SubscriptionMembershipPreview() {
     ExpenseTrackerTheme {
@@ -786,7 +787,8 @@ private fun SubscriptionMembershipPreview() {
     }
 }
 
-@Preview(name = "Subscription Cancelled State")
+@Preview(name = "Subscription Cancelled State", showBackground = true)
+@Preview(name = "Subscription Cancelled State (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CancelledSubscriptionMembershipPreview() {
     ExpenseTrackerTheme {
@@ -804,12 +806,31 @@ private fun CancelledSubscriptionMembershipPreview() {
     }
 }
 
-@Preview(name = "ProPass State")
+@Preview(name = "Subscription Billing Issue", showBackground = true)
+@Preview(name = "Subscription Billing Issue (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun BillingIssueSubscriptionMembershipPreview() {
+    ExpenseTrackerTheme {
+        MembershipDetailsContent(
+            userTier = UserTier.PREMIUM,
+            proExpiryTimestamp = 0L,
+            isAnonymous = false,
+            storeEntitlement = renewingSubscription().copy(hasBillingIssue = true),
+            isRestoring = false,
+            onRestoreClick = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(name = "ProPass State", showBackground = true)
+@Preview(name = "ProPass State (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ProPassMembershipPreview() {
     ExpenseTrackerTheme {
         MembershipDetailsContent(
             userTier = UserTier.PREMIUM,
+            accountTier = EntitlementResolver.TIER_PRO_PASS,
             proExpiryTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 30L, // 30 days
             isAnonymous = false,
             storeEntitlement = null,
@@ -820,7 +841,26 @@ private fun ProPassMembershipPreview() {
     }
 }
 
-@Preview(name = "Free User State")
+@Preview(name = "ProPass Legacy Permanent", showBackground = true)
+@Preview(name = "ProPass Legacy Permanent (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProPassLegacyMembershipPreview() {
+    ExpenseTrackerTheme {
+        MembershipDetailsContent(
+            userTier = UserTier.PREMIUM,
+            accountTier = EntitlementResolver.TIER_PRO_PASS,
+            proExpiryTimestamp = 0L,
+            isAnonymous = false,
+            storeEntitlement = null,
+            isRestoring = false,
+            onRestoreClick = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(name = "Free User State", showBackground = true)
+@Preview(name = "Free User State (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun FreeMembershipPreview() {
     ExpenseTrackerTheme {
@@ -836,7 +876,8 @@ private fun FreeMembershipPreview() {
     }
 }
 
-@Preview(name = "Anonymous User State")
+@Preview(name = "Anonymous User State", showBackground = true)
+@Preview(name = "Anonymous User State (Dark)", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun AnonymousMembershipPreview() {
     ExpenseTrackerTheme {
@@ -859,6 +900,26 @@ private fun MembershipCardSubscriptionPreview() {
     MembershipCardPreviewHost(status = MembershipStatus.SUBSCRIPTION, storeEntitlement = renewingSubscription())
 }
 
+@Preview(name = "MembershipCard Subscription Cancelled", showBackground = true)
+@Preview(name = "MembershipCard Subscription Cancelled Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardSubscriptionCancelledPreview() {
+    MembershipCardPreviewHost(
+        status = MembershipStatus.SUBSCRIPTION,
+        storeEntitlement = renewingSubscription().copy(willRenew = false)
+    )
+}
+
+@Preview(name = "MembershipCard Subscription Billing Issue", showBackground = true)
+@Preview(name = "MembershipCard Subscription Billing Issue Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardSubscriptionBillingIssuePreview() {
+    MembershipCardPreviewHost(
+        status = MembershipStatus.SUBSCRIPTION,
+        storeEntitlement = renewingSubscription().copy(hasBillingIssue = true)
+    )
+}
+
 @Preview(name = "MembershipCard Pro Pass", showBackground = true)
 @Preview(name = "MembershipCard Pro Pass Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -867,6 +928,13 @@ private fun MembershipCardProPassPreview() {
         status = MembershipStatus.PRO_PASS,
         proExpiryTimestamp = System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30
     )
+}
+
+@Preview(name = "MembershipCard Pro Pass Legacy", showBackground = true)
+@Preview(name = "MembershipCard Pro Pass Legacy Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MembershipCardProPassLegacyPreview() {
+    MembershipCardPreviewHost(status = MembershipStatus.PRO_PASS, proExpiryTimestamp = 0L)
 }
 
 @Preview(name = "MembershipCard Free", showBackground = true)
