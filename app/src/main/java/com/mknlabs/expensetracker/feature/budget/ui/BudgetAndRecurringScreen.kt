@@ -741,7 +741,7 @@ private fun BudgetAndRecurringContent(
     }
 
     if (isBudgetEditorVisible) {
-        BudgetEditorDialog(
+        BudgetEditorSheet(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             monthLabel = uiState.summary.monthLabel,
@@ -1276,7 +1276,7 @@ private fun EmptySectionCard(message: String) {
 
 @androidx.compose.material3.ExperimentalMaterial3Api
 @Composable
-private fun BudgetEditorDialog(
+private fun BudgetEditorSheet(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
     monthLabel: String,
@@ -1287,6 +1287,7 @@ private fun BudgetEditorDialog(
     onDismiss: () -> Unit,
     onSave: (List<Int>, Double, String, BudgetPeriod) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCategoryPickerVisible by rememberSaveable(existingBudget?.id, monthLabel, sessionKey) { mutableStateOf(false) }
     val categoryPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -1325,18 +1326,28 @@ private fun BudgetEditorDialog(
         else -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
     }
 
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.sheet,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        title = {
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 4.dp, bottom = 24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = if (existingBudget == null) stringResource(id = R.string.title_add_budget) else stringResource(id = R.string.title_edit_budget),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.ExtraBold
-                    )
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = monthLabel,
@@ -1346,108 +1357,114 @@ private fun BudgetEditorDialog(
                     )
                 )
             }
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                OutlinedTextField(
-                    value = nameInput,
-                    onValueChange = { nameInput = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
-                    placeholder = {
-                        val placeholder = when {
-                            selectedCategories.size == 1 -> selectedCategories.first().name
-                            selectedCategories.size > 1 -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
-                            else -> stringResource(id = R.string.label_budget_group)
-                        }
-                        Text(placeholder)
-                    },
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_select_categories),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-
-                    SelectionDialogField(
-                        label = "",
-                        value = categoryFieldValue,
-                        actionLabel = stringResource(id = R.string.label_change_caps),
-                        enabled = expenseCategories.isNotEmpty(),
-                        onClick = { isCategoryPickerVisible = true },
-                        dropdownContent = {}
-                    )
-                }
-
-                OutlinedTextField(
-                    value = amountInput,
-                    onValueChange = { updatedValue ->
-                        amountInput = updatedValue.filter { character ->
-                            character.isDigit() || character == '.'
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    label = { Text(stringResource(id = R.string.label_monthly_limit)) },
-                    placeholder = {
-                        Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.label_period),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        BudgetPeriod.entries.forEach { period ->
-                            FilterChip(
-                                selected = selectedPeriod == period,
-                                onClick = { selectedPeriod = period },
-                                label = { Text(stringResource(period.labelRes)) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
-                                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
-                                ),
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+            OutlinedTextField(
+                value = nameInput,
+                onValueChange = { nameInput = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                label = { Text(stringResource(id = R.string.label_budget_name_optional)) },
+                placeholder = {
+                    val placeholder = when {
+                        selectedCategories.size == 1 -> selectedCategories.first().name
+                        selectedCategories.size > 1 -> "${selectedCategories.first().name} (+${selectedCategories.size - 1})"
+                        else -> stringResource(id = R.string.label_budget_group)
                     }
-                }
+                    Text(placeholder)
+                },
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(id = R.string.label_select_categories),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                SelectionDialogField(
+                    label = "",
+                    value = categoryFieldValue,
+                    actionLabel = stringResource(id = R.string.label_change_caps),
+                    enabled = expenseCategories.isNotEmpty(),
+                    onClick = { isCategoryPickerVisible = true },
+                    dropdownContent = {}
+                )
             }
-        },
-        confirmButton = {
-            AppTextButton(
-                onClick = {
-                    if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
-                        onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
+
+            OutlinedTextField(
+                value = amountInput,
+                onValueChange = { updatedValue ->
+                    amountInput = updatedValue.filter { character ->
+                        character.isDigit() || character == '.'
                     }
                 },
-                enabled = isSaveEnabled
-            ) {
-                Text(if (existingBudget == null) stringResource(id = R.string.label_save_1) else stringResource(id = R.string.label_update_1))
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = AppOutlinedFieldDefaults.shape,
+                label = { Text(stringResource(id = R.string.label_monthly_limit)) },
+                placeholder = {
+                    Text(formatCurrencyValue(5000.0, currencyId, amountFormatPreferences))
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = AppOutlinedFieldDefaults.colors()
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = stringResource(id = R.string.label_period),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    BudgetPeriod.entries.forEach { period ->
+                        FilterChip(
+                            selected = selectedPeriod == period,
+                            onClick = { selectedPeriod = period },
+                            label = { Text(stringResource(period.labelRes)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.label_cancel_1))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppTextButton(onClick = onDismiss) {
+                    Text(stringResource(id = R.string.label_cancel_1))
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                AppTextButton(
+                    onClick = {
+                        if (selectedCategoryIds.isNotEmpty() && limitAmount != null) {
+                            onSave(selectedCategoryIds.toList(), limitAmount, nameInput.trim(), selectedPeriod)
+                        }
+                    },
+                    enabled = isSaveEnabled
+                ) {
+                    Text(
+                        if (existingBudget == null) stringResource(id = R.string.label_save_1) else stringResource(id = R.string.label_update_1),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
-    )
+    }
 
     if (isCategoryPickerVisible) {
         BudgetCategoryPickerSheet(
