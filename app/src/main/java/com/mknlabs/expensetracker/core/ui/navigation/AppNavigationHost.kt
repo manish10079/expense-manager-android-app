@@ -728,6 +728,8 @@ fun AppNavigationHost(
                     
                     AddTransactionScreen(
                         currencyId = selectedCurrencyId,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
                         transactions = transactions,
                         availableCategories = categories.filter { !it.isDeleted },
                         availablePaymentMethods = paymentMethods.filter { !it.isDeleted },

@@ -2007,6 +2007,8 @@
 
     <string name="label_category_1">Category</string>
 
+    <string name="label_time">Time</string>
+
     <string name="label_save_1">Save</string>
 
     <string name="label_update_1">Update</string>

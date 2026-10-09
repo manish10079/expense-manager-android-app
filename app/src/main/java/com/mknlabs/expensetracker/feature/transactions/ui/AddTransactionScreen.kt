@@ -70,6 +70,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Star
 import com.mknlabs.expensetracker.core.ui.components.AppCard
@@ -189,6 +190,7 @@ import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TRANSACTION_TYPE_ID
 import com.mknlabs.expensetracker.data.constants.categoryMap
@@ -216,6 +218,8 @@ import com.mknlabs.expensetracker.utils.USAGE_RANKING_WINDOW_MS
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.formatTime
+import com.mknlabs.expensetracker.utils.datePickerSelectionToLocalDateTimestamp
 import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getRankedCategories
 import com.mknlabs.expensetracker.utils.getRankedPaymentMethods
@@ -252,11 +256,26 @@ private val recurringModeOptions = listOf(
     RecurringModeOption(RecurringFrequency.Yearly, R.string.label_yearly)
 )
 
+private fun mergeTimeWithDate(newTimeMillis: Long, currentDateMillis: Long): Long {
+    val dateCal = java.util.Calendar.getInstance().apply { timeInMillis = currentDateMillis }
+    val timeCal = java.util.Calendar.getInstance().apply { timeInMillis = newTimeMillis }
+    return java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.YEAR, dateCal.get(java.util.Calendar.YEAR))
+        set(java.util.Calendar.MONTH, dateCal.get(java.util.Calendar.MONTH))
+        set(java.util.Calendar.DAY_OF_MONTH, dateCal.get(java.util.Calendar.DAY_OF_MONTH))
+        set(java.util.Calendar.HOUR_OF_DAY, timeCal.get(java.util.Calendar.HOUR_OF_DAY))
+        set(java.util.Calendar.MINUTE, timeCal.get(java.util.Calendar.MINUTE))
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
     transactions: List<Transaction> = emptyList(),
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
@@ -310,6 +329,7 @@ fun AddTransactionScreen(
     AddTransactionScreenContent(
         currencyId = currencyId,
         dateFormatPattern = dateFormatPattern,
+        timeFormat = timeFormat,
         transactions = transactions,
         availableCategories = availableCategories,
         availablePaymentMethods = availablePaymentMethods,
@@ -360,6 +380,7 @@ fun AddTransactionScreen(
 internal fun AddTransactionScreenContent(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
     transactions: List<Transaction> = emptyList(),
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
     availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
@@ -510,6 +531,7 @@ internal fun AddTransactionScreenContent(
         }
         var isEmiFirstDuePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+        var isTimePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
         var isFavoritesSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -993,37 +1015,46 @@ internal fun AddTransactionScreenContent(
                             onClick = { isFundSheetVisible = true }
                         )
 
-                        // Row 3: Tag Card (Full Width, before Date & Recurring)
+                        // Row 3: Tag Card (Full Width)
                         TagSelectionCard(
                             modifier = Modifier.fillMaxWidth(),
                             tags = selectedTags,
                             onClick = { isTagSheetVisible = true }
                         )
-                    }
-                }
 
-                val dateRecurringBlock: @Composable () -> Unit = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 12.dp)
-                    ) {
-                        SelectionInfoCard(
-                            modifier = Modifier.weight(1f),
-                            leadingIcon = Icons.Filled.CalendarMonth,
-                            label = stringResource(R.string.label_date),
-                            value = formatTransactionDate(selectedDateMillis, dateFormatPattern),
-                            compact = compact,
-                            onClick = { isDatePickerVisible = true }
-                        )
-
+                        // Row 4: Recurring Card (Full Width)
                         RecurringCompactCard(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                             isEnabled = isRecurringEnabled,
                             frequency = selectedRecurringFrequency,
                             isInstallment = isEmiSelected,
                             compact = compact,
                             onClick = { isRecurringModalVisible = true }
                         )
+
+                        // Row 5: Date & Time Cards (Single Row)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
+                        ) {
+                            SelectionInfoCard(
+                                modifier = Modifier.weight(1f),
+                                leadingIcon = Icons.Filled.CalendarMonth,
+                                label = stringResource(R.string.label_date),
+                                value = formatTransactionDate(selectedDateMillis, dateFormatPattern),
+                                compact = compact,
+                                onClick = { isDatePickerVisible = true }
+                            )
+
+                            SelectionInfoCard(
+                                modifier = Modifier.weight(1f),
+                                leadingIcon = Icons.Filled.Schedule,
+                                label = stringResource(R.string.label_time),
+                                value = formatTime(selectedDateMillis, timeFormat),
+                                compact = compact,
+                                onClick = { isTimePickerVisible = true }
+                            )
+                        }
                     }
                 }
 
@@ -1067,7 +1098,6 @@ internal fun AddTransactionScreenContent(
                         ) {
                             quickFavoritesBlock()
                             noteBlock()
-                            dateRecurringBlock()
                         }
                     }
                 } else {
@@ -1082,7 +1112,6 @@ internal fun AddTransactionScreenContent(
                         quickFavoritesBlock()
                         noteBlock()
                         selectionGridBlock()
-                        dateRecurringBlock()
                     }
                 }
 
@@ -1181,8 +1210,20 @@ internal fun AddTransactionScreenContent(
                 initialStartMillis = selectedDateMillis,
                 onDismissRequest = { isDatePickerVisible = false },
                 onConfirm = { start, _ ->
-                    selectedDateMillis = start
+                    selectedDateMillis = datePickerSelectionToLocalDateTimestamp(start, referenceTimestamp = selectedDateMillis)
                     isDatePickerVisible = false
+                }
+            )
+        }
+
+        if (isTimePickerVisible) {
+            WheelDateTimePickerModal(
+                mode = WheelPickerMode.SINGLE_TIME,
+                initialStartMillis = selectedDateMillis,
+                onDismissRequest = { isTimePickerVisible = false },
+                onConfirm = { newTime, _ ->
+                    selectedDateMillis = mergeTimeWithDate(newTime, selectedDateMillis)
+                    isTimePickerVisible = false
                 }
             )
         }
