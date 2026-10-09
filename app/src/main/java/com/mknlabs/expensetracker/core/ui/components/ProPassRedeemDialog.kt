@@ -43,12 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +58,7 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Check
 import com.adamglin.phosphoricons.regular.Clock
 import com.adamglin.phosphoricons.regular.Crown
+import com.adamglin.phosphoricons.regular.SealCheck
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -89,80 +84,6 @@ private val SecondaryBrush = Brush.linearGradient(
 )
 
 private val SuccessGreen = Color(0xFF10B981)
-
-private val VerifiedBadgeIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "VerifiedBadge",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f
-    ).path(
-        fill = null,
-        stroke = SolidColor(Color.White),
-        strokeLineWidth = 2f,
-        strokeLineCap = StrokeCap.Round,
-        strokeLineJoin = StrokeJoin.Round
-    ) {
-        moveTo(12f, 2f)
-        lineTo(14.5f, 3.5f)
-        lineTo(17.3f, 3.2f)
-        lineTo(18f, 6f)
-        lineTo(20.5f, 7.5f)
-        lineTo(19.5f, 10.3f)
-        lineTo(21f, 12.8f)
-        lineTo(19f, 15.2f)
-        lineTo(19.5f, 18.1f)
-        lineTo(16.7f, 18.8f)
-        lineTo(15f, 21.2f)
-        lineTo(12.2f, 20f)
-        lineTo(9.8f, 21.2f)
-        lineTo(8.1f, 18.8f)
-        lineTo(5.3f, 18.1f)
-        lineTo(5.8f, 15.2f)
-        lineTo(3.8f, 12.8f)
-        lineTo(5.3f, 10.3f)
-        lineTo(4.3f, 7.5f)
-        lineTo(6.8f, 6f)
-        lineTo(7.5f, 3.2f)
-        lineTo(10.3f, 3.5f)
-        close()
-        moveTo(9f, 12f)
-        lineTo(11f, 14f)
-        lineTo(15f, 9.5f)
-    }.build()
-}
-
-private val CrownSolidIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "CrownSolid",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f
-    ).path(
-        fill = SolidColor(Color.White),
-        stroke = null,
-        strokeLineWidth = 0f,
-        pathFillType = PathFillType.NonZero
-    ) {
-        moveTo(5f, 16f)
-        lineTo(3f, 5f)
-        lineTo(8.5f, 10f)
-        lineTo(12f, 4f)
-        lineTo(15.5f, 10f)
-        lineTo(21f, 5f)
-        lineTo(19f, 16f)
-        horizontalLineTo(5f)
-        close()
-        moveTo(5f, 18f)
-        horizontalLineTo(19f)
-        verticalLineTo(20f)
-        horizontalLineTo(5f)
-        verticalLineTo(18f)
-        close()
-    }.build()
-}
 
 @Composable
 fun ProPassRedeemDialog(
@@ -352,7 +273,7 @@ fun ProPassRedeemDialogCard(
                         .background(HeroGradient),
                     contentAlignment = Alignment.Center
                 ) {
-                    val heroIcon = if (state is RedemptionState.Success) CrownSolidIcon else VerifiedBadgeIcon
+                    val heroIcon = if (state is RedemptionState.Success) PhosphorIcons.Regular.Crown else PhosphorIcons.Regular.SealCheck
                     Icon(
                         imageVector = heroIcon,
                         contentDescription = null,
@@ -423,50 +344,53 @@ fun ProPassRedeemDialogCard(
                         color = textSecondary
                     )
 
-                    OutlinedTextField(
-                        value = code,
-                        onValueChange = onCodeChange,
-                        placeholder = {
-                            Text(
-                                text = "e.g. PROPASS7",
-                                color = textMuted,
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = code,
+                            onValueChange = onCodeChange,
+                            placeholder = {
+                                Text(
+                                    text = "e.g. PROPASS7",
+                                    color = textMuted,
+                                    fontSize = 15.sp,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            singleLine = true,
+                            enabled = state !is RedemptionState.Loading,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+                            shape = RoundedCornerShape(14.dp),
+                            textStyle = TextStyle(
                                 fontSize = 15.sp,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.5.sp,
+                                textAlign = TextAlign.Center,
+                                color = textPrimary
+                            ),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = surfaceSubtleColor,
+                                unfocusedContainerColor = surfaceSubtleColor,
+                                disabledContainerColor = surfaceSubtleColor,
+                                focusedBorderColor = PrimaryGradientStart,
+                                unfocusedBorderColor = borderColor,
+                                disabledBorderColor = borderColor
                             )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        singleLine = true,
-                        enabled = state !is RedemptionState.Loading,
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                        shape = RoundedCornerShape(14.dp),
-                        textStyle = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp,
-                            textAlign = TextAlign.Center,
-                            color = textPrimary
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = surfaceSubtleColor,
-                            unfocusedContainerColor = surfaceSubtleColor,
-                            disabledContainerColor = surfaceSubtleColor,
-                            focusedBorderColor = PrimaryGradientStart,
-                            unfocusedBorderColor = borderColor,
-                            disabledBorderColor = borderColor
                         )
-                    )
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    ProPassActionButton(
-                        text = "Activate Pro Code",
-                        onClick = onRedeem,
-                        enabled = code.isNotBlank() && state !is RedemptionState.Loading,
-                        isLoading = state is RedemptionState.Loading
-                    )
+                        ProPassActionButton(
+                            text = "Activate Pro Code",
+                            onClick = onRedeem,
+                            enabled = code.isNotBlank() && state !is RedemptionState.Loading,
+                            isLoading = state is RedemptionState.Loading
+                        )
+                    }
                 }
 
                 is RedemptionState.Error -> {
@@ -489,48 +413,51 @@ fun ProPassRedeemDialogCard(
                         color = MaterialTheme.colorScheme.error
                     )
 
-                    OutlinedTextField(
-                        value = code,
-                        onValueChange = onCodeChange,
-                        placeholder = {
-                            Text(
-                                text = "e.g. PROPASS7",
-                                color = textMuted,
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = code,
+                            onValueChange = onCodeChange,
+                            placeholder = {
+                                Text(
+                                    text = "e.g. PROPASS7",
+                                    color = textMuted,
+                                    fontSize = 15.sp,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            singleLine = true,
+                            isError = true,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+                            shape = RoundedCornerShape(14.dp),
+                            textStyle = TextStyle(
                                 fontSize = 15.sp,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.5.sp,
+                                textAlign = TextAlign.Center,
+                                color = textPrimary
+                            ),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = surfaceSubtleColor,
+                                unfocusedContainerColor = surfaceSubtleColor,
+                                disabledContainerColor = surfaceSubtleColor,
+                                focusedBorderColor = MaterialTheme.colorScheme.error,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.error
                             )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        singleLine = true,
-                        isError = true,
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                        shape = RoundedCornerShape(14.dp),
-                        textStyle = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp,
-                            textAlign = TextAlign.Center,
-                            color = textPrimary
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = surfaceSubtleColor,
-                            unfocusedContainerColor = surfaceSubtleColor,
-                            disabledContainerColor = surfaceSubtleColor,
-                            focusedBorderColor = MaterialTheme.colorScheme.error,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.error
                         )
-                    )
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    ProPassActionButton(
-                        text = "Activate Pro Code",
-                        onClick = onRedeem,
-                        enabled = code.isNotBlank()
-                    )
+                        ProPassActionButton(
+                            text = "Activate Pro Code",
+                            onClick = onRedeem,
+                            enabled = code.isNotBlank()
+                        )
+                    }
                 }
 
                 is RedemptionState.Success -> {
@@ -569,44 +496,47 @@ fun ProPassRedeemDialogCard(
                         ProChecklistRow(text = "All Premium Features Unlocked", isDark = isDark)
                     }
 
-                    // Expiration Banner Box
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isDark) Color(0x1F6A4DFF) else Color(0x126A4DFF))
-                            .border(1.dp, if (isDark) Color(0x406A4DFF) else Color(0x2B6A4DFF), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Regular.Clock,
-                            contentDescription = null,
-                            tint = PrimaryGradientStart,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Valid until:",
-                            fontSize = 12.sp,
-                            color = textSecondary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = formatExpiryDateLabel(state.days),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDark) Color(0xFFA897FF) else Color(0xFF5332FF)
+                        // Expiration Banner Box
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isDark) Color(0x1F6A4DFF) else Color(0x126A4DFF))
+                                .border(1.dp, if (isDark) Color(0x406A4DFF) else Color(0x2B6A4DFF), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = PhosphorIcons.Regular.Clock,
+                                contentDescription = null,
+                                tint = PrimaryGradientStart,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Valid until:",
+                                fontSize = 12.sp,
+                                color = textSecondary,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = formatExpiryDateLabel(state.days),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isDark) Color(0xFFA897FF) else Color(0xFF5332FF)
+                            )
+                        }
+
+                        ProPassActionButton(
+                            text = "Start Exploring Pro",
+                            onClick = onDismiss
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    ProPassActionButton(
-                        text = "Start Exploring Pro",
-                        onClick = onDismiss
-                    )
                 }
             }
         }
