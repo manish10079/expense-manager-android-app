@@ -953,6 +953,37 @@ internal fun AddTransactionScreenContent(
                                 modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                             )
                         }
+
+                        // Itemized calculator button: opens calculator sheet
+                        Box(
+                            modifier = Modifier
+                                .size(if (compact) 40.dp else 44.dp)
+                                .shadow(
+                                    elevation = if (colorScheme.isDark) 6.dp else 12.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    ambientColor = if (colorScheme.isDark) colorScheme.accentInk.copy(alpha = 0.06f) else CardShadowAmbientLight,
+                                    spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(SolidColor(colorScheme.surface))
+                                .border(
+                                    width = 1.dp,
+                                    color = micBorderColor,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable(onClick = {
+                                    keyboardController?.hide()
+                                    onCalculatorClick()
+                                }),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Calculate,
+                                contentDescription = stringResource(R.string.desc_open_calculator),
+                                tint = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                            )
+                        }
                     }
                 }
 
@@ -1722,10 +1753,11 @@ private fun RecurringTransactionSection(
         }
 
         if (isEnabled) {
+            val sectionHeaderColor = if (isEnabled) colorScheme.accentInk else colorScheme.onSurfaceVariant
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (canCreateInstallment) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SectionHeader(title = stringResource(R.string.label_recurring_type))
+                        SectionHeader(title = stringResource(R.string.label_recurring_type), color = sectionHeaderColor)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             FilterChip(
                                 selected = !isInstallment,
@@ -1758,7 +1790,7 @@ private fun RecurringTransactionSection(
 
                 // Frequency Selector (Sliding Pill)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader(title = stringResource(R.string.title_frequency))
+                    SectionHeader(title = stringResource(R.string.title_frequency), color = sectionHeaderColor)
                     
                     val density = LocalDensity.current
                     var containerWidthPx by remember { mutableIntStateOf(0) }
@@ -1847,10 +1879,10 @@ private fun RecurringTransactionSection(
                     }
                 }
 
-                // Plan terms Ã¢â‚¬â€ only the count below is shared with REGULAR.
+                // Plan terms — only the count below is shared with REGULAR.
                 if (isInstallment) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SectionHeader(title = stringResource(R.string.label_emi_total_amount))
+                        SectionHeader(title = stringResource(R.string.label_emi_total_amount), color = sectionHeaderColor)
                         EmiAmountField(
                             value = emiTotalInput,
                             onValueChange = onEmiTotalChange,
@@ -1859,7 +1891,7 @@ private fun RecurringTransactionSection(
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SectionHeader(title = stringResource(R.string.label_emi_installment_amount))
+                        SectionHeader(title = stringResource(R.string.label_emi_installment_amount), color = sectionHeaderColor)
                         EmiAmountField(
                             value = emiInstallmentInput,
                             onValueChange = onEmiInstallmentChange,
@@ -1868,7 +1900,7 @@ private fun RecurringTransactionSection(
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SectionHeader(title = stringResource(R.string.label_emi_first_due))
+                        SectionHeader(title = stringResource(R.string.label_emi_first_due), color = sectionHeaderColor)
                         OutlinedTextField(
                             value = emiFirstDueText,
                             onValueChange = {},
@@ -1892,7 +1924,7 @@ private fun RecurringTransactionSection(
                         )
                     }
 
-                    // A half-filled plan is not an error yet Ã¢â‚¬â€ only an inconsistent
+                    // A half-filled plan is not an error yet — only an inconsistent
                     // one is, exactly as in the recurring-list editor.
                     if (!isEmiPlanValid && emiTotalInput.isNotBlank() && emiInstallmentInput.isNotBlank()) {
                         Text(
@@ -1905,7 +1937,7 @@ private fun RecurringTransactionSection(
 
                 // Installments Picker
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SectionHeader(title = stringResource(R.string.label_total_installments))
+                    SectionHeader(title = stringResource(R.string.label_total_installments), color = sectionHeaderColor)
                     
                     val presetInstallments = listOf("3", "6", "12", "24")
                     
@@ -2200,6 +2232,7 @@ private fun CurrencyAmountCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (currency.position == CurrencyPosition.PREFIX) {
@@ -2207,110 +2240,87 @@ private fun CurrencyAmountCard(
                         text = currency.currencySymbol,
                         color = amountColor,
                         style = amountTextStyle,
-                        modifier = Modifier.padding(end = 6.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                 }
 
                 Box(
-                    modifier = Modifier
-                        .size(calculatorSize)
-                        .clip(CircleShape)
-                        .clickable(onClick = {
-                            keyboardController?.hide()
-                            onCalculatorClick()
-                        }),
+                    modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Calculate,
-                        contentDescription = stringResource(R.string.desc_open_calculator),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                    Text(
+                        text = amountText,
+                        color = Color.Transparent,
+                        style = amountTextStyle.copy(color = Color.Transparent),
+                        maxLines = 1
+                    )
+                    var textFieldValue by remember {
+                        mutableStateOf(
+                            TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(amountText.length)
+                            )
+                        )
+                    }
+                    // Sync text from parent while preserving the cursor position
+                    // so mid-text insertion keeps working after validation.
+                    LaunchedEffect(amountText) {
+                        if (textFieldValue.text != amountText) {
+                            val cursorPos = textFieldValue.selection.start
+                                .coerceAtMost(amountText.length)
+                            textFieldValue = TextFieldValue(
+                                text = amountText,
+                                selection = TextRange(cursorPos)
+                            )
+                        }
+                    }
+                    BasicTextField(
+                        value = textFieldValue,
+                        onValueChange = { newValue ->
+                            val validated = validateAmountChange(
+                                newValue.text, textFieldValue.text
+                            )
+                            // Special case: if the field became "0" after validation
+                            // (e.g., user deleted the last digit), place cursor at the end
+                            val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
+                                validated.length
+                            } else {
+                                newValue.selection.start.coerceAtMost(validated.length)
+                            }
+                            // Always update so cursor taps are honoured
+                            textFieldValue = TextFieldValue(
+                                text = validated,
+                                selection = TextRange(cursorPos)
+                            )
+                            // Only propagate when the text actually changed
+                            if (validated != amountText) {
+                                onAmountChange(validated)
+                            }
+                        },
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .focusProperties { this.canFocus = canFocus }
+                            .fillMaxWidth(),
+                        textStyle = amountTextStyle.copy(textAlign = TextAlign.Start),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { onImeNext() }
+                        ),
+                        singleLine = true,
+                        cursorBrush = SolidColor(amountColor)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = amountText,
-                            color = Color.Transparent,
-                            style = amountTextStyle.copy(color = Color.Transparent),
-                            maxLines = 1
-                        )
-                        var textFieldValue by remember {
-                            mutableStateOf(
-                                TextFieldValue(
-                                    text = amountText,
-                                    selection = TextRange(amountText.length)
-                                )
-                            )
-                        }
-                        // Sync text from parent while preserving the cursor position
-                        // so mid-text insertion keeps working after validation.
-                        LaunchedEffect(amountText) {
-                            if (textFieldValue.text != amountText) {
-                                val cursorPos = textFieldValue.selection.start
-                                    .coerceAtMost(amountText.length)
-                                textFieldValue = TextFieldValue(
-                                    text = amountText,
-                                    selection = TextRange(cursorPos)
-                                )
-                            }
-                        }
-                        BasicTextField(
-                            value = textFieldValue,
-                            onValueChange = { newValue ->
-                                val validated = validateAmountChange(
-                                    newValue.text, textFieldValue.text
-                                )
-                                // Special case: if the field became "0" after validation
-                                // (e.g., user deleted the last digit), place cursor at the end
-                                val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
-                                    validated.length
-                                } else {
-                                    newValue.selection.start.coerceAtMost(validated.length)
-                                }
-                                // Always update so cursor taps are honoured
-                                textFieldValue = TextFieldValue(
-                                    text = validated,
-                                    selection = TextRange(cursorPos)
-                                )
-                                // Only propagate when the text actually changed
-                                if (validated != amountText) {
-                                    onAmountChange(validated)
-                                }
-                            },
-                            modifier = Modifier
-                                .focusRequester(focusRequester)
-                                .focusProperties { this.canFocus = canFocus }
-                                .fillMaxWidth(),
-                            textStyle = amountTextStyle.copy(textAlign = TextAlign.Start),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { onImeNext() }
-                            ),
-                            singleLine = true,
-                            cursorBrush = SolidColor(amountColor)
-                        )
-                    }
-
-                    if (currency.position == CurrencyPosition.POSTFIX) {
-                        Text(
-                            text = currency.currencySymbol,
-                            color = amountColor,
-                            style = amountTextStyle,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                if (currency.position == CurrencyPosition.POSTFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = amountColor,
+                        style = amountTextStyle,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
 
@@ -2320,10 +2330,13 @@ private fun CurrencyAmountCard(
 }
 
 @Composable
-private fun SectionHeader(title: String) {
+private fun SectionHeader(
+    title: String,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
     Text(
         text = title,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = color,
         style = MaterialTheme.typography.labelSmall
     )
 }
