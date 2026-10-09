@@ -532,6 +532,7 @@
     <string name="title_tags">Tags</string>
     <string name="label_note_colon">Note:</string>
     <string name="label_tags_colon">Tags:</string>
+    <string name="label_fund_colon">Fund:</string>
     <string name="label_close">Close</string>
     <string name="label_add_tag">Add tag</string>
     <string name="placeholder_search_tags">Search or create a tag</string>

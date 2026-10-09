@@ -22,7 +22,8 @@ fun Transaction.toTransactionCardItemUi(
     timeFormat: String,
     paymentTypeName: String,
     categories: List<CategoryType>,
-    fallbackCategoryName: String = "Other"
+    fallbackCategoryName: String = "Other",
+    fundName: String? = null
 ): TransactionCardItemUi {
     val category = categories.find { it.id == categoryId }
     val resolvedIcon = category?.icon ?: categoryIcon
@@ -45,7 +46,8 @@ fun Transaction.toTransactionCardItemUi(
         // The same `category` lookup the icon above uses, so a row's colour and its glyph can
         // never be resolved from two different categories.
         categoryColorHex = category?.colorHex,
-        isRecurring = !sourceRecurringRuleId.isNullOrBlank()
+        isRecurring = !sourceRecurringRuleId.isNullOrBlank(),
+        fundName = fundName
     )
 }
 

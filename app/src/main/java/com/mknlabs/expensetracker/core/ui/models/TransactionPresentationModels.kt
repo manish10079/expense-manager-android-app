@@ -27,7 +27,8 @@ data class TransactionCardItemUi(
      * the override needs a field of its own.
      */
     val categoryColorHex: String? = null,
-    val isRecurring: Boolean = false
+    val isRecurring: Boolean = false,
+    val fundName: String? = null
 )
 
 sealed interface TransactionListItemUi {

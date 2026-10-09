@@ -127,6 +127,7 @@ fun TransactionCard(
     // Tag names to list in the row's info popup. The card no longer draws tags, so this is
     // the only way a tag reaches the ledger surface.
     tags: List<String> = emptyList(),
+    fundName: String? = null,
     // Pro-gated: the row's info popup (info icon) only renders for Pro users.
     showNoteTooltip: Boolean = true,
     isProUser: Boolean = false,
@@ -297,7 +298,7 @@ fun TransactionCard(
                 // The icon is deliberately not gated on hasMetaRow: the note's full-text
                 // tooltip must survive a user hiding every pill and the date, so the row
                 // below stays alive whenever there is an icon to place on it.
-                val showNoteInfo = showNoteTooltip && (noteTruncated || tags.isNotEmpty())
+                val showNoteInfo = showNoteTooltip && (noteTruncated || tags.isNotEmpty() || !fundName.isNullOrBlank())
 
                 // Row 2 — the payment, income/expense and category pills on the left, the
                 // date·time pinned to the right edge. The pills live in their own
@@ -518,6 +519,7 @@ fun TransactionCard(
             TransactionDetailsDialog(
                 note = note,
                 tags = tags,
+                fundName = fundName,
                 onDismiss = { showDetailsDialog = false }
             )
         }
@@ -571,6 +573,7 @@ private fun TransactionPill(
 private fun TransactionDetailsDialog(
     note: String,
     tags: List<String>,
+    fundName: String? = null,
     onDismiss: () -> Unit
 ) {
     val scale = remember { Animatable(0.14f) }
@@ -653,6 +656,19 @@ private fun TransactionDetailsDialog(
                         bodyStyle
                     }
                 )
+
+                if (!fundName.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.label_fund_colon),
+                        style = sectionStyle
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = fundName,
+                        style = bodyStyle
+                    )
+                }
 
                 if (tags.isNotEmpty()) {
                     val pattern = stringResource(R.string.label_tag_prefixed)

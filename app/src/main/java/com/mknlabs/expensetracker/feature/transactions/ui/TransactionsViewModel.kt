@@ -36,6 +36,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.mknlabs.expensetracker.domain.repository.FundRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionQuery
 import com.mknlabs.expensetracker.domain.repository.TagRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
@@ -120,12 +121,22 @@ class TransactionsViewModel @Inject constructor(
     private val application: Application,
     private val transactionRepository: TransactionRepository,
     private val tagRepository: TagRepository,
+    private val fundRepository: FundRepository,
     private val observeAccessStatusUseCase: ObserveAccessStatusUseCase
 ) : ViewModel() {
 
     private var currentCategories: List<CategoryType> = emptyList()
     private var currentPaymentMethods: List<PaymentType> = emptyList()
     private var currentTags: List<Tag> = emptyList()
+
+    val fundNames: StateFlow<Map<String, String>> =
+        fundRepository.observeActiveFunds()
+            .map { funds -> funds.associate { it.id to it.name } }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyMap()
+            )
 
     /**
      * Every live transaction's tags, keyed by transaction id, for the row chips.

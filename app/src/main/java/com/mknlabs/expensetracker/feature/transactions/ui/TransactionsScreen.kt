@@ -230,6 +230,7 @@ fun TransactionScreen(
     // Tags for each row's info popup, keyed by transaction id. Collected here rather than
     // folded into the paged rows so a tag rename repaints the popup without reloading pages.
     val transactionTags by transactionsViewModel.transactionTags.collectAsStateWithLifecycle()
+    val fundNames by transactionsViewModel.fundNames.collectAsStateWithLifecycle()
 
     // Paging 3 gives the screen the loaded pages; the feed builder turns them into
     // the grouped list (date headers, summaries, ads) the LazyColumn renders.
@@ -259,7 +260,8 @@ fun TransactionScreen(
         fallbackCategoryName,
         todayLabel,
         yesterdayLabel,
-        tomorrowLabel
+        tomorrowLabel,
+        fundNames
     ) {
         buildTransactionsFeed(
             transactions = loadedTransactions,
@@ -278,7 +280,8 @@ fun TransactionScreen(
             fallbackCategoryName = fallbackCategoryName,
             todayLabel = todayLabel,
             yesterdayLabel = yesterdayLabel,
-            tomorrowLabel = tomorrowLabel
+            tomorrowLabel = tomorrowLabel,
+            fundNames = fundNames
         )
     }
 
@@ -964,6 +967,7 @@ private fun TransactionScreenContent(
                                             showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                                             showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
                                             tags = transactionTags[card.id].orEmpty().map { it.name },
+                                            fundName = card.fundName,
                                             showNoteTooltip = isProUser,
                                             isProUser = isProUser,
                                             isRecurring = card.isRecurring,
