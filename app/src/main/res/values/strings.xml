@@ -4482,7 +4482,7 @@
     <string name="title_delete_fund">Delete fund?</string>
     <string name="msg_delete_fund_body">&quot;%1$s&quot; will be removed. Its transactions are kept; they just stop being linked to it.</string>
     <string name="msg_fund_edit_amount_updates_income">This also updates the income transaction that funds it.</string>
-    <string name="title_spend_from_fund">Spend from fund</string>
+    <string name="title_spend_from_fund">Fund</string>
     <string name="label_fund_none">None</string>
     <string name="title_fund_overspend">Insufficient Fund</string>
     <string name="msg_fund_overspend">This expense is more than the %2$s left in \u201c%1$s\u201d. Spend it anyway, change the amount, or take the fund off this expense.</string>
