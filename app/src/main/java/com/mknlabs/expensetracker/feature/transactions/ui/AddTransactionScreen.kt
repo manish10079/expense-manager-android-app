@@ -992,20 +992,23 @@ internal fun AddTransactionScreenContent(
                                 onClick = { isTagSheetVisible = true }
                             )
 
-                            val fund = availableFunds.firstOrNull { it.id == selectedFundId }
-                            val fundText = if (selectedTransactionTypeId == 1) {
+                            val isIncomeMode = selectedTransactionTypeId == 1
+                            val fund = if (isIncomeMode) null else availableFunds.firstOrNull { it.id == selectedFundId }
+                            val fundText = if (isIncomeMode) {
                                 stringResource(R.string.label_fund_none)
                             } else {
                                 fund?.name ?: stringResource(R.string.label_fund_none)
                             }
-                            val fundColor = if (fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
+                            val fundColor = if (!isIncomeMode && fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
+                            val fundIcon = if (isIncomeMode || fund == null) Icons.Filled.Clear else fund.icon
 
                             SelectionCard(
                                 modifier = Modifier.weight(1f),
                                 title = stringResource(R.string.title_spend_from_fund),
                                 selectedValue = fundText,
-                                icon = fund?.icon ?: Icons.Filled.Savings,
+                                icon = fundIcon,
                                 iconTint = fundColor,
+                                enabled = !isIncomeMode,
                                 onClick = { isFundSheetVisible = true }
                             )
                         }
@@ -3291,15 +3294,19 @@ private fun SelectionCard(
     icon: ImageVector,
     iconTint: Color = MaterialTheme.colorScheme.primary,
     iconBackgroundColor: Color = iconTint.copy(alpha = 0.12f),
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val contentAlpha = if (enabled) 1f else 0.5f
     AppCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        onClick = { if (enabled) onClick() },
+        modifier = modifier
+            .fillMaxWidth()
+            .graphicsLayer { alpha = contentAlpha },
         colors = AppCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (enabled) 0.5f else 0.25f))
         )
     ) {
         Row(
@@ -3313,13 +3320,13 @@ private fun SelectionCard(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(iconBackgroundColor),
+                    .background(if (enabled) iconBackgroundColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = if (enabled) iconTint else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -3344,12 +3351,14 @@ private fun SelectionCard(
                 )
             }
 
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
+            if (enabled) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
