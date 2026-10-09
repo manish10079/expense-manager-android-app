@@ -92,6 +92,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
@@ -100,6 +101,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -675,13 +677,8 @@ internal fun AddTransactionScreenContent(
                 .windowInsetsPadding(
                     WindowInsets.navigationBars.union(WindowInsets.ime).only(WindowInsetsSides.Bottom)
                 )
-                .padding(
-                    start = Dimens.ScreenPadding,
-                    end = Dimens.ScreenPadding,
-                    top = Dimens.HeaderSpacing,
-                    bottom = if (dense) 12.dp else 14.dp
-                )
-                // Swipe left Ã¢â€ â€™ Expense (next tab), swipe right Ã¢â€ â€™ Income (previous tab),
+                .padding(bottom = if (dense) 12.dp else 14.dp)
+                // Swipe left → Expense (next tab), swipe right → Income (previous tab),
                 // matching the Calendar screen's month/year swipe conventions. Compose's
                 // gesture disambiguation (touch slop + Main pass bubbling) lets the vertical
                 // scroll and the horizontally-scrollable category/payment chip rows keep
@@ -699,62 +696,74 @@ internal fun AddTransactionScreenContent(
                     }
                 )
         ) {
-                val enter = rememberSectionEnterAlphas(3)
+            val enter = rememberSectionEnterAlphas(3)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = Dimens.ScreenPadding, top = Dimens.HeaderSpacing, end = Dimens.ScreenPadding)
+                    .alpha(enter[0])
+            ) {
                 AppHeader(
-                title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
-                onBackClick = {
-                    keyboardController?.hide()
-                    onBackClick()
-                },
-                actions = {
-                    // Delete transaction icon (matches SelectionHeader style)
-                    if (isEditMode) {
-                        IconButton(
-                            onClick = {
-                                keyboardController?.hide()
-                                onDeleteClick()
-                            },
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Delete,
-                                contentDescription = stringResource(R.string.desc_delete_transaction),
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(18.dp)
-                            )
+                    title = stringResource(if (isEditMode) R.string.title_edit_transaction else R.string.title_add_transaction),
+                    onBackClick = {
+                        keyboardController?.hide()
+                        onBackClick()
+                    },
+                    actions = {
+                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                            // Delete transaction icon (matches SelectionHeader style)
+                            if (isEditMode) {
+                                IconButton(
+                                    onClick = {
+                                        keyboardController?.hide()
+                                        onDeleteClick()
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = stringResource(R.string.desc_delete_transaction),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                            // Reset form icon (only in add mode)
+                            if (!isEditMode) {
+                                IconButton(
+                                    onClick = {
+                                        selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
+                                        selectedCategoryId = 0
+                                        selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
+                                        amountInput = "0"
+                                        selectedDateMillis = System.currentTimeMillis()
+                                        note = ""
+                                        noteDraft = ""
+                                        isRecurringEnabled = false
+                                        selectedRecurringFrequency = RecurringFrequency.Monthly
+                                        recurringCountInput = "12"
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Refresh,
+                                        contentDescription = stringResource(R.string.desc_clear_fields),
+                                        // Same ink as the header's own title and back arrow, so the
+                                        // action reads as part of the header rather than a stray accent.
+                                        tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
                     }
-                    // Reset form icon (only in add mode)
-                    if (!isEditMode) {
-                        IconButton(onClick = {
-                            selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
-                            selectedCategoryId = 0
-                            selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
-                            amountInput = "0"
-                            selectedDateMillis = System.currentTimeMillis()
-                            note = ""
-                            noteDraft = ""
-                            isRecurringEnabled = false
-                            selectedRecurringFrequency = RecurringFrequency.Monthly
-                            recurringCountInput = "12"
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Refresh,
-                                contentDescription = stringResource(R.string.desc_clear_fields),
-                                // Same ink as the header's own title and back arrow, so the
-                                // action reads as part of the header rather than a stray accent.
-                                tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f)
-                            )
-                        }
-                    }
-                },
-                modifier = Modifier.alpha(enter[0])
-            )
-
+                )
+            }
 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .padding(horizontal = Dimens.ScreenPadding)
                     .alpha(enter[1])
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
