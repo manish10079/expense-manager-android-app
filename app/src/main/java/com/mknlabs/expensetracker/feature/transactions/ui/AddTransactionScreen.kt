@@ -759,81 +759,72 @@ internal fun AddTransactionScreenContent(
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
                 val tabAndAmountBlock: @Composable () -> Unit = {
-                    // Income/Expense are picked with the same chips Analytics uses for its
-                    // period selector — shape, border and fill animation are shared — but
-                    // the pair keeps this screen's own palette rather than the brand chip
-                    // tokens: the selected chip is a wash of the direction's amount ink
-                    // (mint income, coral expense) with the label in that ink, so the chip
-                    // and the figure it heads read as one colour. Both chips share the row
-                    // evenly to mirror the segmented control they replace.
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        transactionModes.forEach { mode ->
-                            val accent = if (mode.id == incomeTypeId) {
-                                MaterialTheme.colorScheme.income
-                            } else {
-                                MaterialTheme.colorScheme.expense
-                            }
-                            PeriodChip(
-                                label = stringResource(mode.label),
-                                isSelected = mode.id == selectedTransactionTypeId,
-                                onClick = { selectedTransactionTypeId = mode.id },
-                                modifier = Modifier.weight(1f),
-                                textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                                colors = PeriodChipColors(
-                                    selectedContainer = accent.copy(alpha = 0.20f),
-                                    selectedContent = accent,
-                                    unselectedContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                                    unselectedBorder = MaterialTheme.colorScheme.outlineVariant,
-                                    unselectedContent = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            )
-                        }
-                    }
-
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        CurrencyAmountCard(
-                            amountText = amountInput,
-                            currencyId = currencyId,
-                            selectedTransactionTypeId = selectedTransactionTypeId,
-                            compact = compact,
-                            focusRequester = amountFocusRequester,
-                            // Disable focus while the note sheet is open so that when it
-                            // closes, Compose's focus-restoration pass doesn't re-focus
-                            // this field and pop the numeric keyboard back up.
-                            canFocus = !isNoteSheetVisible,
-                            onCalculatorClick = onCalculatorClick,
-                            onAmountChange = {
-                                val validated = validateAmountChange(it, amountInput)
-                                if (validated != amountInput) {
-                                    amountInput = validated
-                                    onAmountInputChange(validated)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            transactionModes.forEach { mode ->
+                                val accent = if (mode.id == incomeTypeId) {
+                                    MaterialTheme.colorScheme.income
+                                } else {
+                                    MaterialTheme.colorScheme.expense
                                 }
-                            },
-                            onClick = {
-                                amountFocusRequester.requestFocus()
-                                keyboardController?.show()
-                            },
-                            onImeNext = {
-                                // Tick/enter on amount Ã¢â€ â€™ open note sheet
-                                keyboardController?.hide()
-                                noteDraft = note
-                                isNoteSheetVisible = true
+                                PeriodChip(
+                                    label = stringResource(mode.label),
+                                    isSelected = mode.id == selectedTransactionTypeId,
+                                    onClick = { selectedTransactionTypeId = mode.id },
+                                    modifier = Modifier.weight(1f),
+                                    textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                    colors = PeriodChipColors(
+                                        selectedContainer = accent.copy(alpha = 0.20f),
+                                        selectedContent = accent,
+                                        unselectedContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                        unselectedBorder = MaterialTheme.colorScheme.outlineVariant,
+                                        unselectedContent = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
                             }
-                        )
+                        }
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CurrencyAmountCard(
+                                amountText = amountInput,
+                                currencyId = currencyId,
+                                selectedTransactionTypeId = selectedTransactionTypeId,
+                                compact = compact,
+                                focusRequester = amountFocusRequester,
+                                canFocus = !isNoteSheetVisible,
+                                onCalculatorClick = onCalculatorClick,
+                                onAmountChange = {
+                                    val validated = validateAmountChange(it, amountInput)
+                                    if (validated != amountInput) {
+                                        amountInput = validated
+                                        onAmountInputChange(validated)
+                                    }
+                                },
+                                onClick = {
+                                    amountFocusRequester.requestFocus()
+                                    keyboardController?.show()
+                                },
+                                onImeNext = {
+                                    keyboardController?.hide()
+                                    noteDraft = note
+                                    isNoteSheetVisible = true
+                                }
+                            )
+                        }
                     }
                 }
 
                 val noteBlock: @Composable () -> Unit = {
-                    val micBorderColor by animateColorAsState(
-                        targetValue = if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f) else colorScheme.outline,
-                        label = "mic_border"
-                    )
+                    val micBorderColor = colorScheme.outlineVariant.copy(alpha = 0.5f)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp),
@@ -850,7 +841,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                                .background(SolidColor(colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -900,7 +891,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                                .background(SolidColor(colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -933,7 +924,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                                .background(SolidColor(colorScheme.surface))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -2465,8 +2456,7 @@ private fun SelectionInfoCard(
     val colorScheme = MaterialTheme.colorScheme
     val animatedBorderColor by animateColorAsState(
         targetValue = if (highlighted) Color.Transparent 
-                     else if (colorScheme.isDark) colorScheme.outlineVariant.copy(alpha = 0.5f)
-                     else colorScheme.outline,
+                     else colorScheme.outlineVariant.copy(alpha = 0.5f),
         label = "selection_card_border"
     )
 
@@ -2490,7 +2480,7 @@ private fun SelectionInfoCard(
                     spotColor = if (colorScheme.isDark || highlighted) colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowSpotLight
                 )
                 .clip(RoundedCornerShape(20.dp))
-                .background(SolidColor(if (colorScheme.isDark) Color.Transparent else colorScheme.surface))
+                .background(SolidColor(colorScheme.surface))
                 .border(
                     width = if (highlighted) 0.dp else 1.dp,
                     color = if (highlighted) Color.Transparent else animatedBorderColor,
