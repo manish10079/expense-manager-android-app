@@ -58,11 +58,14 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -308,6 +311,25 @@ internal fun RefereeCodeAcceptedCard(
     onExplore: () -> Unit,
     onReferMore: () -> Unit
 ) {
+    val cardScale = remember { Animatable(0.5f) }
+    val cardAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        cardAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(150)
+        )
+    }
+    LaunchedEffect(Unit) {
+        cardScale.animateTo(
+            targetValue = 1f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            )
+        )
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "crownFloatAnim")
     val floatOffsetY by infiniteTransition.animateFloat(
         initialValue = -5f,
@@ -331,7 +353,12 @@ internal fun RefereeCodeAcceptedCard(
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .graphicsLayer {
+                scaleX = cardScale.value
+                scaleY = cardScale.value
+                alpha = cardAlpha.value
+            },
         shape = cardShape,
         colors = AppCardDefaults.colors(),
         contentPadding = PaddingValues(24.dp)
@@ -486,6 +513,26 @@ internal fun ReferrerFirstTxnCard(
 ) {
     val earned = claimedSlots.coerceIn(1, 4)
     val daysLeft = (4 - earned) * 4
+
+    val cardScale = remember { Animatable(0.5f) }
+    val cardAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        cardAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(150)
+        )
+    }
+    LaunchedEffect(Unit) {
+        cardScale.animateTo(
+            targetValue = 1f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            )
+        )
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "giftFloatAnim")
     val floatOffsetY by infiniteTransition.animateFloat(
         initialValue = -5f,
@@ -509,7 +556,12 @@ internal fun ReferrerFirstTxnCard(
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .graphicsLayer {
+                scaleX = cardScale.value
+                scaleY = cardScale.value
+                alpha = cardAlpha.value
+            },
         shape = cardShape,
         colors = AppCardDefaults.colors(),
         contentPadding = PaddingValues(24.dp)
