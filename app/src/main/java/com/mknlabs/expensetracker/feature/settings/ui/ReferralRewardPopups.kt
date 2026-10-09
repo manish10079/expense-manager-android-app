@@ -131,7 +131,7 @@ internal fun RefereeCodeAcceptedCard(
             .fillMaxWidth()
             .padding(16.dp)
             .clip(cardShape)
-            .background(PopupScrimCard)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, Color(0x4DF59E0B), cardShape)
             .padding(24.dp)
     ) {
