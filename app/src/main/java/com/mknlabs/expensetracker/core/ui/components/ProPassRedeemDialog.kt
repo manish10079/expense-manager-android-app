@@ -43,6 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,11 +80,89 @@ private val PrimaryGradientEnd = Color(0xFF6750A4)
 private val SecondaryGradientStart = Color(0xFFFFC107)
 private val SecondaryGradientEnd = Color(0xFFFF8F00)
 
+private val HeroGradient = Brush.linearGradient(
+    colors = listOf(PrimaryGradientStart, PrimaryGradientEnd)
+)
+
 private val SecondaryBrush = Brush.linearGradient(
     colors = listOf(SecondaryGradientStart, SecondaryGradientEnd)
 )
 
 private val SuccessGreen = Color(0xFF10B981)
+
+private val VerifiedBadgeIcon: ImageVector by lazy {
+    ImageVector.Builder(
+        name = "VerifiedBadge",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).path(
+        fill = null,
+        stroke = SolidColor(Color.White),
+        strokeLineWidth = 2f,
+        strokeLineCap = StrokeCap.Round,
+        strokeLineJoin = StrokeJoin.Round
+    ) {
+        moveTo(12f, 2f)
+        lineTo(14.5f, 3.5f)
+        lineTo(17.3f, 3.2f)
+        lineTo(18f, 6f)
+        lineTo(20.5f, 7.5f)
+        lineTo(19.5f, 10.3f)
+        lineTo(21f, 12.8f)
+        lineTo(19f, 15.2f)
+        lineTo(19.5f, 18.1f)
+        lineTo(16.7f, 18.8f)
+        lineTo(15f, 21.2f)
+        lineTo(12.2f, 20f)
+        lineTo(9.8f, 21.2f)
+        lineTo(8.1f, 18.8f)
+        lineTo(5.3f, 18.1f)
+        lineTo(5.8f, 15.2f)
+        lineTo(3.8f, 12.8f)
+        lineTo(5.3f, 10.3f)
+        lineTo(4.3f, 7.5f)
+        lineTo(6.8f, 6f)
+        lineTo(7.5f, 3.2f)
+        lineTo(10.3f, 3.5f)
+        close()
+        moveTo(9f, 12f)
+        lineTo(11f, 14f)
+        lineTo(15f, 9.5f)
+    }.build()
+}
+
+private val CrownSolidIcon: ImageVector by lazy {
+    ImageVector.Builder(
+        name = "CrownSolid",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).path(
+        fill = SolidColor(Color.White),
+        stroke = null,
+        strokeLineWidth = 0f,
+        pathFillType = PathFillType.NonZero
+    ) {
+        moveTo(5f, 16f)
+        lineTo(3f, 5f)
+        lineTo(8.5f, 10f)
+        lineTo(12f, 4f)
+        lineTo(15.5f, 10f)
+        lineTo(21f, 5f)
+        lineTo(19f, 16f)
+        horizontalLineTo(5f)
+        close()
+        moveTo(5f, 18f)
+        horizontalLineTo(19f)
+        verticalLineTo(20f)
+        horizontalLineTo(5f)
+        verticalLineTo(18f)
+        close()
+    }.build()
+}
 
 @Composable
 fun ProPassRedeemDialog(
@@ -254,20 +338,28 @@ fun ProPassRedeemDialogCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 👑 Top Icon Badge
-            Box(
-                modifier = Modifier
-                    .size(68.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(SecondaryBrush),
-                contentAlignment = Alignment.Center
+            // 🔮 Main Hero Icon Container (Shared across both dialogs)
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = Color.Transparent,
+                shadowElevation = 8.dp,
+                modifier = Modifier.size(80.dp)
             ) {
-                Icon(
-                    imageVector = PhosphorIcons.Regular.Crown,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(34.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(HeroGradient),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val heroIcon = if (state is RedemptionState.Success) CrownSolidIcon else VerifiedBadgeIcon
+                    Icon(
+                        imageVector = heroIcon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(44.dp)
+                    )
+                }
             }
 
             // 🏷️ Status Chip / Pill
@@ -375,20 +467,6 @@ fun ProPassRedeemDialogCard(
                         enabled = code.isNotBlank() && state !is RedemptionState.Loading,
                         isLoading = state is RedemptionState.Loading
                     )
-
-                    Text(
-                        text = stringResource(id = R.string.label_cancel),
-                        style = TextStyle(
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
-                        ),
-                        color = textSecondary,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable(onClick = onDismiss)
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
-                    )
                 }
 
                 is RedemptionState.Error -> {
@@ -452,20 +530,6 @@ fun ProPassRedeemDialogCard(
                         text = "Activate Pro Code",
                         onClick = onRedeem,
                         enabled = code.isNotBlank()
-                    )
-
-                    Text(
-                        text = stringResource(id = R.string.label_cancel),
-                        style = TextStyle(
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
-                        ),
-                        color = textSecondary,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable(onClick = onDismiss)
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
 
