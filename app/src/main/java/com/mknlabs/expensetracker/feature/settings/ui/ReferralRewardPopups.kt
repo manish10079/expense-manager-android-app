@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -498,7 +499,7 @@ private fun ProPerkRow(text: String) {
     }
 }
 
-@Preview(name = "Referee Code Accepted Popup", showBackground = true)
+@Preview(name = "Referee Code Accepted Popup - Light", showBackground = true)
 @Composable
 private fun RefereeCodeAcceptedDialogPreview() {
     MaterialTheme {
@@ -511,9 +512,36 @@ private fun RefereeCodeAcceptedDialogPreview() {
     }
 }
 
-@Preview(name = "Referrer First Txn Popup", showBackground = true)
+@Preview(name = "Referee Code Accepted Popup - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun RefereeCodeAcceptedDialogDarkPreview() {
+    MaterialTheme {
+        RefereeCodeAcceptedDialog(
+            validUntilLabel = "Oct 16, 2026",
+            onDismiss = {},
+            onExplore = {},
+            onReferMore = {}
+        )
+    }
+}
+
+@Preview(name = "Referrer First Txn Popup - Light", showBackground = true)
 @Composable
 private fun ReferrerFirstTxnDialogPreview() {
+    MaterialTheme {
+        ReferrerFirstTxnDialog(
+            friendName = "Alex",
+            claimedSlots = 1,
+            onDismiss = {},
+            onClaimed = {},
+            onInviteMore = {}
+        )
+    }
+}
+
+@Preview(name = "Referrer First Txn Popup - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ReferrerFirstTxnDialogDarkPreview() {
     MaterialTheme {
         ReferrerFirstTxnDialog(
             friendName = "Alex",
