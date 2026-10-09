@@ -55,22 +55,24 @@ fun <T> WheelPicker(
 
     // Snap to correct position whenever initialIndex changes (e.g. re-open, tab switch)
     LaunchedEffect(initialIndex, items) {
-        val targetIndex = lastSelectedItem
-            ?.let { items.indexOf(it).takeIf { i -> i >= 0 } }
-            ?: initialIndex
-        val clampedIndex = targetIndex.coerceIn(0, items.size - 1)
+        val clampedIndex = initialIndex.coerceIn(0, items.size - 1)
         // Center slot = FVI + visibleCount/2 → to put clampedIndex in center: FVI = clampedIndex - visibleCount/2
         val targetListIndex = centerOffset + clampedIndex - (visibleCount / 2)
-        if (listState.firstVisibleItemIndex != targetListIndex) {
+        if (listState.firstVisibleItemIndex != targetListIndex || listState.firstVisibleItemScrollOffset != 0) {
             listState.scrollToItem(targetListIndex)
         }
     }
 
-    // Selected value = item in the center slot = FVI + visibleCount/2
+    // Selected value = item whose visual center is closest to the viewport center slot
     LaunchedEffect(listState, items) {
-        snapshotFlow { listState.firstVisibleItemIndex }
-            .map { fvi ->
-                val centerItemIndex = fvi + (visibleCount / 2)
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .map { (fvi, _) ->
+                val layoutInfo = listState.layoutInfo
+                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
+                val closest = layoutInfo.visibleItemsInfo.minByOrNull { item ->
+                    kotlin.math.abs((item.offset + item.size / 2f) - viewportCenter)
+                }
+                val centerItemIndex = closest?.index ?: (fvi + visibleCount / 2)
                 val safeIndex = (centerItemIndex % items.size + items.size) % items.size
                 items[safeIndex]
             }
