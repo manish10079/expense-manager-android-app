@@ -2,14 +2,17 @@ package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -22,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -89,8 +94,6 @@ fun ProPassRedeemDialogContent(
     onDismiss: () -> Unit,
     onVerifyEmail: () -> Unit = {}
 ) {
-    // A subscription already covers the window a new grant would occupy, so the code would
-    // run out unused. Say that.
     if (hasActiveStoreSubscription) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -128,7 +131,6 @@ fun ProPassRedeemDialogContent(
         return
     }
 
-    // If email is not verified, show verification prompt instead of redemption form
     if (!isEmailVerified) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -173,115 +175,141 @@ fun ProPassRedeemDialogContent(
         return
     }
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = {
             if (state !is RedemptionState.Loading) {
                 onDismiss()
             }
-        },
-        containerColor = MaterialTheme.colorScheme.sheet,
-        icon = {
+        }
+    ) {
+        ProPassRedeemDialogCard(
+            code = code,
+            onCodeChange = onCodeChange,
+            state = state,
+            onRedeem = onRedeem,
+            onDismiss = onDismiss
+        )
+    }
+}
+
+@Composable
+fun ProPassRedeemDialogCard(
+    code: String,
+    onCodeChange: (String) -> Unit,
+    state: RedemptionState,
+    onRedeem: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.sheet,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Icon(
                 imageVector = if (state is RedemptionState.Success) Icons.Rounded.CheckCircle else Icons.Rounded.ConfirmationNumber,
                 contentDescription = null,
                 tint = if (state is RedemptionState.Success) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(32.dp)
             )
-        },
-        title = {
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(id = R.string.title_activate_pro_pass),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
-        },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                when (state) {
-                    is RedemptionState.Idle, is RedemptionState.Loading -> {
-                        Text(
-                            text = stringResource(id = R.string.msg_enter_pro_pass_code),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedTextField(
-                            value = code,
-                            onValueChange = onCodeChange,
-                            placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            enabled = state !is RedemptionState.Loading,
-                            shape = AppOutlinedFieldDefaults.shape,
-                            colors = AppOutlinedFieldDefaults.colors()
-                        )
-                    }
-                    is RedemptionState.Success -> {
-                        Text(
-                            text = stringResource(id = R.string.msg_pro_pass_activated, state.days),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    is RedemptionState.Error -> {
-                        Text(
-                            text = stringResource(id = redemptionErrorMessageRes(state.error)),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedTextField(
-                            value = code,
-                            onValueChange = onCodeChange,
-                            placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            isError = true,
-                            shape = AppOutlinedFieldDefaults.shape,
-                            colors = AppOutlinedFieldDefaults.colors()
-                        )
-                    }
+            Spacer(modifier = Modifier.height(16.dp))
+            when (state) {
+                is RedemptionState.Idle, is RedemptionState.Loading -> {
+                    Text(
+                        text = stringResource(id = R.string.msg_enter_pro_pass_code),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = onCodeChange,
+                        placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = state !is RedemptionState.Loading,
+                        shape = AppOutlinedFieldDefaults.shape,
+                        colors = AppOutlinedFieldDefaults.colors()
+                    )
+                }
+                is RedemptionState.Success -> {
+                    Text(
+                        text = stringResource(id = R.string.msg_pro_pass_activated, state.days),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                is RedemptionState.Error -> {
+                    Text(
+                        text = stringResource(id = redemptionErrorMessageRes(state.error)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = onCodeChange,
+                        placeholder = { Text(stringResource(id = R.string.placeholder_pro_pass_code)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = true,
+                        shape = AppOutlinedFieldDefaults.shape,
+                        colors = AppOutlinedFieldDefaults.colors()
+                    )
                 }
             }
-        },
-        confirmButton = {
-            when (state) {
-                is RedemptionState.Success -> {
-                    ProPassGradientButton(
-                        onClick = onDismiss
-                    ) {
-                        Text(stringResource(id = R.string.label_ok))
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (state !is RedemptionState.Success && state !is RedemptionState.Loading) {
+                    AppTextButton(onClick = onDismiss) {
+                        Text(stringResource(id = R.string.label_cancel))
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
-                else -> {
-                    ProPassGradientButton(
-                        onClick = onRedeem,
-                        enabled = code.isNotBlank() && state !is RedemptionState.Loading
-                    ) {
-                        if (state is RedemptionState.Loading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onCta,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(stringResource(id = R.string.btn_activate_pro))
+                when (state) {
+                    is RedemptionState.Success -> {
+                        ProPassGradientButton(onClick = onDismiss) {
+                            Text(stringResource(id = R.string.label_ok))
+                        }
+                    }
+                    else -> {
+                        ProPassGradientButton(
+                            onClick = onRedeem,
+                            enabled = code.isNotBlank() && state !is RedemptionState.Loading
+                        ) {
+                            if (state is RedemptionState.Loading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.onCta,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(stringResource(id = R.string.btn_activate_pro))
+                            }
                         }
                     }
                 }
             }
-        },
-        dismissButton = {
-            if (state !is RedemptionState.Success && state !is RedemptionState.Loading) {
-                AppTextButton(onClick = onDismiss) {
-                    Text(stringResource(id = R.string.label_cancel))
-                }
-            }
         }
-    )
+    }
 }
 
 @Composable
@@ -319,7 +347,7 @@ private fun ProPassGradientButton(
 @Composable
 private fun ProPassRedeemDialogEnterCodeLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
-        ProPassRedeemDialogContent(
+        ProPassRedeemDialogCard(
             code = "PROPASS7",
             onCodeChange = {},
             state = RedemptionState.Idle,
@@ -333,7 +361,7 @@ private fun ProPassRedeemDialogEnterCodeLightPreview() {
 @Composable
 private fun ProPassRedeemDialogEnterCodeDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        ProPassRedeemDialogContent(
+        ProPassRedeemDialogCard(
             code = "PROPASS7",
             onCodeChange = {},
             state = RedemptionState.Idle,
@@ -347,7 +375,7 @@ private fun ProPassRedeemDialogEnterCodeDarkPreview() {
 @Composable
 private fun ProPassRedeemDialogSuccessLightPreview() {
     ExpenseTrackerTheme(darkTheme = false) {
-        ProPassRedeemDialogContent(
+        ProPassRedeemDialogCard(
             code = "PROPASS7",
             onCodeChange = {},
             state = RedemptionState.Success(days = 7),
@@ -361,7 +389,7 @@ private fun ProPassRedeemDialogSuccessLightPreview() {
 @Composable
 private fun ProPassRedeemDialogSuccessDarkPreview() {
     ExpenseTrackerTheme(darkTheme = true) {
-        ProPassRedeemDialogContent(
+        ProPassRedeemDialogCard(
             code = "PROPASS7",
             onCodeChange = {},
             state = RedemptionState.Success(days = 7),
