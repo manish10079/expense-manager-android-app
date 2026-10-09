@@ -2202,20 +2202,40 @@ private fun CurrencyAmountCard(
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (currency.position == CurrencyPosition.PREFIX) {
+                    Text(
+                        text = currency.currencySymbol,
+                        color = amountColor,
+                        style = amountTextStyle,
+                        modifier = Modifier.padding(end = 6.dp)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(calculatorSize)
+                        .clip(CircleShape)
+                        .clickable(onClick = {
+                            keyboardController?.hide()
+                            onCalculatorClick()
+                        }),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Calculate,
+                        contentDescription = stringResource(R.string.desc_open_calculator),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (currency.position == CurrencyPosition.PREFIX) {
-                        Text(
-                            text = currency.currencySymbol,
-                            color = amountColor,
-                            style = amountTextStyle,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                    }
-
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = amountText,
@@ -2269,7 +2289,8 @@ private fun CurrencyAmountCard(
                             modifier = Modifier
                                 .focusRequester(focusRequester)
                                 .focusProperties { this.canFocus = canFocus }
-                                .fillMaxWidth(),                            textStyle = amountTextStyle.copy(textAlign = TextAlign.Start),
+                                .fillMaxWidth(),
+                            textStyle = amountTextStyle.copy(textAlign = TextAlign.Start),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Decimal,
                                 imeAction = ImeAction.Next
@@ -2290,24 +2311,6 @@ private fun CurrencyAmountCard(
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(calculatorSize)
-                        .clip(CircleShape)
-                        .clickable(onClick = {
-                            keyboardController?.hide()
-                            onCalculatorClick()
-                        }),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Calculate,
-                        contentDescription = stringResource(R.string.desc_open_calculator),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(if (compact) 20.dp else 22.dp)
-                    )
                 }
             }
 
