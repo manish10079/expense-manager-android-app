@@ -19,14 +19,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
+
+/** A transaction that puts money in. The row that fills a fund carries this type. */
+private const val INCOME_TRANSACTION_TYPE_ID = 1
 
 /** One category's share of what a single fund has spent, for the fund detail breakdown. */
 @Immutable
@@ -38,23 +38,14 @@ data class FundCategorySlice(
     val colorHex: String? = null
 )
 
-/** One bucket of a fund's spending over time. */
-@Immutable
-data class FundTimelinePoint(
-    val label: String,
-    val amountMinor: Long,
-    val fraction: Float
-)
-
-/** The per-fund breakdown: what the money went on, and when. */
+/** The per-fund breakdown: what the money went on. */
 @Immutable
 data class FundBreakdown(
     val slices: List<FundCategorySlice> = emptyList(),
-    val timeline: List<FundTimelinePoint> = emptyList(),
     val totalSpentMinor: Long = 0L
 ) {
     val isEmpty: Boolean
-        get() = slices.isEmpty() && timeline.isEmpty()
+        get() = slices.isEmpty()
 }
 
 @Immutable
@@ -79,11 +70,24 @@ class FundsViewModel @Inject constructor(
 
     private val selectedFundId = MutableStateFlow<String?>(null)
 
-    /** Live transactions of the fund currently open, or nothing when none is open. */
+    /**
+     * Live spending linked to the fund currently open, or nothing when none is open.
+     *
+     * The income row that filled the bucket is booked against the fund too, so it comes back
+     * from the same query — but it is the fund being funded, not something the fund paid for.
+     * Dropping it here is what keeps the sheet's list a list of what the money went on, and
+     * leaves the arrival visible where it belongs, in the fund's allocated amount. The
+     * breakdown below filters the same way.
+     */
     private val selectedTransactions: Flow<List<Transaction>> =
         selectedFundId.flatMapLatest { id ->
-            if (id.isNullOrBlank()) flowOf(emptyList())
-            else fundRepository.observeTransactionsByFund(id)
+            if (id.isNullOrBlank()) {
+                flowOf(emptyList())
+            } else {
+                fundRepository.observeTransactionsByFund(id).map { linked ->
+                    linked.filter { it.transactionTypeId != INCOME_TRANSACTION_TYPE_ID }
+                }
+            }
         }
 
     val uiState: StateFlow<FundsUiState> = combine(
@@ -98,6 +102,7 @@ class FundsViewModel @Inject constructor(
         } else {
             FundBreakdown()
         }
+
         // Archived money is not "in play", so the summary counts only the buckets still
         // being spent from — the same rule the status badge applies to each card.
         val live = funds.filter { it.status != FundStatus.Archived }
@@ -129,11 +134,12 @@ class FundsViewModel @Inject constructor(
         startDate: Long,
         iconKey: String,
         colorHex: String,
-        note: String
+        note: String,
+        incomeCategoryId: Int = com.mknlabs.expensetracker.domain.repository.FundDefaults.INCOME_CATEGORY_ID
     ) {
         viewModelScope.launch {
             fundRepository.createFund(
-                Fund(
+                fund = Fund(
                     id = UUID.randomUUID().toString(),
                     name = name.trim(),
                     amountMinor = amountMinor,
@@ -141,7 +147,8 @@ class FundsViewModel @Inject constructor(
                     iconKey = iconKey,
                     colorHex = colorHex,
                     note = note.trim()
-                )
+                ),
+                incomeCategoryId = incomeCategoryId
             )
         }
     }
@@ -164,10 +171,8 @@ class FundsViewModel @Inject constructor(
     }
 }
 
-private val bucketFormatter = SimpleDateFormat("MMM yy", Locale.getDefault())
-
 /**
- * What a fund's money was spent on, and when.
+ * What a fund's money was spent on.
  *
  * Built from the fund's own linked transactions, which are expenses only — the income row
  * that created the fund is booked against the fund too, so it is filtered out here or it
@@ -199,33 +204,5 @@ private fun buildBreakdown(
             )
         }
 
-    val buckets = expenses
-        .groupBy { monthStartOf(it.createdAt) }
-        .toSortedMap()
-        .entries
-        .toList()
-        .takeLast(6)
-    val maxBucket = buckets.maxOfOrNull { it.value.sumOf { tx -> tx.amountMinor } }?.coerceAtLeast(1L) ?: 1L
-    val timeline = buckets.map { (monthStart, items) ->
-        val amountMinor = items.sumOf { it.amountMinor }
-        FundTimelinePoint(
-            label = bucketFormatter.format(Date(monthStart)),
-            amountMinor = amountMinor,
-            fraction = amountMinor.toFloat() / maxBucket.toFloat()
-        )
-    }
-
-    return FundBreakdown(slices = slices, timeline = timeline, totalSpentMinor = total)
-}
-
-private fun monthStartOf(timestamp: Long): Long {
-    val calendar = Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.DAY_OF_MONTH, 1)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
-    return calendar.timeInMillis
+    return FundBreakdown(slices = slices, totalSpentMinor = total)
 }

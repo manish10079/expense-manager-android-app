@@ -245,6 +245,7 @@ class SmsChangeViewModelTest {
         override suspend fun getTodayExpenseMinor(dayStr: String): Long = error("unexpected")
         override fun observeRecentTransactions(limit: Int): Flow<List<HomeRecentTransactionRow>> = error("unexpected")
         override fun observeActiveTransactionCount(): Flow<Int> = error("unexpected")
+        override suspend fun countActive(): Int = error("unexpected")
         override suspend fun countAll(): Int = error("unexpected")
         override suspend fun getMonthlyCategorySpending(categoryId: Int, monthStr: String): Long = error("unexpected")
         override suspend fun getTodayTransactionCount(dayStr: String): Int = error("unexpected")

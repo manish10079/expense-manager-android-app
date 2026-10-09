@@ -673,12 +673,7 @@ private fun NormalCalculatorDisplay(
         }
     }
 
-    // Additional layer: continuously suppress keyboard while focused
-    DisposableEffect(Unit) {
-        onDispose {
-            keyboardController?.hide()
-        }
-    }
+
 
     // Watch for any interaction and suppress keyboard
     val isInteractionFocused by interactionSource.collectIsFocusedAsState()

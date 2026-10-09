@@ -50,8 +50,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -63,7 +66,16 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Star
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
+import com.mknlabs.expensetracker.feature.funds.ui.CreateFundSheet
+import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -329,7 +341,8 @@ fun AddTransactionScreen(
         isVoiceSheetVisible = voice.isSheetVisible,
         onMicClick = voice.onMicClick,
         onVoiceSheetDismiss = voice.onSheetDismiss,
-        onVoiceSheetRetry = voice.onSheetRetry
+        onVoiceSheetRetry = voice.onSheetRetry,
+        onCreateFund = fundsViewModel::createFund
     )
 }
 
@@ -376,7 +389,8 @@ internal fun AddTransactionScreenContent(
     isVoiceSheetVisible: Boolean = false,
     onMicClick: () -> Unit = {},
     onVoiceSheetDismiss: () -> Unit = {},
-    onVoiceSheetRetry: () -> Unit = {}
+    onVoiceSheetRetry: () -> Unit = {},
+    onCreateFund: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String, incomeCategoryId: Int) -> Unit = { _, _, _, _, _, _, _ -> }
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -494,6 +508,11 @@ internal fun AddTransactionScreenContent(
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
         var isFavoritesSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isTagSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isFundSheetVisible by rememberSaveable { mutableStateOf(false) }
+        var isCreateFundSheetVisible by rememberSaveable { mutableStateOf(false) }
         var showDuplicateWarning by rememberSaveable { mutableStateOf(false) }
         var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
@@ -910,96 +929,80 @@ internal fun AddTransactionScreenContent(
                     }
                 }
 
-                val categoryBlock: @Composable () -> Unit = {
+                val selectionGridBlock: @Composable () -> Unit = {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                     ) {
-                        SectionHeader(title = stringResource(R.string.title_category_1))
-                        ChoiceChipRow(
-                            items = categoriesForType,
-                            selectedId = selectedCategoryId,
-                            compact = compact,
-                            getId = { it.id },
-                            getLabel = { it.name },
-                            getIcon = { it.icon },
-                            getColor = { colorScheme.categoryColor(categoryId = it.id, colorHex = it.colorHex) },
-                            onItemSelected = { selectedCategoryId = it }
-                        )
-                    }
-                }
-
-                val paymentBlock: @Composable () -> Unit = {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
-                    ) {
-                        SectionHeader(title = stringResource(R.string.title_payment_method))
-                        ChoiceChipRow(
-                            items = paymentMethods,
-                            selectedId = selectedPaymentId,
-                            compact = compact,
-                            getId = { it.id },
-                            getLabel = { it.name },
-                            getIcon = { it.icon },
-                            getColor = { colorScheme.paymentColor(paymentId = it.id, colorHex = it.colorHex) },
-                            onItemSelected = { selectedPaymentId = it; hasManuallySelectedPayment = true }
-                        )
-                    }
-                }
-
-                // Tags sit directly below Category (PRD §3): both are ways of labelling
-                // the same transaction, so they belong beside each other rather than
-                // among the date/recurring controls on the other pane.
-                val tagsBlock: @Composable () -> Unit = {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
-                    ) {
-                        SectionHeader(title = stringResource(R.string.title_tags))
-                        TransactionTagField(
-                            allTags = allTags,
-                            selectedTags = selectedTags,
-                            onToggle = onToggleTag,
-                            onAddByName = onAddTagByName
-                        )
-                    }
-                }
-
-                // Funds sit beside Category and Payment: one more label on the same
-                // expense. Only shown when the user has a bucket to spend from, and never
-                // for income, which is money arriving rather than money drawn down.
-                val fundBlock: @Composable () -> Unit = {
-                    if (availableFunds.isNotEmpty() && selectedTransactionTypeId != 1) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
+                        // Top Row: Category & Payment Method
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                         ) {
-                            SectionHeader(title = stringResource(R.string.title_spend_from_fund))
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 12.dp)) {
-                                item {
-                                    ChoiceChip(
-                                        label = stringResource(R.string.label_fund_none),
-                                        icon = Icons.Filled.Clear,
-                                        identityColor = null,
-                                        isSelected = selectedFundId == null,
-                                        compact = compact,
-                                        onClick = {
-                                            fundSelectionTouched = true
-                                            selectedFundId = null
-                                        }
-                                    )
-                                }
-                                items(availableFunds, key = { it.id }) { fund ->
-                                    ChoiceChip(
-                                        label = fund.name,
-                                        icon = fund.icon,
-                                        identityColor = fundChipColor(fund.colorHex),
-                                        isSelected = fund.id == selectedFundId,
-                                        compact = compact,
-                                        onClick = {
-                                            fundSelectionTouched = true
-                                            selectedFundId = fund.id
-                                        }
-                                    )
-                                }
+                            val category = selectedCategory
+                            val categoryColor = if (category != null) {
+                                colorScheme.categoryColor(categoryId = category.id, colorHex = category.colorHex)
+                            } else colorScheme.primary
+
+                            SelectionCard(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.title_category_1),
+                                selectedValue = category?.name ?: stringResource(R.string.label_select_category),
+                                icon = category?.icon ?: Icons.Filled.Category,
+                                iconTint = categoryColor,
+                                onClick = { isCategorySheetVisible = true }
+                            )
+
+                            val payment = selectedPayment
+                            val paymentColor = if (payment != null) {
+                                colorScheme.paymentColor(paymentId = payment.id, colorHex = payment.colorHex)
+                            } else colorScheme.primary
+
+                            SelectionCard(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.title_payment_method),
+                                selectedValue = payment?.name ?: stringResource(R.string.label_payment_type_item),
+                                icon = payment?.icon ?: Icons.Filled.AccountBalanceWallet,
+                                iconTint = paymentColor,
+                                onClick = { isPaymentSheetVisible = true }
+                            )
+                        }
+
+                        // Bottom Row: Tag & Spend from Fund
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
+                        ) {
+                            val tagText = when {
+                                selectedTags.isEmpty() -> stringResource(R.string.placeholder_search_tags)
+                                selectedTags.size == 1 -> "#${selectedTags.first().name}"
+                                else -> "${selectedTags.size} Tags"
                             }
+
+                            SelectionCard(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.title_tags),
+                                selectedValue = tagText,
+                                icon = Icons.Filled.Sell,
+                                iconTint = if (selectedTags.isNotEmpty()) colorScheme.accentInk else colorScheme.onSurfaceVariant,
+                                onClick = { isTagSheetVisible = true }
+                            )
+
+                            val fund = availableFunds.firstOrNull { it.id == selectedFundId }
+                            val fundText = if (selectedTransactionTypeId == 1) {
+                                stringResource(R.string.label_fund_none)
+                            } else {
+                                fund?.name ?: stringResource(R.string.label_fund_none)
+                            }
+                            val fundColor = if (fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
+
+                            SelectionCard(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.title_spend_from_fund),
+                                selectedValue = fundText,
+                                icon = fund?.icon ?: Icons.Filled.Savings,
+                                iconTint = fundColor,
+                                onClick = { isFundSheetVisible = true }
+                            )
                         }
                     }
                 }
@@ -1043,8 +1046,7 @@ internal fun AddTransactionScreenContent(
                 }
 
                 if (wide) {
-                    // Two-pane: left = tabs, amount, category + payment pickers;
-                    // right = note, date + recurring. Each pane scrolls on its own.
+                    // Two-pane layout
                     Row(
                         modifier = Modifier
                             .weight(1f)
@@ -1059,10 +1061,7 @@ internal fun AddTransactionScreenContent(
                             verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                         ) {
                             tabAndAmountBlock()
-                            categoryBlock()
-                            tagsBlock()
-                            paymentBlock()
-                            fundBlock()
+                            selectionGridBlock()
                         }
                         Column(
                             modifier = Modifier
@@ -1077,7 +1076,7 @@ internal fun AddTransactionScreenContent(
                         }
                     }
                 } else {
-                    // Compact phone: unchanged single scroll column (order frozen).
+                    // Compact phone layout
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -1087,10 +1086,7 @@ internal fun AddTransactionScreenContent(
                         tabAndAmountBlock()
                         quickFavoritesBlock()
                         noteBlock()
-                        categoryBlock()
-                        tagsBlock()
-                        paymentBlock()
-                        fundBlock()
+                        selectionGridBlock()
                         dateRecurringBlock()
                     }
                 }
@@ -1241,6 +1237,67 @@ internal fun AddTransactionScreenContent(
                     onVoiceSheetDismiss()
                 },
                 onRetry = onVoiceSheetRetry
+            )
+        }
+
+        if (isCategorySheetVisible) {
+            CategoryBottomSheet(
+                categories = categoriesForType,
+                selectedCategoryId = selectedCategoryId,
+                onSelectCategory = { cat ->
+                    selectedCategoryId = cat.id
+                },
+                onDismissRequest = { isCategorySheetVisible = false }
+            )
+        }
+
+        if (isPaymentSheetVisible) {
+            PaymentMethodBottomSheet(
+                paymentMethods = paymentMethods,
+                selectedPaymentId = selectedPaymentId,
+                onSelectPayment = { payment ->
+                    selectedPaymentId = payment.id
+                    hasManuallySelectedPayment = true
+                },
+                onDismissRequest = { isPaymentSheetVisible = false }
+            )
+        }
+
+        if (isTagSheetVisible) {
+            TagBottomSheet(
+                allTags = allTags,
+                selectedTags = selectedTags,
+                onToggleTag = onToggleTag,
+                onAddTagByName = onAddTagByName,
+                onDismissRequest = { isTagSheetVisible = false }
+            )
+        }
+
+        if (isFundSheetVisible) {
+            SpendFromFundBottomSheet(
+                availableFunds = availableFunds,
+                selectedFundId = selectedFundId,
+                onSelectFund = { fundId ->
+                    fundSelectionTouched = true
+                    selectedFundId = fundId
+                },
+                onCreateFundClick = {
+                    isCreateFundSheetVisible = true
+                },
+                onDismissRequest = { isFundSheetVisible = false }
+            )
+        }
+
+        if (isCreateFundSheetVisible) {
+            CreateFundSheet(
+                currencyId = currencyId,
+                amountFormatPreferences = AmountFormatPreferences(CurrencyGroupingStyle.INTERNATIONAL, 2),
+                categories = availableCategories,
+                onDismiss = { isCreateFundSheetVisible = false },
+                onCreate = { name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId ->
+                    onCreateFund(name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId)
+                    isCreateFundSheetVisible = false
+                }
             )
         }
 
@@ -3216,6 +3273,607 @@ private fun TransactionNoteBottomSheet(
                     color = MaterialTheme.colorScheme.onCta,
                     style = MaterialTheme.typography.titleMedium
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    selectedValue: String,
+    icon: ImageVector,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
+    iconBackgroundColor: Color = iconTint.copy(alpha = 0.12f),
+    onClick: () -> Unit
+) {
+    AppCard(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors = AppCardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(iconBackgroundColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = selectedValue,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryBottomSheet(
+    categories: List<CategoryType>,
+    selectedCategoryId: Int,
+    onSelectCategory: (CategoryType) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colorScheme = MaterialTheme.colorScheme
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = colorScheme.sheet,
+        contentColor = colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.label_select_category),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = colorScheme.onSurface
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(categories, key = { it.id }) { cat ->
+                    val isSelected = cat.id == selectedCategoryId
+                    val catColor = colorScheme.categoryColor(cat.id, cat.colorHex)
+
+                    AppCard(
+                        onClick = {
+                            onSelectCategory(cat)
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AppCardColors(
+                            containerColor = if (isSelected) catColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            contentColor = colorScheme.onSurface,
+                            border = BorderStroke(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) catColor else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                            )
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(catColor.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = cat.icon,
+                                    contentDescription = null,
+                                    tint = catColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Text(
+                                text = cat.name,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                ),
+                                color = colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = catColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PaymentMethodBottomSheet(
+    paymentMethods: List<PaymentType>,
+    selectedPaymentId: Int,
+    onSelectPayment: (PaymentType) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colorScheme = MaterialTheme.colorScheme
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = colorScheme.sheet,
+        contentColor = colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.label_payment_type_item),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = colorScheme.onSurface
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(paymentMethods, key = { it.id }) { payment ->
+                    val isSelected = payment.id == selectedPaymentId
+                    val payColor = colorScheme.paymentColor(payment.id, payment.colorHex)
+
+                    AppCard(
+                        onClick = {
+                            onSelectPayment(payment)
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AppCardColors(
+                            containerColor = if (isSelected) payColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            contentColor = colorScheme.onSurface,
+                            border = BorderStroke(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) payColor else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                            )
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(payColor.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = payment.icon,
+                                    contentDescription = null,
+                                    tint = payColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Text(
+                                text = payment.name,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                ),
+                                color = colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = payColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TagBottomSheet(
+    allTags: List<Tag>,
+    selectedTags: List<Tag>,
+    onToggleTag: (String) -> Unit,
+    onAddTagByName: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colorScheme = MaterialTheme.colorScheme
+    var newTagName by remember { mutableStateOf("") }
+    val selectedIds = remember(selectedTags) { selectedTags.map { it.id }.toSet() }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = colorScheme.sheet,
+        contentColor = colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.title_tags),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = colorScheme.onSurface
+                )
+                AppTextButton(onClick = onDismissRequest) {
+                    Text(text = stringResource(R.string.label_done))
+                }
+            }
+
+            // Inline Add Tag Input Box
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = newTagName,
+                    onValueChange = { newTagName = it },
+                    placeholder = { Text(stringResource(R.string.placeholder_search_tags)) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    colors = AppOutlinedFieldDefaults.colors(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                AppOutlinedButton(
+                    onClick = {
+                        val trimmed = newTagName.trim()
+                        if (trimmed.isNotEmpty()) {
+                            onAddTagByName(trimmed)
+                            newTagName = ""
+                        }
+                    },
+                    enabled = newTagName.trim().isNotEmpty()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(stringResource(R.string.label_add_tag))
+                }
+            }
+
+            // Existing tags list
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 350.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (allTags.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.placeholder_search_tags),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 12.dp)
+                        )
+                    }
+                } else {
+                    items(allTags, key = { it.id }) { tag ->
+                        val isSelected = tag.id in selectedIds
+                        AppCard(
+                            onClick = { onToggleTag(tag.name) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = AppCardColors(
+                                containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.surface,
+                                contentColor = colorScheme.onSurface,
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                )
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Sell,
+                                    contentDescription = null,
+                                    tint = if (isSelected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "#${tag.name}",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                    ),
+                                    color = colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                if (isSelected) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null,
+                                        tint = colorScheme.accentInk,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SpendFromFundBottomSheet(
+    availableFunds: List<Fund>,
+    selectedFundId: String?,
+    onSelectFund: (String?) -> Unit,
+    onCreateFundClick: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colorScheme = MaterialTheme.colorScheme
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = colorScheme.sheet,
+        contentColor = colorScheme.onSurface,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.title_spend_from_fund),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = colorScheme.onSurface
+                )
+                AppOutlinedButton(
+                    onClick = {
+                        onDismissRequest()
+                        onCreateFundClick()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(stringResource(R.string.title_create_fund))
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 350.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // "None" option
+                item {
+                    val isNoneSelected = selectedFundId == null
+                    AppCard(
+                        onClick = {
+                            onSelectFund(null)
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AppCardColors(
+                            containerColor = if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.surface,
+                            contentColor = colorScheme.onSurface,
+                            border = BorderStroke(
+                                width = if (isNoneSelected) 1.5.dp else 1.dp,
+                                color = if (isNoneSelected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                            )
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(colorScheme.onSurfaceVariant.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Clear,
+                                    contentDescription = null,
+                                    tint = colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Text(
+                                text = stringResource(R.string.label_fund_none),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = if (isNoneSelected) FontWeight.SemiBold else FontWeight.Normal
+                                ),
+                                color = colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isNoneSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = colorScheme.accentInk,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                items(availableFunds, key = { it.id }) { fund ->
+                    val isSelected = fund.id == selectedFundId
+                    val fundColor = fundChipColor(fund.colorHex) ?: colorScheme.primary
+
+                    AppCard(
+                        onClick = {
+                            onSelectFund(fund.id)
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AppCardColors(
+                            containerColor = if (isSelected) fundColor.copy(alpha = 0.12f) else colorScheme.surface,
+                            contentColor = colorScheme.onSurface,
+                            border = BorderStroke(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) fundColor else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                            )
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(fundColor.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = fund.icon,
+                                    contentDescription = null,
+                                    tint = fundColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Text(
+                                text = fund.name,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                ),
+                                color = colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = fundColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

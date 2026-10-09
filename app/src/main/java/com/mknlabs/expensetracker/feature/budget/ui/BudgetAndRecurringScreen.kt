@@ -144,10 +144,14 @@ import com.mknlabs.expensetracker.R
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
 import com.mknlabs.expensetracker.models.InstallmentStatus
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
@@ -232,6 +236,10 @@ fun BudgetAndRecurringScreen(
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
     transactions: List<Transaction> = transactionList,
     availableCategories: List<CategoryType> = categoryMap.values.toList(),
+    paymentMethods: List<PaymentType> = emptyList(),
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     recurringRules: List<RecurringTransactionRule> = emptyList(),
     monthStartDay: Int = 1,
     onDeleteRecurring: (String) -> Unit = {},
@@ -281,6 +289,10 @@ fun BudgetAndRecurringScreen(
         amountFormatPreferences = amountFormatPreferences,
         availableCategories = availableCategories,
         transactions = transactions,
+        paymentMethods = paymentMethods,
+        dateFormatPattern = dateFormatPattern,
+        timeFormat = timeFormat,
+        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
         onDeleteRecurring = onDeleteRecurring,
         onRecurringEnabledChange = onRecurringEnabledChange,
         onRecurringNotificationsEnabledChange = onRecurringNotificationsEnabledChange,
@@ -319,6 +331,10 @@ private fun BudgetAndRecurringContent(
     amountFormatPreferences: AmountFormatPreferences,
     availableCategories: List<CategoryType>,
     transactions: List<Transaction>,
+    paymentMethods: List<PaymentType> = emptyList(),
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
     onDeleteRecurring: (String) -> Unit,
     onRecurringEnabledChange: (String, Boolean) -> Unit,
     onRecurringNotificationsEnabledChange: (String, Boolean) -> Unit,
@@ -486,7 +502,13 @@ private fun BudgetAndRecurringContent(
                 if (page == 2) {
                     FundsScreen(
                         currencyId = currencyId,
-                        amountFormatPreferences = amountFormatPreferences
+                        amountFormatPreferences = amountFormatPreferences,
+                        categories = availableCategories,
+                        paymentMethods = paymentMethods,
+                        dateFormatPattern = dateFormatPattern,
+                        timeFormat = timeFormat,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+                        isProUser = isProUser
                     )
                     return@HorizontalPager
                 }

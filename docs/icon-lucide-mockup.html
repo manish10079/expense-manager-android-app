@@ -1,0 +1,3582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Icon picker by screen</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #0f1412; --card: #1a211e; --ink: #e8efe9; --muted: #8a9a90;
+      --line: #2a3530; --accent: #3dcc8a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    header {
+      position: sticky; top: 0; z-index: 2;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(10px);
+      padding: 18px 24px 12px; border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0 0 6px; font-size: 1.35rem; }
+    .sub { color: var(--muted); margin: 0 0 12px; font-size: 0.9rem; line-height: 1.45; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    nav a {
+      color: var(--ink); text-decoration: none; font-size: 0.78rem;
+      padding: 5px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line);
+    }
+    nav a:hover { border-color: var(--accent); color: var(--accent); }
+    section { max-width: 1100px; margin: 0 auto; padding: 28px 24px 8px; }
+    h2 { font-size: 1.05rem; margin: 0 0 14px; }
+    .row {
+      display: grid; grid-template-columns: minmax(220px, 280px) 1fr; gap: 16px;
+      align-items: start; background: var(--card); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .role { font-weight: 650; margin-bottom: 8px; }
+    .now-icons, .picks { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cur-tile, .tile {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      min-width: 92px; padding: 10px 8px 8px; border-radius: 12px;
+    }
+    .cur-tile {
+      color: #7ab8ff;
+      background: color-mix(in srgb, #7ab8ff 12%, transparent);
+      border: 1px dashed color-mix(in srgb, #7ab8ff 40%, transparent);
+    }
+    .cur-tile:has(.ph), .cur-tile:has(.ph-fill) {
+      color: #c9a0ff;
+      background: color-mix(in srgb, #c9a0ff 12%, transparent);
+      border-color: color-mix(in srgb, #c9a0ff 40%, transparent);
+    }
+    .opt { cursor: pointer; }
+    .opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .tile {
+      color: var(--icon); background: color-mix(in srgb, var(--icon) 12%, transparent);
+      border: 1px solid transparent;
+    }
+    .opt input:checked + .tile {
+      border-color: var(--icon);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--icon) 35%, transparent);
+    }
+    .material-symbols-outlined { font-size: 26px; line-height: 1; }
+    .ph, .ph-fill { font-size: 26px; line-height: 1; }
+    .tile svg { width: 26px; height: 26px; }
+    .iname { font-size: 0.68rem; font-family: ui-monospace, monospace; color: var(--ink); opacity: .9; text-align: center; word-break: break-all; }
+    .src-tag { font-size: 0.62rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pick Lucide icons by screen</h1>
+    <p class="sub">
+      <strong>Left = current UI</strong> — real glyphs from
+      <em>Google Material Symbols</em> and <em>Phosphor Icons</em> CDNs.
+      <strong>Right = Lucide</strong> options from the Lucide CDN (name under each).
+      Click a Lucide tile to mark a pick (this page only).
+    </p>
+    <nav><a href="#bottom-nav">Bottom nav</a><a href="#home">Home</a><a href="#analytics">Analytics</a><a href="#plans">Plans</a><a href="#calendar">Calendar</a><a href="#add---edit-transaction">Add / edit transaction</a><a href="#settings-hub">Settings hub</a><a href="#preferences-security-data">Preferences, security, data</a><a href="#auth-lock-onboarding">Auth, lock, onboarding</a><a href="#shared-chrome-&-sheets">Shared chrome & sheets</a><a href="#category---payment-catalog">Category / payment catalog</a></nav>
+  </header>
+  <section id="bottom-nav"><h2>Bottom nav</h2><article class="row">
+        <div class="now">
+          <div class="role">Home tab</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor house">
+            <i class="ph ph-house"></i>
+            <span class="iname">house</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor house">
+            <i class="ph-fill ph-house"></i>
+            <span class="iname">Fill.house</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="house"></i>
+            <span class="iname">house</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="home"></i>
+            <span class="iname">home</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="layout-dashboard"></i>
+            <span class="iname">layout-dashboard</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Analytics tab</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor chart-donut">
+            <i class="ph ph-chart-donut"></i>
+            <span class="iname">chart-donut</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor chart-donut">
+            <i class="ph-fill ph-chart-donut"></i>
+            <span class="iname">Fill.chart-donut</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="chart-pie"></i>
+            <span class="iname">chart-pie</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="pie-chart"></i>
+            <span class="iname">pie-chart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="chart-donut"></i>
+            <span class="iname">chart-donut</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Plans tab</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor wallet">
+            <i class="ph ph-wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor wallet">
+            <i class="ph-fill ph-wallet"></i>
+            <span class="iname">Fill.wallet</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="landmark"></i>
+            <span class="iname">landmark</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="layers"></i>
+            <span class="iname">layers</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Calendar tab</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor calendar-blank">
+            <i class="ph ph-calendar-blank"></i>
+            <span class="iname">calendar-blank</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor calendar-blank">
+            <i class="ph-fill ph-calendar-blank"></i>
+            <span class="iname">Fill.calendar-blank</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="calendar-days"></i>
+            <span class="iname">calendar-days</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="calendar-range"></i>
+            <span class="iname">calendar-range</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Add FAB</div>
+          <div class="now-icons"><span class="cur-tile" title="Material add">
+            <span class="material-symbols-outlined">add</span>
+            <span class="iname">add</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="plus"></i>
+            <span class="iname">plus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="circle-plus"></i>
+            <span class="iname">circle-plus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="plus-circle"></i>
+            <span class="iname">plus-circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="home"><h2>Home</h2><article class="row">
+        <div class="now">
+          <div class="role">Spent today</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor calendar-blank">
+            <i class="ph ph-calendar-blank"></i>
+            <span class="iname">calendar-blank</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="sun"></i>
+            <span class="iname">sun</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="calendar-check"></i>
+            <span class="iname">calendar-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">My goals</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor piggy-bank">
+            <i class="ph ph-piggy-bank"></i>
+            <span class="iname">piggy-bank</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="piggy-bank"></i>
+            <span class="iname">piggy-bank</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="target"></i>
+            <span class="iname">target</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="goal"></i>
+            <span class="iname">goal</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Card chevron</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor caret-right">
+            <i class="ph ph-caret-right"></i>
+            <span class="iname">caret-right</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="chevron-right"></i>
+            <span class="iname">chevron-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="arrow-right"></i>
+            <span class="iname">arrow-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="move-right"></i>
+            <span class="iname">move-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Hide balance</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor eye">
+            <i class="ph ph-eye"></i>
+            <span class="iname">eye</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor eye-slash">
+            <i class="ph ph-eye-slash"></i>
+            <span class="iname">eye-slash</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="eye"></i>
+            <span class="iname">eye</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="eye-off"></i>
+            <span class="iname">eye-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="scan-eye"></i>
+            <span class="iname">scan-eye</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Expand cash flow</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor caret-down">
+            <i class="ph ph-caret-down"></i>
+            <span class="iname">caret-down</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="chevron-down"></i>
+            <span class="iname">chevron-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="chevrons-down"></i>
+            <span class="iname">chevrons-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="arrow-down"></i>
+            <span class="iname">arrow-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Settings gear</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor gear">
+            <i class="ph ph-gear"></i>
+            <span class="iname">gear</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="settings"></i>
+            <span class="iname">settings</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="settings-2"></i>
+            <span class="iname">settings-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="sliders-horizontal"></i>
+            <span class="iname">sliders-horizontal</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">SMS bell</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor bell">
+            <i class="ph ph-bell"></i>
+            <span class="iname">bell</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="bell"></i>
+            <span class="iname">bell</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="bell-ring"></i>
+            <span class="iname">bell-ring</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="inbox"></i>
+            <span class="iname">inbox</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Note info</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor info">
+            <i class="ph ph-info"></i>
+            <span class="iname">info</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="info"></i>
+            <span class="iname">info</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="circle-help"></i>
+            <span class="iname">circle-help</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="lightbulb"></i>
+            <span class="iname">lightbulb</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Dismiss banner</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor x">
+            <i class="ph ph-x"></i>
+            <span class="iname">x</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="x"></i>
+            <span class="iname">x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="x-circle"></i>
+            <span class="iname">x-circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="circle-x"></i>
+            <span class="iname">circle-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Setup done / todo</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor check-circle">
+            <i class="ph-fill ph-check-circle"></i>
+            <span class="iname">Fill.check-circle</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor circle">
+            <i class="ph ph-circle"></i>
+            <span class="iname">circle</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="circle-check"></i>
+            <span class="iname">circle-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="circle"></i>
+            <span class="iname">circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="check"></i>
+            <span class="iname">check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="analytics"><h2>Analytics</h2><article class="row">
+        <div class="now">
+          <div class="role">Lock / Pro</div>
+          <div class="now-icons"><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="lock-keyhole"></i>
+            <span class="iname">lock-keyhole</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="shield"></i>
+            <span class="iname">shield</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Expense mode</div>
+          <div class="now-icons"><span class="cur-tile" title="Material arrow_downward">
+            <span class="material-symbols-outlined">arrow_downward</span>
+            <span class="iname">arrow_downward</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="arrow-down"></i>
+            <span class="iname">arrow-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="trending-down"></i>
+            <span class="iname">trending-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="arrow-down-right"></i>
+            <span class="iname">arrow-down-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Income mode</div>
+          <div class="now-icons"><span class="cur-tile" title="Material arrow_upward">
+            <span class="material-symbols-outlined">arrow_upward</span>
+            <span class="iname">arrow_upward</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="arrow-up"></i>
+            <span class="iname">arrow-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="trending-up"></i>
+            <span class="iname">trending-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="arrow-up-right"></i>
+            <span class="iname">arrow-up-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Both modes</div>
+          <div class="now-icons"><span class="cur-tile" title="Material swap_horiz">
+            <span class="material-symbols-outlined">swap_horiz</span>
+            <span class="iname">swap_horiz</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="arrow-left-right"></i>
+            <span class="iname">arrow-left-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="repeat-2"></i>
+            <span class="iname">repeat-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="repeat"></i>
+            <span class="iname">repeat</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Smart tips</div>
+          <div class="now-icons"><span class="cur-tile" title="Material auto_awesome">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            <span class="iname">auto_awesome</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="wand-sparkles"></i>
+            <span class="iname">wand-sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="lightbulb"></i>
+            <span class="iname">lightbulb</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">See all list</div>
+          <div class="now-icons"><span class="cur-tile" title="Material list">
+            <span class="material-symbols-outlined">list</span>
+            <span class="iname">list</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="list"></i>
+            <span class="iname">list</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="list-ordered"></i>
+            <span class="iname">list-ordered</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="rows-3"></i>
+            <span class="iname">rows-3</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Breakdown chevron</div>
+          <div class="now-icons"><span class="cur-tile" title="Material chevron_right">
+            <span class="material-symbols-outlined">chevron_right</span>
+            <span class="iname">chevron_right</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="chevron-right"></i>
+            <span class="iname">chevron-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="chevrons-right"></i>
+            <span class="iname">chevrons-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="arrow-right"></i>
+            <span class="iname">arrow-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Daily avg / wallet</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor wallet">
+            <i class="ph ph-wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="circle-dollar-sign"></i>
+            <span class="iname">circle-dollar-sign</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="banknote"></i>
+            <span class="iname">banknote</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Savings trend</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor trend-up">
+            <i class="ph ph-trend-up"></i>
+            <span class="iname">trend-up</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="trending-up"></i>
+            <span class="iname">trending-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="chart-line"></i>
+            <span class="iname">chart-line</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="activity"></i>
+            <span class="iname">activity</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Fallback chart</div>
+          <div class="now-icons"><span class="cur-tile" title="Material analytics">
+            <span class="material-symbols-outlined">analytics</span>
+            <span class="iname">analytics</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="chart-column"></i>
+            <span class="iname">chart-column</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="chart-area"></i>
+            <span class="iname">chart-area</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="bar-chart-3"></i>
+            <span class="iname">bar-chart-3</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="plans"><h2>Plans</h2><article class="row">
+        <div class="now">
+          <div class="role">Month lock</div>
+          <div class="now-icons"><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="calendar-x"></i>
+            <span class="iname">calendar-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="shield"></i>
+            <span class="iname">shield</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Edit budget / rule</div>
+          <div class="now-icons"><span class="cur-tile" title="Material edit">
+            <span class="material-symbols-outlined">edit</span>
+            <span class="iname">edit</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="pencil"></i>
+            <span class="iname">pencil</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="square-pen"></i>
+            <span class="iname">square-pen</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="pencil-line"></i>
+            <span class="iname">pencil-line</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Close / dismiss</div>
+          <div class="now-icons"><span class="cur-tile" title="Material close">
+            <span class="material-symbols-outlined">close</span>
+            <span class="iname">close</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="x"></i>
+            <span class="iname">x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="x-circle"></i>
+            <span class="iname">x-circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="circle-x"></i>
+            <span class="iname">circle-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Selected check</div>
+          <div class="now-icons"><span class="cur-tile" title="Material check">
+            <span class="material-symbols-outlined">check</span>
+            <span class="iname">check</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="check"></i>
+            <span class="iname">check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="check-check"></i>
+            <span class="iname">check-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="circle-check"></i>
+            <span class="iname">circle-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Copy last month</div>
+          <div class="now-icons"><span class="cur-tile" title="Material content_copy">
+            <span class="material-symbols-outlined">content_copy</span>
+            <span class="iname">content_copy</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="copy"></i>
+            <span class="iname">copy</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="clipboard-copy"></i>
+            <span class="iname">clipboard-copy</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="files"></i>
+            <span class="iname">files</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Recurring date</div>
+          <div class="now-icons"><span class="cur-tile" title="Material date_range">
+            <span class="material-symbols-outlined">date_range</span>
+            <span class="iname">date_range</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="calendar-range"></i>
+            <span class="iname">calendar-range</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="calendar-clock"></i>
+            <span class="iname">calendar-clock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="calendar-days"></i>
+            <span class="iname">calendar-days</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Reminders on/off</div>
+          <div class="now-icons"><span class="cur-tile" title="Material notifications">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="iname">notifications</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material notifications_off">
+            <span class="material-symbols-outlined">notifications_off</span>
+            <span class="iname">notifications_off</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="bell"></i>
+            <span class="iname">bell</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="bell-off"></i>
+            <span class="iname">bell-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="bell-ring"></i>
+            <span class="iname">bell-ring</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Pro sparkle</div>
+          <div class="now-icons"><span class="cur-tile" title="Material auto_awesome">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            <span class="iname">auto_awesome</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="crown"></i>
+            <span class="iname">crown</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="wand-sparkles"></i>
+            <span class="iname">wand-sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Funds info</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor info">
+            <i class="ph ph-info"></i>
+            <span class="iname">info</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="info"></i>
+            <span class="iname">info</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="circle-help"></i>
+            <span class="iname">circle-help</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="book-open"></i>
+            <span class="iname">book-open</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Create fund</div>
+          <div class="now-icons"><span class="cur-tile" title="Material add">
+            <span class="material-symbols-outlined">add</span>
+            <span class="iname">add</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="plus"></i>
+            <span class="iname">plus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="circle-plus"></i>
+            <span class="iname">circle-plus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="calendar"><h2>Calendar</h2><article class="row">
+        <div class="now">
+          <div class="role">Period all</div>
+          <div class="now-icons"><span class="cur-tile" title="Material list">
+            <span class="material-symbols-outlined">list</span>
+            <span class="iname">list</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="list"></i>
+            <span class="iname">list</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="layout-list"></i>
+            <span class="iname">layout-list</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="rows-3"></i>
+            <span class="iname">rows-3</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Daily</div>
+          <div class="now-icons"><span class="cur-tile" title="Material today">
+            <span class="material-symbols-outlined">today</span>
+            <span class="iname">today</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="calendar-check"></i>
+            <span class="iname">calendar-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="sun"></i>
+            <span class="iname">sun</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Monthly</div>
+          <div class="now-icons"><span class="cur-tile" title="Material date_range">
+            <span class="material-symbols-outlined">date_range</span>
+            <span class="iname">date_range</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="calendar-range"></i>
+            <span class="iname">calendar-range</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="calendar-days"></i>
+            <span class="iname">calendar-days</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Yearly</div>
+          <div class="now-icons"><span class="cur-tile" title="Material calendar_month">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span class="iname">calendar_month</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="calendar-days"></i>
+            <span class="iname">calendar-days</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="calendar-fold"></i>
+            <span class="iname">calendar-fold</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Prev / next</div>
+          <div class="now-icons"><span class="cur-tile" title="Material chevron_left">
+            <span class="material-symbols-outlined">chevron_left</span>
+            <span class="iname">chevron_left</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material chevron_right">
+            <span class="material-symbols-outlined">chevron_right</span>
+            <span class="iname">chevron_right</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="chevron-left"></i>
+            <span class="iname">chevron-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="chevron-right"></i>
+            <span class="iname">chevron-right</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="arrow-left"></i>
+            <span class="iname">arrow-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="add---edit-transaction"><h2>Add / edit transaction</h2><article class="row">
+        <div class="now">
+          <div class="role">Favorite</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor star">
+            <i class="ph ph-star"></i>
+            <span class="iname">star</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor star">
+            <i class="ph-fill ph-star"></i>
+            <span class="iname">Fill.star</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="star"></i>
+            <span class="iname">star</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="heart"></i>
+            <span class="iname">heart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="bookmark"></i>
+            <span class="iname">bookmark</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Voice</div>
+          <div class="now-icons"><span class="cur-tile" title="Material mic">
+            <span class="material-symbols-outlined">mic</span>
+            <span class="iname">mic</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material mic_off">
+            <span class="material-symbols-outlined">mic_off</span>
+            <span class="iname">mic_off</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="mic"></i>
+            <span class="iname">mic</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="mic-off"></i>
+            <span class="iname">mic-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="audio-lines"></i>
+            <span class="iname">audio-lines</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Search</div>
+          <div class="now-icons"><span class="cur-tile" title="Material search">
+            <span class="material-symbols-outlined">search</span>
+            <span class="iname">search</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="search"></i>
+            <span class="iname">search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="scan-search"></i>
+            <span class="iname">scan-search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="text-search"></i>
+            <span class="iname">text-search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Clear</div>
+          <div class="now-icons"><span class="cur-tile" title="Material clear">
+            <span class="material-symbols-outlined">clear</span>
+            <span class="iname">clear</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="x"></i>
+            <span class="iname">x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="eraser"></i>
+            <span class="iname">eraser</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="circle-x"></i>
+            <span class="iname">circle-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">None fund</div>
+          <div class="now-icons"><span class="cur-tile" title="Material clear">
+            <span class="material-symbols-outlined">clear</span>
+            <span class="iname">clear</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="ban"></i>
+            <span class="iname">ban</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="circle-off"></i>
+            <span class="iname">circle-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="minus"></i>
+            <span class="iname">minus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Lock year / Pro</div>
+          <div class="now-icons"><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="crown"></i>
+            <span class="iname">crown</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="settings-hub"><h2>Settings hub</h2><article class="row">
+        <div class="now">
+          <div class="role">Profile</div>
+          <div class="now-icons"><span class="cur-tile" title="Material person">
+            <span class="material-symbols-outlined">person</span>
+            <span class="iname">person</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="user"></i>
+            <span class="iname">user</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="circle-user"></i>
+            <span class="iname">circle-user</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="user-round"></i>
+            <span class="iname">user-round</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Backup & sync</div>
+          <div class="now-icons"><span class="cur-tile" title="Material cloud">
+            <span class="material-symbols-outlined">cloud</span>
+            <span class="iname">cloud</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material cloud_sync">
+            <span class="material-symbols-outlined">cloud_sync</span>
+            <span class="iname">cloud_sync</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="cloud"></i>
+            <span class="iname">cloud</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="cloud-cog"></i>
+            <span class="iname">cloud-cog</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="refresh-cw"></i>
+            <span class="iname">refresh-cw</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Security</div>
+          <div class="now-icons"><span class="cur-tile" title="Material shield">
+            <span class="material-symbols-outlined">shield</span>
+            <span class="iname">shield</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material security">
+            <span class="material-symbols-outlined">security</span>
+            <span class="iname">security</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="shield"></i>
+            <span class="iname">shield</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="shield-check"></i>
+            <span class="iname">shield-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Membership</div>
+          <div class="now-icons"><span class="cur-tile" title="Material workspace_premium">
+            <span class="material-symbols-outlined">workspace_premium</span>
+            <span class="iname">workspace_premium</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material card_membership">
+            <span class="material-symbols-outlined">card_membership</span>
+            <span class="iname">card_membership</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="crown"></i>
+            <span class="iname">crown</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="badge-check"></i>
+            <span class="iname">badge-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="id-card"></i>
+            <span class="iname">id-card</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Rate app</div>
+          <div class="now-icons"><span class="cur-tile" title="Material star">
+            <span class="material-symbols-outlined">star</span>
+            <span class="iname">star</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="star"></i>
+            <span class="iname">star</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="heart"></i>
+            <span class="iname">heart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Offers / tags</div>
+          <div class="now-icons"><span class="cur-tile" title="Material local_offer">
+            <span class="material-symbols-outlined">local_offer</span>
+            <span class="iname">local_offer</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material sell">
+            <span class="material-symbols-outlined">sell</span>
+            <span class="iname">sell</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="tag"></i>
+            <span class="iname">tag</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="tags"></i>
+            <span class="iname">tags</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="hash"></i>
+            <span class="iname">hash</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Categories</div>
+          <div class="now-icons"><span class="cur-tile" title="Material category">
+            <span class="material-symbols-outlined">category</span>
+            <span class="iname">category</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="shapes"></i>
+            <span class="iname">shapes</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="layout-grid"></i>
+            <span class="iname">layout-grid</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="boxes"></i>
+            <span class="iname">boxes</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Preferences</div>
+          <div class="now-icons"><span class="cur-tile" title="Material tune">
+            <span class="material-symbols-outlined">tune</span>
+            <span class="iname">tune</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="sliders-horizontal"></i>
+            <span class="iname">sliders-horizontal</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="settings-2"></i>
+            <span class="iname">settings-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="equal"></i>
+            <span class="iname">equal</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Notifications</div>
+          <div class="now-icons"><span class="cur-tile" title="Material notifications">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="iname">notifications</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="bell"></i>
+            <span class="iname">bell</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="bell-ring"></i>
+            <span class="iname">bell-ring</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="megaphone"></i>
+            <span class="iname">megaphone</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Payment methods</div>
+          <div class="now-icons"><span class="cur-tile" title="Material credit_card">
+            <span class="material-symbols-outlined">credit_card</span>
+            <span class="iname">credit_card</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="credit-card"></i>
+            <span class="iname">credit-card</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="wallet-cards"></i>
+            <span class="iname">wallet-cards</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="banknote"></i>
+            <span class="iname">banknote</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Data</div>
+          <div class="now-icons"><span class="cur-tile" title="Material storage">
+            <span class="material-symbols-outlined">storage</span>
+            <span class="iname">storage</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="hard-drive"></i>
+            <span class="iname">hard-drive</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="database"></i>
+            <span class="iname">database</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="folder"></i>
+            <span class="iname">folder</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">About</div>
+          <div class="now-icons"><span class="cur-tile" title="Material info">
+            <span class="material-symbols-outlined">info</span>
+            <span class="iname">info</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="info"></i>
+            <span class="iname">info</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="circle-help"></i>
+            <span class="iname">circle-help</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="book"></i>
+            <span class="iname">book</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="preferences-security-data"><h2>Preferences, security, data</h2><article class="row">
+        <div class="now">
+          <div class="role">Currency</div>
+          <div class="now-icons"><span class="cur-tile" title="Material currency_rupee">
+            <span class="material-symbols-outlined">currency_rupee</span>
+            <span class="iname">currency_rupee</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="indian-rupee"></i>
+            <span class="iname">indian-rupee</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="banknote"></i>
+            <span class="iname">banknote</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="circle-dollar-sign"></i>
+            <span class="iname">circle-dollar-sign</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Amount format</div>
+          <div class="now-icons"><span class="cur-tile" title="Material straighten">
+            <span class="material-symbols-outlined">straighten</span>
+            <span class="iname">straighten</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="ruler"></i>
+            <span class="iname">ruler</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="align-justify"></i>
+            <span class="iname">align-justify</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="type"></i>
+            <span class="iname">type</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">PIN</div>
+          <div class="now-icons"><span class="cur-tile" title="Material pin">
+            <span class="material-symbols-outlined">pin</span>
+            <span class="iname">pin</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="pin"></i>
+            <span class="iname">pin</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="hash"></i>
+            <span class="iname">hash</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Start of month</div>
+          <div class="now-icons"><span class="cur-tile" title="Material date_range">
+            <span class="material-symbols-outlined">date_range</span>
+            <span class="iname">date_range</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="calendar-range"></i>
+            <span class="iname">calendar-range</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="calendar"></i>
+            <span class="iname">calendar</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="calendar-days"></i>
+            <span class="iname">calendar-days</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Time extras</div>
+          <div class="now-icons"><span class="cur-tile" title="Material more_time">
+            <span class="material-symbols-outlined">more_time</span>
+            <span class="iname">more_time</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material schedule">
+            <span class="material-symbols-outlined">schedule</span>
+            <span class="iname">schedule</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="timer"></i>
+            <span class="iname">timer</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="clock"></i>
+            <span class="iname">clock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="alarm-clock"></i>
+            <span class="iname">alarm-clock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Theme</div>
+          <div class="now-icons"><span class="cur-tile" title="Material palette">
+            <span class="material-symbols-outlined">palette</span>
+            <span class="iname">palette</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="palette"></i>
+            <span class="iname">palette</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="sun-moon"></i>
+            <span class="iname">sun-moon</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="paintbrush"></i>
+            <span class="iname">paintbrush</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Font</div>
+          <div class="now-icons"><span class="cur-tile" title="Material font_download">
+            <span class="material-symbols-outlined">font_download</span>
+            <span class="iname">font_download</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="type"></i>
+            <span class="iname">type</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="a-large-small"></i>
+            <span class="iname">a-large-small</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="baseline"></i>
+            <span class="iname">baseline</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Fingerprint</div>
+          <div class="now-icons"><span class="cur-tile" title="Material fingerprint">
+            <span class="material-symbols-outlined">fingerprint</span>
+            <span class="iname">fingerprint</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="fingerprint"></i>
+            <span class="iname">fingerprint</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="scan-face"></i>
+            <span class="iname">scan-face</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="scan"></i>
+            <span class="iname">scan</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">App lock</div>
+          <div class="now-icons"><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="lock-keyhole"></i>
+            <span class="iname">lock-keyhole</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="shield"></i>
+            <span class="iname">shield</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Grid PIN</div>
+          <div class="now-icons"><span class="cur-tile" title="Material grid_view">
+            <span class="material-symbols-outlined">grid_view</span>
+            <span class="iname">grid_view</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="layout-grid"></i>
+            <span class="iname">layout-grid</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="grid-3x3"></i>
+            <span class="iname">grid-3x3</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="hash"></i>
+            <span class="iname">hash</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Blur</div>
+          <div class="now-icons"><span class="cur-tile" title="Material blur_on">
+            <span class="material-symbols-outlined">blur_on</span>
+            <span class="iname">blur_on</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="blend"></i>
+            <span class="iname">blend</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="droplet"></i>
+            <span class="iname">droplet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="eye-off"></i>
+            <span class="iname">eye-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">No screenshots</div>
+          <div class="now-icons"><span class="cur-tile" title="Material no_photography">
+            <span class="material-symbols-outlined">no_photography</span>
+            <span class="iname">no_photography</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="camera-off"></i>
+            <span class="iname">camera-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="eye-off"></i>
+            <span class="iname">eye-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="ban"></i>
+            <span class="iname">ban</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Cloud upload</div>
+          <div class="now-icons"><span class="cur-tile" title="Material cloud_upload">
+            <span class="material-symbols-outlined">cloud_upload</span>
+            <span class="iname">cloud_upload</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="cloud-upload"></i>
+            <span class="iname">cloud-upload</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="upload"></i>
+            <span class="iname">upload</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="cloud"></i>
+            <span class="iname">cloud</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Download / export</div>
+          <div class="now-icons"><span class="cur-tile" title="Material file_download">
+            <span class="material-symbols-outlined">file_download</span>
+            <span class="iname">file_download</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="download"></i>
+            <span class="iname">download</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="file-down"></i>
+            <span class="iname">file-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="folder-down"></i>
+            <span class="iname">folder-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Import</div>
+          <div class="now-icons"><span class="cur-tile" title="Material file_upload">
+            <span class="material-symbols-outlined">file_upload</span>
+            <span class="iname">file_upload</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="upload"></i>
+            <span class="iname">upload</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="file-up"></i>
+            <span class="iname">file-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="folder-up"></i>
+            <span class="iname">folder-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Local storage</div>
+          <div class="now-icons"><span class="cur-tile" title="Material storage">
+            <span class="material-symbols-outlined">storage</span>
+            <span class="iname">storage</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="hard-drive"></i>
+            <span class="iname">hard-drive</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="database"></i>
+            <span class="iname">database</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="archive"></i>
+            <span class="iname">archive</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Restore</div>
+          <div class="now-icons"><span class="cur-tile" title="Material settings_backup_restore">
+            <span class="material-symbols-outlined">settings_backup_restore</span>
+            <span class="iname">settings_backup_restore</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material history">
+            <span class="material-symbols-outlined">history</span>
+            <span class="iname">history</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="history"></i>
+            <span class="iname">history</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="rotate-ccw"></i>
+            <span class="iname">rotate-ccw</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="undo-2"></i>
+            <span class="iname">undo-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Delete all</div>
+          <div class="now-icons"><span class="cur-tile" title="Material delete_forever">
+            <span class="material-symbols-outlined">delete_forever</span>
+            <span class="iname">delete_forever</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="trash-2"></i>
+            <span class="iname">trash-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="trash"></i>
+            <span class="iname">trash</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="octagon-x"></i>
+            <span class="iname">octagon-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="auth-lock-onboarding"><h2>Auth, lock, onboarding</h2><article class="row">
+        <div class="now">
+          <div class="role">Back</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor arrow-bend-up-left">
+            <i class="ph ph-arrow-bend-up-left"></i>
+            <span class="iname">arrow-bend-up-left</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="undo-2"></i>
+            <span class="iname">undo-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="arrow-left"></i>
+            <span class="iname">arrow-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="chevron-left"></i>
+            <span class="iname">chevron-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Email</div>
+          <div class="now-icons"><span class="cur-tile" title="Material email">
+            <span class="material-symbols-outlined">email</span>
+            <span class="iname">email</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="mail"></i>
+            <span class="iname">mail</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="at-sign"></i>
+            <span class="iname">at-sign</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="inbox"></i>
+            <span class="iname">inbox</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Show password</div>
+          <div class="now-icons"><span class="cur-tile" title="Material visibility">
+            <span class="material-symbols-outlined">visibility</span>
+            <span class="iname">visibility</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material visibility_off">
+            <span class="material-symbols-outlined">visibility_off</span>
+            <span class="iname">visibility_off</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="eye"></i>
+            <span class="iname">eye</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="eye-off"></i>
+            <span class="iname">eye-off</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="scan-eye"></i>
+            <span class="iname">scan-eye</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Fingerprint unlock</div>
+          <div class="now-icons"><span class="cur-tile" title="Material fingerprint">
+            <span class="material-symbols-outlined">fingerprint</span>
+            <span class="iname">fingerprint</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="fingerprint"></i>
+            <span class="iname">fingerprint</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="scan"></i>
+            <span class="iname">scan</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="lock-keyhole"></i>
+            <span class="iname">lock-keyhole</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">PIN backspace</div>
+          <div class="now-icons"><span class="cur-tile" title="Material backspace">
+            <span class="material-symbols-outlined">backspace</span>
+            <span class="iname">backspace</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="delete"></i>
+            <span class="iname">delete</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="chevron-left"></i>
+            <span class="iname">chevron-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="arrow-left"></i>
+            <span class="iname">arrow-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Terms check</div>
+          <div class="now-icons"><span class="cur-tile" title="Material check_circle">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span class="iname">check_circle</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material circle">
+            <span class="material-symbols-outlined">circle</span>
+            <span class="iname">circle</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="circle-check"></i>
+            <span class="iname">circle-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="circle"></i>
+            <span class="iname">circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="check"></i>
+            <span class="iname">check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">PIN glyphs</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor heart">
+            <i class="ph-fill ph-heart"></i>
+            <span class="iname">Fill.heart</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor star">
+            <i class="ph-fill ph-star"></i>
+            <span class="iname">Fill.star</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor sparkle">
+            <i class="ph-fill ph-sparkle"></i>
+            <span class="iname">Fill.sparkle</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor diamond">
+            <i class="ph-fill ph-diamond"></i>
+            <span class="iname">Fill.diamond</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor leaf">
+            <i class="ph-fill ph-leaf"></i>
+            <span class="iname">Fill.leaf</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor paw-print">
+            <i class="ph-fill ph-paw-print"></i>
+            <span class="iname">Fill.paw-print</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor rocket-launch">
+            <i class="ph-fill ph-rocket-launch"></i>
+            <span class="iname">Fill.rocket-launch</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Phosphor flower-lotus">
+            <i class="ph-fill ph-flower-lotus"></i>
+            <span class="iname">Fill.flower-lotus</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="heart"></i>
+            <span class="iname">heart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="star"></i>
+            <span class="iname">star</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="gem"></i>
+            <span class="iname">gem</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="leaf"></i>
+            <span class="iname">leaf</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="paw-print"></i>
+            <span class="iname">paw-print</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="rocket"></i>
+            <span class="iname">rocket</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="flower-2"></i>
+            <span class="iname">flower-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="shared-chrome-&-sheets"><h2>Shared chrome & sheets</h2><article class="row">
+        <div class="now">
+          <div class="role">Header back</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor arrow-bend-up-left">
+            <i class="ph ph-arrow-bend-up-left"></i>
+            <span class="iname">arrow-bend-up-left</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="undo-2"></i>
+            <span class="iname">undo-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="arrow-left"></i>
+            <span class="iname">arrow-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="chevron-left"></i>
+            <span class="iname">chevron-left</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Search field</div>
+          <div class="now-icons"><span class="cur-tile" title="Material search">
+            <span class="material-symbols-outlined">search</span>
+            <span class="iname">search</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Phosphor magnifying-glass">
+            <i class="ph ph-magnifying-glass"></i>
+            <span class="iname">magnifying-glass</span>
+            <span class="src-tag">Phosphor</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="search"></i>
+            <span class="iname">search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="scan-search"></i>
+            <span class="iname">scan-search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="text-search"></i>
+            <span class="iname">text-search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Sort</div>
+          <div class="now-icons"><span class="cur-tile" title="Phosphor sort-ascending">
+            <i class="ph ph-sort-ascending"></i>
+            <span class="iname">sort-ascending</span>
+            <span class="src-tag">Phosphor</span>
+          </span><span class="cur-tile" title="Material sort">
+            <span class="material-symbols-outlined">sort</span>
+            <span class="iname">sort</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="arrow-down-a-z"></i>
+            <span class="iname">arrow-down-a-z</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="arrow-up-down"></i>
+            <span class="iname">arrow-up-down</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="list-filter"></i>
+            <span class="iname">list-filter</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Filter</div>
+          <div class="now-icons"><span class="cur-tile" title="Material tune">
+            <span class="material-symbols-outlined">tune</span>
+            <span class="iname">tune</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material filter_alt">
+            <span class="material-symbols-outlined">filter_alt</span>
+            <span class="iname">filter_alt</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="sliders-horizontal"></i>
+            <span class="iname">sliders-horizontal</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="funnel"></i>
+            <span class="iname">funnel</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="list-filter"></i>
+            <span class="iname">list-filter</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Close sheet</div>
+          <div class="now-icons"><span class="cur-tile" title="Material close">
+            <span class="material-symbols-outlined">close</span>
+            <span class="iname">close</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="x"></i>
+            <span class="iname">x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="x-circle"></i>
+            <span class="iname">x-circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="circle-x"></i>
+            <span class="iname">circle-x</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Delete selection</div>
+          <div class="now-icons"><span class="cur-tile" title="Material delete">
+            <span class="material-symbols-outlined">delete</span>
+            <span class="iname">delete</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="trash-2"></i>
+            <span class="iname">trash-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="trash"></i>
+            <span class="iname">trash</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="minus"></i>
+            <span class="iname">minus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Select all</div>
+          <div class="now-icons"><span class="cur-tile" title="Material done_all">
+            <span class="material-symbols-outlined">done_all</span>
+            <span class="iname">done_all</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="check-check"></i>
+            <span class="iname">check-check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="list-checks"></i>
+            <span class="iname">list-checks</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="check"></i>
+            <span class="iname">check</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Pro lock overlay</div>
+          <div class="now-icons"><span class="cur-tile" title="Material lock">
+            <span class="material-symbols-outlined">lock</span>
+            <span class="iname">lock</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="lock"></i>
+            <span class="iname">lock</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="lock-keyhole"></i>
+            <span class="iname">lock-keyhole</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="crown"></i>
+            <span class="iname">crown</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Play ad</div>
+          <div class="now-icons"><span class="cur-tile" title="Material play_arrow">
+            <span class="material-symbols-outlined">play_arrow</span>
+            <span class="iname">play_arrow</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="play"></i>
+            <span class="iname">play</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="circle-play"></i>
+            <span class="iname">circle-play</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="tv"></i>
+            <span class="iname">tv</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">SMS setup</div>
+          <div class="now-icons"><span class="cur-tile" title="Material sms">
+            <span class="material-symbols-outlined">sms</span>
+            <span class="iname">sms</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material phone_android">
+            <span class="material-symbols-outlined">phone_android</span>
+            <span class="iname">phone_android</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="message-square"></i>
+            <span class="iname">message-square</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="smartphone"></i>
+            <span class="iname">smartphone</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="inbox"></i>
+            <span class="iname">inbox</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section><section id="category---payment-catalog"><h2>Category / payment catalog</h2><article class="row">
+        <div class="now">
+          <div class="role">Food</div>
+          <div class="now-icons"><span class="cur-tile" title="Material flatware">
+            <span class="material-symbols-outlined">flatware</span>
+            <span class="iname">flatware</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="utensils"></i>
+            <span class="iname">utensils</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="utensils-crossed"></i>
+            <span class="iname">utensils-crossed</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="soup"></i>
+            <span class="iname">soup</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Car</div>
+          <div class="now-icons"><span class="cur-tile" title="Material directions_car">
+            <span class="material-symbols-outlined">directions_car</span>
+            <span class="iname">directions_car</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="car"></i>
+            <span class="iname">car</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="car-front"></i>
+            <span class="iname">car-front</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="bus"></i>
+            <span class="iname">bus</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Shopping</div>
+          <div class="now-icons"><span class="cur-tile" title="Material shopping_bag">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            <span class="iname">shopping_bag</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material shopping_cart">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span class="iname">shopping_cart</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="shopping-bag"></i>
+            <span class="iname">shopping-bag</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="shopping-cart"></i>
+            <span class="iname">shopping-cart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="store"></i>
+            <span class="iname">store</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Bills</div>
+          <div class="now-icons"><span class="cur-tile" title="Material receipt_long">
+            <span class="material-symbols-outlined">receipt_long</span>
+            <span class="iname">receipt_long</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="receipt"></i>
+            <span class="iname">receipt</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="file-text"></i>
+            <span class="iname">file-text</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="scroll-text"></i>
+            <span class="iname">scroll-text</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Health</div>
+          <div class="now-icons"><span class="cur-tile" title="Material favorite">
+            <span class="material-symbols-outlined">favorite</span>
+            <span class="iname">favorite</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material local_hospital">
+            <span class="material-symbols-outlined">local_hospital</span>
+            <span class="iname">local_hospital</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="heart"></i>
+            <span class="iname">heart</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="heart-pulse"></i>
+            <span class="iname">heart-pulse</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="hospital"></i>
+            <span class="iname">hospital</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Movies</div>
+          <div class="now-icons"><span class="cur-tile" title="Material movie">
+            <span class="material-symbols-outlined">movie</span>
+            <span class="iname">movie</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="clapperboard"></i>
+            <span class="iname">clapperboard</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="film"></i>
+            <span class="iname">film</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="tv"></i>
+            <span class="iname">tv</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Home</div>
+          <div class="now-icons"><span class="cur-tile" title="Material home">
+            <span class="material-symbols-outlined">home</span>
+            <span class="iname">home</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="house"></i>
+            <span class="iname">house</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="sofa"></i>
+            <span class="iname">sofa</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="building-2"></i>
+            <span class="iname">building-2</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">School</div>
+          <div class="now-icons"><span class="cur-tile" title="Material school">
+            <span class="material-symbols-outlined">school</span>
+            <span class="iname">school</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="graduation-cap"></i>
+            <span class="iname">graduation-cap</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="book-open"></i>
+            <span class="iname">book-open</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="backpack"></i>
+            <span class="iname">backpack</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Gift</div>
+          <div class="now-icons"><span class="cur-tile" title="Material card_giftcard">
+            <span class="material-symbols-outlined">card_giftcard</span>
+            <span class="iname">card_giftcard</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="gift"></i>
+            <span class="iname">gift</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="party-popper"></i>
+            <span class="iname">party-popper</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="sparkles"></i>
+            <span class="iname">sparkles</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Fuel</div>
+          <div class="now-icons"><span class="cur-tile" title="Material local_gas_station">
+            <span class="material-symbols-outlined">local_gas_station</span>
+            <span class="iname">local_gas_station</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#cba6f7">
+            <i data-lucide="fuel"></i>
+            <span class="iname">fuel</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#94e2d5">
+            <i data-lucide="droplet"></i>
+            <span class="iname">droplet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#74c7ec">
+            <i data-lucide="flame"></i>
+            <span class="iname">flame</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Work / salary</div>
+          <div class="now-icons"><span class="cur-tile" title="Material work">
+            <span class="material-symbols-outlined">work</span>
+            <span class="iname">work</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material trending_up">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span class="iname">trending_up</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#eba0ac">
+            <i data-lucide="briefcase"></i>
+            <span class="iname">briefcase</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#3dcc8a">
+            <i data-lucide="trending-up"></i>
+            <span class="iname">trending-up</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#7ab8ff">
+            <i data-lucide="banknote"></i>
+            <span class="iname">banknote</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Card / UPI</div>
+          <div class="now-icons"><span class="cur-tile" title="Material credit_card">
+            <span class="material-symbols-outlined">credit_card</span>
+            <span class="iname">credit_card</span>
+            <span class="src-tag">Material</span>
+          </span><span class="cur-tile" title="Material qr_code">
+            <span class="material-symbols-outlined">qr_code</span>
+            <span class="iname">qr_code</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ffb86b">
+            <i data-lucide="credit-card"></i>
+            <span class="iname">credit-card</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#ff7a90">
+            <i data-lucide="qr-code"></i>
+            <span class="iname">qr-code</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#c9a0ff">
+            <i data-lucide="smartphone"></i>
+            <span class="iname">smartphone</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Cash wallet</div>
+          <div class="now-icons"><span class="cur-tile" title="Material account_balance_wallet">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <span class="iname">account_balance_wallet</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#5eead4">
+            <i data-lucide="wallet"></i>
+            <span class="iname">wallet</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f5d76e">
+            <i data-lucide="banknote"></i>
+            <span class="iname">banknote</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#89b4fa">
+            <i data-lucide="coins"></i>
+            <span class="iname">coins</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article><article class="row">
+        <div class="now">
+          <div class="role">Unknown</div>
+          <div class="now-icons"><span class="cur-tile" title="Material question_mark">
+            <span class="material-symbols-outlined">question_mark</span>
+            <span class="iname">question_mark</span>
+            <span class="src-tag">Material</span>
+          </span></div>
+        </div>
+        <div class="picks"><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#f38ba8">
+            <i data-lucide="circle-help"></i>
+            <span class="iname">circle-help</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#a6e3a1">
+            <i data-lucide="help-circle"></i>
+            <span class="iname">help-circle</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label><label class="opt">
+          <input type="radio" />
+          <span class="tile" style="--icon:#fab387">
+            <i data-lucide="search"></i>
+            <span class="iname">search</span>
+            <span class="src-tag">Lucide</span>
+          </span>
+        </label></div>
+      </article></section>
+  <script>
+    lucide.createIcons();
+    document.querySelectorAll(".picks").forEach((group, gi) => {
+      group.querySelectorAll("input").forEach((input, ii) => {
+        input.name = "pick-" + gi;
+        if (ii === 0) input.checked = true;
+      });
+    });
+  </script>
+</body>
+</html>

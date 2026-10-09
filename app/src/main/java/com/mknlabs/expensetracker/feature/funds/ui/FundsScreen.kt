@@ -1,8 +1,7 @@
 package com.mknlabs.expensetracker.feature.funds.ui
 
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,41 +24,43 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,8 +79,10 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
+import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
@@ -90,20 +94,34 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.expense
-import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
 import com.mknlabs.expensetracker.core.ui.theme.expenseGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkLight
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.components.TransactionCard
+import com.mknlabs.expensetracker.core.ui.models.TransactionCardItemUi
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
+import com.mknlabs.expensetracker.domain.repository.FundDefaults
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.FundStatus
+import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.FundWithProgress
-import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.utils.ExpenseTrackerIconRegistry
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
@@ -112,6 +130,7 @@ import com.mknlabs.expensetracker.utils.toMinorUnits
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 private val fundDateFormatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
@@ -131,9 +150,60 @@ private fun parseHexColor(hex: String?): Color? {
 fun FundsScreen(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
+    categories: List<CategoryType> = emptyList(),
+    paymentMethods: List<PaymentType> = emptyList(),
+    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
+    timeFormat: String = DEFAULT_TIME_FORMAT,
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
+    isProUser: Boolean = false,
     viewModel: FundsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+    var pendingScrollToTop by remember { mutableStateOf(false) }
+    var previousFundsSize by remember { mutableStateOf(uiState.funds.size) }
+
+    LaunchedEffect(uiState.funds.size) {
+        if (pendingScrollToTop && uiState.funds.size > previousFundsSize) {
+            listState.animateScrollToItem(0)
+            pendingScrollToTop = false
+        }
+        previousFundsSize = uiState.funds.size
+    }
+
+    // The detail sheet's rows are the app's own transaction cards, so their date, time, payment
+    // method and category label all come from the same mapper the ledger uses: a card that
+    // disagreed with the home list about how a transaction reads would be a second, thinner
+    // presentation of the same data. The colour and the glyph come from that mapper too, so a
+    // fund's expense wears the colour its category wears everywhere else.
+    val paymentTypeNames = remember(paymentMethods) {
+        paymentTypeMap.mapValues { it.value.name } + paymentMethods.associate { it.id to it.name }
+    }
+    val fallbackCategoryName = stringResource(R.string.label_other)
+    val linkedTransactionCards = remember(
+        uiState.selectedTransactions,
+        currencyId,
+        amountFormatPreferences,
+        dateFormatPattern,
+        timeFormat,
+        paymentTypeNames,
+        categories,
+        fallbackCategoryName
+    ) {
+        uiState.selectedTransactions.map { transaction ->
+            transaction.toTransactionCardItemUi(
+                currencyId = currencyId,
+                amountFormatPreferences = amountFormatPreferences,
+                dateFormatPattern = dateFormatPattern,
+                timeFormat = timeFormat,
+                paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
+                categories = categories,
+                fallbackCategoryName = fallbackCategoryName
+            )
+        }
+    }
 
     var isCreateSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isEditAmountVisible by rememberSaveable { mutableStateOf(false) }
@@ -144,6 +214,7 @@ fun FundsScreen(
             uiState = uiState,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            listState = listState,
             onCreateClick = { isCreateSheetVisible = true },
             onFundClick = { viewModel.openFund(it.fund.id) }
         )
@@ -153,10 +224,12 @@ fun FundsScreen(
     if (selected != null) {
         FundDetailSheet(
             fund = selected,
-            transactions = uiState.selectedTransactions,
+            transactions = linkedTransactionCards,
             breakdown = uiState.selectedBreakdown,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+            isProUser = isProUser,
             onDismiss = { viewModel.closeFund() },
             onEditAmount = { isEditAmountVisible = true },
             onArchiveToggle = { viewModel.setArchived(selected.fund.id, !selected.fund.isArchived) },
@@ -168,10 +241,15 @@ fun FundsScreen(
         CreateFundSheet(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            categories = categories,
             onDismiss = { isCreateSheetVisible = false },
-            onCreate = { name, amountMinor, startDate, iconKey, colorHex, note ->
-                viewModel.createFund(name, amountMinor, startDate, iconKey, colorHex, note)
+            onCreate = { name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId ->
+                viewModel.createFund(name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId)
                 isCreateSheetVisible = false
+                // The new bucket is ordered first. Request a scroll to top, which
+                // will fire via LaunchedEffect as soon as the new fund is emitted
+                // to uiState.funds.
+                pendingScrollToTop = true
             }
         )
     }
@@ -212,47 +290,65 @@ private fun FundListContent(
     uiState: FundsUiState,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    listState: LazyListState,
     onCreateClick: () -> Unit,
     onFundClick: (FundWithProgress) -> Unit
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding(),
-        contentPadding = PaddingValues(
-            start = Dimens.ScreenPadding,
-            top = 10.dp,
-            end = Dimens.ScreenPadding,
-            bottom = 126.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .navigationBarsPadding()
     ) {
-        item {
-            FundSummaryCard(
-                uiState = uiState,
-                currencyId = currencyId,
-                amountFormatPreferences = amountFormatPreferences,
-                onCreateClick = onCreateClick
+        // The overview is the tab's header rather than its first row: its totals are what every
+        // bucket below is read against, so they stay on screen while those buckets scroll. It
+        // carries the same side inset the list does, because it is still the same page.
+        FundSummaryCard(
+            uiState = uiState,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            onCreateClick = onCreateClick,
+            modifier = Modifier.padding(
+                start = Dimens.ScreenPadding,
+                top = 10.dp,
+                end = Dimens.ScreenPadding
             )
-        }
-
-        if (uiState.funds.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(id = R.string.label_fund_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 24.dp)
-                )
-            }
-        } else {
-            items(uiState.funds, key = { it.fund.id }) { fund ->
-                FundCard(
-                    fund = fund,
-                    currencyId = currencyId,
-                    amountFormatPreferences = amountFormatPreferences,
-                    onClick = { onFundClick(fund) }
-                )
+        )
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = Dimens.ScreenPadding,
+                top = 18.dp,
+                end = Dimens.ScreenPadding,
+                bottom = 126.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            if (uiState.funds.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(id = R.string.label_fund_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
+                }
+            } else {
+                items(uiState.funds, key = { it.fund.id }) { fund ->
+                    FundCard(
+                        fund = fund,
+                        currencyId = currencyId,
+                        amountFormatPreferences = amountFormatPreferences,
+                        onClick = { onFundClick(fund) },
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = tween(durationMillis = 350),
+                            placementSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        )
+                    )
+                }
             }
         }
     }
@@ -263,11 +359,12 @@ private fun FundSummaryCard(
     uiState: FundsUiState,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
-    onCreateClick: () -> Unit
+    onCreateClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isDark = MaterialTheme.colorScheme.isDark
     AppCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
         colors = AppCardColors(
             containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
@@ -315,12 +412,14 @@ private fun FundSummaryCard(
                 SummaryStat(
                     label = stringResource(id = R.string.label_fund_summary_spent),
                     value = formatCurrencyValue(uiState.totalSpentMinor.toMajorUnits(), currencyId, amountFormatPreferences),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    valueColor = MaterialTheme.colorScheme.expense
                 )
                 SummaryStat(
                     label = stringResource(id = R.string.label_fund_summary_remaining),
                     value = formatCurrencyValue(uiState.totalRemainingMinor.toMajorUnits(), currencyId, amountFormatPreferences),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    valueColor = MaterialTheme.colorScheme.income
                 )
             }
             Spacer(Modifier.height(14.dp))
@@ -414,7 +513,12 @@ private fun FundsInfoDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun SummaryStat(label: String, value: String, modifier: Modifier = Modifier) {
+private fun SummaryStat(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -432,7 +536,7 @@ private fun SummaryStat(label: String, value: String, modifier: Modifier = Modif
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = valueColor,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -445,10 +549,11 @@ private fun FundCard(
     fund: FundWithProgress,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -495,8 +600,6 @@ private fun FundCard(
             }
 
             Spacer(Modifier.height(12.dp))
-            FundProgressBar(progress = fund.progress, exhausted = fund.status == FundStatus.Completed || fund.isOverspent)
-            Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(
                     id = R.string.label_fund_remaining_format,
@@ -534,60 +637,16 @@ private fun FundStatusBadge(status: FundStatus) {
     }
 }
 
-/** A hand-rolled bar so the fill, the track and the overspent colour are all ours. */
-@Composable
-private fun FundProgressBar(progress: Float, exhausted: Boolean) {
-    val view = LocalView.current
-    var visibleOnScreen by remember { mutableStateOf(false) }
-    val targetProgress = if (visibleOnScreen) progress.coerceIn(0f, 1f) else 0f
-    val animatedProgress by animateFloatAsState(
-        targetValue = targetProgress,
-        animationSpec = if (visibleOnScreen) {
-            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
-        } else {
-            snap()
-        },
-        label = "fund_progress_animation"
-    )
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(8.dp)
-            .onGloballyPositioned { coords ->
-                val bounds = coords.boundsInWindow()
-                val window = Rect(0f, 0f, view.width.toFloat(), view.height.toFloat())
-                val onScreen = bounds.width > 0f &&
-                    bounds.height > 0f &&
-                    bounds.overlaps(window)
-                if (onScreen != visibleOnScreen) {
-                    visibleOnScreen = onScreen
-                }
-            }
-            .clip(RoundedCornerShape(50))
-            .background(trackColor)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(animatedProgress)
-                .height(8.dp)
-                .clip(RoundedCornerShape(50))
-                .then(
-                    if (exhausted) Modifier.background(expenseGradient())
-                    else Modifier.background(deepenedRamp(MaterialTheme.colorScheme.accentInk))
-                )
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FundDetailSheet(
     fund: FundWithProgress,
-    transactions: List<Transaction>,
+    transactions: List<TransactionCardItemUi>,
     breakdown: FundBreakdown,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
+    isProUser: Boolean,
     onDismiss: () -> Unit,
     onEditAmount: () -> Unit,
     onArchiveToggle: () -> Unit,
@@ -607,6 +666,8 @@ private fun FundDetailSheet(
             breakdown = breakdown,
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
+            transactionCardCustomizationSettings = transactionCardCustomizationSettings,
+            isProUser = isProUser,
             onEditAmount = onEditAmount,
             onArchiveToggle = onArchiveToggle,
             onDelete = onDelete
@@ -617,10 +678,12 @@ private fun FundDetailSheet(
 @Composable
 private fun FundDetailContent(
     fund: FundWithProgress,
-    transactions: List<Transaction>,
+    transactions: List<TransactionCardItemUi>,
     breakdown: FundBreakdown,
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
+    isProUser: Boolean,
     onEditAmount: () -> Unit,
     onArchiveToggle: () -> Unit,
     onDelete: () -> Unit
@@ -683,27 +746,66 @@ private fun FundDetailContent(
                         )
                     }
                     Spacer(Modifier.height(14.dp))
-                    FundProgressBar(progress = fund.progress, exhausted = fund.status == FundStatus.Completed || fund.isOverspent)
-                    Spacer(Modifier.height(14.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AppTextButton(onClick = onEditAmount) {
-                            Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(id = R.string.label_fund_edit_amount))
-                        }
-                        AppTextButton(onClick = onArchiveToggle) {
-                            Icon(Icons.Filled.Archive, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
+                    // Three equal-width outlined actions, so the row reads as one control strip
+                    // rather than three text links of different lengths. Labels only -- no icons --
+                    // so nothing competes with the words. Edit and Archive wear the ink of the
+                    // "Allocated" caption in the summary above, while Delete wears the expense ink
+                    // that the overview card's Spent amount uses, so the destructive action is the
+                    // only red one. Each button's hairline is the same colour as its own label,
+                    // undiluted, which is what makes the pair read as one outlined button instead
+                    // of a label sitting inside a plain box.
+                    val actionInk = MaterialTheme.colorScheme.onSurfaceVariant
+                    val deleteInk = MaterialTheme.colorScheme.expense
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AppOutlinedButton(
+                            onClick = onEditAmount,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = actionInk),
+                            border = BorderStroke(1.dp, actionInk),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp)
+                        ) {
                             Text(
-                                stringResource(
-                                    id = if (fund.fund.isArchived) R.string.label_fund_unarchive else R.string.label_fund_archive
-                                )
+                                text = stringResource(id = R.string.label_fund_edit),
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
-                        AppTextButton(onClick = onDelete) {
-                            Icon(Icons.Filled.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(id = R.string.label_fund_delete))
+                        AppOutlinedButton(
+                            onClick = onArchiveToggle,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = actionInk),
+                            border = BorderStroke(1.dp, actionInk),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp)
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    id = if (fund.fund.isArchived) R.string.label_fund_unarchive else R.string.label_fund_archive
+                                ),
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        AppOutlinedButton(
+                            onClick = onDelete,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = deleteInk),
+                            border = BorderStroke(1.dp, deleteInk),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.label_fund_delete),
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     }
                 }
@@ -739,23 +841,6 @@ private fun FundDetailContent(
                     }
                 }
             }
-            if (breakdown.timeline.isNotEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(id = R.string.label_fund_breakdown_timeline),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                item {
-                    TimelineChart(
-                        points = breakdown.timeline,
-                        currencyId = currencyId,
-                        amountFormatPreferences = amountFormatPreferences
-                    )
-                }
-            }
         }
 
         item {
@@ -776,11 +861,30 @@ private fun FundDetailContent(
                 )
             }
         } else {
-            items(transactions, key = { it.id }) { transaction ->
-                LinkedTransactionRow(
-                    transaction = transaction,
-                    currencyId = currencyId,
-                    amountFormatPreferences = amountFormatPreferences
+            items(transactions, key = { it.id }) { card ->
+                // The ledger's own card, not a lookalike: the same composable, the same flags
+                // the user chose for their list, so a fund's spending reads exactly like the
+                // same spending does on the home list.
+                TransactionCard(
+                    note = card.note,
+                    transactionDate = card.transactionDate,
+                    transactionTime = card.transactionTime,
+                    amount = card.amount,
+                    transactionTypeId = card.transactionTypeId,
+                    icon = card.icon,
+                    categoryId = card.transaction.categoryId,
+                    categoryColorHex = card.categoryColorHex,
+                    paymentType = card.paymentType,
+                    categoryLabel = card.categoryLabel,
+                    showTypeLabel = transactionCardCustomizationSettings.showIncomeExpenseLabels,
+                    showTransactionDate = transactionCardCustomizationSettings.showTransactionDate,
+                    showPaymentMethod = transactionCardCustomizationSettings.showPaymentMethod,
+                    showTransactionTime = transactionCardCustomizationSettings.showTransactionTime,
+                    showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
+                    showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
+                    showNoteTooltip = isProUser,
+                    isProUser = isProUser,
+                    isRecurring = card.isRecurring
                 )
             }
         }
@@ -793,7 +897,13 @@ private fun CategorySliceRow(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences
 ) {
-    val tint = parseHexColor(slice.colorHex) ?: MaterialTheme.colorScheme.primary
+    // Resolve through the palette by id, the same chain the category rows use: a slice that
+    // carries no stored override still gets its seeded category's own colour rather than a
+    // blanket purple. The pick wins when there is one.
+    val tint = MaterialTheme.colorScheme.categoryColor(
+        categoryId = slice.categoryId,
+        colorHex = slice.colorHex
+    )
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -815,139 +925,17 @@ private fun CategorySliceRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Spacer(Modifier.height(6.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(slice.fraction.coerceIn(0f, 1f))
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(tint)
-            )
-        }
-    }
-}
-
-@Composable
-private fun TimelineChart(
-    points: List<FundTimelinePoint>,
-    currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        points.forEach { point ->
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = formatCurrencyValue(point.amountMinor.toMajorUnits(), currencyId, amountFormatPreferences),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-                Spacer(Modifier.height(4.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .height((72 * point.fraction.coerceIn(0.05f, 1f)).dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                }
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = point.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LinkedTransactionRow(
-    transaction: Transaction,
-    currencyId: Int,
-    amountFormatPreferences: AmountFormatPreferences
-) {
-    val isIncome = transaction.transactionTypeId == 1
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = transaction.categoryIcon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-        Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = transaction.note.ifBlank { stringResource(id = R.string.label_fund_uncategorized) },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = fundDateFormatter.format(Date(transaction.createdAt)),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Text(
-            text = formatCurrencyValue(
-                transaction.amount,
-                currencyId,
-                amountFormatPreferences,
-                prefix = if (isIncome) "+" else "-"
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = if (isIncome) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CreateFundSheet(
+internal fun CreateFundSheet(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences,
+    categories: List<CategoryType>,
     onDismiss: () -> Unit,
-    onCreate: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String) -> Unit
+    onCreate: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String, incomeCategoryId: Int) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var name by rememberSaveable { mutableStateOf("") }
@@ -957,98 +945,172 @@ private fun CreateFundSheet(
     var colorHex by rememberSaveable { mutableStateOf("") }
     val startDate = remember { System.currentTimeMillis() }
 
+    val incomeCategories = remember(categories) {
+        val filtered = categories.filter { it.transactionTypeId == 1 }.sortedBy { it.sortOrder }
+        filtered.ifEmpty { categoryMap.values.filter { it.transactionTypeId == 1 }.sortedBy { it.sortOrder } }
+    }
+    var selectedIncomeCategoryId by rememberSaveable {
+        mutableIntStateOf(incomeCategories.firstOrNull()?.id ?: FundDefaults.INCOME_CATEGORY_ID)
+    }
+
     val amountMinor = amountText.trim().toDoubleOrNull()?.takeIf { it > 0.0 }?.toMinorUnits()
     val canSave = name.isNotBlank() && amountMinor != null
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = Dimens.ScreenPadding)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.title_create_fund),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.label_fund_name)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = amountText,
-                onValueChange = { amountText = it },
-                label = { Text(stringResource(id = R.string.label_fund_amount_field)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Text(
-                text = stringResource(
-                    id = R.string.label_fund_start_date_value,
-                    fundDateFormatter.format(Date(startDate))
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Text(
-                text = stringResource(id = R.string.label_fund_icon),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            IconPickerGrid(
-                selectedId = iconKey,
-                onSelect = { iconKey = it },
-                identityColor = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null }),
-                columns = 6,
-                modifier = Modifier.height(280.dp)
-            )
-
-            Text(
-                text = stringResource(id = R.string.label_fund_color),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            CategoryColorRow(
-                selectedColorHex = colorHex.ifBlank { null },
-                onColorSelected = { colorHex = it.orEmpty() }
-            )
-
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                label = { Text(stringResource(id = R.string.label_fund_note)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
+        // The form scrolls; the action under it does not. The body is weighted against the
+        // pinned footer so it yields its height to the action instead of pushing it off the
+        // sheet: with the note field focused the sheet still ends in a reachable button.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(brush = brandGradient(alpha = if (canSave) 1f else 0.45f))
-                    .clickable(enabled = canSave) {
-                        val resolvedAmount = amountMinor ?: return@clickable
-                        onCreate(name.trim(), resolvedAmount, startDate, iconKey, colorHex, note.trim())
-                    },
-                contentAlignment = Alignment.Center
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Dimens.ScreenPadding),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.title_create_fund),
-                    color = MaterialTheme.colorScheme.onBrandGradient,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+
+                // The create sheet's fields take the app's own focus treatment: the border, the
+                // floating label and the caret all switch to the brand's ink while the field has
+                // the user's attention, instead of Material's own primary, so a focused field reads
+                // the same here as it does in every other editor in the app.
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(id = R.string.label_fund_name)) },
+                    singleLine = true,
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = amountText,
+                    onValueChange = { amountText = it },
+                    label = { Text(stringResource(id = R.string.label_fund_amount_field)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (incomeCategories.isNotEmpty()) {
+                    Text(
+                        text = stringResource(id = R.string.label_income_categories),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(incomeCategories, key = { it.id }) { cat ->
+                            val isSelected = cat.id == selectedIncomeCategoryId
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { selectedIncomeCategoryId = cat.id },
+                                label = { Text(cat.name) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = cat.icon,
+                                        contentDescription = cat.name,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
+                                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk,
+                                    selectedLeadingIconColor = MaterialTheme.colorScheme.chipSelectedInk,
+                                    containerColor = MaterialTheme.colorScheme.chip,
+                                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    iconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (isSelected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.chipOutline
+                                )
+                            )
+                        }
+                    }
+                }
+
+                Text(
+                    text = stringResource(
+                        id = R.string.label_fund_start_date_value,
+                        fundDateFormatter.format(Date(startDate))
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = stringResource(id = R.string.label_fund_icon),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                IconPickerGrid(
+                    selectedId = iconKey,
+                    onSelect = { iconKey = it },
+                    identityColor = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null }),
+                    columns = 6,
+                    modifier = Modifier.height(160.dp)
+                )
+
+                Text(
+                    text = stringResource(id = R.string.label_fund_color),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                CategoryColorRow(
+                    selectedColorHex = colorHex.ifBlank { null },
+                    onColorSelected = { colorHex = it.orEmpty() }
+                )
+
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text(stringResource(id = R.string.label_fund_note)) },
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = AppOutlinedFieldDefaults.colors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // The action is pinned under the fields and above the keyboard: while the note is
+            // being typed it is the one thing that has to stay reachable, so it takes the IME
+            // inset itself rather than letting the keyboard be drawn over it.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
+                    .padding(horizontal = Dimens.ScreenPadding)
+                    .padding(top = 16.dp, bottom = 24.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(brush = brandGradient(alpha = if (canSave) 1f else 0.45f))
+                        .clickable(enabled = canSave) {
+                            val resolvedAmount = amountMinor ?: return@clickable
+                            onCreate(name.trim(), resolvedAmount, startDate, iconKey, colorHex, note.trim(), selectedIncomeCategoryId)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.title_create_fund),
+                        color = MaterialTheme.colorScheme.onBrandGradient,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
     }
@@ -1067,6 +1129,7 @@ private fun EditAmountDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppCardDefaults.colors().containerColor,
         title = { Text(stringResource(id = R.string.label_fund_edit_amount)) },
         text = {
             Column {
@@ -1081,7 +1144,18 @@ private fun EditAmountDialog(
                     onValueChange = { amountText = it },
                     label = { Text(stringResource(id = R.string.label_fund_amount_field)) },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = AppOutlinedFieldDefaults.shape,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.accentInk,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedLabelColor = MaterialTheme.colorScheme.accentInk,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.accentInk
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
@@ -1094,7 +1168,7 @@ private fun EditAmountDialog(
             ) { Text(stringResource(id = R.string.label_save)) }
         },
         dismissButton = {
-            AppTextButton(onClick = onDismiss) { Text(stringResource(id = R.string.label_cancel)) }
+            AppTextButton(onClick = onDismiss) { Text(stringResource(id = R.string.label_cancel_1)) }
         }
     )
 }

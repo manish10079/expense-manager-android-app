@@ -302,6 +302,13 @@ fun AppNavigationHost(
                         amountFormatPreferences = amountFormatPreferences,
                         transactions = transactions,
                         availableCategories = categories.filter { !it.isDeleted },
+                        // The Funds tab's detail sheet draws the same transaction cards the
+                        // ledger does, so it needs the same formatting and card settings the
+                        // other screens are handed here.
+                        paymentMethods = paymentMethods,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
+                        transactionCardCustomizationSettings = transactionCardCustomizationSettings,
                         recurringRules = recurringRules,
                         monthStartDay = appSettings.monthStartDay,
                         onDeleteRecurring = onDeleteRecurring,

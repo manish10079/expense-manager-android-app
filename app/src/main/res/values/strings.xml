@@ -4471,9 +4471,9 @@
     <string name="label_fund_status_completed">Exhausted</string>
     <string name="label_fund_status_archived">Archived</string>
     <string name="title_fund_breakdown">Spending breakdown</string>
-    <string name="label_fund_breakdown_timeline">Over time</string>
     <string name="label_fund_no_spending">Nothing spent from this fund yet.</string>
     <string name="label_fund_linked_transactions">Transactions</string>
+    <string name="label_fund_edit">Edit</string>
     <string name="label_fund_edit_amount">Edit amount</string>
     <string name="label_fund_archive">Archive</string>
     <string name="label_fund_unarchive">Unarchive</string>

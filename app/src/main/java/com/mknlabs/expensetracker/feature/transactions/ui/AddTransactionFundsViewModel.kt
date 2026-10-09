@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -19,7 +20,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AddTransactionFundsViewModel @Inject constructor(
-    fundRepository: FundRepository
+    private val fundRepository: FundRepository
 ) : ViewModel() {
 
     val funds: StateFlow<List<Fund>> = fundRepository.observeActiveFunds()
@@ -28,4 +29,29 @@ class AddTransactionFundsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+
+    fun createFund(
+        name: String,
+        amountMinor: Long,
+        startDate: Long,
+        iconKey: String,
+        colorHex: String,
+        note: String,
+        incomeCategoryId: Int = com.mknlabs.expensetracker.domain.repository.FundDefaults.INCOME_CATEGORY_ID
+    ) {
+        viewModelScope.launch {
+            fundRepository.createFund(
+                fund = Fund(
+                    id = java.util.UUID.randomUUID().toString(),
+                    name = name.trim(),
+                    amountMinor = amountMinor,
+                    startDate = startDate,
+                    iconKey = iconKey,
+                    colorHex = colorHex,
+                    note = note.trim()
+                ),
+                incomeCategoryId = incomeCategoryId
+            )
+        }
+    }
 }
