@@ -612,13 +612,7 @@ internal fun ReferrerFirstTxnCard(
                                 .weight(1f)
                                 .padding(horizontal = 3.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    when {
-                                        latest -> Color(0x4D10B981)
-                                        claimed -> Color(0x3310B981)
-                                        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                                    }
-                                )
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                                 .border(
                                     if (latest) 2.dp else 1.dp,
                                     when {
@@ -694,7 +688,7 @@ internal fun ReferrerFirstTxnCard(
             }
             Text(
                 stringResource(R.string.btn_invite_more_days_left, daysLeft),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.accentInk,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
