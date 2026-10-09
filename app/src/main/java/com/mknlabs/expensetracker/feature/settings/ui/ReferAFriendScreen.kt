@@ -65,6 +65,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -108,6 +110,34 @@ fun ReferAFriendScreen(
     viewModel: ReferAFriendViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    ReferAFriendContent(
+        state = state,
+        onBackClick = onBackClick,
+        onLinkAccountClick = onLinkAccountClick,
+        onApplyCode = { code -> viewModel.applyCode(code) },
+        onDismissWelcomeCelebration = { viewModel.dismissWelcomeCelebration() },
+        onDismissReferrerCelebration = { viewModel.dismissReferrerCelebration() }
+    )
+}
+
+@Composable
+fun ReferAFriendContent(
+    state: ReferAFriendUiState,
+    onBackClick: () -> Unit,
+    onLinkAccountClick: () -> Unit,
+    onApplyCode: (String) -> Unit = {},
+    onDismissWelcomeCelebration: () -> Unit = {},
+    onDismissReferrerCelebration: () -> Unit = {}
+) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
     val playUrl = stringResource(R.string.url_rate_app)
@@ -121,14 +151,6 @@ fun ReferAFriendScreen(
     val dateFmt = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
     val monthLabel = remember {
         SimpleDateFormat("MMMM", Locale.getDefault()).format(Date())
-    }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Column(
@@ -256,7 +278,7 @@ fun ReferAFriendScreen(
                             applyBusy = state.applyBusy,
                             applyError = state.applyError,
                             welcomeDays = state.applyWelcomeDays,
-                            onApply = { viewModel.applyCode(enterCode) }
+                            onApply = { onApplyCode(enterCode) }
                         )
                     }
                     }
@@ -288,16 +310,16 @@ fun ReferAFriendScreen(
             validUntilLabel = dateFmt.format(Date(until)),
             onDismiss = {
                 showRefereePopup = false
-                viewModel.dismissWelcomeCelebration()
+                onDismissWelcomeCelebration()
             },
             onExplore = {
                 showRefereePopup = false
-                viewModel.dismissWelcomeCelebration()
+                onDismissWelcomeCelebration()
                 onBackClick()
             },
             onReferMore = {
                 showRefereePopup = false
-                viewModel.dismissWelcomeCelebration()
+                onDismissWelcomeCelebration()
             }
         )
     }
@@ -313,15 +335,15 @@ fun ReferAFriendScreen(
             claimedSlots = if (showReferrerPopup) 2 else state.rewardsThisMonth.coerceAtLeast(1),
             onDismiss = {
                 showReferrerPopup = false
-                viewModel.dismissReferrerCelebration()
+                onDismissReferrerCelebration()
             },
             onClaimed = {
                 showReferrerPopup = false
-                viewModel.dismissReferrerCelebration()
+                onDismissReferrerCelebration()
             },
             onInviteMore = {
                 showReferrerPopup = false
-                viewModel.dismissReferrerCelebration()
+                onDismissReferrerCelebration()
             }
         )
     }
@@ -839,4 +861,56 @@ private fun referralErrorRes(error: ReferralError): Int = when (error) {
     ReferralError.AlreadyReferred -> R.string.error_refer_already
     ReferralError.Network -> R.string.error_refer_network
     ReferralError.Unknown -> R.string.error_refer_unknown
+}
+
+@Preview(name = "Refer A Friend Screen - Light", showBackground = true)
+@Composable
+private fun ReferAFriendScreenLightPreview() {
+    MaterialTheme {
+        ReferAFriendContent(
+            state = ReferAFriendUiState(
+                isAnonymous = false,
+                code = "MKN8472",
+                successCount = 3,
+                rewardsThisMonth = 2,
+                alreadyReferred = true,
+                invites = listOf(
+                    ReferralInvite(
+                        refereeUid = "user1",
+                        displayName = "Alex Morgan",
+                        attributedAt = System.currentTimeMillis() - 86400000L * 2,
+                        qualified = true,
+                        rewarded = true
+                    ),
+                    ReferralInvite(
+                        refereeUid = "user2",
+                        displayName = "Jordan Lee",
+                        attributedAt = System.currentTimeMillis() - 86400000L * 5,
+                        qualified = false,
+                        rewarded = false
+                    )
+                )
+            ),
+            onBackClick = {},
+            onLinkAccountClick = {}
+        )
+    }
+}
+
+@Preview(name = "Refer A Friend Screen - Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ReferAFriendScreenDarkPreview() {
+    MaterialTheme {
+        ReferAFriendContent(
+            state = ReferAFriendUiState(
+                isAnonymous = false,
+                code = "MKN8472",
+                successCount = 1,
+                rewardsThisMonth = 1,
+                alreadyReferred = false
+            ),
+            onBackClick = {},
+            onLinkAccountClick = {}
+        )
+    }
 }
