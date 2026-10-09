@@ -994,18 +994,9 @@ internal fun AddTransactionScreenContent(
                         )
 
                         // Row 3: Tag Card (Full Width, before Date & Recurring)
-                        val tagText = when {
-                            selectedTags.isEmpty() -> stringResource(R.string.placeholder_search_tags)
-                            selectedTags.size == 1 -> "#${selectedTags.first().name}"
-                            else -> "${selectedTags.size} Tags"
-                        }
-
-                        SelectionCard(
+                        TagSelectionCard(
                             modifier = Modifier.fillMaxWidth(),
-                            title = stringResource(R.string.title_tags),
-                            selectedValue = tagText,
-                            icon = Icons.Filled.Sell,
-                            iconTint = if (selectedTags.isNotEmpty()) colorScheme.accentInk else colorScheme.onSurfaceVariant,
+                            tags = selectedTags,
                             onClick = { isTagSheetVisible = true }
                         )
                     }
@@ -3278,6 +3269,103 @@ private fun TransactionNoteBottomSheet(
                     style = MaterialTheme.typography.titleMedium
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun TagSelectionCard(
+    modifier: Modifier = Modifier,
+    tags: List<Tag>,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val hasTags = tags.isNotEmpty()
+    val iconTint = if (hasTags) colorScheme.accentInk else colorScheme.onSurfaceVariant
+    val iconBackgroundColor = iconTint.copy(alpha = 0.12f)
+
+    AppCard(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors = AppCardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface,
+            border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f))
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(iconBackgroundColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Sell,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.title_tags),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (hasTags) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(tags, key = { it.id }) { tag ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(colorScheme.accentInk.copy(alpha = 0.12f))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                            ) {
+                                Text(
+                                    text = "#${tag.name}",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = colorScheme.accentInk,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Text(
+                        text = stringResource(R.string.placeholder_search_tags),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
