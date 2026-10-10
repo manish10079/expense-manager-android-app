@@ -271,7 +271,7 @@ fun ProfileAvatar(
                         imageVector = badgeIcon,
                         contentDescription = badgeContentDescription,
                         tint = badgeInk,
-                        modifier = Modifier.size(size * 0.135f)
+                        modifier = Modifier.size(size * 0.135f * 1.15f)
                     )
                 }
             }

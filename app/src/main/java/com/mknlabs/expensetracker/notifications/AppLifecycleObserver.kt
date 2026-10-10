@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.notifications
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.domain.repository.SecurityRepository
 import com.mknlabs.expensetracker.utils.NetworkMonitor
 import com.mknlabs.expensetracker.workers.SyncWorker
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 class AppLifecycleObserver @Inject constructor(
     @ApplicationContext private val context: Context,
     private val securityRepository: SecurityRepository,
-    private val networkMonitor: NetworkMonitor
+    private val networkMonitor: NetworkMonitor,
+    private val billingRepository: BillingRepository,
 ) : DefaultLifecycleObserver {
 
     override fun onStop(owner: LifecycleOwner) {
@@ -32,6 +34,7 @@ class AppLifecycleObserver @Inject constructor(
         // exponential-backoff chain and runs a fresh sync immediately.
         securityRepository.notifyAppForeground()
         SyncWorker.startImmediate(context)
+        billingRepository.refreshEntitlement()
 
         // Register the network callback so that if the network is restored while the
         // app is in the foreground, another sync is triggered immediately.

@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
@@ -216,7 +217,8 @@ fun ProPassRedeemDialogContent(
             if (state !is RedemptionState.Loading) {
                 onDismiss()
             }
-        }
+        },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         ProPassRedeemDialogCard(
             code = code,
@@ -250,9 +252,9 @@ fun ProPassRedeemDialogCard(
         border = BorderStroke(1.dp, borderColor),
         shadowElevation = 8.dp,
         modifier = Modifier
-            .widthIn(max = 380.dp)
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 20.dp)
+            .widthIn(max = 560.dp)
     ) {
         Box {
             if (state is RedemptionState.Success) {

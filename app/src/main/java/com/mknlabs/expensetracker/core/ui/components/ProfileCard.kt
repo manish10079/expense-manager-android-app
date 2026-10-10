@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Crown
+import com.adamglin.phosphoricons.regular.UserCircleDashed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -208,7 +212,7 @@ fun ProfileCard(
                     val tierBadgeTextStyle = tierBadgeLabelStyle.copy(
                         fontSize = tierBadgeLabelStyle.fontSize * TIER_BADGE_SCALE,
                         lineHeight = tierBadgeLabelStyle.lineHeight * TIER_BADGE_SCALE,
-                        brush = if (isDark) brandGradient() else null
+                        brush = if (isDark && isPremium) brandGradient() else null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
@@ -222,24 +226,44 @@ fun ProfileCard(
                         },
                         contentColor = if (isPremium) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     ) {
-                        Text(
-                            // "Pro" / "Free": the short pairing the chip has always used, so a
-                            // guest reads as a tier rather than as an error. Other screens keep
-                            // the longer "Free Tier" wording.
-                            text = if (isPremium) stringResource(com.mknlabs.expensetracker.R.string.label_pro) else stringResource(com.mknlabs.expensetracker.R.string.label_free),
-                            style = tierBadgeTextStyle,
-                            color = if (isDark) {
-                                Color.Transparent
-                            } else if (isPremium) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
+                        val chipInk = if (isDark && isPremium) {
+                            Color.Transparent
+                        } else if (isPremium) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        Row(
                             modifier = Modifier.padding(
                                 horizontal = 8.dp * TIER_BADGE_SCALE,
                                 vertical = 2.dp * TIER_BADGE_SCALE
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = if (isPremium) {
+                                    PhosphorIcons.Regular.Crown
+                                } else {
+                                    PhosphorIcons.Regular.UserCircleDashed
+                                },
+                                contentDescription = null,
+                                tint = if (isPremium) {
+                                    if (isDark) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.size(12.dp)
                             )
-                        )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                // "Pro" / "Free": the short pairing the chip has always used, so a
+                                // guest reads as a tier rather than as an error. Other screens keep
+                                // the longer "Free Tier" wording.
+                                text = if (isPremium) stringResource(com.mknlabs.expensetracker.R.string.label_pro) else stringResource(com.mknlabs.expensetracker.R.string.label_free),
+                                style = tierBadgeTextStyle,
+                                color = chipInk
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.padding(top = 5.dp))
@@ -314,6 +338,24 @@ private fun ProfileCardPreview() {
                 email = "john.doe@example.com",
                 gender = "Male",
                 userTier = UserTier.PREMIUM,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(name = "Logged in Free Light", showBackground = true)
+@Preview(name = "Logged in Free Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProfileCardLoggedInFreePreview() {
+    ExpenseTrackerTheme {
+        Surface {
+            ProfileCard(
+                name = "Johnathan Doe",
+                email = "john.doe@example.com",
+                gender = "Male",
+                userTier = UserTier.FREE,
+                isAnonymous = false,
                 modifier = Modifier.padding(16.dp)
             )
         }
