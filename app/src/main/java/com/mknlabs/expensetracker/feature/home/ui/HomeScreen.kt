@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.home.ui
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.track
 
+import android.content.res.Configuration
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -1411,6 +1412,29 @@ fun HomeScreenMultiConfigPreview() {
             onTodaySpendingClick = {},
             onGoalsClick = {},
             onToggleBalanceVisibility = {}
+        )
+    }
+}
+
+@Preview(name = "Home header Pro Light", showBackground = true)
+@Preview(name = "Home header Pro Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun HomeHeaderRowProPreview() {
+    ExpenseTrackerTheme {
+        HomeHeaderRow(
+            userProfile = defaultUserProfile.copy(
+                fullName = "Guest User",
+                gender = "Male",
+                authProvider = "google",
+            ),
+            uiState = HomeScreenUiState(
+                greetingName = "Guest",
+                userTier = com.mknlabs.expensetracker.models.UserTier.PREMIUM,
+            ),
+            onProfileClick = {},
+            onSettingsClick = {},
+            onSmsInboxClick = {},
+            isLockOverlayActive = false,
         )
     }
 }

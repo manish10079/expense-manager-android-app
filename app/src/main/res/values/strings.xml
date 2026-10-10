@@ -4330,8 +4330,9 @@
 
     <string name="btn_paywall_subscribe">Subscribe</string>
 
-    <string name="msg_paywall_renewal_disclosure">Your subscription renews automatically until you cancel. Cancel anytime from Google Play.</string>
     <string name="msg_paywall_play_account_billing">Google Play bills the Google account signed in on this device. It is not charged to your Expense Tracker email.</string>
+    <string name="desc_paywall_play_billing_info">Subscription billing info</string>
+    <string name="msg_paywall_play_billing_info">Your subscription renews automatically until you cancel it by yourself. You can cancel the subscription anytime from Google Play Store.</string>
 
     <string name="msg_paywall_already_pro">You\'re on Pro. Thanks for supporting the app.</string>
 

@@ -233,11 +233,11 @@ fun ProfileAvatar(
         }
 
         if (showBadge) {
-            val badgeChipSize = if (badgeIconRes != null) size * 0.432f else size * 0.216f
+            val badgeChipSize = if (badgeIconRes != null) size * 0.432f else size * 0.216f * 1.5f
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .offset(x = size * 0.04f, y = size * 0.04f)
+                    .offset(x = -size * 0.08f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
                     .background(color = MaterialTheme.colorScheme.accentInk)
@@ -271,7 +271,7 @@ fun ProfileAvatar(
                         imageVector = badgeIcon,
                         contentDescription = badgeContentDescription,
                         tint = badgeInk,
-                        modifier = Modifier.size(size * 0.135f * 1.15f)
+                        modifier = Modifier.size(size * 0.135f * 1.5f)
                     )
                 }
             }

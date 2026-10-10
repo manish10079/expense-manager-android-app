@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,6 +40,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -337,24 +339,47 @@ internal fun PaywallContent(
 
 @Composable
 private fun RenewalDisclosure() {
+    var showPlayBillingInfo by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = stringResource(R.string.msg_paywall_renewal_disclosure),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-        )
-        Text(
-            text = stringResource(R.string.msg_paywall_play_account_billing),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = stringResource(R.string.msg_paywall_play_account_billing),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(
+                onClick = { showPlayBillingInfo = true },
+                modifier = Modifier.size(40.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = stringResource(R.string.desc_paywall_play_billing_info),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
+    }
+    if (showPlayBillingInfo) {
+        AlertDialog(
+            onDismissRequest = { showPlayBillingInfo = false },
+            text = {
+                Text(text = stringResource(R.string.msg_paywall_play_billing_info))
+            },
+            confirmButton = {
+                TextButton(onClick = { showPlayBillingInfo = false }) {
+                    Text(text = stringResource(R.string.btn_ok))
+                }
+            },
         )
     }
 }
