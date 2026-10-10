@@ -72,8 +72,8 @@ class PaywallRouteTest {
         // close rather than asserting it synchronously — and a paywall that never closes is
         // exactly the bug being pinned.
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val title = context.getString(com.mknlabs.expensetracker.R.string.title_paywall_purchase_congrats)
-        val ok = context.getString(com.mknlabs.expensetracker.R.string.label_ok)
+        val title = context.getString(com.mknlabs.expensetracker.R.string.paywall_youre_pro_now)
+        val ok = context.getString(com.mknlabs.expensetracker.R.string.paywall_start_using_pro)
         compose.waitUntil(timeoutMillis = CLOSE_WAIT_TIMEOUT_MILLIS) {
             compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()
         }

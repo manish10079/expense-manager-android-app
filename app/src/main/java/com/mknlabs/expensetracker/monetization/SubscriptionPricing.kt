@@ -62,7 +62,21 @@ internal fun scalePriceText(monthlyFormatted: String, months: Int): String {
 internal data class MonthlyComparison(
     val listPriceText: String,
     val discountPercent: Int,
+    val savingsPriceText: String,
 )
+
+/** Formats [micros] using the currency wrapping of a store-formatted sample. */
+internal fun formatMicrosLike(sampleFormatted: String, micros: Long): String {
+    val match = PRICE_AMOUNT.find(sampleFormatted) ?: return sampleFormatted
+    val decimals = match.groupValues.getOrElse(2) { "" }
+    val amount = micros / 1_000_000.0
+    val newAmount = if (decimals.isEmpty()) {
+        kotlin.math.round(amount).toLong().toString()
+    } else {
+        "%.${decimals.length}f".format(Locale.US, amount)
+    }
+    return sampleFormatted.replaceRange(match.range, newAmount)
+}
 
 /**
  * List price vs the longer plan using monthly as the base.
@@ -77,9 +91,11 @@ internal fun comparisonFromMonthly(
     if (months <= 1 || monthlyMicros <= 0L) return null
     val listMicros = monthlyMicros * months
     val percent = discountPercentOf(listMicros, saleMicros) ?: return null
+    val savingsMicros = listMicros - saleMicros
     return MonthlyComparison(
         listPriceText = scalePriceText(monthlyFormatted, months),
         discountPercent = percent,
+        savingsPriceText = formatMicrosLike(monthlyFormatted, savingsMicros),
     )
 }
 

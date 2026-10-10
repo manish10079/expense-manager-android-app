@@ -15,6 +15,7 @@ import com.mknlabs.expensetracker.monetization.SubscriptionOfferMapper
 import com.mknlabs.expensetracker.monetization.billingPeriodMonths
 import com.mknlabs.expensetracker.monetization.comparisonFromMonthly
 import com.mknlabs.expensetracker.monetization.discountPercentOf
+import com.mknlabs.expensetracker.monetization.formatMicrosLike
 import com.mknlabs.expensetracker.monetization.toPurchaseState
 import com.mknlabs.expensetracker.workers.SyncWorker
 import com.revenuecat.purchases.CacheFetchPolicy
@@ -176,12 +177,19 @@ class BillingManager @Inject constructor(
                 } else {
                     null
                 }
+                val cycleMonths = months.coerceAtLeast(1)
+                val perMonthText = formatMicrosLike(
+                    pricing.priceText,
+                    pkg.product.price.amountMicros / cycleMonths,
+                )
                 SubscriptionOfferMapper.from(
                     packageIdentifier = pkg.identifier,
                     packageTypeName = pkg.packageType.name,
                     storeFormattedPrice = pricing.priceText,
                     discountPercent = pricing.discountPercent ?: comparison?.discountPercent,
                     strikethroughPriceText = pricing.strikethroughPriceText ?: comparison?.listPriceText,
+                    perMonthPriceText = perMonthText,
+                    savingsPriceText = comparison?.savingsPriceText,
                 )
             }
         }

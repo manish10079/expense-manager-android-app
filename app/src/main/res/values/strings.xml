@@ -4315,6 +4315,48 @@
     <!-- Paywall -->
 
     <string name="msg_paywall_subtitle">Unlock every Pro feature and support ongoing development.</string>
+    <string name="msg_paywall_hero_subtitle">Unlock all financial insights, AI voice parsing &amp; unlimited rules</string>
+    <string name="paywall_plan_title_annual">12 Months Plan</string>
+    <string name="paywall_plan_title_six">6 Months Plan</string>
+    <string name="paywall_plan_title_month">1 Month Base Plan</string>
+    <string name="paywall_best_value_save">BEST VALUE • SAVE %1$d%%</string>
+    <string name="paywall_per_month_suffix">/ mo</string>
+    <string name="paywall_save_amount">Save %1$s</string>
+    <string name="paywall_base_tier">Base tier</string>
+    <string name="paywall_standard_recurring">Standard recurring billing</string>
+    <string name="paywall_cta_continue">Continue with %1$s · %2$s/mo</string>
+    <string name="paywall_cta_period_annual">12 Months</string>
+    <string name="paywall_cta_period_six">6 Months</string>
+    <string name="paywall_cta_period_month">1 Month</string>
+    <string name="paywall_terms_of_use">Terms of Use</string>
+    <string name="paywall_benefits_header_annual">Includes all Pro-only features:</string>
+    <string name="paywall_benefits_header_six">Included 6-Month Pro benefits:</string>
+    <string name="paywall_benefits_header_month">Included Monthly Pro benefits:</string>
+    <string name="paywall_benefit_ad_free">Ad-free user experience</string>
+    <string name="paywall_benefit_txn_details">See all txn details without opening edit mode</string>
+    <string name="paywall_benefit_device_sync">4 device auto sync across your devices</string>
+    <string name="paywall_benefit_favorites">Favorite txns: reuse in a single tap</string>
+    <string name="paywall_benefit_recurring_yearly">Unlimited recurring rules (7th+) &amp; yearly frequency</string>
+    <string name="paywall_benefit_recurring_copy">Unlimited recurring rules &amp; copy previous budgets</string>
+    <string name="paywall_benefit_recurring_only">Unlimited recurring rules (7th+)</string>
+    <string name="paywall_benefit_copy_budgets">Copy previous-month budgets &amp; custom budget month</string>
+    <string name="paywall_benefit_ai_backups">Unlimited AI voice parsing &amp; daily auto-backups</string>
+    <string name="paywall_benefit_ai_backup">Unlimited AI voice parsing &amp; daily auto-backup</string>
+    <string name="paywall_benefit_ai_daily">Unlimited AI voice parsing &amp; daily backup</string>
+    <string name="paywall_benefit_lock_fonts_tags">Auto-lock 20–60 min, custom fonts &amp; payment tags</string>
+    <string name="paywall_benefit_lock_fonts">Privacy auto-lock (20-60m) &amp; custom fonts</string>
+    <string name="paywall_benefit_lock_fonts_short">Auto-lock privacy duration &amp; custom fonts</string>
+    <string name="paywall_benefit_insights_alerts">Financial insights, goal &amp; cloud security alerts</string>
+    <string name="paywall_benefit_separators">Date separators, payment summaries &amp; custom icons</string>
+    <string name="paywall_benefit_many_more">Many More... Explore</string>
+    <string name="paywall_processing_payment">Processing payment…</string>
+    <string name="paywall_please_wait">Please wait</string>
+    <string name="paywall_youre_pro_now">You\'re a Pro Now</string>
+    <string name="paywall_congrats_purchase">Congratulations for your purchase</string>
+    <string name="paywall_invested_in_yourself">You just invested in yourself. That was the right call.</string>
+    <string name="paywall_start_using_pro">Start using Pro</string>
+    <string name="paywall_payment_failed">Payment failed</string>
+    <string name="btn_close">Close</string>
 
     <string name="label_paywall_benefits">What you get</string>
 

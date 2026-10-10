@@ -45,6 +45,12 @@ data class SubscriptionOffer(
      * customer could not be charged.
      */
     val strikethroughPriceText: String? = null,
+    /** Store-localized per-month equivalent, or null while prices are loading. */
+    val perMonthPriceText: String? = null,
+    /** Store-localized amount saved vs monthly × months, or null when there is no saving. */
+    val savingsPriceText: String? = null,
+    /** Billing cycle length in months (1, 6, 12). */
+    val billingMonths: Int = 1,
 )
 
 /**
@@ -78,6 +84,8 @@ object SubscriptionOfferMapper {
         storeFormattedPrice: String,
         discountPercent: Int? = null,
         strikethroughPriceText: String? = null,
+        perMonthPriceText: String? = null,
+        savingsPriceText: String? = null,
     ): SubscriptionOffer = SubscriptionOffer(
         id = packageIdentifier,
         planLabelRes = planLabelFor(packageTypeName),
@@ -85,6 +93,9 @@ object SubscriptionOfferMapper {
         priceText = storeFormattedPrice,
         discountPercent = discountPercent,
         strikethroughPriceText = strikethroughPriceText,
+        perMonthPriceText = perMonthPriceText,
+        savingsPriceText = savingsPriceText,
+        billingMonths = billingPeriodMonths(packageTypeName),
     )
 
     /**

@@ -97,6 +97,7 @@ class SubscriptionPricingTest {
         )
         assertEquals("₹594.00", comparison?.listPriceText)
         assertEquals(20, comparison?.discountPercent)
+        assertEquals("₹120.00", comparison?.savingsPriceText)
     }
 
     @Test
