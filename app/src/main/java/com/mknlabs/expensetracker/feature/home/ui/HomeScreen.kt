@@ -32,6 +32,7 @@ import com.adamglin.phosphoricons.Fill
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.fill.CheckCircle
 import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.Crown
 import com.adamglin.phosphoricons.regular.CaretRight
 import com.adamglin.phosphoricons.regular.Circle
 import com.adamglin.phosphoricons.regular.Gear
@@ -771,7 +772,7 @@ private fun HomeHeaderRow(
                 isAnonymous = isAnonymous,
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 showBadge = isPremium,
-                badgeIconRes = R.drawable.ic_crown,
+                badgeIcon = PhosphorIcons.Regular.Crown,
                 badgeContentDescription = stringResource(R.string.label_pro)
             )
         }

@@ -4068,7 +4068,7 @@
 
     <!-- Membership card: one shared layout for the subscription, Pro Pass and free states -->
 
-    <string name="label_membership_card_subscription">Google Play Subscription</string>
+    <string name="label_membership_card_subscription">Play Subscription</string>
 
     <string name="label_membership_card_pro_pass">Pro Pass Access</string>
 

@@ -128,7 +128,7 @@ class MembershipDetailsRenderTest {
         )
 
         // What this is, said twice: the header names the store, the badge declares the state.
-        compose.onNodeWithText(text(R.string.label_membership_card_subscription)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_card_subscription), ignoreCase = true).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.label_active_caps)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.title_membership_pro_card)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.label_membership_managed_by_play)).assertIsDisplayed()
@@ -223,7 +223,7 @@ class MembershipDetailsRenderTest {
 
         // Same product and same title as the subscriber's card, so what separates them is
         // the surface and the badge — which is exactly what these two lines pin.
-        compose.onNodeWithText(text(R.string.label_membership_card_pro_pass)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_card_pro_pass), ignoreCase = true).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.label_membership_badge_free_pass)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.label_membership_card_subscription)).assertDoesNotExist()
         // Both facts the pass knows: how long is left, and when it ends.
@@ -343,7 +343,7 @@ class MembershipDetailsRenderTest {
     fun freeUserIsOfferedUpgradeAndNoRenewalCopy() {
         renderScreen(userTier = UserTier.FREE)
 
-        compose.onNodeWithText(text(R.string.label_membership_card_free)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_membership_card_free), ignoreCase = true).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.title_membership_upgrade_card)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.msg_membership_upgrade_body)).assertIsDisplayed()
         // A free user reaches Pro by buying it here; a ProPass code is redeemed in Settings.
@@ -364,7 +364,7 @@ class MembershipDetailsRenderTest {
     fun anonymousUserSeesOfflineStateWithSignInAction() {
         renderScreen(userTier = UserTier.FREE, isAnonymous = true)
 
-        compose.onNodeWithText(text(R.string.label_unlimited_offline)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_unlimited_offline), ignoreCase = true).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.btn_sign_in_register)).assertIsDisplayed()
     }
 

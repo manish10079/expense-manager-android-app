@@ -38,6 +38,9 @@ import androidx.compose.material3.Surface
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Crown
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -51,7 +54,7 @@ fun ProfileAvatar(
     size: Dp = 56.dp,
     photoUri: String? = null,
     showBadge: Boolean = false,
-    badgeIcon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Filled.Check,
+    badgeIcon: androidx.compose.ui.graphics.vector.ImageVector = PhosphorIcons.Regular.Crown,
     @DrawableRes badgeIconRes: Int? = null,
     badgeContentDescription: String? = null,
     showGlow: Boolean = true,

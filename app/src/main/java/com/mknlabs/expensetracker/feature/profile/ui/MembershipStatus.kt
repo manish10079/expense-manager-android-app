@@ -235,7 +235,7 @@ private fun subscriptionCardSpec(
             MembershipFact.Label(MembershipGlyph.VERIFIED, R.string.label_membership_managed_by_play),
         ),
         panel = MembershipPanel(
-            glyph = MembershipGlyph.VERIFIED,
+            glyph = null,
             // A failed charge is the one thing that outranks "everything is unlocked": the
             // store has said it cannot collect, so that promise must not be made.
             headlineRes = if (hasBillingIssue) {

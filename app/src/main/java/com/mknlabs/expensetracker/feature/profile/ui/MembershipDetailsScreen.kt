@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,14 +26,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Crown
+import com.adamglin.phosphoricons.regular.SignIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Event
+import androidx.compose.material.icons.outlined.LocalActivity
+import androidx.compose.material.icons.outlined.Unpublished
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.Verified
+
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,6 +65,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -79,14 +87,9 @@ import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.income
-import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.premiumGold
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.currentSpacing
@@ -96,6 +99,7 @@ import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.StoreEntitlement
+import java.util.Locale
 
 @Composable
 fun MembershipDetailsScreen(
@@ -420,10 +424,14 @@ private data class MembershipCardPalette(
 @Composable
 private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalette {
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
+    val cardColors = AppCardDefaults.colors()
     return MembershipCardPalette(
-        surface = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
-        border = if (isDark) HeroOutlineDark else HeroOutlineLight,
+        surface = cardColors.containerColor,
+        border = if (colorScheme.isDark) {
+            colorScheme.outlineVariant.copy(alpha = 0.65f)
+        } else {
+            colorScheme.outline
+        },
         foreground = colorScheme.onSurface,
         headerLabel = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
             colorScheme.premiumGold
@@ -451,7 +459,7 @@ private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalet
 
 /** The icon behind a [MembershipGlyph]. */
 private fun glyphIcon(glyph: MembershipGlyph): ImageVector = when (glyph) {
-    MembershipGlyph.VERIFIED -> Icons.Rounded.Verified
+    MembershipGlyph.VERIFIED -> Icons.Default.Check
     MembershipGlyph.TICKET -> Icons.Rounded.ConfirmationNumber
     MembershipGlyph.LOCK -> Icons.Rounded.Lock
     MembershipGlyph.DATE -> Icons.Rounded.Event
@@ -489,14 +497,12 @@ private fun MembershipCard(
         // rather than announced as an upcoming renewal.
         now = System.currentTimeMillis()
     )
-    val cardShape = RoundedCornerShape(spacing.cardRadius + 10.dp)
+    val cardShape = RoundedCornerShape(28.dp)
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .background(palette.surface)
-            .border(width = 1.dp, color = palette.border, shape = cardShape)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = cardShape,
+        colors = AppCardDefaults.colors()
     ) {
         Column(
             modifier = Modifier
@@ -504,7 +510,7 @@ private fun MembershipCard(
                 .padding(spacing.paddingLarge),
             verticalArrangement = Arrangement.spacedBy(spacing.paddingCompact)
         ) {
-            MembershipCardHeader(spec = spec, palette = palette)
+            MembershipCardHeader(spec = spec, palette = palette, status = status)
 
             Text(
                 text = stringResource(spec.titleRes),
@@ -550,38 +556,93 @@ private fun MembershipCard(
 }
 
 @Composable
-private fun MembershipCardHeader(spec: MembershipCardSpec, palette: MembershipCardPalette) {
+private fun MembershipCardHeader(
+    spec: MembershipCardSpec,
+    palette: MembershipCardPalette,
+    status: MembershipStatus,
+) {
+    val gradient = brandGradient()
+    val chipLabel = stringResource(spec.headerLabelRes).uppercase(Locale.getDefault())
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = glyphIcon(spec.glyph),
-            contentDescription = null,
-            tint = palette.headerLabel,
-            modifier = Modifier.size(18.dp)
-        )
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(brush = gradient),
+            contentAlignment = Alignment.Center
+        ) {
+            when (status) {
+                MembershipStatus.OFFLINE -> Icon(
+                    painter = painterResource(R.drawable.ic_verified_off_24px),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                MembershipStatus.FREE -> Icon(
+                    imageVector = Icons.Outlined.Unpublished,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                MembershipStatus.PRO_PASS -> Icon(
+                    imageVector = Icons.Outlined.LocalActivity,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                MembershipStatus.SUBSCRIPTION -> Icon(
+                    imageVector = PhosphorIcons.Regular.Crown,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(Dimens.spacingSmall))
 
-        // Weighted rather than fixed: at a large font size the label takes the width it needs
-        // and pushes the badge along instead of colliding with it.
-        Text(
-            text = stringResource(spec.headerLabelRes),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = palette.headerLabel,
-            modifier = Modifier.weight(1f)
-        )
+        val brandChip = status == MembershipStatus.PRO_PASS ||
+            status == MembershipStatus.SUBSCRIPTION
+        val chipShape = RoundedCornerShape(50)
+        Box(
+            modifier = Modifier
+                .clip(chipShape)
+                .then(
+                    if (brandChip) {
+                        Modifier.background(brush = gradient)
+                    } else {
+                        Modifier.border(1.5.dp, palette.border, chipShape)
+                    }
+                )
+                .padding(horizontal = Dimens.spacingCompact, vertical = Dimens.spacingTiny)
+        ) {
+            Text(
+                text = chipLabel,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.6.sp,
+                color = if (brandChip) Color.White else palette.headerLabel
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
 
         spec.badgeRes?.let { badgeRes ->
             Spacer(modifier = Modifier.width(Dimens.spacingCompact))
+            val isActiveBadge = badgeRes == R.string.label_active_caps
             Text(
                 text = stringResource(badgeRes),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.5.sp,
-                color = palette.foreground.copy(alpha = 0.9f)
+                color = if (isActiveBadge) {
+                    MaterialTheme.colorScheme.income
+                } else {
+                    palette.foreground.copy(alpha = 0.9f)
+                }
             )
         }
     }
@@ -603,19 +664,21 @@ private fun MembershipCardFacts(
     ) {
         facts.forEach { fact ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = glyphIcon(fact.glyph),
-                    contentDescription = null,
-                    tint = palette.accent,
-                    modifier = Modifier.size(16.dp)
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
+                val factColor = palette.foreground.copy(alpha = 0.9f)
+                if (fact.glyph != MembershipGlyph.VERIFIED) {
+                    Icon(
+                        imageVector = glyphIcon(fact.glyph),
+                        contentDescription = null,
+                        tint = factColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                }
 
                 Text(
                     text = membershipFactLabel(fact, datePatternRes),
                     style = MaterialTheme.typography.labelLarge,
-                    color = palette.foreground.copy(alpha = 0.9f)
+                    color = factColor
                 )
             }
         }
@@ -696,27 +759,49 @@ private fun MembershipCardActions(
     @StringRes primaryActionRes: Int,
     onUpgradeClick: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(Dimens.spacingCompact),
         verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
     ) {
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = onUpgradeClick,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.cta,
-                contentColor = colorScheme.onCta
-            )
+        val ctaShape = RoundedCornerShape(24.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(ctaShape)
+                .background(brush = brandGradient())
+                .clickable(onClick = onUpgradeClick),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = stringResource(primaryActionRes),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                when (primaryActionRes) {
+                    R.string.btn_sign_in_register -> {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.SignIn,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+                    }
+                    R.string.btn_membership_buy_subscription -> {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_award_star_24px),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+                    }
+                }
+                Text(
+                    text = stringResource(primaryActionRes),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
+                )
+            }
         }
     }
 }
