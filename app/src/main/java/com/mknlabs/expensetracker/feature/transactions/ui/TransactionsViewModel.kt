@@ -134,7 +134,7 @@ class TransactionsViewModel @Inject constructor(
             .map { funds -> funds.associate { it.id to it.name } }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.Eagerly,
                 initialValue = emptyMap()
             )
 

@@ -176,6 +176,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -315,10 +316,17 @@ fun AddTransactionScreen(
     // every existing caller stay unchanged.
     val fundsViewModel: AddTransactionFundsViewModel = hiltViewModel()
     val availableFunds by fundsViewModel.funds.collectAsStateWithLifecycle()
+    val selectedFundId by fundsViewModel.selectedFundId.collectAsStateWithLifecycle()
 
-    // Edit mode seeds the selection from what the transaction already carries, once.
     LaunchedEffect(existingTransaction?.id) {
-        existingTransaction?.id?.let(tagsViewModel::seedFromTransaction)
+        val id = existingTransaction?.id
+        if (id.isNullOrBlank()) {
+            tagsViewModel.prepareNewDraft()
+            fundsViewModel.prepareNewDraft()
+        } else {
+            tagsViewModel.seedFromTransaction(id)
+            fundsViewModel.seedFromTransaction(id, existingTransaction.fundId)
+        }
     }
 
     // Voice lives in its own file because it touches android.speech, which the Compose
@@ -336,6 +344,8 @@ fun AddTransactionScreen(
         availableCategories = availableCategories,
         availablePaymentMethods = availablePaymentMethods,
         availableFunds = availableFunds,
+        selectedFundId = selectedFundId,
+        onSelectFund = fundsViewModel::selectFund,
         existingTransaction = existingTransaction,
         existingRecurringRule = existingRecurringRule,
         activeRecurringRuleCount = activeRecurringRuleCount,
@@ -388,6 +398,8 @@ internal fun AddTransactionScreenContent(
     availablePaymentMethods: List<PaymentType> = paymentTypeMap.values.sortedBy { it.id },
     /** Cash buckets this expense can be drawn from; empty hides the selector. */
     availableFunds: List<Fund> = emptyList(),
+    selectedFundId: String? = null,
+    onSelectFund: (String?) -> Unit = {},
     existingTransaction: Transaction? = null,
     existingRecurringRule: RecurringTransactionRule? = null,
     activeRecurringRuleCount: Int = 0,
@@ -546,19 +558,6 @@ internal fun AddTransactionScreenContent(
         var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
         var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
-        // Fund selection, seeded from the transaction when editing so an existing link is
-        // preserved rather than silently dropped on save.
-        var fundSelectionTouched by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf(false)
-        }
-        var selectedFundId by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf(existingTransaction?.fundId)
-        }
-        LaunchedEffect(existingTransaction?.id, existingTransaction?.fundId) {
-            if (!fundSelectionTouched) {
-                selectedFundId = existingTransaction?.fundId
-            }
-        }
         var showOverspendWarning by rememberSaveable { mutableStateOf(false) }
         var pendingOverspendTransaction by remember { mutableStateOf<Transaction?>(null) }
         var pendingOverspendDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
@@ -1033,7 +1032,11 @@ internal fun AddTransactionScreenContent(
                         } else {
                             fund?.name ?: stringResource(R.string.label_fund_none)
                         }
-                        val fundColor = if (!isIncomeMode && fund != null) (fundChipColor(fund.colorHex) ?: colorScheme.onSurfaceVariant) else colorScheme.onSurfaceVariant
+                        val fundColor = if (!isIncomeMode && fund != null) {
+                            colorScheme.identityColor(fund.colorHex)
+                        } else {
+                            colorScheme.onSurfaceVariant
+                        }
                         val fundIcon = if (isIncomeMode || fund == null) Icons.Filled.Clear else fund.icon
 
                         SelectionCard(
@@ -1162,10 +1165,10 @@ internal fun AddTransactionScreenContent(
                             val category = selectedCategory ?: return@AddTransactionButton
                             val payment = selectedPayment ?: return@AddTransactionButton
                             val amount = amountInput.toDoubleOrNull() ?: return@AddTransactionButton
-                            val fundIdToSave = if (fundSelectionTouched) {
-                                selectedFundId
+                            val fundIdToSave = if (selectedTransactionTypeId == 1) {
+                                null
                             } else {
-                                selectedFundId ?: existingTransaction?.fundId
+                                selectedFundId
                             }
                             val transaction = Transaction(
                                 id = existingTransaction?.id.orEmpty(),
@@ -1344,10 +1347,7 @@ internal fun AddTransactionScreenContent(
             SpendFromFundBottomSheet(
                 availableFunds = availableFunds,
                 selectedFundId = selectedFundId,
-                onSelectFund = { fundId ->
-                    fundSelectionTouched = true
-                    selectedFundId = fundId
-                },
+                onSelectFund = onSelectFund,
                 onCreateFundClick = {
                     isCreateFundSheetVisible = true
                 },
@@ -1529,7 +1529,7 @@ internal fun AddTransactionScreenContent(
                             pendingOverspendTransaction = null
                             pendingOverspendDraft = null
                             pendingOverspendFundId = null
-                            selectedFundId = null
+                            onSelectFund(null)
                             keyboardController?.hide()
                             if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
                         }) {
@@ -4008,7 +4008,7 @@ private fun SpendFromFundBottomSheet(
 
                 items(availableFunds, key = { it.id }) { fund ->
                     val isSelected = fund.id == selectedFundId
-                    val fundColor = fundChipColor(fund.colorHex) ?: colorScheme.primary
+                    val fundColor = colorScheme.identityColor(fund.colorHex)
 
                     AppCard(
                         onClick = {

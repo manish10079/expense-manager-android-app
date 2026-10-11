@@ -28,7 +28,8 @@ data class TransactionCardItemUi(
      */
     val categoryColorHex: String? = null,
     val isRecurring: Boolean = false,
-    val fundName: String? = null
+    val fundName: String? = null,
+    val tags: List<String> = emptyList()
 )
 
 sealed interface TransactionListItemUi {

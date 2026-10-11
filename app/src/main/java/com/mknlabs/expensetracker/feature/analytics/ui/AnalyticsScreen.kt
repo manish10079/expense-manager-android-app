@@ -76,6 +76,7 @@ import com.mknlabs.expensetracker.core.ui.components.DialogModeOption
 import com.mknlabs.expensetracker.core.ui.components.DialogModeSelector
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
+import com.mknlabs.expensetracker.models.Fund
 import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
@@ -188,7 +189,8 @@ fun AnalyticsScreen(
         onDateRangeSelected = { analyticsViewModel.selectPeriod(it) },
         onCustomRangeApplied = { start, end -> analyticsViewModel.applyCustomRange(start, end) },
         onClearCustomRange = analyticsViewModel::clearCustomRange,
-        transactionTags = transactionTags
+        transactionTags = transactionTags,
+        funds = funds
     )
 }
 
@@ -207,7 +209,8 @@ fun AnalyticsScreenContent(
     onDateRangeSelected: (AnalyticsPeriod) -> Unit,
     onCustomRangeApplied: (Long, Long) -> Unit,
     onClearCustomRange: () -> Unit,
-    transactionTags: Map<String, List<Tag>> = emptyMap()
+    transactionTags: Map<String, List<Tag>> = emptyMap(),
+    funds: List<Fund> = emptyList()
 ) {
     var isCustomRangePickerVisible by rememberSaveable { mutableStateOf(false) }
     var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -792,6 +795,8 @@ fun AnalyticsScreenContent(
             amountFormatPreferences = amountFormatPreferences,
             dateFormatPattern = dateFormatPattern,
             isProUser = isProUser,
+            transactionTags = transactionTags,
+            fundNames = funds.associate { it.id to it.name },
             onDismiss = {
                 isTransactionSheetVisible = false
                 selectedFilterId = null
@@ -2660,6 +2665,8 @@ private fun FilteredTransactionsBottomSheet(
     amountFormatPreferences: AmountFormatPreferences,
     dateFormatPattern: String,
     isProUser: Boolean = false,
+    transactionTags: Map<String, List<Tag>> = emptyMap(),
+    fundNames: Map<String, String> = emptyMap(),
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -2711,6 +2718,8 @@ private fun FilteredTransactionsBottomSheet(
                             categoryColorHex = category?.colorHex,
                             paymentType = (payment?.name ?: stringResource(id = R.string.label_unknown)).uppercase(),
                             categoryLabel = (category?.name ?: stringResource(id = R.string.label_other)).uppercase(),
+                            tags = transactionTags[transaction.id].orEmpty().map { it.name },
+                            fundName = transaction.fundId?.let { fundNames[it] },
                             showNoteTooltip = isProUser,
                             isProUser = isProUser,
                             isRecurring = !transaction.sourceRecurringRuleId.isNullOrBlank()

@@ -655,18 +655,29 @@ private fun TransactionDetailsDialog(
                     }
                 )
 
-                if (!fundName.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.label_fund_colon),
-                        style = sectionStyle
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = fundName,
-                        style = bodyStyle
-                    )
-                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.label_fund_colon),
+                    style = sectionStyle
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (fundName.isNullOrBlank()) {
+                        stringResource(R.string.label_fund_none)
+                    } else {
+                        fundName
+                    },
+                    color = if (fundName.isNullOrBlank()) {
+                        MaterialTheme.colorScheme.textTertiary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    style = if (fundName.isNullOrBlank()) {
+                        bodyStyle.copy(fontStyle = FontStyle.Italic)
+                    } else {
+                        bodyStyle
+                    }
+                )
 
                 if (tags.isNotEmpty()) {
                     val pattern = stringResource(R.string.label_tag_prefixed)

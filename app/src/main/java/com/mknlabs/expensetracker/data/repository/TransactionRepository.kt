@@ -213,7 +213,8 @@ private fun HomeRecentTransactionRow.toRecentTransaction(): RecentTransaction {
             syncState = syncState,
             isDeleted = isDeleted,
             updatedAt = updatedAt,
-            sourceRecurringRuleId = sourceRecurringRuleId
+            sourceRecurringRuleId = sourceRecurringRuleId,
+            fundId = fundId
         ),
         paymentTypeName = paymentMethodName
     )

@@ -261,7 +261,8 @@ fun TransactionScreen(
         todayLabel,
         yesterdayLabel,
         tomorrowLabel,
-        fundNames
+        fundNames,
+        transactionTags
     ) {
         buildTransactionsFeed(
             transactions = loadedTransactions,
@@ -281,7 +282,8 @@ fun TransactionScreen(
             todayLabel = todayLabel,
             yesterdayLabel = yesterdayLabel,
             tomorrowLabel = tomorrowLabel,
-            fundNames = fundNames
+            fundNames = fundNames,
+            transactionTags = transactionTags.mapValues { (_, tags) -> tags.map { it.name } }
         )
     }
 
@@ -966,7 +968,7 @@ private fun TransactionScreenContent(
                                             showTransactionTime = uiState.customizationSettings.showTransactionTime,
                                             showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                                             showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
-                                            tags = transactionTags[card.id].orEmpty().map { it.name },
+                                            tags = card.tags,
                                             fundName = card.fundName,
                                             showNoteTooltip = isProUser,
                                             isProUser = isProUser,

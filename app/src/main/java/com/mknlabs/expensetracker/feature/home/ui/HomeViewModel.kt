@@ -84,6 +84,7 @@ data class HomeScreenUiState(
     val totalExpense: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val todaySpending: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val recentTransactions: List<TransactionCardItemUi> = emptyList(),
+    val recentTransactionTags: Map<String, List<String>> = emptyMap(),
     val activeGoalsSaved: String = formatCurrencyValue(0.0, DEFAULT_CURRENCY_ID),
     val goalCount: Int = 0,
     val customizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings(),
@@ -235,7 +236,9 @@ class HomeViewModel @Inject constructor(
     private val recurringRuleRepository: RecurringRuleRepository,
     private val syncRepository: SyncRepository,
     private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository,
-    private val getSmsInboxUnreadCount: GetSmsInboxUnreadCountUseCase
+    private val getSmsInboxUnreadCount: GetSmsInboxUnreadCountUseCase,
+    private val tagRepository: com.mknlabs.expensetracker.domain.repository.TagRepository,
+    private val fundRepository: com.mknlabs.expensetracker.domain.repository.FundRepository
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(HomeInputState())
@@ -322,7 +325,9 @@ class HomeViewModel @Inject constructor(
                         inputState,
                         // Home consumes the inbox only through its use case, so the badge cannot
                         // reach into the inbox's tables or DAO directly.
-                        getSmsInboxUnreadCount()
+                        getSmsInboxUnreadCount(),
+                        tagRepository.observeAllTransactionTags(),
+                        fundRepository.observeActiveFunds()
                     ) { flows ->
                         @Suppress("UNCHECKED_CAST")
                         val summary = flows[0] as com.mknlabs.expensetracker.domain.repository.TransactionSummary
@@ -337,6 +342,11 @@ class HomeViewModel @Inject constructor(
                         val isSyncing = flows[5] as Boolean
                         val inputs = flows[6] as HomeInputState
                         val smsInboxUnreadCount = flows[7] as Int
+                        @Suppress("UNCHECKED_CAST")
+                        val transactionTags = flows[8] as Map<String, List<com.mknlabs.expensetracker.models.Tag>>
+                        @Suppress("UNCHECKED_CAST")
+                        val funds = flows[9] as List<com.mknlabs.expensetracker.models.Fund>
+                        val fundNames = funds.associate { it.id to it.name }
 
                         val categoriesMap = inputs.categories.associateBy { it.id }
                         val upcomingRecurring = buildUpcomingRecurring(
@@ -401,9 +411,12 @@ class HomeViewModel @Inject constructor(
                                     timeFormat = inputs.timeFormat,
                                     paymentTypeName = recentTransaction.paymentTypeName,
                                     categories = inputs.categories,
-                                    fallbackCategoryName = application.getString(R.string.label_other)
+                                    fallbackCategoryName = application.getString(R.string.label_other),
+                                    fundName = recentTransaction.transaction.fundId?.let { fundNames[it] },
+                                    tags = transactionTags[recentTransaction.transaction.id].orEmpty().map { it.name }
                                 )
                             },
+                            recentTransactionTags = transactionTags.mapValues { (_, tags) -> tags.map { it.name } },
                             activeGoalsSaved = formatCurrencyValue(
                                 activeGoalsSavedMinor(allGoals).toMajorUnits(),
                                 currencyId = inputs.currencyId,

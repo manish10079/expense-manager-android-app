@@ -55,6 +55,8 @@ data class HomeRecentTransactionRow(
     val contentHash: String?,
     @ColumnInfo(name = "source_recurring_rule_id")
     val sourceRecurringRuleId: String?,
+    @ColumnInfo(name = "fund_id")
+    val fundId: String?,
     @ColumnInfo(name = "payment_method_name")
     val paymentMethodName: String
 )

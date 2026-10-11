@@ -51,17 +51,22 @@ class TransactionTagsViewModel @Inject constructor(
      * made: the ids arrive asynchronously from the database, and without the guard a slow
      * read would land after the user added a tag and silently reset the field.
      */
-    private var seeded = false
+    private var seededForId: String? = null
 
     fun seedFromTransaction(transactionId: String) {
-        if (seeded || transactionId.isBlank()) return
+        if (transactionId.isBlank() || seededForId == transactionId) return
+        seededForId = transactionId
         viewModelScope.launch {
             val ids = tagRepository.getTagIdsForTransaction(transactionId)
-            if (!seeded) {
-                seeded = true
+            if (seededForId == transactionId) {
                 _selectedTagIds.value = ids
             }
         }
+    }
+
+    fun prepareNewDraft() {
+        seededForId = ""
+        _selectedTagIds.value = emptyList()
     }
 
     /** The ids to persist; read by the Route at save time. */
@@ -69,14 +74,14 @@ class TransactionTagsViewModel @Inject constructor(
 
     /** Attaches an existing tag, or detaches it if it is already selected. */
     fun toggleTag(tagId: String) {
-        seeded = true
+        seededForId = seededForId ?: ""
         _selectedTagIds.value = _selectedTagIds.value.let { current ->
             if (tagId in current) current - tagId else current + tagId
         }
     }
 
     fun removeTag(tagId: String) {
-        seeded = true
+        seededForId = seededForId ?: ""
         _selectedTagIds.value = _selectedTagIds.value - tagId
     }
 
@@ -91,7 +96,7 @@ class TransactionTagsViewModel @Inject constructor(
     fun addTagByName(name: String) {
         val trimmed = name.trim()
         if (trimmed.isEmpty()) return
-        seeded = true
+        seededForId = seededForId ?: ""
         viewModelScope.launch {
             val tag = tagRepository.createTag(trimmed)
             if (tag.id !in _selectedTagIds.value) {

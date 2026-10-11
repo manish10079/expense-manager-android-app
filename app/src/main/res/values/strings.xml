@@ -578,6 +578,8 @@
     <string name="desc_settings">Settings</string>
 
     <string name="title_settings">Settings</string>
+    <string name="title_detected_txns">Detected Txns</string>
+    <string name="desc_more_options">More options</string>
 
     <string name="header_account_and_security">Account &amp; Security</string>
 

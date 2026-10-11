@@ -55,7 +55,8 @@ fun buildTransactionsFeed(
     todayLabel: String,
     yesterdayLabel: String,
     tomorrowLabel: String,
-    fundNames: Map<String, String> = emptyMap()
+    fundNames: Map<String, String> = emptyMap(),
+    transactionTags: Map<String, List<String>> = emptyMap()
 ): TransactionsFeed {
     val formatVal = { value: Double ->
         formatCurrencyValue(
@@ -74,7 +75,8 @@ fun buildTransactionsFeed(
             paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
             categories = categories,
             fallbackCategoryName = fallbackCategoryName,
-            fundName = transaction.fundId?.let { fundNames[it] }
+            fundName = transaction.fundId?.let { fundNames[it] },
+            tags = transactionTags[transaction.id].orEmpty()
         )
     }
 

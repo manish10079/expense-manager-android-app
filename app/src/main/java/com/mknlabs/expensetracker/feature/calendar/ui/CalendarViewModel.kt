@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.calendar.ui
 import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -65,7 +67,8 @@ data class CalendarScreenUiState(
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val application: Application
+    private val application: Application,
+    private val fundRepository: com.mknlabs.expensetracker.domain.repository.FundRepository
 ) : ViewModel() {
 
     private var currentTransactions: List<Transaction> = emptyList()
@@ -75,6 +78,7 @@ class CalendarViewModel @Inject constructor(
     private var currentDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var currentTimeFormat: String = DEFAULT_TIME_FORMAT
     private var currentCustomizationSettings: TransactionCardCustomizationSettings = TransactionCardCustomizationSettings()
+    private var fundNames: Map<String, String> = emptyMap()
 
     private var isYearView: Boolean = false
     private var displayedMonthStart: Long = 0L
@@ -86,6 +90,12 @@ class CalendarViewModel @Inject constructor(
     val uiState: StateFlow<CalendarScreenUiState> = _uiState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            fundRepository.observeActiveFunds().collect { funds ->
+                fundNames = funds.associate { it.id to it.name }
+                rebuildUiState()
+            }
+        }
         rebuildUiState()
     }
 
@@ -252,7 +262,8 @@ class CalendarViewModel @Inject constructor(
                         timeFormat = currentTimeFormat,
                         paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
                         categories = currentCategories,
-                        fallbackCategoryName = application.getString(R.string.label_other)
+                        fallbackCategoryName = application.getString(R.string.label_other),
+                        fundName = transaction.fundId?.let { fundNames[it] }
                     )
                 },
                 selectedDayExpenseLabel = UiText.res(R.string.label_expense_with_val, formatConfiguredCurrency(-selectedDayExpenseTotal, signed = true, currencyId = currentCurrencyId, amountFormatPreferences = currentAmountFormatPreferences)),

@@ -200,7 +200,11 @@ fun FundsScreen(
                 timeFormat = timeFormat,
                 paymentTypeName = paymentTypeNames[transaction.paymentTypeId].orEmpty(),
                 categories = categories,
-                fallbackCategoryName = fallbackCategoryName
+                fallbackCategoryName = fallbackCategoryName,
+                fundName = transaction.fundId?.let { id ->
+                    uiState.selectedFund?.fund?.takeIf { it.id == id }?.name
+                },
+                tags = emptyList()
             )
         }
     }
@@ -882,6 +886,8 @@ private fun FundDetailContent(
                     showTransactionTime = transactionCardCustomizationSettings.showTransactionTime,
                     showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
                     showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
+                    tags = card.tags,
+                    fundName = card.fundName,
                     showNoteTooltip = isProUser,
                     isProUser = isProUser,
                     isRecurring = card.isRecurring

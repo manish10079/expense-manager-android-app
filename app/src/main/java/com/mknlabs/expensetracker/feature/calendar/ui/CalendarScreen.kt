@@ -760,6 +760,8 @@ private fun CalendarTransactionCard(
         showTransactionTime = transactionCardCustomizationSettings.showTransactionTime,
         showCategoryIcon = transactionCardCustomizationSettings.showCategoryIcon,
         showCategoryLabel = transactionCardCustomizationSettings.showCategoryLabel,
+        tags = transaction.tags,
+        fundName = transaction.fundName,
         showNoteTooltip = isProUser,
         isProUser = isProUser,
         isRecurring = transaction.isRecurring,

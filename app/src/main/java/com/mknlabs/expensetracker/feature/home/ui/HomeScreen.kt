@@ -66,9 +66,8 @@ import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
-import com.mknlabs.expensetracker.feature.smsinbox.ui.SMS_INBOX_BELL_RING_DURATION_MS
-import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxBellButton
-import com.mknlabs.expensetracker.feature.smsinbox.ui.isNewDetectionArrival
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.Transaction
@@ -586,38 +585,51 @@ private fun HomeHeaderRow(
     onSmsInboxClick: () -> Unit = {},
     isLockOverlayActive: Boolean
 ) {
-    // Shared by the hand wave (inside the greeting Column) and the settings-icon
-    // spin (in the sibling Row) below — hence hoisted to this common scope.
     val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
-    val settingsRotation = remember { androidx.compose.animation.core.Animatable(0f) }
-    // The detected-transactions bell, ringing in step with the wave. Resting value is 1f, so a
-    // bell that never rings (nothing waiting) simply sits still at rest.
-    val bellRing = remember { androidx.compose.animation.core.Animatable(1f) }
+    var menuExpanded by remember { mutableStateOf(false) }
+    val unreadSms = uiState.smsInboxUnreadCount
+    val detectionDotScale = remember { androidx.compose.animation.core.Animatable(1f) }
+    var lastUnreadSms by remember { mutableStateOf(unreadSms) }
+    LaunchedEffect(unreadSms) {
+        val arrived = unreadSms > lastUnreadSms && unreadSms > 0
+        lastUnreadSms = unreadSms
+        if (arrived) {
+            repeat(4) {
+                detectionDotScale.animateTo(1.4f, tween(180, easing = FastOutSlowInEasing))
+                detectionDotScale.animateTo(1f, tween(180, easing = FastOutSlowInEasing))
+            }
+        }
+    }
+
+    val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
+    val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
+        !isAnonymous
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
+        Box(
+            modifier = Modifier.clickable(onClick = onProfileClick)
         ) {
+            ProfileAvatar(
+                gender = userProfile.gender,
+                size = 50.dp,
+                photoUri = userProfile.photoUri,
+                userTier = uiState.userTier,
+                isSyncing = uiState.isSyncing,
+                isAnonymous = isAnonymous,
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                showBadge = isPremium,
+                badgeIcon = PhosphorIcons.Regular.Crown,
+                badgeContentDescription = stringResource(R.string.label_pro)
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
             val greetingName = uiState.greetingName
 
-            // Entrance animation (hand wave + settings-icon spin): plays ONCE per arrival
-            // at Home, at the first moment the screen is actually visible — i.e. the
-            // activity is resumed AND no app-lock overlay is covering it. ON_RESUME alone
-            // fires while the lock overlay is still up, so the wave used to finish behind
-            // the lock before the user saw it.
-            //
-            // The gate matters for the same reason it does in the section-enter fade:
-            // ON_RESUME fires on every trip back from the background, so without it,
-            // backgrounding the app and returning set the wave and the full 360° spin off
-            // again. An entrance belongs to arriving at the screen, not to coming back to it.
-            //
-            // lifecycleResumed is written ONLY by the lifecycle observer below; the
-            // LaunchedEffect only reads its keys. (The earlier version flipped a pending
-            // flag inside the effect's own body, which cancelled/restarted the effect
-            // mid-animation and made the wave + spin fail on background -> foreground.)
             val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
             var lifecycleResumed by remember {
                 mutableStateOf(
@@ -640,24 +652,6 @@ private fun HomeHeaderRow(
             LaunchedEffect(lifecycleResumed, isLockOverlayActive) {
                 if (lifecycleResumed && !isLockOverlayActive && !entrancePlayed) {
                     entrancePlayed = true
-                    // Detected transactions bell — rings only when there is a count on it, so a
-                    // quiet inbox never draws attention to an empty bell. It runs on its own
-                    // clock rather than after the greeting wave: it is the one part of this
-                    // entrance carrying information, so it must not wait out two and a half
-                    // seconds of waving first.
-                    if (uiState.smsInboxUnreadCount > 0) {
-                        launch {
-                            bellRing.snapTo(0f)
-                            bellRing.animateTo(
-                                targetValue = 1f,
-                                animationSpec = tween(
-                                    durationMillis = SMS_INBOX_BELL_RING_DURATION_MS,
-                                    easing = LinearEasing
-                                )
-                            )
-                        }
-                    }
-                    // Hand wave — ~2.5s total.
                     waveRotation.snapTo(0f)
                     waveRotation.animateTo(25f, tween(500, easing = LinearOutSlowInEasing))
                     waveRotation.animateTo(-20f, tween(450, easing = FastOutSlowInEasing))
@@ -666,41 +660,10 @@ private fun HomeHeaderRow(
                     waveRotation.animateTo(10f, tween(300, easing = FastOutSlowInEasing))
                     waveRotation.animateTo(-6f, tween(250, easing = FastOutSlowInEasing))
                     waveRotation.animateTo(0f, tween(250, easing = FastOutLinearInEasing))
-                    // Settings icon — one full 360° spin in 1s.
-                    settingsRotation.snapTo(0f)
-                    settingsRotation.animateTo(360f, tween(1000, easing = LinearEasing))
                 }
             }
 
-            // The entrance above covers *arriving* at Home. This covers the other half: a
-            // detection landing while the user is already sitting here. The badge count is
-            // the signal — a fresh detection is always unread, so it can only push the
-            // number up, and a rise is the one change that means "something new just came
-            // in". Reading cards lowers it, which must not ring, or the app would be
-            // nagging the user for tidying up.
-            var lastRungCount by remember { mutableStateOf(uiState.smsInboxUnreadCount) }
-            LaunchedEffect(uiState.smsInboxUnreadCount) {
-                val latest = uiState.smsInboxUnreadCount
-                val arrived = isNewDetectionArrival(previousCount = lastRungCount, newCount = latest)
-                // Recorded before the ring, not after: a second change cancels this effect
-                // mid-animation, and comparing the next one against a stale count would
-                // then fire a ring for a count that had actually gone *down*.
-                lastRungCount = latest
-                if (arrived) {
-                    bellRing.snapTo(0f)
-                    bellRing.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(
-                            durationMillis = SMS_INBOX_BELL_RING_DURATION_MS,
-                            easing = LinearEasing
-                        )
-                    )
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.label_hi_val, greetingName),
                     color = MaterialTheme.colorScheme.onBackground,
@@ -732,50 +695,76 @@ private fun HomeHeaderRow(
             )
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // 8.dp before the avatar, which is the largest element here and needs the
-            // room; the two icons are a pair and sit half that distance apart, in a
-            // nested row of their own.
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                // Detected bank messages waiting for a decision. Independent of the dialogs below:
-                // the badge is driven by the inbox table, so a dismissed notification still counts.
-                SmsInboxBellButton(
-                    unreadCount = uiState.smsInboxUnreadCount,
-                    onClick = onSmsInboxClick,
-                    ringProgress = bellRing.value
+        Box(modifier = Modifier.offset(x = 14.dp)) {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(id = R.string.desc_more_options),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(28.dp)
                 )
-
-                Box(
-                    modifier = Modifier.graphicsLayer {
-                        rotationZ = settingsRotation.value
-                    }
-                ) {
-                    SettingsButton(onClick = onSettingsClick)
-                }
             }
-
-            val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
-            val isPremium = uiState.userTier == com.mknlabs.expensetracker.models.UserTier.PREMIUM &&
-                !isAnonymous
-
-            ProfileAvatar(
-                gender = userProfile.gender,
-                size = 50.dp,
-                photoUri = userProfile.photoUri,
-                userTier = uiState.userTier,
-                isSyncing = uiState.isSyncing,
-                isAnonymous = isAnonymous,
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                showBadge = isPremium,
-                badgeIcon = PhosphorIcons.Regular.Crown,
-                badgeContentDescription = stringResource(R.string.label_pro)
-            )
+            if (unreadSms > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-12).dp, y = 12.dp)
+                        .size(8.dp)
+                        .graphicsLayer {
+                            scaleX = detectionDotScale.value
+                            scaleY = detectionDotScale.value
+                        }
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.accentInk)
+                )
+            }
+            WhatsAppStyleDropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            menuExpanded = false
+                            onSmsInboxClick()
+                        }
+                        .padding(
+                            horizontal = Dimens.spacingDefault,
+                            vertical = Dimens.spacingCompact
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.title_detected_txns),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (unreadSms > 0) {
+                        TabCountBadge(count = unreadSms)
+                    }
+                }
+                Text(
+                    text = stringResource(id = R.string.title_settings),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            menuExpanded = false
+                            onSettingsClick()
+                        }
+                        .padding(
+                            horizontal = Dimens.spacingDefault,
+                            vertical = Dimens.spacingCompact
+                        )
+                )
+            }
         }
     }
 }
@@ -1126,6 +1115,8 @@ private fun ColumnScope.HomeTransactionsList(
                 showTransactionTime = uiState.customizationSettings.showTransactionTime,
                 showCategoryIcon = uiState.customizationSettings.showCategoryIcon,
                 showCategoryLabel = uiState.customizationSettings.showCategoryLabel,
+                tags = card.tags,
+                fundName = card.fundName,
                 showNoteTooltip = isProUser,
                 isProUser = isProUser,
                 isRecurring = card.isRecurring,

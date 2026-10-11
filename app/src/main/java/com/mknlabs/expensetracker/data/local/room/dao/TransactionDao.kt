@@ -216,6 +216,7 @@ interface TransactionDao {
             t.sync_state,
             t.content_hash,
             t.source_recurring_rule_id,
+            t.fund_id,
             COALESCE(pm.name, '') AS payment_method_name
         FROM transactions t
         LEFT JOIN payment_methods pm
