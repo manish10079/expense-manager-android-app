@@ -70,6 +70,8 @@ object AppSettingsDataStore {
         val smartSmsPrompted = booleanPreferencesKey("smart_sms_prompted")
         val smsPermissionCardDismissed = booleanPreferencesKey("sms_permission_card_dismissed")
         val smsMiuiSetupAcknowledged = booleanPreferencesKey("sms_miui_setup_acknowledged")
+        val smsInboxTapHintDismissed = booleanPreferencesKey("sms_inbox_tap_hint_dismissed")
+        val smsInboxSwipeHintDismissed = booleanPreferencesKey("sms_inbox_swipe_hint_dismissed")
         val themeMode = stringPreferencesKey("theme_mode")
         val transactionCardShowIncomeExpenseLabels = booleanPreferencesKey("transaction_card_show_income_expense_labels")
         val transactionCardShowTransactionDate = booleanPreferencesKey("transaction_card_show_transaction_date")
@@ -146,6 +148,32 @@ object AppSettingsDataStore {
         }
 
         preferences[Keys.defaultsRevision] = CURRENT_DEFAULTS_REVISION
+    }
+
+    data class SmsInboxHintDismissed(
+        val tap: Boolean = false,
+        val swipe: Boolean = false
+    )
+
+    fun smsInboxHintDismissedFlow(context: Context): Flow<SmsInboxHintDismissed> {
+        return context.applicationContext.appSettingsDataStore.data.map { prefs ->
+            SmsInboxHintDismissed(
+                tap = prefs[Keys.smsInboxTapHintDismissed] ?: false,
+                swipe = prefs[Keys.smsInboxSwipeHintDismissed] ?: false
+            )
+        }
+    }
+
+    suspend fun dismissSmsInboxTapHint(context: Context) {
+        context.applicationContext.appSettingsDataStore.edit {
+            it[Keys.smsInboxTapHintDismissed] = true
+        }
+    }
+
+    suspend fun dismissSmsInboxSwipeHint(context: Context) {
+        context.applicationContext.appSettingsDataStore.edit {
+            it[Keys.smsInboxSwipeHintDismissed] = true
+        }
     }
 
     suspend fun updateAppSettings(

@@ -74,7 +74,7 @@ fun WhatsAppStyleDropdownMenu(
                 Surface(
                     modifier = modifier.wrapContentWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 8.dp,
                     tonalElevation = 8.dp
                 ) {

@@ -2,8 +2,13 @@ package com.mknlabs.expensetracker.feature.smsinbox.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.material3.FilterChipDefaults
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -13,7 +18,10 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +44,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAddCheck
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -62,6 +73,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -87,7 +99,10 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -98,8 +113,11 @@ import android.content.Context
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
@@ -107,6 +125,8 @@ import com.mknlabs.expensetracker.sms.SmsConfidence
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.TransactionDateHeader
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.BadgeOnColor
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -293,42 +313,21 @@ private fun SmsInboxContent(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (uiState.isSelectionMode) {
-                // Every row on screen counts as selected -> the chip offers deselect-all.
                 val allSelected = uiState.detections.let { it.isNotEmpty() && it.all { row -> row.id in uiState.selectedIds } }
                 BulkActionBar(
                     selectedCount = uiState.selectedIds.size,
                     allSelected = allSelected,
                     onClose = onClearSelection,
                     onToggleSelectAll = { if (allSelected) onClearSelection() else onSelectAll() },
-                    onAddAll = onAddAll,
                     onDelete = onRequestDeleteSelected
                 )
+            } else if (uiState.hasItems) {
+                ClearAllFooter(onClearAll = onClearAll)
             }
         },
         // "Clear all" is only offered when there is something to clear, and it steps
         // aside in selection mode â€” that bar already carries its own Delete. It wipes in
         // from the start edge and wipes back out the same way.
-        floatingActionButton = {
-            AnimatedVisibility(
-                visible = uiState.hasItems && !uiState.isSelectionMode,
-                enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut()
-            ) {
-                ExtendedFloatingActionButton(
-                    onClick = onClearAll,
-                    containerColor = MaterialTheme.colorScheme.expense,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = null
-                        )
-                    },
-                    text = { Text(text = stringResource(id = R.string.action_clear_all)) }
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
     ) { padding ->
         val enter = rememberSectionEnterAlphas(4)
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -370,6 +369,7 @@ private fun SmsInboxContent(
                 uiState.isEmpty -> EmptyInbox(filter = uiState.filter)
                 else -> InboxList(
                     uiState = uiState,
+                    availableCategories = availableCategories,
                     onLoadMore = onLoadMore,
                     onDetectionOpened = onDetectionOpened,
                     onDetectionsVisible = onDetectionsVisible,
@@ -556,62 +556,141 @@ private fun SearchField(query: String, onQueryChanged: (String) -> Unit) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FilterRow(selected: SmsInboxFilter, onFilterSelected: (SmsInboxFilter) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val selectedFill = brandGradient()
+    val chipShape = RoundedCornerShape(percent = 50)
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = Dimens.ScreenPadding),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(SmsInboxFilter.entries) { filter ->
-            FilterChip(
-                selected = filter == selected,
-                onClick = { onFilterSelected(filter) },
-                label = { Text(text = filter.label()) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.chipSelected,
-                    selectedLabelColor = MaterialTheme.colorScheme.chipSelectedInk
-                )
+            val isSelected = filter == selected
+            Text(
+                text = filter.label(),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isSelected) scheme.onBrandGradient else scheme.chipInkOff,
+                maxLines = 1,
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .clip(chipShape)
+                    .then(
+                        if (isSelected) {
+                            Modifier.background(selectedFill)
+                        } else {
+                            Modifier
+                                .background(scheme.chip)
+                                .border(1.dp, scheme.chipOutline, chipShape)
+                        }
+                    )
+                    .clickable { onFilterSelected(filter) }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             )
         }
     }
 }
 
 /**
- * The one line explaining the interaction the cards no longer spell out.
- *
- * A card used to carry its own Add / Edit / Ignore buttons; now a tap opens the Add
- * Transaction screen, which is not something a card can show by itself. An info glyph
- * above the list says it once, instead of repeating a hint on every row.
+ * Two dismissible strips: tap-to-add, then swipe-to-delete.
  */
 @Composable
 private fun InboxHint() {
-    Row(
+    val context = LocalContext.current
+    val persisted by AppSettingsDataStore.smsInboxHintDismissedFlow(context)
+        .collectAsStateWithLifecycle(initialValue = AppSettingsDataStore.SmsInboxHintDismissed())
+    var hideTap by remember { mutableStateOf(false) }
+    var hideSwipe by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val showTapHint = !persisted.tap && !hideTap
+    val showSwipeHint = !persisted.swipe && !hideSwipe
+    if (!showTapHint && !showSwipeHint) return
+
+    val scheme = MaterialTheme.colorScheme
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Dimens.ScreenPadding, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        if (showTapHint) {
+            HintStrip(
+                icon = Icons.Outlined.TouchApp,
+                iconTint = scheme.accentInk,
+                text = stringResource(id = R.string.label_sms_inbox_card_hint),
+                containerColor = scheme.accentSoft,
+                onDismiss = {
+                    hideTap = true
+                    scope.launch { AppSettingsDataStore.dismissSmsInboxTapHint(context) }
+                }
+            )
+        }
+        if (showSwipeHint) {
+            HintStrip(
+                icon = Icons.Outlined.SwapHoriz,
+                iconTint = scheme.onSurfaceVariant,
+                text = stringResource(id = R.string.label_sms_inbox_swipe_hint),
+                containerColor = scheme.chip,
+                onDismiss = {
+                    hideSwipe = true
+                    scope.launch { AppSettingsDataStore.dismissSmsInboxSwipeHint(context) }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun HintStrip(
+    icon: ImageVector,
+    iconTint: Color,
+    text: String,
+    containerColor: Color,
+    onDismiss: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(containerColor)
+            .padding(start = 12.dp, top = 8.dp, end = 4.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.Top
     ) {
         Icon(
-            imageVector = Icons.Outlined.Info,
-            // Decorative: the sentence beside it is the content, and it is read out as text.
+            imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp)
+            tint = iconTint,
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .size(14.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(id = R.string.label_sms_inbox_card_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
         )
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier.size(20.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Close,
+                contentDescription = stringResource(id = R.string.desc_close),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(10.dp)
+            )
+        }
     }
 }
 
 @Composable
 private fun InboxList(
     uiState: SmsInboxUiState,
+    availableCategories: List<CategoryType>,
     onLoadMore: () -> Unit,
     onDetectionOpened: (SmsInboxItemUi) -> Unit,
     onDetectionsVisible: (List<String>) -> Unit,
@@ -700,6 +779,7 @@ private fun InboxList(
                     ) {
                         DetectionCard(
                             item = item,
+                            category = availableCategories.firstOrNull { it.id == item.categoryId },
                             isFocused = item.id == uiState.focusedId,
                             // Arriving and visible here: play it. Arriving but off-screen:
                             // just consume it, so scrolling back up later cannot re-run it.
@@ -891,13 +971,8 @@ private fun SwipeDeleteHint(modifier: Modifier = Modifier) {
 }
 
 /**
- * One detection, laid out as a flat row.
- *
- * The shape follows the sender rather than the app chrome: a pastel initial disc, then
- * the name with the clock on the same line, the amount under it with its currency in a
- * badge, and the parser's guesses â€” category, then the message itself â€” below that. No
- * border, no container and no chips, so the eye runs down the avatar column and the list
- * reads as one column of text.
+ * One detection, laid out as the mock txn card: icon + title + suggested chip,
+ * amount and time on the trailing edge, SMS snippet underneath.
  */
 @Composable
 private fun DetectionCard(
@@ -905,6 +980,7 @@ private fun DetectionCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onDelete: () -> Unit,
+    category: CategoryType? = null,
     /** True for the row a notification tap asked for, briefly after arrival. */
     isFocused: Boolean = false,
     /** True when this card must play the "a new message just arrived" entrance. */
@@ -921,9 +997,6 @@ private fun DetectionCard(
         }
     }
 
-    // The entrance is decided once, at first composition: the ViewModel clears the arrival
-    // flag as soon as the row has been reported seen, so following it live would cut the
-    // animation off on its first frame.
     val playsArrival = remember { isArriving }
     val arrival = remember { Animatable(if (playsArrival) 0f else 1f) }
     LaunchedEffect(Unit) {
@@ -932,13 +1005,52 @@ private fun DetectionCard(
         }
     }
 
-    val rowBackground = when {
-        item.isSelected -> MaterialTheme.colorScheme.secondaryContainer
-        isFocused -> MaterialTheme.colorScheme.primaryContainer
-        else -> transparent
+    val scheme = MaterialTheme.colorScheme
+    val categoryColor = scheme.categoryColor(
+        categoryId = item.categoryId ?: 0,
+        colorHex = category?.colorHex
+    )
+    val categoryName = category?.name
+        ?: item.categoryLabel.asString().substringAfter(": ").trim()
+    val signedAmount = if (item.isIncome) "+${item.amountText}" else "-${item.amountText}"
+    val amountDescription = stringResource(
+        id = if (item.isIncome) {
+            R.string.label_sms_inbox_income_amount
+        } else {
+            R.string.label_sms_inbox_expense_amount
+        },
+        item.amountText
+    )
+    val smsPrefix = stringResource(id = R.string.label_sms_inbox_sms)
+    val smsText = buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface.copy(alpha = 0.78f)
+            )
+        ) {
+            append(smsPrefix)
+            append(" ")
+        }
+        append('"')
+        append(item.messagePreview)
+        append('"')
     }
 
-    Row(
+    val baseColors = AppCardDefaults.colors()
+    val cardColors = when {
+        item.isSelected -> baseColors.copy(
+            border = BorderStroke(1.dp, scheme.accentInk)
+        )
+        isFocused -> baseColors.copy(
+            containerColor = scheme.primaryContainer
+        )
+        else -> baseColors
+    }
+
+    AppCard(
+        onClick = onClick,
+        onLongClick = onLongClick,
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
@@ -948,250 +1060,233 @@ private fun DetectionCard(
                 scaleX = scale
                 scaleY = scale
                 translationY = -ARRIVAL_SLIDE_DP.dp.toPx() * (1f - entrance)
-            }
-            .clip(RoundedCornerShape(12.dp))
-            .background(rowBackground)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 12.dp, vertical = 12.dp)
+            },
+        shape = RoundedCornerShape(16.dp),
+        colors = cardColors
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            // Who it came from, and when. The clock is a time and nothing more: the list is
-            // already grouped into days, so a date here would only repeat the separator.
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, top = 14.dp, end = 14.dp, bottom = 14.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item.timeText,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // The money line: the currency rides in the badge, coloured by which way the
-            // money went, so the number beside it can stay plain text.
-            val amountDescription = stringResource(
-                id = if (item.isIncome) {
-                    R.string.label_sms_inbox_income_amount
-                } else {
-                    R.string.label_sms_inbox_expense_amount
-                },
-                item.amountText
-            )
-            Row(
-                modifier = Modifier.semantics(mergeDescendants = true) {
-                    // Badge, number and verb are one fact when read aloud, and the full
-                    // formatted amount is what it should say â€” symbol included.
-                    contentDescription = amountDescription
-                },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AmountBadge(isIncome = item.isIncome, symbol = item.currencySymbol)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item.amountValueText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = stringResource(
-                        id = if (item.isIncome) {
-                            R.string.label_sms_inbox_income
-                        } else {
-                            R.string.label_sms_inbox_expense
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(scheme.categorySoft(categoryColor))
+                            .border(
+                                BorderStroke(1.dp, categoryColor.copy(alpha = 0.28f)),
+                                RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = category?.icon ?: Icons.Filled.QuestionMark,
+                            contentDescription = null,
+                            tint = categoryColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(id = R.string.label_sms_inbox_suggested),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = scheme.onSurfaceVariant,
+                                maxLines = 1
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = categoryName,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = categoryColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(scheme.categorySoft(categoryColor))
+                                    .border(
+                                        BorderStroke(1.dp, categoryColor.copy(alpha = 0.45f)),
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
                         }
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = signedAmount,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = if (item.isIncome) scheme.income else scheme.onSurface,
+                        maxLines = 1,
+                        modifier = Modifier.semantics { contentDescription = amountDescription }
+                    )
+                    Text(
+                        text = item.timeText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // The parser's guess, said plainly: it is a starting point for the Add screen,
-            // not a decision the user has made here.
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = item.categoryLabel.asString(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = item.messagePreview,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = smsText,
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.onSurfaceVariant,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(2.dp))
-
-            // The row's only button. Adding is what tapping the row does now, and ignoring
-            // lives on the notification; deleting has nowhere else to live.
+@Composable
+private fun ClearAllFooter(onClearAll: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(16.dp)
+    Surface(
+        color = scheme.background,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.4f)))
+                .padding(16.dp)
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(scheme.chip)
+                    .border(BorderStroke(1.dp, scheme.chipOutline), shape)
+                    .clickable(onClick = onClearAll)
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                AppTextButton(
-                    onClick = onDelete,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.action_delete),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = scheme.expense,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(id = R.string.action_sms_inbox_clear_all_pending),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface
+                )
             }
         }
     }
 }
 
-/** The currency mark beside an amount: money in is green, money out is red. */
-@Composable
-private fun AmountBadge(isIncome: Boolean, symbol: String) {
-    Box(
-        modifier = Modifier
-            .size(22.dp)
-            .clip(CircleShape)
-            .background(if (isIncome) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = symbol,
-            style = MaterialTheme.typography.labelSmall,
-            color = BadgeOnColor,
-            maxLines = 1
-        )
-    }
-}
-
-/**
- * The bar shown while rows are selected.
- *
- * It only offers what a selection is for now: everything here is either "act on all of
- * these" (add) or destructive (delete). Marking read left the bar along with the status
- * words â€” a card is read as soon as it is on screen, so there is nothing left to mark.
- *
- * Laid out in the same visual language as [SelectionHeader] so bulk selection looks the
- * same everywhere in the app, with one action the inbox needs on top: "Add all". The
- * select-all chip is a toggle â€” once every row on screen is selected it becomes a
- * deselect-all chip, so one corner both takes and releases the whole list.
- */
 @Composable
 private fun BulkActionBar(
     selectedCount: Int,
     allSelected: Boolean,
     onClose: () -> Unit,
     onToggleSelectAll: () -> Unit,
-    onAddAll: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val scheme = MaterialTheme.colorScheme
+    val chipShape = RoundedCornerShape(12.dp)
     Surface(
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
+        color = scheme.background.copy(alpha = 0.95f),
+        tonalElevation = 0.dp,
         shadowElevation = 8.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .padding(start = 8.dp, end = 16.dp),
+                .border(BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.5f)))
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onClose,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_exit_selection),
-                    tint = MaterialTheme.colorScheme.accentInk
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
             Text(
-                text = stringResource(R.string.label_val_selected, selectedCount),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = stringResource(R.string.label_sms_inbox_selected_count, selectedCount),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
-
-            // Select all <-> deselect all.
-            BulkActionChip(
-                onClick = onToggleSelectAll,
-                icon = if (allSelected) Icons.Rounded.Deselect else Icons.Rounded.DoneAll,
-                contentDescription = stringResource(
-                    if (allSelected) R.string.desc_deselect_all else R.string.desc_select_all
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(
+                    id = if (allSelected) {
+                        R.string.action_sms_inbox_deselect_all
+                    } else {
+                        R.string.action_sms_inbox_select_all
+                    }
                 ),
-                contentColor = MaterialTheme.colorScheme.accentInk
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onSurface,
+                modifier = Modifier
+                    .clip(chipShape)
+                    .background(scheme.chip)
+                    .border(BorderStroke(1.dp, scheme.chipOutline), chipShape)
+                    .clickable(onClick = onToggleSelectAll)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             )
-
             Spacer(modifier = Modifier.width(8.dp))
-
-            BulkActionChip(
-                onClick = onAddAll,
-                icon = Icons.AutoMirrored.Rounded.PlaylistAddCheck,
-                contentDescription = stringResource(R.string.desc_add_all),
-                contentColor = MaterialTheme.colorScheme.accentInk
+            Text(
+                text = stringResource(id = R.string.action_sms_inbox_delete_selected),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onError,
+                modifier = Modifier
+                    .clip(chipShape)
+                    .background(scheme.expense)
+                    .clickable(onClick = onDelete)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             )
-
             Spacer(modifier = Modifier.width(8.dp))
-
-            BulkActionChip(
-                onClick = onDelete,
-                icon = Icons.Rounded.Delete,
-                contentDescription = stringResource(R.string.desc_delete_selected),
-                contentColor = MaterialTheme.colorScheme.error
-            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(scheme.chip)
+                    .clickable(onClick = onClose),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_exit_selection),
+                    tint = scheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
-    }
-}
-
-/**
- * One icon button in the bulk bar (no background container).
- */
-@Composable
-private fun BulkActionChip(
-    onClick: () -> Unit,
-    icon: ImageVector,
-    contentDescription: String,
-    contentColor: Color
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier.size(36.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = contentColor,
-            modifier = Modifier.size(22.dp)
-        )
     }
 }
 
