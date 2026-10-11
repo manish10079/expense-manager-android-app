@@ -205,18 +205,34 @@ private fun TransactionCardCustomizeContent(
 
     // Pro-gated toggles must be reset to OFF for non-Pro users.
     // The Route layer observes access status and passes plain granted flags down.
-    LaunchedEffect(isTransactionTimeProGranted, isDateSeparatorsProGranted, isPaymentMethodProGranted, isListSummariesProGranted) {
-        if (!isTransactionTimeProGranted && localSettings.showTransactionTime) {
-            localSettings = localSettings.copy(showTransactionTime = false)
+    LaunchedEffect(
+        isProUser,
+        isTransactionTimeProGranted,
+        isDateSeparatorsProGranted,
+        isPaymentMethodProGranted,
+        isListSummariesProGranted
+    ) {
+        var next = localSettings
+        if (isProUser) {
+            next = next.copy(
+                showCategoryLabel = true,
+                showPaymentMethod = true
+            )
         }
-        if (!isDateSeparatorsProGranted && localSettings.showDateSeparators) {
-            localSettings = localSettings.copy(showDateSeparators = false)
+        if (!isTransactionTimeProGranted && next.showTransactionTime) {
+            next = next.copy(showTransactionTime = false)
         }
-        if (!isPaymentMethodProGranted && localSettings.showPaymentMethod) {
-            localSettings = localSettings.copy(showPaymentMethod = false)
+        if (!isDateSeparatorsProGranted && next.showDateSeparators) {
+            next = next.copy(showDateSeparators = false)
         }
-        if (!isListSummariesProGranted && localSettings.showTransactionListSummaries) {
-            localSettings = localSettings.copy(showTransactionListSummaries = false)
+        if (!isPaymentMethodProGranted && next.showPaymentMethod) {
+            next = next.copy(showPaymentMethod = false)
+        }
+        if (!isListSummariesProGranted && next.showTransactionListSummaries) {
+            next = next.copy(showTransactionListSummaries = false)
+        }
+        if (next != localSettings) {
+            localSettings = next
         }
     }
 

@@ -256,7 +256,10 @@ class MainViewModel @Inject constructor(
         android.util.Log.d("MainVM", "Pro expired with no live store entitlement. Downgrading user locally.")
         // 1. Downgrade locally in AppSettings
         AppSettingsDataStore.updateAppSettings(appContext) { current ->
-            current.copy(userTier = com.mknlabs.expensetracker.models.UserTier.FREE)
+            current.copy(
+                userTier = com.mknlabs.expensetracker.models.UserTier.FREE,
+                transactionCardShowPaymentMethod = false
+            )
         }
         // 2. Downgrade locally in UserProfile
         com.mknlabs.expensetracker.data.local.UserProfileDataStore.updateUserProfile(appContext) { currentProfile ->

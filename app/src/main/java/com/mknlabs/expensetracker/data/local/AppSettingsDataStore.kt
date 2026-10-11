@@ -256,7 +256,19 @@ object AppSettingsDataStore {
     }
 
     suspend fun updateUserTier(context: Context, tier: com.mknlabs.expensetracker.models.UserTier) {
-        updateAppSettings(context) { it.copy(userTier = tier) }
+        updateAppSettings(context) { current ->
+            when (tier) {
+                com.mknlabs.expensetracker.models.UserTier.PREMIUM -> current.copy(
+                    userTier = tier,
+                    transactionCardShowCategoryLabel = true,
+                    transactionCardShowPaymentMethod = true
+                )
+                else -> current.copy(
+                    userTier = tier,
+                    transactionCardShowPaymentMethod = false
+                )
+            }
+        }
     }
 
     private fun Preferences.toAppSettings(): AppSettings {

@@ -8,7 +8,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -75,9 +74,6 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.invest
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroGlassEnd
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroGlassStart
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroHairline
 import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepCoral
 import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepSky
 import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepViolet
@@ -86,7 +82,6 @@ import com.mknlabs.expensetracker.utils.toTitleCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val HeroCorner = 20.dp
 private val AvatarOuter = 16.dp
 private val AvatarInnerSignedIn = 14.dp
 private val AvatarInnerSignedOut = 12.dp
@@ -105,14 +100,9 @@ fun ProfileCard(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val isDark = colorScheme.isDark
     val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
-    val cardShape = RoundedCornerShape(HeroCorner)
-    val glass = Brush.linearGradient(
-        colors = listOf(colorScheme.settingsHeroGlassStart, colorScheme.settingsHeroGlassEnd),
-        start = Offset.Zero,
-        end = Offset(1000f, 1000f)
-    )
+    val cardShape = AppCardDefaults.shape()
+    val cardCorner = AppCardDefaults.CornerRadius
     val sweepColors = listOf(
         Color.Transparent,
         Color.Transparent,
@@ -159,7 +149,7 @@ fun ProfileCard(
         if (currentAlpha > 0f) {
             val angle = (borderProgress.value % 1f) * 360f
             val strokePx = 2.dp.toPx()
-            val cornerRadiusPx = (HeroCorner + 2.dp).toPx()
+            val cornerRadiusPx = (cardCorner + 2.dp).toPx()
             val shader = SweepGradient(
                 size.width / 2f,
                 size.height / 2f,
@@ -183,13 +173,6 @@ fun ProfileCard(
 
     AppCard(
         shape = cardShape,
-        colors = AppCardColors(
-            containerColor = Color.Transparent,
-            contentColor = colorScheme.onSurface,
-            border = BorderStroke(1.dp, colorScheme.settingsHeroHairline)
-        ),
-        elevation = if (isDark) 20.dp else 16.dp,
-        brush = glass,
         modifier = modifier
             .fillMaxWidth()
             .then(animatedBorderModifier)
