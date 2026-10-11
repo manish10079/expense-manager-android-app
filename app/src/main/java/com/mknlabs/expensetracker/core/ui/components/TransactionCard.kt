@@ -91,7 +91,6 @@ import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.transparent
 import kotlinx.coroutines.launch
 
 private val SeparatorSpanStyle = SpanStyle(letterSpacing = 0.8.sp)
@@ -152,7 +151,6 @@ fun TransactionCard(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
            border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
         )
-        MaterialTheme.colorScheme.isDark -> baseColors.copy(containerColor = transparent)
         else -> baseColors
     }
 

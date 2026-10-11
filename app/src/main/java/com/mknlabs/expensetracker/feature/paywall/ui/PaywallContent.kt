@@ -13,6 +13,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +49,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +66,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 
 import androidx.compose.ui.res.stringResource
@@ -81,6 +86,8 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Crown
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.LoopingConfettiCanvas
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
@@ -677,40 +684,80 @@ private fun PlansUnavailable(onRetryClick: () -> Unit) {
 
 @Composable
 private fun PaymentProcessingOverlay(dark: Boolean) {
+    val cardColors = if (dark) {
+        AppCardColors(
+            containerColor = PaywallOverlayCard,
+            contentColor = Color.White,
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+        )
+    } else {
+        AppCardDefaults.colors()
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(if (dark) Color.Black.copy(alpha = 0.62f) else PaywallScreenLight.copy(alpha = 0.72f)),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            modifier = Modifier
-                .width(280.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(PaywallOverlayCard)
-                .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        AppCard(
+            modifier = Modifier.width(280.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = cardColors,
+            elevation = if (dark) 24.dp else AppCardDefaults.Elevation,
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(36.dp),
-                color = PaywallBrandStart,
-                trackColor = Color.White.copy(alpha = 0.18f),
-                strokeWidth = 3.dp,
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.paywall_processing_payment),
-                color = Color.White,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.paywall_please_wait),
-                color = PaywallSlate400,
-                fontSize = 11.sp,
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                PayProcessingSpinner(dark = dark)
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.paywall_processing_payment),
+                    color = if (dark) Color.White else Color(0xFF0F172A),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.paywall_please_wait),
+                    color = if (dark) PaywallSlate400 else PaywallSlate500,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun PayProcessingSpinner(dark: Boolean) {
+    val spin = rememberInfiniteTransition(label = "paySpin")
+    val angle by spin.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 700, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "paySpinAngle",
+    )
+    val track = if (dark) Color.White.copy(alpha = 0.18f) else PaywallBrandStart.copy(alpha = 0.20f)
+    Canvas(
+        modifier = Modifier
+            .size(36.dp)
+            .graphicsLayer { rotationZ = angle },
+    ) {
+        val stroke = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Butt)
+        drawCircle(color = track, style = stroke)
+        drawArc(
+            color = PaywallBrandStart,
+            startAngle = -90f,
+            sweepAngle = 90f,
+            useCenter = false,
+            style = stroke,
+        )
     }
 }
 
