@@ -853,6 +853,7 @@ fun AppNavigationHost(
                         accountTier = userProfile.accountTier,
                         proExpiryTimestamp = userProfile.proExpiryTimestamp,
                         isAnonymous = isAnonymousUser,
+                        onSignInClick = onLinkAccountClick,
                         // Whether Pro came from the store is read from the entitlement
                         // inside the screen (BillingRepository.isPremium), not from
                         // `userProfile.isSubscription` — that mirror is only ever written

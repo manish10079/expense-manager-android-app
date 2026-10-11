@@ -108,6 +108,7 @@ fun MembershipDetailsScreen(
     proExpiryTimestamp: Long = 0L,
     isAnonymous: Boolean = false,
     onBackClick: () -> Unit = {},
+    onSignInClick: () -> Unit = {},
     monetizationViewModel: MonetizationViewModel = hiltViewModel(),
     referralViewModel: ReferAFriendViewModel = hiltViewModel()
 ) {
@@ -156,7 +157,8 @@ fun MembershipDetailsScreen(
         isRestoring = restoreState is PurchaseState.InProgress,
         snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
-        onRestoreClick = monetizationViewModel::restorePurchases
+        onRestoreClick = monetizationViewModel::restorePurchases,
+        onSignInClick = onSignInClick,
     )
 }
 
@@ -171,6 +173,7 @@ internal fun MembershipDetailsContent(
     isRestoring: Boolean,
     onBackClick: () -> Unit,
     onRestoreClick: () -> Unit,
+    onSignInClick: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val status = resolveMembershipStatus(
@@ -227,7 +230,7 @@ internal fun MembershipDetailsContent(
                         status = status,
                         proExpiryTimestamp = proExpiryTimestamp,
                         storeEntitlement = storeEntitlement,
-                        onUpgradeClick = upgradeToPro
+                        onUpgradeClick = if (status == MembershipStatus.OFFLINE) onSignInClick else upgradeToPro
                     )
                 }
 

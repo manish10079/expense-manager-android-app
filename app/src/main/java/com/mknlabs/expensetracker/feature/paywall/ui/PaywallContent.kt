@@ -763,127 +763,151 @@ private fun PayProcessingSpinner(dark: Boolean) {
 
 @Composable
 private fun PurchaseSuccessOverlay(dark: Boolean, onConfirm: () -> Unit) {
-    val overlay = if (dark) {
-        Brush.radialGradient(
-            colors = listOf(PaywallBrandStart.copy(alpha = 0.55f), Color.Black.copy(alpha = 0.88f)),
-            center = Offset.Unspecified,
-        )
-    } else {
-        Brush.radialGradient(
-            colors = listOf(PaywallBrandStart.copy(alpha = 0.28f), PaywallScreenLight.copy(alpha = 0.94f)),
-        )
-    }
-    val infinite = rememberInfiniteTransition(label = "proShine")
-    val shine by infinite.animateFloat(
-        initialValue = 1.2f,
-        targetValue = -1.2f,
-        animationSpec = infiniteRepeatable(tween(2400, easing = LinearEasing), RepeatMode.Restart),
-        label = "shine",
-    )
+    val cardBg = if (dark) Color(0xFF1A1038) else Color(0xFF5B3FD6)
+    val infinite = rememberInfiniteTransition(label = "proSuccess")
     val tilt by infinite.animateFloat(
         initialValue = -8f,
         targetValue = 8f,
-        animationSpec = infiniteRepeatable(tween(2400, easing = LinearEasing), RepeatMode.Reverse),
-        label = "tilt",
+        animationSpec = infiniteRepeatable(
+            animation = tween(2400, delayMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "crownTilt",
+    )
+    val crownScale by infinite.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2400, delayMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "crownScale",
+    )
+    val glow by infinite.animateFloat(
+        initialValue = 0.45f,
+        targetValue = 0.75f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, delayMillis = 500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "crownGlow",
     )
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(overlay),
-        contentAlignment = Alignment.Center,
-    ) {
-        LoopingConfettiCanvas(modifier = Modifier.fillMaxSize())
-        Column(
-            modifier = Modifier
-                .width(280.dp)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .graphicsLayer { alpha = 0.55f }
-                    .background(
-                        Brush.radialGradient(
-                            listOf(Color(0x73FFD778), PaywallBrandStart.copy(alpha = 0.15f), Color.Transparent),
-                        ),
-                        CircleShape,
+            .drawBehind {
+                val center = Offset(size.width * 0.5f, size.height * 0.38f)
+                val radius = size.maxDimension * 0.85f
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = if (dark) {
+                            listOf(PaywallBrandStart.copy(alpha = 0.55f), Color.Black.copy(alpha = 0.88f))
+                        } else {
+                            listOf(PaywallBrandStart.copy(alpha = 0.28f), PaywallScreenLight.copy(alpha = 0.94f))
+                        },
+                        center = center,
+                        radius = radius,
                     ),
-            )
-            Box(
-                modifier = Modifier
-                    .offset(y = (-120).dp)
-                    .size(88.dp)
-                    .graphicsLayer {
-                        rotationZ = tilt
-                        scaleX = 1.08f
-                        scaleY = 1.08f
-                    }
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(paywallBrandGradient()),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = PhosphorIcons.Regular.Crown,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(38.dp),
                 )
             }
-            Text(
-                text = stringResource(R.string.paywall_youre_pro_now),
-                style = TextStyle(
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    lineHeight = 28.sp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF5B3FD6),
-                            Color(0xFFA78BFA),
-                            Color.White,
-                            Color(0xFFFFE08A),
-                            Color.White,
-                            Color(0xFFC4B5FD),
-                            Color(0xFF6A4DFF),
-                        ),
-                        start = Offset(shine * 400f, 0f),
-                        end = Offset(shine * 400f + 280f, 80f),
-                    ),
-                ),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.offset(y = (-100).dp),
-            )
-            Text(
-                text = stringResource(R.string.paywall_congrats_purchase),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (dark) PaywallSlate300 else Color(0xFF1E293B),
-                modifier = Modifier.offset(y = (-90).dp),
-            )
-            Text(
-                text = stringResource(R.string.paywall_invested_in_yourself),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (dark) Color.White else Color(0xFF0F172A),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.offset(y = (-80).dp),
-            )
-            Box(
-                modifier = Modifier
-                    .offset(y = (-64).dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(paywallBrandGradient())
-                    .clickable(onClick = onConfirm)
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.paywall_start_using_pro),
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                )
+            .padding(22.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        AppCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = AppCardColors(
+                containerColor = cardBg,
+                contentColor = Color.White,
+                border = BorderStroke(1.5.dp, Color.White.copy(alpha = if (dark) 0.12f else 0.20f)),
+            ),
+            elevation = 18.dp,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 24.dp),
+        ) {
+            Box {
+                LoopingConfettiCanvas(modifier = Modifier.matchParentSize())
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(88.dp)
+                            .drawBehind {
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        listOf(
+                                            Color(0x73FFD778),
+                                            PaywallBrandStart.copy(alpha = 0.15f),
+                                            Color.Transparent,
+                                        ),
+                                    ),
+                                    radius = size.maxDimension,
+                                )
+                            }
+                            .graphicsLayer {
+                                shadowElevation = 24f * glow
+                                rotationZ = tilt
+                                scaleX = crownScale
+                                scaleY = crownScale
+                            }
+                            .clip(RoundedCornerShape(28.dp))
+                            .background(paywallBrandGradient()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.Crown,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(38.dp),
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.paywall_youre_pro_now),
+                        color = Color.White,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = (-0.8).sp,
+                        lineHeight = 30.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.paywall_congrats_purchase),
+                        color = Color.White.copy(alpha = 0.95f),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.paywall_invested_in_yourself),
+                        color = Color.White.copy(alpha = 0.90f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 16.sp,
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(10.dp, RoundedCornerShape(12.dp), ambientColor = PaywallBrandStart.copy(alpha = 0.4f), spotColor = PaywallBrandStart.copy(alpha = 0.4f))
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .clickable(onClick = onConfirm)
+                            .padding(vertical = 14.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.paywall_start_using_pro),
+                            color = Color(0xFF5B3FD6),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    }
+                }
             }
         }
     }
