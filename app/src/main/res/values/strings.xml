@@ -4067,6 +4067,7 @@
 
     <!-- My Membership & Subscription Feature -->
 
+    <string name="label_offline">Offline</string>
     <string name="label_backup_sync_is_off">Backup &amp; Sync is OFF</string>
     <string name="label_turn_on">Sign in</string>
     <string name="label_sign_in_keep_data_safe">Sign in to keep your data safe.</string>

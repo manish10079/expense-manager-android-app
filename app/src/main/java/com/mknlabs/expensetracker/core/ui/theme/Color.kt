@@ -696,3 +696,45 @@ val ColorScheme.menu: Color
 
 val ColorScheme.glow: Color
     get() = if (isDark) HeroBloomDark else HeroBloomLight
+
+// ── Settings profile hero (hero_card.html) ───────────────────────────────────
+internal val SettingsHeroGlassStartDark = Color(0xE016161C)
+internal val SettingsHeroGlassEndDark = Color(0xF50E0E12)
+internal val SettingsHeroGlassStartLight = Color(0xEBFFFFFF)
+internal val SettingsHeroGlassEndLight = Color(0xF5F5F7FA)
+internal val SettingsHeroHairlineDark = Color(0x14FFFFFF)
+internal val SettingsHeroHairlineLight = Color(0x14000000)
+internal val SettingsHeroSheenDark = Color(0x1FFFFFFF)
+internal val SettingsHeroSheenLight = Color(0xE6FFFFFF)
+internal val SettingsHeroAvatarRose = Color(0xFFF43F5E)
+internal val SettingsHeroAvatarPurple = Color(0xFFA855F7)
+internal val SettingsHeroAvatarIndigo = Color(0xFF6366F1)
+internal val SettingsHeroSweepSkyDark = Color(0x4738BDF8)
+internal val SettingsHeroSweepSkyLight = Color(0x520EA5E9)
+internal val SettingsHeroSweepVioletDark = Color(0xFF8B5CF6)
+internal val SettingsHeroSweepVioletLight = Color(0xFF7C3AED)
+internal val SettingsHeroSweepCoralDark = Color(0xFFFF6363)
+internal val SettingsHeroSweepCoralLight = Color(0xFFEF4444)
+internal val SettingsHeroProBadgeStart = Color(0xFFF43F5E)
+internal val SettingsHeroProBadgeEnd = Color(0xFF9333EA)
+
+val ColorScheme.settingsHeroGlassStart: Color
+    get() = if (isDark) SettingsHeroGlassStartDark else SettingsHeroGlassStartLight
+
+val ColorScheme.settingsHeroGlassEnd: Color
+    get() = if (isDark) SettingsHeroGlassEndDark else SettingsHeroGlassEndLight
+
+val ColorScheme.settingsHeroHairline: Color
+    get() = if (isDark) SettingsHeroHairlineDark else SettingsHeroHairlineLight
+
+val ColorScheme.settingsHeroSheen: Color
+    get() = if (isDark) SettingsHeroSheenDark else SettingsHeroSheenLight
+
+val ColorScheme.settingsHeroSweepSky: Color
+    get() = if (isDark) SettingsHeroSweepSkyDark else SettingsHeroSweepSkyLight
+
+val ColorScheme.settingsHeroSweepViolet: Color
+    get() = if (isDark) SettingsHeroSweepVioletDark else SettingsHeroSweepVioletLight
+
+val ColorScheme.settingsHeroSweepCoral: Color
+    get() = if (isDark) SettingsHeroSweepCoralDark else SettingsHeroSweepCoralLight

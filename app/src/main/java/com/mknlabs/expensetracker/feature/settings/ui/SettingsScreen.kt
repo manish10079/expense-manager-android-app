@@ -290,7 +290,11 @@ fun SettingsScreenContent(
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
                     item {
-                        Box(Modifier.alpha(enter[1])) {
+                        Box(
+                            Modifier
+                                .padding(top = Dimens.spacingCompact)
+                                .alpha(enter[1])
+                        ) {
                         ProfileCard(
                             name = userProfile.fullName,
                             email = userProfile.emailAddress,
