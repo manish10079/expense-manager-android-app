@@ -1,0 +1,25 @@
+package com.mknlabs.expensetracker.feature.auth.ui
+
+import androidx.compose.ui.graphics.Color
+
+internal val AuthSheetDark = Color(0xFF121318)
+internal val AuthSheetLight = Color(0xFFFFFFFF)
+internal val AuthHandleDark = Color.White.copy(alpha = 0.25f)
+internal val AuthHandleLight = Color.Black.copy(alpha = 0.20f)
+internal val AuthInputFillDark = Color(0xFF1A1C23)
+internal val AuthInputFillLight = Color(0xFFF8FAFC)
+internal val AuthInputBorderDark = Color(0xFF2B2F3E)
+internal val AuthInputBorderLight = Color(0xFFE2E8F0)
+internal val AuthGoogleFillDark = Color(0xFF1A1C23)
+internal val AuthGoogleFillLight = Color(0xFFFFFFFF)
+internal val AuthGoogleBorderDark = Color(0xFF2B2F3E)
+internal val AuthGoogleBorderLight = Color(0xFFCBD5E1)
+internal val AuthLinkDark = Color(0xFFA28CFF)
+internal val AuthMutedDark = Color(0xFF9CA3AF)
+internal val AuthMutedLight = Color(0xFF6B7280)
+internal val AuthDividerDark = Color(0xFF1F2937)
+internal val AuthDividerLight = Color(0xFFE5E7EB)
+internal val AuthTitleLight = Color(0xFF111827)
+internal val AuthPlaceholderDark = Color(0xFF4B5563)
+internal val AuthPlaceholderLight = Color(0xFF9CA3AF)
+internal val AuthFocusGlow = Color(0xFF6A4DFF)

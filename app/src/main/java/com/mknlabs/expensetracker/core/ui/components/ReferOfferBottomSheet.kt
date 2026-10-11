@@ -1,10 +1,13 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -14,12 +17,16 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,11 +60,28 @@ fun ReferOfferBottomSheet(
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
-            Button(onClick = onRefer, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.btn_refer_now))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(brandGradient())
+                    .clickable(onClick = onRefer)
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_refer_now),
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_maybe_later))
+                Text(
+                    text = stringResource(R.string.btn_maybe_later),
+                    color = MaterialTheme.colorScheme.accentInk,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }

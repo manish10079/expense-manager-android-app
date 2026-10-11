@@ -1576,6 +1576,15 @@
 
     <string name="desc_sync_and_premium_features">Sign in to enable cross-device sync and access premium features safely.</string>
 
+    <string name="auth_welcome">Welcome</string>
+    <string name="auth_signup_subtitle">Sign up below to create your account and get started.</string>
+    <string name="auth_signin_subtitle">Sign in to access your saved preferences and account.</string>
+    <string name="auth_forgot">Forgot password</string>
+    <string name="label_recommended">RECOMMENDED</string>
+    <string name="auth_connecting_google">Connecting to Google…</string>
+    <string name="auth_authenticating">Authenticating…</string>
+    <string name="auth_already_have_account">Already have an account?</string>
+    <string name="auth_dont_have_account">Don\'t have an account?</string>
     <string name="label_continue_with_google">Continue with Google</string>
 
     <string name="content_desc_google_logo">Google</string>

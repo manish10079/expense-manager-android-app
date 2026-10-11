@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker
 
 import com.mknlabs.expensetracker.core.ui.theme.sheet
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 import android.Manifest
 import android.content.Context
@@ -1437,16 +1438,24 @@ fun MainScreen(
                     authViewModel.resetState()
                 },
                 sheetState = authSheetState,
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = if (MaterialTheme.colorScheme.isDark) {
+                    com.mknlabs.expensetracker.feature.auth.ui.AuthSheetDark
+                } else {
+                    com.mknlabs.expensetracker.feature.auth.ui.AuthSheetLight
+                },
                 contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
                 dragHandle = {
                     Box(
                         modifier = Modifier
                             .padding(vertical = 12.dp)
-                            .size(32.dp, 4.dp)
+                            .size(48.dp, 6.dp)
                             .background(
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                                RoundedCornerShape(2.dp)
+                                if (MaterialTheme.colorScheme.isDark) {
+                                    com.mknlabs.expensetracker.feature.auth.ui.AuthHandleDark
+                                } else {
+                                    com.mknlabs.expensetracker.feature.auth.ui.AuthHandleLight
+                                },
+                                RoundedCornerShape(50)
                             )
                     )
                 }
