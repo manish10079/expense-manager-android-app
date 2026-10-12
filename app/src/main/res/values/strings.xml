@@ -1665,6 +1665,7 @@
 
     <string name="content_desc_copy_history">Copy calculation</string>
 
+    <string name="msg_history_long_press_hint">Long-press a card for more options.</string>
     <string name="msg_calculator_history_empty">No calculations yet</string>
 
     <string name="msg_clear_history_confirm">Clear all calculator history? This action cannot be undone.</string>
@@ -1673,9 +1674,12 @@
 
     <string name="toast_history_copied">Calculation copied to clipboard</string>
 
+    <string name="title_quick_action">Quick Action</string>
+    <string name="msg_history_quick_action_caption">Pick what to do with this calculation. You can change it anytime.</string>
     <string name="label_copy_expression">Copy Expression</string>
 
     <string name="label_copy_result">Copy Result</string>
+    <string name="label_copy_expression_and_result">Copy Expression + Result</string>
 
     <string name="label_delete_entry">Delete Entry</string>
 

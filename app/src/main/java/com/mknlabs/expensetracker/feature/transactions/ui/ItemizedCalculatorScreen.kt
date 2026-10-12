@@ -42,7 +42,6 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.History
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -107,6 +106,8 @@ import android.widget.Toast
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
+import com.mknlabs.expensetracker.core.ui.components.QuickActionCard
+import com.mknlabs.expensetracker.core.ui.components.QuickActionOption
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -1548,6 +1549,11 @@ private fun CalculatorHistorySheet(
                         )
                     }
                 }
+                Text(
+                    text = stringResource(id = R.string.msg_history_long_press_hint),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
@@ -1568,88 +1574,56 @@ private fun CalculatorHistorySheet(
         )
     }
 
-    if (selectedLongPressEntry != null) {
-        val entry = selectedLongPressEntry!!
-        AlertDialog(
-            onDismissRequest = { selectedLongPressEntry = null },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = "${entry.expression} = ${entry.result}",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    AppTextButton(
-                        onClick = {
+    selectedLongPressEntry?.let { entry ->
+        Dialog(onDismissRequest = { selectedLongPressEntry = null }) {
+            QuickActionCard(
+                title = stringResource(R.string.title_quick_action),
+                caption = stringResource(R.string.msg_history_quick_action_caption),
+                options = listOf(
+                    QuickActionOption("copy_expr", stringResource(R.string.label_copy_expression), Icons.Filled.ContentCopy),
+                    QuickActionOption("copy_result", stringResource(R.string.label_copy_result), Icons.Filled.ContentCopy),
+                    QuickActionOption("copy_both", stringResource(R.string.label_copy_expression_and_result), Icons.Filled.ContentCopy),
+                    QuickActionOption("delete", stringResource(R.string.label_delete_entry), Icons.Filled.Delete)
+                ),
+                selectedId = null,
+                onSelect = { id ->
+                    when (id) {
+                        "copy_expr" -> {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_expression), entry.expression))
                             Toast.makeText(context, context.getString(R.string.toast_expression_copied), Toast.LENGTH_SHORT).show()
                             selectedLongPressEntry = null
                             onDismiss()
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.accentInk, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(stringResource(R.string.label_copy_expression), color = MaterialTheme.colorScheme.onSurface)
                         }
-                    }
-
-                    AppTextButton(
-                        onClick = {
+                        "copy_result" -> {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.label_copy_result), entry.result))
                             Toast.makeText(context, context.getString(R.string.toast_result_copied), Toast.LENGTH_SHORT).show()
                             selectedLongPressEntry = null
                             onDismiss()
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.accentInk, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(stringResource(R.string.label_copy_result), color = MaterialTheme.colorScheme.onSurface)
                         }
-                    }
-
-                    AppTextButton(
-                        onClick = {
+                        "copy_both" -> {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(
+                                ClipData.newPlainText(
+                                    context.getString(R.string.label_copy_expression_and_result),
+                                    "${entry.expression} = ${entry.result}"
+                                )
+                            )
+                            Toast.makeText(context, context.getString(R.string.toast_history_copied), Toast.LENGTH_SHORT).show()
+                            selectedLongPressEntry = null
+                            onDismiss()
+                        }
+                        "delete" -> {
                             onDeleteEntry(entry.timestampMillis)
                             Toast.makeText(context, context.getString(R.string.toast_entry_deleted), Toast.LENGTH_SHORT).show()
                             selectedLongPressEntry = null
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(stringResource(R.string.label_delete_entry), color = MaterialTheme.colorScheme.error)
                         }
                     }
-                }
-            },
-            confirmButton = {}
-        )
+                },
+                headerIcon = Icons.Rounded.History
+            )
+        }
     }
 }
 

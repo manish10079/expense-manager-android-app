@@ -1,7 +1,5 @@
 package com.mknlabs.expensetracker.core.ui.components
 
-import com.mknlabs.expensetracker.core.ui.theme.sheet
-
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -155,21 +153,26 @@ fun UpdateDialog(
             usePlatformDefaultWidth = false,
         ),
         modifier = Modifier.width(metrics.maxWidth),
-        containerColor = MaterialTheme.colorScheme.sheet,
-        icon = {
-            Icon(
-                imageVector = Icons.Rounded.RocketLaunch,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(metrics.iconSize)
-            )
-        },
+        containerColor = AppCardDefaults.colors().containerColor,
         title = {
-            Text(
-                text = titleText(info),
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.RocketLaunch,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.accentInk,
+                    modifier = Modifier.size(metrics.iconSize)
+                )
+                Text(
+                    text = titleText(info),
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         },
         text = {
             MessageBody(
@@ -437,18 +440,24 @@ private fun PreviewWithWindowInfo(
 @Composable
 private fun UpdateDialogContent(info: UpdateInfo) {
     val scrollState = rememberScrollState()
-    Icon(
-        imageVector = Icons.Rounded.RocketLaunch,
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.accentInk,
-        modifier = Modifier.size(32.dp)
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    Text(
-        text = titleText(info),
-        style = MaterialTheme.typography.headlineSmall,
-        textAlign = TextAlign.Center
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.RocketLaunch,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.accentInk,
+            modifier = Modifier.size(32.dp)
+        )
+        Text(
+            text = titleText(info),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.weight(1f)
+        )
+    }
     Spacer(modifier = Modifier.height(12.dp))
     Box(
         modifier = Modifier
@@ -491,7 +500,8 @@ private fun buildRemoteConfigMessage(): String = listOf(
 private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        tonalElevation = 3.dp,
+        color = AppCardDefaults.colors().containerColor,
+        tonalElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(24.dp)) {

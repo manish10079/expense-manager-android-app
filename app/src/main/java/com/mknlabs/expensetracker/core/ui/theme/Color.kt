@@ -195,6 +195,13 @@ val NamedCreateCaptionLight = Color(0xFF64748B)
 val NamedCreateCaptionDark = Color(0xFF94A3B8)
 val NamedCreateTitleDark = Color(0xFFF1F5F9)
 val NamedCreatePlaceholder = Color(0xFF94A3B8)
+val QuickActionAmberFill = Color(0x1AF59E0B)
+val QuickActionAmberInkLight = Color(0xFFD97706)
+val QuickActionAmberInkDark = Color(0xFFFBBF24)
+val QuickActionOptionInkLight = Color(0xFF334155)
+val QuickActionOptionInkDark = Color(0xFFE2E8F0)
+val QuickActionSelectedFill = Color(0x1A6A4DFF)
+val QuickActionSelectedInk = Color(0xFF6A4DFF)
 
 // One bloom, at the accent's own hue. 22% over a near-black card reads as light
 // catching the corner; the same alpha on white would read as a stain, so light takes
