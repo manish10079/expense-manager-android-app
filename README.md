@@ -4,7 +4,7 @@
 
 **An elegant, offline-first personal finance app for Android — built with Jetpack Compose & Material 3.**
 
-![Version](https://img.shields.io/badge/version-2.209.0-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
+![Version](https://img.shields.io/badge/version-2.210.0-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
 
 <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="App icon" />
 
@@ -16,12 +16,14 @@
 
 ## 📱 About
 
-**Expense Tracker: Budget & Spend** is a privacy-focused personal finance app. Track daily spending in seconds with an optimized keypad, plan monthly budgets, visualize your habits with rich analytics, and keep your data secure with PIN/biometric app lock. The app is **offline-first** — your data never leaves your device unless you choose to sign in and enable cross-device cloud sync.
+**Expense Tracker: Budget & Spend** is a privacy-focused personal finance app whose **SMS-based money management** is a core, optional feature: with `RECEIVE_SMS`, incoming bank / UPI / wallet debit-credit messages are parsed **on-device** and listed as suggested transactions you review before anything is saved. You can also log spending with an optimized keypad, plan monthly budgets, visualize habits with analytics, and lock the app with PIN/biometrics. The app is **offline-first** — your data never leaves the device unless you sign in and enable cloud sync.
+
+The app is **not** a default SMS handler, does **not** request `READ_SMS` or `SEND_SMS`, does **not** send 5-digit payment SMS or use SMS for OTP/fraud, and does **not** upload SMS content. Non-financial SMS (OTP, promo, no amount) are ignored.
 
 | | |
 |---|---|
 | **Application ID** | `com.mknlabs.expensetracker` |
-| **Version** | 2.209.0 |
+| **Version** | 2.210.0 |
 | **Min SDK / Target SDK** | 24 / 36 |
 | **Language** | 100% Kotlin |
 | **UI** | Jetpack Compose (Material 3) |
@@ -39,6 +41,12 @@
 ---
 
 ## ✨ Features
+
+### 💬 SMS-based money management (optional)
+- Optional **`RECEIVE_SMS` only** — off until you grant it on Home; deny and the feature stays off
+- Incoming **bank / UPI / wallet** SMS are parsed locally; OTP, promo, and messages with no amount are dropped
+- Suggestions appear under **Detected Transactions** (Home ⋮). Tap a card to open Add Transaction, edit if needed, then press **Add**. Swipe deletes a suggestion. Nothing is booked without that confirmation
+- SMS bodies are **not uploaded, sold, or shared**. Confirmed transactions follow the same local (and optional cloud-sync) path as keypad entries
 
 ### 🧾 Transactions
 - Log **income & expenses** in seconds with a dedicated amount keypad

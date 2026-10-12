@@ -72,8 +72,8 @@ class TokenParityTest {
     fun `semantic amount inks match the spec in both themes`() {
         assertEquals(Color(0xFF2DD4BF), dark.tertiary)        // --income dark
         assertEquals(Color(0xFF0D9488), light.tertiary)       // --income light
-        assertEquals(Color(0xFFFF7597), dark.error)           // --expense dark
-        assertEquals(Color(0xFFE11D48), light.error)          // --expense light
+        assertEquals(Color(0xFFF43F5E), dark.error)           // --expense dark
+        assertEquals(Color(0xFFF43F5E), light.error)          // --expense light
         assertEquals(Color(0xFF5EEAD4), dark.savings)         // --savings dark
         assertEquals(Color(0xFF0F766E), light.savings)        // --savings light
         assertEquals(Color(0xFFFBBF24), dark.invest)          // --invest dark

@@ -25,12 +25,12 @@ val DividerDark = Color(0xFF2A2A31)   // spec --line
 // the dark violet card, where the previous pastels washed out against the surface and
 // read as decoration rather than as the one number the row exists to show.
 val IncomeInkDark = Color(0xFF2DD4BF)
-val ExpenseInkDark = Color(0xFFFF7597)
+val ExpenseInkDark = Color(0xFFF43F5E)
 
 // Amount inks for white surfaces. Same hue family as the dark pair above, deepened
 // until both clear 4.5:1 on white.
 val IncomeInkLight = Color(0xFF0D9488)  // teal, pair to dark IncomeInkDark
-val ExpenseInkLight = Color(0xFFE11D48) // rose, pair to dark ExpenseInkDark
+val ExpenseInkLight = Color(0xFFF43F5E) // rose, pair to dark ExpenseInkDark
 
 // Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
 // themes, which the pastel income/expense tones above are too light to do.
@@ -164,6 +164,23 @@ val BrandGradientStartLight = Color(0xFF6A4DFF)
 val BrandGradientStartDark = Color(0xFF6A4DFF)
 val BrandGradientCompanionLight = Color(0xFF6750A4)
 val BrandGradientCompanionDark = Color(0xFF6750A4)
+
+// Modern confirmation dialog chrome (HTML modern variant). Card fill/outline
+// come from AppCardDefaults; these are unique to that mock.
+val ModernConfirmCloseFillLight = Color(0xFFF1F5F9)
+val ModernConfirmCloseFillDark = Color(0xFF1E293B)
+val ModernConfirmCloseGlyph = Color(0xFF94A3B8)
+val ModernConfirmTitleLight = Color(0xFF0F172A)
+val ModernConfirmTitleDark = Color(0xFFFFFFFF)
+val ModernConfirmBodyLight = Color(0xFF475569)
+val ModernConfirmBodyDark = Color(0xFFCBD5E1)
+val ModernConfirmEmphasisLight = Color(0xFF0F172A)
+val ModernConfirmEmphasisDark = Color(0xFFFFFFFF)
+val ModernConfirmBrandShadow = Color(0x406A4DFF)
+// Expense ink is a faded amount colour; a filled delete CTA needs a denser red.
+val ModernConfirmDeleteFill = Color(0xFFF43F5E)
+val ModernConfirmCardShadowLight = Color(0x330F172A)
+val ModernConfirmCardShadowDark = Color(0xCC020617)
 
 // One bloom, at the accent's own hue. 22% over a near-black card reads as light
 // catching the corner; the same alpha on white would read as a stain, so light takes
