@@ -48,7 +48,6 @@ import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.TouchApp
-import androidx.compose.material.icons.automirrored.rounded.PlaylistAddCheck
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Deselect
@@ -57,8 +56,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -117,6 +114,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -134,7 +132,6 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.transparent
 import com.mknlabs.expensetracker.utils.UiText
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -252,9 +249,6 @@ fun SmsInboxRoute(
         onSelectAll = viewModel::onSelectAll,
         onClearSelection = viewModel::onClearSelection,
         onAdd = viewModel::onAddDetection,
-        onAddAll = viewModel::onRequestAddAll,
-        onCancelAddAll = viewModel::onCancelAddAll,
-        onConfirmAddAll = viewModel::onConfirmAddAll,
         onEditBeforeAdd = viewModel::onOpenEditor,
         onRequestDelete = viewModel::onRequestDelete,
         onRequestDeleteSelected = viewModel::onRequestDeleteSelected,
@@ -290,9 +284,6 @@ private fun SmsInboxContent(
     onSelectAll: () -> Unit = {},
     onClearSelection: () -> Unit = {},
     onAdd: (String) -> Unit = {},
-    onAddAll: () -> Unit = {},
-    onCancelAddAll: () -> Unit = {},
-    onConfirmAddAll: () -> Unit = {},
     onEditBeforeAdd: (SmsInboxItemUi) -> Unit = {},
     onRequestDelete: (String) -> Unit = {},
     onRequestDeleteSelected: () -> Unit = {},
@@ -384,52 +375,15 @@ private fun SmsInboxContent(
     }
 
     if (uiState.pendingDeleteIds.isNotEmpty()) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = onCancelDelete,
-            title = { Text(stringResource(id = R.string.label_sms_inbox_delete_title)) },
-            text = { Text(stringResource(id = R.string.label_sms_inbox_delete_body)) },
-            confirmButton = {
-                AppTextButton(onClick = onConfirmDelete) {
-                    Text(
-                        text = stringResource(id = R.string.action_delete),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = onCancelDelete) {
-                    Text(stringResource(id = R.string.action_cancel))
-                }
-            }
-        )
-    }
-
-    // Bulk add writes real transactions for a whole screen at once and has no undo, so the
-    // count and the consequences are confirmed before anything is written.
-    if (uiState.pendingAddAllIds.isNotEmpty()) {
-        val pendingCount = uiState.pendingAddAllIds.size
-        AlertDialog(
-            onDismissRequest = onCancelAddAll,
-            title = {
-                Text(
-                    pluralStringResource(
-                        R.plurals.label_sms_inbox_add_all_title,
-                        pendingCount,
-                        pendingCount
-                    )
-                )
-            },
-            text = { Text(stringResource(id = R.string.label_sms_inbox_add_all_body)) },
-            confirmButton = {
-                AppTextButton(onClick = onConfirmAddAll) {
-                    Text(stringResource(id = R.string.action_add_all))
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = onCancelAddAll) {
-                    Text(stringResource(id = R.string.action_cancel))
-                }
-            }
+            title = stringResource(id = R.string.label_sms_inbox_delete_title),
+            subtitle = stringResource(id = R.string.label_sms_inbox_delete_subtitle),
+            text = stringResource(id = R.string.label_sms_inbox_delete_body),
+            confirmButtonText = stringResource(id = R.string.action_delete),
+            onConfirm = onConfirmDelete,
+            headerIcon = Icons.Rounded.Delete,
+            headerIconContentDescription = stringResource(id = R.string.desc_delete)
         )
     }
 

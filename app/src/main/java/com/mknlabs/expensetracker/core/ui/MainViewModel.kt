@@ -89,7 +89,9 @@ class MainViewModel @Inject constructor(
     private val checkBudgetUseCase: com.mknlabs.expensetracker.domain.usecase.CheckBudgetUseCase,
     private val favoriteTransactionRepository: FavoriteTransactionRepository,
     private val tagRepository: com.mknlabs.expensetracker.domain.repository.TagRepository,
-    private val attachSmsDetectionToTransaction: com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.AttachSmsDetectionToTransactionUseCase
+    private val attachSmsDetectionToTransaction: com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.AttachSmsDetectionToTransactionUseCase,
+    private val syncRepository: com.mknlabs.expensetracker.domain.repository.SyncRepository,
+    private val database: com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainDataUiState())
@@ -547,18 +549,18 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                // 1. Delete Firebase Account if logged in
                 val user = authRepository.currentUser.value
-                if (user != null) {
-                    authRepository.deleteAccount()
+                val isSignedInAccount = user != null && !user.isAnonymous
+                if (isSignedInAccount) {
+                    syncRepository.deleteAllCloudDataForCurrentUser().getOrThrow()
+                    authRepository.deleteAccount().getOrThrow()
                 }
 
-                // 2. Wipe Local Database
                 withContext(Dispatchers.IO) {
-                    transactionRepository.deleteAllTransactions()
+                    database.clearAllTables()
+                    com.mknlabs.expensetracker.data.local.room.ExpenseTrackerDatabaseInitializer.initialize(database)
                 }
 
-                // 3. Clear Local Preferences (DataStore)
                 com.mknlabs.expensetracker.data.local.AppSettingsDataStore.clearAll(appContext)
                 com.mknlabs.expensetracker.data.local.UserProfileDataStore.clearAll(appContext)
                 com.mknlabs.expensetracker.data.local.AppLockPreferences.clearAll(appContext)

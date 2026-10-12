@@ -31,7 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -292,15 +292,14 @@ fun ReferAFriendContent(
     }
 
     if (showHelp) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showHelp = false },
-            title = { Text(stringResource(R.string.title_referral_rules)) },
-            text = { Text(stringResource(R.string.msg_referral_rules)) },
-            confirmButton = {
-                TextButton(onClick = { showHelp = false }) {
-                    Text(stringResource(R.string.btn_got_it))
-                }
-            }
+            title = stringResource(R.string.title_referral_rules),
+            text = stringResource(R.string.msg_referral_rules),
+            confirmButtonText = stringResource(R.string.btn_got_it),
+            onConfirm = { showHelp = false },
+            headerIcon = PhosphorIcons.Regular.Question,
+            showDismissButton = false
         )
     }
     val refereeExpiry = state.welcomeExpiryMillis

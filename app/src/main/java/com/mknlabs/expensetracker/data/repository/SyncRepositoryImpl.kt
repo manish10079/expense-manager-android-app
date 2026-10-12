@@ -312,6 +312,43 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteAllCloudDataForCurrentUser(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val uid = firebaseAuth.currentUser?.uid
+                ?: return@withContext Result.success(Unit)
+            val userDoc = firestore.collection("users").document(uid)
+            val collections = listOf(
+                "devices",
+                "transactions",
+                "tags",
+                "transaction_tags",
+                "categories",
+                "budgets",
+                "payment_methods",
+                "recurring_rules",
+                "installment_occurrences",
+                "goals",
+                "funds",
+                "favorite_transactions"
+            )
+            for (name in collections) {
+                val col = userDoc.collection(name)
+                while (true) {
+                    val snap = col.limit(400).get().await()
+                    if (snap.isEmpty) break
+                    val batch = firestore.batch()
+                    snap.documents.forEach { batch.delete(it.reference) }
+                    batch.commit().await()
+                }
+            }
+            userDoc.delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("Sync", "deleteAllCloudDataForCurrentUser failed", e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun forceSyncTransactions(): Result<Unit> = withContext(Dispatchers.IO) {
         val uid = firebaseAuth.currentUser?.uid ?: return@withContext Result.failure(Exception("User not logged in"))
         try {

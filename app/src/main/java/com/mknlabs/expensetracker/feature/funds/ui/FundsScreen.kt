@@ -33,7 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -84,6 +84,7 @@ import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
@@ -118,6 +119,7 @@ import com.mknlabs.expensetracker.domain.mapper.toTransactionCardItemUi
 import com.mknlabs.expensetracker.domain.repository.FundDefaults
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
+import com.mknlabs.expensetracker.models.Fund
 import com.mknlabs.expensetracker.models.FundStatus
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -210,7 +212,7 @@ fun FundsScreen(
     }
 
     var isCreateSheetVisible by rememberSaveable { mutableStateOf(false) }
-    var isEditAmountVisible by rememberSaveable { mutableStateOf(false) }
+    var editingFund by remember { mutableStateOf<Fund?>(null) }
     var pendingDelete by remember { mutableStateOf<FundWithProgress?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -235,56 +237,67 @@ fun FundsScreen(
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
             isProUser = isProUser,
             onDismiss = { viewModel.closeFund() },
-            onEditAmount = { isEditAmountVisible = true },
+            onEditAmount = {
+                editingFund = selected.fund
+                viewModel.closeFund()
+                isCreateSheetVisible = true
+            },
             onArchiveToggle = { viewModel.setArchived(selected.fund.id, !selected.fund.isArchived) },
             onDelete = { pendingDelete = selected }
         )
     }
 
     if (isCreateSheetVisible) {
+        val editing = editingFund
         CreateFundSheet(
             currencyId = currencyId,
             amountFormatPreferences = amountFormatPreferences,
             categories = categories,
-            onDismiss = { isCreateSheetVisible = false },
-            onCreate = { name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId ->
-                viewModel.createFund(name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId)
+            existingFund = editing,
+            onDismiss = {
+                val reopenId = editingFund?.id
                 isCreateSheetVisible = false
-                // The new bucket is ordered first. Request a scroll to top, which
-                // will fire via LaunchedEffect as soon as the new fund is emitted
-                // to uiState.funds.
-                pendingScrollToTop = true
-            }
-        )
-    }
-
-    if (isEditAmountVisible && selected != null) {
-        EditAmountDialog(
-            current = selected,
-            onDismiss = { isEditAmountVisible = false },
-            onConfirm = { amountMinor ->
-                viewModel.updateFundAmount(selected.fund.id, amountMinor)
-                isEditAmountVisible = false
+                editingFund = null
+                if (reopenId != null) viewModel.openFund(reopenId)
+            },
+            onCreate = { name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId ->
+                if (editing != null) {
+                    viewModel.updateFundDetails(
+                        fundId = editing.id,
+                        name = name,
+                        amountMinor = amountMinor,
+                        iconKey = iconKey,
+                        colorHex = colorHex,
+                        note = note
+                    )
+                    isCreateSheetVisible = false
+                    editingFund = null
+                    viewModel.openFund(editing.id)
+                } else {
+                    viewModel.createFund(name, amountMinor, startDate, iconKey, colorHex, note, incomeCategoryId)
+                    isCreateSheetVisible = false
+                    // The new bucket is ordered first. Request a scroll to top, which
+                    // will fire via LaunchedEffect as soon as the new fund is emitted
+                    // to uiState.funds.
+                    pendingScrollToTop = true
+                }
             }
         )
     }
 
     pendingDelete?.let { fund ->
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(id = R.string.title_delete_fund)) },
-            text = { Text(stringResource(id = R.string.msg_delete_fund_body, fund.fund.name)) },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    viewModel.deleteFund(fund.fund.id)
-                    pendingDelete = null
-                }) { Text(stringResource(id = R.string.label_delete)) }
+            title = stringResource(id = R.string.title_delete_fund),
+            text = stringResource(id = R.string.msg_delete_fund_body, fund.fund.name),
+            confirmButtonText = stringResource(id = R.string.label_delete),
+            onConfirm = {
+                viewModel.deleteFund(fund.fund.id)
+                pendingDelete = null
             },
-            dismissButton = {
-                AppTextButton(onClick = { pendingDelete = null }) {
-                    Text(stringResource(id = R.string.label_cancel))
-                }
-            }
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(id = R.string.label_cancel),
+            onDismiss = { pendingDelete = null }
         )
     }
 }
@@ -452,32 +465,16 @@ private fun FundSummaryCard(
 
 @Composable
 private fun FundsInfoDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.sheet,
-            tonalElevation = 0.dp
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = stringResource(id = R.string.title_what_are_funds),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(id = R.string.msg_funds_what),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(id = R.string.msg_funds_how),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+    ModernConfirmationDialog(
+        onDismissRequest = onDismiss,
+        title = stringResource(id = R.string.title_what_are_funds),
+        text = stringResource(id = R.string.msg_funds_what) + "\n\n" + stringResource(id = R.string.msg_funds_how),
+        confirmButtonText = stringResource(id = R.string.label_close),
+        onConfirm = onDismiss,
+        headerIcon = PhosphorIcons.Regular.Info,
+        showDismissButton = false,
+        extraContent = {
+            Column {
                 Text(
                     text = stringResource(id = R.string.label_funds_example),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -492,28 +489,11 @@ private fun FundsInfoDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = stringResource(id = R.string.msg_funds_example),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(20.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(brandGradient())
-                        .clickable(onClick = onDismiss)
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.label_close),
-                        color = MaterialTheme.colorScheme.onBrandGradient,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -941,15 +921,22 @@ internal fun CreateFundSheet(
     amountFormatPreferences: AmountFormatPreferences,
     categories: List<CategoryType>,
     onDismiss: () -> Unit,
-    onCreate: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String, incomeCategoryId: Int) -> Unit
+    onCreate: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String, incomeCategoryId: Int) -> Unit,
+    existingFund: Fund? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var name by rememberSaveable { mutableStateOf("") }
-    var amountText by rememberSaveable { mutableStateOf("") }
-    var note by rememberSaveable { mutableStateOf("") }
-    var iconKey by rememberSaveable { mutableStateOf("gift") }
-    var colorHex by rememberSaveable { mutableStateOf("") }
-    val startDate = remember { System.currentTimeMillis() }
+    val editKey = existingFund?.id
+    var name by rememberSaveable(editKey) { mutableStateOf(existingFund?.name.orEmpty()) }
+    var amountText by rememberSaveable(editKey) {
+        mutableStateOf(
+            existingFund?.amount?.let { if (it % 1.0 == 0.0) it.toLong().toString() else it.toString() }.orEmpty()
+        )
+    }
+    var note by rememberSaveable(editKey) { mutableStateOf(existingFund?.note.orEmpty()) }
+    var iconKey by rememberSaveable(editKey) { mutableStateOf(existingFund?.iconKey ?: "gift") }
+    var colorHex by rememberSaveable(editKey) { mutableStateOf(existingFund?.colorHex.orEmpty()) }
+    val startDate = remember(editKey) { existingFund?.startDate ?: System.currentTimeMillis() }
+    val isEditing = existingFund != null
 
     val incomeCategories = remember(categories) {
         val filtered = categories.filter { it.transactionTypeId == 1 }.sortedBy { it.sortOrder }
@@ -976,7 +963,9 @@ internal fun CreateFundSheet(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.title_create_fund),
+                    text = stringResource(
+                        id = if (isEditing) R.string.title_edit_fund else R.string.title_create_fund
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -1007,7 +996,7 @@ internal fun CreateFundSheet(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (incomeCategories.isNotEmpty()) {
+                if (!isEditing && incomeCategories.isNotEmpty()) {
                     Text(
                         text = stringResource(id = R.string.label_income_categories),
                         style = MaterialTheme.typography.labelLarge,
@@ -1112,7 +1101,9 @@ internal fun CreateFundSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = stringResource(id = R.string.title_create_fund),
+                        text = stringResource(
+                            id = if (isEditing) R.string.title_edit_fund else R.string.title_create_fund
+                        ),
                         color = MaterialTheme.colorScheme.onBrandGradient,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -1120,61 +1111,4 @@ internal fun CreateFundSheet(
             }
         }
     }
-}
-
-@Composable
-private fun EditAmountDialog(
-    current: FundWithProgress,
-    onDismiss: () -> Unit,
-    onConfirm: (Long) -> Unit
-) {
-    var amountText by rememberSaveable {
-        mutableStateOf(
-            current.fund.amount.let { if (it % 1.0 == 0.0) it.toLong().toString() else it.toString() }
-        )
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = AppCardDefaults.colors().containerColor,
-        title = { Text(stringResource(id = R.string.label_fund_edit_amount)) },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(id = R.string.msg_fund_edit_amount_updates_income),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = amountText,
-                    onValueChange = { amountText = it },
-                    label = { Text(stringResource(id = R.string.label_fund_amount_field)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    shape = AppOutlinedFieldDefaults.shape,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        focusedTextColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedLabelColor = MaterialTheme.colorScheme.accentInk,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        cursorColor = MaterialTheme.colorScheme.accentInk
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            AppTextButton(
-                enabled = amountText.trim().toDoubleOrNull()?.let { it > 0.0 } == true,
-                onClick = {
-                    amountText.trim().toDoubleOrNull()?.takeIf { it > 0.0 }?.let { onConfirm(it.toMinorUnits()) }
-                }
-            ) { Text(stringResource(id = R.string.label_save)) }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) { Text(stringResource(id = R.string.label_cancel_1)) }
-        }
-    )
 }

@@ -40,9 +40,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +74,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.AppLockPreferences
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
@@ -1275,49 +1278,26 @@ fun MainScreen(
     }
 
     if (showAdExpiryWarningDialog && isUiInteractive) {
-            AlertDialog(
-                onDismissRequest = { /* No-op to make persistent */ },
-                properties = androidx.compose.ui.window.DialogProperties(
-                    dismissOnBackPress = false,
-                    dismissOnClickOutside = false
+            ModernConfirmationDialog(
+                onDismissRequest = { showAdExpiryWarningDialog = false },
+                title = stringResource(id = R.string.title_ad_expiry_warning),
+                text = stringResource(
+                    id = R.string.msg_ad_expiry_warning,
+                    adExpiryMinutesRemaining,
+                    adPassDuration
                 ),
-                containerColor = MaterialTheme.colorScheme.sheet,
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.title_ad_expiry_warning),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.msg_ad_expiry_warning,
-                            adExpiryMinutesRemaining,
-                            adPassDuration
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showAdExpiryWarningDialog = false
-                            if (activity != null) {
-                                monetizationViewModel.onWatchAdFreeClicked(activity)
-                            }
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(id = R.string.btn_extend_now))
+                confirmButtonText = stringResource(id = R.string.btn_extend_now),
+                onConfirm = {
+                    showAdExpiryWarningDialog = false
+                    if (activity != null) {
+                        monetizationViewModel.onWatchAdFreeClicked(activity)
                     }
                 },
-                dismissButton = {
-                    AppTextButton(onClick = { showAdExpiryWarningDialog = false }) {
-                        Text(stringResource(id = R.string.btn_maybe_later))
-                    }
-                }
+                headerIcon = Icons.Rounded.PlayArrow,
+                dismissButtonText = stringResource(id = R.string.btn_maybe_later),
+                onDismiss = { showAdExpiryWarningDialog = false },
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
             )
         }
 
@@ -1330,65 +1310,30 @@ fun MainScreen(
                     }
                 }
             }
-            AlertDialog(
+            ModernConfirmationDialog(
                 onDismissRequest = acknowledgeIntegrityNotice,
-                containerColor = MaterialTheme.colorScheme.sheet,
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.title_device_integrity_notice),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(id = R.string.msg_device_integrity_notice),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    AppTextButton(onClick = acknowledgeIntegrityNotice) {
-                        Text(stringResource(id = R.string.btn_got_it))
-                    }
-                }
+                title = stringResource(id = R.string.title_device_integrity_notice),
+                text = stringResource(id = R.string.msg_device_integrity_notice),
+                confirmButtonText = stringResource(id = R.string.btn_got_it),
+                onConfirm = acknowledgeIntegrityNotice,
+                headerIcon = Icons.Rounded.Security,
+                showDismissButton = false
             )
         }
 
         if (showLogoutDialog && isUiInteractive) {
-            AlertDialog(
+            ModernConfirmationDialog(
                 onDismissRequest = { showLogoutDialog = false },
-                containerColor = MaterialTheme.colorScheme.sheet,
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.label_logout),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                    )
+                title = stringResource(id = R.string.label_logout),
+                text = stringResource(id = R.string.msg_logout_confirm),
+                confirmButtonText = stringResource(id = R.string.label_logout),
+                onConfirm = {
+                    showLogoutDialog = false
+                    authViewModel.signOut()
                 },
-                text = {
-                    Text(
-                        text = stringResource(id = R.string.msg_logout_confirm),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    AppTextButton(
-                        onClick = {
-                            showLogoutDialog = false
-                            authViewModel.signOut()
-                        },
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) {
-                        Text(text = stringResource(id = R.string.label_logout), fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    AppTextButton(onClick = { showLogoutDialog = false }) {
-                        Text(text = stringResource(id = R.string.label_cancel_1))
-                    }
-                }
+                headerIcon = Icons.AutoMirrored.Rounded.Logout,
+                dismissButtonText = stringResource(id = R.string.label_cancel_1),
+                onDismiss = { showLogoutDialog = false }
             )
         }
 

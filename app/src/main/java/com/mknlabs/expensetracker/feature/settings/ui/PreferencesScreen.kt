@@ -40,15 +40,20 @@ import com.adamglin.phosphoricons.regular.PushPin
 import com.adamglin.phosphoricons.regular.Ruler
 import com.adamglin.phosphoricons.regular.SlidersHorizontal
 import com.adamglin.phosphoricons.regular.TextAa
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -544,33 +549,21 @@ private fun FontPickerSheet(
     var showDeleteDialog by remember { mutableStateOf<String?>(null) }
 
     showDeleteDialog?.let { fileName ->
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text(stringResource(R.string.msg_delete_font_title)) },
-            text = {
-                Text(
-                    stringResource(
-                        R.string.msg_delete_font_desc,
-                        com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName)
-                    )
-                )
+            title = stringResource(R.string.msg_delete_font_title),
+            text = stringResource(
+                R.string.msg_delete_font_desc,
+                com.mknlabs.expensetracker.utils.FontFileHelper.fontDisplayName(fileName)
+            ),
+            confirmButtonText = stringResource(R.string.label_delete),
+            onConfirm = {
+                onDeleteFont(fileName)
+                showDeleteDialog = null
             },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    onDeleteFont(fileName)
-                    showDeleteDialog = null
-                }) {
-                    Text(
-                        text = stringResource(R.string.label_delete),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { showDeleteDialog = null }) {
-                    Text(stringResource(R.string.label_cancel))
-                }
-            }
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(R.string.label_cancel),
+            onDismiss = { showDeleteDialog = null }
         )
     }
 
@@ -669,25 +662,38 @@ private fun FontPickerSheet(
             ) { status, onClick ->
                 val accessLevel = FeatureRegistry.getAccessLevel(Feature.CUSTOM_FONT)
                 val isGated = status !is AccessStatus.Granted
-                Button(
-                    onClick = onClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = canImport,
-                    shape = RoundedCornerShape(16.dp)
+                val shape = RoundedCornerShape(16.dp)
+                val ink = MaterialTheme.colorScheme.onBrandGradient
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape)
+                        .background(brush = brandGradient())
+                        .then(
+                            if (canImport) Modifier.clickable(onClick = onClick)
+                            else Modifier.alpha(0.45f)
+                        )
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = PhosphorIcons.Regular.DownloadSimple,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (isGated) {
-                            if (accessLevel == AccessLevel.AD_SUPPORTED) stringResource(R.string.label_watch_ad) else stringResource(R.string.label_pro_required)
-                        } else {
-                            stringResource(R.string.label_import_font)
-                        }
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.DownloadSimple,
+                            contentDescription = null,
+                            tint = ink,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isGated) {
+                                if (accessLevel == AccessLevel.AD_SUPPORTED) stringResource(R.string.label_watch_ad) else stringResource(R.string.label_pro_required)
+                            } else {
+                                stringResource(R.string.label_import_font)
+                            },
+                            color = ink,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 

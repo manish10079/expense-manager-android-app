@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ConfirmationNumber
 import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -128,86 +127,32 @@ fun ProPassRedeemDialogContent(
     onDismiss: () -> Unit,
     onVerifyEmail: () -> Unit = {}
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-    val sheetBg = if (isDark) Color(0xFF1C1C24) else Color(0xFFFFFFFF)
-
     if (hasActiveStoreSubscription) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = onDismiss,
-            containerColor = sheetBg,
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.ConfirmationNumber,
-                    contentDescription = null,
-                    tint = PrimaryGradientStart,
-                    modifier = Modifier.size(32.dp)
-                )
-            },
-            title = {
-                Text(
-                    text = stringResource(id = R.string.title_pro_pass_subscribed),
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.msg_pro_pass_subscribed),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isDark) Color(0xFF9E9EA9) else Color(0xFF626270),
-                    textAlign = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                Button(onClick = onDismiss) {
-                    Text(text = stringResource(id = R.string.btn_ok))
-                }
-            },
-            shape = RoundedCornerShape(20.dp)
+            title = stringResource(id = R.string.title_pro_pass_subscribed),
+            text = stringResource(id = R.string.msg_pro_pass_subscribed),
+            confirmButtonText = stringResource(id = R.string.btn_ok),
+            onConfirm = onDismiss,
+            headerIcon = Icons.Rounded.ConfirmationNumber,
+            showDismissButton = false
         )
         return
     }
 
     if (!isEmailVerified) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = onDismiss,
-            containerColor = sheetBg,
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.Email,
-                    contentDescription = null,
-                    tint = PrimaryGradientStart,
-                    modifier = Modifier.size(32.dp)
-                )
+            title = stringResource(id = R.string.dialog_verify_email_title),
+            text = stringResource(id = R.string.dialog_verify_email_pro_pass),
+            confirmButtonText = stringResource(id = R.string.label_verify_now),
+            onConfirm = {
+                onVerifyEmail()
+                onDismiss()
             },
-            title = {
-                Text(
-                    text = stringResource(id = R.string.dialog_verify_email_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.dialog_verify_email_pro_pass),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isDark) Color(0xFF9E9EA9) else Color(0xFF626270),
-                    textAlign = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                Button(onClick = {
-                    onVerifyEmail()
-                    onDismiss()
-                }) {
-                    Text(text = stringResource(id = R.string.label_verify_now))
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = onDismiss) {
-                    Text(text = stringResource(id = R.string.label_later))
-                }
-            }
+            headerIcon = Icons.Rounded.Email,
+            dismissButtonText = stringResource(id = R.string.label_later),
+            onDismiss = onDismiss
         )
         return
     }

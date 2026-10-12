@@ -81,6 +81,8 @@ fun DataManagementScreen(
     val mainViewModel: com.mknlabs.expensetracker.core.ui.MainViewModel = hiltViewModel()
     val currentUser by mainViewModel.currentUser.collectAsStateWithLifecycle()
     val isAnonymous = currentUser?.isAnonymous ?: true
+    val isSignedOut = currentUser == null
+    val isSignedInAccount = currentUser != null && currentUser?.isAnonymous != true
     val isGoogleAccount = currentUser?.providerData?.any { it.providerId == "google.com" } == true
     val isEmailVerified = currentUser?.isEmailVerified == true || isGoogleAccount
 
@@ -101,6 +103,8 @@ fun DataManagementScreen(
         autoBackupFrequencyDays = autoBackupFrequencyDays,
         isAdsEnabled = isAdsEnabled,
         isAnonymous = isAnonymous,
+        isSignedOut = isSignedOut,
+        isSignedInAccount = isSignedInAccount,
         onAutoBackupEnabledChange = wrappedAutoBackupChange,
         onAutoBackupFrequencyChange = onAutoBackupFrequencyChange,
         onDatabaseBackupFileSelected = onDatabaseBackupFileSelected,
@@ -123,6 +127,8 @@ private fun DataManagementContent(
     autoBackupFrequencyDays: Int,
     isAdsEnabled: Boolean,
     isAnonymous: Boolean,
+    isSignedOut: Boolean = false,
+    isSignedInAccount: Boolean = false,
     onAutoBackupEnabledChange: (Boolean) -> Unit,
     onAutoBackupFrequencyChange: (Int) -> Unit,
     onDatabaseBackupFileSelected: (Uri) -> Unit,
@@ -378,7 +384,7 @@ private fun DataManagementContent(
                         }
                         SettingsGroupDivider()
                         SettingsItemCard(
-                            title = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
+                            title = stringResource(id = if (isSignedInAccount) R.string.label_delete_account_and_data else R.string.label_delete_all_data),
                             subtitle = stringResource(id = R.string.desc_delete_all_data_subtitle),
                             icon = PhosphorIcons.Regular.Trash,
                             type = SettingsItemType.Button,
@@ -394,90 +400,42 @@ private fun DataManagementContent(
     }
 
     if (isDeleteTransactionsDialogVisible) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { isDeleteTransactionsDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(id = if (isAnonymous) R.string.label_delete_all_data else R.string.label_delete_account_and_data),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.desc_delete_data_warning),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        isDeleteTransactionsDialogVisible = false
-                        onDeleteAllTransactionsClick()
-                    }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.label_delete_all),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
+            title = stringResource(
+                id = if (isSignedInAccount) R.string.label_delete_account_and_data else R.string.label_delete_all_data
+            ),
+            text = stringResource(
+                id = when {
+                    isSignedInAccount -> R.string.desc_delete_account_and_data_warning
+                    isSignedOut -> R.string.desc_delete_data_signed_out_warning
+                    else -> R.string.desc_delete_data_guest_warning
                 }
+            ),
+            confirmButtonText = stringResource(id = R.string.label_delete_all),
+            onConfirm = {
+                isDeleteTransactionsDialogVisible = false
+                onDeleteAllTransactionsClick()
             },
-            dismissButton = {
-                AppTextButton(onClick = { isDeleteTransactionsDialogVisible = false }) {
-                    Text(
-                        text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.accentInk,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            headerIcon = PhosphorIcons.Regular.Trash,
+            dismissButtonText = stringResource(id = R.string.label_cancel_1),
+            onDismiss = { isDeleteTransactionsDialogVisible = false }
         )
     }
 
     pendingRestoreUri?.let { selectedUri ->
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { pendingRestoreUri = null },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(id = R.string.label_restore_database),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
+            title = stringResource(id = R.string.label_restore_database),
+            text = stringResource(id = R.string.label_this_will_overwrite_your_curre),
+            confirmButtonText = stringResource(id = R.string.title_restore),
+            onConfirm = {
+                pendingRestoreUri = null
+                onDatabaseRestoreFileSelected(selectedUri)
             },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.label_this_will_overwrite_your_curre),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        pendingRestoreUri = null
-                        onDatabaseRestoreFileSelected(selectedUri)
-                    }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.title_restore),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { pendingRestoreUri = null }) {
-                    Text(
-                        text = stringResource(id = R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.accentInk,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            headerIcon = PhosphorIcons.Regular.ArrowCounterClockwise,
+            dismissButtonText = stringResource(id = R.string.label_cancel_1),
+            onDismiss = { pendingRestoreUri = null }
         )
     }
     

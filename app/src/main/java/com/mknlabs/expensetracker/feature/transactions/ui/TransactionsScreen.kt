@@ -61,7 +61,6 @@ import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.TrendingDown
 import androidx.compose.material.icons.rounded.TrendingUp
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -131,6 +130,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_SORT_BY
@@ -1214,44 +1214,30 @@ private fun TransactionScreenContent(
     }
 
     if (showDeleteConfirmation) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text(stringResource(R.string.label_delete_transactions)) },
-            text = { Text(stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size)) },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        deleteSelectedTransactions()
-                        showDeleteConfirmation = false
-                    }
-                ) {
-                    Text(stringResource(R.string.label_delete_confirm), color = MaterialTheme.colorScheme.error)
-                }
+            title = stringResource(R.string.label_delete_transactions),
+            text = stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size),
+            confirmButtonText = stringResource(R.string.label_delete_confirm),
+            onConfirm = {
+                deleteSelectedTransactions()
+                showDeleteConfirmation = false
             },
-            dismissButton = {
-                AppTextButton(onClick = { showDeleteConfirmation = false }) {
-                    Text(stringResource(R.string.label_cancel_confirm))
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(R.string.label_cancel_confirm),
+            onDismiss = { showDeleteConfirmation = false }
         )
     }
 
     if (showRecurringDuplicateDialog) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showRecurringDuplicateDialog = false },
-            title = { Text(stringResource(R.string.title_cannot_duplicate_recurring)) },
-            text = { Text(stringResource(R.string.msg_cannot_duplicate_recurring)) },
-            confirmButton = {
-                AppTextButton(onClick = { showRecurringDuplicateDialog = false }) {
-                    Text(stringResource(R.string.label_ok), fontWeight = FontWeight.Bold)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            title = stringResource(R.string.title_cannot_duplicate_recurring),
+            text = stringResource(R.string.msg_cannot_duplicate_recurring),
+            confirmButtonText = stringResource(R.string.label_ok),
+            onConfirm = { showRecurringDuplicateDialog = false },
+            headerIcon = Icons.Filled.ContentCopy,
+            showDismissButton = false
         )
     }
 

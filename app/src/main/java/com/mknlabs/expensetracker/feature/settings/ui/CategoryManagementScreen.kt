@@ -51,7 +51,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -94,6 +93,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.Transaction
@@ -465,54 +465,32 @@ private fun CategoryManagementContent(
     // Delete confirmation dialog
     if (showDeleteDialog && pendingDeleteItem != null) {
         val (item, tab) = pendingDeleteItem!!
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = {
                 showDeleteDialog = false
                 pendingDeleteItem = null
             },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(R.string.label_delete_confirm),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(R.string.msg_delete_category_confirm, item.title),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    showDeleteDialog = false
-                    when (tab) {
-                        CategoryManagementTab.Income,
-                        CategoryManagementTab.Expense -> {
-                            onDeleteCustomCategory(item.id)
-                        }
-                        CategoryManagementTab.Payment -> {
-                            onDeleteCustomPaymentType(item.id)
-                        }
+            title = stringResource(R.string.label_delete_confirm),
+            text = stringResource(R.string.msg_delete_category_confirm, item.title),
+            confirmButtonText = stringResource(R.string.label_delete_confirm),
+            onConfirm = {
+                showDeleteDialog = false
+                when (tab) {
+                    CategoryManagementTab.Income,
+                    CategoryManagementTab.Expense -> {
+                        onDeleteCustomCategory(item.id)
                     }
-                    pendingDeleteItem = null
-                }) {
-                    Text(
-                        text = stringResource(R.string.label_delete_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
+                    CategoryManagementTab.Payment -> {
+                        onDeleteCustomPaymentType(item.id)
+                    }
                 }
+                pendingDeleteItem = null
             },
-            dismissButton = {
-                AppTextButton(onClick = {
-                    showDeleteDialog = false
-                    pendingDeleteItem = null
-                }) {
-                    Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
-                }
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(R.string.label_cancel_confirm),
+            onDismiss = {
+                showDeleteDialog = false
+                pendingDeleteItem = null
             }
         )
     }

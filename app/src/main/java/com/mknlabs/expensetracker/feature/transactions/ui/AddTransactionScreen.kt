@@ -159,6 +159,7 @@ import com.mknlabs.expensetracker.core.ui.components.PeriodChipColors
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
@@ -1414,51 +1415,33 @@ internal fun AddTransactionScreenContent(
 
         // Duplicate warning dialog
         if (showDuplicateWarning && duplicateWarningMessage != null) {
-            AlertDialog(
+            ModernConfirmationDialog(
                 onDismissRequest = {
                     showDuplicateWarning = false
                     duplicateWarningMessage = null
                     pendingSaveTransaction = null
                     pendingSaveDraft = null
                 },
-                containerColor = MaterialTheme.colorScheme.sheet,
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_cannot_duplicate_recurring),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                title = stringResource(R.string.title_cannot_duplicate_recurring),
+                text = duplicateWarningMessage ?: "",
+                confirmButtonText = stringResource(R.string.label_yes),
+                onConfirm = {
+                    showDuplicateWarning = false
+                    duplicateWarningMessage = null
+                    val tx = pendingSaveTransaction
+                    val draft = pendingSaveDraft
+                    pendingSaveTransaction = null
+                    pendingSaveDraft = null
+                    keyboardController?.hide()
+                    if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
                 },
-                text = {
-                    Text(
-                        text = duplicateWarningMessage ?: "",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    AppTextButton(onClick = {
-                        showDuplicateWarning = false
-                        duplicateWarningMessage = null
-                        val tx = pendingSaveTransaction
-                        val draft = pendingSaveDraft
-                        pendingSaveTransaction = null
-                        pendingSaveDraft = null
-                        keyboardController?.hide()
-                        if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                    }) {
-                        Text(stringResource(R.string.label_yes), fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    AppTextButton(onClick = {
-                        showDuplicateWarning = false
-                        duplicateWarningMessage = null
-                        pendingSaveTransaction = null
-                        pendingSaveDraft = null
-                    }) {
-                        Text(stringResource(R.string.label_no), fontWeight = FontWeight.Bold)
-                    }
+                headerIcon = Icons.Filled.ContentCopy,
+                dismissButtonText = stringResource(R.string.label_no),
+                onDismiss = {
+                    showDuplicateWarning = false
+                    duplicateWarningMessage = null
+                    pendingSaveTransaction = null
+                    pendingSaveDraft = null
                 }
             )
         }

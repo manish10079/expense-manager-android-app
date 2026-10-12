@@ -35,6 +35,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -82,35 +83,20 @@ private fun FeedbackScreenContent(
     val scrollState = rememberScrollState()
 
     if (uiState.isSuccess) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = {
                 onDismissSuccess()
                 onBackClick()
             },
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.accentInk,
-                    modifier = Modifier.size(48.dp)
-                )
+            title = stringResource(R.string.msg_feedback_success),
+            text = "",
+            confirmButtonText = stringResource(android.R.string.ok),
+            onConfirm = {
+                onDismissSuccess()
+                onBackClick()
             },
-            title = {
-                Text(
-                    text = stringResource(R.string.msg_feedback_success),
-                    textAlign = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        onDismissSuccess()
-                        onBackClick()
-                    }
-                ) {
-                    Text(stringResource(android.R.string.ok))
-                }
-            }
+            headerIcon = Icons.Rounded.CheckCircle,
+            showDismissButton = false
         )
     }
 

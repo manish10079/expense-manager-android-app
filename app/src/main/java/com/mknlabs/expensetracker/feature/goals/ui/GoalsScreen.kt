@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.outlined.Edit
@@ -45,6 +46,7 @@ import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
@@ -321,37 +323,15 @@ fun DeleteGoalDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    AlertDialog(
+    ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        shape = AppDialogDefaults.shape(),
-        containerColor = AppDialogDefaults.containerColor(),
-        title = {
-            Text(
-                text = stringResource(R.string.title_delete_goal),
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            Text(
-                text = stringResource(R.string.msg_delete_goal_confirm, goalName),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        confirmButton = {
-            AppTextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(R.string.label_delete_1),
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        dismissButton = {
-            AppDialogDismissButton(
-                text = stringResource(R.string.label_cancel_1),
-                onClick = onDismiss
-            )
-        }
+        title = stringResource(R.string.title_delete_goal),
+        text = stringResource(R.string.msg_delete_goal_confirm, goalName),
+        confirmButtonText = stringResource(R.string.label_delete_1),
+        onConfirm = onConfirm,
+        headerIcon = Icons.Filled.Delete,
+        dismissButtonText = stringResource(R.string.label_cancel_1),
+        onDismiss = onDismiss
     )
 }
 

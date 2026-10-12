@@ -159,6 +159,31 @@ class FundsViewModel @Inject constructor(
         }
     }
 
+    fun updateFundDetails(
+        fundId: String,
+        name: String,
+        amountMinor: Long,
+        iconKey: String,
+        colorHex: String,
+        note: String
+    ) {
+        viewModelScope.launch {
+            val existing = fundRepository.getFundById(fundId) ?: return@launch
+            if (amountMinor != existing.amountMinor) {
+                fundRepository.updateFundAmount(fundId, amountMinor)
+            }
+            val latest = fundRepository.getFundById(fundId) ?: return@launch
+            fundRepository.updateFund(
+                latest.copy(
+                    name = name.trim(),
+                    iconKey = iconKey,
+                    colorHex = colorHex,
+                    note = note.trim()
+                )
+            )
+        }
+    }
+
     fun setArchived(fundId: String, archived: Boolean) {
         viewModelScope.launch { fundRepository.setArchived(fundId, archived) }
     }

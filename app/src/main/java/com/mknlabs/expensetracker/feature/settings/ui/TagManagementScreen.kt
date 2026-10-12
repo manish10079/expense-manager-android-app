@@ -1,7 +1,9 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import com.adamglin.phosphoricons.regular.MagnifyingGlass
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.IconButton
@@ -46,9 +48,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CallMerge
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.AlertDialog
@@ -91,6 +94,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
@@ -98,6 +102,9 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.chip
+import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
@@ -214,100 +221,7 @@ internal fun TagManagementContent(
             )
 
             Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
-                // The two bulk actions read as the period chips on Analytics: one option
-                // per chip, the active one filled. Tapping the active chip leaves the mode,
-                // so the same control that enters selection is the one that cancels it.
-                if (uiState.items.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val action = selectionAction
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        PeriodChip(
-                            label = stringResource(R.string.label_merge_tags),
-                            isSelected = action == TagSelectionAction.MERGE,
-                            onClick = {
-                                if (action == TagSelectionAction.MERGE) {
-                                    exitSelection()
-                                } else {
-                                    enterSelection(TagSelectionAction.MERGE)
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                        PeriodChip(
-                            label = stringResource(R.string.label_delete_tags),
-                            isSelected = action == TagSelectionAction.DELETE,
-                            onClick = {
-                                if (action == TagSelectionAction.DELETE) {
-                                    exitSelection()
-                                } else {
-                                    enterSelection(TagSelectionAction.DELETE)
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    if (action != null) {
-                        val hasEnoughSelected = if (action == TagSelectionAction.MERGE) {
-                            selectedIds.size >= 2
-                        } else {
-                            selectedIds.isNotEmpty()
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    if (action == TagSelectionAction.MERGE) {
-                                        R.string.msg_select_tags_to_merge
-                                    } else {
-                                        R.string.msg_select_tags_to_delete
-                                    }
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Button(
-                                onClick = {
-                                    when (action) {
-                                        TagSelectionAction.MERGE -> showMergeTargetDialog = true
-                                        TagSelectionAction.DELETE -> showDeleteConfirm = true
-                                    }
-                                },
-                                enabled = hasEnoughSelected,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.accentInk,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                ),
-                                shape = RoundedCornerShape(16.dp),
-                                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
-                            ) {
-                                Text(
-                                    text = if (action == TagSelectionAction.MERGE) {
-                                        stringResource(R.string.label_merge_selected, selectedIds.size)
-                                    } else {
-                                        stringResource(R.string.label_delete_selected, selectedIds.size)
-                                    },
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                Spacer(modifier = Modifier.height(16.dp))
 
                 val visibleTags = (if (searchQuery.isBlank()) {
                     uiState.items
@@ -418,7 +332,7 @@ internal fun TagManagementContent(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 120.dp),
+                        contentPadding = PaddingValues(bottom = 200.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(items = visibleTags, key = { it.id }) { item ->
@@ -433,8 +347,7 @@ internal fun TagManagementContent(
                                 },
                                 onColorClick = { colorEditingItem = item },
                                 onRenameClick = { renameEditingItem = item },
-                                onDeleteClick = { enterSelection(TagSelectionAction.DELETE, item.id) },
-                                onMergeClick = { enterSelection(TagSelectionAction.MERGE, item.id) }
+                                onDeleteClick = { enterSelection(TagSelectionAction.DELETE, item.id) }
                             )
                         }
                     }
@@ -442,15 +355,156 @@ internal fun TagManagementContent(
             }
         }
 
-        BrandAddFab(
-            onClick = { showCreateDialog = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .navigationBarsPadding()
-                .padding(end = 22.dp, bottom = 28.dp),
-            contentDescription = stringResource(R.string.desc_add_tag),
-            shadowElevation = 22.dp
-        )
+        if (uiState.items.isNotEmpty()) {
+            val action = selectionAction
+            if (action == null) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = Dimens.ScreenPadding)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        PeriodChip(
+                            label = stringResource(R.string.label_merge_tags),
+                            isSelected = false,
+                            onClick = { enterSelection(TagSelectionAction.MERGE) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        PeriodChip(
+                            label = stringResource(R.string.label_delete_tags),
+                            isSelected = false,
+                            onClick = { enterSelection(TagSelectionAction.DELETE) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            } else {
+                val scheme = MaterialTheme.colorScheme
+                val chipShape = RoundedCornerShape(12.dp)
+                val allIds = uiState.items.map { it.id }.toSet()
+                val allSelected = allIds.isNotEmpty() && allIds.all { it in selectedIds }
+                val canAct = if (action == TagSelectionAction.MERGE) {
+                    selectedIds.size >= 2
+                } else {
+                    selectedIds.isNotEmpty()
+                }
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(),
+                    color = scheme.background.copy(alpha = 0.95f),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 8.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.5f)))
+                            .navigationBarsPadding()
+                            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_sms_inbox_selected_count, selectedIds.size),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = scheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(
+                                id = if (allSelected) {
+                                    R.string.action_sms_inbox_deselect_all
+                                } else {
+                                    R.string.action_sms_inbox_select_all
+                                }
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface,
+                            modifier = Modifier
+                                .clip(chipShape)
+                                .background(scheme.chip)
+                                .border(BorderStroke(1.dp, scheme.chipOutline), chipShape)
+                                .clickable {
+                                    selectedIds = if (allSelected) emptySet() else allIds
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        val actionEnabled = canAct
+                        Text(
+                            text = if (action == TagSelectionAction.MERGE) {
+                                stringResource(R.string.label_merge_tags)
+                            } else {
+                                stringResource(R.string.action_sms_inbox_delete_selected)
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (action == TagSelectionAction.MERGE) {
+                                scheme.onBrandGradient
+                            } else {
+                                scheme.onError
+                            },
+                            modifier = Modifier
+                                .clip(chipShape)
+                                .background(
+                                    if (action == TagSelectionAction.MERGE) {
+                                        scheme.accentInk
+                                    } else {
+                                        scheme.expense
+                                    }
+                                )
+                                .clickable(enabled = actionEnabled) {
+                                    when (action) {
+                                        TagSelectionAction.MERGE -> showMergeTargetDialog = true
+                                        TagSelectionAction.DELETE -> showDeleteConfirm = true
+                                    }
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .then(if (actionEnabled) Modifier else Modifier.alpha(0.45f))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(scheme.chip)
+                                .clickable { exitSelection() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.desc_exit_selection),
+                                tint = scheme.onSurfaceVariant,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        if (selectionAction == null) {
+            BrandAddFab(
+                onClick = { showCreateDialog = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
+                    .padding(end = 22.dp, bottom = 88.dp),
+                contentDescription = stringResource(R.string.desc_add_tag),
+                shadowElevation = 22.dp
+            )
+        }
     }
 
     if (showCreateDialog) {
@@ -514,41 +568,19 @@ internal fun TagManagementContent(
     }
 
     if (showDeleteConfirm) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(R.string.label_delete_confirm),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
+            title = stringResource(R.string.label_delete_confirm),
+            text = stringResource(R.string.msg_delete_tags_confirm, selectedIds.size),
+            confirmButtonText = stringResource(R.string.label_delete_confirm),
+            onConfirm = {
+                onDeleteTags(selectedIds.toList())
+                showDeleteConfirm = false
+                exitSelection()
             },
-            text = {
-                Text(
-                    text = stringResource(R.string.msg_delete_tags_confirm, selectedIds.size),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    onDeleteTags(selectedIds.toList())
-                    showDeleteConfirm = false
-                    exitSelection()
-                }) {
-                    Text(
-                        text = stringResource(R.string.label_delete_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { showDeleteConfirm = false }) {
-                    Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
-                }
-            }
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(R.string.label_cancel_confirm),
+            onDismiss = { showDeleteConfirm = false }
         )
     }
 }
@@ -562,8 +594,7 @@ private fun TagManagementCard(
     onCardClick: () -> Unit,
     onColorClick: () -> Unit,
     onRenameClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onMergeClick: () -> Unit
+    onDeleteClick: () -> Unit
 ) {
     AppCard(
         modifier = Modifier
@@ -574,12 +605,13 @@ private fun TagManagementCard(
             .clickable(enabled = selectionMode, onClick = onCardClick),
         brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(20.dp),
-        colors = if (isSelected) {
-            AppCardDefaults.colors(
-                darkContainer = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.16f)
-            )
-        } else {
-            AppCardDefaults.colors()
+        colors = run {
+            val base = AppCardDefaults.colors()
+            if (isSelected) {
+                base.copy(border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk))
+            } else {
+                base
+            }
         }
     ) {
         Column(
@@ -620,11 +652,6 @@ private fun TagManagementCard(
                         icon = Icons.Filled.Edit,
                         description = stringResource(R.string.desc_rename_tag, item.name),
                         onClick = onRenameClick
-                    )
-                    IconAction(
-                        icon = Icons.Filled.CallMerge,
-                        description = stringResource(R.string.desc_merge_tag, item.name),
-                        onClick = onMergeClick
                     )
                     IconAction(
                         icon = Icons.Filled.Close,
@@ -895,32 +922,16 @@ private fun BoxScope.TagManagementGlow() {
 
 @Composable
 private fun TagsInfoDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.sheet,
-            tonalElevation = 0.dp
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = stringResource(R.string.title_what_are_tags),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.msg_tags_what),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.msg_tags_where),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+    ModernConfirmationDialog(
+        onDismissRequest = onDismiss,
+        title = stringResource(R.string.title_what_are_tags),
+        text = stringResource(R.string.msg_tags_what) + "\n\n" + stringResource(R.string.msg_tags_where),
+        confirmButtonText = stringResource(R.string.label_close),
+        onConfirm = onDismiss,
+        headerIcon = PhosphorIcons.Regular.Info,
+        showDismissButton = false,
+        extraContent = {
+            Column {
                 Text(
                     text = stringResource(R.string.label_tags_example),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -939,25 +950,9 @@ private fun TagsInfoDialog(onDismiss: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(brandGradient())
-                        .clickable(onClick = onDismiss)
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_close),
-                        color = MaterialTheme.colorScheme.onBrandGradient,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
-    }
+    )
 }
 
 @Preview(showBackground = true, widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Tag Card (Light)")
@@ -991,6 +986,5 @@ private fun TagManagementCardPreviewContent() {
         onColorClick = {},
         onRenameClick = {},
         onDeleteClick = {},
-        onMergeClick = {}
     )
 }

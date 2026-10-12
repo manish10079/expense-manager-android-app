@@ -106,6 +106,7 @@ import android.content.Context
 import android.widget.Toast
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -1552,43 +1553,18 @@ private fun CalculatorHistorySheet(
     }
 
     if (showDeleteConfirm) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(id = R.string.label_clear_history),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
+            title = stringResource(id = R.string.label_clear_history),
+            text = stringResource(id = R.string.msg_clear_history_confirm),
+            confirmButtonText = stringResource(id = R.string.label_delete_confirm),
+            onConfirm = {
+                showDeleteConfirm = false
+                onClearHistory()
             },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.msg_clear_history_confirm),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    showDeleteConfirm = false
-                    onClearHistory()
-                }) {
-                    Text(
-                        text = stringResource(id = R.string.label_delete_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { showDeleteConfirm = false }) {
-                    Text(
-                        text = stringResource(id = R.string.label_cancel_confirm),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            headerIcon = Icons.Filled.Delete,
+            dismissButtonText = stringResource(id = R.string.label_cancel_confirm),
+            onDismiss = { showDeleteConfirm = false }
         )
     }
 

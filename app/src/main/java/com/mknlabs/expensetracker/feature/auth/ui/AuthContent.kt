@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 
 import androidx.compose.material.icons.filled.CheckCircle
 
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 
 import androidx.compose.material.icons.filled.Lock
@@ -40,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 
 import kotlinx.coroutines.launch
 
@@ -225,68 +227,28 @@ fun AuthRoute(
 
 
 
-    // ── No-Google-Accounts dialog ──────────────────────────────────────
-
     if (showNoGoogleAccountsDialog) {
-
-        AlertDialog(
-
+        ModernConfirmationDialog(
             onDismissRequest = { showNoGoogleAccountsDialog = false },
-
-            title = { Text(stringResource(id = R.string.title_google_accounts_not_found)) },
-
-            text = { Text(stringResource(id = R.string.msg_google_accounts_not_found)) },
-
-            confirmButton = {
-
-                AppTextButton(onClick = {
-
-                    showNoGoogleAccountsDialog = false
-
-                    // Open device Settings → Add Google Account
-
-                    viewModel.shouldAttemptAutoSignInAfterReturn = true
-
-                    onPrepareForExternalActivity()
-
-                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
-
-                        putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
-
-                    }
-
-                    context.startActivity(intent)
-
-                }) {
-
-                    Text(stringResource(id = R.string.label_add_account))
-
+            title = stringResource(id = R.string.title_google_accounts_not_found),
+            text = stringResource(id = R.string.msg_google_accounts_not_found),
+            confirmButtonText = stringResource(id = R.string.label_add_account),
+            onConfirm = {
+                showNoGoogleAccountsDialog = false
+                viewModel.shouldAttemptAutoSignInAfterReturn = true
+                onPrepareForExternalActivity()
+                val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
+                    putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
                 }
-
+                context.startActivity(intent)
             },
-
-            dismissButton = {
-
-                AppTextButton(onClick = {
-
-                    showNoGoogleAccountsDialog = false
-
-                    // Retry sign-in — the Credential Manager may succeed on a
-
-                    // second attempt after clearing its stale state.
-
-                    viewModel.signInWithGoogle(context)
-
-                }) {
-
-                    Text(stringResource(id = R.string.label_retry))
-
-                }
-
+            headerIcon = Icons.Filled.AccountCircle,
+            dismissButtonText = stringResource(id = R.string.label_retry),
+            onDismiss = {
+                showNoGoogleAccountsDialog = false
+                viewModel.signInWithGoogle(context)
             }
-
         )
-
     }
 
 

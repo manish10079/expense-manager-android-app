@@ -24,9 +24,11 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,7 +90,11 @@ fun ModernConfirmationDialog(
     subtitle: String? = null,
     dismissButtonText: String? = null,
     onDismiss: () -> Unit = onDismissRequest,
-    headerIconContentDescription: String? = null
+    headerIconContentDescription: String? = null,
+    dismissOnBackPress: Boolean = true,
+    dismissOnClickOutside: Boolean = true,
+    showDismissButton: Boolean = true,
+    extraContent: (@Composable () -> Unit)? = null
 ) {
     val cancelLabel = dismissButtonText ?: stringResource(id = R.string.action_cancel)
 
@@ -96,8 +102,8 @@ fun ModernConfirmationDialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnClickOutside = true,
-            dismissOnBackPress = true
+            dismissOnClickOutside = dismissOnClickOutside,
+            dismissOnBackPress = dismissOnBackPress
         )
     ) {
         ModernConfirmationDialogCard(
@@ -111,7 +117,9 @@ fun ModernConfirmationDialog(
             dismissButtonText = cancelLabel,
             onDismiss = onDismiss,
             onClose = onDismissRequest,
-            headerIconContentDescription = headerIconContentDescription
+            headerIconContentDescription = headerIconContentDescription,
+            showDismissButton = showDismissButton,
+            extraContent = extraContent
         )
     }
 }
@@ -128,7 +136,9 @@ private fun ModernConfirmationDialogCard(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    headerIconContentDescription: String? = null
+    headerIconContentDescription: String? = null,
+    showDismissButton: Boolean = true,
+    extraContent: (@Composable () -> Unit)? = null
 ) {
     val isDark = MaterialTheme.colorScheme.isDark
     val cardColors = AppCardDefaults.colors()
@@ -232,6 +242,12 @@ private fun ModernConfirmationDialogCard(
                 fontWeight = FontWeight.Normal,
                 lineHeight = 22.sp
             )
+            if (extraContent != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                CompositionLocalProvider(LocalContentColor provides bodyColor) {
+                    extraContent()
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -239,13 +255,15 @@ private fun ModernConfirmationDialogCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ModernGradientAction(
-                    text = dismissButtonText,
-                    brush = brandGradient(),
-                    shadow = ModernConfirmBrandShadow,
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f)
-                )
+                if (showDismissButton) {
+                    ModernGradientAction(
+                        text = dismissButtonText,
+                        brush = brandGradient(),
+                        shadow = ModernConfirmBrandShadow,
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 ModernGradientAction(
                     text = confirmButtonText,
                     fill = ModernConfirmDeleteFill,
@@ -271,7 +289,11 @@ fun ModernConfirmationDialog(
     dismissButtonText: String? = null,
     onDismiss: () -> Unit = onDismissRequest,
     headerIconContentDescription: String? = null,
-    emphasizedPhrase: String? = null
+    emphasizedPhrase: String? = null,
+    dismissOnBackPress: Boolean = true,
+    dismissOnClickOutside: Boolean = true,
+    showDismissButton: Boolean = true,
+    extraContent: (@Composable () -> Unit)? = null
 ) {
     val isDark = MaterialTheme.colorScheme.isDark
     val emphasis = if (isDark) {
@@ -290,7 +312,11 @@ fun ModernConfirmationDialog(
         subtitle = subtitle,
         dismissButtonText = dismissButtonText,
         onDismiss = onDismiss,
-        headerIconContentDescription = headerIconContentDescription
+        headerIconContentDescription = headerIconContentDescription,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        showDismissButton = showDismissButton,
+        extraContent = extraContent
     )
 }
 

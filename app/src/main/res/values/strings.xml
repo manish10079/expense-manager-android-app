@@ -86,7 +86,7 @@
 
     <string name="label_watch_a_short_video_to_unlock">Watch a quick story to unlock %1$s for %2$s.</string>
 
-    <string name="label_watch_ad_unlock">Watch &amp; Unlock Peace</string>
+    <string name="label_watch_ad_unlock">Watch &amp; Unlock</string>
 
     <string name="msg_biometric_authentication_is_no">Biometric authentication is not available right now.</string>
 
@@ -413,6 +413,9 @@
     <string name="label_delete_account_and_data">Delete Account &amp; All Data</string>
 
     <string name="desc_delete_data_warning">This will permanently remove all your expenses and budgets. If you are signed in, your account and cloud backups will also be destroyed. This cannot be undone.</string>
+    <string name="desc_delete_data_guest_warning">This only clears data on this device. There is no cloud account to delete.\n\nEverything on this phone will be removed: transactions, budgets, funds, goals, categories, tags, backups, and settings.\n\nThis cannot be undone. Export a backup first if you want to keep a copy.</string>
+    <string name="desc_delete_data_signed_out_warning">Signing out does not delete your account. This only clears data on this device. Your cloud account stays until you sign in and use Delete account &amp; all data, or email us.\n\nEverything on this phone will be removed: transactions, budgets, funds, goals, categories, tags, backups, and settings.\n\nThis cannot be undone. Export a backup first if you want to keep a copy.</string>
+    <string name="desc_delete_account_and_data_warning">This permanently deletes your account and all associated data. It cannot be undone.\n\nWe will:\n• Delete your sign-in account\n• Delete all synced cloud data (transactions, budgets, categories, recurring, goals, payment methods, profile, devices, photos)\n• Clear all data on this device\n\nOther devices will no longer be able to use this account. Export a JSON or database backup first if you want to keep a copy.</string>
 
     <string name="label_this_removes_only_transactions">This will remove all your data permanently. This action is irreversible.</string>
 
@@ -828,8 +831,6 @@
     <string name="desc_custom_range">Custom range</string>
 
     <string name="desc_delete">Delete</string>
-
-    <string name="desc_add_all">Add All</string>
 
     <string name="desc_delete_photo">Delete photo</string>
 
@@ -1849,18 +1850,9 @@
     <string name="label_sms_inbox_empty_body">Bank messages that look like payments appear here — even if you dismiss the notification.</string>
 
     <string name="label_sms_inbox_delete_title">Delete detection?</string>
+    <string name="label_sms_inbox_delete_subtitle">Irreversible inbox action</string>
 
     <string name="label_sms_inbox_delete_body">This removes the saved message from the inbox. Any transaction you already added stays untouched.</string>
-
-    <plurals name="label_sms_inbox_add_all_title">
-
-        <item quantity="one">Add %1$d detected transaction?</item>
-
-        <item quantity="other">Add %1$d detected transactions?</item>
-
-    </plurals>
-
-    <string name="label_sms_inbox_add_all_body">Each message is saved as a transaction with the amount, category and date read from it. Ones already in your ledger are skipped, and nothing is removed from this inbox. You can change or delete them later from the Transactions screen.</string>
 
     <string name="label_sms_inbox_edit_title">Edit before adding</string>
 
@@ -1889,8 +1881,6 @@
     <string name="action_ignore">Ignore</string>
 
     <string name="action_delete">Delete</string>
-
-    <string name="action_add_all">Add all</string>
 
     <string name="action_clear_all">Clear all</string>
     <string name="action_sms_inbox_clear_all_pending">Clear All Pending Transactions</string>
@@ -4521,6 +4511,7 @@
     <string name="desc_funds_info">What funds are and how to use them</string>
     <string name="label_tab_funds">Funds</string>
     <string name="title_create_fund">Create Fund</string>
+    <string name="title_edit_fund">Edit Fund</string>
     <string name="label_fund_name">Fund name</string>
     <string name="label_fund_amount_field">Amount</string>
     <string name="label_fund_start_date_value">Starts %1$s</string>

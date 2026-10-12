@@ -22,10 +22,10 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -95,15 +96,14 @@ internal fun AuthContentBody(
     }
 
     if (showTermsRequiredDialog) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showTermsRequiredDialog = false },
-            title = { Text(stringResource(R.string.title_terms_required)) },
-            text = { Text(stringResource(R.string.msg_agree_terms_required)) },
-            confirmButton = {
-                AppTextButton(onClick = { showTermsRequiredDialog = false }) {
-                    Text(stringResource(R.string.label_ok))
-                }
-            },
+            title = stringResource(R.string.title_terms_required),
+            text = stringResource(R.string.msg_agree_terms_required),
+            confirmButtonText = stringResource(R.string.label_ok),
+            onConfirm = { showTermsRequiredDialog = false },
+            headerIcon = Icons.Filled.Info,
+            showDismissButton = false
         )
     }
 

@@ -79,4 +79,7 @@ interface SyncRepository {
      * Force push local changes and pull cloud changes, ignoring the last sync time.
      */
     suspend fun forceSyncTransactions(): Result<Unit>
+
+    suspend fun deleteAllCloudDataForCurrentUser(): Result<Unit>
 }
+

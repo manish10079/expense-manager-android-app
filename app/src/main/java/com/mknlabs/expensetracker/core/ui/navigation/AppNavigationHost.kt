@@ -10,15 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Email
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.CategoryType
@@ -887,20 +886,17 @@ fun AppNavigationHost(
                 }
             }
             if (showEmailUpdateSuccessDialog) {
-                AlertDialog(
-                    onDismissRequest = {
+                ModernConfirmationDialog(
+                    onDismissRequest = { showEmailUpdateSuccessDialog = false },
+                    title = stringResource(id = R.string.msg_email_updated_success),
+                    text = stringResource(id = R.string.msg_email_updated_success_desc),
+                    confirmButtonText = stringResource(id = R.string.label_ok),
+                    onConfirm = {
                         showEmailUpdateSuccessDialog = false
+                        onDirectSignOut()
                     },
-                    title = { Text(stringResource(id = R.string.msg_email_updated_success)) },
-                    text = { Text(stringResource(id = R.string.msg_email_updated_success_desc)) },
-                    confirmButton = {
-                        AppTextButton(onClick = {
-                            showEmailUpdateSuccessDialog = false
-                            onDirectSignOut()
-                        }) {
-                            Text(stringResource(id = R.string.label_ok))
-                        }
-                    }
+                    headerIcon = Icons.Rounded.Email,
+                    showDismissButton = false
                 )
             }
         }

@@ -45,6 +45,7 @@ import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.domain.repository.RegisteredDevice
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -444,55 +445,30 @@ private fun DeviceListContent(
     }
 
     if (deviceToUnlink != null) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { deviceToUnlink = null },
-            title = { Text(deviceToUnlink!!.modelName) },
-            text = { Text(stringResource(R.string.msg_unlink_device_confirm)) },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        onUnlink(deviceToUnlink!!.id)
-                        deviceToUnlink = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.btn_unlink_device), fontWeight = FontWeight.Bold)
-                }
+            title = deviceToUnlink!!.modelName,
+            text = stringResource(R.string.msg_unlink_device_confirm),
+            confirmButtonText = stringResource(R.string.btn_unlink_device),
+            onConfirm = {
+                onUnlink(deviceToUnlink!!.id)
+                deviceToUnlink = null
             },
-            dismissButton = {
-                AppTextButton(onClick = { deviceToUnlink = null }) {
-                    Text(stringResource(R.string.label_cancel_confirm))
-                }
-            }
+            headerIcon = PhosphorIcons.Regular.LinkBreak,
+            dismissButtonText = stringResource(R.string.label_cancel_confirm),
+            onDismiss = { deviceToUnlink = null }
         )
     }
 
     if (showForceSyncInfo) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showForceSyncInfo = false },
-            title = {
-                Text(
-                    text = stringResource(R.string.title_force_sync),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        text = stringResource(R.string.desc_force_sync),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.desc_last_synced_info),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            },
-            confirmButton = {
-                AppTextButton(onClick = { showForceSyncInfo = false }) {
-                    Text(text = stringResource(R.string.label_ok))
-                }
-            }
+            title = stringResource(R.string.title_force_sync),
+            text = stringResource(R.string.desc_force_sync) + "\n\n" + stringResource(R.string.desc_last_synced_info),
+            confirmButtonText = stringResource(R.string.label_ok),
+            onConfirm = { showForceSyncInfo = false },
+            headerIcon = Icons.Rounded.CloudSync,
+            showDismissButton = false
         )
     }
 }

@@ -47,19 +47,18 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,6 +80,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedButton
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.feature.funds.ui.FundsScreen
 import com.mknlabs.expensetracker.feature.funds.ui.FundsViewModel
 import com.mknlabs.expensetracker.models.BudgetPeriod
@@ -174,6 +174,8 @@ import com.mknlabs.expensetracker.core.ui.theme.budgetOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.budgetNearLimit
 import com.mknlabs.expensetracker.core.ui.theme.budgetOver
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmBodyDark
+import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmBodyLight
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.monetization.AccessStatus
@@ -1735,35 +1737,15 @@ private fun DeleteBudgetDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    AlertDialog(
+    ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        title = {
-            Text(
-                text = stringResource(id = R.string.label_delete_budget),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                )
-            )
-        },
-        text = {
-            Text(stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName))
-        },
-        confirmButton = {
-            AppTextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(id = R.string.label_delete_1),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.label_cancel_1))
-            }
-        }
+        title = stringResource(id = R.string.label_delete_budget),
+        text = stringResource(id = R.string.label_remove_the_budget_for_val_this, budgetName),
+        confirmButtonText = stringResource(id = R.string.label_delete_1),
+        onConfirm = onConfirm,
+        headerIcon = Icons.Filled.Delete,
+        dismissButtonText = stringResource(id = R.string.label_cancel_1),
+        onDismiss = onDismiss
     )
 }
 
@@ -1971,35 +1953,15 @@ private fun DeleteRecurringDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    AlertDialog(
+    ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        title = {
-            Text(
-                text = stringResource(id = R.string.label_delete_recurring),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                )
-            )
-        },
-        text = {
-            Text(stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName))
-        },
-        confirmButton = {
-            AppTextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(id = R.string.label_delete_1),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.label_cancel_1))
-            }
-        }
+        title = stringResource(id = R.string.label_delete_recurring),
+        text = stringResource(id = R.string.label_remove_val_from_recurring_trac, recurringName),
+        confirmButtonText = stringResource(id = R.string.label_delete_1),
+        onConfirm = onConfirm,
+        headerIcon = Icons.Filled.Delete,
+        dismissButtonText = stringResource(id = R.string.label_cancel_1),
+        onDismiss = onDismiss
     )
 }
 
@@ -2011,57 +1973,59 @@ private fun MuteRecurringDialog(
 ) {
     var dontShowAgain by rememberSaveable { mutableStateOf(false) }
 
-    AlertDialog(
+    ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        title = {
-            Text(
-                text = stringResource(id = R.string.label_mute_recurring_title),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                )
-            )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(
-                    text = stringResource(id = R.string.label_mute_recurring_message, ruleName),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+        title = stringResource(id = R.string.label_mute_recurring_title),
+        text = stringResource(id = R.string.label_mute_recurring_message, ruleName),
+        confirmButtonText = stringResource(id = R.string.label_mute_yes),
+        onConfirm = { onConfirm(dontShowAgain) },
+        headerIcon = Icons.Filled.NotificationsOff,
+        dismissButtonText = stringResource(id = R.string.label_no),
+        onDismiss = onDismiss,
+        extraContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { dontShowAgain = !dontShowAgain }
+                    .padding(vertical = 4.dp)
+            ) {
+                val checked = dontShowAgain
+                val accent = MaterialTheme.colorScheme.accentInk
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable { dontShowAgain = !dontShowAgain }
-                        .padding(vertical = 4.dp)
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(if (checked) accent else Color.Transparent)
+                        .border(
+                            width = 1.5.dp,
+                            color = if (checked) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Checkbox(
-                        checked = dontShowAgain,
-                        onCheckedChange = { dontShowAgain = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.accentInk,
-                            uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    if (checked) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
                         )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = R.string.label_dont_show_again),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    }
                 }
-            }
-        },
-        confirmButton = {
-            AppTextButton(onClick = { onConfirm(dontShowAgain) }) {
-                Text(stringResource(id = R.string.label_mute_yes))
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.label_no))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(id = R.string.label_dont_show_again),
+                    color = if (MaterialTheme.colorScheme.isDark) {
+                        ModernConfirmBodyDark
+                    } else {
+                        ModernConfirmBodyLight
+                    },
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 22.sp
+                )
             }
         }
     )
@@ -3622,24 +3586,18 @@ private fun RecurringRuleEditorModal(
     // only hidden (soft-deleted), and the info line says so, so the user
     // knows paid history is not at risk.
     if (showRegularConfirm) {
-        AlertDialog(
+        ModernConfirmationDialog(
             onDismissRequest = { showRegularConfirm = false },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = { Text(stringResource(id = R.string.label_type_regular)) },
-            text = { Text(stringResource(id = R.string.msg_convert_to_regular_info)) },
-            confirmButton = {
-                AppTextButton(onClick = {
-                    showRegularConfirm = false
-                    onConvertToRegular()
-                }) {
-                    Text(stringResource(id = R.string.label_save_changes_caps), fontWeight = FontWeight.Bold)
-                }
+            title = stringResource(id = R.string.label_type_regular),
+            text = stringResource(id = R.string.msg_convert_to_regular_info),
+            confirmButtonText = stringResource(id = R.string.label_save_changes_caps),
+            onConfirm = {
+                showRegularConfirm = false
+                onConvertToRegular()
             },
-            dismissButton = {
-                AppTextButton(onClick = { showRegularConfirm = false }) {
-                    Text(stringResource(id = R.string.label_cancel_caps))
-                }
-            }
+            headerIcon = Icons.Filled.SwapHoriz,
+            dismissButtonText = stringResource(id = R.string.label_cancel_caps),
+            onDismiss = { showRegularConfirm = false }
         )
     }
 }
@@ -4152,31 +4110,14 @@ private fun ConfirmCopyBudgetsDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    AlertDialog(
+    ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        title = {
-            Text(
-                text = stringResource(id = R.string.title_copy_budgets_confirmation),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                )
-            )
-        },
-        text = {
-            Text(stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel))
-        },
-        confirmButton = {
-            AppTextButton(onClick = onConfirm) {
-                Text(stringResource(id = R.string.action_copy))
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.label_cancel_1))
-            }
-        }
+        title = stringResource(id = R.string.title_copy_budgets_confirmation),
+        text = stringResource(id = R.string.msg_copy_budgets_confirmation, monthLabel),
+        confirmButtonText = stringResource(id = R.string.action_copy),
+        onConfirm = onConfirm,
+        headerIcon = Icons.Filled.ContentCopy,
+        dismissButtonText = stringResource(id = R.string.label_cancel_1),
+        onDismiss = onDismiss
     )
 }
