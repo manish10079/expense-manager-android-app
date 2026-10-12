@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
@@ -47,6 +48,7 @@ import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
+import com.mknlabs.expensetracker.core.ui.components.NamedCreateCard
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 import com.mknlabs.expensetracker.models.Goal
@@ -346,47 +348,21 @@ fun FundGoalDialog(
     val fundAmount = amountInput.toDoubleOrNull() ?: 0.0
     val isSaveEnabled = fundAmount > 0.0
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = AppDialogDefaults.shape(),
-        containerColor = AppDialogDefaults.containerColor(),
-        title = {
-            Text(
-                text = stringResource(R.string.title_fund_goal),
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = amountInput,
-                    onValueChange = { updatedValue ->
-                        amountInput = updatedValue.filter { it.isDigit() || it == '.' }
-                    },
-                    label = { Text(stringResource(R.string.label_fund_amount)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = AppOutlinedFieldDefaults.shape,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = AppOutlinedFieldDefaults.colors()
-                )
-            }
-        },
-        confirmButton = {
-            AppTextButton(
-                onClick = { onSave(fundAmount) },
-                enabled = isSaveEnabled
-            ) {
-                Text(stringResource(R.string.label_add_action))
-            }
-        },
-        dismissButton = {
-            AppDialogDismissButton(
-                text = stringResource(R.string.label_cancel_1),
-                onClick = onDismiss
-            )
-        }
-    )
+    Dialog(onDismissRequest = onDismiss) {
+        NamedCreateCard(
+            title = stringResource(R.string.title_fund_goal),
+            caption = stringResource(R.string.msg_fund_goal_caption),
+            value = amountInput,
+            onValueChange = { updatedValue ->
+                amountInput = updatedValue.filter { it.isDigit() || it == '.' }
+            },
+            placeholder = stringResource(R.string.label_fund_amount),
+            confirmLabel = stringResource(R.string.label_add_action),
+            onConfirm = { if (isSaveEnabled) onSave(fundAmount) },
+            headerIcon = Icons.Filled.Savings,
+            confirmEnabled = isSaveEnabled
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

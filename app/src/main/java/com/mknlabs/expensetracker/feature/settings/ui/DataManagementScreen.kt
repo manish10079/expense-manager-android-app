@@ -31,6 +31,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import com.mknlabs.expensetracker.R
@@ -489,64 +490,28 @@ private fun DataManagementContent(
     }
 
     if (isCustomFrequencyDialogVisible) {
-        AlertDialog(
-            onDismissRequest = { isCustomFrequencyDialogVisible = false },
-            containerColor = MaterialTheme.colorScheme.sheet,
-            title = {
-                Text(
-                    text = stringResource(R.string.title_custom_backup_frequency),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            text = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.label_pick_a_preset_or_enter_a_custo),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = customFrequencyInput,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) customFrequencyInput = it },
-                        label = { Text(stringResource(R.string.label_enter_days)) },
-                        placeholder = { Text(stringResource(R.string.placeholder_days)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = AppOutlinedFieldDefaults.shape,
-                        colors = AppOutlinedFieldDefaults.colors()
-                    )
-                }
-            },
-            confirmButton = {
-                AppTextButton(
-                    onClick = {
-                        val days = customFrequencyInput.toIntOrNull() ?: 7
-                        if (days in 1..365) {
-                            onAutoBackupFrequencyChange(days)
-                            isCustomFrequencyDialogVisible = false
-                            isFrequencyPickerVisible = false
-                        }
+        val days = customFrequencyInput.toIntOrNull()
+        val canApply = days != null && days in 1..365
+        Dialog(onDismissRequest = { isCustomFrequencyDialogVisible = false }) {
+            NamedCreateCard(
+                title = stringResource(R.string.title_custom_backup_frequency),
+                caption = stringResource(R.string.label_pick_a_preset_or_enter_a_custo),
+                value = customFrequencyInput,
+                onValueChange = { if (it.all { char -> char.isDigit() }) customFrequencyInput = it },
+                placeholder = stringResource(R.string.placeholder_days),
+                confirmLabel = stringResource(R.string.label_apply),
+                onConfirm = {
+                    val applied = customFrequencyInput.toIntOrNull()
+                    if (applied != null && applied in 1..365) {
+                        onAutoBackupFrequencyChange(applied)
+                        isCustomFrequencyDialogVisible = false
+                        isFrequencyPickerVisible = false
                     }
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_apply),
-                        color = MaterialTheme.colorScheme.accentInk,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                AppTextButton(onClick = { isCustomFrequencyDialogVisible = false }) {
-                    Text(
-                        text = stringResource(R.string.label_cancel_1),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        )
+                },
+                headerIcon = PhosphorIcons.Regular.ClockCountdown,
+                confirmEnabled = canApply
+            )
+        }
     }
 
     if (isRestorePickerVisible) {

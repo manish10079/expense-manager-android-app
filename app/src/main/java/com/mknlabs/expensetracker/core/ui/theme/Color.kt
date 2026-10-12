@@ -182,6 +182,20 @@ val ModernConfirmDeleteFill = Color(0xFFF43F5E)
 val ModernConfirmCardShadowLight = Color(0x330F172A)
 val ModernConfirmCardShadowDark = Color(0xCC020617)
 
+// Named create card (HTML New Rule mock).
+val NamedCreateCardFillLight = Color(0xFFF8FAFC)
+val NamedCreateCardFillDark = Color(0x661E293B)
+val NamedCreateCardBorderLight = Color(0x99E2E8F0)
+val NamedCreateCardBorderDark = Color(0x991E293B)
+val NamedCreateFieldFillLight = Color(0xFFFFFFFF)
+val NamedCreateFieldFillDark = Color(0xFF0F172A)
+val NamedCreateFieldBorderLight = Color(0xFFE2E8F0)
+val NamedCreateFieldBorderDark = Color(0xFF334155)
+val NamedCreateCaptionLight = Color(0xFF64748B)
+val NamedCreateCaptionDark = Color(0xFF94A3B8)
+val NamedCreateTitleDark = Color(0xFFF1F5F9)
+val NamedCreatePlaceholder = Color(0xFF94A3B8)
+
 // One bloom, at the accent's own hue. 22% over a near-black card reads as light
 // catching the corner; the same alpha on white would read as a stain, so light takes
 // 10% and the accent stands at full strength only in the rail.

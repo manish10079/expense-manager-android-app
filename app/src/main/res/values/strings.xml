@@ -510,6 +510,7 @@
     <string name="label_sort_za">Z → A</string>
     <string name="msg_no_tags_yet">No tags yet. Create one with the + button.</string>
     <string name="title_new_tag">New tag</string>
+    <string name="msg_tag_name_caption">Give this tag a short name so it is easy to find later.</string>
     <string name="title_rename_tag">Rename tag</string>
     <string name="label_tag_name">Tag name</string>
     <string name="label_create">Create</string>
@@ -3707,6 +3708,7 @@
     <string name="title_add_goal">Add Savings Goal</string>
 
     <string name="title_fund_goal">Fund Goal</string>
+    <string name="msg_fund_goal_caption">Enter how much to add to this goal. You can change it anytime.</string>
 
     <string name="title_delete_goal">Delete Goal</string>
 

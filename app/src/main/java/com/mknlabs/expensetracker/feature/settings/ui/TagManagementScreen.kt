@@ -54,7 +54,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -83,6 +82,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,9 +95,9 @@ import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
+import com.mknlabs.expensetracker.core.ui.components.NamedCreateCard
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
-import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -358,29 +358,49 @@ internal fun TagManagementContent(
         if (uiState.items.isNotEmpty()) {
             val action = selectionAction
             if (action == null) {
-                Column(
+                val scheme = MaterialTheme.colorScheme
+                Surface(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = Dimens.ScreenPadding)
-                        .padding(bottom = 16.dp)
+                        .fillMaxWidth(),
+                    color = scheme.background.copy(alpha = 0.95f),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 8.dp
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.5f)))
+                            .navigationBarsPadding()
+                            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        PeriodChip(
-                            label = stringResource(R.string.label_merge_tags),
-                            isSelected = false,
-                            onClick = { enterSelection(TagSelectionAction.MERGE) },
-                            modifier = Modifier.weight(1f)
+                        val chipShape = RoundedCornerShape(12.dp)
+                        Text(
+                            text = stringResource(R.string.label_merge_tags),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onBrandGradient,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(chipShape)
+                                .background(brandGradient())
+                                .clickable { enterSelection(TagSelectionAction.MERGE) }
+                                .padding(vertical = 10.dp)
                         )
-                        PeriodChip(
-                            label = stringResource(R.string.label_delete_tags),
-                            isSelected = false,
-                            onClick = { enterSelection(TagSelectionAction.DELETE) },
-                            modifier = Modifier.weight(1f)
+                        Text(
+                            text = stringResource(R.string.label_delete_tags),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onBrandGradient,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(chipShape)
+                                .background(brandGradient())
+                                .clickable { enterSelection(TagSelectionAction.DELETE) }
+                                .padding(vertical = 10.dp)
                         )
                     }
                 }
@@ -450,20 +470,10 @@ internal fun TagManagementContent(
                             },
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = if (action == TagSelectionAction.MERGE) {
-                                scheme.onBrandGradient
-                            } else {
-                                scheme.onError
-                            },
+                            color = scheme.onBrandGradient,
                             modifier = Modifier
                                 .clip(chipShape)
-                                .background(
-                                    if (action == TagSelectionAction.MERGE) {
-                                        scheme.accentInk
-                                    } else {
-                                        scheme.expense
-                                    }
-                                )
+                                .background(brandGradient())
                                 .clickable(enabled = actionEnabled) {
                                     when (action) {
                                         TagSelectionAction.MERGE -> showMergeTargetDialog = true
@@ -604,7 +614,7 @@ private fun TagManagementCard(
             // so a stray tap cannot delete or rename.
             .clickable(enabled = selectionMode, onClick = onCardClick),
         brush = darkOnlyGradient(standardCardGradient()),
-        shape = AppCardDefaults.shape(20.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = run {
             val base = AppCardDefaults.colors()
             if (isSelected) {
@@ -634,20 +644,7 @@ private fun TagManagementCard(
                     modifier = Modifier.weight(1f)
                 )
 
-                if (selectionMode) {
-                    // While picking tags the per-row actions give way to a single check, so
-                    // the whole row is one obvious toggle and nothing competes with the tap.
-                    Icon(
-                        imageVector = if (isSelected) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
-                        contentDescription = null,
-                        tint = if (isSelected) {
-                            MaterialTheme.colorScheme.accentInk
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(22.dp)
-                    )
-                } else {
+                if (!selectionMode) {
                     IconAction(
                         icon = Icons.Filled.Edit,
                         description = stringResource(R.string.desc_rename_tag, item.name),
@@ -727,78 +724,54 @@ private fun MergeTargetDialog(
 ) {
     var targetId by remember { mutableStateOf(tags.firstOrNull()?.id) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        title = {
-            Text(
-                text = stringResource(R.string.title_merge_tags),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Text(
-                    text = stringResource(R.string.msg_merge_choose_target),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                tags.forEach { tag ->
-                    val isChosen = tag.id == targetId
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { targetId = tag.id }
-                            .padding(horizontal = 8.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isChosen) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
-                            contentDescription = null,
-                            tint = if (isChosen) {
-                                MaterialTheme.colorScheme.accentInk
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.label_tag_prefixed, tag.name),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+    Dialog(onDismissRequest = onDismiss) {
+        NamedCreateCard(
+            title = stringResource(R.string.title_merge_tags),
+            caption = stringResource(R.string.msg_merge_choose_target),
+            value = "",
+            onValueChange = {},
+            placeholder = "",
+            confirmLabel = stringResource(R.string.label_merge_tags),
+            onConfirm = { targetId?.let(onConfirm) },
+            headerIcon = Icons.Filled.CheckCircle,
+            confirmEnabled = targetId != null,
+            showField = false,
+            extraContent = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    tags.forEach { tag ->
+                        val isChosen = tag.id == targetId
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { targetId = tag.id }
+                                .padding(horizontal = 8.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isChosen) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
+                                contentDescription = null,
+                                tint = if (isChosen) {
+                                    MaterialTheme.colorScheme.accentInk
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.label_tag_prefixed, tag.name),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
-        },
-        confirmButton = {
-            AppTextButton(
-                enabled = targetId != null,
-                onClick = { targetId?.let(onConfirm) }
-            ) {
-                Text(
-                    text = stringResource(R.string.label_merge_tags),
-                    fontWeight = FontWeight.Bold,
-                    color = if (targetId != null) {
-                        MaterialTheme.colorScheme.accentInk
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
-            }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -812,45 +785,18 @@ private fun TagNameDialog(
     var name by remember { mutableStateOf(initialName) }
     val isValid = name.trim().isNotEmpty()
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
-        title = {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                singleLine = true,
-                label = { Text(stringResource(R.string.label_tag_name)) },
-                shape = AppOutlinedFieldDefaults.shape,
-                colors = AppOutlinedFieldDefaults.colors()
-            )
-        },
-        confirmButton = {
-            AppTextButton(
-                enabled = isValid,
-                onClick = { if (isValid) onConfirm(name) }
-            ) {
-                Text(
-                    text = confirmLabel,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isValid) MaterialTheme.colorScheme.accentInk
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        dismissButton = {
-            AppTextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.label_cancel_confirm), fontWeight = FontWeight.Bold)
-            }
-        }
-    )
+    Dialog(onDismissRequest = onDismiss) {
+        NamedCreateCard(
+            title = title,
+            caption = stringResource(R.string.msg_tag_name_caption),
+            value = name,
+            onValueChange = { name = it },
+            placeholder = stringResource(R.string.label_tag_name),
+            confirmLabel = confirmLabel,
+            onConfirm = { if (isValid) onConfirm(name) },
+            confirmEnabled = isValid
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
