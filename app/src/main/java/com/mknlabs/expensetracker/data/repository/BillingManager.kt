@@ -6,6 +6,8 @@ import android.util.Log
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.MonetizationDataStore
+import com.mknlabs.expensetracker.data.local.UserProfileDataStore
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.mknlabs.expensetracker.domain.repository.AuthRepository
 import com.mknlabs.expensetracker.domain.repository.BillingRepository
 import com.mknlabs.expensetracker.monetization.PurchaseState
@@ -383,6 +385,25 @@ class BillingManager @Inject constructor(
             val premiumActive = info.entitlements.all.get(PREMIUM_ENTITLEMENT_ID)?.isActive == true
             CoroutineScope(Dispatchers.IO).launch {
                 MonetizationDataStore.setPremiumEntitlementActive(context, premiumActive)
+
+                // A live store subscription retires any leftover Pro Pass / referral grant
+                // immediately so Settings cannot keep showing pass days after the user pays.
+                if (premiumActive) {
+                    UserProfileDataStore.updateUserProfile(context) { profile ->
+                        if (profile.accountTier == EntitlementResolver.TIER_PAID_SUBSCRIPTION &&
+                            profile.proExpiryTimestamp == 0L &&
+                            profile.isSubscription
+                        ) {
+                            profile
+                        } else {
+                            profile.copy(
+                                accountTier = EntitlementResolver.TIER_PAID_SUBSCRIPTION,
+                                proExpiryTimestamp = 0L,
+                                isSubscription = true
+                            )
+                        }
+                    }
+                }
 
                 // The one automatic switch-on of cloud sync: a new subscriber should not have
                 // to discover the setting before their data starts syncing. The claim is

@@ -385,6 +385,7 @@ exports.onRcCustomerWritten = onDocumentWritten(
         {
           accountTier: "Paid_Subscription",
           proExpiryTimestamp: 0,
+          referralWelcomeGranted: false,
           profileUpdatedAtMillis: Date.now()
         },
         { merge: true }
