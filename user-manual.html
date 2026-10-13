@@ -20,6 +20,13 @@
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     } catch (e) { theme = 'dark'; }
     document.documentElement.setAttribute('data-theme', theme);
+    /* Restore the collapsed state of the screen list before first paint, so a
+       collapsed sidebar never flashes open on load. */
+    try {
+      if (localStorage.getItem('expense-tracker-manual-nav') === 'collapsed') {
+        document.documentElement.classList.add('nav-collapsed');
+      }
+    } catch (e) {}
     window.__setManualTheme = function (next) {
       document.documentElement.setAttribute('data-theme', next);
       try { localStorage.setItem('expense-tracker-theme', next); } catch (e) {}
@@ -91,6 +98,7 @@
     width:296px; flex:0 0 296px; position:sticky; top:0; height:100vh;
     background:var(--bg-2); border-right:1px solid var(--line);
     display:flex; flex-direction:column; z-index:40;
+    transition:margin-left var(--tr);
   }
   .brand{padding:20px 20px 14px; border-bottom:1px solid var(--line)}
   .brand .logo{
@@ -167,7 +175,8 @@
     font-family:var(--font);transition:all var(--tr);
   }
   .topbar button:hover{border-color:var(--brand);color:var(--accent);background:var(--accent-soft)}
-  #menuBtn{display:none}
+  /* Always available — the screen list collapses on every form factor. */
+  #menuBtn{display:inline-grid;place-items:center;min-width:44px}
 
   /* ---------- hero ---------- */
   .hero{padding:14px 0 26px;border-bottom:1px solid var(--line);margin-bottom:34px}
@@ -309,12 +318,16 @@
   .backdrop{display:none}
 
   /* ---------- responsive ---------- */
+  /* The screen list is collapsible at every width. Above the drawer breakpoint
+     it slides out and the content takes the space it frees up. */
+  @media (min-width:861px){
+    html.nav-collapsed .sidebar{margin-left:-296px}
+  }
   @media (max-width:1040px){
     .content{padding:0 26px 80px}
     .topbar{margin:0 -26px 24px;padding:13px 26px}
   }
   @media (max-width:860px){
-    #menuBtn{display:inline-block}
     .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .22s ease}
     .sidebar.open{transform:none}
     .backdrop{
@@ -370,7 +383,7 @@
         </div>
       </div>
       <div class="brand-meta">
-        <span class="ver">v2.218.0</span>
+        <span class="ver">v2.218.2</span>
         <a class="site-link" href="https://expense-tracker-2ea00.web.app/" target="_blank" rel="noopener noreferrer">Website &#8599;</a>
       </div>
     </div>
@@ -449,7 +462,9 @@
   <main class="content">
 
     <div class="topbar">
-      <button id="menuBtn" aria-label="Toggle navigation">☰</button>
+      <button id="menuBtn" type="button" aria-label="Show or hide the screen list"
+              aria-controls="sidebar" aria-expanded="true"
+              title="Show or hide the screen list">☰</button>
       <div class="crumb" id="crumb">Expense Tracker — User Manual</div>
       <button id="themeBtn" type="button" aria-label="Toggle light and dark theme" title="Toggle theme"></button>
       <button onclick="window.print()">Print / PDF</button>
@@ -464,7 +479,7 @@
         from logging your first expense to reading your yearly analytics.
       </p>
       <div class="meta">
-        <span class="chip">Version <b>2.218.0</b></span>
+        <span class="chip">Version <b>2.218.2</b></span>
         <span class="chip"><b>31</b> screens covered</span>
         <span class="chip">Android · Offline-first</span>
         <span class="chip">Tap any screen in the left sidebar</span>
@@ -2567,7 +2582,7 @@
     </section>
 
     <footer class="foot">
-      <div>Expense Tracker: Budget &amp; Spend — User Manual · v2.218.0</div>
+      <div>Expense Tracker: Budget &amp; Spend — User Manual · v2.218.2</div>
       <div class="foot-bottom">© 2026 MKN Labs. All rights reserved. · Crafted with ❤️ By MKN Labs</div>
     </footer>
   </main>
@@ -2589,16 +2604,58 @@
   var toTop = document.getElementById('toTop');
   var sections = Array.prototype.slice.call(document.querySelectorAll('section.screen'));
 
-  /* ---- mobile drawer ---- */
-  function openNav() { sidebar.classList.add('open'); backdrop.classList.add('show'); }
-  function closeNav() { sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  /* ---- screen list: drawer on small screens, slide-out on wide ones ---- */
+  var wide = window.matchMedia('(min-width:861px)');
+  var NAV_KEY = 'expense-tracker-manual-nav';
+
+  function navIsOpen() {
+    return wide.matches
+      ? !document.documentElement.classList.contains('nav-collapsed')
+      : sidebar.classList.contains('open');
+  }
+
+  function syncNav() {
+    var open = navIsOpen();
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    /* A hidden panel must not stay reachable by Tab or click. */
+    sidebar.inert = !open;
+  }
+
+  function openNav() { sidebar.classList.add('open'); backdrop.classList.add('show'); syncNav(); }
+  function closeNav() { sidebar.classList.remove('open'); backdrop.classList.remove('show'); syncNav(); }
+
+  function setCollapsed(next) {
+    document.documentElement.classList.toggle('nav-collapsed', next);
+    try { localStorage.setItem(NAV_KEY, next ? 'collapsed' : 'expanded'); } catch (e) {}
+    syncNav();
+  }
+
   menuBtn.addEventListener('click', function () {
-    sidebar.classList.contains('open') ? closeNav() : openNav();
+    if (wide.matches) setCollapsed(!document.documentElement.classList.contains('nav-collapsed'));
+    else if (sidebar.classList.contains('open')) closeNav();
+    else openNav();
   });
   backdrop.addEventListener('click', closeNav);
   nav.addEventListener('click', function (e) {
-    if (e.target.closest('a')) closeNav();
+    /* Only the drawer closes on navigation; a wide-screen sidebar stays put. */
+    if (e.target.closest('a') && !wide.matches) closeNav();
   });
+
+  /* Esc closes the drawer on small screens and collapses the sidebar on wide ones. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !navIsOpen()) return;
+    if (wide.matches) setCollapsed(true); else closeNav();
+  });
+
+  /* Crossing the breakpoint drops the transient drawer state. */
+  function onNavViewportChange() {
+    if (wide.matches) { sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+    syncNav();
+  }
+  if (wide.addEventListener) wide.addEventListener('change', onNavViewportChange);
+  else wide.addListener(onNavViewportChange);
+
+  syncNav();
 
   /* ---- search filter ---- */
   search.addEventListener('input', function () {
