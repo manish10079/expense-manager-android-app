@@ -175,6 +175,7 @@ fun TransactionCard(
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
         colors = cardColors
     ) {
         Row(

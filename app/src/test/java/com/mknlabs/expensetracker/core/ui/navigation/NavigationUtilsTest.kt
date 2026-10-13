@@ -27,15 +27,15 @@ class NavigationUtilsTest {
     }
 
     @Test
-    fun `resolveBackNavigationRoute returns add transaction for calculator screen`() {
+    fun `resolveBackNavigationRoute returns previous route for calculator screen`() {
         val backRoute = resolveBackNavigationRoute(
             currentRoute = AppRoute.ItemizedCalculator,
             profileOriginRoute = AppRoute.Home,
-            previousRoute = AppRoute.Transactions,
+            previousRoute = AppRoute.Home,
             paywallOriginRoute = AppRoute.Home
         )
 
-        assertEquals(AppRoute.AddTransaction, backRoute)
+        assertEquals(AppRoute.Home, backRoute)
     }
 
     @Test
@@ -106,18 +106,18 @@ class NavigationUtilsTest {
     fun `isBottomTabSwitch returns true when switching between bottom navigation tabs`() {
         assertTrue(isBottomTabSwitch(AppRoute.Home, AppRoute.Analytics))
         assertTrue(isBottomTabSwitch(AppRoute.Analytics, AppRoute.Budget))
-        assertTrue(isBottomTabSwitch(AppRoute.Calendar, AppRoute.Home))
+        assertTrue(isBottomTabSwitch(AppRoute.Settings, AppRoute.Home))
     }
 
     @Test
     fun `isBottomTabSwitch returns false when leaving bottom navigation tabs`() {
-        assertFalse(isBottomTabSwitch(AppRoute.Home, AppRoute.Settings))
+        assertFalse(isBottomTabSwitch(AppRoute.Home, AppRoute.Calendar))
         assertFalse(isBottomTabSwitch(AppRoute.Budget, AppRoute.Transactions))
     }
 
     @Test
     fun `isBottomTabSwitch returns false when entering bottom navigation tabs`() {
-        assertFalse(isBottomTabSwitch(AppRoute.Settings, AppRoute.Home))
+        assertFalse(isBottomTabSwitch(AppRoute.Calendar, AppRoute.Home))
         assertFalse(isBottomTabSwitch(AppRoute.AddTransaction, AppRoute.Home))
     }
 }

@@ -75,6 +75,9 @@ class MainNavigationState(
         if (route == AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
             previousRoute = currentRoute
         }
+        if (route == AppRoute.ItemizedCalculator && currentRoute != AppRoute.ItemizedCalculator) {
+            previousRoute = currentRoute
+        }
         // Guarded on the destination not already being the paywall, so a re-entry cannot
         // record the paywall as its own origin and trap Back there.
         if (route == AppRoute.Paywall && currentRoute != AppRoute.Paywall) {

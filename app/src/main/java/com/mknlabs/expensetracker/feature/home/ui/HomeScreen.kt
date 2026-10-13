@@ -119,6 +119,7 @@ fun HomeScreen(
     onSettingsClick: () -> Unit = {},
     onReferOfferClick: () -> Unit = {},
     onSmsInboxClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit = {},
     onGoalsClick: () -> Unit = {},
     onPrepareForExternalActivity: () -> Unit = {},
@@ -294,6 +295,7 @@ fun HomeScreen(
         onProfileClick = onProfileClick,
         onSettingsClick = onSettingsClick,
         onSmsInboxClick = onSmsInboxClick,
+        onCalculatorClick = onCalculatorClick,
         onTodaySpendingClick = onTodaySpendingClick,
         onGoalsClick = onGoalsClick,
         onToggleBalanceVisibility = homeViewModel::toggleBalanceVisibility,
@@ -350,6 +352,7 @@ private fun HomeScreenContent(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSmsInboxClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit,
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
@@ -405,6 +408,8 @@ private fun HomeScreenContent(
                         onProfileClick = onProfileClick,
                         onSettingsClick = onSettingsClick,
                         onSmsInboxClick = onSmsInboxClick,
+        onCalculatorClick = onCalculatorClick,
+                        onCalendarViewClick = onTodaySpendingClick,
                         isLockOverlayActive = isLockOverlayActive
                     )
                 }
@@ -471,6 +476,7 @@ private fun HomeScreenContent(
                     onProfileClick = onProfileClick,
                     onSettingsClick = onSettingsClick,
                     onSmsInboxClick = onSmsInboxClick,
+        onCalculatorClick = onCalculatorClick,
                     onTodaySpendingClick = onTodaySpendingClick,
                     onGoalsClick = onGoalsClick,
                     onToggleBalanceVisibility = onToggleBalanceVisibility,
@@ -518,6 +524,7 @@ private fun HomeTopSection(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSmsInboxClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
     onTodaySpendingClick: () -> Unit,
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
@@ -541,6 +548,8 @@ private fun HomeTopSection(
             onProfileClick = onProfileClick,
             onSettingsClick = onSettingsClick,
             onSmsInboxClick = onSmsInboxClick,
+        onCalculatorClick = onCalculatorClick,
+            onCalendarViewClick = onTodaySpendingClick,
             isLockOverlayActive = isLockOverlayActive
         )
     }
@@ -583,6 +592,8 @@ private fun HomeHeaderRow(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSmsInboxClick: () -> Unit = {},
+    onCalculatorClick: () -> Unit = {},
+    onCalendarViewClick: () -> Unit = {},
     isLockOverlayActive: Boolean
 ) {
     val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -749,7 +760,7 @@ private fun HomeHeaderRow(
                     }
                 }
                 Text(
-                    text = stringResource(id = R.string.title_settings),
+                    text = stringResource(id = R.string.title_home_calculator),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
@@ -757,7 +768,23 @@ private fun HomeHeaderRow(
                         .fillMaxWidth()
                         .clickable {
                             menuExpanded = false
-                            onSettingsClick()
+                            onCalculatorClick()
+                        }
+                        .padding(
+                            horizontal = Dimens.spacingDefault,
+                            vertical = Dimens.spacingCompact
+                        )
+                )
+                Text(
+                    text = stringResource(id = R.string.title_calendar_view),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            menuExpanded = false
+                            onCalendarViewClick()
                         }
                         .padding(
                             horizontal = Dimens.spacingDefault,

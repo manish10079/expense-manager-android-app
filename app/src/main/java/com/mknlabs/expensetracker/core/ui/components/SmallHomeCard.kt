@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
@@ -67,7 +68,7 @@ fun SmallHomeCard(
     AppCard(
         onClick = onClick,
         modifier = modifier,
-        shape = AppCardDefaults.shape(),
+        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
         colors = AppCardDefaults.colors(),
         contentPadding = PaddingValues(12.dp)
     ) {

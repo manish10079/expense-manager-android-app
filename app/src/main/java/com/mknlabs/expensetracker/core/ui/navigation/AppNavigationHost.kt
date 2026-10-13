@@ -263,6 +263,10 @@ fun AppNavigationHost(
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.DetectedSms)
                         },
+                        onCalculatorClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.ItemizedCalculator)
+                        },
                         onTodaySpendingClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(AppRoute.Calendar)
@@ -819,10 +823,15 @@ fun AppNavigationHost(
                         amountFormatPreferences = amountFormatPreferences,
                         dateFormatPattern = selectedDateFormatPattern,
                         timeFormat = selectedTimeFormat,
-                        initialNote = addTransactionDraftNote ?: selectedTransaction?.note,
+                        initialNote = if (previousRoute == AppRoute.Home) null else addTransactionDraftNote ?: selectedTransaction?.note,
+                        initialMode = if (previousRoute == AppRoute.Home) {
+                            com.mknlabs.expensetracker.feature.transactions.ui.CalculatorMode.NORMAL
+                        } else {
+                            com.mknlabs.expensetracker.feature.transactions.ui.CalculatorMode.ITEMIZED
+                        },
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.AddTransaction)
+                            onRouteChange(previousRoute)
                         },
                         onApplyToNoteClick = { finalAmount, finalNote ->
                             onAddTransactionDraftAmountChange(finalAmount)

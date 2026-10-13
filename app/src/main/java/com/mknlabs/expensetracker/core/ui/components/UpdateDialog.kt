@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -289,6 +290,53 @@ private fun titleText(info: UpdateInfo): String {
 
 // ── Previews ───────────────────────────────────────────────────────────
 
+@Preview(name = "Normal light", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+private fun PreviewNormalLight() {
+    PreviewWithWindowInfo(
+        info = AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded),
+        darkTheme = false
+    ) {
+        PreviewDialogCard(force = false) {
+            UpdateDialogContent(
+                info = UpdateInfo(
+                    latestVersion = "2.102.0",
+                    updateTitle = "Update Available",
+                    updateMessage = buildRemoteConfigMessage(),
+                    forceUpdate = false
+                )
+            )
+        }
+    }
+}
+
+@Preview(
+    name = "Normal dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 360,
+    heightDp = 740
+)
+@Composable
+private fun PreviewNormalDark() {
+    PreviewWithWindowInfo(
+        info = AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded),
+        darkTheme = true
+    ) {
+        PreviewDialogCard(force = false) {
+            UpdateDialogContent(
+                info = UpdateInfo(
+                    latestVersion = "2.102.0",
+                    updateTitle = "Update Available",
+                    updateMessage = buildRemoteConfigMessage(),
+                    forceUpdate = false
+                )
+            )
+        }
+    }
+}
+
+
 @Preview(name = "Compact portrait", showBackground = true, widthDp = 360, heightDp = 740)
 @Composable
 private fun PreviewCompactPortrait() {
@@ -428,9 +476,10 @@ private fun PreviewForcedDark() {
 @Composable
 private fun PreviewWithWindowInfo(
     info: AppWindowInfo,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    ExpenseTrackerTheme {
+    ExpenseTrackerTheme(darkTheme = darkTheme) {
         CompositionLocalProvider(LocalAppWindowInfo provides info) {
             content()
         }

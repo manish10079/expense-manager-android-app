@@ -236,7 +236,7 @@ fun MainScaffold(
             }
             currentRoute == AppRoute.ItemizedCalculator -> {
                 onBottomBarVisibilityChange(false)
-                onRouteChange(AppRoute.AddTransaction)
+                onRouteChange(previousRoute)
             }
             backNavigationRoute != null -> {
                 onBottomBarVisibilityChange(false)

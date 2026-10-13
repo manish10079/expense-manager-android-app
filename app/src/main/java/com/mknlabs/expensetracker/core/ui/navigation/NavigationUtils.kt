@@ -13,7 +13,7 @@ val primaryNavigationRoutes = setOf(
     AppRoute.Home,
     AppRoute.Analytics,
     AppRoute.Budget,
-    AppRoute.Calendar,
+    AppRoute.Settings,
     AppRoute.Transactions
 )
 
@@ -76,7 +76,7 @@ fun resolveBackNavigationRoute(
         // for Add Transaction: reading that one left Back on the paywall heading to a
         // stale Home instead of the membership screen that opened it.
         AppRoute.Paywall -> paywallOriginRoute
-        AppRoute.ItemizedCalculator -> AppRoute.AddTransaction
+        AppRoute.ItemizedCalculator -> previousRoute
         else -> null
     }
 }

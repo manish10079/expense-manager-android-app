@@ -9,7 +9,7 @@ enum class AppRoute(
     Budget("budget", true),
     Calendar("calendar", true),
     Transactions("transactions", false),
-    Settings("settings", false),
+    Settings("settings", true),
     Preferences("preferences", false),
     SecurityPrivacy("security_privacy", false),
     TransactionCardCustomize("transaction_card_customize", false),

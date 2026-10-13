@@ -4,7 +4,9 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,6 +55,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -68,6 +71,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -80,6 +84,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -95,6 +100,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -111,10 +117,30 @@ import com.mknlabs.expensetracker.core.ui.components.QuickActionOption
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CalculatorHistoryEntry
 import com.mknlabs.expensetracker.models.CalculatorLineItem
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Bold
+import com.adamglin.phosphoricons.bold.Divide
+import com.adamglin.phosphoricons.bold.Equals
+import com.adamglin.phosphoricons.bold.Minus
+import com.adamglin.phosphoricons.bold.NumberEight
+import com.adamglin.phosphoricons.bold.NumberFive
+import com.adamglin.phosphoricons.bold.NumberFour
+import com.adamglin.phosphoricons.bold.NumberNine
+import com.adamglin.phosphoricons.bold.NumberOne
+import com.adamglin.phosphoricons.bold.NumberSeven
+import com.adamglin.phosphoricons.bold.NumberSix
+import com.adamglin.phosphoricons.bold.NumberThree
+import com.adamglin.phosphoricons.bold.NumberTwo
+import com.adamglin.phosphoricons.bold.NumberZero
+import com.adamglin.phosphoricons.bold.Plus
+import com.adamglin.phosphoricons.bold.X
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
@@ -137,6 +163,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
 
@@ -148,6 +175,7 @@ fun ItemizedCalculatorScreen(
     dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     timeFormat: String = DEFAULT_TIME_FORMAT,
     initialNote: String? = null,
+    initialMode: CalculatorMode = CalculatorMode.ITEMIZED,
     onBackClick: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
@@ -155,7 +183,7 @@ fun ItemizedCalculatorScreen(
     val modes = CalculatorMode.entries
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
-        initialPage = modes.indexOf(uiState.selectedMode).coerceAtLeast(0),
+        initialPage = modes.indexOf(initialMode).coerceAtLeast(0),
         pageCount = { modes.size }
     )
     val context = LocalContext.current
@@ -163,6 +191,10 @@ fun ItemizedCalculatorScreen(
 
     LaunchedEffect(initialNote) {
         viewModel.initialize(initialNote)
+    }
+
+    LaunchedEffect(initialMode) {
+        viewModel.setMode(initialMode)
     }
 
     // Sync from ViewModel to Pager
@@ -361,7 +393,7 @@ private fun ItemizedCalculatorContent(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             TotalAmountCard(
                 totalAmount = totalAmount,
@@ -470,9 +502,10 @@ private fun NormalCalculatorContent(
         }
     } else {
         Column(
-            modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
+            Spacer(modifier = Modifier.weight(1f))
             NormalCalculatorDisplay(
                 resultValue = previewResult,
                 expression = expression,
@@ -481,9 +514,7 @@ private fun NormalCalculatorContent(
                 cursorDisplayPosition = cursorDisplayPosition
             )
             CalculatorKeypad(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 onAction = onAction
             )
         }
@@ -498,6 +529,20 @@ private fun NormalCalculatorContent(
  * so every key stays visible and tappable. Normal (tall) screens keep the
  * classic fixed 72dp keys with the "=" column flexing.
  */
+
+private fun calculatorDigitIcon(digit: String): ImageVector = when (digit) {
+    "0" -> PhosphorIcons.Bold.NumberZero
+    "1" -> PhosphorIcons.Bold.NumberOne
+    "2" -> PhosphorIcons.Bold.NumberTwo
+    "3" -> PhosphorIcons.Bold.NumberThree
+    "4" -> PhosphorIcons.Bold.NumberFour
+    "5" -> PhosphorIcons.Bold.NumberFive
+    "6" -> PhosphorIcons.Bold.NumberSix
+    "7" -> PhosphorIcons.Bold.NumberSeven
+    "8" -> PhosphorIcons.Bold.NumberEight
+    else -> PhosphorIcons.Bold.NumberNine
+}
+
 @Composable
 private fun CalculatorKeypad(
     modifier: Modifier = Modifier,
@@ -510,118 +555,149 @@ private fun CalculatorKeypad(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(rowSpacing)
     ) {
-        // Row 1: AC, ⌫, %, ×
+        // Row 1: AC, ⌫, %, ÷
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 64.dp),
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
                 label = stringResource(id = R.string.label_ac),
+                accent = true,
                 onClick = { onAction("AC") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
                 icon = Icons.AutoMirrored.Filled.Backspace,
+                accent = true,
                 onClick = { onAction("BACKSPACE") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
                 label = "%",
+                accent = true,
                 onClick = { onAction("%") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "×",
+                label = "÷",
+                icon = PhosphorIcons.Bold.Divide,
                 accent = true,
-                onClick = { onAction("*") }
+                onClick = { onAction("/") }
             )
         }
 
-        // Row 2: 7, 8, 9, −
+        // Row 2: 7, 8, 9, ×
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 64.dp),
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("7", "8", "9").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
                     label = value,
+                    icon = calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "−",
+                label = "×",
+                icon = PhosphorIcons.Bold.X,
                 accent = true,
-                onClick = { onAction("-") }
+                onClick = { onAction("*") }
             )
         }
 
-        // Row 3: 4, 5, 6, +
+        // Row 3: 4, 5, 6, −
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 64.dp),
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("4", "5", "6").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
                     label = value,
+                    icon = calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "+",
+                label = "−",
+                icon = PhosphorIcons.Bold.Minus,
                 accent = true,
-                onClick = { onAction("+") }
+                onClick = { onAction("-") }
             )
         }
 
-        // Row 4: 1, 2, 3, .
+        // Row 4: 1, 2, 3, +
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 64.dp),
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf("1", "2", "3").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
                     label = value,
+                    icon = calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = ".",
-                onClick = { onAction(".") }
+                label = "+",
+                icon = PhosphorIcons.Bold.Plus,
+                accent = true,
+                onClick = { onAction("+") }
             )
         }
 
-        // Row 5: 0, (, ), =
+        // Row 5: (, ), 0, .
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .heightIn(min = if (compact) 32.dp else 64.dp),
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CalculatorKeyButton(
-                modifier = Modifier.weight(1f),
-                label = "0",
-                onClick = { onAction("0") }
-            )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
                 label = "(",
@@ -636,7 +712,33 @@ private fun CalculatorKeypad(
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
+                label = "0",
+                icon = calculatorDigitIcon("0"),
+                onClick = { onAction("0") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = ".",
+                onClick = { onAction(".") }
+            )
+        }
+
+        // Row 6: =
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (compact) {
+                        Modifier.weight(1f).heightIn(min = 32.dp)
+                    } else {
+                        Modifier.height(52.dp)
+                    }
+                )
+        ) {
+            CalculatorKeyButton(
+                modifier = Modifier.fillMaxWidth(),
                 label = "=",
+                icon = PhosphorIcons.Bold.Equals,
                 primary = true,
                 onClick = { onAction("=") }
             )
@@ -686,26 +788,40 @@ private fun NormalCalculatorDisplay(
     }
 
     val rawExprText = expression ?: resultValue
-    val expressionText = if (rawExprText == "0" || rawExprText.isBlank()) {
-        "0"
-    } else if (rawExprText.startsWith("=")) {
-        rawExprText
-    } else {
-        "= $rawExprText"
+    val expressionText = when {
+        rawExprText.isBlank() || rawExprText == "0" -> "0"
+        rawExprText.startsWith("=") -> rawExprText.removePrefix("=").trim()
+        else -> rawExprText
     }
+    val showEqualsOnResult = resultValue.isNotBlank() &&
+        expressionText != "0" &&
+        expressionText.isNotBlank()
+    val resultText = if (showEqualsOnResult) "= $resultValue" else resultValue
 
-    // The expression line always keeps its normal editing style — it must
-    // never look locked/disabled after "=". Only the result line swaps
-    // emphasis once the calculation is evaluated.
-    val exprFontSize = if (compact) 22.sp else 32.sp
+    var editingAfterEquals by remember { mutableStateOf(false) }
+    LaunchedEffect(isEvaluated) {
+        if (isEvaluated) editingAfterEquals = false
+    }
+    val resultEmphasized = isEvaluated && !editingAfterEquals
+    val largeSize = if (compact) 22f else 32f
+    val smallSize = if (compact) 18f else 24f
+    val exprFontSizeFloat by animateFloatAsState(
+        targetValue = if (resultEmphasized) smallSize else largeSize,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "ExprFontSize"
+    )
+    val exprFontSize = exprFontSizeFloat.sp
     val exprColor = MaterialTheme.colorScheme.onSurface
 
     val resultFontSizeFloat by animateFloatAsState(
-        targetValue = if (isEvaluated) {
-            if (compact) 28f else 40f
-        } else {
-            if (compact) 18f else 24f
-        },
+        targetValue = if (resultEmphasized) largeSize else smallSize,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
         label = "ResultFontSize"
     )
     val resultFontSize = resultFontSizeFloat.sp
@@ -719,40 +835,10 @@ private fun NormalCalculatorDisplay(
         label = "ResultColor"
     )
 
-    // Light flattens the display panel to the shared card; dark keeps the tinted gradient
-    // panel and its violet edge, which the shared card has no slot for.
-    val lightCard = AppCardDefaults.colors()
-    val displayChrome = if (MaterialTheme.colorScheme.isDark) {
-        Modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(standardCardGradient())
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.16f),
-                shape = RoundedCornerShape(30.dp)
-            )
-    } else {
-        Modifier
-            .shadow(
-                elevation = AppCardDefaults.Elevation,
-                shape = RoundedCornerShape(30.dp),
-                clip = false,
-                ambientColor = CardShadowAmbientLight,
-                spotColor = CardShadowSpotLight
-            )
-            .clip(RoundedCornerShape(30.dp))
-            .background(lightCard.containerColor)
-            .then(
-                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(30.dp)) }
-                    ?: Modifier
-            )
-    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(displayChrome)
-            .padding(horizontal = if (compact) 16.dp else 22.dp, vertical = if (compact) 16.dp else 28.dp),
+            .padding(start = if (compact) 8.dp else 12.dp, top = if (compact) 8.dp else 12.dp, end = if (compact) 8.dp else 12.dp, bottom = if (compact) 4.dp else 6.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
         Column(
@@ -765,16 +851,7 @@ private fun NormalCalculatorDisplay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(22.dp))
-                    // The field the expression is typed into takes the secondary surface in
-                    // light, so it still reads as a field on the white panel.
-                    .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surfaceVariant))
-                    .border(
-                        width = 1.dp,
-                        color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f) else MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(22.dp)
-                    )
-                    .padding(horizontal = if (compact) 12.dp else 18.dp, vertical = if (compact) 10.dp else 18.dp),
+                    .padding(vertical = if (compact) 2.dp else 4.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 // Keep a persistent TextFieldValue so the cursor position is
@@ -800,6 +877,12 @@ private fun NormalCalculatorDisplay(
                         )
                     }
                 }
+                var showCursor by remember { mutableStateOf(true) }
+                LaunchedEffect(textFieldValue.text, textFieldValue.selection, cursorDisplayPosition) {
+                    showCursor = true
+                    delay(500)
+                    showCursor = false
+                }
 
                 BasicTextField(
                     value = textFieldValue,
@@ -815,11 +898,11 @@ private fun NormalCalculatorDisplay(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = exprColor,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = if (isEvaluated) FontWeight.Bold else FontWeight.Medium,
                         fontSize = exprFontSize,
                         textAlign = TextAlign.End
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk),
+                    cursorBrush = SolidColor(if (showCursor) MaterialTheme.colorScheme.accentInk else Color.Transparent),
                     interactionSource = interactionSource,
                     decorationBox = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -831,6 +914,9 @@ private fun NormalCalculatorDisplay(
                         .focusRequester(focusRequester)
                         .onFocusChanged { state ->
                             isFocused = state.isFocused
+                            if (state.isFocused && isEvaluated) {
+                                editingAfterEquals = true
+                            }
                             // Immediately hide keyboard on any focus change
                             if (state.isFocused) {
                                 keyboardController?.hide()
@@ -839,21 +925,21 @@ private fun NormalCalculatorDisplay(
                 )
             }
 
-            Spacer(modifier = Modifier.height(if (compact) 6.dp else 10.dp))
-
-            // BOTTOM: Final Result Line
-            Text(
-                text = resultValue,
-                color = resultColor,
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = if (isEvaluated) FontWeight.Bold else FontWeight.Medium,
-                    fontSize = resultFontSize,
-                    textAlign = TextAlign.End
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (showEqualsOnResult) {
+                Spacer(modifier = Modifier.height(if (compact) 0.dp else 2.dp))
+                Text(
+                    text = resultText,
+                    color = resultColor,
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        fontWeight = if (isEvaluated) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = resultFontSize,
+                        textAlign = TextAlign.End
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -873,50 +959,33 @@ private fun CalculatorKeyButton(
         pill -> RoundedCornerShape(24.dp)
         else -> CircleShape
     }
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 1.12f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "keyPressScale"
+    )
 
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .shadow(
-                elevation = if (primary) 18.dp else if (accent) 10.dp else 0.dp,
-                shape = shape,
-                ambientColor = if (primary) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f) else MaterialTheme.colorScheme.secondary.copy(
-                    alpha = 0.10f
-                ),
-                spotColor = if (primary) MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f) else MaterialTheme.colorScheme.accentInk.copy(
-                    alpha = 0.08f
-                )
-            )
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .clip(shape)
-            .background(
-                brush = when {
-                    primary -> brandGradient()
-
-                    accent -> if (MaterialTheme.colorScheme.isDark) {
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
-                            )
-                        )
-                    } else {
-                        SolidColor(MaterialTheme.colorScheme.surfaceVariant)
-                    }
-
-                    MaterialTheme.colorScheme.isDark -> standardCardGradient()
-                    else -> SolidColor(MaterialTheme.colorScheme.surface)
-                }
-            )
             .then(
-                // A numeric key is a white card on the light field and needs the hairline
-                // edge; the brand key and the operator pills carry their own.
-                if (MaterialTheme.colorScheme.isDark || primary || accent) {
-                    Modifier
-                } else {
-                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape)
-                }
+                if (primary) Modifier.background(brush = brandGradient()) else Modifier
             )
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (icon != null) {
@@ -928,7 +997,7 @@ private fun CalculatorKeyButton(
                     accent -> MaterialTheme.colorScheme.accentInk
                     else -> MaterialTheme.colorScheme.onSurface
                 },
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(28.dp)
             )
         } else {
             Text(
@@ -1730,5 +1799,73 @@ private fun ItemizedCalculatorScreenPreview() {
             onCancel = {},
             onAddClick = {}
         )
+    }
+}
+
+@Preview(name = "Normal tab light", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+private fun CalculatorNormalTabPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        CalculatorNormalScreenPreviewBody()
+    }
+}
+
+@Preview(
+    name = "Normal tab dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 360,
+    heightDp = 740
+)
+@Composable
+private fun CalculatorNormalTabPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        CalculatorNormalScreenPreviewBody()
+    }
+}
+
+@Composable
+private fun CalculatorNormalScreenPreviewBody() {
+    CompositionLocalProvider(
+        LocalAppWindowInfo provides AppWindowInfo(
+            width = AppWindowSize.Compact,
+            height = AppWindowHeight.Expanded
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(start = 20.dp, end = 20.dp, top = Dimens.HeaderSpacing, bottom = 14.dp)
+        ) {
+            AppHeader(
+                title = stringResource(id = R.string.label_itemized_calculator),
+                onBackClick = {},
+                actions = {
+                    CalculatorHistoryHeaderIcon(onClick = {})
+                }
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                AnimatedTabSwitcher(
+                    items = CalculatorMode.entries.map { TabItem(it, it.title) },
+                    selectedItemId = CalculatorMode.NORMAL,
+                    onItemSelected = {}
+                )
+                NormalCalculatorContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 18.dp),
+                    display = "142",
+                    previewResult = "142",
+                    expression = "100 + 42",
+                    isEvaluated = false,
+                    onAction = {},
+                    onCursorMoved = {},
+                    cursorDisplayPosition = 8
+                )
+            }
+        }
     }
 }

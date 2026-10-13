@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -80,7 +81,7 @@ fun WhatsAppStyleDropdownMenu(
                     tonalElevation = 0.dp
                 ) {
                     Column(
-                        modifier = Modifier.width(IntrinsicSize.Max),
+                        modifier = Modifier.widthIn(min = 200.dp).width(IntrinsicSize.Max),
                         content = content
                     )
                 }
