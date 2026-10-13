@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Expense Tracker — User Manual</title>
+<meta name="description" content="A screen-by-screen user manual for Expense Tracker: Budget & Spend — what every screen does and how to use it." />
+
+<!-- Inter, loaded the same way as the landing page -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script>
+  /* Follow the landing page's theme: same storage key, same default. */
+  (function () {
+    var theme;
+    try {
+      theme = localStorage.getItem('expense-tracker-theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } catch (e) { theme = 'dark'; }
+    document.documentElement.setAttribute('data-theme', theme);
+    window.__setManualTheme = function (next) {
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('expense-tracker-theme', next); } catch (e) {}
+    };
+  })();
+</script>
+<style>
+  /* ------------------------------------------------------------
+     Brand tokens mirrored from the landing page
+     (public/css/style.css):  Primary #7B61FF · Accent #CDBDFF
+     ------------------------------------------------------------ */
+  :root{
+    --gradient-brand:linear-gradient(135deg,#7B61FF,#CDBDFF);
+    --gradient-subtle:linear-gradient(135deg,rgba(123,97,255,.14),rgba(205,189,255,.05));
+    --brand:#7B61FF; --brand-2:#6A4DFF;
+    --radius:20px; --radius-lg:28px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --tr:300ms cubic-bezier(.4,0,.2,1);
+  }
+
+  /* Dark theme — mirrors the site's default */
+  :root,
+  [data-theme="dark"]{
+    --bg:#0A0A0A; --bg-2:#181817; --panel:#181817; --panel-2:#353534;
+    --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.12);
+    --ink:#EAEAEA; --ink-2:#9E9E9E; --ink-3:#7A7A7A;
+    --accent:#CDBDFF; --accent-2:#7B61FF; --accent-soft:rgba(123,97,255,.16);
+    --blue:#CDBDFF; --violet:#9E84FF; --amber:#FFC857; --pink:#FF7D7D;
+    --income:#81C784; --danger:#FF7D7D;
+    --glass:rgba(10,10,10,.85);
+    --hover:rgba(255,255,255,.03);
+    --shadow-md:0 8px 32px rgba(0,0,0,.2);
+    --shadow-glow:0 0 40px rgba(123,97,255,.25);
+  }
+
+  /* Light theme — mirrors the site's [data-theme="light"] */
+  [data-theme="light"]{
+    --bg:#EDEDF1; --bg-2:#FFFFFF; --panel:#FFFFFF; --panel-2:#D2D2E3;
+    --line:rgba(0,0,0,.08); --line-2:rgba(0,0,0,.12);
+    --ink:#1A1A1A; --ink-2:#6E6E73; --ink-3:#8A8A90;
+    --accent:#5A3EE8; --accent-2:#6A4DFF; --accent-soft:rgba(106,77,255,.10);
+    --blue:#6750A4; --violet:#5A3EE8; --amber:#A96F00; --pink:#C93B3B;
+    --income:#2E7D32; --danger:#C93B3B;
+    --glass:rgba(237,237,241,.85);
+    --hover:rgba(0,0,0,.03);
+    --shadow-md:0 8px 32px rgba(0,0,0,.09);
+    --shadow-glow:0 0 40px rgba(106,77,255,.18);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font); font-size:15px; line-height:1.65;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+    transition:background-color var(--tr), color var(--tr);
+  }
+  :focus-visible{outline:2px solid var(--brand); outline-offset:2px; border-radius:4px}
+  a{color:var(--accent); text-decoration:none}
+  code{font-family:var(--mono); font-size:.85em; background:var(--panel-2);
+       border:1px solid var(--line); border-radius:5px; padding:1px 5px; color:var(--ink)}
+
+  /* ---------- shell ---------- */
+  .app{display:flex; min-height:100vh}
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    width:296px; flex:0 0 296px; position:sticky; top:0; height:100vh;
+    background:var(--bg-2); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; z-index:40;
+  }
+  .brand{padding:20px 20px 14px; border-bottom:1px solid var(--line)}
+  .brand .logo{
+    display:flex; align-items:center; gap:11px; margin-bottom:7px;
+  }
+  /* Same app icon the landing page uses in its nav logo */
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;flex:0 0 34px;overflow:hidden;
+    display:grid;place-items:center;font-size:18px;
+  }
+  .brand .mark img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+  .brand .mark .mark-fallback{display:none}
+  /* Only if the icon asset can't be reached (e.g. the repo-root copy) */
+  .brand .mark.fallback{
+    background:var(--gradient-brand);box-shadow:0 4px 20px rgba(123,97,255,.35);
+  }
+  .brand .mark.fallback .mark-fallback{display:block}
+  .brand h1{font-size:16px;margin:0;letter-spacing:-.2px}
+  .brand .sub{font-size:11.5px;color:var(--ink-3);letter-spacing:.3px}
+  .brand-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:9px}
+  .brand .site-link{
+    font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.3px;
+    border-bottom:1px solid transparent;transition:.15s;
+  }
+  .brand .site-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .brand .ver{
+    display:inline-block;font-size:10.5px;font-weight:700;
+    color:var(--accent);background:var(--gradient-subtle);border:1px solid rgba(123,97,255,.25);
+    padding:3px 10px;border-radius:9999px;letter-spacing:.4px;
+  }
+  .search-wrap{padding:12px 16px 6px}
+  .search-wrap input{
+    width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);font-size:13px;font-family:var(--font);
+  }
+  .search-wrap input:focus{outline:none;border-color:var(--accent-2);box-shadow:0 0 0 3px var(--accent-soft)}
+  .nav{overflow-y:auto;padding:6px 10px 40px;flex:1}
+  .nav::-webkit-scrollbar{width:9px}
+  .nav::-webkit-scrollbar-thumb{background:var(--panel-2);border-radius:9px;border:2px solid var(--bg-2)}
+  .nav-group{margin-top:14px}
+  .nav-group-title{
+    font-size:10.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+    color:var(--ink-3);padding:0 10px 7px;
+  }
+  .nav a{
+    display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;
+    color:var(--ink-2);font-size:13.2px;font-weight:500;line-height:1.3;
+    border:1px solid transparent;transition:.13s;
+  }
+  .nav a:hover{background:var(--hover);color:var(--ink)}
+  .nav a.active{background:var(--accent-soft);color:var(--accent);border-color:rgba(123,97,255,.3)}
+  .nav a .n{
+    flex:0 0 20px;text-align:center;font-size:10.5px;font-weight:800;color:var(--ink-3);
+    font-family:var(--mono);
+  }
+  .nav a.active .n{color:var(--accent)}
+  .nav a.hide{display:none}
+  .nav-group.hide{display:none}
+  .nav-empty{display:none;color:var(--ink-3);font-size:12.5px;padding:16px 10px}
+
+  /* ---------- content ---------- */
+  .content{flex:1;min-width:0;max-width:1040px;padding:0 44px 90px;margin:0 auto}
+  .topbar{
+    position:sticky;top:0;z-index:30;background:var(--glass);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line);transition:background-color var(--tr);
+    margin:0 -44px 26px;padding:13px 44px;display:flex;align-items:center;gap:12px;
+  }
+  .topbar .crumb{font-size:12.5px;color:var(--ink-3);flex:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar button{
+    border:1.5px solid var(--line-2);background:transparent;color:var(--ink);
+    padding:9px 18px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:var(--font);transition:all var(--tr);
+  }
+  .topbar button:hover{border-color:var(--brand);color:var(--accent);background:var(--accent-soft)}
+  #menuBtn{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{padding:14px 0 26px;border-bottom:1px solid var(--line);margin-bottom:34px}
+  .hero h1{font-size:38px;line-height:1.15;margin:0 0 12px;letter-spacing:-1.1px}
+  .hero .tagline{font-size:16.5px;color:var(--ink-2);max-width:66ch;margin:0 0 20px}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{
+    font-size:12px;font-weight:600;padding:6px 15px;border-radius:9999px;
+    background:var(--gradient-subtle);border:1px solid rgba(123,97,255,.2);color:var(--ink-2)
+  }
+  .chip b{color:var(--accent)}
+
+  .grad{
+    background:var(--gradient-brand);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
+
+  /* ---------- sections ---------- */
+  section.screen{
+    padding:34px 0 30px;border-bottom:1px solid var(--line);scroll-margin-top:78px;
+  }
+  section.screen:last-of-type{border-bottom:0}
+  .screen-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px}
+  .screen-num{
+    flex:0 0 46px;height:46px;border-radius:12px;display:grid;place-items:center;
+    background:var(--gradient-subtle);border:1px solid rgba(123,97,255,.25);
+    font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);
+  }
+  .screen-head h2{font-size:25px;margin:4px 0 6px;letter-spacing:-.5px}
+  .lead{margin:0;color:var(--ink-2);font-size:14.6px;max-width:76ch}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .tag{
+    font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    padding:3px 9px;border-radius:6px;background:var(--panel-2);
+    border:1px solid var(--line);color:var(--ink-3);
+  }
+  .tag.nav{color:var(--accent);border-color:rgba(123,97,255,.3);background:var(--accent-soft)}
+  .tag.pro{color:var(--amber);border-color:rgba(255,198,92,.3);background:rgba(255,198,92,.1)}
+  .tag.settings{color:var(--blue);border-color:rgba(90,169,255,.3);background:rgba(90,169,255,.1)}
+  .tag.system{color:var(--pink);border-color:rgba(255,126,168,.3);background:rgba(255,126,168,.1)}
+
+  h3{
+    font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--ink-3);margin:26px 0 11px;display:flex;align-items:center;gap:9px;
+  }
+  h3::after{content:"";height:1px;flex:1;background:var(--line)}
+  .block p{margin:0 0 12px;color:var(--ink-2);max-width:80ch}
+  .block p strong{color:var(--ink);font-weight:600}
+
+  /* ---------- element table ---------- */
+  table.elements{width:100%;border-collapse:collapse;font-size:13.6px;margin-top:4px}
+  table.elements th{
+    text-align:left;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+    color:var(--ink-3);font-weight:800;padding:0 12px 9px;border-bottom:1px solid var(--line-2);
+  }
+  table.elements td{
+    padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);
+  }
+  table.elements tr:last-child td{border-bottom:0}
+  table.elements tr:hover td{background:var(--hover)}
+  table.elements td:first-child{color:var(--ink);font-weight:600;width:24%}
+  table.elements td:last-child{width:34%}
+  table.elements b{color:var(--accent);font-weight:600}
+
+  /* ---------- overview table ---------- */
+  table.overview{width:100%;border-collapse:collapse;font-size:13.4px;margin-top:8px}
+  table.overview th{
+    text-align:left;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+    color:var(--ink-3);font-weight:800;padding:0 11px 9px;border-bottom:1px solid var(--line-2);
+  }
+  table.overview td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+  table.overview td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+  table.overview td:first-child a{color:var(--ink)}
+  table.overview td:first-child a:hover{color:var(--accent)}
+  table.overview td.entry{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  table.overview tr:hover td{background:var(--hover)}
+
+  /* ---------- steps ---------- */
+  ol.steps{margin:4px 0 0;padding:0;list-style:none;counter-reset:s}
+  ol.steps li{
+    counter-increment:s;position:relative;padding:0 0 15px 42px;color:var(--ink-2);
+    font-size:14px;max-width:78ch;
+  }
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;
+    border-radius:8px;display:grid;place-items:center;background:var(--panel-2);
+    border:1px solid var(--line-2);color:var(--accent);font-size:12px;font-weight:700;
+    font-family:var(--mono);
+  }
+  ol.steps li::after{
+    content:"";position:absolute;left:13px;top:29px;bottom:1px;width:1px;background:var(--line);
+  }
+  ol.steps li:last-child{padding-bottom:0}
+  ol.steps li:last-child::after{display:none}
+  ol.steps b{color:var(--ink);font-weight:600}
+
+  ul.plain{margin:6px 0 0;padding-left:20px;color:var(--ink-2);font-size:14px}
+  ul.plain li{margin-bottom:7px}
+  ul.plain b{color:var(--ink);font-weight:600}
+
+  /* ---------- callouts ---------- */
+  .callout{
+    margin-top:20px;padding:14px 16px;border-radius:var(--radius);
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--blue);
+    font-size:13.7px;color:var(--ink-2);max-width:82ch;
+  }
+  .callout .t{
+    display:block;font-size:10.5px;font-weight:800;letter-spacing:1.1px;
+    text-transform:uppercase;margin-bottom:5px;color:var(--blue);
+  }
+  .callout.tip{border-left-color:var(--accent)}
+  .callout.tip .t{color:var(--accent)}
+  .callout.warn{border-left-color:var(--amber)}
+  .callout.warn .t{color:var(--amber)}
+  .callout.danger{border-left-color:var(--pink)}
+  .callout.danger .t{color:var(--pink)}
+  .callout.pro{border-left-color:var(--violet)}
+  .callout.pro .t{color:var(--violet)}
+  .callout p{margin:0 0 8px}
+  .callout p:last-child{margin:0}
+  .callout ul{margin:6px 0 0;padding-left:18px}
+
+  /* ---------- to top ---------- */
+  #toTop{
+    position:fixed;right:26px;bottom:26px;width:44px;height:44px;border-radius:50%;
+    border:1px solid var(--line-2);background:var(--panel);color:var(--ink-2);
+    font-size:17px;cursor:pointer;display:none;place-items:center;z-index:50;
+    box-shadow:0 8px 26px rgba(0,0,0,.45);
+  }
+  #toTop.show{display:grid}
+  #toTop:hover{color:var(--accent);border-color:var(--accent-2)}
+
+  footer.foot{
+    margin-top:50px;padding-top:24px;border-top:1px solid var(--line);
+    color:var(--ink-3);font-size:12.5px;text-align:center;
+  }
+  footer.foot .foot-bottom{margin-top:6px;opacity:.85}
+
+  .backdrop{display:none}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1040px){
+    .content{padding:0 26px 80px}
+    .topbar{margin:0 -26px 24px;padding:13px 26px}
+  }
+  @media (max-width:860px){
+    #menuBtn{display:inline-block}
+    .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .22s ease}
+    .sidebar.open{transform:none}
+    .backdrop{
+      display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:35;
+      opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    .backdrop.show{opacity:1;pointer-events:auto}
+    .content{padding:0 20px 80px;max-width:100%}
+    .topbar{margin:0 -20px 22px;padding:12px 20px}
+    .hero h1{font-size:29px}
+    table.elements td:first-child{width:auto}
+    table.elements,table.overview{font-size:12.8px}
+  }
+  @media (max-width:640px){
+    /* Phones: let the tables shrink instead of overflowing the page. */
+    table.elements,table.overview{table-layout:fixed;font-size:12.2px;width:100%}
+    table.elements th,table.elements td,table.overview th,table.overview td{
+      padding:9px 7px;overflow-wrap:anywhere;word-break:break-word
+    }
+    table.overview td:first-child,table.elements td:first-child{white-space:normal;width:26%}
+    table.overview td.entry{white-space:normal}
+    .elements td:last-child,.elements th:last-child{width:38%}
+  }
+
+  @media print{
+    :root{--bg:#fff;--bg-2:#fff;--panel:#fff;--panel-2:#f5f6f8;--line:#e2e2e8;
+          --line-2:#cfcfd8;--ink:#111;--ink-2:#333;--ink-3:#666;--accent:#5A3EE8;
+          --hover:transparent;--glass:#fff;--accent-soft:rgba(123,97,255,.08)}
+    .sidebar,.topbar,#toTop,.backdrop{display:none!important}
+    .content{max-width:none;padding:0}
+    section.screen{page-break-inside:avoid}
+    h3{color:#444}
+  }
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop"></div>
+
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <div class="mark">
+          <img src="assets/images/app-icon.webp" alt="Expense Tracker logo"
+               onerror="this.parentNode.classList.add('fallback');this.remove();">
+          <span class="mark-fallback">💰</span>
+        </div>
+        <div>
+          <h1>Expense Tracker</h1>
+          <div class="sub">Budget &amp; Spend — User Manual</div>
+        </div>
+      </div>
+      <div class="brand-meta">
+        <span class="ver">v2.218.0</span>
+        <a class="site-link" href="https://expense-tracker-2ea00.web.app/" target="_blank" rel="noopener noreferrer">Website &#8599;</a>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Search screens and features…" autocomplete="off" />
+    </div>
+
+    <nav class="nav" id="nav">
+      <div class="nav-group">
+        <div class="nav-group-title">Start here</div>
+        <a href="#overview"><span class="n">≡</span> All screens at a glance</a>
+        <a href="#quickstart"><span class="n">▶</span> Quick start</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Getting in</div>
+        <a href="#splash"><span class="n">01</span> Splash &amp; Onboarding</a>
+        <a href="#auth"><span class="n">02</span> Sign In / Sign Up</a>
+        <a href="#applock"><span class="n">03</span> App Lock (PIN)</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Everyday use</div>
+        <a href="#home"><span class="n">04</span> Home</a>
+        <a href="#sms-inbox"><span class="n">05</span> Detected Transactions</a>
+        <a href="#add-transaction"><span class="n">06</span> Add / Edit Transaction</a>
+        <a href="#transactions"><span class="n">07</span> Transactions</a>
+        <a href="#calculator"><span class="n">08</span> Itemized Calculator</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Planning &amp; insight</div>
+        <a href="#analytics"><span class="n">09</span> Analytics</a>
+        <a href="#plans"><span class="n">10</span> Plans (Budget &amp; Recurring)</a>
+        <a href="#funds"><span class="n">11</span> Funds</a>
+        <a href="#calendar"><span class="n">12</span> Calendar</a>
+        <a href="#goals"><span class="n">13</span> My Goals</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Settings &amp; personalisation</div>
+        <a href="#settings"><span class="n">14</span> Settings</a>
+        <a href="#profile"><span class="n">15</span> Profile</a>
+        <a href="#preferences"><span class="n">16</span> App Preferences</a>
+        <a href="#security"><span class="n">17</span> Security &amp; Privacy</a>
+        <a href="#customisation"><span class="n">18</span> Card Customisation</a>
+        <a href="#categories"><span class="n">19</span> Manage Categories</a>
+        <a href="#add-category"><span class="n">20</span> Add Category</a>
+        <a href="#tags"><span class="n">21</span> Manage Tags</a>
+        <a href="#notifications"><span class="n">22</span> Notifications</a>
+        <a href="#data"><span class="n">23</span> Data Management</a>
+        <a href="#devices"><span class="n">24</span> Cloud Sync &amp; Devices</a>
+        <a href="#refer"><span class="n">25</span> Refer a Friend</a>
+        <a href="#feedback"><span class="n">26</span> Feedback</a>
+        <a href="#about"><span class="n">27</span> About</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Membership</div>
+        <a href="#membership"><span class="n">28</span> My Membership</a>
+        <a href="#paywall"><span class="n">29</span> Upgrade to Pro</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">System screens</div>
+        <a href="#update"><span class="n">30</span> Update Required</a>
+        <a href="#maintenance"><span class="n">31</span> System Maintenance</a>
+      </div>
+
+      <div class="nav-empty" id="navEmpty">No screens match that search.</div>
+    </nav>
+  </aside>
+
+  <!-- ================= CONTENT ================= -->
+  <main class="content">
+
+    <div class="topbar">
+      <button id="menuBtn" aria-label="Toggle navigation">☰</button>
+      <div class="crumb" id="crumb">Expense Tracker — User Manual</div>
+      <button id="themeBtn" type="button" aria-label="Toggle light and dark theme" title="Toggle theme"></button>
+      <button onclick="window.print()">Print / PDF</button>
+    </div>
+
+    <!-- ---------- HERO ---------- -->
+    <div class="hero" id="top">
+      <h1>Expense Tracker — <span class="grad">User Manual</span></h1>
+      <p class="tagline">
+        A screen-by-screen guide to <strong>Expense Tracker: Budget &amp; Spend</strong>.
+        For every screen you get what it is for, every element on it, and exactly how to use it —
+        from logging your first expense to reading your yearly analytics.
+      </p>
+      <div class="meta">
+        <span class="chip">Version <b>2.218.0</b></span>
+        <span class="chip"><b>31</b> screens covered</span>
+        <span class="chip">Android · Offline-first</span>
+        <span class="chip">Tap any screen in the left sidebar</span>
+      </div>
+    </div>
+
+    <!-- ================= OVERVIEW ================= -->
+    <section class="screen" id="overview">
+      <div class="screen-head">
+        <div class="screen-num">≡</div>
+        <div>
+          <h2>All screens at a glance</h2>
+          <p class="lead">The complete list of screens in the app, what each one is for, and how you
+            reach it. Use this as a map before diving into the detail below.</p>
+        </div>
+      </div>
+
+      <table class="overview">
+        <thead>
+          <tr><th>Screen</th><th>What it is for</th><th>Reached from</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="#splash">Splash &amp; Onboarding</a></td>
+              <td>First-run intro, account setup and personalisation</td><td class="entry">First launch</td></tr>
+          <tr><td><a href="#auth">Sign In / Sign Up</a></td>
+              <td>Create an account or sign in to enable sync &amp; Pro</td><td class="entry">Onboarding · Settings</td></tr>
+          <tr><td><a href="#applock">App Lock (PIN)</a></td>
+              <td>Unlock the app with a PIN or biometrics</td><td class="entry">Open app (if enabled)</td></tr>
+          <tr><td><a href="#home">Home</a></td>
+              <td>Daily dashboard: today's spend, goals, upcoming bills, recent activity</td><td class="entry">Bottom nav · app launch</td></tr>
+          <tr><td><a href="#sms-inbox">Detected Transactions</a></td>
+              <td>Review bank/UPI SMS the app parsed on-device</td><td class="entry">Home bell · notifications</td></tr>
+          <tr><td><a href="#add-transaction">Add / Edit Transaction</a></td>
+              <td>Record or change an income/expense entry</td><td class="entry">Centre + button · any transaction card</td></tr>
+          <tr><td><a href="#transactions">Transactions</a></td>
+              <td>Full ledger with search, sort, filter and bulk actions</td><td class="entry">Home “See All”</td></tr>
+          <tr><td><a href="#calculator">Itemized Calculator</a></td>
+              <td>Split one payment into line items, with a running total</td><td class="entry">Home · Add Transaction</td></tr>
+          <tr><td><a href="#analytics">Analytics</a></td>
+              <td>Trends, breakdowns, top spending and smart insights</td><td class="entry">Bottom nav</td></tr>
+          <tr><td><a href="#plans">Plans (Budget &amp; Recurring)</a></td>
+              <td>Category budget caps and recurring / EMI tracking</td><td class="entry">Bottom nav</td></tr>
+          <tr><td><a href="#funds">Funds</a></td>
+              <td>Cash buckets set aside for a purpose</td><td class="entry">Plans → Funds tab</td></tr>
+          <tr><td><a href="#calendar">Calendar</a></td>
+              <td>Month and year views of spending per day</td><td class="entry">Home “Spent Today”</td></tr>
+          <tr><td><a href="#goals">My Goals</a></td>
+              <td>Savings goals with progress and optional deadlines</td><td class="entry">Home card · Settings</td></tr>
+          <tr><td><a href="#settings">Settings</a></td>
+              <td>Hub for account, membership, preferences and data</td><td class="entry">Bottom nav</td></tr>
+          <tr><td><a href="#profile">Profile</a></td>
+              <td>Name, avatar, email, phone, DOB and gender</td><td class="entry">Home avatar · Settings</td></tr>
+          <tr><td><a href="#preferences">App Preferences</a></td>
+              <td>Currency, formats, month start day, language, theme, font</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#security">Security &amp; Privacy</a></td>
+              <td>App lock, auto-lock, biometrics, screenshots, password</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#customisation">Card Customisation</a></td>
+              <td>Choose what each transaction card and the list shows</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#categories">Manage Categories</a></td>
+              <td>Browse, recolor and delete income/expense/payment items</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#add-category">Add Category</a></td>
+              <td>Create a custom category or payment method</td><td class="entry">Manage Categories → +</td></tr>
+          <tr><td><a href="#tags">Manage Tags</a></td>
+              <td>Create, rename, merge and delete tags</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#notifications">Notifications</a></td>
+              <td>Every reminder and alert, with windows and thresholds</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#data">Data Management</a></td>
+              <td>Backup, restore, export/import, delete account or data</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#devices">Cloud Sync &amp; Devices</a></td>
+              <td>Turn sync on, force a sync, manage linked devices</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#refer">Refer a Friend</a></td>
+              <td>Share your code and earn free Pro days</td><td class="entry">Home · Settings</td></tr>
+          <tr><td><a href="#feedback">Feedback</a></td>
+              <td>Send a message to the team</td><td class="entry">About → Send Feedback</td></tr>
+          <tr><td><a href="#about">About</a></td>
+              <td>Version, legal links, rate the app</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#membership">My Membership</a></td>
+              <td>Your plan, benefits, expiry and billing actions</td><td class="entry">Settings</td></tr>
+          <tr><td><a href="#paywall">Upgrade to Pro</a></td>
+              <td>Choose a plan and subscribe</td><td class="entry">Any gated feature</td></tr>
+          <tr><td><a href="#update">Update Required</a></td>
+              <td>Forces an update when the installed build is too old</td><td class="entry">App launch</td></tr>
+          <tr><td><a href="#maintenance">System Maintenance</a></td>
+              <td>Shown while the service is temporarily offline</td><td class="entry">App launch</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ================= QUICK START ================= -->
+    <section class="screen" id="quickstart">
+      <div class="screen-head">
+        <div class="screen-num">▶</div>
+        <div>
+          <h2>Quick start — your first 5 minutes</h2>
+          <p class="lead">A short path from a fresh install to a useful dashboard.</p>
+        </div>
+      </div>
+
+      <ol class="steps">
+        <li><b>Walk through onboarding.</b> Swipe (or tap <code>NEXT</code>) through the intro pages,
+            then choose <b>Continue with Google</b>, sign up with email, or tap
+            <b>Continue as Guest</b> to stay fully offline.</li>
+        <li><b>Set up your profile.</b> Enter your name, gender and date of birth so the dashboard
+            greeting and insights are personalised.</li>
+        <li><b>Pick your currency.</b> Go to <a href="#settings">Settings</a> →
+            <a href="#preferences">App Preferences</a> → <b>Currency</b> and search for your country.</li>
+        <li><b>Log your first expense.</b> Tap the <b>+</b> at the centre of the bottom bar, type the
+            amount on the keypad, pick a category, then press <b>Add</b>.</li>
+        <li><b>Set one budget.</b> Open <a href="#plans">Plans</a> → <b>Budgets</b> →
+            <b>ADD A BUDGET</b>, choose the categories to cap and set a monthly limit.</li>
+        <li><b>Turn on your safety net.</b> In <a href="#settings">Settings</a> →
+            <a href="#security">Security &amp; Privacy</a>, enable <b>App Lock</b> and set a 4-digit PIN.</li>
+        <li><b>Protect your history.</b> In <a href="#data">Data Management</a>, enable
+            <b>Auto Backup</b> and (if signed in) <a href="#devices">Cloud Sync</a>.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="t">Good to know</span>
+        <p>The app is <strong>offline-first</strong>. Everything works without an account — signing in
+        only adds cloud sync, cross-device restore and the ability to earn or redeem Pro passes.</p>
+      </div>
+    </section>
+
+    <!-- ================= 01 SPLASH ================= -->
+    <section class="screen" id="splash">
+      <div class="screen-head">
+        <div class="screen-num">01</div>
+        <div>
+          <h2>Splash &amp; Onboarding</h2>
+          <p class="lead">The very first screen. It introduces the app, asks what you want from it,
+            then walks you into your account and profile.</p>
+          <div class="tags"><span class="tag">First launch</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>On launch you see a short branded splash (“Elegance in Every Transaction”) while the app
+        prepares your data — it reports <em>Preparing your dashboard</em>, <em>Syncing your
+        transactions</em> and <em>Securing your data</em>. Then the onboarding pager walks you through
+        four intro pages before handing you to sign-in and profile setup.</p>
+        <p>The intro pages are: <strong>Track Expenses Easily</strong>,
+        <strong>Secure &amp; Private</strong>, <strong>Visual Analytics</strong> and
+        <strong>Premium by Design, Private by Nature</strong>. They carry small stat cards
+        (Secure Logging, Encrypted Mode, Growth Index, Accuracy, 100% Offline First, Full Control)
+        that set expectations about how the app handles your money data.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Page indicator</td><td>Dots showing how far through the intro you are</td>
+                <td>Watch it, or swipe left/right to move</td></tr>
+            <tr><td><b>SKIP</b></td><td>Jumps past the remaining intro pages</td>
+                <td>Tap it on any intro page to reach sign-in faster</td></tr>
+            <tr><td><b>PREV / NEXT</b></td><td>Moves one intro page at a time</td>
+                <td>Tap NEXT on the last page to reach the account page</td></tr>
+            <tr><td>Illustrations</td><td>Animated artwork per page (expense card, vault, charts, benefits)</td>
+                <td>Informational only</td></tr>
+            <tr><td>Account page</td><td>Google sign-in, email sign-up and Guest entry</td>
+                <td>Choose one — see <a href="#auth">Sign In / Sign Up</a></td></tr>
+            <tr><td>“Let's get started!” page</td><td>Collects FULL NAME, GENDER and date of birth</td>
+                <td>Fill the fields, then tap <b>Get Started</b></td></tr>
+            <tr><td>Privacy info (ⓘ)</td><td>Explains the profile data is used only for personalisation</td>
+                <td>Tap the info icon to read it</td></tr>
+            <tr><td>Welcome-back page</td><td>Returning users skip straight to a greeting instead of the intro</td>
+                <td>Nothing to do — tap Continue to enter the app</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Let the splash finish — it disappears as soon as your data is loaded.</li>
+          <li>Swipe through (or tap <b>NEXT</b>) to learn the four pillars of the app.</li>
+          <li>On the account page pick <b>Continue with Google</b>, an email method, or
+              <b>Continue as Guest</b>.</li>
+          <li>Fill in <b>Full Name</b>, <b>Gender</b> and <b>Date of Birth</b>, then tap
+              <b>Get Started</b>.</li>
+          <li>You land on <a href="#home">Home</a>. On later launches the splash and
+              <a href="#applock">App Lock</a> appear instead, and you go straight in.</li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <span class="t">Note</span>
+        <p>Guests can use the app fully offline. Signing in later is non-destructive — your existing
+        local data becomes the first thing the cloud sync uploads.</p>
+      </div>
+    </section>
+
+    <!-- ================= 02 AUTH ================= -->
+    <section class="screen" id="auth">
+      <div class="screen-head">
+        <div class="screen-num">02</div>
+        <div>
+          <h2>Sign In / Sign Up</h2>
+          <p class="lead">Create an account or sign in. This is what unlocks cloud sync, cross-device
+            restore and Pro membership.</p>
+          <div class="tags"><span class="tag">Onboarding</span><span class="tag settings">Settings</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Offers three ways in — Google, email/password, or staying as a guest — and enforces the
+        legal agreement and email verification that come with an account. The screen also handles
+        password resets and the inbox-verification loop.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>Continue with Google</b> <span class="tag pro">recommended</span></td>
+                <td>Signs you in with a Google account on the device</td>
+                <td>Tap it and pick an account. If none exist, follow the “Add Account” prompt</td></tr>
+            <tr><td>Email Address</td><td>Your login email</td>
+                <td>Type it; an invalid address is rejected inline</td></tr>
+            <tr><td>Password</td><td>Login password, with a strength checklist</td>
+                <td>Type at least 8 characters with 1 number and 1 special character</td></tr>
+            <tr><td>Show / hide password</td><td>Reveals what you typed</td><td>Tap the eye icon</td></tr>
+            <tr><td><b>Forgot password</b></td><td>Sends a reset link to your email</td>
+                <td>Tap it, then check your inbox (and spam)</td></tr>
+            <tr><td><b>Sign Up / Sign In</b></td><td>Submits the form and creates or opens the account</td>
+                <td>Tap after filling the fields</td></tr>
+            <tr><td>“Already have an account?” / “Don't have an account?”</td>
+                <td>Switches between the sign-up and sign-in forms</td><td>Tap the link beneath the button</td></tr>
+            <tr><td>Terms &amp; Privacy checkbox</td><td>Mandatory consent before an account is created</td>
+                <td>Tick it, then continue. It links to the Terms and Privacy pages</td></tr>
+            <tr><td><b>Continue as Guest</b></td><td>Enters the app without an account</td>
+                <td>Tap it to skip straight to the dashboard</td></tr>
+            <tr><td>Email verification sheet</td><td>Tracks the verification link, shows its expiry countdown</td>
+                <td>Open your inbox, click the link, then tap <b>Check Verification Status</b>.
+                    Use <b>Resend Verification Email</b> if it expired</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Pick a method: <b>Continue with Google</b> for the fastest route, email/password for a
+              standalone account, or <b>Continue as Guest</b> to stay offline.</li>
+          <li>If signing up with email, meet the password rules listed under the field and tick the
+              Terms checkbox.</li>
+          <li>A verification email is sent. Open it and click the link, then return and press
+              <b>Check Verification Status</b>.</li>
+          <li>You can keep using the app while unverified, but some account features wait for
+              verification.</li>
+        </ol>
+      </div>
+
+      <div class="callout warn">
+        <span class="t">Verification gotchas</span>
+        <ul>
+          <li>Requests are rate-limited — if you resend too often you'll see a “too many attempts” message.</li>
+          <li>If the previous link is still valid, the app tells you to check your inbox first and
+              expires-and-resends only when needed.</li>
+          <li>Cloned or parallel-space installs can break Google sign-in; use the original install.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 03 APP LOCK ================= -->
+    <section class="screen" id="applock">
+      <div class="screen-head">
+        <div class="screen-num">03</div>
+        <div>
+          <h2>App Lock (PIN)</h2>
+          <p class="lead">The lock screen you meet each time you open the app once App Lock is enabled.</p>
+          <div class="tags"><span class="tag">Security</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Guards your financial data behind a 4-digit PIN, optionally backed by your device's
+        fingerprint or face unlock. The same screen is used to <em>create</em> a PIN the first time and
+        to <em>unlock</em> afterwards, and it doubles as the recovery flow if you forget the PIN.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>“Welcome Back” header</td><td>Unlock mode — asks for the PIN you already set</td>
+                <td>Enter your 4 digits</td></tr>
+            <tr><td>“Create a 4-digit PIN”</td><td>Setup mode, first entry</td>
+                <td>Type 4 digits; the app then asks you to confirm them</td></tr>
+            <tr><td>“Confirm your PIN”</td><td>Setup mode, second entry</td>
+                <td>Repeat the same 4 digits. If they differ you start again</td></tr>
+            <tr><td>Numeric keypad</td><td>Digits 0–9 plus delete</td>
+                <td>Tap digits; use the backspace key to correct</td></tr>
+            <tr><td>Biometric prompt</td><td>Fingerprint / face unlock shortcut</td>
+                <td>Tap the biometric icon, or just present your finger/face</td></tr>
+            <tr><td>Scrambled keypad</td><td>Shuffles the digit layout to defeat shoulder-surfing</td>
+                <td>Enable it in <a href="#security">Security &amp; Privacy</a>; the keypad simply appears shuffled</td></tr>
+            <tr><td><b>FORGOT</b></td><td>Starts recovery</td>
+                <td>Tap it, pick the security question you saved, type the answer, then set a new PIN</td></tr>
+            <tr><td>Lockout countdown</td><td>Appears after repeated wrong PINs</td>
+                <td>Wait for the timer to reach zero, then try again</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Turn App Lock on in <a href="#security">Settings → Security &amp; Privacy</a>.</li>
+          <li>Choose a <b>security question</b> from the list and save an answer you will remember —
+              this is your only self-service way back in.</li>
+          <li>Enter a 4-digit PIN, then confirm it.</li>
+          <li>From then on the app asks for the PIN (or your biometric) when you open it, following
+              whatever <b>Auto Lock Duration</b> you chose.</li>
+        </ol>
+      </div>
+
+      <div class="callout danger">
+        <span class="t">Important</span>
+        <p>Your PIN is hashed and stored on the device; there is no server copy. If you forget both the
+        PIN <em>and</em> the answer to your recovery question, the only route back in is reinstalling
+        the app — which clears local data. Keep a JSON backup from
+        <a href="#data">Data Management</a> if you want a safety net.</p>
+      </div>
+    </section>
+
+    <!-- ================= 04 HOME ================= -->
+    <section class="screen" id="home">
+      <div class="screen-head">
+        <div class="screen-num">04</div>
+        <div>
+          <h2>Home</h2>
+          <p class="lead">Your daily dashboard. It answers “how am I doing today, and what needs my
+            attention?” in one scroll.</p>
+          <div class="tags"><span class="tag nav">Bottom nav</span><span class="tag">Default screen</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Home pulls together today's spending, your savings goals, the bills coming up next, your
+        most recent transactions, and a profile-progress checklist that nudges you to complete your
+        account. It is also the launchpad to the calendar, the calculator and the detected-SMS inbox.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Greeting (“Hi, &lt;name&gt;”)</td><td>Personalised welcome with a short tagline</td>
+                <td>Shows your profile name, or “Guest User”</td></tr>
+            <tr><td>Avatar</td><td>Opens your profile</td><td>Tap it → <a href="#profile">Profile</a></td></tr>
+            <tr><td>Pro badge</td><td>Appears next to your name while Pro is active</td><td>Informational</td></tr>
+            <tr><td>Settings gear ⚙</td><td>Opens Settings</td><td>Tap it → <a href="#settings">Settings</a></td></tr>
+            <tr><td>⋮ More options</td><td>Menu of secondary actions</td>
+                <td>Tap for <b>Detected Transactions</b> and other shortcuts</td></tr>
+            <tr><td><b>Spent Today</b> card</td><td>Today's total spend, with a comparison to the previous period</td>
+                <td>Tap it → <a href="#calendar">Calendar view</a></td></tr>
+            <tr><td><b>My Goals</b> card</td><td>Progress on your top savings goals</td>
+                <td>Tap → <a href="#goals">My Goals</a></td></tr>
+            <tr><td><b>Upcoming Recurring</b></td><td>Next recurring bills with due status (Today, Tomorrow, in n days)</td>
+                <td>Tap a row to open it in <a href="#plans">Plans → Recurring</a></td></tr>
+            <tr><td><b>Recent</b> + <b>See All</b></td><td>Your latest transactions</td>
+                <td>Tap a card to edit it, or <b>See All</b> for <a href="#transactions">Transactions</a></td></tr>
+            <tr><td>Detected Txns bell 🔔</td><td>Count badge of unread bank-SMS detections</td>
+                <td>Tap → <a href="#sms-inbox">Detected Transactions</a></td></tr>
+            <tr><td><b>Calculator</b> quick action</td><td>Opens the itemized/normal calculator</td>
+                <td>Tap → <a href="#calculator">Itemized Calculator</a></td></tr>
+            <tr><td><b>Calendar view</b> quick action</td><td>Jumps to the month view</td>
+                <td>Tap → <a href="#calendar">Calendar</a></td></tr>
+            <tr><td><b>Profile Progress</b> checklist</td>
+                <td>Tracks Full Name, Email, Date of Birth, Gender, Phone and Email Verification</td>
+                <td>Tap a missing row to jump to the field that completes it</td></tr>
+            <tr><td>SMS detection card</td><td>Shown when SMS permission is missing, with a one-tap fix</td>
+                <td>Tap <b>Grant</b>/open settings to enable detection; dismiss if you don't want it</td></tr>
+            <tr><td>Xiaomi setup card</td><td>Appears on Xiaomi devices to enable Autostart and unrestricted battery</td>
+                <td>Follow the steps, then tap <b>I've enabled it</b></td></tr>
+            <tr><td>Centre <b>+</b> button</td><td>Adds a new transaction</td>
+                <td>Tap → <a href="#add-transaction">Add Transaction</a></td></tr>
+            <tr><td>Bottom bar</td><td>Home · Analytics · Budget · Settings</td><td>Tap any tab to switch</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Glance at <b>Spent Today</b> to see where the day stands.</li>
+          <li>Check <b>Upcoming Recurring</b> if a bill is due; tap the row to manage it.</li>
+          <li>Confirm anything the app detected by tapping the <b>bell</b> and reviewing the cards.</li>
+          <li>Complete any open <b>Profile Progress</b> rows to finish setting up your account.</li>
+          <li>Tap a recent transaction to open it in the editor if you need to fix something.</li>
+        </ol>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Tip</span>
+        <p>On tablets and landscape phones the bottom bar becomes a side navigation rail — the same
+        four destinations, plus the centre add button docked in the bar.</p>
+      </div>
+    </section>
+
+    <!-- ================= 05 SMS INBOX ================= -->
+    <section class="screen" id="sms-inbox">
+      <div class="screen-head">
+        <div class="screen-num">05</div>
+        <div>
+          <h2>Detected Transactions</h2>
+          <p class="lead">Bank, UPI and wallet messages the app parsed on-device, waiting for your
+            confirmation before they become real transactions.</p>
+          <div class="tags"><span class="tag">SMS import</span><span class="tag">Optional</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>When SMS detection is on, incoming financial messages are read locally and turned into
+        suggestion cards here. <strong>Nothing is added to your ledger automatically</strong> — each
+        card waits for you to review it in the transaction editor and press Add. Non-financial
+        messages (OTP, promo, no amount) never appear.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Search box</td><td>Searches by merchant, sender or message text</td>
+                <td>Type any fragment to narrow the list</td></tr>
+            <tr><td>Filter chips</td><td><b>All</b>, <b>Income</b>, <b>Expense</b></td>
+                <td>Tap a chip to show only that kind of detection</td></tr>
+            <tr><td>Detection card</td>
+                <td>Shows the amount, credited/debited verb, sender, the original SMS text and a suggested category</td>
+                <td>Tap it to open <a href="#add-transaction">Add Transaction</a> pre-filled; edit if needed, then press <b>Add</b></td></tr>
+            <tr><td>Swipe on a card</td><td>Deletes a single detection</td>
+                <td>Swipe left/right, then use <b>Undo</b> in the snackbar if it was a mistake</td></tr>
+            <tr><td>Long-press / selection mode</td><td>Multi-select detections for bulk work</td>
+                <td>Long-press one card, then use <b>Select all</b>, <b>Deselect all</b> or <b>Delete selected</b></td></tr>
+            <tr><td>Edit sheet</td><td>Quick edit of Amount, Note and Category before adding</td>
+                <td>Open a card's edit action, adjust, tap <b>Add</b></td></tr>
+            <tr><td><b>Clear All Pending</b></td><td>Removes every outstanding detection</td>
+                <td>Use when you've already logged those spends another way</td></tr>
+            <tr><td>Day grouping</td><td>Groups cards under Today / Yesterday / dates</td><td>Informational</td></tr>
+            <tr><td>Empty states</td><td>“No detected transactions yet” / “Nothing here” for a filtered view</td>
+                <td>Clears the search or filter to see everything again</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap the bell on <a href="#home">Home</a>, or open a “Transaction Detected” notification.</li>
+          <li>Skim the cards and tap the ones that are real spends you haven't logged.</li>
+          <li>In the editor, fix the amount, category, payment method or note if the parse was off.</li>
+          <li>Press <b>Add</b>. The card leaves the inbox and the transaction joins your ledger.</li>
+          <li>Swipe away anything that isn't a real transaction.</li>
+        </ol>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Privacy</span>
+        <p>Detection uses <code>RECEIVE_SMS</code> only — no <code>READ_SMS</code>, no
+        <code>SEND_SMS</code>. Messages are parsed on-device and SMS bodies are never uploaded. Deny
+        the permission and the whole feature simply stays off.</p>
+      </div>
+    </section>
+
+    <!-- ================= 06 ADD TRANSACTION ================= -->
+    <section class="screen" id="add-transaction">
+      <div class="screen-head">
+        <div class="screen-num">06</div>
+        <div>
+          <h2>Add / Edit Transaction</h2>
+          <p class="lead">The heart of the app. One screen records, edits and deletes every income and
+            expense entry.</p>
+          <div class="tags"><span class="tag">Core</span><span class="tag nav">Centre + button</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>It opens in one of two modes: <strong>Add</strong> for a new entry, and
+        <strong>Edit</strong> when you tap an existing transaction (the title changes to “Edit
+        Transaction” and a delete action appears). The same screen also carries the amount keypad,
+        voice input, the itemized calculator hand-off, tags, funds, and the recurring/EMI planner.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Income / Expense toggle</td><td>Sets whether this is money in or money out</td>
+                <td>Tap <b>Expense</b> or <b>Income</b> at the top before saving</td></tr>
+            <tr><td>Amount display</td><td>Shows the value you are entering, formatted in your currency</td>
+                <td>Types as you tap the keypad</td></tr>
+            <tr><td>Amount keypad</td><td>Fast numeric entry with a decimal point and delete</td>
+                <td>Tap digits; tap the collapse handle to hide the keypad and see the rest of the form</td></tr>
+            <tr><td>Voice input 🎤</td><td>Lets you dictate a transaction</td>
+                <td>Tap and say something like “spent 50 on groceries”. Free tier has a daily limit;
+                    Pro is unlimited</td></tr>
+            <tr><td>Calculator 🧮</td><td>Opens the itemized calculator</td>
+                <td>Tap → <a href="#calculator">Itemized Calculator</a>; results come back into this form</td></tr>
+            <tr><td>Favorite ★</td><td>Marks this transaction as a reusable template</td>
+                <td>Tap the star to add/remove. Starred entries appear in <b>Quick Favorites</b></td></tr>
+            <tr><td>Clear fields</td><td>Resets the form</td><td>Tap the clear icon to start over</td></tr>
+            <tr><td>Note</td><td>Free-text description (“What's this for?”)</td>
+                <td>Tap <b>Add a note</b>, type, then <b>Save Note</b>. Trailing notes get a tooltip on the card (Pro)</td></tr>
+            <tr><td>Category</td><td>The expense/income category</td>
+                <td>Tap <b>Select Category</b> and pick from the grid; custom categories appear here too</td></tr>
+            <tr><td>Payment Method</td><td>How the money moved (cash, card, wallet…)</td>
+                <td>Tap <b>Payment Type</b> and choose one</td></tr>
+            <tr><td>Fund</td><td>Draws this spend from a cash bucket</td>
+                <td>Tap <b>Fund</b> and choose one, or leave it as <b>None</b>.
+                    Overspending a fund shows a “Insufficient Fund” dialog with
+                    <b>Spend anyway</b>, <b>Edit amount</b> or <b>Remove fund</b></td></tr>
+            <tr><td>Date / Time</td><td>When the transaction happened</td>
+                <td>Tap either field and use the wheel picker</td></tr>
+            <tr><td>Tags</td><td>Extra labels beyond the category</td>
+                <td>Tap the tag field, search or type a new name, then <b>Add tag</b></td></tr>
+            <tr><td><b>Recurring Transaction</b> switch</td>
+                <td>Turns this entry into a repeating rule</td>
+                <td>Turn it on and fill in the recurring section below</td></tr>
+            <tr><td>Recurring Type</td><td><b>Regular</b> or <b>EMI / Installments</b></td>
+                <td>Choose EMI to track a loan with fixed installments</td></tr>
+            <tr><td>Frequency</td><td>Daily, Weekly, Monthly or Yearly</td>
+                <td>With Regular, pick how often it repeats (Yearly is Pro)</td></tr>
+            <tr><td>EMI fields</td><td>Total Amount, Installment Amount, First Due Date, Total Installments</td>
+                <td>Fill all four; the total must equal installment × count, or the app blocks the save</td></tr>
+            <tr><td>Rule ladder notice</td><td>Explains the free/ad/Pro split for recurring rules</td>
+                <td>Rules 1–3 free · 4–6 watch an ad · 7+ upgrade to Pro</td></tr>
+            <tr><td>Quick Favorites sheet</td>
+                <td>Your saved templates, searchable, with an “All” filter</td>
+                <td>Press <b>Copy</b> on a template to pre-fill the form</td></tr>
+            <tr><td><b>Add</b> / <b>Update</b></td><td>Saves the transaction</td>
+                <td>Tap it when the form is complete; you return to where you came from</td></tr>
+            <tr><td>Delete 🗑</td><td>Removes the transaction (edit mode only)</td>
+                <td>Tap delete on an existing entry; it's removed with an Undo snackbar in the list</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap the centre <b>+</b> (or an existing transaction to edit it).</li>
+          <li>Choose <b>Expense</b> or <b>Income</b>.</li>
+          <li>Enter the amount — type it, dictate it, or build it up in the calculator.</li>
+          <li>Pick a <b>Category</b>, then a <b>Payment Method</b> (and a <b>Fund</b> if you use them).</li>
+          <li>Add a <b>Note</b> and <b>Tags</b> so the entry is findable later.</li>
+          <li>Adjust the <b>Date/Time</b> if you are logging something from earlier.</li>
+          <li>Optionally switch on <b>Recurring Transaction</b> to automate it.</li>
+          <li>Tap <b>Add</b> (or <b>Update</b> when editing).</li>
+        </ol>
+      </div>
+
+      <div class="callout pro">
+        <span class="t">Free vs Pro on this screen</span>
+        <ul>
+          <li><b>Free:</b> 3 recurring rules, limited voice parses, favorites limited.</li>
+          <li><b>Rules 4–6:</b> unlock by watching a rewarded ad.</li>
+          <li><b>Pro:</b> unlimited recurring rules, yearly frequency, unlimited voice parsing, unlimited favorites.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 07 TRANSACTIONS ================= -->
+    <section class="screen" id="transactions">
+      <div class="screen-head">
+        <div class="screen-num">07</div>
+        <div>
+          <h2>Transactions</h2>
+          <p class="lead">The complete ledger. Every entry, with powerful search, filtering and bulk
+            editing.</p>
+          <div class="tags"><span class="tag">Core</span><span class="tag">Home → See All</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Lists every transaction grouped by day, with running period summaries, and gives you the
+        tools to find and act on any record: search, sort, multi-filter, duplicate, swipe-delete and
+        bulk delete.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Search icon 🔍</td><td>Opens the search field</td>
+                <td>Tap it, then type a note or an amount (“Notes or Amount…”).
+                    Free text; advanced search by category/wallet/tag is Pro</td></tr>
+            <tr><td><b>Sort &amp; Filter</b></td>
+                <td>Full sort and filter panel — type, category, payment mode, date range, amount range, order</td>
+                <td>Tap it, set your criteria, apply. Active filters show as chips you can remove one by one</td></tr>
+            <tr><td>Period navigator</td><td>Moves between months / periods</td>
+                <td>Use the arrows to step back and forward; the header shows the current period</td></tr>
+            <tr><td>Date separators</td><td>Sticky headers like “Today”, “Yesterday”, or a date</td>
+                <td>Toggle these in <a href="#customisation">Card Customisation</a></td></tr>
+            <tr><td>Period summaries</td><td>Income and expense totals for the visible period</td>
+                <td>Also controlled from <a href="#customisation">Card Customisation</a></td></tr>
+            <tr><td>Transaction card</td><td>Icon, title, amount, category, payment method, date/time</td>
+                <td>Tap to open the <a href="#add-transaction">editor</a>.
+                    What's shown on the card is your choice</td></tr>
+            <tr><td>Swipe a card</td><td>Deletes the transaction</td>
+                <td>Swipe, then tap <b>Undo</b> in the snackbar to bring it back</td></tr>
+            <tr><td>Long-press / selection</td><td>Enters multi-select mode</td>
+                <td>Long-press a card, then <b>Select all n in this view</b> or pick individual rows,
+                    then <b>Delete Transactions</b></td></tr>
+            <tr><td>Duplicate</td><td>Copies a transaction</td>
+                <td>Use the card's menu. Recurring-generated entries cannot be duplicated — you'll be told why</td></tr>
+            <tr><td>Empty / error states</td>
+                <td>“No transactions found”, or a retry button if loading failed</td>
+                <td>Retry on failure, or clear filters to see records again</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Reach it from <b>See All</b> on <a href="#home">Home</a>.</li>
+          <li>Use the period arrows to move through time.</li>
+          <li>Tap the search icon and type a note or amount to find something fast.</li>
+          <li>Open <b>Sort &amp; Filter</b> when you need a precise slice — e.g. all card expenses
+              above 1,000 in the last month.</li>
+          <li>Tap a card to edit it, swipe to delete it, or long-press to bulk-delete.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 08 CALCULATOR ================= -->
+    <section class="screen" id="calculator">
+      <div class="screen-head">
+        <div class="screen-num">08</div>
+        <div>
+          <h2>Itemized Calculator</h2>
+          <p class="lead">Split one payment into line items, total them, and carry the result back to
+            your transaction note.</p>
+          <div class="tags"><span class="tag">Tools</span><span class="tag">Home · Add Transaction</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>It is a calculator in two modes. Opened from <b>Home</b> it behaves as a normal calculator
+        (mode <code>NORMAL</code>). Opened from the transaction editor it becomes an
+        <strong>itemized breakdown</strong> (mode <code>ITEMIZED</code>) where each line item has a
+        description and an amount. It keeps a history of past calculations you can copy from.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Expression display</td><td>Shows the running expression and result</td><td>Read-only</td></tr>
+            <tr><td><b>AC</b></td><td>Clears the current calculation</td><td>Tap to start over</td></tr>
+            <tr><td>Breakdown list</td><td>The line items with an <b>n ITEMS</b> count</td>
+                <td>Tap an item to edit it, or use the delete icon</td></tr>
+            <tr><td><b>TOTAL AMOUNT</b></td><td>Sum of all line items</td><td>Carried to the note when you apply</td></tr>
+            <tr><td><b>Add New Item</b></td><td>Opens the item form</td>
+                <td>Enter a <b>Description</b> (e.g. “Coffee House”) and an <b>Amount</b>, then <b>Add Item</b></td></tr>
+            <tr><td><b>Apply to Note</b></td><td>Sends the total and the itemized note back to the transaction</td>
+                <td>Tap it — you return to <a href="#add-transaction">Add Transaction</a> pre-filled</td></tr>
+            <tr><td><b>History</b> 📋</td><td>Past calculations, newest first</td>
+                <td>Tap the history icon to open it</td></tr>
+            <tr><td>History quick actions</td>
+                <td>Copy Expression, Copy Result, Copy Expression + Result, Delete Entry</td>
+                <td>Long-press a history card to open the action sheet</td></tr>
+            <tr><td><b>Clear History</b></td><td>Wipes saved calculations</td>
+                <td>Tap it and confirm — this cannot be undone</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>From the transaction editor, tap the calculator icon.</li>
+          <li>Add each line item with a description and amount.</li>
+          <li>Check the <b>TOTAL AMOUNT</b>.</li>
+          <li>Tap <b>Apply to Note</b> — the amount and the itemized note land in the transaction form.</li>
+          <li>Finish the transaction and press <b>Add</b>.</li>
+        </ol>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Tip</span>
+        <p>Opened from Home instead? You get the same keypad without the line-item panel — handy for
+        quick maths, and every calculation is saved to History for reuse.</p>
+      </div>
+    </section>
+
+    <!-- ================= 09 ANALYTICS ================= -->
+    <section class="screen" id="analytics">
+      <div class="screen-head">
+        <div class="screen-num">09</div>
+        <div>
+          <h2>Analytics</h2>
+          <p class="lead">Charts and breakdowns that turn your transactions into habits you can see.</p>
+          <div class="tags"><span class="tag nav">Bottom nav</span><span class="tag pro">Some Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Summarises a chosen period — spending, income, savings and trends — then breaks the numbers
+        down by category, payment mode, tag and fund. A “Spending Insights” section adds plain-language
+        observations with a suggested saving. Free users see the headline numbers and can unlock the
+        deeper lists individually.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Period selector</td><td><b>Week</b>, <b>Month</b>, <b>Year</b>, <b>Custom</b></td>
+                <td>Tap a period. <b>Custom</b> opens a range picker (start/end date, then Apply)</td></tr>
+            <tr><td>Summary block</td>
+                <td>Total Spending, Total Income, Net Savings</td>
+                <td>Read-only headline numbers for the period</td></tr>
+            <tr><td>Trend indicator</td><td>Percentage up/down versus the previous comparable period</td>
+                <td>Informational — green/red arrow with the delta</td></tr>
+            <tr><td>Daily Avg / Savings / Cash Flow Ratio</td>
+                <td>Average daily spend, what you kept, and the ratio of income to spend</td>
+                <td>Read-only stat tiles</td></tr>
+            <tr><td>Chart</td><td>Visualises the period (weekly bars, monthly trend, donut)</td>
+                <td>Read-only</td></tr>
+            <tr><td><b>Top Spending</b></td><td>Your highest expenses in the period, ranked</td>
+                <td>Tap <b>Unlock Top Spending</b> (free) to reveal, then <b>See All</b> for the full list</td></tr>
+            <tr><td><b>Spending Insights</b></td><td>Smart AI Tip with a concrete suggestion</td>
+                <td>Free users tap <b>Unlock Insights</b>; a hint tells you if the range is too thin</td></tr>
+            <tr><td>Expense breakdown (by category)</td>
+                <td>Ranked list with each category's share and amount</td>
+                <td><b>See All</b> for the full Category Breakdown; <b>Show transactions</b> to drill into the records</td></tr>
+            <tr><td>Income breakdown</td><td>Where income came from</td>
+                <td>Same See All / Show transactions pattern</td></tr>
+            <tr><td>Payment breakdown</td><td>Spend split by payment method</td>
+                <td>Full Payment Breakdown via See All</td></tr>
+            <tr><td>Tags breakdown</td><td>Spend grouped by tag</td>
+                <td>Shows “No tagged spending” until you tag transactions</td></tr>
+            <tr><td>Funds breakdown</td><td>Spend drawn from each fund</td>
+                <td>Full fund breakdown via See All</td></tr>
+            <tr><td>Locked overlays</td><td>Mark the parts reserved for Pro on free accounts</td>
+                <td>Tap to open the <a href="#paywall">paywall</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap <b>Analytics</b> in the bottom bar.</li>
+          <li>Pick the period you care about — Week, Month, Year, or a Custom range.</li>
+          <li>Read the summary, then scroll to the breakdowns.</li>
+          <li>Tap any breakdown row to see the transactions behind the number.</li>
+          <li>Use <b>See All</b> on any section for the full ranked list.</li>
+        </ol>
+      </div>
+
+      <div class="callout pro">
+        <span class="t">Pro unlocks</span>
+        <p>Advanced analytics (deep breakdowns and insights), plus the full reports. The headline
+        numbers and trend stay available to everyone.</p>
+      </div>
+    </section>
+
+    <!-- ================= 10 PLANS ================= -->
+    <section class="screen" id="plans">
+      <div class="screen-head">
+        <div class="screen-num">10</div>
+        <div>
+          <h2>Plans — Budget &amp; Recurring</h2>
+          <p class="lead">Where you cap your spending and automate the bills that repeat. Three tabs:
+            Budgets, Recurring and Funds.</p>
+          <div class="tags"><span class="tag nav">Bottom nav</span><span class="tag pro">Some Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>The <strong>Budgets</strong> tab sets monthly caps per category and tracks
+        spent/remaining/over. The <strong>Recurring</strong> tab tracks repeating transactions and
+        EMI/installment plans, including paying or skipping individual installments. The
+        <strong>Funds</strong> tab is covered separately in <a href="#funds">Funds</a>.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen — Budgets tab</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Month header</td><td>Shows the month being budgeted and your daily allowance</td>
+                <td>Read “You can spend X/day” to pace the month</td></tr>
+            <tr><td>Budget card</td>
+                <td>Category, SPENT / LIMIT, percentage used, and remaining</td>
+                <td>Tap to edit. Status colours: <b>Safe</b>, <b>Near Limit</b>, <b>Overspent</b></td></tr>
+            <tr><td><b>ADD A BUDGET</b></td><td>Creates a new cap</td>
+                <td>Tap it → choose categories and set a monthly limit</td></tr>
+            <tr><td>Add/Edit Budget dialog</td>
+                <td>Budget Name (optional), Budget Group, Select Categories, Monthly limit, Period</td>
+                <td>Use <b>Select All</b> or <b>Select Available Only</b>; press <b>Add</b> or <b>Update</b></td></tr>
+            <tr><td>Duplicate tracking warning</td>
+                <td>Warns that a category already counted in another budget will count in both</td>
+                <td>Informational — “Already in &lt;budget&gt;” appears next to such categories</td></tr>
+            <tr><td>Edits counter</td><td>Shows edits left on a budget plan</td><td>Watch “n EDITS LEFT” before changing a cap</td></tr>
+            <tr><td><b>Copy Previous Month Budgets</b></td>
+                <td>Brings last month's caps forward</td>
+                <td>Choose <b>Copy All</b> or <b>Copy Selected</b>; confirm if the month already has budgets</td></tr>
+            <tr><td>Locked history</td><td>Past months become read-only (“HISTORY LOCKED”)</td><td>Informational</td></tr>
+            <tr><td>Delete Budget</td><td>Removes the cap only — transactions are kept</td>
+                <td>Open the budget's menu → <b>Delete</b> and confirm</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen — Recurring tab</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>ADD RECURRING</b></td><td>Starts a repeating rule from an existing expense</td>
+                <td>Tap it and choose the transaction to repeat</td></tr>
+            <tr><td>Due status</td><td>“Due Today”, “Tomorrow”, “DUE IN n DAYS”, “NEXT &lt;date&gt;”</td>
+                <td>Read the badge to see what's closest</td></tr>
+            <tr><td>Installment progress</td><td>“n OF m”, with PAID / PENDING / SKIPPED / OVERDUE slots</td>
+                <td>Open <b>View Installments</b> to see the schedule</td></tr>
+            <tr><td><b>PAY / SKIP / UNDO</b></td><td>Marks individual installments</td>
+                <td>Set each slot, or select several and use <b>Pay selected (n)</b></td></tr>
+            <tr><td>Notifications toggle</td><td>Mutes bill reminders for one rule</td>
+                <td>Turn it off; a confirm dialog explains you'll get no reminders for it</td></tr>
+            <tr><td><b>Edit Recurring Rule</b></td><td>Changes frequency, plan details, EMI terms</td>
+                <td>Open the rule → edit → <b>SAVE CHANGES</b></td></tr>
+            <tr><td>Convert to Regular</td><td>Drops the EMI/installment structure but keeps history</td>
+                <td>Available on installment plans; switching back restores paid history</td></tr>
+            <tr><td>Delete Recurring</td><td>Removes the rule</td><td>Confirm “Remove X from recurring tracking?”</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it — set a budget</h3>
+        <ol class="steps">
+          <li>Open <b>Budget</b> in the bottom bar and stay on the <b>Budgets</b> tab.</li>
+          <li>Tap <b>ADD A BUDGET</b>.</li>
+          <li>Give it an optional name and pick the categories to cap.</li>
+          <li>Set the <b>Monthly limit</b> and confirm.</li>
+          <li>Watch the card change colour as you approach the limit — alerts fire at 75%, 90%, 100% and when exceeded.</li>
+        </ol>
+      </div>
+
+      <div class="block">
+        <h3>How to use it — track a bill or EMI</h3>
+        <ol class="steps">
+          <li>Switch to the <b>Recurring</b> tab and tap <b>ADD RECURRING</b>.</li>
+          <li>Choose the expense to repeat, then set its frequency (Daily/Weekly/Monthly/Yearly).</li>
+          <li>For a loan, choose <b>EMI / Installments</b> and enter Total Amount, Installment Amount,
+              First Due Date and Total Installments.</li>
+          <li>Press Save. The transaction you started from becomes installment #1.</li>
+          <li>Return here to <b>PAY</b>, <b>SKIP</b> or <b>UNDO</b> installments as the months pass.</li>
+        </ol>
+      </div>
+
+      <div class="callout pro">
+        <span class="t">Free vs Pro</span>
+        <ul>
+          <li><b>Free:</b> first 3 recurring rules; budgets with a limited number of edits per month.</li>
+          <li><b>Ad-supported:</b> rules 4–6 after watching a rewarded ad.</li>
+          <li><b>Pro:</b> unlimited rules, yearly frequency, copy previous-month budgets, custom budget month.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 11 FUNDS ================= -->
+    <section class="screen" id="funds">
+      <div class="screen-head">
+        <div class="screen-num">11</div>
+        <div>
+          <h2>Funds</h2>
+          <p class="lead">Cash buckets you set aside for one purpose — a holiday, a car repair, a
+            wedding — so their spend never muddies the rest of your money.</p>
+          <div class="tags"><span class="tag">Plans → Funds tab</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>A fund tracks three numbers: <strong>Allocated</strong> (what you put in),
+        <strong>Spent</strong> (what you drew from it) and <strong>Remaining</strong> (what's left).
+        When you record an expense you can pick a fund, and that spend comes off the bucket instead of
+        being mixed into your general money.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Overview summary</td><td>Totals across all funds: Allocated, Spent, Remaining</td><td>Read-only</td></tr>
+            <tr><td>Info ⓘ “What are funds”</td><td>Explains the concept with a vacation example</td>
+                <td>Tap the info icon to read it</td></tr>
+            <tr><td>Fund card</td>
+                <td>Name, icon, colour, progress (“X of Y spent”), remaining, status</td>
+                <td>Status is <b>Active</b>, <b>Exhausted</b> or <b>Archived</b></td></tr>
+            <tr><td><b>Create Fund</b></td><td>Adds a new bucket</td>
+                <td>Tap + → fill name, amount, icon, colour, note and start date</td></tr>
+            <tr><td>Edit / Archive / Unarchive / Delete</td>
+                <td>Manage a fund's lifecycle</td>
+                <td>Open the fund's menu. Deleting keeps its transactions — they just stop being linked</td></tr>
+            <tr><td>Fund breakdown</td><td>Spending breakdown with the fund's linked transactions</td>
+                <td>Open a fund → <b>Spending breakdown</b> / <b>Transactions</b></td></tr>
+            <tr><td>Empty state</td><td>“No funds yet…” prompt</td><td>Tap through to create your first fund</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Budget</b> → <b>Funds</b> tab → create a fund (for example, “Vacation”).</li>
+          <li>Set how much you are putting in and a start date.</li>
+          <li>When you add an expense that belongs to that fund, set its <b>Fund</b> field to it in
+              <a href="#add-transaction">Add Transaction</a>.</li>
+          <li>Come back here to see <b>Remaining</b> fall as you spend.</li>
+          <li>Archive the fund when the trip is over to keep the list tidy.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 12 CALENDAR ================= -->
+    <section class="screen" id="calendar">
+      <div class="screen-head">
+        <div class="screen-num">12</div>
+        <div>
+          <h2>Calendar</h2>
+          <p class="lead">See your money laid out over time — which days were heavy, which were light.</p>
+          <div class="tags"><span class="tag">Home → Spent Today</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Presents a month grid (and a year view) where each day shows what you spent, plus the
+        income and expense totals for the month. Tapping a day reveals that day's transactions.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Month / Year toggle</td><td>Switches between the month grid and the year overview</td>
+                <td>Tap <b>Month</b> or <b>Year</b></td></tr>
+            <tr><td>Period arrows</td><td>Previous / next month or year</td><td>Tap the chevrons</td></tr>
+            <tr><td><b>Jump to date</b></td><td>Opens the Choose Month &amp; Year picker</td>
+                <td>Tap the calendar icon, pick, then <b>Apply</b></td></tr>
+            <tr><td><b>Today</b></td><td>Snaps back to the current month</td><td>Tap it</td></tr>
+            <tr><td>Day cells</td><td>Show per-day spending (ring/progress indicator)</td>
+                <td>Tap a day to load its transaction list below</td></tr>
+            <tr><td>Month totals</td><td><b>TOTAL INCOME</b> and <b>TOTAL EXPENSES</b></td><td>Read-only</td></tr>
+            <tr><td>Transaction list</td><td>The selected day's entries (income and expense)</td>
+                <td>Tap one to open it in the <a href="#add-transaction">editor</a></td></tr>
+            <tr><td>Empty state</td><td>“There are no entries recorded for &lt;date&gt;”</td><td>Pick another day</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>From Home, tap the <b>Spent Today</b> card.</li>
+          <li>Move month by month with the arrows, or jump straight to a date.</li>
+          <li>Tap any day to see what happened on it.</li>
+          <li>Switch to <b>Year</b> for a bird's-eye view of the year's activity.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 13 GOALS ================= -->
+    <section class="screen" id="goals">
+      <div class="screen-head">
+        <div class="screen-num">13</div>
+        <div>
+          <h2>My Goals</h2>
+          <p class="lead">Savings goals with progress, an optional deadline, and a contribution history.</p>
+          <div class="tags"><span class="tag">Home card · Settings</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Splits your goals into <strong>Active</strong> and <strong>Completed</strong>. Each goal
+        tracks saved versus target, shows a percentage, and can carry a deadline that reports days
+        left — or how long you are overdue.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>+</b> Add Goal</td><td>Creates a savings goal</td>
+                <td>Tap it and fill in Name, Target Amount, Initial Saved Amount, Icon and Colour, then <b>Save</b></td></tr>
+            <tr><td>Active Goals section</td><td>Goals still in progress</td><td>Tap a card to edit it</td></tr>
+            <tr><td>Completed section</td><td>Goals you have reached, marked “Completed 🎉”</td><td>Kept for the record</td></tr>
+            <tr><td>Progress bar</td><td>“n% complete” and “saved / target”</td><td>Read-only</td></tr>
+            <tr><td>Deadline line</td><td>“n days left”, “Due today”, or “n days overdue”</td>
+                <td>Set or clear a deadline when editing the goal</td></tr>
+            <tr><td><b>Add Funds</b></td><td>Contributes money to the goal</td>
+                <td>Open the goal → <b>Fund Goal</b> → enter the amount → <b>Add</b></td></tr>
+            <tr><td>Fund History</td><td>Every contribution with its date and a running count</td>
+                <td>Expand the history toggle. Empty until you add funds</td></tr>
+            <tr><td>Edit / Delete</td><td>Change or remove a goal</td>
+                <td>Edit from the card menu; deleting asks for confirmation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap the <b>My Goals</b> card on Home, or open it from Settings.</li>
+          <li>Tap <b>+</b>, name the goal and set a target (e.g. “New Car”).</li>
+          <li>Optionally set a deadline so the app can nudge you if you fall behind.</li>
+          <li>Whenever you put money aside, open the goal and use <b>Add Funds</b>.</li>
+          <li>Watch the progress bar climb — the goal moves to Completed when it reaches 100%.</li>
+        </ol>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Tip</span>
+        <p>Goal reminders (progress at 25/50/75%, a celebration at completion, and a warning if you
+        are behind) live in <a href="#notifications">Notifications</a>.</p>
+      </div>
+    </section>
+
+    <!-- ================= 14 SETTINGS ================= -->
+    <section class="screen" id="settings">
+      <div class="screen-head">
+        <div class="screen-num">14</div>
+        <div>
+          <h2>Settings</h2>
+          <p class="lead">The hub. Every preference, account action and data tool lives one tap from
+            here.</p>
+          <div class="tags"><span class="tag nav">Bottom nav</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Groups the app's configuration into <strong>Account &amp; Security</strong>,
+        <strong>Membership</strong>, <strong>Preferences</strong>, <strong>System &amp; Data</strong>
+        and <strong>About</strong>. It also shows your member status at the top and, when you are
+        signed out, a card that prompts you to sign in or register.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Row</th><th>What it opens / does</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Member status card</td><td>Shows Pro Member / Free Tier / Ad-Free Access Active</td>
+                <td>Tap through to <a href="#membership">My Membership</a></td></tr>
+            <tr><td>Sign up / Sign In card</td><td>Appears when signed out as a guest</td>
+                <td>Opens <a href="#auth">auth</a>; disappears once you have an account</td></tr>
+            <tr><td>Edit Profile</td><td>Name, avatar, email</td><td>→ <a href="#profile">Profile</a></td></tr>
+            <tr><td>Cloud Sync &amp; Devices</td><td>Sync data across devices</td>
+                <td>→ <a href="#devices">Cloud Sync &amp; Devices</a> (Pro)</td></tr>
+            <tr><td>Security &amp; Privacy</td><td>Biometrics, passcode, app lock</td>
+                <td>→ <a href="#security">Security &amp; Privacy</a></td></tr>
+            <tr><td>Change Password</td><td>Updates your account password</td>
+                <td>→ password form (current, new, confirm)</td></tr>
+            <tr><td>Privacy Options</td><td>Manage consent and data choices</td><td>Opens the consent panel</td></tr>
+            <tr><td>My Membership</td><td>Plan, benefits, billing</td><td>→ <a href="#membership">My Membership</a></td></tr>
+            <tr><td>Remove All Ads / Watch Ad</td>
+                <td>One-time ad-free purchase, or watch a rewarded ad for temporary Pro features</td>
+                <td>Duration of the ad pass is set by the app's remote config, so no fixed length is promised</td></tr>
+            <tr><td>Redeem Pro Pass</td><td>Enter a promo code or pass key</td>
+                <td>Redeemed codes are verified on the server</td></tr>
+            <tr><td>Manage Categories</td><td>Add, edit or colour-code categories</td>
+                <td>→ <a href="#categories">Manage Categories</a></td></tr>
+            <tr><td>Manage Tags</td><td>Organise and merge tags</td><td>→ <a href="#tags">Manage Tags</a></td></tr>
+            <tr><td>App Preferences</td><td>Theme, currency, language and formats</td>
+                <td>→ <a href="#preferences">App Preferences</a></td></tr>
+            <tr><td>Notifications</td><td>Control alerts and reminders</td>
+                <td>→ <a href="#notifications">Notifications</a></td></tr>
+            <tr><td>Customisation</td><td>Personalise cards and the list</td>
+                <td>→ <a href="#customisation">Card Customisation</a></td></tr>
+            <tr><td>My Goals</td><td>Savings goals shortcut</td><td>→ <a href="#goals">My Goals</a></td></tr>
+            <tr><td>Data Management</td><td>Backup, restore, export/import</td>
+                <td>→ <a href="#data">Data Management</a></td></tr>
+            <tr><td>Refer a Friend</td><td>Share a code, earn Pro days</td>
+                <td>→ <a href="#refer">Refer a Friend</a></td></tr>
+            <tr><td>Share app</td><td>Sends the Play Store link</td><td>Opens the system share sheet</td></tr>
+            <tr><td>About</td><td>Version, licence, terms</td><td>→ <a href="#about">About</a></td></tr>
+            <tr><td>Sign Out</td><td>Signs out of your account</td>
+                <td>Local data stays; you'll be asked to confirm</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap <b>Settings</b> in the bottom bar (or the gear on Home).</li>
+          <li>Scroll the section headers to find the area you need.</li>
+          <li>Tap any row to open it; every sub-screen has a back arrow returning here.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 15 PROFILE ================= -->
+    <section class="screen" id="profile">
+      <div class="screen-head">
+        <div class="screen-num">15</div>
+        <div>
+          <h2>Profile (Edit Profile)</h2>
+          <p class="lead">Your identity in the app — name, photo, email, phone, date of birth and gender.</p>
+          <div class="tags"><span class="tag">Home avatar · Settings</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Edits the profile that personalises the dashboard and feeds the completion checklist on
+        Home. It is also where you verify or change your login email, which runs through a
+        verification-link flow so a typo can never lock you out.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Avatar</td><td>Your photo, with add / change / delete</td>
+                <td>Tap to pick an image, or long-press for delete</td></tr>
+            <tr><td><b>FULL NAME</b></td><td>The name used in the Home greeting</td>
+                <td>Tap and type</td></tr>
+            <tr><td><b>EMAIL ADDRESS</b></td>
+                <td>Your login email, with a verified badge, and Google sign-in indicator</td>
+                <td>Tap <b>Verify Email</b> to resend verification, or <b>Update Email</b> to change it</td></tr>
+            <tr><td>Update Email sheet</td>
+                <td>Current Email, New Email, Confirm New Email, Current Password</td>
+                <td>Fill everything and tap <b>Send Verification Link</b>. The change completes only
+                    after you click the link</td></tr>
+            <tr><td>Email Updated dialog</td><td>Confirms the change and signs you out</td>
+                <td>Sign back in with the new address</td></tr>
+            <tr><td><b>PHONE NUMBER</b></td><td>Optional contact number</td><td>Type it</td></tr>
+            <tr><td><b>DATE OF BIRTH</b></td><td>Used for age-appropriate insights</td>
+                <td>Tap and choose with the wheel picker</td></tr>
+            <tr><td><b>GENDER</b></td><td>Male / Female / Non-binary / Prefer not to say</td>
+                <td>Tap the field and pick from the sheet</td></tr>
+            <tr><td>Country selector</td><td>Used for currency and regional formats</td>
+                <td>Tap and search by country</td></tr>
+            <tr><td><b>Save Changes</b></td><td>Writes your edits</td>
+                <td>Tap it, then you return to wherever you opened Profile from</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap your avatar on <a href="#home">Home</a>, or <b>Edit Profile</b> in Settings.</li>
+          <li>Update the fields you want to change.</li>
+          <li>To change your email, use <b>Update Email</b>, confirm the new address and your current
+              password, then click the link in the verification email.</li>
+          <li>Tap <b>Save Changes</b>.</li>
+        </ol>
+      </div>
+
+      <div class="callout warn">
+        <span class="t">Note</span>
+        <p>Your current email stays active until the new one is verified, so a mistake is never
+        destructive. If a verification email doesn't arrive, check spam and use the resend option.</p>
+      </div>
+    </section>
+
+    <!-- ================= 16 PREFERENCES ================= -->
+    <section class="screen" id="preferences">
+      <div class="screen-head">
+        <div class="screen-num">16</div>
+        <div>
+          <h2>App Preferences</h2>
+          <p class="lead">Currency, number and date formats, your billing cycle start day, language,
+            theme and font.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Some Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Controls how every amount, date and time is displayed across the app, and how the app looks.
+        Getting the <strong>month start day</strong> right here makes budgets and analytics line up
+        with your actual salary cycle.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Setting</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>Currency</b></td><td>The currency used everywhere</td>
+                <td>Open it, search by country, pick the currency</td></tr>
+            <tr><td><b>Decimal Places</b></td><td>How many decimals amounts show</td>
+                <td>Choose from the list (0–3)</td></tr>
+            <tr><td><b>Number Format</b></td><td>Digit grouping style</td>
+                <td><b>Indian (1,23,456.78)</b> or <b>International (1,234,567.89)</b></td></tr>
+            <tr><td><b>Date Format</b></td><td>How dates are shown</td>
+                <td>Pick a pattern from the list</td></tr>
+            <tr><td><b>Time Format</b></td><td>12-hour or 24-hour clock</td>
+                <td>Choose the style you prefer</td></tr>
+            <tr><td><b>Month starts on</b></td><td>Sets your billing-cycle first day</td>
+                <td>Pick <b>1st (Default)</b> or a custom day (e.g. the day you get paid)</td></tr>
+            <tr><td><b>Language</b></td><td>App display language</td>
+                <td>Pick from the list; untranslated text stays in English</td></tr>
+            <tr><td><b>Theme</b></td><td>System, Light or Dark</td>
+                <td>Tap a theme; <b>System</b> follows your device setting</td></tr>
+            <tr><td><b>Font</b></td><td>Default, System or a custom font</td>
+                <td>Pick one, or <b>Import Font</b> to add your own. Long-press a custom font to delete it</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → App Preferences</b>.</li>
+          <li>Set your <b>Currency</b> first — everything else formats around it.</li>
+          <li>Set <b>Month starts on</b> to your pay day if you budget by salary cycle.</li>
+          <li>Pick formats, language, theme and font to taste; changes apply immediately.</li>
+        </ol>
+      </div>
+
+      <div class="callout pro">
+        <span class="t">Pro gating</span>
+        <p>Custom fonts are a Pro feature. Free users get one custom font with a rewarded-ad option;
+        Pro has a higher limit and no ads.</p>
+      </div>
+    </section>
+
+    <!-- ================= 17 SECURITY ================= -->
+    <section class="screen" id="security">
+      <div class="screen-head">
+        <div class="screen-num">17</div>
+        <div>
+          <h2>Security &amp; Privacy</h2>
+          <p class="lead">Locks, biometrics, screenshots and your account password.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Some Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Lets you decide how hard it is for someone holding your phone to read your finances: when
+        the app locks, whether your fingerprint works, whether the PIN layout is scrambled, and
+        whether the app can be screenshotted or shown in the recents switcher.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Setting</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>App Lock</b></td><td>Requires a PIN when the app opens</td>
+                <td>Turn it on → choose a security question → set and confirm a 4-digit PIN</td></tr>
+            <tr><td><b>Auto Lock Duration</b></td>
+                <td>How long the app can be in the background before it locks again</td>
+                <td>Choose <b>Immediately</b>, a preset, or <b>Custom Minutes</b> (20–60 min is Pro)</td></tr>
+            <tr><td><b>Biometric</b></td><td>Fingerprint / face unlock</td>
+                <td>Turn on and confirm with your device biometric once</td></tr>
+            <tr><td><b>Scrambled Keypad</b></td><td>Shuffles the PIN digits</td>
+                <td>Turn on to make the PIN harder to observe</td></tr>
+            <tr><td><b>Blur In Recents</b></td><td>Hides app content in the task switcher</td>
+                <td>Turn on to blank the preview thumbnail</td></tr>
+            <tr><td><b>Block Screenshots</b></td><td>Prevents screen capture of the app</td>
+                <td>Turn on to disable screenshots and screen recording</td></tr>
+            <tr><td><b>Change Password</b></td><td>Updates your account password</td>
+                <td>Enter current password, new password twice, then <b>Change Password</b></td></tr>
+            <tr><td><b>Privacy Options</b></td><td>Consent and data choices</td>
+                <td>Open it to review or change consent</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → Security &amp; Privacy</b>.</li>
+          <li>Turn on <b>App Lock</b>. Pick a security question and save an answer you'll remember.</li>
+          <li>Enter and confirm a 4-digit PIN.</li>
+          <li>Optionally enable <b>Biometric</b>, <b>Scrambled Keypad</b>, <b>Blur In Recents</b> and
+              <b>Block Screenshots</b>.</li>
+          <li>Set <b>Auto Lock Duration</b> to suit how (and where) you use the app.</li>
+        </ol>
+      </div>
+
+      <div class="callout danger">
+        <span class="t">Keep this in mind</span>
+        <p>The PIN and recovery answer are the only ways in. Write the recovery answer down somewhere
+        safe — it is not stored in the cloud and cannot be recovered by support.</p>
+      </div>
+    </section>
+
+    <!-- ================= 18 CUSTOMISATION ================= -->
+    <section class="screen" id="customisation">
+      <div class="screen-head">
+        <div class="screen-num">18</div>
+        <div>
+          <h2>Card Customisation</h2>
+          <p class="lead">Decide exactly what each transaction card shows, and how the list around it
+            is grouped.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Two groups of toggles: one for <strong>each transaction card</strong> (the per-row detail)
+        and one for <strong>the list</strong> (how rows are grouped and summarised). A live preview at
+        the top reflects your choices instantly.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Toggle</th><th>What it does</th><th>Where it applies</th></tr></thead>
+          <tbody>
+            <tr><td><b>Preview</b></td><td>A sample card that updates as you toggle</td><td>Read-only</td></tr>
+            <tr><td>Show Category Icon</td><td>Displays the category's icon on the card</td><td>Each transaction card</td></tr>
+            <tr><td>Show Category</td><td>Shows the category name as a label</td><td>Each transaction card</td></tr>
+            <tr><td>Show Payment Method</td><td>Shows the wallet or card used</td><td>Each transaction card</td></tr>
+            <tr><td>Show Transaction Date</td><td>Shows the transaction's date</td><td>Each transaction card</td></tr>
+            <tr><td>Show Transaction Time</td><td>Shows the exact timestamp</td><td>Each transaction card</td></tr>
+            <tr><td>Show Date Separators</td><td>Sticky day headers (“Today”, “Yesterday”)</td><td>The list</td></tr>
+            <tr><td>Show List Summaries</td><td>Income and expense totals for the visible period</td><td>The list</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → Customisation</b>.</li>
+          <li>Watch the preview card as you toggle each option.</li>
+          <li>Turn off what you don't need — a compact card shows more transactions per screen.</li>
+          <li>Your choices apply everywhere cards appear: <a href="#home">Home</a>,
+              <a href="#transactions">Transactions</a>, <a href="#calendar">Calendar</a> and Funds.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 19 CATEGORIES ================= -->
+    <section class="screen" id="categories">
+      <div class="screen-head">
+        <div class="screen-num">19</div>
+        <div>
+          <h2>Manage Categories</h2>
+          <p class="lead">The catalogue of income categories, expense categories and payment methods
+            behind every transaction.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Lists every category and payment method with its icon, colour and transaction count, and
+        lets you search, sort, recolour, delete and add. Categories group income and expense; payment
+        methods describe how the money moved.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Counts header</td><td>“n Income Categories · n Expense Categories · n Payment Methods”</td>
+                <td>Read-only summary</td></tr>
+            <tr><td>Search 🔍</td><td>Finds a category by name</td><td>Tap and type</td></tr>
+            <tr><td>Sort</td><td>Changes list order</td><td>Open the sort sheet and pick an order</td></tr>
+            <tr><td>Category row</td><td>Icon, name, colour and how many transactions use it</td>
+                <td>Tap to change its colour; use the row menu to delete</td></tr>
+            <tr><td><b>+ Add category</b></td><td>Creates a custom item</td>
+                <td>Tap → <a href="#add-category">Add Category</a></td></tr>
+            <tr><td>Delete</td><td>Removes a category</td>
+                <td>Confirm the dialog — existing transactions may still reference it</td></tr>
+            <tr><td>Colour sheet</td><td>Picks a new colour</td>
+                <td>Choose a swatch or keep the one the app chose</td></tr>
+            <tr><td>Info ⓘ “What are categories”</td><td>Explains categories and payment methods with an example</td>
+                <td>Tap to read it</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → Manage Categories</b>.</li>
+          <li>Use search to find an existing item quickly, or sort to review the list logically.</li>
+          <li>Tap a row to change its colour.</li>
+          <li>Tap <b>+</b> to add your own category or payment method.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 20 ADD CATEGORY ================= -->
+    <section class="screen" id="add-category">
+      <div class="screen-head">
+        <div class="screen-num">20</div>
+        <div>
+          <h2>Add Category</h2>
+          <p class="lead">Create a custom income category, expense category or payment method.</p>
+          <div class="tags"><span class="tag">Manage Categories → +</span><span class="tag">Free</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>A short form: choose what kind of item you are creating, name it, give it an icon and
+        optionally a colour. It also guards against duplicate names within the same kind.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>Category Type</b></td><td>Income Category, Expense Category or Payment Type</td>
+                <td>Tap the chip for the kind you want</td></tr>
+            <tr><td><b>Category Name</b></td><td>The name shown on cards and in lists</td>
+                <td>Type it (e.g. “Performance Bonus” for income, “Weekend Escapes” for expense,
+                    “Digital Wallet” for a payment type)</td></tr>
+            <tr><td>Duplicate warning</td><td>“This name already exists in …”</td>
+                <td>Pick a different name to continue</td></tr>
+            <tr><td><b>Select Visual Identity</b></td>
+                <td>A searchable grid of 50 icons</td>
+                <td>Search (e.g. “Food”), tap an icon, or clear the search. “No icons found” appears
+                    when nothing matches</td></tr>
+            <tr><td><b>Color</b></td><td>Optional colour for the icon and card accent</td>
+                <td>Pick a swatch — leave it and the app chooses for you</td></tr>
+            <tr><td><b>Add Category</b> / <b>Add Type</b></td><td>Saves the new item</td>
+                <td>Tap when the name and icon are set; you return to the category list</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Manage Categories</b> and tap <b>+</b>.</li>
+          <li>Pick the <b>Category Type</b>.</li>
+          <li>Type a unique name.</li>
+          <li>Search the icon grid and pick the icon that fits.</li>
+          <li>Optionally choose a colour, then tap <b>Add Category</b>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 21 TAGS ================= -->
+    <section class="screen" id="tags">
+      <div class="screen-head">
+        <div class="screen-num">21</div>
+        <div>
+          <h2>Manage Tags</h2>
+          <p class="lead">Extra labels layered on top of categories — perfect for cross-cutting things
+            like a trip or a project.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Partly Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>A tag is an extra label on a transaction besides its category. Food and flights can stay
+        different categories yet both carry the tag <code>#vacation</code>. This screen creates,
+        renames, merges and deletes them, and shows how many transactions each one is on.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Tag list</td><td>Each tag with its colour and transaction count</td>
+                <td>Tap a row to act on it</td></tr>
+            <tr><td>Search 🔍</td><td>Finds tags by name</td><td>Tap and type</td></tr>
+            <tr><td><b>+ Add tag</b></td><td>Creates a tag</td>
+                <td>Tap, give it a short name and a colour, then <b>Create</b></td></tr>
+            <tr><td><b>Rename</b></td><td>Changes a tag's name everywhere it is used</td>
+                <td>Open the tag → <b>Rename</b> → type the new name</td></tr>
+            <tr><td><b>Merge</b></td><td>Folds several tags into one</td>
+                <td>Select tags → <b>Merge</b> → choose the tag to keep</td></tr>
+            <tr><td><b>Delete</b></td><td>Removes tags</td>
+                <td>Select tags → delete. They come off every transaction, but the transactions stay</td></tr>
+            <tr><td>Selection mode</td><td>Bulk operations on many tags</td>
+                <td>Use <b>Select all</b> / <b>Deselect all</b>, then the action</td></tr>
+            <tr><td>Info ⓘ “What are tags”</td><td>Explains tags with a vacation example</td><td>Tap to read it</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Create tags in <b>Settings → Manage Tags</b>, then apply them when you add a transaction.</li>
+          <li>To tidy up duplicates, select the tags and use <b>Merge</b>.</li>
+          <li>Rename when a tag's meaning narrows or widens.</li>
+          <li>Search a tag on <a href="#transactions">Transactions</a>, or see the
+              <a href="#analytics">Tags breakdown</a> in Analytics.</li>
+        </ol>
+      </div>
+
+      <div class="callout pro">
+        <span class="t">Pro gating</span>
+        <p>Payment tags and advanced tag tooling are part of the Pro bundle; free users get the core
+        create/apply/search workflow.</p>
+      </div>
+    </section>
+
+    <!-- ================= 22 NOTIFICATIONS ================= -->
+    <section class="screen" id="notifications">
+      <div class="screen-head">
+        <div class="screen-num">22</div>
+        <div>
+          <h2>Notifications</h2>
+          <p class="lead">Every reminder and alert the app can send, each with its own switch.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Some Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Controls the timing and thresholds behind each notification type. If notifications are
+        blocked at the system level, a banner appears at the top of this screen inviting you to allow
+        them.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Notification</th><th>What it does</th><th>Extras</th></tr></thead>
+          <tbody>
+            <tr><td>Permission banner</td><td>Shown when notifications are blocked</td>
+                <td><b>Allow</b> asks for permission; <b>Open settings</b> jumps to the system page</td></tr>
+            <tr><td><b>Expense Reminders</b></td>
+                <td>Daily reminder to log spending, plus a nudge if you logged nothing</td>
+                <td>Set <b>Morning window</b> and <b>Evening window</b> (start/end times)</td></tr>
+            <tr><td><b>Budget Limit Alerts</b></td>
+                <td>Warns at 75%, 90%, 100% of a category budget and when exceeded</td>
+                <td>Turn off if budget nudges are not for you</td></tr>
+            <tr><td><b>Large Transaction Alerts</b></td>
+                <td>Fires when a single expense crosses your threshold</td>
+                <td>Set the <b>Large expense threshold</b> — presets or a custom amount</td></tr>
+            <tr><td><b>Weekly Summary</b></td>
+                <td>Sunday recap of the last 7 days versus the week before</td>
+                <td>Set the <b>Summary time</b> — delivered every Sunday at that hour</td></tr>
+            <tr><td><b>Financial Insights</b></td>
+                <td>Spending trends, spikes and forecasts</td>
+                <td>Smart insights delivered as they are generated</td></tr>
+            <tr><td><b>Savings Goal Reminders</b> <span class="tag pro">pro</span></td>
+                <td>Progress at 25/50/75%, a celebration on completion, and a behind-schedule warning</td>
+                <td>Requires Pro — tapping the card opens the paywall</td></tr>
+            <tr><td><b>Recurring Alerts</b></td>
+                <td>Reminds you 7 days, 3 days and 1 day before a bill, and on the due date</td>
+                <td>Individual rules can be muted from <a href="#plans">Plans → Recurring</a></td></tr>
+            <tr><td><b>Cloud &amp; Security Alerts</b> <span class="tag pro">pro</span></td>
+                <td>Sync/backup failures, and account accessed from a new device</td>
+                <td>Requires Pro</td></tr>
+            <tr><td><b>Test notification</b></td><td>Sends a sample reminder immediately</td>
+                <td>Tap <b>Send test</b> to confirm everything is wired up</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → Notifications</b>.</li>
+          <li>If the permission banner is showing, tap <b>Allow</b> (or open system settings).</li>
+          <li>Turn on the alerts you want and set their windows, thresholds and times.</li>
+          <li>Use <b>Send test</b> to verify delivery.</li>
+          <li>Mute individual recurring bills from the Recurring tab when needed.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 23 DATA ================= -->
+    <section class="screen" id="data">
+      <div class="screen-head">
+        <div class="screen-num">23</div>
+        <div>
+          <h2>Data Management</h2>
+          <p class="lead">Backups, restores, export/import, and the destructive options — all in one
+            place.</p>
+          <div class="tags"><span class="tag settings">Settings</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Gives you portable copies of your data and the tools to bring them back. It also holds the
+        account-deletion controls, each with a warning tailored to whether you are signed in,
+        signed out or a guest.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Action</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td><b>Auto Backup</b></td><td>Schedules a local backup automatically</td>
+                <td>Turn it on, then set <b>Backup Frequency</b></td></tr>
+            <tr><td><b>Backup Frequency</b></td><td>How often the automatic backup runs</td>
+                <td>Pick a preset or <b>Custom…</b> for 1–30 days, then <b>Apply</b></td></tr>
+            <tr><td><b>Export Data (JSON)</b></td><td>Writes a merge-safe JSON file you choose where to save</td>
+                <td>Tap <b>Export</b> and pick a destination</td></tr>
+            <tr><td><b>Import Data (JSON)</b></td><td>Restores or merges from a JSON file</td>
+                <td>Tap <b>Import</b>, choose the file. Merging keeps what you already have</td></tr>
+            <tr><td><b>Backup Database (.db)</b></td><td>Copies the raw SQLite database</td>
+                <td>Tap <b>Backup</b> and save the file somewhere safe</td></tr>
+            <tr><td><b>Restore Database (.db)</b></td>
+                <td>Replaces the current database with the selected file</td>
+                <td>Tap <b>Restore</b> and confirm — it overwrites, it does not merge</td></tr>
+            <tr><td><b>Legacy Import</b></td><td>Brings data across from older app versions</td>
+                <td>Tap <b>Migrate</b> and select the old file</td></tr>
+            <tr><td><b>Transaction Count</b></td><td>Total records in your database</td><td>Read-only</td></tr>
+            <tr><td><b>Delete All Data &amp; Reset App</b></td>
+                <td>Clears everything on this device</td>
+                <td>Tap <b>Delete All</b> and confirm. A guest has no cloud account to delete</td></tr>
+            <tr><td><b>Delete Account &amp; All Data</b></td>
+                <td>Deletes your sign-in account and its synced cloud data, and clears this device</td>
+                <td>Only for signed-in users. Export a backup first if you want a copy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → Data Management</b>.</li>
+          <li>Turn on <b>Auto Backup</b> and choose a frequency (e.g. every 3 days).</li>
+          <li>Before any big change, tap <b>Export Data (JSON)</b> and keep the file somewhere off-device.</li>
+          <li>To move to a new phone, install the app and use <b>Import Data (JSON)</b>.</li>
+        </ol>
+      </div>
+
+      <div class="callout danger">
+        <span class="t">Destructive actions</span>
+        <ul>
+          <li><b>Restore Database</b> overwrites everything — it never merges.</li>
+          <li><b>Delete All Data</b> removes transactions, budgets, funds, goals, categories, tags,
+              backups and settings from this device. There is no undo.</li>
+          <li><b>Delete Account</b> additionally removes your cloud data and stops other devices
+              using that account. Always export first.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 24 DEVICES ================= -->
+    <section class="screen" id="devices">
+      <div class="screen-head">
+        <div class="screen-num">24</div>
+        <div>
+          <h2>Cloud Sync &amp; Devices</h2>
+          <p class="lead">Keep the same data on every phone, and see which devices are linked.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Syncs your transactions and settings across devices in real time, records when the last
+        successful sync happened, and lists every device attached to your account so you can unlink
+        one you no longer use.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Upgrade card (free tier)</td>
+                <td>Shown instead of the controls while you are on the free plan</td>
+                <td>Tap <b>Upgrade to Pro</b> to enable sync</td></tr>
+            <tr><td><b>Cloud Sync</b> toggle</td><td>Turns cross-device sync on or off</td>
+                <td>Flip it on to start syncing (Pro)</td></tr>
+            <tr><td><b>Trouble Syncing? → Sync Now</b></td><td>Forces a full sync immediately</td>
+                <td>Tap <b>Sync Now</b> if changes aren't propagating</td></tr>
+            <tr><td><b>Last synced</b></td><td>When this device last completed a successful sync</td>
+                <td>Shows “Never synced” until the first full run</td></tr>
+            <tr><td>Device count</td><td>“n of m Device Connected”</td><td>Read-only</td></tr>
+            <tr><td>Connected devices list</td>
+                <td>Each linked device, marked <b>This Device</b> / <b>Active Now</b> / last-active time</td>
+                <td>Tap a device to unlink it</td></tr>
+            <tr><td><b>Unlink</b></td><td>Detaches a device</td>
+                <td>Confirm the dialog — automatic sync stops on that device</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Sign in, then open <b>Settings → Cloud Sync &amp; Devices</b>.</li>
+          <li>Turn on <b>Cloud Sync</b>.</li>
+          <li>Install the app on your second device and sign in with the same account.</li>
+          <li>If something looks stale, tap <b>Sync Now</b>.</li>
+          <li>Remove old phones with <b>Unlink</b>.</li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <span class="t">Note</span>
+        <p>Sync is a Pro feature and covers up to four devices. Without it the app still works
+        perfectly — it is simply local to the phone.</p>
+      </div>
+    </section>
+
+    <!-- ================= 25 REFER ================= -->
+    <section class="screen" id="refer">
+      <div class="screen-head">
+        <div class="screen-num">25</div>
+        <div>
+          <h2>Refer a Friend</h2>
+          <p class="lead">Share your code and earn free Pro days — and give your friend some too.</p>
+          <div class="tags"><span class="tag">Home · Settings</span><span class="tag pro">Rewards</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Showing off a referral code and tracking its rewards. Each valid referral gives
+        <strong>4 days of Pro access</strong> to both sides, up to four rewards (16 days) per calendar
+        month, resetting on the 1st. Your friend must complete at least one transaction after signing
+        up for the referral to count.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Tabs</td><td><b>Refer Friends</b> and <b>My Rewards</b></td><td>Tap to switch</td></tr>
+            <tr><td>Referral rules</td><td>Full terms of the programme</td>
+                <td>Open the <b>Referral rules</b> sheet</td></tr>
+            <tr><td>How-it-works steps</td><td>Share Code → Friend Joins → Both Get Pro</td>
+                <td>Read-only illustration of the flow</td></tr>
+            <tr><td><b>My Referral Code</b></td><td>Your unique code</td>
+                <td>Tap <b>Copy code</b></td></tr>
+            <tr><td><b>Share Invite Link</b></td><td>Opens the system share sheet with a ready-made message</td>
+                <td>Pick the channel and send; several message styles are offered</td></tr>
+            <tr><td>Register prompt</td><td>Shown to guests, who have no code yet</td>
+                <td>Tap <b>Register to get your code</b> to create an account</td></tr>
+            <tr><td><b>Monthly Progress</b></td><td>Reward slots: earned, next, locked, and days left to the monthly max</td>
+                <td>Read it to see how many rewards remain this month</td></tr>
+            <tr><td><b>Have a Friend's Code?</b></td><td>Applies someone else's code</td>
+                <td>Type the code and tap <b>Apply code</b></td></tr>
+            <tr><td><b>Your Referrals</b> list</td>
+                <td>Each invitee with a status: <b>Pending</b> (“awaiting 1st transaction”) or
+                    <b>Counted</b> (“completed transaction”)</td>
+                <td>Read-only tracking</td></tr>
+            <tr><td>Reward popups</td>
+                <td>Celebrate a code being applied, or a friend completing their first transaction</td>
+                <td>Dismiss with <b>Start Exploring Pro</b> or <b>Got it</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Reach the screen from <b>Home</b> or <b>Settings → Refer a Friend</b>.</li>
+          <li>Copy your code or tap <b>Share Invite Link</b> and send it to a friend.</li>
+          <li>Your friend installs the app, registers, and enters your code (or uses your link).</li>
+          <li>They log at least one transaction — the referral then shows <b>Counted</b>.</li>
+          <li>Both of you gain 4 days of Pro. Repeat up to four times per month.</li>
+          <li>Got a code from someone else? Enter it under <b>Have a Friend's Code?</b></li>
+        </ol>
+      </div>
+
+      <div class="callout warn">
+        <span class="t">Rules to remember</span>
+        <ul>
+          <li>You cannot use your own code, and you can only redeem one referral code ever.</li>
+          <li>Guests must register before applying or sharing a code.</li>
+          <li>Rewards cap at 16 days per calendar month and reset on the 1st.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 26 FEEDBACK ================= -->
+    <section class="screen" id="feedback">
+      <div class="screen-head">
+        <div class="screen-num">26</div>
+        <div>
+          <h2>Feedback</h2>
+          <p class="lead">Send a message straight to the makers.</p>
+          <div class="tags"><span class="tag">About → Send Feedback</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>A single message box that sends your thoughts to the team, with light rate-limiting to keep
+        the channel usable.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>“Sending as”</td><td>Shows the email and ID your message is attributed to</td>
+                <td>Read-only; helps the team follow up</td></tr>
+            <tr><td>Message box</td><td>Where you write your feedback</td>
+                <td>Type your thoughts — empty messages are rejected</td></tr>
+            <tr><td><b>SUBMIT FEEDBACK</b></td><td>Sends the message</td>
+                <td>Tap it; a confirmation appears on success</td></tr>
+            <tr><td>Cooldown notice</td><td>Appears if you send too quickly</td>
+                <td>Wait the shown number of minutes before sending again</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → About → Send Feedback</b>.</li>
+          <li>Type your message.</li>
+          <li>Tap <b>SUBMIT FEEDBACK</b> and wait for the confirmation.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 27 ABOUT ================= -->
+    <section class="screen" id="about">
+      <div class="screen-head">
+        <div class="screen-num">27</div>
+        <div>
+          <h2>About</h2>
+          <p class="lead">Version information, support links and legal documents.</p>
+          <div class="tags"><span class="tag settings">Settings</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>The last page of Settings, collecting everything that isn't a setting: what the app is, how
+        to reach the team, the legal links, and how to rate it.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>App icon and name</td><td>Identifies the app with its version</td><td>Read-only</td></tr>
+            <tr><td><b>About App</b></td><td>A short description of what the app does</td><td>Read-only</td></tr>
+            <tr><td><b>Rate App</b></td><td>Opens the Play Store listing</td><td>Tap it and leave a rating</td></tr>
+            <tr><td><b>Send Feedback</b></td><td>Opens the feedback form</td><td>→ <a href="#feedback">Feedback</a></td></tr>
+            <tr><td><b>Report Bug</b></td><td>Opens a mail/issue channel for defects</td><td>Tap it and describe the problem</td></tr>
+            <tr><td><b>Privacy Policy</b></td><td>The full privacy document</td><td>Opens in your browser</td></tr>
+            <tr><td><b>Terms &amp; Conditions</b></td><td>The terms of use</td><td>Opens in your browser</td></tr>
+            <tr><td><b>Follow Us</b></td><td>Website and GitHub links</td><td>Tap a link to open it</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → About</b>.</li>
+          <li>Check the version number here when reporting a problem.</li>
+          <li>Use <b>Send Feedback</b> or <b>Report Bug</b> to reach the team.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 28 MEMBERSHIP ================= -->
+    <section class="screen" id="membership">
+      <div class="screen-head">
+        <div class="screen-num">28</div>
+        <div>
+          <h2>My Membership</h2>
+          <p class="lead">Your current plan, what it includes, and the buttons that manage it.</p>
+          <div class="tags"><span class="tag settings">Settings</span><span class="tag pro">Pro</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Shows whether you are on the <strong>Free Plan</strong>, a <strong>Play
+        Subscription</strong>, an <strong>Expense Tracker Pro</strong> pass, or an active
+        <strong>Pro Pass</strong> — with the expiry or renewal date — and lists what Pro unlocks.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Membership card</td>
+                <td>Shows your plan: Free Plan, Play Subscription, Expense Tracker Pro, or Pro Pass
+                    Access with a <b>FREE PASS</b> badge</td>
+                <td>Read-only status</td></tr>
+            <tr><td>Expiry / renewal line</td><td>“Renews &lt;date&gt;”, “Expires on &lt;date&gt;”, or “Your Pro access is active”</td>
+                <td>Read-only</td></tr>
+            <tr><td>Billing issue notice</td><td>Appears if the last payment could not be collected</td>
+                <td>Update your payment method in Google Play to keep Pro</td></tr>
+            <tr><td><b>MEMBERSHIP BENEFITS</b></td><td>The list of what Pro includes</td>
+                <td>Ad-free experience, sync across four devices, customisable cards, advanced
+                    analytics and goals</td></tr>
+            <tr><td><b>Manage Subscription</b></td>
+                <td>Opens Google Play's subscription management</td>
+                <td>For Play subscriptions — change or cancel there</td></tr>
+            <tr><td><b>Subscribe</b></td><td>Starts a new subscription</td>
+                <td>→ <a href="#paywall">Upgrade to Pro</a></td></tr>
+            <tr><td><b>Restore Purchase</b></td><td>Re-attaches a purchase to this account</td>
+                <td>Use after reinstalling or switching accounts</td></tr>
+            <tr><td>Offline warning</td><td>Reminds guests that data is device-only</td>
+                <td><b>Sign In / Sign Up</b> to enable backups</td></tr>
+            <tr><td>Upgrade card (free)</td><td>Pitches the upgrade</td>
+                <td>Tap <b>Buy Subscription</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open <b>Settings → My Membership</b> (or tap the status card at the top of Settings).</li>
+          <li>Check your plan and its expiry.</li>
+          <li>Use <b>Manage Subscription</b> to change or cancel a Play subscription.</li>
+          <li>If a purchase is missing on a new device, tap <b>Restore Purchase</b>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 29 PAYWALL ================= -->
+    <section class="screen" id="paywall">
+      <div class="screen-head">
+        <div class="screen-num">29</div>
+        <div>
+          <h2>Upgrade to Pro</h2>
+          <p class="lead">The plan picker. Three durations, one clear list of what you get.</p>
+          <div class="tags"><span class="tag pro">Pro</span><span class="tag">Opened from any gated feature</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Presents the <strong>1 Month</strong>, <strong>6 Months</strong> and <strong>12 Months</strong>
+        plans with the discount and savings on the longer terms, lists the benefits for the selected
+        plan, and runs the Google Play purchase. It also appears from any locked feature — the paywall
+        remembers where you came from and returns you there.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Plan selector</td>
+                <td>1 month, 6 months, 12 months — with <b>% OFF</b>, <b>Save &lt;amount&gt;</b> and a
+                    <b>BEST VALUE</b> badge where they apply</td>
+                <td>Tap a plan to select it; the benefit list updates</td></tr>
+            <tr><td>Price per month</td><td>Normalises each plan to a monthly figure</td>
+                <td>Use it to compare durations fairly</td></tr>
+            <tr><td>Benefits list</td><td>What the selected plan includes</td>
+                <td>Highlights include ad-free use, full transaction details without edit mode,
+                    4-device auto sync, favorites, recurring/budget extras, voice parsing, auto-backup,
+                    privacy auto-lock and insights</td></tr>
+            <tr><td><b>Subscribe / Continue</b></td><td>Starts the Play purchase for the selected plan</td>
+                <td>Tap it and complete the Play sheet</td></tr>
+            <tr><td><b>Terms of Use</b> / <b>Privacy Policy</b></td><td>Legal documents</td>
+                <td>Open in the browser</td></tr>
+            <tr><td><b>Retry</b></td><td>Reloads the plans if they failed to load</td>
+                <td>Tap when you see “Plans couldn't be loaded”</td></tr>
+            <tr><td>Processing state</td><td>“Processing payment… Please wait” while Play confirms</td>
+                <td>Wait; do not close the app</td></tr>
+            <tr><td>Success sheet</td><td>“You're a Pro Now” with <b>Start using Pro</b></td>
+                <td>Tap to dismiss and enjoy Pro</td></tr>
+            <tr><td>Pending state</td><td>Explains that a pending payment unlocks Pro when it settles</td>
+                <td>Wait for the payment to complete</td></tr>
+            <tr><td>Error messages</td>
+                <td>Specific, actionable text for network, store, already-owned, receipt-in-use and
+                    configuration problems</td>
+                <td>Read the message — e.g. “already linked to another account” tells you to sign in
+                    with the buying account, then restore</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Open the paywall from any locked feature, or from <b>Settings → My Membership</b>.</li>
+          <li>Compare the three durations (the monthly-equivalent price makes this easy).</li>
+          <li>Select a plan and tap <b>Subscribe</b>.</li>
+          <li>Complete the Google Play purchase sheet.</li>
+          <li>Once confirmed you'll see the success sheet — tap <b>Start using Pro</b>.</li>
+        </ol>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Beyond subscribing</span>
+        <p>You don't have to pay to sample Pro. Watch a rewarded ad from Settings for a temporary
+        ad-free Pro pass (its length is set by the app's Remote Config, so the app never promises a
+        fixed duration), redeem a <b>Pro Pass</b> code, or earn days through
+        <a href="#refer">Refer a Friend</a>.</p>
+      </div>
+    </section>
+
+    <!-- ================= 30 UPDATE ================= -->
+    <section class="screen" id="update">
+      <div class="screen-head">
+        <div class="screen-num">30</div>
+        <div>
+          <h2>Update Required</h2>
+          <p class="lead">A gate that appears at launch when your installed build is too old to talk
+            to the service safely.</p>
+          <div class="tags"><span class="tag system">System</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Blocks the app until you update, protecting you from a version that would fail or behave
+        unpredictably against the current backend.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Message</td><td>Explains a new version is available and must be installed</td>
+                <td>Read-only</td></tr>
+            <tr><td><b>Update Now</b></td><td>Opens the Play Store listing for the app</td>
+                <td>Tap it, then tap Update in the Play Store</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>How to use it</h3>
+        <ol class="steps">
+          <li>Tap <b>Update Now</b>.</li>
+          <li>Install the update from the Play Store.</li>
+          <li>Reopen the app — your data is untouched by the update.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= 31 MAINTENANCE ================= -->
+    <section class="screen" id="maintenance">
+      <div class="screen-head">
+        <div class="screen-num">31</div>
+        <div>
+          <h2>System Maintenance</h2>
+          <p class="lead">Shown when the service is temporarily offline for scheduled work.</p>
+          <div class="tags"><span class="tag system">System</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>What this screen does</h3>
+        <p>Replaces the app while the backend is being maintained, so you get a clear explanation
+        instead of failing requests.</p>
+      </div>
+
+      <div class="block">
+        <h3>What's on the screen</h3>
+        <table class="elements">
+          <thead><tr><th>Element</th><th>What it does</th><th>How to use it</th></tr></thead>
+          <tbody>
+            <tr><td>Title and message</td><td>Explains that scheduled maintenance is in progress</td>
+                <td>Read-only</td></tr>
+            <tr><td>Come back later</td><td>No action button — the app re-checks automatically</td>
+                <td>Wait and reopen the app; local data is never affected</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="t">Tip</span>
+        <p>Because the app is offline-first, maintenance only affects cloud features such as sync,
+        sign-in and Pro redemption. Anything already on your device stays available.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div>Expense Tracker: Budget &amp; Spend — User Manual · v2.218.0</div>
+      <div class="foot-bottom">© 2026 MKN Labs. All rights reserved. · Crafted with ❤️ By MKN Labs</div>
+    </footer>
+  </main>
+</div>
+
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+(function () {
+  var nav = document.getElementById('nav');
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+  var groups = Array.prototype.slice.call(nav.querySelectorAll('.nav-group'));
+  var search = document.getElementById('search');
+  var navEmpty = document.getElementById('navEmpty');
+  var crumb = document.getElementById('crumb');
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+  var toTop = document.getElementById('toTop');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.screen'));
+
+  /* ---- mobile drawer ---- */
+  function openNav() { sidebar.classList.add('open'); backdrop.classList.add('show'); }
+  function closeNav() { sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function () {
+    sidebar.classList.contains('open') ? closeNav() : openNav();
+  });
+  backdrop.addEventListener('click', closeNav);
+  nav.addEventListener('click', function (e) {
+    if (e.target.closest('a')) closeNav();
+  });
+
+  /* ---- search filter ---- */
+  search.addEventListener('input', function () {
+    var q = search.value.trim().toLowerCase();
+    // Each word must match at the start of some word in the entry, so "emi" finds
+    // "EMI" but not "r(emi)nders", while "notif" still finds "Notifications".
+    var terms = q ? q.split(/\s+/).map(function (t) {
+      return new RegExp('(^|[^a-z0-9])' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    }) : [];
+    var anyVisible = false;
+    links.forEach(function (a) {
+      var hay = (a.textContent + ' ' + (a.dataset.kw || '')).toLowerCase();
+      var hit = terms.every(function (re) { return re.test(hay); });
+      a.classList.toggle('hide', !hit);
+      if (hit) anyVisible = true;
+    });
+    groups.forEach(function (g) {
+      var visible = g.querySelectorAll('a:not(.hide)').length;
+      g.classList.toggle('hide', visible === 0);
+    });
+    navEmpty.style.display = anyVisible ? 'none' : 'block';
+  });
+
+  /* ---- active link + crumb via IntersectionObserver ---- */
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+
+  function setActive(id) {
+    links.forEach(function (a) { a.classList.remove('active'); });
+    var a = byId[id];
+    if (a) {
+      a.classList.add('active');
+      var label = a.textContent.replace(/^[\s\d≡▶]+/, '').trim();
+      crumb.textContent = 'Expense Tracker — ' + label;
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    var visible = {};
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        visible[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0;
+      });
+      var bestId = null, best = 0;
+      Object.keys(visible).forEach(function (id) {
+        if (visible[id] > best) { best = visible[id]; bestId = id; }
+      });
+      if (bestId) setActive(bestId);
+    }, { rootMargin: '-70px 0px -55% 0px', threshold: [0, .1, .25, .5, 1] });
+    sections.forEach(function (s) { obs.observe(s); });
+  }
+
+  /* ---- back to top ---- */
+  window.addEventListener('scroll', function () {
+    toTop.classList.toggle('show', window.scrollY > 700);
+  }, { passive: true });
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---- theme toggle (writes the landing page's own preference key) ---- */
+  var themeBtn = document.getElementById('themeBtn');
+  var SUN = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  var MOON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+  function paintThemeBtn() {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    themeBtn.innerHTML = isDark ? SUN : MOON;
+    themeBtn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  if (themeBtn) {
+    paintThemeBtn();
+    themeBtn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      window.__setManualTheme(next);
+      paintThemeBtn();
+    });
+  }
+
+  /* ---- keyword index so search also matches feature names ---- */
+  var KW = {
+    home: 'dashboard spent today recent upcoming recurring greeting avatar bell',
+    'sms-inbox': 'sms detected bank upi inbox parse notification suggestions swipe',
+    'add-transaction': 'keypad voice calculator favorite note category payment fund date time recurring emi tags save delete',
+    transactions: 'ledger search sort filter swipe duplicate multi select date separators summary',
+    calculator: 'itemized history copy expression total line items',
+    analytics: 'charts insights top spending breakdown category payment tag fund trend period',
+    plans: 'budget cap limit recurring emi installments copy previous month frequency mute',
+    funds: 'fund bucket allocated spent remaining archive vacation',
+    calendar: 'month year day spending picker jump today',
+    goals: 'savings goal target deadline progress add funds history',
+    settings: 'hub account membership preferences data about sign out',
+    profile: 'name avatar email verify phone dob gender country',
+    preferences: 'currency decimal number format date time month start language theme font',
+    security: 'app lock pin biometric scrambled blur recents screenshots password auto lock',
+    customisation: 'card date separator summary icon category payment method time preview',
+    categories: 'category payment method icon colour delete add search sort',
+    'add-category': 'new category name icon colour payment type income expense',
+    tags: 'tag merge rename delete label vacation',
+    notifications: 'reminders alerts budget large transaction weekly summary insights goal recurring cloud security test',
+    data: 'backup restore export import json db legacy delete account wipe',
+    devices: 'cloud sync devices unlink force sync last synced',
+    refer: 'referral code invite rewards earn pro days share',
+    feedback: 'send message support cooldown',
+    about: 'version rate bug report privacy terms website github',
+    membership: 'plan pro pass subscription restore manage billing expiry',
+    paywall: 'upgrade subscribe plans discount best value purchase restore',
+    update: 'update required play store new version',
+    maintenance: 'maintenance offline scheduled downtime',
+    splash: 'onboarding intro slides skip next get started welcome',
+    auth: 'sign in sign up google email password guest verification terms',
+    applock: 'pin lock biometric forgot recovery security question keypad',
+    overview: 'list of screens map index',
+    quickstart: 'first steps getting started setup'
+  };
+  links.forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    if (KW[id]) a.dataset.kw = KW[id];
+  });
+})();
+</script>
+</body>
+</html>
