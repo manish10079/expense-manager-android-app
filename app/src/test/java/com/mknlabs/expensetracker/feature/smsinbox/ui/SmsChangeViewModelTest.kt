@@ -313,6 +313,7 @@ class SmsChangeViewModelTest {
         override suspend fun updateDateFormat(dateFormatPattern: String) = Unit
         override suspend fun updateTimeFormat(timeFormat: String) = Unit
         override suspend fun updateThemeMode(themeMode: AppThemeMode) = Unit
+        override suspend fun updateLanguage(languageCode: String) = Unit
         override suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle) = Unit
         override suspend fun updateCurrencyDecimalPlaces(decimalPlaces: Int) = Unit
         override suspend fun updateFontMode(fontMode: FontMode) = Unit

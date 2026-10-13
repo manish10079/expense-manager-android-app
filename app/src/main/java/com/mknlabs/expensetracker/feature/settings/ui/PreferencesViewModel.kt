@@ -8,7 +8,11 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_DECIMAL_PLACES
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
+import com.mknlabs.expensetracker.data.constants.DEFAULT_LANGUAGE_CODE
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
+import com.mknlabs.expensetracker.data.constants.languageDisplayName
+import com.mknlabs.expensetracker.data.constants.normalizeLanguageCode
+import com.mknlabs.expensetracker.data.constants.supportedAppLanguages
 import com.mknlabs.expensetracker.data.constants.currencyMap
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.domain.usecase.GetAppPreferencesUseCase
@@ -16,6 +20,7 @@ import com.mknlabs.expensetracker.domain.usecase.UpdateCurrencyDecimalPlacesUseC
 import com.mknlabs.expensetracker.domain.usecase.UpdateCurrencyGroupingStyleUseCase
 import com.mknlabs.expensetracker.domain.usecase.UpdateCurrencyUseCase
 import com.mknlabs.expensetracker.domain.usecase.UpdateDateFormatUseCase
+import com.mknlabs.expensetracker.domain.usecase.UpdateLanguageUseCase
 import com.mknlabs.expensetracker.domain.usecase.UpdateThemeModeUseCase
 import com.mknlabs.expensetracker.domain.usecase.UpdateTimeFormatUseCase
 import com.mknlabs.expensetracker.models.AppThemeMode
@@ -40,7 +45,8 @@ enum class PreferencesSheetType {
     MonthStartDay,
     NumberFormat,
     DecimalPlaces,
-    Font
+    Font,
+    Language
 }
 
 @Immutable
@@ -67,6 +73,9 @@ data class ThemeModeOptionUi(
 data class PreferencesScreenUiState(
     val selectedCurrencyId: Int = DEFAULT_CURRENCY_ID,
     val selectedThemeMode: AppThemeMode = AppThemeMode.SYSTEM,
+    val selectedLanguageCode: String = DEFAULT_LANGUAGE_CODE,
+    val currentLanguageLabel: String = languageDisplayName(DEFAULT_LANGUAGE_CODE),
+    val languageOptions: List<com.mknlabs.expensetracker.data.constants.AppLanguageOption> = supportedAppLanguages,
     val selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
     val selectedTimeFormat: String = DEFAULT_TIME_FORMAT,
     val selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN,
@@ -102,6 +111,7 @@ class PreferencesViewModel @Inject constructor(
     private val updateDateFormat = UpdateDateFormatUseCase(repository)
     private val updateTimeFormat = UpdateTimeFormatUseCase(repository)
     private val updateThemeMode = UpdateThemeModeUseCase(repository)
+    private val updateLanguage = UpdateLanguageUseCase(repository)
     private val updateCurrencyGroupingStyle = UpdateCurrencyGroupingStyleUseCase(repository)
     private val updateCurrencyDecimalPlaces = UpdateCurrencyDecimalPlacesUseCase(repository)
 
@@ -109,6 +119,7 @@ class PreferencesViewModel @Inject constructor(
 
     private var selectedCurrencyId: Int = DEFAULT_CURRENCY_ID
     private var selectedThemeMode: AppThemeMode = AppThemeMode.SYSTEM
+    private var selectedLanguageCode: String = DEFAULT_LANGUAGE_CODE
     private var selectedDateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN
     private var selectedTimeFormat: String = DEFAULT_TIME_FORMAT
     private var selectedGroupingStyle: CurrencyGroupingStyle = CurrencyGroupingStyle.INDIAN
@@ -132,6 +143,7 @@ class PreferencesViewModel @Inject constructor(
             getAppPreferences().collect { settings ->
                 selectedCurrencyId = settings.currencyId
                 selectedThemeMode = settings.themeMode
+                selectedLanguageCode = normalizeLanguageCode(settings.languageCode)
                 selectedDateFormatPattern = settings.dateFormatPattern
                 selectedTimeFormat = settings.timeFormat
                 selectedGroupingStyle = settings.currencyGroupingStyle
@@ -184,6 +196,13 @@ class PreferencesViewModel @Inject constructor(
     fun selectThemeMode(themeMode: AppThemeMode) {
         viewModelScope.launch {
             updateThemeMode(themeMode)
+        }
+        dismissSheet()
+    }
+
+    fun selectLanguage(languageCode: String) {
+        viewModelScope.launch {
+            updateLanguage(languageCode)
         }
         dismissSheet()
     }
@@ -252,6 +271,9 @@ class PreferencesViewModel @Inject constructor(
             it.copy(
                 selectedCurrencyId = selectedCurrencyId,
                 selectedThemeMode = selectedThemeMode,
+                selectedLanguageCode = selectedLanguageCode,
+                currentLanguageLabel = languageDisplayName(selectedLanguageCode),
+                languageOptions = supportedAppLanguages,
                 selectedDateFormatPattern = selectedDateFormatPattern,
                 selectedTimeFormat = selectedTimeFormat,
                 selectedGroupingStyle = selectedGroupingStyle,

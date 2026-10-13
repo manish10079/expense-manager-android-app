@@ -5,11 +5,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -108,9 +104,10 @@ private fun SplashOverlayContent(
         val slide = tween<Float>(durationMillis = 780, easing = FastOutSlowInEasing)
         titleEnter.animateTo(1f, SplashInertiaSpring)
         delay(280)
-        subtitleEnter.animateTo(1f, slide)
-        delay(180)
-        taglineEnter.animateTo(1f, slide)
+        coroutineScope {
+            launch { subtitleEnter.animateTo(1f, slide) }
+            launch { taglineEnter.animateTo(1f, slide) }
+        }
         delay(2_200)
         enterDone = true
     }
@@ -125,16 +122,6 @@ private fun SplashOverlayContent(
         }
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.88f,
-        targetValue = 1.12f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "logo_pulse_scale"
-    )
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val logoSize = if (isLandscape) SplashLogoSizeLandscape else SplashLogoSizePortrait
@@ -169,7 +156,6 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
-                    pulseScale = pulseScale,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(
@@ -197,7 +183,6 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
-                    pulseScale = pulseScale,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(
@@ -308,17 +293,11 @@ private fun SplashAshField(
 @Composable
 private fun SplashLogoMark(
     logoSize: Dp,
-    pulseScale: Float,
 ) {
     Image(
         painter = painterResource(id = R.drawable.splash_logo),
         contentDescription = null,
-        modifier = Modifier
-            .size(logoSize)
-            .graphicsLayer {
-                scaleX = pulseScale
-                scaleY = pulseScale
-            }
+        modifier = Modifier.size(logoSize)
     )
 }
 

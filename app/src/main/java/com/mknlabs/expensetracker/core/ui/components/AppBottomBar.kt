@@ -215,6 +215,9 @@ fun AppBottomBar(
         currentRoute = currentRoute,
         onItemClick = { route ->
             showRequests++
+            if (route == AppRoute.Settings) {
+                com.mknlabs.expensetracker.feature.settings.LanguageOptionUnlock.onSettingsIconTapped()
+            }
             onItemClick(route)
         },
         onAddClick = {

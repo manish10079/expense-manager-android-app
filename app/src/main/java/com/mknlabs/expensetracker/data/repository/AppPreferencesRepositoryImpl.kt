@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.data.repository
 
 import android.content.Context
+import com.mknlabs.expensetracker.data.constants.normalizeLanguageCode
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.room.dao.BudgetDao
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
@@ -8,6 +9,7 @@ import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.FontMode
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.CustomMonthUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +46,14 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         AppSettingsDataStore.updateAppSettings(context) { settings ->
             settings.copy(themeMode = themeMode)
         }
+    }
+
+    override suspend fun updateLanguage(languageCode: String) {
+        val normalized = normalizeLanguageCode(languageCode)
+        AppSettingsDataStore.updateAppSettings(context) { settings ->
+            settings.copy(languageCode = normalized)
+        }
+        AppLocaleHelper.applyLanguage(normalized)
     }
 
     override suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle) {

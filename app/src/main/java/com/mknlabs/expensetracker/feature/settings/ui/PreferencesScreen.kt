@@ -33,6 +33,7 @@ import com.adamglin.phosphoricons.regular.CalendarDots
 import com.adamglin.phosphoricons.regular.Check
 import com.adamglin.phosphoricons.regular.Clock
 import com.adamglin.phosphoricons.regular.CurrencyInr
+import com.adamglin.phosphoricons.regular.Globe
 import com.adamglin.phosphoricons.regular.DownloadSimple
 import com.adamglin.phosphoricons.regular.Lock
 import com.adamglin.phosphoricons.regular.Palette
@@ -100,6 +101,7 @@ fun PreferencesScreen(
     userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
+    val languageUnlocked by com.mknlabs.expensetracker.feature.settings.LanguageOptionUnlock.unlocked.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
     val activity = context as? android.app.Activity
     val scope = rememberCoroutineScope()
@@ -143,6 +145,7 @@ fun PreferencesScreen(
         dismissSheet = { preferencesViewModel.dismissSheet() },
         updateCurrencySearchQuery = { preferencesViewModel.updateCurrencySearchQuery(it) },
         selectThemeMode = { preferencesViewModel.selectThemeMode(it) },
+        selectLanguage = { preferencesViewModel.selectLanguage(it) },
         selectDateFormat = { preferencesViewModel.selectDateFormat(it) },
         selectTimeFormat = { preferencesViewModel.selectTimeFormat(it) },
         selectGroupingStyle = { preferencesViewModel.selectGroupingStyle(it) },
@@ -166,7 +169,8 @@ fun PreferencesScreen(
                 )(fileName)
             }
         },
-        selectMonthStartDay = { day -> preferencesViewModel.selectMonthStartDay(day) }
+        selectMonthStartDay = { day -> preferencesViewModel.selectMonthStartDay(day) },
+        showLanguageOption = languageUnlocked
     )
 }
 
@@ -184,6 +188,7 @@ private fun PreferencesScreenContent(
     dismissSheet: () -> Unit,
     updateCurrencySearchQuery: (String) -> Unit,
     selectThemeMode: (com.mknlabs.expensetracker.models.AppThemeMode) -> Unit,
+    selectLanguage: (String) -> Unit,
     selectDateFormat: (String) -> Unit,
     selectTimeFormat: (String) -> Unit,
     selectGroupingStyle: (com.mknlabs.expensetracker.models.CurrencyGroupingStyle) -> Unit,
@@ -191,7 +196,8 @@ private fun PreferencesScreenContent(
     onSelectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
     onImportFont: () -> Unit,
     onDeleteFont: (String) -> Unit,
-    selectMonthStartDay: (Int) -> Unit
+    selectMonthStartDay: (Int) -> Unit,
+    showLanguageOption: Boolean = false
 ) {
     Box(
         modifier = Modifier
@@ -304,6 +310,18 @@ private fun PreferencesScreenContent(
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.MonthStartDay) }
                         )
+                        if (showLanguageOption) {
+                            SettingsGroupDivider()
+                            SettingsItemCard(
+                                title = stringResource(R.string.title_language),
+                                subtitle = stringResource(R.string.label_language_subtitle),
+                                icon = PhosphorIcons.Regular.Globe,
+                                valueText = uiState.currentLanguageLabel,
+                                type = SettingsItemType.Value,
+                                standalone = false,
+                                onClick = { showSheet(PreferencesSheetType.Language) }
+                            )
+                        }
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_theme),
@@ -380,6 +398,27 @@ private fun PreferencesScreenContent(
                     searchQuery = uiState.currencySearchQuery,
                     onSearchQueryChange = updateCurrencySearchQuery,
                     searchPlaceholder = stringResource(R.string.label_search_country)
+                )
+            }
+
+            PreferencesSheetType.Language -> if (showLanguageOption) {
+                val languageItems = remember(uiState.languageOptions) {
+                    uiState.languageOptions.map { option ->
+                        SelectionItem(
+                            id = option.code,
+                            title = option.nativeName,
+                            subtitle = option.englishName,
+                            leadingIcon = PhosphorIcons.Regular.Globe
+                        )
+                    }
+                }
+                AppSelectionSheet<String>(
+                    title = stringResource(R.string.label_select_language),
+                    description = stringResource(R.string.label_language_selection_desc),
+                    items = languageItems,
+                    selectedId = uiState.selectedLanguageCode,
+                    onItemSelected = { selectLanguage(it) },
+                    onDismiss = dismissSheet
                 )
             }
 
@@ -846,6 +885,7 @@ private fun PreferencesScreenPreview() {
             dismissSheet = {},
             updateCurrencySearchQuery = {},
             selectThemeMode = {},
+            selectLanguage = {},
             selectDateFormat = {},
             selectTimeFormat = {},
             selectGroupingStyle = {},

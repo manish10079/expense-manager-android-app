@@ -53,6 +53,21 @@ class PreferencesViewModelTest {
         )
     }
 
+    @Test
+    fun `selectLanguage updates selected language`() {
+        val fakeRepository = FakeAppPreferencesRepository()
+        val viewModel = PreferencesViewModel(fakeRepository)
+
+        viewModel.viewModelScope.launch(UnconfinedTestDispatcher()) {
+            viewModel.uiState.collect { }
+        }
+
+        viewModel.selectLanguage("fr")
+
+        assertEquals("fr", fakeRepository.settings.value.languageCode)
+        assertEquals("fr", viewModel.uiState.value.selectedLanguageCode)
+    }
+
     private class FakeAppPreferencesRepository : AppPreferencesRepository {
         val settings = MutableStateFlow(defaultAppSettings)
 
@@ -72,6 +87,10 @@ class PreferencesViewModelTest {
 
         override suspend fun updateThemeMode(themeMode: AppThemeMode) {
             settings.value = settings.value.copy(themeMode = themeMode)
+        }
+
+        override suspend fun updateLanguage(languageCode: String) {
+            settings.value = settings.value.copy(languageCode = languageCode)
         }
 
         override suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle) {

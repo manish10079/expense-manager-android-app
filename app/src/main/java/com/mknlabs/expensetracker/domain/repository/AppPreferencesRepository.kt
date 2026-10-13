@@ -17,6 +17,8 @@ interface AppPreferencesRepository {
 
     suspend fun updateThemeMode(themeMode: AppThemeMode)
 
+    suspend fun updateLanguage(languageCode: String)
+
     suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle)
 
     suspend fun updateCurrencyDecimalPlaces(decimalPlaces: Int)

@@ -82,7 +82,12 @@ fun AppNavigationRail(
             RailNavItem(
                 item = item,
                 selected = currentRoute == item.route,
-                onClick = { onItemClick(item.route) },
+                onClick = {
+                    if (item.route == AppRoute.Settings) {
+                        com.mknlabs.expensetracker.feature.settings.LanguageOptionUnlock.onSettingsIconTapped()
+                    }
+                    onItemClick(item.route)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -104,7 +109,12 @@ fun AppNavigationRail(
             RailNavItem(
                 item = item,
                 selected = currentRoute == item.route,
-                onClick = { onItemClick(item.route) },
+                onClick = {
+                    if (item.route == AppRoute.Settings) {
+                        com.mknlabs.expensetracker.feature.settings.LanguageOptionUnlock.onSettingsIconTapped()
+                    }
+                    onItemClick(item.route)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
