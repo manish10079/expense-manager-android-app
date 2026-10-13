@@ -134,6 +134,7 @@ class FileSmsDetectionAsTransactionUseCase @Inject constructor(
         if (!allowOverride &&
             transactionWriter.transactionExistsFor(detection.amountMinor, detection.detectedAt)
         ) {
+            detection.notificationId?.let(notificationCleaner::clear)
             return FileDetectionResult.AlreadyAdded(detection)
         }
 

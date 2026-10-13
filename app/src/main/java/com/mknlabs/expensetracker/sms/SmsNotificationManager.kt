@@ -80,6 +80,9 @@ object SmsNotificationManager {
     /** Dismisses the detection and clears its notification. */
     const val ACTION_SMS_IGNORE = "com.mknlabs.expensetracker.action.SMS_IGNORE"
 
+    /** Opens Add Transaction prefilled from the detected SMS. */
+    const val ACTION_SMS_EDIT = "com.mknlabs.expensetracker.action.SMS_EDIT"
+
     /** Notification ID rides in the action intent so the receiver can cancel it directly. */
     const val EXTRA_NOTIFICATION_ID = "sms.notification_id"
 
@@ -208,7 +211,7 @@ object SmsNotificationManager {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(openPendingIntent)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             // Read back off the POSTED notification: the amount keeps the group
             // summary's total honest, and the detection id is how the summary tells a
             // child apart from the summary itself.
@@ -282,7 +285,7 @@ object SmsNotificationManager {
                 activityPendingIntent(
                     context,
                     requestCode = requestBase + SLOT_EDIT,
-                    intent = openInboxIntent(context, detectionId, openEditor = true)
+                    intent = openAddFromSmsIntent(context, detectionId, parsed)
                 )
             ).build()
         )
@@ -374,7 +377,7 @@ object SmsNotificationManager {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(contentIntent)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setGroup(GROUP_KEY_SMS_IMPORT)
             .setGroupSummary(true)
             .setOnlyAlertOnce(true)
@@ -445,40 +448,65 @@ object SmsNotificationManager {
      * immediate cancel already succeeded this is effectively a no-op.
      */
     fun forceDismiss(context: Context, notificationId: Int) {
+        val appContext = context.applicationContext
         val nm = NotificationManagerCompat.from(context)
+        // Leave the SMS group: a grouped reset kept the collapsible shade entry
+        // alive after Add+note, and setTimeoutAfter is ignored on several OEMs.
         val reset = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_SMS_IMPORT)
             .setSmallIcon(R.drawable.ic_notification_wallet)
             .setContentTitle(context.getString(R.string.notification_title_sms_import))
-            .setPriority(NotificationCompat.PRIORITY_MIN) // heads-up override: drop to min
-            .setOngoing(false)                            // §4B: never ongoing → cancel honored
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setOngoing(false)
             .setAutoCancel(true)
-            .setTimeoutAfter(FORCE_DISMISS_TIMEOUT_MS)    // §4A: update, then auto-remove
-            // Stay inside the group while the ghost-card reset is in flight.
-            .setGroup(GROUP_KEY_SMS_IMPORT)
-            .setGroupSummary(false)
+            .setTimeoutAfter(FORCE_DISMISS_TIMEOUT_MS)
             .build()
-        nm.notify(notificationId, reset)
-        // Do NOT cancel immediately — the timeout removes the row after SystemUI
-        // has processed the update. Below API 26 (no timeout support) cancel now.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            nm.cancel(notificationId)
-        }
+        runCatching { nm.notify(notificationId, reset) }
+        Handler(Looper.getMainLooper()).postDelayed(
+            {
+                nm.cancel(notificationId)
+                nm.cancel(NotificationHelper.NOTIFICATION_ID_SMS_IMPORT)
+                refreshGroupSummary(appContext)
+            },
+            FORCE_DISMISS_CANCEL_MS
+        )
     }
 
     /**
-     * Opens the app on the detected-SMS inbox, focused on [detectionId]. Both the
-     * card tap and the [Edit] action use this — the only difference is whether the
-     * correction dialog is already up when the row lands.
+     * Opens the app on the detected-SMS inbox, focused on [detectionId]. Used for
+     * tapping the card body — Edit opens Add Transaction instead.
      */
     private fun openInboxIntent(context: Context, detectionId: String, openEditor: Boolean): Intent {
         return Intent(context, MainActivity::class.java).apply {
-            // singleTop + SINGLE_TOP: reuse the existing MainActivity via
-            // onNewIntent when the app is alive in the background, instead of
-            // CLEAR_TASK which force-restarts the activity and replays the splash.
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_SMS_INBOX)
             putExtra(EXTRA_DETECTION_ID, detectionId)
             if (openEditor) putExtra(EXTRA_OPEN_EDITOR, true)
+        }
+    }
+
+    /** Edit from the shade: Add Transaction, filled from the parsed SMS. */
+    private fun openAddFromSmsIntent(
+        context: Context,
+        detectionId: String,
+        parsed: ParsedSms
+    ): Intent {
+        val amountText = java.math.BigDecimal
+            .valueOf(parsed.amountMinor.toMajorUnits())
+            .stripTrailingZeros()
+            .toPlainString()
+        return Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = ACTION_SMS_EDIT
+            data = android.net.Uri.parse("expensetracker://sms-edit/$detectionId")
+            putExtra(NotificationHelper.EXTRA_NAV_DESTINATION, NotificationHelper.DESTINATION_ADD_TRANSACTION)
+            putExtra(EXTRA_DETECTION_ID, detectionId)
+            putExtra(EXTRA_OPEN_AMOUNT, amountText)
+            parsed.merchant?.takeIf { it.isNotBlank() }?.let { putExtra(EXTRA_OPEN_NOTE, it) }
+            putExtra(EXTRA_OPEN_CATEGORY_ID, parsed.categoryId)
+            putExtra(EXTRA_OPEN_TRANSACTION_TYPE_ID, parsed.transactionTypeId)
+            putParsedSms(parsed)
         }
     }
 
@@ -557,6 +585,9 @@ object SmsNotificationManager {
      * RemoteInputView, short enough to be imperceptible to the user.
      */
     private const val FORCE_DISMISS_TIMEOUT_MS = 500L
+
+    /** Hard cancel after SystemUI has seen the RemoteInput reset. */
+    private const val FORCE_DISMISS_CANCEL_MS = 800L
 
     /**
      * How long to let the notification service settle before rebuilding the summary

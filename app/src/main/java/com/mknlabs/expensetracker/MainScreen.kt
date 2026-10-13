@@ -113,6 +113,7 @@ import com.mknlabs.expensetracker.feature.auth.ui.AuthViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AuthRoute
 import com.mknlabs.expensetracker.workers.SyncWorker
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import kotlinx.coroutines.Dispatchers
@@ -552,12 +553,26 @@ fun MainScreen(
                 }
                 when (initialNavDestination) {
                     NotificationHelper.DESTINATION_ADD_TRANSACTION -> {
-                        // Smart SMS Import "Open" action: prefill the Add Transaction draft
-                        // (amount + note + category + type) before navigating (plan §8).
-                        initialAddTransactionAmount?.let { navigationState.updateAddTransactionDraftAmount(it) }
-                        initialAddTransactionNote?.let { navigationState.updateAddTransactionDraftNote(it) }
-                        initialAddTransactionCategoryId?.let { navigationState.updateAddTransactionDraftCategoryId(it) }
-                        initialAddTransactionTypeId?.let { navigationState.updateAddTransactionDraftTypeId(it) }
+                        navigationState.updateSelectedTransaction(null)
+                        val parsed = initialParsedSms
+                        val amount = initialAddTransactionAmount
+                            ?: parsed?.let {
+                                java.math.BigDecimal
+                                    .valueOf(it.amountMinor.toMajorUnits())
+                                    .stripTrailingZeros()
+                                    .toPlainString()
+                            }
+                        val note = initialAddTransactionNote
+                            ?: parsed?.merchant?.takeIf { it.isNotBlank() }
+                        val categoryId = initialAddTransactionCategoryId ?: parsed?.categoryId
+                        val typeId = initialAddTransactionTypeId ?: parsed?.transactionTypeId
+                        amount?.let { navigationState.updateAddTransactionDraftAmount(it) }
+                        note?.let { navigationState.updateAddTransactionDraftNote(it) }
+                        categoryId?.let { navigationState.updateAddTransactionDraftCategoryId(it) }
+                        typeId?.let { navigationState.updateAddTransactionDraftTypeId(it) }
+                        initialSmsInboxDetectionId?.let {
+                            navigationState.updateAddTransactionSourceDetectionId(it)
+                        }
                         navigationState.navigateTo(AppRoute.AddTransaction)
                         navigationState.updateBottomBarVisibility(false)
                     }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -138,6 +139,7 @@ class SmsReceiver : BroadcastReceiver() {
                 )
                 smsInboxRepository.attachNotification(detectionId, notificationId)
 
+                delay(SMS_NOTIFY_DELAY_MS)
                 SmsNotificationManager.showImportNotification(
                     context.applicationContext,
                     parsed,
@@ -160,6 +162,9 @@ class SmsReceiver : BroadcastReceiver() {
     }
 
     companion object {
+        /** Let the system SMS notification land first, then show ours. */
+        private const val SMS_NOTIFY_DELAY_MS = 500L
+
         /** Re-notify window for one SMS event; entries older than this are pruned. */
         private const val NOTIFY_WINDOW_MS = 10L * 60L * 1000L
 

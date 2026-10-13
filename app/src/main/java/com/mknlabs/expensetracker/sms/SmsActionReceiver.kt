@@ -85,7 +85,10 @@ class SmsActionReceiver : BroadcastReceiver() {
         // Dedup on the SMS timestamp, exactly as the legacy save path does: a double tap
         // (or a re-submitted remote input) must not write two transactions.
         val key = parsed?.smsTimestamp ?: 0L
-        if (!markProcessing(key)) return
+        if (!markProcessing(key)) {
+            SmsNotificationManager.forceDismiss(context, notificationId)
+            return
+        }
 
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
