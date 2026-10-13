@@ -215,7 +215,7 @@ private fun AboutScreenContent(
 
             // Developed By Card
             DeveloperCard(
-                name = "Manish Kumar Nayak",
+                lab = "Mkn Labs",
                 email = "mknlabs.dev@gmail.com",
                 onEmailClick = { onSendEmail("mknlabs.dev@gmail.com") }
             )
@@ -366,7 +366,7 @@ private fun AboutInfoCard(
 
 @Composable
 private fun DeveloperCard(
-    name: String,
+    lab: String,
     email: String,
     onEmailClick: () -> Unit
 ) {
@@ -385,7 +385,7 @@ private fun DeveloperCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = name,
+                text = lab,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium
             )
