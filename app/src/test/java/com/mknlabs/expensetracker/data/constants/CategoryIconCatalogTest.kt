@@ -28,6 +28,22 @@ class CategoryIconCatalogTest {
     }
 
     @Test
+    fun `every icon the picker offers has a unique key`() {
+        // These keys address the grid's items, so a repeat is a crash rather than a
+        // cosmetic duplicate: LazyVerticalGrid throws "Key ... was already used" the moment
+        // a scroll brings both copies into the composed window. "wallet" was listed twice,
+        // once in each of the picker's two naming conventions, and only started throwing
+        // once the wider landscape grid composed both at the same time.
+        val duplicates = categoryIconOptions
+            .groupingBy { it.id }
+            .eachCount()
+            .filterValues { it > 1 }
+            .keys
+
+        assertEquals(emptySet<String>(), duplicates)
+    }
+
+    @Test
     fun `every seeded category and payment method can be drawn`() {
         val seeded = categoryMap.values.map { it.iconKey } +
             paymentTypeMap.values.map { it.iconKey }

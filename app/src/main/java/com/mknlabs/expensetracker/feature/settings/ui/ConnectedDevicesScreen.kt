@@ -6,8 +6,8 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -232,7 +232,14 @@ private fun DeviceListContent(
     var deviceToUnlink by remember { mutableStateOf<RegisteredDevice?>(null) }
     var showForceSyncInfo by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    // The whole screen is one scroll surface: the sync cards and the device rows
+    // scroll together, so a short window (phone landscape) can still reach the
+    // cards that otherwise clipped off the top of an unscrollable Column.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         // Sync Toggle
         AppCard(
             modifier = Modifier
@@ -431,17 +438,17 @@ private fun DeviceListContent(
             modifier = Modifier.padding(horizontal = Dimens.ScreenPadding + 8.dp, vertical = 8.dp)
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
-            items(devices, key = { it.id }) { device ->
-                DeviceItem(
-                    device = device,
-                    onUnlinkClick = { deviceToUnlink = device }
-                )
-            }
+        // Rendered directly rather than through a nested lazy list: the cap keeps
+        // this to a handful of rows, and a second scroll container inside the one
+        // above would fight it for the gesture.
+        devices.forEach { device ->
+            DeviceItem(
+                device = device,
+                onUnlinkClick = { deviceToUnlink = device }
+            )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 
     if (deviceToUnlink != null) {

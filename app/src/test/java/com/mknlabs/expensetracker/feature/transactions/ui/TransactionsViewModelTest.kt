@@ -44,6 +44,7 @@ class TransactionsViewModelTest {
     private lateinit var viewModel: TransactionsViewModel
     private lateinit var fakeRepository: FakeTransactionRepository
     private lateinit var fakeTagRepository: FakeTagRepository
+    private lateinit var fakeFundRepository: FakeFundRepository
     private lateinit var fakeMonetizationRepository: FakeMonetizationRepository
     private lateinit var observeAccessStatusUseCase: ObserveAccessStatusUseCase
 
@@ -51,12 +52,14 @@ class TransactionsViewModelTest {
     fun setup() {
         fakeRepository = FakeTransactionRepository()
         fakeTagRepository = FakeTagRepository()
+        fakeFundRepository = FakeFundRepository()
         fakeMonetizationRepository = FakeMonetizationRepository()
         observeAccessStatusUseCase = ObserveAccessStatusUseCase(fakeMonetizationRepository)
         viewModel = TransactionsViewModel(
             application = android.app.Application(),
             transactionRepository = fakeRepository,
             tagRepository = fakeTagRepository,
+            fundRepository = fakeFundRepository,
             observeAccessStatusUseCase = observeAccessStatusUseCase
         )
         // Run filter updates without a debounce delay.
@@ -405,6 +408,29 @@ class TransactionsViewModelTest {
         override suspend fun deleteTag(id: String) {}
         override suspend fun mergeTags(sourceId: String, targetId: String) {}
         override suspend fun setTransactionTags(transactionId: String, tagIds: List<String>) {}
+    }
+
+    /**
+     * Minimal fund repository. The ViewModel only observes the fund names it joins onto
+     * transaction rows, so this returns an empty set and every write is a no-op.
+     */
+    private class FakeFundRepository : com.mknlabs.expensetracker.domain.repository.FundRepository {
+        override fun observeActiveFunds(): Flow<List<com.mknlabs.expensetracker.models.Fund>> =
+            flowOf(emptyList())
+        override fun observeFundProgress(): Flow<List<com.mknlabs.expensetracker.models.FundWithProgress>> =
+            flowOf(emptyList())
+        override fun observeTransactionsByFund(fundId: String): Flow<List<Transaction>> =
+            flowOf(emptyList())
+        override suspend fun getFundById(id: String): com.mknlabs.expensetracker.models.Fund? = null
+        override suspend fun createFund(
+            fund: com.mknlabs.expensetracker.models.Fund,
+            incomeCategoryId: Int,
+            incomePaymentTypeId: Int
+        ): com.mknlabs.expensetracker.models.Fund = fund
+        override suspend fun updateFund(fund: com.mknlabs.expensetracker.models.Fund): com.mknlabs.expensetracker.models.Fund = fund
+        override suspend fun updateFundAmount(id: String, amountMinor: Long): com.mknlabs.expensetracker.models.Fund? = null
+        override suspend fun setArchived(id: String, archived: Boolean) {}
+        override suspend fun deleteFund(id: String) {}
     }
 
     private class FakeMonetizationRepository : MonetizationRepository {

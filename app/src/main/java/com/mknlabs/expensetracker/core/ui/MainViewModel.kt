@@ -456,7 +456,13 @@ class MainViewModel @Inject constructor(
 
                 existingRule != null -> recurringRuleRepository.deleteRule(existingRule.id)
             }
-            
+            // Everything the user is about to see is now committed: the transaction,
+            // its tags and its star. Tell the screen the save landed here, so Add/Update
+            // returns immediately instead of waiting on the notification and scheduling
+            // work below -- the budget alert and the recurring run are background
+            // concerns that no part of this screen renders.
+            _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
+
             // Check budget and notify if needed
             checkBudgetUseCase(savedTransaction)
             // Large-expense heads-up (spec category 3, Free tier) now fires inside
@@ -467,7 +473,6 @@ class MainViewModel @Inject constructor(
             if (recurringDraft != null) {
                 com.mknlabs.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
             }
-            _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
         }
     }
 

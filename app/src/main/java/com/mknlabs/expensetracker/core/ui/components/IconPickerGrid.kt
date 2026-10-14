@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.theme.GlyphTileAlpha
@@ -28,10 +29,22 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
 
 /**
+ * The size a tile comes out at when six columns share a phone's content width. Pass it
+ * as [IconPickerGrid]'s `minTileSize` on any grid that can be laid out wider than a
+ * phone, so the extra room becomes more columns rather than bigger tiles.
+ */
+val IconPickerTileSize = 45.dp
+
+/**
  * Shared icon grid for add-category, add-goal, and add-fund.
  *
  * Idle tiles use [onSurfaceVariant] (same as the add-category type hint).
  * Only the chosen tile takes [identityColor] from the colour picker.
+ *
+ * Tiles are square, so the cell decides their size: [columns] splits the grid into a
+ * fixed count — which inflates every tile when the grid is wide — while [minTileSize]
+ * instead packs as many columns as fit at that size and caps them there. Prefer
+ * [minTileSize] wherever the width is not known to be a phone's.
  */
 @Composable
 fun IconPickerGrid(
@@ -40,10 +53,11 @@ fun IconPickerGrid(
     modifier: Modifier = Modifier,
     options: List<CategoryIconOption> = categoryIconOptions,
     identityColor: Color = MaterialTheme.colorScheme.accentInk,
-    columns: Int = 6
+    columns: Int = 6,
+    minTileSize: Dp? = null
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+        columns = minTileSize?.let { GridCells.Adaptive(it) } ?: GridCells.Fixed(columns),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier.fillMaxWidth()

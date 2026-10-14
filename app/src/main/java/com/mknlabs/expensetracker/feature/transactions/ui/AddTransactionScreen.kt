@@ -1245,7 +1245,14 @@ internal fun AddTransactionScreenContent(
                 initialStartMillis = selectedDateMillis,
                 onDismissRequest = { isDatePickerVisible = false },
                 onConfirm = { start, _ ->
-                    selectedDateMillis = datePickerSelectionToLocalDateTimestamp(start, referenceTimestamp = selectedDateMillis)
+                    selectedDateMillis = datePickerSelectionToLocalDateTimestamp(
+                        selectedDateMillis = start,
+                        referenceTimestamp = selectedDateMillis,
+                        // The wheel picker returns a LOCAL timestamp (validateAndCalculateTimestamp
+                        // builds it from Calendar.getInstance()), so reading it as UTC shifted the
+                        // day back by one in positive-offset zones.
+                        isInputUtc = false
+                    )
                     isDatePickerVisible = false
                 }
             )

@@ -24,6 +24,9 @@ import com.mknlabs.expensetracker.models.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import java.util.UUID
@@ -36,6 +39,16 @@ class TransactionRepository @Inject constructor(
     private val checkLargeTransactionUseCase: CheckLargeTransactionUseCase,
     private val referralRepository: ReferralRepository
 ) : DomainTransactionRepository {
+
+    /**
+     * Outlives the caller for work that must not sit on a write path. The referral
+     * qualification is an HTTPS call to a Cloud Function, and awaiting it put a network
+     * round-trip in front of every manual save, duplicate, undo-restore and SMS import.
+     * Nothing the saving screen renders depends on it -- it only records whether the
+     * refer prompt may appear, and a failure already parks a flag that SyncWorker
+     * retries -- so it is dispatched rather than awaited.
+     */
+    private val postWriteScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         /**
@@ -149,7 +162,7 @@ class TransactionRepository @Inject constructor(
         // backfill. Batch imports (backup restore, cloud pull, legacy import)
         // bypass the repository deliberately, so they stay silent.
         checkLargeTransactionUseCase(resolved)
-        referralRepository.qualifyAfterTransaction()
+        postWriteScope.launch { referralRepository.qualifyAfterTransaction() }
         resolved
     }
 

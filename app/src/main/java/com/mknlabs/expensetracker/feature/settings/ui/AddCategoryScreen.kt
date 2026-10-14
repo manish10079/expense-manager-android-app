@@ -34,12 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.data.constants.categoryIconOptions
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.models.CategoryType
 import com.mknlabs.expensetracker.models.PaymentType
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
+import com.mknlabs.expensetracker.core.ui.components.IconPickerTileSize
 import com.mknlabs.expensetracker.core.ui.models.CategoryIconOption
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -50,6 +52,14 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.R
+
+/**
+ * Height given to the icon grid once the form scrolls (compact height, i.e. phone
+ * landscape). A weighted child is not allowed inside a scrolling parent, so the grid
+ * stops stretching and takes this instead -- tall enough to stay a usable picker while
+ * the form scrolls around it.
+ */
+private val IconGridCompactHeight = 200.dp
 
 @Composable
 fun AddCategoryScreen(
@@ -132,6 +142,12 @@ private fun AddCategoryScreenContent(
     // the row will actually be given — a pick made while looking at the other theme included.
     val identityColor = MaterialTheme.colorScheme.identityColor(uiState.selectedColorHex)
 
+    // Phone landscape cannot fit this form: the labels, both text fields and the
+    // colour row are already taller than the window, so without a scroll the grid's
+    // weight collapsed to zero and everything below it was unreachable when a
+    // hardware keyboard left the IME out of the way.
+    val isHeightCompact = LocalAppWindowInfo.current.isHeightCompact
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -156,6 +172,10 @@ private fun AddCategoryScreenContent(
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .then(
+                        if (isHeightCompact) Modifier.verticalScroll(rememberScrollState())
+                        else Modifier
+                    )
                     .alpha(enter[1])
             ) {
 
@@ -274,15 +294,26 @@ private fun AddCategoryScreenContent(
                     onSelect = onIconSelected,
                     options = filteredIcons,
                     identityColor = identityColor,
-                    modifier = Modifier.weight(1f)
+                    // Landscape hands this grid almost twice the width a phone
+                    // portrait gives it. Fixed columns would spend that on larger
+                    // tiles; sizing by the tile instead adds columns and leaves the
+                    // glyphs the size they are in portrait.
+                    minTileSize = IconPickerTileSize,
+                    modifier = if (isHeightCompact) {
+                        Modifier.height(IconGridCompactHeight)
+                    } else {
+                        Modifier.weight(1f)
+                    }
                 )
 
                 if (filteredIcons.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
-                            .weight(1f),
+                            .then(
+                                if (isHeightCompact) Modifier.height(100.dp)
+                                else Modifier.weight(1f)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(

@@ -87,7 +87,6 @@ val categoryIconOptions = listOf(
     CategoryIconOption("qr_code", R.string.icon_label_qr_code),
     CategoryIconOption("savings", R.string.icon_label_savings),
     CategoryIconOption("attach_money", R.string.icon_label_attach_money),
-    CategoryIconOption("wallet", R.string.icon_label_wallet),
     CategoryIconOption("currency_exchange", R.string.icon_label_currency_exchange),
     CategoryIconOption("storefront", R.string.icon_label_storefront),
     CategoryIconOption("fastfood", R.string.icon_label_fastfood),
