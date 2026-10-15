@@ -36,6 +36,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
@@ -77,7 +79,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
@@ -87,8 +93,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
@@ -294,7 +302,7 @@ fun ItemizedCalculatorScreen(
                         expression = viewModel.buildExpression(),
                         isEvaluated = uiState.shouldResetNormalDisplay,
                         onAction = viewModel::handleNormalAction,
-                        onCursorMoved = viewModel::setCursorPositionFromDisplay,
+                        onSelectionChanged = viewModel::setSelectionFromDisplay,
                         cursorDisplayPosition = viewModel.getDisplayPositionFromCursor()
                     )
                 }
@@ -468,7 +476,7 @@ private fun NormalCalculatorContent(
     expression: String?,
     isEvaluated: Boolean = false,
     onAction: (String) -> Unit,
-    onCursorMoved: (Int) -> Unit = {},
+    onSelectionChanged: (Int, Int) -> Unit = { _, _ -> },
     cursorDisplayPosition: Int = 0
 ) {
     // Landscape / short windows: stack display and keypad SIDE BY SIDE so the
@@ -489,7 +497,7 @@ private fun NormalCalculatorContent(
                 expression = expression,
                 isEvaluated = isEvaluated,
                 compact = true,
-                onCursorMoved = onCursorMoved,
+                onSelectionChanged = onSelectionChanged,
                 cursorDisplayPosition = cursorDisplayPosition
             )
             CalculatorKeypad(
@@ -497,6 +505,7 @@ private fun NormalCalculatorContent(
                     .weight(0.58f)
                     .fillMaxHeight(),
                 compact = true,
+                hasInput = !expression.isNullOrEmpty(),
                 onAction = onAction
             )
         }
@@ -510,11 +519,12 @@ private fun NormalCalculatorContent(
                 resultValue = previewResult,
                 expression = expression,
                 isEvaluated = isEvaluated,
-                onCursorMoved = onCursorMoved,
+                onSelectionChanged = onSelectionChanged,
                 cursorDisplayPosition = cursorDisplayPosition
             )
             CalculatorKeypad(
                 modifier = Modifier.fillMaxWidth(),
+                hasInput = !expression.isNullOrEmpty(),
                 onAction = onAction
             )
         }
@@ -547,6 +557,7 @@ private fun calculatorDigitIcon(digit: String): ImageVector = when (digit) {
 private fun CalculatorKeypad(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
+    hasInput: Boolean = false,
     onAction: (String) -> Unit
 ) {
     val rowSpacing = if (compact) 8.dp else 12.dp
@@ -570,15 +581,24 @@ private fun CalculatorKeypad(
         ) {
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = stringResource(id = R.string.label_ac),
+                // One key, two labels, the way MIUI and Samsung calculators do
+                // it: AC while there is nothing to clear, C once the expression
+                // has content. Both only clear the expression - the calculation
+                // history is untouched - so the label is the only difference.
+                label = stringResource(id = if (hasInput) R.string.label_c else R.string.label_ac),
                 accent = true,
                 onClick = { onAction("AC") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
+                // The icon carries no text, so `label` becomes the accessibility
+                // description here.
+                label = stringResource(id = R.string.content_desc_backspace),
                 icon = Icons.AutoMirrored.Filled.Backspace,
                 accent = true,
-                onClick = { onAction("BACKSPACE") }
+                onClick = { onAction("BACKSPACE") },
+                // Long press is the same clear as C above.
+                onLongClick = { onAction("AC") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
@@ -702,7 +722,10 @@ private fun CalculatorKeypad(
                 modifier = Modifier.weight(1f),
                 label = "(",
                 pill = true,
-                onClick = { onAction("(") }
+                // MIUI smart bracket: opens a group, closes the open one, or
+                // inserts "x(" after a number so the multiplication is explicit.
+                // The separate ")" key still force-closes.
+                onClick = { onAction("BRACKET") }
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
@@ -723,7 +746,8 @@ private fun CalculatorKeypad(
             )
         }
 
-        // Row 6: =
+        // Row 6: ◀, =, ▶ - the cursor keys flank the equals key, which stays
+        // the widest target on the pad.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -733,17 +757,54 @@ private fun CalculatorKeypad(
                     } else {
                         Modifier.height(52.dp)
                     }
-                )
+                ),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CalculatorKeyButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.content_desc_cursor_left),
+                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                onClick = { onAction("CURSOR_LEFT") }
+            )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(2f),
                 label = "=",
                 icon = PhosphorIcons.Bold.Equals,
                 primary = true,
                 onClick = { onAction("=") }
             )
+            CalculatorKeyButton(
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.content_desc_cursor_right),
+                icon = Icons.AutoMirrored.Filled.ArrowForward,
+                onClick = { onAction("CURSOR_RIGHT") }
+            )
         }
 
+    }
+}
+
+/**
+ * Glyphs that are expression structure rather than operands. These are exactly
+ * the symbols [CalculatorToken.Operator] renders (- U+2212, × U+00D7, ÷ U+00F7,
+ * +), and none of them can appear inside a [CalculatorToken.Number], so the
+ * scan below is exact.
+ */
+private val ExpressionOperatorGlyphs = setOf('+', '\u2212', '\u00D7', '\u00F7')
+
+/**
+ * Renders [text] with its operator glyphs in [operatorColor], leaving digits
+ * and brackets in the field's base ink.
+ */
+private fun buildExpressionWithAccentOperators(
+    text: String,
+    operatorColor: Color
+): AnnotatedString = buildAnnotatedString {
+    append(text)
+    text.forEachIndexed { index, char ->
+        if (char in ExpressionOperatorGlyphs) {
+            addStyle(SpanStyle(color = operatorColor), index, index + 1)
+        }
     }
 }
 
@@ -754,13 +815,20 @@ private fun NormalCalculatorDisplay(
     expression: String?,
     isEvaluated: Boolean = false,
     compact: Boolean = false,
-    onCursorMoved: (Int) -> Unit = {},
+    onSelectionChanged: (Int, Int) -> Unit = { _, _ -> },
     cursorDisplayPosition: Int = 0
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+
+    // NOTE: there is no public per-view API to block the IME for a Compose
+    // text field — View.setShowSoftInputOnFocus is TextView-only, and Compose
+    // renders into an AndroidComposeView (not a TextView). The preventive
+    // suppression here is `readOnly = true` on the BasicTextField below:
+    // foundation gates its keyboard-show-on-tap on !readOnly (tapToFocus).
+    // The hide() guards underneath stay as a safety net for the focus path.
 
     // SideEffect runs after EVERY successful composition - most aggressive approach
     SideEffect {
@@ -816,6 +884,13 @@ private fun NormalCalculatorDisplay(
     val exprFontSize = exprFontSizeFloat.sp
     val exprColor = MaterialTheme.colorScheme.onSurface
 
+    // Operators carry the accent ink so the expression's structure reads at a
+    // glance; digits and brackets keep the neutral onSurface ink.
+    val operatorInk = MaterialTheme.colorScheme.accentInk
+    val expressionAnnotated = remember(expressionText, operatorInk) {
+        buildExpressionWithAccentOperators(expressionText, operatorInk)
+    }
+
     val resultFontSizeFloat by animateFloatAsState(
         targetValue = if (resultEmphasized) largeSize else smallSize,
         animationSpec = spring(
@@ -859,42 +934,89 @@ private fun NormalCalculatorDisplay(
                 var textFieldValue by remember {
                     mutableStateOf(
                         TextFieldValue(
-                            text = expressionText,
+                            annotatedString = expressionAnnotated,
                             selection = TextRange(expressionText.length)
                         )
                     )
                 }
-                // Sync text from the ViewModel while keeping the cursor position.
+                // Sync text from the ViewModel. A ViewModel-driven edit means
+                // the model has already deleted or overwritten the highlighted
+                // run, so the caret collapses onto the model's caret — which
+                // also keeps a multi-token deletion from leaving a stale range
+                // pointing past the end of the shorter text.
                 if (textFieldValue.text != expressionText) {
-                    textFieldValue = textFieldValue.copy(text = expressionText)
-                }
-                // When the ViewModel cursor changes (e.g. after a keypad press),
-                // move the BasicTextField cursor to match.
-                LaunchedEffect(cursorDisplayPosition) {
-                    if (textFieldValue.selection.start != cursorDisplayPosition) {
-                        textFieldValue = textFieldValue.copy(
-                            selection = TextRange(cursorDisplayPosition)
+                    textFieldValue = TextFieldValue(
+                        annotatedString = expressionAnnotated,
+                        selection = TextRange(
+                            cursorDisplayPosition.coerceIn(0, expressionText.length)
                         )
+                    )
+                } else if (textFieldValue.annotatedString != expressionAnnotated) {
+                    // Same text, new styling (theme or accent switch): update the
+                    // spans in place so the caret and any live selection survive.
+                    textFieldValue = textFieldValue.copy(annotatedString = expressionAnnotated)
+                }
+                // Caret-only moves (keypad cursor keys, a tap on the display)
+                // still have to reach the field. A live drag-selection is left
+                // untouched: the ViewModel already owns that range, so the
+                // user's highlight survives until they press a key.
+                LaunchedEffect(cursorDisplayPosition) {
+                    // Clamped: the ViewModel reports a display offset that can sit
+                    // past the end while the expression is being rebuilt, and an
+                    // out-of-range TextRange leaves the caret undefined.
+                    val target = cursorDisplayPosition.coerceIn(0, textFieldValue.text.length)
+                    if (textFieldValue.selection.collapsed &&
+                        textFieldValue.selection.start != target
+                    ) {
+                        textFieldValue = textFieldValue.copy(selection = TextRange(target))
                     }
                 }
-                var showCursor by remember { mutableStateOf(true) }
-                LaunchedEffect(textFieldValue.text, textFieldValue.selection, cursorDisplayPosition) {
-                    showCursor = true
-                    delay(500)
-                    showCursor = false
+                // Real blink: ON 500ms / OFF 500ms, restarted by every edit or
+                // caret move and stopped as soon as the field loses focus.
+                // (The previous version switched the caret on once and then left
+                // it off forever, so it read as a single flash.)
+                var showCursor by remember { mutableStateOf(false) }
+                val caretColor = MaterialTheme.colorScheme.accentInk
+                var caretLayout by remember { mutableStateOf<TextLayoutResult?>(null) }
+                LaunchedEffect(
+                    isFocused,
+                    textFieldValue.text,
+                    textFieldValue.selection,
+                    cursorDisplayPosition
+                ) {
+                    if (!isFocused) {
+                        showCursor = false
+                        return@LaunchedEffect
+                    }
+                    while (true) {
+                        showCursor = true
+                        delay(500)
+                        showCursor = false
+                        delay(500)
+                    }
                 }
 
                 BasicTextField(
                     value = textFieldValue,
                     onValueChange = { newValue ->
-                        // Always update so cursor taps are honoured,
-                        // even when only the selection changes.
+                        // Always update so cursor taps are honoured, even when
+                        // only the selection changes. Both ends of the range
+                        // are forwarded so a drag-selection survives into the
+                        // ViewModel: a following editing key overwrites it and
+                        // BACKSPACE deletes the whole highlighted run.
                         if (newValue.selection != textFieldValue.selection) {
-                            onCursorMoved(newValue.selection.start)
+                            onSelectionChanged(
+                                newValue.selection.start,
+                                newValue.selection.end
+                            )
                         }
                         textFieldValue = newValue
                     },
-                    readOnly = false,
+                    // Read-only, not disabled: taps still focus the field and
+                    // still deliver selection changes through onValueChange
+                    // (that is all this cursor-positioning code consumes), but
+                    // Compose never requests the IME for a read-only field.
+                    readOnly = true,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = exprColor,
@@ -902,11 +1024,63 @@ private fun NormalCalculatorDisplay(
                         fontSize = exprFontSize,
                         textAlign = TextAlign.End
                     ),
-                    cursorBrush = SolidColor(if (showCursor) MaterialTheme.colorScheme.accentInk else Color.Transparent),
+                    // Foundation draws no caret for a read-only field - it gates
+                    // its cursor on `enabled && !readOnly`
+                    // (CoreTextFieldKt: cursor(state, value, offsetMapping,
+                    // cursorBrush, enabled && !readOnly && ...)). This brush is
+                    // therefore inert and the blinking caret below is drawn by
+                    // us; it is kept so the field still behaves correctly should
+                    // it ever become editable again.
+                    cursorBrush = SolidColor(caretColor),
                     interactionSource = interactionSource,
+                    onTextLayout = { result -> caretLayout = result },
                     decorationBox = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterEnd) {
-                            innerTextField()
+                            // Hand-drawn caret: `readOnly = true` keeps the IME
+                            // away and Compose draws no cursor for such a field.
+                            // It is drawn by the box that WRAPS the inner text
+                            // field so that both share ONE coordinate space. That
+                            // matters: the decoration box places the inner field
+                            // with ContentAlignment.End, while getHorizontalPosition
+                            // is expressed in the inner field's own space, so a
+                            // plain sibling of the decoration box drew the caret
+                            // shifted by the inner field's own origin - which
+                            // parked it in the blank area left of the expression.
+                            Box(
+                                modifier = Modifier.drawWithContent {
+                                    drawContent()
+                                    val layout = caretLayout
+                                    if (showCursor &&
+                                        textFieldValue.selection.collapsed &&
+                                        layout != null &&
+                                        layout.lineCount > 0
+                                    ) {
+                                        val offset = textFieldValue.selection.start
+                                            .coerceIn(0, textFieldValue.text.length)
+                                        val line = layout.getLineForOffset(offset)
+                                        val stroke = 2.dp.toPx()
+                                        // Same clamp foundation applies to its own
+                                        // caret, so a caret at the end of a full
+                                        // line cannot leave the field.
+                                        val x = layout
+                                            .getHorizontalPosition(
+                                                offset,
+                                                usePrimaryDirection = true
+                                            )
+                                            .coerceIn(stroke / 2, size.width - stroke / 2)
+                                        val inset = 3.dp.toPx()
+                                        drawLine(
+                                            color = caretColor,
+                                            start = Offset(x, layout.getLineTop(line) + inset),
+                                            end = Offset(x, layout.getLineBottom(line) - inset),
+                                            strokeWidth = stroke,
+                                            cap = StrokeCap.Round
+                                        )
+                                    }
+                                }
+                            ) {
+                                innerTextField()
+                            }
                         }
                     },
                     modifier = Modifier
@@ -944,6 +1118,7 @@ private fun NormalCalculatorDisplay(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CalculatorKeyButton(
     modifier: Modifier = Modifier,
@@ -952,7 +1127,8 @@ private fun CalculatorKeyButton(
     accent: Boolean = false,
     primary: Boolean = false,
     pill: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
 ) {
     val shape = when {
         primary -> RoundedCornerShape(34.dp)
@@ -981,9 +1157,10 @@ private fun CalculatorKeyButton(
             .then(
                 if (primary) Modifier.background(brush = brandGradient()) else Modifier
             )
-            .clickable(
+            .combinedClickable(
                 interactionSource = interactionSource,
                 indication = null,
+                onLongClick = onLongClick,
                 onClick = onClick
             ),
         contentAlignment = Alignment.Center
@@ -1859,11 +2036,11 @@ private fun CalculatorNormalScreenPreviewBody() {
                         .padding(top = 18.dp),
                     display = "142",
                     previewResult = "142",
-                    expression = "100 + 42",
+                    expression = "100+42",
                     isEvaluated = false,
                     onAction = {},
-                    onCursorMoved = {},
-                    cursorDisplayPosition = 8
+                    onSelectionChanged = { _, _ -> },
+                    cursorDisplayPosition = 7
                 )
             }
         }

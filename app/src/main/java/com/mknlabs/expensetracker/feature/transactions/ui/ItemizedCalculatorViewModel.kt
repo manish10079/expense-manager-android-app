@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import javax.inject.Inject
+import kotlin.math.abs
 
 // Enums & lightweight data types
 
@@ -38,15 +39,39 @@ data class NormalCalculatorResult(
  * Internal state of the MIUI-style token-based normal calculator.
  * @param tokens         Expression as a list of atomic CalculatorTokens.
  * @param cursorPosition Index 0..tokens.size.
+ * @param cursorOffset   Character offset INSIDE tokens[cursorPosition], used
+ *                       when the caret is parked in the middle of a number
+ *                       ("12|5"). Always 0 at a token boundary, and always
+ *                       strictly inside the token: the position after a
+ *                       number's last character is the next boundary instead.
  * @param isEvaluated    True while displaying the result of pressing "=".
+ * @param evaluatedExpression The expression "=" was pressed on. While
+ *                       [isEvaluated] holds, the display field keeps showing
+ *                       this instead of the result tokens, so the panel reads
+ *                       "5+3" with "= 8" underneath rather than losing the
+ *                       expression. Every editing key clears [isEvaluated], so
+ *                       the override expires by itself and needs no resetting.
  * @param previewResult  Live result string ("" when expression is incomplete).
+ * @param selectionAnchor Token index of the far end of a non-collapsed display
+ *                       selection, or null when only the caret is active. The
+ *                       display field is read-only but still selectable, so a
+ *                       drag / long-press can highlight a run of tokens; an
+ *                       editing key then overwrites that run and BACKSPACE
+ *                       deletes it in one press.
  */
 data class NormalCalculatorTokenState(
     val tokens: List<CalculatorToken> = emptyList(),
     val cursorPosition: Int = 0,
+    val cursorOffset: Int = 0,
     val isEvaluated: Boolean = false,
-    val previewResult: String = ""
-)
+    val evaluatedExpression: String = "",
+    val previewResult: String = "",
+    val selectionAnchor: Int? = null
+) {
+    /** True when the display holds a non-collapsed token selection. */
+    val hasSelection: Boolean
+        get() = selectionAnchor != null && selectionAnchor != cursorPosition
+}
 
 data class ItemizedCalculatorUiState(
     val selectedMode: CalculatorMode = CalculatorMode.ITEMIZED,
@@ -223,20 +248,47 @@ class ItemizedCalculatorViewModel @Inject constructor(
      * - Cursor: "CURSOR_LEFT", "CURSOR_RIGHT"
      */
     fun handleNormalAction(action: String) {
-        val ts = _uiState.value.tokenState
+        val raw = _uiState.value.tokenState
+        // Resolve any highlighted range before dispatch.
+        val ts: NormalCalculatorTokenState = when {
+            // BACKSPACE must see the anchor itself: handleBackspace deletes the
+            // highlighted run (Case A) or clears a bare caret anchor.
+            action == "BACKSPACE" -> raw
+            // These never apply to a range, so they just drop the highlight.
+            action == "=" || action == "%" || action == "AC" ||
+                action == "CURSOR_LEFT" || action == "CURSOR_RIGHT" ->
+                raw.copy(selectionAnchor = null)
+            // Every other key REPLACES the highlighted run, exactly like a
+            // hardware keyboard overwriting a selection.
+            raw.hasSelection -> raw.collapseSelection()
+            else -> raw
+        }
+        // A caret parked inside a number ("12|5") only means something to the
+        // actions that edit AT the caret. The token-granular actions all act on
+        // the token BEFORE the caret, which for a mid-number caret is the wrong
+        // token entirely, so they first move the caret out to the boundary after
+        // the number ("125|") - pressing "+" after "12" in "125" gives "125+",
+        // never a rewritten operator before the number.
+        val editing = when (action) {
+            "BACKSPACE", ".", "CURSOR_LEFT", "CURSOR_RIGHT" -> ts
+            "+", "-", "*", "/", "(", ")", "BRACKET" -> ts.pastNumberUnderCaret()
+            // Digits and the decimal point insert exactly at the caret; "=", "%"
+            // and "AC" replace the whole expression and never read its token.
+            else -> ts
+        }
         val newTs: NormalCalculatorTokenState = when (action) {
             "AC"           -> handleAc()
-            "BACKSPACE"    -> handleBackspace(ts)
-            "="            -> handleEquals(ts)
-            "%"            -> handlePercent(ts)
-            "("            -> handleBracketOpen(ts)
-            ")"            -> handleBracketClose(ts)
-            "BRACKET"      -> handleSmartBracket(ts)
-            "."            -> handleDecimal(ts)
-            "CURSOR_LEFT"  -> handleCursorLeft(ts)
-            "CURSOR_RIGHT" -> handleCursorRight(ts)
-            "+", "-", "*", "/" -> handleOperator(action, ts)
-            else           -> handleDigit(action, ts)
+            "BACKSPACE"    -> handleBackspace(editing)
+            "="            -> handleEquals(editing)
+            "%"            -> handlePercent(editing)
+            "("            -> handleBracketOpen(editing)
+            ")"            -> handleBracketClose(editing)
+            "BRACKET"      -> handleSmartBracket(editing)
+            "."            -> handleDecimal(editing)
+            "CURSOR_LEFT"  -> handleCursorLeft(editing)
+            "CURSOR_RIGHT" -> handleCursorRight(editing)
+            "+", "-", "*", "/" -> handleOperator(action, editing)
+            else           -> handleDigit(action, editing)
         }
         syncTokenStateToLegacy(newTs)
     }
@@ -262,28 +314,72 @@ class ItemizedCalculatorViewModel @Inject constructor(
         NormalCalculatorTokenState()
 
     private fun handleBackspace(ts: NormalCalculatorTokenState): NormalCalculatorTokenState {
-        if (ts.tokens.isEmpty() || ts.cursorPosition == 0) return ts
-        val tokenToRemove = ts.tokens[ts.cursorPosition - 1]
-        val newTokens: MutableList<CalculatorToken> = ts.tokens.toMutableList()
-        return if (tokenToRemove is CalculatorToken.Number && tokenToRemove.value.length > 1) {
-            newTokens[ts.cursorPosition - 1] =
-                CalculatorToken.Number(tokenToRemove.value.dropLast(1))
-            ts.copy(tokens = newTokens, isEvaluated = false, previewResult = computePreview(newTokens))
-        } else {
-            newTokens.removeAt(ts.cursorPosition - 1)
-            ts.copy(
+        // Case A: a highlighted run is deleted whole, in a single press.
+        if (ts.hasSelection) return ts.collapseSelection()
+        // A zero-length anchor (caret only) is just cleared.
+        val base = if (ts.selectionAnchor != null) ts.copy(selectionAnchor = null) else ts
+        if (base.tokens.isEmpty()) return base
+        // Case B: the caret is parked inside a number, so one press removes one
+        // character of it rather than the whole number. Checked BEFORE the
+        // "nothing to the left" guard because a mid-number caret can sit inside
+        // the very first token, where cursorPosition is legitimately 0.
+        base.numberUnderCaret()?.let { number ->
+            val newTokens = base.tokens.toMutableList()
+            newTokens[base.cursorPosition] = CalculatorToken.Number(
+                number.value.removeRange(base.cursorOffset - 1, base.cursorOffset)
+            )
+            return base.copy(
                 tokens = newTokens,
-                cursorPosition = ts.cursorPosition - 1,
+                cursorOffset = base.cursorOffset - 1,
+                isEvaluated = false,
+                previewResult = computePreview(newTokens)
+            )
+        }
+        // Case C: nothing to the left of the caret — no-op, never crashes.
+        if (base.cursorPosition == 0) return base
+        val tokenToRemove = base.tokens[base.cursorPosition - 1]
+        val newTokens: MutableList<CalculatorToken> = base.tokens.toMutableList()
+        return if (tokenToRemove is CalculatorToken.Number && tokenToRemove.value.length > 1) {
+            newTokens[base.cursorPosition - 1] =
+                CalculatorToken.Number(tokenToRemove.value.dropLast(1))
+            base.copy(tokens = newTokens, isEvaluated = false, previewResult = computePreview(newTokens))
+        } else {
+            newTokens.removeAt(base.cursorPosition - 1)
+            base.copy(
+                tokens = newTokens,
+                cursorPosition = base.cursorPosition - 1,
                 isEvaluated = false,
                 previewResult = computePreview(newTokens)
             )
         }
     }
 
+    /**
+     * Deletes every token in the highlighted range and parks the caret at its
+     * left edge. Boundary indices are clamped to the token list, so a stale
+     * selection can never index out of bounds.
+     */
+    private fun NormalCalculatorTokenState.collapseSelection(): NormalCalculatorTokenState {
+        val anchor = selectionAnchor ?: return this
+        val start = minOf(anchor, cursorPosition).coerceIn(0, tokens.size)
+        val end = maxOf(anchor, cursorPosition).coerceIn(0, tokens.size)
+        if (start == end) return copy(selectionAnchor = null)
+        val remaining = tokens.toMutableList().apply { subList(start, end).clear() }
+        return copy(
+            tokens = remaining,
+            cursorPosition = start,
+            cursorOffset = 0,
+            selectionAnchor = null,
+            isEvaluated = false,
+            previewResult = computePreview(remaining)
+        )
+    }
+
     private fun handleEquals(ts: NormalCalculatorTokenState): NormalCalculatorTokenState {
         if (ts.tokens.isEmpty()) return ts
         val evalStr = ts.tokens.toEvalString()
         val result  = TokenExpressionEvaluator.evaluate(evalStr)
+        val expressionText = ts.tokens.toDisplayString().trim()
         return if (result != null && result.isFinite()) {
             val resultStr = formatValue(result)
             val hasOp = ts.tokens.any { it is CalculatorToken.Operator }
@@ -300,10 +396,17 @@ class ItemizedCalculatorViewModel @Inject constructor(
                 tokens = resultTokens,
                 cursorPosition = resultTokens.size,
                 isEvaluated = true,
+                evaluatedExpression = expressionText,
                 previewResult = resultStr
             )
         } else {
-            ts.copy(previewResult = "Error", isEvaluated = true)
+            // An expression that cannot be evaluated stays on screen as typed,
+            // with the failure on the line underneath.
+            ts.copy(
+                previewResult = "Error",
+                isEvaluated = true,
+                evaluatedExpression = expressionText
+            )
         }
     }
 
@@ -361,6 +464,26 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     private fun handleDecimal(ts: NormalCalculatorTokenState): NormalCalculatorTokenState {
         val base      = clearIfEvaluated(ts)
+        // Caret parked inside a number: the point lands exactly where the caret
+        // is, so "1|2" becomes "1.2". A number that already carries a point
+        // keeps its one point, so a second one is refused - the same rule the
+        // boundary path below applies.
+        base.numberUnderCaret()?.let { number ->
+            if (number.value.contains('.')) return base
+            val newTokens = base.tokens.toMutableList()
+            newTokens[base.cursorPosition] =
+                CalculatorToken.Number(number.value.take(base.cursorOffset) + ".")
+            newTokens.add(
+                base.cursorPosition + 1,
+                CalculatorToken.Number(number.value.drop(base.cursorOffset))
+            )
+            return base.copy(
+                tokens = newTokens,
+                cursorPosition = base.cursorPosition + 1,
+                cursorOffset = 0,
+                previewResult = computePreview(newTokens)
+            )
+        }
         val lastToken = if (base.cursorPosition > 0) base.tokens[base.cursorPosition - 1] else null
         return when {
             lastToken is CalculatorToken.Number && !lastToken.value.contains('.') -> {
@@ -401,6 +524,26 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     private fun handleDigit(digit: String, ts: NormalCalculatorTokenState): NormalCalculatorTokenState {
         val base      = if (ts.isEvaluated) NormalCalculatorTokenState() else ts
+        // Caret parked inside a number: the digit lands exactly where the caret
+        // is, so the number splits around it ("12|5" + "6" → "126|5"). The digit
+        // joins the LEFT half, mirroring how a boundary caret appends to the
+        // number before it.
+        base.numberUnderCaret()?.let { number ->
+            val newTokens = base.tokens.toMutableList()
+            newTokens[base.cursorPosition] = CalculatorToken.Number(
+                number.value.take(base.cursorOffset) + digit
+            )
+            newTokens.add(
+                base.cursorPosition + 1,
+                CalculatorToken.Number(number.value.drop(base.cursorOffset))
+            )
+            return base.copy(
+                tokens = newTokens,
+                cursorPosition = base.cursorPosition + 1,
+                cursorOffset = 0,
+                previewResult = computePreview(newTokens)
+            )
+        }
         val lastToken = if (base.cursorPosition > 0) base.tokens[base.cursorPosition - 1] else null
         return when {
             lastToken is CalculatorToken.Number -> {
@@ -415,66 +558,156 @@ class ItemizedCalculatorViewModel @Inject constructor(
     }
 
     private fun handleCursorLeft(ts: NormalCalculatorTokenState): NormalCalculatorTokenState =
-        ts.copy(cursorPosition = (ts.cursorPosition - 1).coerceAtLeast(0))
+        // From inside a number the nearer boundary on the left is that number's
+        // own start; the next press then steps over the whole token.
+        if (ts.cursorOffset > 0) {
+            ts.copy(cursorOffset = 0)
+        } else {
+            ts.copy(cursorPosition = (ts.cursorPosition - 1).coerceAtLeast(0))
+        }
 
     private fun handleCursorRight(ts: NormalCalculatorTokenState): NormalCalculatorTokenState =
-        ts.copy(cursorPosition = (ts.cursorPosition + 1).coerceAtMost(ts.tokens.size))
+        ts.copy(
+            cursorPosition = (ts.cursorPosition + 1).coerceAtMost(ts.tokens.size),
+            cursorOffset = 0
+        )
 
     // ── Cursor ↔ Display position mapping ─────────────────────────────────
 
     /**
      * Converts a character position inside the display string
-     * ("= 1 + 2 + 3") to the nearest token-boundary cursor index.
+     * ("= 1+2+3") to the nearest token-boundary cursor index.
      * Called when the user taps the expression area.
      */
     fun setCursorPositionFromDisplay(displayPosition: Int) {
         val ts = _uiState.value.tokenState
         if (ts.tokens.isEmpty()) return
+        val (index, offset) = caretAtDisplayPosition(ts, displayPosition)
+        if (index != ts.cursorPosition || offset != ts.cursorOffset || ts.selectionAnchor != null) {
+            // A fresh tap collapses any highlight and re-seats the caret.
+            _uiState.update {
+                it.copy(
+                    tokenState = ts.copy(
+                        cursorPosition = index,
+                        cursorOffset = offset,
+                        selectionAnchor = null
+                    )
+                )
+            }
+        }
+    }
 
-        // The display text is "= " + tokenDisplayString
-        val prefixLen = "= ".length
-        val adjusted  = (displayPosition - prefixLen).coerceAtLeast(0)
+    /**
+     * Maps a highlighted character range of the display string onto token
+     * boundaries, so a drag-selection can be replaced or deleted as a unit.
+     * Both ends are clamped, so an out-of-range or inverted selection from the
+     * text field can never produce an invalid token index.
+     */
+    fun setSelectionFromDisplay(selectionStart: Int, selectionEnd: Int) {
+        val ts = _uiState.value.tokenState
+        if (ts.tokens.isEmpty()) return
+        if (selectionStart == selectionEnd) {
+            // A collapsed range is a caret tap, not a highlight: it must keep an
+            // offset inside a number, so a digit typed next inserts exactly
+            // where the user tapped.
+            setCursorPositionFromDisplay(selectionStart)
+            return
+        }
+        val startIdx = tokenIndexAtDisplayPosition(ts, selectionStart)
+        val endIdx   = tokenIndexAtDisplayPosition(ts, selectionEnd)
+        if (startIdx == ts.cursorPosition && endIdx == ts.selectionAnchor && ts.cursorOffset == 0) return
+        _uiState.update {
+            it.copy(
+                tokenState = ts.copy(
+                    cursorPosition = startIdx,
+                    cursorOffset = 0,
+                    selectionAnchor = endIdx
+                )
+            )
+        }
+    }
 
-        // Walk tokens and find the boundary closest to `adjusted`.
+    /**
+     * Caret position for a character offset inside the rendered expression. A
+     * tap landing strictly inside a multi-character number keeps that offset,
+     * so the caret is drawn exactly where the user tapped ("12|5") and a digit
+     * typed next inserts there. Every other offset - operators, brackets and
+     * the ends of a number - collapses to the nearest token boundary, since a
+     * one-character token has no interior to sit in.
+     */
+    private fun caretAtDisplayPosition(
+        ts: NormalCalculatorTokenState,
+        displayPosition: Int
+    ): Pair<Int, Int> {
+        val adjusted = displayPosition.coerceAtLeast(0)
+        var charPos = 0
+        for ((i, token) in ts.tokens.withIndex()) {
+            val tokenLen = token.displaySymbol.length
+            if (token is CalculatorToken.Number && tokenLen > 1) {
+                val local = adjusted - charPos
+                if (local in 1 until tokenLen) return i to local
+            }
+            charPos += tokenLen
+        }
+        return tokenIndexAtDisplayPosition(ts, adjusted) to 0
+    }
+
+    /**
+     * Nearest token boundary to a character position inside the display string
+     * ("1+2+3"). Positions before the start collapse to index 0 and
+     * positions past the end collapse to [NormalCalculatorTokenState.tokens].size.
+     */
+    private fun tokenIndexAtDisplayPosition(
+        ts: NormalCalculatorTokenState,
+        displayPosition: Int
+    ): Int {
+        // The field renders the BARE expression ("1+2"), never "= 1+2": the
+        // "=" is drawn by the separate result line below the field. A display
+        // position is therefore already a character index into the token
+        // string, and the old "= ".length fudge shifted every caret two
+        // characters to the right of the tap.
+        val adjusted = displayPosition.coerceAtLeast(0)
+
+        // Walk tokens and find the boundary closest to `adjusted`. Distances
+        // must be true magnitudes: the earlier coerceAtLeast(0) clamped every
+        // negative to 0, so a later boundary always won and a tap inside a
+        // multi-digit number snapped to that number's END instead of to the
+        // nearer edge.
         var charPos  = 0
         var bestIdx  = 0
         var bestDist = Int.MAX_VALUE
         for ((i, token) in ts.tokens.withIndex()) {
             val tokenLen = token.displaySymbol.length
             // Distance to the boundary BEFORE this token
-            val distBefore = (adjusted - charPos).coerceAtLeast(0)
+            val distBefore = abs(adjusted - charPos)
             if (distBefore < bestDist) {
                 bestDist = distBefore
                 bestIdx  = i
             }
             charPos += tokenLen
             // Distance to the boundary AFTER this token
-            val distAfter = (adjusted - charPos).coerceAtLeast(0)
+            val distAfter = abs(adjusted - charPos)
             if (distAfter < bestDist) {
                 bestDist = distAfter
                 bestIdx  = i + 1
             }
         }
 
-        val clamped = bestIdx.coerceIn(0, ts.tokens.size)
-        if (clamped != ts.cursorPosition) {
-            _uiState.update { it.copy(tokenState = ts.copy(cursorPosition = clamped)) }
-        }
+        return bestIdx.coerceIn(0, ts.tokens.size)
     }
 
     /**
      * Returns the character index inside the display string that corresponds
-     * to the current [NormalCalculatorTokenState.cursorPosition].
+     * to the caret, including a mid-number [NormalCalculatorTokenState.cursorOffset].
      * Used by the UI to keep the BasicTextField cursor in sync.
      */
     fun getDisplayPositionFromCursor(): Int {
-        val ts       = _uiState.value.tokenState
-        val prefixLen = "= ".length
-        var pos = 0
-        for (i in 0 until ts.cursorPosition.coerceAtMost(ts.tokens.size)) {
-            pos += ts.tokens[i].displaySymbol.length
-        }
-        return pos + prefixLen
+        val ts = _uiState.value.tokenState
+        // While the field shows the evaluated expression, the caret belongs at
+        // its end: the token caret points into the result, which is not the text
+        // on screen then.
+        if (ts.isEvaluated && ts.evaluatedExpression.isNotEmpty()) return ts.evaluatedExpression.length
+        return ts.cursorDisplayOffset()
     }
 
     // History management
@@ -513,6 +746,9 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     fun buildExpression(): String? {
         val ts = _uiState.value.tokenState
+        // After "=" the field keeps the expression that was evaluated - the
+        // result belongs on the "= ..." line underneath, not in the expression.
+        if (ts.isEvaluated && ts.evaluatedExpression.isNotEmpty()) return ts.evaluatedExpression
         if (ts.tokens.isEmpty()) return null
         return ts.tokens.toDisplayString().trim()
     }
@@ -532,6 +768,39 @@ class ItemizedCalculatorViewModel @Inject constructor(
 
     // Private helpers
 
+    /**
+     * Character offset of the caret inside the rendered expression, i.e. the
+     * display position the UI should draw the caret at.
+     */
+    private fun NormalCalculatorTokenState.cursorDisplayOffset(): Int {
+        var pos = 0
+        for (i in 0 until cursorPosition.coerceIn(0, tokens.size)) {
+            pos += tokens[i].displaySymbol.length
+        }
+        return pos + cursorOffset
+    }
+
+    /**
+     * The number the caret is parked inside, or null when the caret sits on a
+     * token boundary. Only a multi-character [CalculatorToken.Number] can hold
+     * a non-zero [NormalCalculatorTokenState.cursorOffset], because every other
+     * token renders exactly one character.
+     */
+    private fun NormalCalculatorTokenState.numberUnderCaret(): CalculatorToken.Number? =
+        if (cursorOffset > 0) tokens.getOrNull(cursorPosition) as? CalculatorToken.Number else null
+
+    /**
+     * Moves a caret parked inside a number out to the boundary just after it,
+     * so a token-granular action edits the neighbouring token it expects rather
+     * than the middle of a number.
+     */
+    private fun NormalCalculatorTokenState.pastNumberUnderCaret(): NormalCalculatorTokenState =
+        if (cursorOffset > 0) {
+            copy(cursorPosition = (cursorPosition + 1).coerceAtMost(tokens.size), cursorOffset = 0)
+        } else {
+            this
+        }
+
     private fun insertTokens(
         ts: NormalCalculatorTokenState,
         newTokens: List<CalculatorToken>,
@@ -543,6 +812,7 @@ class ItemizedCalculatorViewModel @Inject constructor(
         return ts.copy(
             tokens = finalTokens,
             cursorPosition = ts.cursorPosition + advanceCursor,
+            cursorOffset = 0,
             isEvaluated = false,
             previewResult = computePreview(finalTokens)
         )
@@ -684,6 +954,17 @@ private object TokenExpressionEvaluator {
                         while (i < s.length && (s[i].isDigit() || s[i] == '.')) { sb.append(s[i]); i++ }
                         result.add(if (sb.length > 1) sb.toString() else "-")
                     } else {
+                        // Implicit multiplication: "5(2)" means 5 x 2 and
+                        // "(1+2)(3)" means (1+2) x 3, which is how a calculator
+                        // keypad writes them. The token engine inserts an
+                        // explicit x itself, but a restored history expression
+                        // or a pasted one arrives without it.
+                        if (c == '(') {
+                            val previous = result.lastOrNull()
+                            if (previous == ")" || previous?.toDoubleOrNull() != null) {
+                                result.add("*")
+                            }
+                        }
                         result.add(c.toString()); i++
                     }
                 }

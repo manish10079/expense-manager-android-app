@@ -909,6 +909,8 @@
 
     <string name="label_ac">AC</string>
 
+    <string name="label_c">C</string>
+
     <string name="label_accuracy">ACCURACY</string>
 
     <string name="label_active">Active</string>
@@ -1672,6 +1674,12 @@
     <string name="content_desc_calculator_history">Open calculator history</string>
 
     <string name="content_desc_copy_history">Copy calculation</string>
+
+    <string name="content_desc_backspace">Delete the character to the left of the cursor</string>
+
+    <string name="content_desc_cursor_left">Move the cursor left</string>
+
+    <string name="content_desc_cursor_right">Move the cursor right</string>
 
     <string name="msg_history_long_press_hint">Long-press a card for more options.</string>
     <string name="msg_calculator_history_empty">No calculations yet</string>

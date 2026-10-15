@@ -31,11 +31,18 @@ sealed class CalculatorToken {
 
     // ── Rendering helpers ─────────────────────────────────────────────────
 
-    /** The string displayed to the user for this token (with spacing). */
+    /**
+     * The string displayed to the user for this token.
+     *
+     * Rendered tight — operators and brackets carry no padding spaces, so an
+     * expression reads `1+2×3` rather than `1 + 2 × 3`. This length is also what
+     * the display↔token cursor mapping walks, so changing it moves every caret
+     * position with it.
+     */
     val displaySymbol: String
         get() = when (this) {
             is Number           -> value
-            is Operator         -> " $symbol "
+            is Operator         -> symbol
             is ParenthesisOpen  -> "("
             is ParenthesisClose -> ")"
         }
@@ -45,8 +52,8 @@ sealed class CalculatorToken {
 
 /**
  * Renders the full token list as a human-readable expression string.
- * Adjacent Number tokens are joined without spacing; operators get surrounding
- * spaces for readability.
+ * Nothing is padded: digits, operators and brackets all join directly, so the
+ * expression box shows `1+2×3`.
  */
 fun List<CalculatorToken>.toDisplayString(): String =
     joinToString(separator = "") { it.displaySymbol }
