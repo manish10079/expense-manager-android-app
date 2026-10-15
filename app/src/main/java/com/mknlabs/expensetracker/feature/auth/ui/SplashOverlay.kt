@@ -69,10 +69,13 @@ import kotlinx.coroutines.launch
 private val SplashLogoSizePortrait = 132.dp
 private val SplashLogoSizeLandscape = 72.dp
 
-/** Underdamped spring: settles with overshoot so motion reads as mass + inertia. */
+/**
+ * Underdamped spring: settles with overshoot so motion reads as mass + inertia, but at
+ * medium stiffness so the app name lands quickly instead of drifting into place.
+ */
 private val SplashInertiaSpring = spring<Float>(
-    dampingRatio = 0.58f,
-    stiffness = Spring.StiffnessLow,
+    dampingRatio = 0.62f,
+    stiffness = Spring.StiffnessMedium,
 )
 
 @Composable
@@ -83,6 +86,11 @@ fun SplashOverlay(
     val currentTask by viewModel.currentTask.collectAsStateWithLifecycle()
     SplashOverlayContent(
         currentTask = currentTask,
+        // The platform splash screen is kept on screen for exactly `InitTask.Start`
+        // (MainActivity#setKeepOnScreenCondition), and this overlay is composed behind it
+        // from the very first frame. Hold the entrance until the task moves on, or the copy
+        // animates - and finishes - where nobody can see it.
+        startEntrance = currentTask !is InitTask.Start,
         onExitFinished = onExitFinished,
     )
 }
@@ -90,6 +98,7 @@ fun SplashOverlay(
 @Composable
 private fun SplashOverlayContent(
     currentTask: InitTask,
+    startEntrance: Boolean = true,
     onExitFinished: () -> Unit = {},
 ) {
     val titleEnter = remember { Animatable(0f) }
@@ -100,18 +109,24 @@ private fun SplashOverlayContent(
     val subtitleText = stringResource(id = R.string.label_budget_and_spend)
     val taglineText = stringResource(id = R.string.label_splash_tagline)
     var enterDone by remember { mutableStateOf(false) }
-    LaunchedEffect(titleText, subtitleText, taglineText) {
-        val slide = tween<Float>(durationMillis = 780, easing = FastOutSlowInEasing)
+    LaunchedEffect(titleText, subtitleText, taglineText, startEntrance) {
+        if (!startEntrance) return@LaunchedEffect
+        val slide = tween<Float>(durationMillis = 460, easing = FastOutSlowInEasing)
         titleEnter.animateTo(1f, SplashInertiaSpring)
-        delay(280)
+        delay(160)
         coroutineScope {
             launch { subtitleEnter.animateTo(1f, slide) }
             launch { taglineEnter.animateTo(1f, slide) }
         }
-        delay(2_200)
+        // The copy has landed - no hold here, so the ash can burn straight away.
         enterDone = true
     }
 
+    // The ash is what clears this overlay, and it must not dissolve before the app content
+    // has composed. `isReady` is what puts MainScreen into the composition, and
+    // SplashViewModel flips it while the platform splash still covers the window - before
+    // Syncing, and so before the Complete this waits on - which is what makes the screen
+    // behind this overlay a composed dashboard rather than an empty themed window.
     LaunchedEffect(currentTask, enterDone) {
         if (enterDone && currentTask is InitTask.Complete) {
             ashT.animateTo(
@@ -131,19 +146,27 @@ private fun SplashOverlayContent(
         configuration.screenHeightDp.dp * 0.08f
     }
 
-    val ash = ashT.value
-    val contentAlpha = (1f - ash / 0.28f).coerceIn(0f, 1f)
-    val overlayAlpha = (1f - ((ash - 0.55f) / 0.45f)).coerceIn(0f, 1f)
+    // `ashT` is deliberately read inside the `graphicsLayer`/draw blocks below instead of
+    // here. A read in the composable body subscribes this whole overlay - the logo bitmap,
+    // the copy, the footer - to the ash, recomposing all of it on each of the animation's
+    // ~70 frames. Read inside those blocks the state is observed in the layer/draw phase, so
+    // a frame only updates a layer alpha and redraws the specks.
     val nameInk = MaterialTheme.colorScheme.onBackground
     val subtitleInk = MaterialTheme.colorScheme.accentInk
     val taglineInk = MaterialTheme.colorScheme.onSurfaceVariant
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .graphicsLayer { alpha = overlayAlpha }
+            .graphicsLayer {
+                alpha = (1f - ((ashT.value - 0.55f) / 0.45f)).coerceIn(0f, 1f)
+            }
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Box(modifier = Modifier.fillMaxSize().graphicsLayer { alpha = contentAlpha }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = (1f - ashT.value / 0.28f).coerceIn(0f, 1f) }
+        ) {
         if (isLandscape) {
             Column(
                 modifier = Modifier
@@ -215,14 +238,15 @@ private fun SplashOverlayContent(
         )
         }
 
-        if (ash > 0f) {
-            SplashAshField(
-                progress = ash,
-                nameInk = nameInk,
-                subtitleInk = subtitleInk,
-                taglineInk = taglineInk,
-            )
-        }
+        // Always composed, and handed a lambda rather than a value: the ash then updates in
+        // the draw phase alone instead of recomposing this function every frame. It draws
+        // nothing until the ash actually starts.
+        SplashAshField(
+            progress = { ashT.value },
+            nameInk = nameInk,
+            subtitleInk = subtitleInk,
+            taglineInk = taglineInk,
+        )
     }
 }
 
@@ -242,7 +266,7 @@ private data class AshSpeck(
 
 @Composable
 private fun SplashAshField(
-    progress: Float,
+    progress: () -> Float,
     nameInk: Color,
     subtitleInk: Color,
     taglineInk: Color,
@@ -265,13 +289,20 @@ private fun SplashAshField(
         }
     }
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val animated = progress()
+        if (animated <= 0f) return@Canvas
         specks.forEach { speck ->
-            val local = ((progress - speck.start) / (1f - speck.start)).coerceIn(0f, 1f)
+            val local = ((animated - speck.start) / (1f - speck.start)).coerceIn(0f, 1f)
             if (local <= 0f) return@forEach
+            // Cull before doing any work: a speck that has already faded out, or that has
+            // flown off the top of the frame, is skipped rather than issued as one of ~86
+            // rotated draw calls for that frame.
+            val alpha = (1f - local) * (1f - local) * 0.85f
+            if (alpha <= 0.01f) return@forEach
             val drift = local * speck.lift
             val x = (speck.x0 + speck.vx * drift) * size.width
             val y = (speck.y0 + speck.vy * drift) * size.height
-            val alpha = (1f - local) * (1f - local) * 0.85f
+            if (y + speck.height < 0f) return@forEach
             val degrees = speck.spin * local
             val ink = when (speck.tone) {
                 0 -> nameInk

@@ -460,6 +460,23 @@ class MainActivity : AppCompatActivity() {
                                     }
 
                                     is AppLockState.Locked -> {
+                                        // A cold start still has the splash on top of this layer, and
+                                        // the splash is what removes itself. Keep an opaque backdrop
+                                        // here so the last frames of its exit fade can only reveal that
+                                        // backdrop and never the dashboard behind it, and leave the
+                                        // lock uncomposed until the splash has finished: AppLockOverlay
+                                        // renders in its own Dialog window (above the activity), so it
+                                        // would otherwise bury the splash and the run of its animation -
+                                        // just as its auto-biometric prompt would land on top of it.
+                                        if (!splashGone) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .background(MaterialTheme.colorScheme.background)
+                                            )
+                                            return@AnimatedContent
+                                        }
+
                                         val biometricAuthenticator = remember(activity) {
                                             activity?.let(BiometricAuthManager::createAuthenticator)
                                         }
@@ -509,9 +526,10 @@ class MainActivity : AppCompatActivity() {
                 // In-app update dialog (Firebase Remote Config driven). Optional
                 // updates show once per launch; force updates cannot be dismissed.
                 // Suppressed while the app lock overlay is active so the lock's
-                // own dialog window always stays on top.
+                // own dialog window always stays on top, and until the splash has
+                // finished so it cannot appear over the splash animation.
                 val updateAvailable = updateState as? UpdateUiState.UpdateAvailable
-                if (isReady && updateAvailable != null && appLockState is AppLockState.Unlocked) {
+                if (splashGone && isReady && updateAvailable != null && appLockState is AppLockState.Unlocked) {
                     UpdateDialog(
                         info = updateAvailable.info,
                         force = updateAvailable.force,

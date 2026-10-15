@@ -87,6 +87,17 @@ class SplashViewModel @Inject constructor(
                 // Ensure AppSettings has emitted before transitioning
                 AppSettingsDataStore.getAppSettingsFlow(context).first()
 
+                // Flip `isReady` HERE, not after `Complete`. This is the flag that puts
+                // MainScreen into the composition (AppRoot's `isReady && appSettings != null`
+                // branch), and that first composition - the whole dashboard, nav host and
+                // lists - is the heaviest main-thread work in the launch. Flipping it here
+                // lands it inside the delay below, while the platform splash still covers the
+                // window and the custom overlay is deliberately static (`startEntrance` is
+                // false for as long as the task is Start), so the cost is paid against a still
+                // frame. Flipping it 400ms after Complete instead put it ~1s into the 1.15s
+                // ash, and the animation visibly stalled at its end.
+                _isReady.value = true
+
                 delay(400)
 
                 // Step 2: Syncing Tasks (runs actual network operations in bg, shows status)
@@ -126,7 +137,6 @@ class SplashViewModel @Inject constructor(
             _currentTask.value = InitTask.Complete
             // Snappy delay to let the progress bar animation catch up to 100%
             delay(400)
-            _isReady.value = true
         }
     }
 }
