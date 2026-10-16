@@ -132,7 +132,7 @@
     <string name="msg_select_your_security_question">Select the security question you saved, then enter your answer.</string>
     <string name="msg_select_a_security_question">Select the security question you saved.</string>
 
-    <string name="msg_biometric_or_pin_to_continue">Use your biometric or enter your PIN to continue.</string>
+    <string name="msg_biometric_or_pin_to_continue">Use Biometric or PIN to continue.</string>
 
     <string name="msg_enter_pin_to_continue">Enter your PIN to continue.</string>
 
@@ -145,6 +145,29 @@
     <string name="placeholder_type_recovery_answer">Type your recovery answer</string>
 
     <string name="placeholder_enter_your_answer">Enter your answer</string>
+
+    <string name="label_app_lock_biometric_touch_id">Touch ID</string>
+
+    <!-- Shown one at a time under the lock screen's title. Deliberately gentle reminders
+         rather than warnings: the lock screen is the one surface the user cannot skip. -->
+    <string-array name="app_lock_quotes">
+        <item>Awareness beats willpower.</item>
+        <item>You can\'t change what you don\'t notice.</item>
+        <item>Small amounts, repeated, become your reality.</item>
+        <item>Pause ten seconds before you spend.</item>
+        <item>Every glance here is a choice made on purpose.</item>
+        <item>Money follows attention.</item>
+        <item>Notice first, spend second.</item>
+        <item>The number you avoid is the number that grows.</item>
+        <item>What you track, you tend.</item>
+        <item>Name the feeling before the purchase.</item>
+        <item>One purchase is a mood; a pattern is a choice.</item>
+        <item>Slower hands, steadier money.</item>
+        <item>You are not your urge.</item>
+        <item>The pause is where the power is.</item>
+        <item>Progress hides in small numbers.</item>
+        <item>Comfort is not a plan.</item>
+    </string-array>
 
 
 
