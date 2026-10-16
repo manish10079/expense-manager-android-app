@@ -45,7 +45,7 @@ import com.mknlabs.expensetracker.core.ui.theme.NamedCreateCaptionLight
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderDark
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderLight
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreatePlaceholder
-import com.mknlabs.expensetracker.core.ui.theme.NamedCreateTitleDark
+import com.mknlabs.expensetracker.core.ui.theme.InkStrongDark
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
@@ -111,7 +111,7 @@ fun NamedCreateCard(
             }
             Text(
                 text = title,
-                color = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+                color = if (dark) InkStrongDark else ModernConfirmTitleLight,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -126,7 +126,7 @@ fun NamedCreateCard(
         if (showField) {
         val fieldFill = cardColors.containerColor
         val fieldBorder = if (dark) NamedCreateFieldBorderDark else NamedCreateFieldBorderLight
-        val fieldInk = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight
+        val fieldInk = if (dark) InkStrongDark else ModernConfirmTitleLight
         BasicTextField(
             value = value,
             onValueChange = onValueChange,

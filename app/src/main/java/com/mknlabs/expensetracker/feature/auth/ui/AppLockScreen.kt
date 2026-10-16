@@ -32,6 +32,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -72,6 +74,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -97,6 +100,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.AppLockSecurityQuestion
 import com.mknlabs.expensetracker.data.constants.appLockSecurityQuestions
 import com.mknlabs.expensetracker.core.ui.theme.accentInkGradient
+import com.mknlabs.expensetracker.core.ui.theme.appLockPalette
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
@@ -104,6 +108,7 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.appLockAurora
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -621,35 +626,22 @@ private fun AppLockScreenContent(
                 onClick = {} // Consume clicks to prevent interaction with layers below
             )
     ) {
-        // Base background to ensure opacity
+        val palette = appLockPalette()
+
+        // The lock surface as the unlock overlay paints it: the mock's container colour
+        // under its three brand glows. Recovery mode keeps the bare container, since the
+        // glows were tuned against the PIN surface.
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(palette.container)
         )
 
-        // Premium theme-aware card gradient overlay
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(standardCardGradient())
-        )
-
-        // Subtle radial glow for depth (Hidden in recovery/disable mode)
         if (!isRecoveryMode) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.accentInk.copy(
-                                    alpha = if (isDarkPalette) 0.12f else 0.06f
-                                ),
-                                Color.Transparent
-                            )
-                        )
-                    )
+                    .appLockAurora()
             )
         }
 
@@ -708,11 +700,6 @@ private fun AppLockScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(34.dp))
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(
-                                alpha = if (isDarkPalette) 0.42f else 0.72f
-                            )
-                        )
                         .padding(
                             horizontal = 20.dp,
                             vertical = if (isKeyboardOpen) 12.dp else if (compact) 16.dp else 28.dp
@@ -723,7 +710,7 @@ private fun AppLockScreenContent(
                     if (eyebrow.isNotBlank()) {
                         Text(
                             text = eyebrow,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = palette.ink.copy(alpha = 0.72f),
                             style = MaterialTheme.typography.labelMedium,
                             textAlign = TextAlign.Center
                         )
@@ -734,8 +721,8 @@ private fun AppLockScreenContent(
                     if (headline.isNotBlank()) {
                         Text(
                             text = headline,
-                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.headlineLarge.copy(
+                                brush = brandGradient(),
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = if (compact) 28.sp else 34.sp
                             ),
@@ -749,9 +736,9 @@ private fun AppLockScreenContent(
                         Text(
                             text = supportText,
                             color = if (supportTextIsError) {
-                                MaterialTheme.colorScheme.error
+                                ExpenseInkDark
                             } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                                palette.ink.copy(alpha = 0.72f)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -1189,15 +1176,26 @@ private fun AppLockKey(
 ) {
     val isForgot = key == APP_LOCK_FORGOT_KEY
     val isDelete = key == APP_LOCK_DELETE_KEY
-    val shape = RoundedCornerShape(if (compact) 28.dp else 38.dp)
+    // The mock's key chrome, as the unlock overlay draws it: a flat circle that tints on
+    // press, in the palette's ink. The compact sizing stays — this keypad is fixed-size
+    // where the overlay's is weighted.
+    val shape = CircleShape
     val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val keySize = if (compact) 62.dp else 84.dp
+    val palette = appLockPalette()
+    val keyFill = if (isPressed) palette.keyPressFill else palette.keyFill
 
     Box(
         modifier = Modifier
             .size(width = keySize, height = keySize)
             .clip(shape)
-            .background(surfaceGradient())
+            .background(keyFill)
+            .border(
+                width = 1.dp,
+                color = if (isPressed) palette.keyPressBorder else palette.keyBorder,
+                shape = shape
+            )
             .then(
                 if (enabled) {
                     Modifier.clickable(
@@ -1216,7 +1214,7 @@ private fun AppLockKey(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = stringResource(R.string.desc_delete_pin_digit),
-                    tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+                    tint = palette.ink.copy(alpha = if (enabled) 1f else 0.45f),
                     modifier = Modifier.size(if (compact) 26.dp else 34.dp)
                 )
             }
@@ -1224,7 +1222,7 @@ private fun AppLockKey(
             isForgot -> {
                 Text(
                     text = stringResource(R.string.label_forgot),
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+                    color = palette.ink.copy(alpha = if (enabled) 0.72f else 0.45f),
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
@@ -1232,7 +1230,7 @@ private fun AppLockKey(
             else -> {
                 Text(
                     text = key,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
+                    color = palette.ink.copy(alpha = if (enabled) 1f else 0.45f),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = if (compact) 22.sp else 28.sp
@@ -1416,11 +1414,9 @@ private fun PinSlot(
     }
 
     var currentState by remember { mutableStateOf<PinSlotState>(PinSlotState.Empty) }
-    // The brand as an ink, not a fill: this is the ramp the theme reserves for painting a
-    // glyph, and it is the one that stays legible in dark. One brush is built here and
-    // reused by both the animated icons and the dot they settle into, so the sequence
-    // never ends on a different colour than it animated through.
-    val brandInk = accentInkGradient()
+    // The brand ramp the unlock overlay's dots are painted with, so a digit entered during
+    // setup animates through the colours it will settle into there.
+    val brandInk = brandGradient()
 
     LaunchedEffect(isFilled, pinVisualMode) {
         if (!isFilled) {

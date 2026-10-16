@@ -32,6 +32,14 @@ val ExpenseInkDark = Color(0xFFF43F5E)
 val IncomeInkLight = Color(0xFF0D9488)  // teal, pair to dark IncomeInkDark
 val ExpenseInkLight = Color(0xFFF43F5E) // rose, pair to dark ExpenseInkDark
 
+// Strong text ink, the pair the detail cards already read from. Renamed from
+// NamedCreateTitleDark, which had become the de-facto dark ink for the named-create and
+// quick-action cards; the light end was missing, so those cards paired the dark token
+// with ModernConfirmTitleLight. Same hex as ModernConfirmCloseFillDark, but a different
+// role: that one is the confirm sheet's close-button fill.
+val InkStrongDark = Color(0xFFF1F5F9)  // strong ink on dark surfaces
+val InkStrongLight = Color(0xFF1E293B) // strong ink on light surfaces
+
 // Inbox amount badge: solid fills dark enough to carry a white currency glyph in both
 // themes, which the pastel income/expense tones above are too light to do.
 val BadgeIncomeFill = Color(0xFF1E8E3E)
@@ -58,7 +66,26 @@ val AdLoadingScrim = Color(0x99000000) // Black with 60% alpha
 val AdLoadingText = Color(0xFFFFFFFF)
 
 // App Lock Colors
-val AppLockLoadingBackground = Color(0xFF000000)
+val AppLockLoadingBackground = Color(0xFF000000) // also the lock surface in dark: the app's only true black
+
+/** Aurora glows: the mock's `rgba(106,77,255,.20)` and `rgba(106,77,255,.30)`. */
+val AppLockAuroraSoft = Color(0x336A4DFF)
+val AppLockAuroraStrong = Color(0x4D6A4DFF)
+
+/** Biometric ring: `border-indigo-500/50` and `ring-indigo-500/20`. */
+val AppLockBiometricRing = Color(0x806365F1)
+val AppLockBiometricHalo = Color(0x336365F1)
+
+// Keypad chrome: `keypad-btn-*` fills and borders, plus their `:active` states. The lock
+// keeps one identity across themes, so only this chrome — and the ink pair above —
+// repaints between them; the aurora, the ring and the brand ramp do not.
+val AppLockKeyFillLight = Color(0x08000000)        // dark reuses SurfaceHighlight
+val AppLockKeyBorderDark = Color(0x0FFFFFFF)       // rgba(255,255,255,.06)
+val AppLockKeyBorderLight = Color(0x0A000000)      // rgba(0,0,0,.04)
+val AppLockKeyPressFillDark = Color(0x596A4DFF)    // rgba(106,77,255,.35)
+val AppLockKeyPressFillLight = Color(0x266A4DFF)   // rgba(106,77,255,.15)
+val AppLockKeyPressBorderDark = Color(0x8C6A4DFF)  // rgba(106,77,255,.55)
+val AppLockKeyPressBorderLight = Color(0x596A4DFF) // rgba(106,77,255,.35)
 
 // Semantic UI Highlights
 val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
@@ -193,7 +220,7 @@ val NamedCreateFieldBorderLight = Color(0xFFE2E8F0)
 val NamedCreateFieldBorderDark = Color(0xFF334155)
 val NamedCreateCaptionLight = Color(0xFF64748B)
 val NamedCreateCaptionDark = Color(0xFF94A3B8)
-val NamedCreateTitleDark = Color(0xFFF1F5F9)
+// NamedCreateTitleDark moved to InkStrongDark above (generic ink).
 val NamedCreatePlaceholder = Color(0xFF94A3B8)
 val QuickActionAmberFill = Color(0x1AF59E0B)
 val QuickActionAmberInkLight = Color(0xFFD97706)

@@ -1407,7 +1407,7 @@
 
     <string name="label_secure_app_pin">Secure app with a PIN code</string>
 
-    <string name="label_use_biometric_subtitle">Use fingerprint or face ID</string>
+    <string name="label_use_biometric_subtitle">Use fingerprint</string>
 
     <string name="label_scrambled_keypad">Scrambled Keypad</string>
 

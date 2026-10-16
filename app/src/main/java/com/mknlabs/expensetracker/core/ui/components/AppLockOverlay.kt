@@ -108,7 +108,17 @@ import com.adamglin.phosphoricons.fill.Sparkle
 import com.adamglin.phosphoricons.fill.Star
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.navigation.AppLockFlow
+import com.mknlabs.expensetracker.core.ui.theme.AppLockAuroraSoft
+import com.mknlabs.expensetracker.core.ui.theme.AppLockAuroraStrong
+import com.mknlabs.expensetracker.core.ui.theme.AppLockBiometricHalo
+import com.mknlabs.expensetracker.core.ui.theme.AppLockBiometricRing
+import com.mknlabs.expensetracker.core.ui.theme.AppLockPalette
+import com.mknlabs.expensetracker.core.ui.theme.BrandGradientStartLight
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseInkDark
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.HeroRailEndLight
+import com.mknlabs.expensetracker.core.ui.theme.appLockPalette
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.data.constants.AppLockSecurityQuestion
 import com.mknlabs.expensetracker.data.constants.buildRecoveryQuestionOptions
@@ -133,104 +143,14 @@ private const val APP_LOCK_BIOMETRIC_AUTO_TRIGGER_DELAY_MS = 650L
 /** The mock holds the fourth dot up for a beat before it judges the PIN. */
 private const val APP_LOCK_LAST_DIGIT_SETTLE_MS = 180L
 
-/**
- * How long premium's glyph holds before handing over to the dot — the 400ms the pre-rewrite
- * unlock surface used (`PinSlot` in AppLockScreen).
- */
-private const val APP_LOCK_GLYPH_HOLD_MS = 400L
-
-/**
- * The glyph's box, 24dp — the size the glyphs had before the rewrite.
- *
- * Bigger than the mock's 14dp dot on purpose: the dot is the resting state, the glyph is the
- * flourish that lands on it. See the dot's own note for why it must not be clamped.
- */
-private val AppLockGlyphSize = 24.dp
-
 private const val APP_LOCK_PIN_LENGTH = 4
 
 // ══════════════════════════════════════════════════════════════════════════════════════
-//  Colours — deliberately local to this file while the lock design is still moving.
-//
-//  These are the mock's literal values (modern_lock_screen_mockup.html), not theme roles,
-//  so the design can be iterated here without touching the app-wide palette. Once the lock
-//  is signed off they move to core/ui/theme/Color.kt; several already exist there under a
-//  name (noted per value), so that migration is mostly a rename plus a theme lookup.
+//  The lock's colours live in core/ui/theme: Color.kt holds the tokens and AppLockPalette.kt
+//  the shared light/dark lookup that both this overlay and AppLockScreen read from.
 // ══════════════════════════════════════════════════════════════════════════════════════
 
-/** Mock `brand-gradient-text` / `pin-dot`: the ramp's lighter end, both themes. */
-private val AppLockBrandStart = Color(0xFF6A4DFF) // Color.kt: BrandGradientStartLight
 
-/** Mock `brand-gradient-text`: the ramp's title end. Color.kt: BrandGradientCompanion*. */
-private val AppLockBrandCompanion = Color(0xFF6750A4)
-
-/** Mock `pin-dot`: the dot ends deeper than the title does. Color.kt: HeroRailEndLight. */
-private val AppLockPinDotEnd = Color(0xFF5B45D6)
-
-/** Mock `pin-dot-error`. */
-private val AppLockPinDotError = Color(0xFFF43F5E)
-
-/**
- * The aurora's glow colours: the mock's `rgba(106,77,255,.20)` and `rgba(106,77,255,.30)`.
- *
- * The mock's third glow was a dimmer violet (`rgba(103,80,164,.28)`) in the bottom-right.
- * Both corners now paint the stronger brand glow: the violet sank into black, and matching
- * the two corners is the one reading that survives both themes.
- */
-private val AppLockAuroraBrandSoft = Color(0x336A4DFF)
-private val AppLockAuroraBrandStrong = Color(0x4D6A4DFF)
-
-/** Mock biometric ring: `border-indigo-500/50` + `ring-indigo-500/20`. */
-private val AppLockBiometricRing = Color(0x806365F1)
-private val AppLockBiometricHalo = Color(0x336365F1)
-
-/**
- * The lock screen's theme-dependent values.
- *
- * Only the things the mock actually repaints between its two themes live here. Everything
- * else — the brand ramps, the biometric ring, the aurora — is deliberately identical in
- * both, because the mock keeps one identity across the switch.
- */
-private class AppLockPalette(
-    /** Mock `bg-black` / `bg-white` on the phone container. */
-    val container: Color,
-    /** Mock `text-slate-100` / `text-slate-800`. */
-    val ink: Color,
-    /** Mock `keypad-btn-*`: `background`. */
-    val keyFill: Color,
-    /** Mock `keypad-btn-*`: `border`. */
-    val keyBorder: Color,
-    /** Mock `keypad-btn-*:active`: `background`. */
-    val keyPressFill: Color,
-    /** Mock `keypad-btn-*:active`: `border-color`. */
-    val keyPressBorder: Color,
-)
-
-private val AppLockPaletteDark = AppLockPalette(
-    container = Color(0xFF000000),
-    ink = Color(0xFFF1F5F9),
-    keyFill = Color(0x0DFFFFFF), // rgba(255,255,255,.05)
-    keyBorder = Color(0x0FFFFFFF), // rgba(255,255,255,.06)
-    keyPressFill = Color(0x596A4DFF), // rgba(106,77,255,.35)
-    keyPressBorder = Color(0x8C6A4DFF), // rgba(106,77,255,.55)
-)
-
-private val AppLockPaletteLight = AppLockPalette(
-    container = Color(0xFFFFFFFF),
-    ink = Color(0xFF1E293B),
-    keyFill = Color(0x08000000), // rgba(0,0,0,.03)
-    keyBorder = Color(0x0A000000), // rgba(0,0,0,.04)
-    keyPressFill = Color(0x266A4DFF), // rgba(106,77,255,.15)
-    keyPressBorder = Color(0x596A4DFF), // rgba(106,77,255,.35)
-)
-
-@Composable
-private fun appLockPalette(): AppLockPalette =
-    if (MaterialTheme.colorScheme.isDark) AppLockPaletteDark else AppLockPaletteLight
-
-/** Mock `brand-gradient-text`: `linear-gradient(135deg, #6A4DFF, #6750A4)`. */
-private fun appLockBrandGradient(): Brush =
-    Brush.linearGradient(colors = listOf(AppLockBrandStart, AppLockBrandCompanion))
 
 /**
  * A wrapper component that handles the App Lock screen logic.
@@ -574,7 +494,7 @@ private fun AppLockKeypadScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .drawBehind { drawAppLockAurora(size) }
+                .appLockAurora()
         )
 
         Column(
@@ -628,7 +548,7 @@ private fun AppLockKeypadScreen(
                         Text(
                             text = appTitle,
                             style = MaterialTheme.typography.headlineLarge.copy(
-                                brush = appLockBrandGradient(),
+                                brush = brandGradient(),
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 30.sp,
                                 letterSpacing = (-0.5).sp
@@ -749,309 +669,6 @@ private fun AppLockKeypadScreen(
  * pops it back out. The sentence is always an error line: a correct PIN unlocks on the
  * spot rather than announcing itself, so there is no success state to style.
  */
-@Composable
-private fun AppLockPinStatusRow(
-    filledCount: Int,
-    pinVisualMode: PinVisualMode,
-    isError: Boolean,
-    shakeOffsetPx: Float,
-    statusText: String?,
-    errorDescription: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 40.dp)
-            .graphicsLayer { translationX = shakeOffsetPx }
-            .semantics {
-                // The shake and the red dots are the whole error signal on screen, and
-                // neither reaches a screen reader. Surface the same sentence it means.
-                if (isError) {
-                    contentDescription = errorDescription
-                    liveRegion = LiveRegionMode.Assertive
-                }
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        AnimatedContent(
-            targetState = statusText,
-            transitionSpec = {
-                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150))
-            },
-            label = "app_lock_pin_status"
-        ) { message ->
-            if (message != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = message,
-                        color = AppLockPinDotError,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(filledCount) {
-                        AppLockPinDot(
-                            isError = isError,
-                            pinVisualMode = pinVisualMode
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * One entered PIN digit: the mock's brand-painted dot, with premium's glyph landing on it.
- *
- * The dot is the mock's — 14dp, the `pin-dot` ramp, a 6dp brand shadow, the `dot-pop`
- * overshoot. Premium keeps the flourish the pre-rewrite surface had: a glyph from the same
- * pool eases in from 0.7 on a soft spring, holds 400ms, then hands over to the dot.
- */
-@Composable
-private fun AppLockPinDot(
-    isError: Boolean,
-    pinVisualMode: PinVisualMode
-) {
-    val iconPool = remember {
-        listOf(
-            PhosphorIcons.Fill.PawPrint,
-            PhosphorIcons.Fill.Leaf,
-            PhosphorIcons.Fill.Heart,
-            PhosphorIcons.Fill.Star,
-            PhosphorIcons.Fill.Diamond,
-            PhosphorIcons.Fill.Sparkle,
-            PhosphorIcons.Fill.RocketLaunch,
-            PhosphorIcons.Fill.FlowerLotus
-        )
-    }
-    var glyph by remember { mutableStateOf<ImageVector?>(null) }
-    // The mock's popIn overshoots to 1.2 before landing on 1, which is what a low damping
-    // ratio gives for free.
-    val scale = remember { Animatable(0f) }
-    // The glyph does not pop from nothing: it eases in from 0.7, as the pre-rewrite
-    // surface's scaleIn did.
-    val glyphScale = remember { Animatable(0.7f) }
-    val dotBrush = remember(isError) {
-        if (isError) {
-            SolidColor(AppLockPinDotError)
-        } else {
-            Brush.linearGradient(colors = listOf(AppLockBrandStart, AppLockPinDotEnd))
-        }
-    }
-
-    LaunchedEffect(isError, pinVisualMode) {
-        if (!isError && pinVisualMode == PinVisualMode.PRO_ANIMATED) {
-            // While the glyph is up it carries the entrance on its own, so the dot's pop is
-            // parked at full size instead of fighting it up from zero.
-            scale.snapTo(1f)
-            glyph = iconPool.random()
-            glyphScale.snapTo(0.7f)
-            glyphScale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-            delay(APP_LOCK_GLYPH_HOLD_MS)
-            glyph = null
-            scale.snapTo(0f)
-        } else {
-            glyph = null
-            scale.snapTo(0f)
-        }
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
-            )
-        )
-    }
-
-    Box(
-        modifier = Modifier
-            .size(14.dp)
-            .graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        val currentGlyph = glyph
-        if (currentGlyph != null) {
-            // requiredSize, not size: the glyph is meant to be larger than the dot it lands
-            // on, and a plain size() would be clamped to this 14dp slot — which is what made
-            // the glyphs read as specks.
-            Box(
-                modifier = Modifier
-                    .requiredSize(AppLockGlyphSize)
-                    .graphicsLayer {
-                        scaleX = glyphScale.value
-                        scaleY = glyphScale.value
-                    }
-            ) {
-                AppLockGradientIcon(
-                    imageVector = currentGlyph,
-                    brush = appLockBrandGradient(),
-                    size = AppLockGlyphSize
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .shadow(
-                        elevation = 6.dp,
-                        shape = CircleShape,
-                        ambientColor = AppLockBrandStart.copy(alpha = 0.5f),
-                        spotColor = AppLockBrandStart.copy(alpha = 0.5f)
-                    )
-                    .clip(CircleShape)
-                    .background(brush = dotBrush)
-            )
-        }
-    }
-}
-
-/**
- * The mock's 3×4 keypad: one circle per key, flat until pressed.
- *
- * [layout] comes from [buildAppLockKeypadLayout] so premium's scrambled keypad keeps
- * working; the mock only draws the unscrambled arrangement.
- */
-@Composable
-private fun AppLockKeypad(
-    layout: List<List<String>>,
-    enabled: Boolean,
-    onDigit: (String) -> Unit,
-    onDelete: () -> Unit,
-    onForgot: () -> Unit,
-    forgotLabel: String,
-    palette: AppLockPalette
-) {
-    AnimatedContent(
-        targetState = layout,
-        transitionSpec = {
-            fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(140))
-        },
-        label = "app_lock_keypad_layout"
-    ) { currentLayout ->
-        Column(
-            modifier = Modifier.widthIn(max = 280.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            currentLayout.forEach { row ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    row.forEach { key ->
-                        AppLockKey(
-                            key = key,
-                            enabled = enabled,
-                            onClick = {
-                                when (key) {
-                                    APP_LOCK_DELETE_KEY -> onDelete()
-                                    APP_LOCK_FORGOT_KEY -> onForgot()
-                                    else -> onDigit(key)
-                                }
-                            },
-                            forgotLabel = forgotLabel,
-                            palette = palette,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppLockKey(
-    key: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    forgotLabel: String,
-    palette: AppLockPalette,
-    modifier: Modifier = Modifier
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // The mock presses with `transform: scale(.92)` and swaps the fill/border for a brand
-    // tint, both over 150ms.
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = tween(durationMillis = 150),
-        label = "app_lock_key_scale"
-    )
-    val fill = if (isPressed) palette.keyPressFill else palette.keyFill
-    val border = if (isPressed) palette.keyPressBorder else palette.keyBorder
-
-    Box(
-        modifier = modifier
-            .aspectRatio(1f)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(CircleShape)
-            .background(fill)
-            .border(width = 1.dp, color = border, shape = CircleShape)
-            .then(
-                if (enabled) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        onClick = onClick
-                    )
-                } else {
-                    Modifier
-                }
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        val contentAlpha = if (enabled) 1f else 0.45f
-        when (key) {
-            APP_LOCK_DELETE_KEY -> Icon(
-                imageVector = Icons.AutoMirrored.Filled.Backspace,
-                contentDescription = stringResource(R.string.desc_delete_pin_digit),
-                tint = palette.ink.copy(alpha = contentAlpha),
-                modifier = Modifier.size(22.dp)
-            )
-
-            APP_LOCK_FORGOT_KEY -> Text(
-                text = forgotLabel,
-                color = palette.ink,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 11.sp
-                ),
-                modifier = Modifier.graphicsLayer { alpha = 0.7f * contentAlpha }
-            )
-
-            else -> Text(
-                text = key,
-                color = palette.ink.copy(alpha = contentAlpha),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp
-                )
-            )
-        }
-    }
-}
-
 /** The mock's fingerprint target: a ringed circle with a brand-painted glyph under it. */
 @Composable
 private fun AppLockBiometricButton(
@@ -1097,7 +714,7 @@ private fun AppLockBiometricButton(
             ) {
                 AppLockGradientIcon(
                     imageVector = PhosphorIcons.Bold.Fingerprint,
-                    brush = appLockBrandGradient(),
+                    brush = brandGradient(),
                     size = 44.dp
                 )
             }
@@ -1184,7 +801,7 @@ private fun AppLockRecoveryContent(
             Text(
                 text = headline,
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    brush = appLockBrandGradient(),
+                    brush = brandGradient(),
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 28.sp
                 ),
@@ -1193,7 +810,7 @@ private fun AppLockRecoveryContent(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = supportText,
-                color = if (supportIsError) AppLockPinDotError else palette.ink,
+                color = if (supportIsError) ExpenseInkDark else palette.ink,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.graphicsLayer { alpha = if (supportIsError) 1f else 0.7f }
@@ -1244,7 +861,7 @@ private fun AppLockRecoveryContent(
                     .fillMaxWidth()
                     .height(56.dp)
                     .clip(RoundedCornerShape(999.dp))
-                    .background(appLockBrandGradient())
+                    .background(brandGradient())
                     .clickable(onClick = onSubmit),
                 contentAlignment = Alignment.Center
             ) {
@@ -1269,10 +886,10 @@ private fun AppLockRecoveryQuestionCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(if (isSelected) AppLockAuroraBrandStrong else palette.keyFill)
+            .background(if (isSelected) AppLockAuroraStrong else palette.keyFill)
             .border(
                 width = 1.dp,
-                color = if (isSelected) AppLockBrandStart.copy(alpha = 0.55f) else palette.keyBorder,
+                color = if (isSelected) BrandGradientStartLight.copy(alpha = 0.55f) else palette.keyBorder,
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable(onClick = onClick)
@@ -1280,89 +897,11 @@ private fun AppLockRecoveryQuestionCard(
     ) {
         Text(
             text = prompt,
-            color = if (isSelected) AppLockBrandStart else palette.ink,
+            color = if (isSelected) BrandGradientStartLight else palette.ink,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
         )
     }
 }
-
-/**
- * Paints [imageVector] with [brush] instead of a flat tint.
- *
- * `tint` only takes a solid colour, so the glyph is drawn white and the ramp is punched
- * through its alpha with SrcIn, which keeps the icon's own silhouette. The offscreen layer
- * fences the blend in so it cannot erase what was drawn around it.
- */
-@Composable
-private fun AppLockGradientIcon(
-    imageVector: ImageVector,
-    brush: Brush,
-    size: Dp,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        imageVector = imageVector,
-        contentDescription = null,
-        tint = Color.White,
-        modifier = modifier
-            .size(size)
-            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-            .drawWithContent {
-                drawContent()
-                drawRect(brush = brush, blendMode = BlendMode.SrcIn)
-            }
-    )
-}
-
-/**
- * The mock's background: three brand glows over the theme's field.
- *
- * CSS draws them as ELLIPTICAL radial gradients (`70% 44% at 50% 46%`), which Compose's
- * [Brush.radialGradient] cannot express — it takes one radius. Each is therefore drawn as
- * a circle sized to the horizontal radius and scaled vertically around its own centre,
- * which is the same ellipse. The mock's film-grain layer is not drawn: it is a 7% texture
- * over a 160px tile, which would mean shipping and tiling a noise bitmap for something
- * that is invisible against the glows on a phone screen.
- */
-private fun DrawScope.drawAppLockAurora(size: Size) {
-    appLockGlows.forEach { glow ->
-        val radiusPx = size.width * glow.radiusX
-        if (radiusPx <= 0f) return@forEach
-        val brush = Brush.radialGradient(
-            colorStops = arrayOf(0f to glow.color, glow.fade to Color.Transparent),
-            center = Offset.Zero,
-            radius = radiusPx
-        )
-        withTransform(
-            transformBlock = {
-                translate(left = size.width * glow.centerX, top = size.height * glow.centerY)
-                scale(scaleX = 1f, scaleY = (size.height * glow.radiusY) / radiusPx, pivot = Offset.Zero)
-            }
-        ) {
-            drawCircle(brush = brush, radius = radiusPx, center = Offset.Zero)
-        }
-    }
-}
-
-private class AppLockGlow(
-    val color: Color,
-    /** Centre, as a fraction of the box. */
-    val centerX: Float,
-    val centerY: Float,
-    /** Radii, as fractions of the box's width and height. */
-    val radiusX: Float,
-    val radiusY: Float,
-    /** Where the colour has fully faded, as a fraction of the radius. */
-    val fade: Float
-)
-
-private val appLockGlows = listOf(
-    AppLockGlow(AppLockAuroraBrandSoft, 0.50f, 0.46f, 0.70f, 0.44f, 0.70f),
-    AppLockGlow(AppLockAuroraBrandStrong, 0.12f, 0.06f, 0.66f, 0.44f, 0.62f),
-    // The top-left glow, mirrored: same colour, same radii, same fade, centre reflected
-    // through the middle of the box (0.12/0.06 -> 0.88/0.94).
-    AppLockGlow(AppLockAuroraBrandStrong, 0.88f, 0.94f, 0.66f, 0.44f, 0.62f)
-)
 
 /**
  * The mock's `shake` keyframes: ±8px collapsing to nothing over 400ms.

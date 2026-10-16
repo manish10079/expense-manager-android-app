@@ -36,7 +36,7 @@ import com.mknlabs.expensetracker.core.ui.theme.NamedCreateCaptionDark
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateCaptionLight
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderDark
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderLight
-import com.mknlabs.expensetracker.core.ui.theme.NamedCreateTitleDark
+import com.mknlabs.expensetracker.core.ui.theme.InkStrongDark
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionAmberFill
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionAmberInkDark
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionAmberInkLight
@@ -102,7 +102,7 @@ fun QuickActionCard(
             }
             Text(
                 text = title,
-                color = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+                color = if (dark) InkStrongDark else ModernConfirmTitleLight,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
