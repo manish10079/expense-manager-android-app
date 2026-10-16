@@ -489,13 +489,6 @@ private fun AppLockKeypadScreen(
             .fillMaxSize()
             .background(palette.container)
     ) {
-        // The mock's aurora. Drawn rather than layered as three composables: each glow is
-        // an ellipse, which no Brush can express directly (see drawAppLockAurora).
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .appLockAurora()
-        )
 
         Column(
             modifier = Modifier

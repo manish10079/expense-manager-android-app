@@ -106,9 +106,7 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
-import com.mknlabs.expensetracker.core.ui.components.appLockAurora
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -296,7 +294,6 @@ fun AppLockScreen(
         keypadShakeOffsetPx.snapTo(0f)
     }
 
-    val confirmPinMsg = stringResource(R.string.msg_enter_the_same_pin_once_more_t)
     val pinMismatchMsg = stringResource(R.string.msg_pins_did_not_match_start_again)
     val incorrectPinMsg = stringResource(R.string.msg_incorrect_pin_try_again)
 
@@ -310,7 +307,9 @@ fun AppLockScreen(
                     firstPin = enteredPin
                     enteredPin = ""
                     setupStage = PinSetupStage.Confirm
-                    message = confirmPinMsg
+                    // No support line on the confirm step: the gradient headline already
+                    // says "Confirm PIN", so a message here showed the same thing a third time.
+                    message = null
                 } else if (enteredPin == firstPin) {
                     enteredPin = ""
                     setupStage = PinSetupStage.SecurityQuestion
@@ -361,7 +360,6 @@ fun AppLockScreen(
         }
     }
 
-    val repeatDigitsMsg = stringResource(R.string.msg_repeat_the_same_4_digits_to_fi)
     val headerAction: (() -> Unit)? = when {
         isRecoveryMode -> {
             {
@@ -376,7 +374,7 @@ fun AppLockScreen(
             {
                 setupStage = PinSetupStage.Confirm
                 securityAnswer = ""
-                message = repeatDigitsMsg
+                message = null
             }
         }
 
@@ -391,14 +389,12 @@ fun AppLockScreen(
     val eyebrow = when {
         isRecoveryMode -> stringResource(R.string.label_verify_security_question)
         mode == AppLockScreenMode.Unlock -> ""
-        setupStage == PinSetupStage.Create -> stringResource(R.string.label_create_4digit_pin)
-        setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_your_pin)
         else -> ""
     }
     val headline = when {
         isRecoveryMode -> stringResource(R.string.label_forgot_your_pin)
         mode == AppLockScreenMode.Unlock -> stringResource(R.string.label_welcome_back)
-        setupStage == PinSetupStage.Create -> ""
+        setupStage == PinSetupStage.Create -> stringResource(R.string.label_create_4digit_pin)
         setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_pin)
         else -> stringResource(R.string.label_security_question)
     }
@@ -424,8 +420,7 @@ fun AppLockScreen(
             enterPinMsg
         }
 
-        setupStage == PinSetupStage.Create -> ""
-        setupStage == PinSetupStage.Confirm -> repeatDigitsMsg
+        setupStage == PinSetupStage.Create || setupStage == PinSetupStage.Confirm -> ""
         else -> chooseQuestionRememberMsg
     }
     val primaryActionLabel = if (isRecoveryMode) stringResource(R.string.label_disable_app_lock) else stringResource(R.string.label_save)
@@ -485,6 +480,7 @@ fun AppLockScreen(
         supportTextIsError = lockoutMessage != null || message != null,
         isPinEntryVisible = isPinEntryVisible,
         isSetupSecurityQuestion = mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.SecurityQuestion,
+        isSetupCreatePin = mode == AppLockScreenMode.Setup && setupStage == PinSetupStage.Create,
         isRecoveryMode = isRecoveryMode,
         isKeyboardOpen = isKeyboardOpen,
         isDarkPalette = isDarkPalette,
@@ -547,6 +543,7 @@ private fun AppLockScreenContent(
     supportTextIsError: Boolean,
     isPinEntryVisible: Boolean,
     isSetupSecurityQuestion: Boolean,
+    isSetupCreatePin: Boolean,
     isRecoveryMode: Boolean,
     isKeyboardOpen: Boolean,
     isDarkPalette: Boolean,
@@ -629,21 +626,11 @@ private fun AppLockScreenContent(
         val palette = appLockPalette()
 
         // The lock surface as the unlock overlay paints it: the mock's container colour
-        // under its three brand glows. Recovery mode keeps the bare container, since the
-        // glows were tuned against the PIN surface.
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(palette.container)
         )
-
-        if (!isRecoveryMode) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .appLockAurora()
-            )
-        }
 
         Column(
             modifier = Modifier
@@ -652,19 +639,7 @@ private fun AppLockScreenContent(
                 .navigationBarsPadding()
                 .imePadding()
         ) {
-            if (headerAction != null) {
-                if (isRecoveryMode) {
-                    Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-                }
-
-                AppHeader(
-                    title = title,
-                    onBackClick = headerAction,
-                    modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
-                )
-            } else {
-                Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-            }
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             Box(
                 modifier = Modifier
@@ -718,37 +693,42 @@ private fun AppLockScreenContent(
                         Spacer(modifier = Modifier.height(if (compact) 8.dp else 14.dp))
                     }
 
-                    if (headline.isNotBlank()) {
-                        Text(
-                            text = headline,
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                brush = brandGradient(),
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = if (compact) 28.sp else 34.sp
-                            ),
-                            textAlign = TextAlign.Center
-                        )
+                    // Drawn even when the stage has no copy for them: a collapsed row shortens
+                    // this centred block, which would drop the dots and keypad by half the
+                    // difference the moment the setup stage changes. A non-breaking space keeps
+                    // the line box while showing nothing.
+                    Text(
+                        text = headline.ifBlank { "\u00A0" },
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            brush = brandGradient(),
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = when {
+                                // The create step's title is the longer of the two (against
+                                // "Confirm PIN"), so it steps down a size to hold one line.
+                                isSetupCreatePin -> if (compact) 24.sp else 30.sp
 
-                        Spacer(modifier = Modifier.height(if (compact) 6.dp else 8.dp))
-                    }
+                                compact -> 28.sp
+                                else -> 34.sp
+                            }
+                        ),
+                        textAlign = TextAlign.Center
+                    )
 
-                    if (supportText.isNotBlank()) {
-                        Text(
-                            text = supportText,
-                            color = if (supportTextIsError) {
-                                ExpenseInkDark
-                            } else {
-                                palette.ink.copy(alpha = 0.72f)
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            textAlign = TextAlign.Center
-                        )
+                    Spacer(modifier = Modifier.height(if (compact) 6.dp else 8.dp))
 
-                        Spacer(modifier = Modifier.height(if (compact) 12.dp else 24.dp))
-                    } else {
-                        Spacer(modifier = Modifier.height(if (compact) 6.dp else 8.dp))
-                    }
+                    Text(
+                        text = supportText.ifBlank { "\u00A0" },
+                        color = if (supportTextIsError) {
+                            ExpenseInkDark
+                        } else {
+                            palette.ink.copy(alpha = 0.72f)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(if (compact) 12.dp else 24.dp))
 
                     when {
                         isRecoveryMode -> {

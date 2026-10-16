@@ -50,7 +50,7 @@
     <string name="label_verify_security_question">VERIFIKASI PERTANYAAN KEAMANAN</string>
     <string name="label_biometric_security_active">KEAMANAN BIOMETRIK AKTIF</string>
     <string name="label_pin_security_active">KEAMANAN PIN AKTIF</string>
-    <string name="label_create_4digit_pin">BUAT PIN 4 DIGIT</string>
+    <string name="label_create_4digit_pin">Buat PIN 4 digit</string>
     <string name="label_confirm_your_pin">KONFIRMASI PIN ANDA</string>
     <string name="label_forgot_your_pin">Lupa PIN?</string>
     <string name="label_welcome_back">Selamat datang kembali</string>

@@ -50,7 +50,7 @@
     <string name="label_verify_security_question">VÉRIFIER LA QUESTION DE SÉCURITÉ</string>
     <string name="label_biometric_security_active">SÉCURITÉ BIOMÉTRIQUE ACTIVE</string>
     <string name="label_pin_security_active">SÉCURITÉ PIN ACTIVE</string>
-    <string name="label_create_4digit_pin">CRÉER UN PIN À 4 CHIFFRES</string>
+    <string name="label_create_4digit_pin">Créer un PIN à 4 chiffres</string>
     <string name="label_confirm_your_pin">CONFIRMEZ VOTRE PIN</string>
     <string name="label_forgot_your_pin">PIN oublié ?</string>
     <string name="label_welcome_back">Bon retour</string>
