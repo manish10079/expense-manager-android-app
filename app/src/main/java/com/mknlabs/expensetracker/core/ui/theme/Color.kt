@@ -661,6 +661,15 @@ internal val FormCardLight = Color(0xFFFFFFFF)
 val ColorScheme.formCard: Color
     get() = if (isDark) FormCardDark else FormCardLight
 
+// The mock's flat card: #13151F in dark, white in light. The home screen's Spent Today /
+// My Goals mini cards, the plans budget card and the analytics stat cards are all painted
+// with this one --surface token, so it is a role rather than a per-screen literal.
+internal val FlatCardDark = Color(0xFF13151F)
+internal val FlatCardLight = Color(0xFFFFFFFF)
+
+val ColorScheme.flatCard: Color
+    get() = if (isDark) FlatCardDark else FlatCardLight
+
 // The Tags card glyph on that same screen. The mockup keeps it blue in both themes —
 // blue-600 in light, blue-400 in dark — on a blue-50 / blue-500-at-10% tile, so it reads
 // as its own role rather than borrowing the violet accent every other tag surface uses.

@@ -1,6 +1,9 @@
 package com.mknlabs.expensetracker.feature.goals.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -43,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.components.AvatarRingBrush
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.IconPickerGrid
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFabDefaults
@@ -70,8 +74,7 @@ import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
-import com.mknlabs.expensetracker.core.ui.theme.GoalProgressLow
-import com.mknlabs.expensetracker.core.ui.theme.GoalProgressMedium
+import com.mknlabs.expensetracker.core.ui.theme.flatCard
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
@@ -729,17 +732,13 @@ fun GoalItem(
         categoryIconOptions.firstOrNull { it.id == goal.iconKey }?.icon ?: goal.icon
     }
 
-    val progressColor = when {
-        goal.progress < 0.34f -> GoalProgressLow
-        goal.progress < 0.67f -> GoalProgressMedium
-        else -> GoalProgressHigh
-    }
-
     val colorScheme = MaterialTheme.colorScheme
     val cardShape = RoundedCornerShape(24.dp)
     val cardChrome = Modifier
         .clip(cardShape)
-        .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        // The home screen's Spent Today fill (#13151F / white), so the two card families
+        // share one surface instead of the goals card sitting on a grey wash.
+        .background(colorScheme.flatCard)
         .border(
             width = 1.dp,
             color = colorScheme.accentInk.copy(alpha = 0.18f),
@@ -817,15 +816,7 @@ fun GoalItem(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            LinearProgressIndicator(
-                progress = { goal.progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = progressColor,
-                trackColor = MaterialTheme.colorScheme.track,
-                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
-            )
+            GoalProgressBar(progress = goal.progress)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -1004,6 +995,42 @@ private fun GoalFundHistoryInline(
             contentDescription = null,
             tint = colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
+/**
+ * The plans screen's budget-card bar, reused here: the avatar ring's indigo → violet →
+ * fuchsia ramp in both themes, on the same 8 dp rail and track token, so the goal card
+ * and the budget card read their progress with one ramp instead of two colour stories.
+ * The fraction animates on the same curve the budget bar uses.
+ */
+@Composable
+private fun GoalProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    trackColor: Color = MaterialTheme.colorScheme.track
+) {
+    val target = progress.coerceIn(0f, 1f)
+    val animatedProgress by animateFloatAsState(
+        targetValue = target,
+        animationSpec = tween(durationMillis = 1000, easing = LinearOutSlowInEasing),
+        label = "goal_progress_animation"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .clip(CircleShape)
+            .background(trackColor)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(animatedProgress)
+                .height(8.dp)
+                .clip(CircleShape)
+                .background(AvatarRingBrush)
         )
     }
 }
