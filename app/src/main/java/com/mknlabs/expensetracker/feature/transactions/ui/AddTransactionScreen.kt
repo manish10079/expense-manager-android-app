@@ -189,6 +189,8 @@ import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
+import com.mknlabs.expensetracker.core.ui.theme.recurringIcon
+import com.mknlabs.expensetracker.core.ui.theme.recurringTile
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
@@ -2499,6 +2501,10 @@ private fun SelectionInfoCard(
     isPlaceholder: Boolean = false,
     highlighted: Boolean = false,
     compact: Boolean,
+    /** Overrides the state-driven glyph ink; null keeps the accent/placeholder rules. */
+    iconTint: Color? = null,
+    /** When set the icon sits in a 12 dp-cornered tile of this colour (the mockup tile). */
+    iconContainerColor: Color? = null,
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -2541,16 +2547,34 @@ private fun SelectionInfoCard(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = label,
-                tint = when {
-                    highlighted -> colorScheme.accentInk
-                    isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    else -> colorScheme.accentInk
-                },
-                modifier = Modifier.size(if (compact) 18.dp else 20.dp)
-            )
+            val resolvedIconTint = iconTint ?: when {
+                highlighted -> colorScheme.accentInk
+                isPlaceholder -> colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                else -> colorScheme.accentInk
+            }
+            if (iconContainerColor == null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = label,
+                    tint = resolvedIconTint,
+                    modifier = Modifier.size(if (compact) 18.dp else 20.dp)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(iconContainerColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = leadingIcon,
+                        contentDescription = label,
+                        tint = resolvedIconTint,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -3201,6 +3225,10 @@ private fun RecurringCompactCard(
         isPlaceholder = !isEnabled,
         highlighted = isEnabled,
         compact = compact,
+        // The mockup's recurring row is a neutral slate tile with a muted glyph in both
+        // themes, so the icon no longer switches to the accent when the switch is on.
+        iconTint = MaterialTheme.colorScheme.recurringIcon,
+        iconContainerColor = MaterialTheme.colorScheme.recurringTile,
         onClick = onClick
     )
 }
@@ -3383,8 +3411,8 @@ private fun TagSelectionCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(iconBackgroundColor),
                 contentAlignment = Alignment.Center
             ) {
@@ -3392,7 +3420,7 @@ private fun TagSelectionCard(
                     imageVector = Icons.Filled.Sell,
                     contentDescription = null,
                     tint = iconTint,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
@@ -3483,8 +3511,10 @@ private fun SelectionCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
+                    // The mockup's rounded tile, shared with the recurring card's glyph,
+                    // rather than the circle these cards used to wear.
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(if (enabled) iconBackgroundColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -3492,7 +3522,7 @@ private fun SelectionCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = if (enabled) iconTint else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
 

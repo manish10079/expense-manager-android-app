@@ -675,6 +675,20 @@ val ColorScheme.tagInk: Color
 val ColorScheme.tagWash: Color
     get() = if (isDark) TagWashDark else TagWashLight
 
+// The Recurring card's icon tile on that screen. The mockup drops the accent for a neutral
+// slate tile — slate-100 in light, slate-800 in dark — under a slate-500/slate-400 glyph, so
+// the card reads as "off" until the switch is turned on.
+internal val RecurringTileLight = Color(0xFFF1F5F9)  // mockup bg-slate-100
+internal val RecurringTileDark = Color(0xFF1E293B)   // mockup bg-slate-800
+internal val RecurringIconLight = Color(0xFF64748B)  // mockup --text-muted, light
+internal val RecurringIconDark = Color(0xFF94A3B8)   // mockup --text-muted, dark
+
+val ColorScheme.recurringTile: Color
+    get() = if (isDark) RecurringTileDark else RecurringTileLight
+
+val ColorScheme.recurringIcon: Color
+    get() = if (isDark) RecurringIconDark else RecurringIconLight
+
 // The empty part of a progress bar. Named rather than borrowed from surfaceVariant
 // because the spec gives it a value of its own in each theme, and a bar whose track moved
 // with the card would stop reading as a track.
