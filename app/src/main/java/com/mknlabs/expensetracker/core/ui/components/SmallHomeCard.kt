@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +45,14 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+
+// Quick-card inks from the redesign mock: slate-400 labels in both themes, white and
+// slate-900 amounts, and slate-500 / slate-400 chevrons.
+private val QuickCardLabelInk = Color(0xFF94A3B8)
+private val QuickCardAmountInkDark = Color(0xFFFFFFFF)
+private val QuickCardAmountInkLight = Color(0xFF0F172A)
+private val QuickCardCaretInkDark = Color(0xFF64748B)
+private val QuickCardCaretInkLight = Color(0xFF94A3B8)
 
 /**
  * One quick-action card on the home row.
@@ -61,7 +71,19 @@ fun SmallHomeCard(
     icon: ImageVector,
     badgeCount: Int? = null,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    // Optional tile styling so a caller can match a screen's own mock; the defaults keep
+    // the shared brand-tile look for every other card.
+    iconTileColor: Color? = null,
+    iconTileBorderColor: Color? = null,
+    iconTileShape: Shape = CircleShape,
+    iconTint: Color? = null,
+    // Optional card chrome so a caller can match a screen's own mock.
+    containerColor: Color? = null,
+    borderColor: Color? = null,
+    badgeColor: Color? = null,
+    badgeContentColor: Color? = null,
+    badgeRingColor: Color? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -69,7 +91,17 @@ fun SmallHomeCard(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
-        colors = AppCardDefaults.colors(),
+        colors = AppCardDefaults.colors().let { defaults ->
+            if (containerColor == null && borderColor == null) {
+                defaults
+            } else {
+                AppCardColors(
+                    containerColor = containerColor ?: defaults.containerColor,
+                    contentColor = defaults.contentColor,
+                    border = borderColor?.let { BorderStroke(1.dp, it) } ?: defaults.border
+                )
+            }
+        },
         contentPadding = PaddingValues(12.dp)
     ) {
         Row(
@@ -87,22 +119,31 @@ fun SmallHomeCard(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(CircleShape)
-                            .background(colorScheme.accentSoft),
+                            .clip(iconTileShape)
+                            .background(iconTileColor ?: colorScheme.accentSoft)
+                            .then(
+                                if (iconTileBorderColor != null) {
+                                    Modifier.border(1.dp, iconTileBorderColor, iconTileShape)
+                                } else {
+                                    Modifier
+                                }
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         val iconRamp = brandGradient()
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = iconTint ?: Color.White,
                             modifier = Modifier
                                 .size(20.dp)
                                 .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                                 .drawWithCache {
                                     onDrawWithContent {
                                         drawContent()
-                                        drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                                        if (iconTint == null) {
+                                            drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
+                                        }
                                     }
                                 }
                         )
@@ -115,13 +156,17 @@ fun SmallHomeCard(
                                 .offset(x = 4.dp, y = (-4).dp)
                                 .size(18.dp)
                                 .clip(CircleShape)
-                                .background(colorScheme.accentInk)
-                                .border(1.5.dp, colorScheme.surface, CircleShape),
+                                .background(badgeColor ?: colorScheme.accentInk)
+                                .border(1.5.dp, badgeRingColor ?: colorScheme.surface, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             LabelText(
                                 text = badgeCount.toString(),
-                                color = if (colorScheme.isDark) colorScheme.background else colorScheme.onPrimary
+                                color = badgeContentColor ?: if (colorScheme.isDark) {
+                                    colorScheme.background
+                                } else {
+                                    colorScheme.onPrimary
+                                }
                             )
                         }
                     }
@@ -132,7 +177,7 @@ fun SmallHomeCard(
                 Column {
                     LabelText(
                         text = title,
-                        color = colorScheme.onSurfaceVariant,
+                        color = QuickCardLabelInk,
                         maxLines = 1
                     )
 
@@ -141,7 +186,11 @@ fun SmallHomeCard(
                     AppText(
                         text = value,
                         style = MaterialTheme.typography.titleSmall,
-                        color = colorScheme.onSurface,
+                        color = if (colorScheme.isDark) {
+                            QuickCardAmountInkDark
+                        } else {
+                            QuickCardAmountInkLight
+                        },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -151,7 +200,11 @@ fun SmallHomeCard(
             Icon(
                 imageVector = PhosphorIcons.Regular.CaretRight,
                 contentDescription = null,
-                tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                tint = if (colorScheme.isDark) {
+                    QuickCardCaretInkDark
+                } else {
+                    QuickCardCaretInkLight
+                },
                 modifier = Modifier.size(14.dp)
             )
         }

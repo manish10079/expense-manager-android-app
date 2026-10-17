@@ -127,6 +127,40 @@ private val MoreButtonIconLight = Color(0xFF475569)
 // Unread notification dot, same as the mock's bell dot: `bg-accent-violet` in both modes.
 private val MoreButtonDotColor = Color(0xFF8B5CF6)
 
+// Spent Today's icon tile, from the mock: indigo-500/10 fill, indigo-500/20 edge and an
+// indigo-400 glyph in dark; indigo-50, indigo-100 and indigo-600 in light.
+private val SpentTodayTileDark = Color(0x1A6366F1)
+private val SpentTodayTileBorderDark = Color(0x336366F1)
+private val SpentTodayIconDark = Color(0xFF818CF8)
+private val SpentTodayTileLight = Color(0xFFEEF2FF)
+private val SpentTodayTileBorderLight = Color(0xFFE0E7FF)
+private val SpentTodayIconLight = Color(0xFF4F46E5)
+
+// Spent Today's card chrome, from the mock: bg-surface #13151F with a white/5 edge in
+// dark; bg-white with a slate-200/70 edge in light.
+private val SpentTodayCardDark = Color(0xFF13151F)
+private val SpentTodayCardBorderDark = Color(0x0DFFFFFF)
+private val SpentTodayCardLight = Color(0xFFFFFFFF)
+private val SpentTodayCardBorderLight = Color(0xB3E2E8F0)
+
+// My Goals, from the mock: violet-500/10 tile, violet-500/20 edge and violet-400 glyph
+// in dark; violet-50, violet-100 and violet-600 in light. Same card chrome as Spent
+// Today, and a violet-600 count badge ringed with the card fill.
+private val GoalsTileDark = Color(0x1A8B5CF6)
+private val GoalsTileBorderDark = Color(0x338B5CF6)
+private val GoalsIconDark = Color(0xFFA78BFA)
+private val GoalsTileLight = Color(0xFFF5F3FF)
+private val GoalsTileBorderLight = Color(0xFFEDE9FE)
+private val GoalsIconLight = Color(0xFF7C3AED)
+private val GoalsCardDark = Color(0xFF13151F)
+private val GoalsCardBorderDark = Color(0x0DFFFFFF)
+private val GoalsCardLight = Color(0xFFFFFFFF)
+private val GoalsCardBorderLight = Color(0xB3E2E8F0)
+private val GoalsBadgeFill = Color(0xFF7C3AED)
+private val GoalsBadgeInk = Color(0xFFFFFFFF)
+private val GoalsBadgeRingDark = Color(0xFF13151F)
+private val GoalsBadgeRingLight = Color(0xFFFFFFFF)
+
 // Rotating one-liners shown where the tagline used to sit. A new one is picked every
 // time the header becomes visible.
 
@@ -885,6 +919,7 @@ private fun HomeStatsSection(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val isDark = MaterialTheme.colorScheme.isDark
 
     // Whether this section opens with a card above the stats. The spacer below uses it
     // to avoid adding a gap that is only needed when something is actually there.
@@ -969,7 +1004,15 @@ private fun HomeStatsSection(
             value = uiState.todaySpending,
             icon = PhosphorIcons.Regular.CalendarBlank,
             modifier = Modifier.weight(1f),
-            onClick = onTodaySpendingClick
+            onClick = onTodaySpendingClick,
+            iconTileColor = if (isDark) SpentTodayTileDark else SpentTodayTileLight,
+            iconTileBorderColor =
+                if (isDark) SpentTodayTileBorderDark else SpentTodayTileBorderLight,
+            iconTileShape = RoundedCornerShape(12.dp),
+            iconTint = if (isDark) SpentTodayIconDark else SpentTodayIconLight,
+            containerColor = if (isDark) SpentTodayCardDark else SpentTodayCardLight,
+            borderColor =
+                if (isDark) SpentTodayCardBorderDark else SpentTodayCardBorderLight
         )
 
         SmallHomeCard(
@@ -979,7 +1022,18 @@ private fun HomeStatsSection(
             icon = PhosphorIcons.Regular.PiggyBank,
             badgeCount = uiState.goalCount,
             modifier = Modifier.weight(1f),
-            onClick = onGoalsClick
+            onClick = onGoalsClick,
+            iconTileColor = if (isDark) GoalsTileDark else GoalsTileLight,
+            iconTileBorderColor =
+                if (isDark) GoalsTileBorderDark else GoalsTileBorderLight,
+            iconTileShape = RoundedCornerShape(12.dp),
+            iconTint = if (isDark) GoalsIconDark else GoalsIconLight,
+            containerColor = if (isDark) GoalsCardDark else GoalsCardLight,
+            borderColor =
+                if (isDark) GoalsCardBorderDark else GoalsCardBorderLight,
+            badgeColor = GoalsBadgeFill,
+            badgeContentColor = GoalsBadgeInk,
+            badgeRingColor = if (isDark) GoalsBadgeRingDark else GoalsBadgeRingLight
         )
     }
 
