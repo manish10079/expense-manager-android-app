@@ -2,10 +2,10 @@
 <resources>
 
     <style name="Theme.ExpenseTracker" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">?android:attr/colorBackground</item>
+        <item name="android:windowBackground">@color/splash_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <!-- The window is drawn edge-to-edge over the light #F7F8FA field, so the system
+        <!-- The window is drawn edge-to-edge over the light #F8FAFC field, so the system
              bar icons have to be dark. Declared here, not only at runtime, because the
              framework reads this attribute when it creates the window and re-applies it
              when the decor view is laid out; a runtime-only call can be overwritten after
@@ -16,8 +16,8 @@
     </style>
 
     <style name="Theme.ExpenseTracker.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenBackground">?android:attr/colorBackground</item>
-        <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo_system</item>
         <item name="postSplashScreenTheme">@style/Theme.ExpenseTracker</item>
         <!-- The splash window is created from this theme, so it declares the same icon

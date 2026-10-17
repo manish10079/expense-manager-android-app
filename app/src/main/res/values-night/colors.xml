@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#0A0A0A</color>
+    <color name="splash_background">#0B0C10</color>
 
     <!-- Widget glassmorphic dark palette (same as light — always dark) -->
     <color name="widget_canvas">#0B0D1B</color>

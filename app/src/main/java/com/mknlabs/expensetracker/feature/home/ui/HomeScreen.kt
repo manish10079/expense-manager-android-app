@@ -17,6 +17,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -51,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -102,6 +104,32 @@ import kotlinx.coroutines.launch
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.AdPlacement
+
+// Header inks from the homescreen redesign mock (homescree-redesign-2.html):
+// the greeting is `text-white` / `text-slate-900`, the psychology line `text-slate-400` /
+// `text-slate-500`. Kept here rather than in the theme so the header can follow the
+// mock without repainting the rest of the app's text roles.
+private val GreetingNameDark = Color(0xFFFFFFFF)
+private val GreetingNameLight = Color(0xFF0F172A)
+private val PsychologyPhraseDark = Color(0xFF94A3B8)
+private val PsychologyPhraseLight = Color(0xFF64748B)
+
+// The three-dot button's circle, taken from the mock: dark sits on
+// `bg-surface-secondary` (#1A1D2B) with `border-white/5` and a `text-slate-300` icon;
+// light is `bg-white` with `border-slate-200` and a `text-slate-600` icon.
+private val MoreButtonBackgroundDark = Color(0xFF1A1D2B)
+private val MoreButtonBackgroundLight = Color(0xFFFFFFFF)
+private val MoreButtonBorderDark = Color(0x0DFFFFFF)
+private val MoreButtonBorderLight = Color(0xFFE2E8F0)
+private val MoreButtonIconDark = Color(0xFFCBD5E1)
+private val MoreButtonIconLight = Color(0xFF475569)
+
+// Unread notification dot, same as the mock's bell dot: `bg-accent-violet` in both modes.
+private val MoreButtonDotColor = Color(0xFF8B5CF6)
+
+// Rotating one-liners shown where the tagline used to sit. A new one is picked every
+// time the header becomes visible.
+
 
 @Composable
 fun HomeScreen(
@@ -596,6 +624,28 @@ private fun HomeHeaderRow(
     onCalendarViewClick: () -> Unit = {},
     isLockOverlayActive: Boolean
 ) {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val greetingInk = if (isDark) GreetingNameDark else GreetingNameLight
+    val phraseInk = if (isDark) PsychologyPhraseDark else PsychologyPhraseLight
+    val moreButtonBackground = if (isDark) MoreButtonBackgroundDark else MoreButtonBackgroundLight
+    val moreButtonBorder = if (isDark) MoreButtonBorderDark else MoreButtonBorderLight
+    val moreButtonIcon = if (isDark) MoreButtonIconDark else MoreButtonIconLight
+
+    // Pick a phrase whenever the header enters composition (tab switches dispose it) and
+    // whenever the app comes back to the foreground with Home already composed.
+    val psychologyPhrases = stringArrayResource(R.array.psychology_phrases)
+    var psychologyPhrase by remember { mutableStateOf(psychologyPhrases.random()) }
+    val phraseLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(phraseLifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                psychologyPhrase = psychologyPhrases.random()
+            }
+        }
+        phraseLifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { phraseLifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     val waveRotation = remember { androidx.compose.animation.core.Animatable(0f) }
     var menuExpanded by remember { mutableStateOf(false) }
     val unreadSms = uiState.smsInboxUnreadCount
@@ -677,7 +727,7 @@ private fun HomeHeaderRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.label_hi_val, greetingName),
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = greetingInk,
                     maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall.copy(
@@ -698,35 +748,44 @@ private fun HomeHeaderRow(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = stringResource(id = R.string.label_track_every_move_with_confiden),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = maxLinesForTier(compact = 1, large = 2, huge = 2),
+                text = psychologyPhrase,
+                color = phraseInk,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
             )
         }
 
         Box(modifier = Modifier.offset(x = 14.dp)) {
             IconButton(onClick = { menuExpanded = true }) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = stringResource(id = R.string.desc_more_options),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(28.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(moreButtonBackground)
+                        .border(1.dp, moreButtonBorder, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(id = R.string.desc_more_options),
+                        tint = moreButtonIcon,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
             if (unreadSms > 0) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-12).dp, y = 12.dp)
+                        .offset(x = (-16).dp, y = 12.dp)
                         .size(8.dp)
                         .graphicsLayer {
                             scaleX = detectionDotScale.value
                             scaleY = detectionDotScale.value
                         }
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.accentInk)
+                        .background(MoreButtonDotColor)
                 )
             }
             WhatsAppStyleDropdownMenu(

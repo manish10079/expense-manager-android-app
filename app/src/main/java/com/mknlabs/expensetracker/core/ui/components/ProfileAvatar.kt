@@ -22,6 +22,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -44,8 +45,24 @@ import com.adamglin.phosphoricons.regular.Crown
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+
+// Avatar ring palette, taken from the homescreen redesign mock
+// (homescree-redesign-2.html): `from-accent-indigo via-accent-violet to-fuchsia-500`.
+// The same three stops draw the ring in both themes, so the avatar keeps one identity.
+private val AvatarRingIndigo = Color(0xFF6366F1)
+private val AvatarRingViolet = Color(0xFF8B5CF6)
+private val AvatarRingFuchsia = Color(0xFFD946EF)
+
+// Pro badge fill, the mock's accent-violet (same value as the home header's
+// notification dot). One violet in both themes, so the badge reads as the brand mark.
+private val ProBadgeBackground = Color(0xFF8B5CF6)
+private val AvatarRingBrush: Brush = Brush.linearGradient(
+    colors = listOf(AvatarRingIndigo, AvatarRingViolet, AvatarRingFuchsia),
+    // Direction is to-tr, as the mock draws it: bottom-left to top-right.
+    start = Offset(0f, Float.POSITIVE_INFINITY),
+    end = Offset(Float.POSITIVE_INFINITY, 0f)
+)
 
 @Composable
 fun ProfileAvatar(
@@ -67,8 +84,8 @@ fun ProfileAvatar(
     isAnonymous: Boolean = false
 ) {
     val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
-    val isDark = MaterialTheme.colorScheme.isDark
-    val circleRamp = if (isDark) brandGradient() else null
+
+    val circleRamp = AvatarRingBrush
 
     val infiniteTransition = rememberInfiniteTransition(label = "SyncRingTransition")
     val rotation by infiniteTransition.animateFloat(
@@ -109,41 +126,26 @@ fun ProfileAvatar(
 
         // Premium Sync Ring
         if (isPremium) {
-            val ringColor = MaterialTheme.colorScheme.accentInk
             if (isSyncing) {
                 Canvas(
                     modifier = Modifier
                         .size(size)
                         .rotate(rotation)
                 ) {
-                    if (circleRamp != null) {
-                        drawArc(
-                            brush = circleRamp,
-                            startAngle = 0f,
-                            sweepAngle = 280f,
-                            useCenter = false,
-                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                    } else {
-                        drawArc(
-                            color = ringColor,
-                            startAngle = 0f,
-                            sweepAngle = 280f,
-                            useCenter = false,
-                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                    }
+                    drawArc(
+                        brush = circleRamp,
+                        startAngle = 0f,
+                        sweepAngle = 280f,
+                        useCenter = false,
+                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                    )
                 }
             } else {
                 Box(
                     modifier = Modifier
                         .size(size)
                         .then(
-                            if (circleRamp != null) {
-                                Modifier.border(width = 2.dp, brush = circleRamp, shape = CircleShape)
-                            } else {
-                                Modifier.border(width = 2.dp, color = ringColor, shape = CircleShape)
-                            }
+                            Modifier.border(width = 2.dp, brush = circleRamp, shape = CircleShape)
                         )
                 )
             }
@@ -179,21 +181,11 @@ fun ProfileAvatar(
                 )
                 .then(
                     if (showBorder && !isPremium && !isAnonymous) {
-                        val resolvedBorder = borderBrush ?: circleRamp
-                        if (resolvedBorder != null) {
-                            Modifier.border(
-                                width = 2.dp,
-                                brush = resolvedBorder,
-                                shape = CircleShape
-                            )
-                        } else {
-                            val borderColor = MaterialTheme.colorScheme.accentInk
-                            Modifier.border(
-                                width = 2.dp,
-                                color = borderColor,
-                                shape = CircleShape
-                            )
-                        }
+                        Modifier.border(
+                            width = 2.dp,
+                            brush = borderBrush ?: circleRamp,
+                            shape = CircleShape
+                        )
                     } else {
                         Modifier
                     }
@@ -240,7 +232,7 @@ fun ProfileAvatar(
                     .offset(x = -size * 0.08f, y = size * 0.04f)
                     .size(badgeChipSize)
                     .clip(CircleShape)
-                    .background(color = MaterialTheme.colorScheme.accentInk)
+                    .background(color = ProBadgeBackground)
                     .border(
                         width = 0.5.dp,
                         color = Color.Black,
@@ -251,8 +243,8 @@ fun ProfileAvatar(
                 // Dark mode draws the glyph in the dark base rather than the theme's white.
                 // The case is partly legibility: white on the chip's old #9E84FF measured
                 // 2.9:1, under the 3:1 a graphic needs, so the old pairing never cleared its
-                // own bar. Near-black on the fill's #6A4DFF is ~3.9:1 and reads as a mark ON
-                // the brand rather than a glow out of it. Light keeps the white it always had.
+                // own bar. Near-black on the accent-violet fill measures 4.8:1 and reads as a mark ON
+                // the brand rather than a glow out of it. Light keeps white (4.1:1).
                 val badgeInk = if (MaterialTheme.colorScheme.isDark) {
                     MaterialTheme.colorScheme.background
                 } else {

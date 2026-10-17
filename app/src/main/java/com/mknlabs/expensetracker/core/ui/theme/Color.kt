@@ -11,7 +11,7 @@ val transparent= Color.Transparent;
 val PurplePrimary = Color(0xFF7B61FF)
 
 
-val BackgroundDark = Color(0xFF0A0A0A)
+val BackgroundDark = Color(0xFF0B0C10)
 
 val SurfaceDark = Color(0xFF18181A)   // trial card/surface; was spec --s1 #141418
 
@@ -57,8 +57,8 @@ const val DEFAULT_GOAL_COLOR_HEX = "#7B61FF"
 val AdLoadingScrim = Color(0x99000000) // Black with 60% alpha
 val AdLoadingText = Color(0xFFFFFFFF)
 
-// App Lock Colors
-val AppLockLoadingBackground = Color(0xFF000000)
+
+
 
 // Semantic UI Highlights
 val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
@@ -70,7 +70,7 @@ val SurfaceHighlight = Color(0x0DFFFFFF) // White with 5% alpha
 // than by a heavy shadow. These literals are the design spec itself rather than a
 // hand-tuned approximation of one, so they are the one place in the file where the
 // exact hex is the requirement; every light surface in the app reads from here.
-val BackgroundLight = Color(0xFFF7F8FA)   // app background, every screen
+val BackgroundLight = Color(0xFFF8FAFC)   // app background, every screen
 
 // AppHeader title ink in dark. Same hex as the light field, but a different role:
 // pale title ink on the near-black page rather than the page itself. Named separately
@@ -83,7 +83,7 @@ val CardLight = Color(0xFFF1F2F4)         // chips, segmented controls, search b
 // The three light weights, in the corrected order. The old third weight was #9CA3AF,
 // which measures 2.54:1 on white — below AA, and not fixable by choosing a paler grey,
 // because no colour lighter than the second weight clears 4.5:1 on both the white card
-// and the #F7F8FA field. The tiers move down one rung instead: secondary takes #5B6270
+// and the #F8FAFC field. The tiers move down one rung instead: secondary takes #5B6270
 // (6.13:1 on a card) and tertiary the #6B7280 secondary used to hold (4.83:1 on a card,
 // 4.55:1 on the field). Light has room for three weights in this order and no more.
 val TextPrimaryLight = Color(0xFF1F2937)
@@ -103,7 +103,7 @@ val CardShadowSpotLight = Color(0x0F000000)    // 6%
 val NavEdgeLight = Color(0xFFECEEF2)
 
 // Third text weight, and the one the hero's metric labels read. #77777C measured
-// 4.44:1 on the #0A0A0A field, just under AA, so this steps up to the lightest ink that
+// 4.39:1 on the #0B0C10 field, just under AA, so this steps up to the lightest ink that
 // clears it: 5.91:1 on the field and 5.17:1 on a card.
 val TextTertiaryDark = Color(0xFF8A8C95)
 
@@ -144,7 +144,7 @@ val PremiumCardDarkEnd = Color(0xFF100C1F)     // Near-black plum, bottom-right
 // because the surface no longer differs between themes, the inks no longer need a set of
 // their own either — they are the shared text and semantic tokens, so the hero cannot
 // drift away from the rest of the app.
-val HeroSurfaceDark = Color(0xFF1A1A20)        // 1.14:1 over the #0A0A0A field
+val HeroSurfaceDark = Color(0xFF1A1A20)        // 1.13:1 over the #0B0C10 field
 val HeroSurfaceLight = Color(0xFFFFFFFF)       // the app's card white
 val HeroOutlineDark = Color(0xFF2A2A31)        // 1.22:1 on the card
 val HeroOutlineLight = Color(0xFFE8EBEF)       // the app's hairline
@@ -676,9 +676,9 @@ val ColorScheme.disabled: Color
 // The two amount inks the summary rows did not have: transfer and debt. Same treatment as
 // income and expense -- a saturated tone on the dark field, deepened until it clears
 // 4.5:1 on white in light. Debt's dark value is the same rose the chart ramp already uses.
-internal val TransferDark = Color(0xFF60A5FA)   // 7.79:1 on #0A0A0A
+internal val TransferDark = Color(0xFF60A5FA)   // 7.69:1 on #0B0C10
 internal val TransferLight = Color(0xFF1D4ED8)  // 6.70:1 on #FFFFFF
-internal val DebtDark = Color(0xFFFB7185)       // 7.36:1 on #0A0A0A
+internal val DebtDark = Color(0xFFFB7185)       // 7.27:1 on #0B0C10
 internal val DebtLight = Color(0xFFBE123C)      // 6.29:1 on #FFFFFF
 
 val ColorScheme.transfer: Color

@@ -71,7 +71,7 @@ import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockState
 import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
-import com.mknlabs.expensetracker.core.ui.theme.AppLockLoadingBackground
+
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -455,7 +455,7 @@ class MainActivity : AppCompatActivity() {
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxSize()
-                                                .background(AppLockLoadingBackground)
+                                                .background(MaterialTheme.colorScheme.background)
                                         )
                                     }
 
