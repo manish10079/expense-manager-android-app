@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.adamglin.PhosphorIcons
+import com.composables.icons.lucide.Calendar
+import com.composables.icons.lucide.Lucide
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CaretDown
 import com.adamglin.phosphoricons.regular.Eye
@@ -37,6 +39,10 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.menu
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,26 +54,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.HeroInsetDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroInsetLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroInsetOutlineLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroPillDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroPillLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroPillOutlineLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
-import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+
+
+
+
 import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryDark
 import com.mknlabs.expensetracker.core.ui.theme.TextPrimaryLight
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryDark
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
 import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryDark
 import com.mknlabs.expensetracker.core.ui.theme.TextTertiaryLight
-import com.mknlabs.expensetracker.core.ui.theme.heroBloom
-import com.mknlabs.expensetracker.core.ui.theme.heroRail
+
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -88,17 +85,91 @@ private fun currentDateString(): String {
 private fun currentYearString(): String {
     return SimpleDateFormat("yyyy", Locale.ENGLISH).format(Date())
 }
+// Cash Flow hero background, quoted from the homescreen redesign mock
+// (homescree-redesign-2.html). The ramp, edge, shadow and both corner flares are one
+// recipe and live here on purpose: no other surface in the app paints this card.
+private val HeroCardStartDark = Color(0xFF1A1D2B)        // from-surface-secondary
+private val HeroCardMidDark = Color(0xFF191929)          // via-[#191929]
+private val HeroCardEndDark = Color(0xFF121320)          // to-[#121320]
+private val HeroCardStartLight = Color(0xFFFFFFFF)       // from-white
+private val HeroCardMidLight = Color(0xFFF8FAFF)         // via-[#F8FAFF]
+private val HeroCardEndLight = Color(0xFFEEF2FF)         // to-[#EEF2FF]
+
+private val HeroCardBorderDark = Color(0x1AFFFFFF)       // border-white/10
+private val HeroCardBorderLight = Color(0xCCE0E7FF)      // border-indigo-100/80
+private val HeroCardShadowDark = Color(0x99000000)       // 0 12px 32px rgba(0,0,0,0.6)
+private val HeroCardShadowLight = Color(0x80E2E8F0)      // shadow-slate-200/50
+
+private val HeroCardFlarePurpleDark = Color(0x337C3AED)  // accent-purple/20
+private val HeroCardFlareIndigoDark = Color(0x266366F1)  // accent-indigo/15
+private val HeroCardFlareVioletLight = Color(0x1A8B5CF6) // violet-500/10
+private val HeroCardFlareIndigoLight = Color(0x1A6366F1) // indigo-500/10
+
+// Calendar glyph beside the date: text-slate-400 in dark, text-slate-500 in light.
+private val HeroDateIconDark = Color(0xFF94A3B8)
+private val HeroDateIconLight = Color(0xFF64748B)
+// Period chip, quoted from the mock: white/5 fill, white/10 edge and slate-200 label
+// in dark; white fill, slate-200/80 edge and slate-700 label in light. The caret is one
+// step quieter in each theme (slate-400 / slate-500).
+private val HeroPeriodChipDark = Color(0x0DFFFFFF)        // bg-white/5
+private val HeroPeriodChipLight = Color(0xFFFFFFFF)       // bg-white
+private val HeroPeriodChipBorderDark = Color(0x1AFFFFFF)  // border-white/10
+private val HeroPeriodChipBorderLight = Color(0xCCE2E8F0) // border-slate-200/80
+private val HeroPeriodChipTextDark = Color(0xFFE2E8F0)    // text-slate-200
+private val HeroPeriodChipTextLight = Color(0xFF334155)   // text-slate-700
+private val HeroPeriodChipCaretDark = Color(0xFF94A3B8)   // text-slate-400
+private val HeroPeriodChipCaretLight = Color(0xFF64748B)  // text-slate-500
+// Net Balance inset module, quoted from the mock: black/35 over the dark card with a
+// white/5 edge, and white/90 over the light card with a slate-100 edge and shadow-sm.
+private val HeroNetInsetDark = Color(0x59000000)         // bg-black/35
+private val HeroNetInsetLight = Color(0xE6FFFFFF)        // bg-white/90
+private val HeroNetInsetBorderDark = Color(0x0DFFFFFF)   // border-white/5
+private val HeroNetInsetBorderLight = Color(0xFFF1F5F9)  // border-slate-100
+
+private fun heroCardGradient(isDark: Boolean): Brush =
+    Brush.linearGradient(
+        // to-br in the mock: the default top-left to bottom-right axis.
+        colors = if (isDark) {
+            listOf(HeroCardStartDark, HeroCardMidDark, HeroCardEndDark)
+        } else {
+            listOf(HeroCardStartLight, HeroCardMidLight, HeroCardEndLight)
+        }
+    )
+
+/** The mock's two blurred corner washes, drawn as radial gradients scaled to the card. */
+private fun Modifier.heroCardFlares(isDark: Boolean): Modifier = drawWithCache {
+    val topRight = Brush.radialGradient(
+        colors = listOf(
+            if (isDark) HeroCardFlarePurpleDark else HeroCardFlareVioletLight,
+            Color.Transparent
+        ),
+        center = Offset(size.width * 0.92f, -size.height * 0.12f),
+        radius = size.width * 0.55f
+    )
+    val bottomLeft = Brush.radialGradient(
+        colors = listOf(
+            if (isDark) HeroCardFlareIndigoDark else HeroCardFlareIndigoLight,
+            Color.Transparent
+        ),
+        center = Offset(-size.width * 0.08f, size.height * 1.05f),
+        radius = size.width * 0.45f
+    )
+    onDrawBehind {
+        drawRect(brush = topRight)
+        drawRect(brush = bottomLeft)
+    }
+}
 
 /**
  * Cash Flow hero card.
  *
- * A neutral card in both themes, the same surface as every other card in the app. The
- * brand is carried by a 3dp rail down the leading edge and a single bloom off the
- * top-trailing corner rather than by the surface itself — at ~9% of the card's area in
- * brand colour, against the ~100% of the violet gradient this replaces.
+ * The surface is the mock's own hero: a to-br ramp (dark #1A1D2B → #191929 → #121320,
+ * light white → #F8FAFF → #EEF2FF), the matching hairline, a soft outer lift and two
+ * blurred corner washes. Those tokens are private to this file so the recipe cannot leak
+ * into other cards.
  *
  * Everything inside is identical in both themes apart from the ink it reads, and that ink
- * is now the app's shared text and semantic tokens rather than a set of the hero's own.
+ * is the app's shared text and semantic tokens rather than a set of the hero's own.
  */
 @Composable
 fun CashFlowStatsCard(
@@ -144,30 +215,37 @@ fun CashFlowStatsCard(
 
     var dropdownMenuExpanded by remember { mutableStateOf(dropdownExpanded) }
 
+    val cardShape = RoundedCornerShape(AppCardDefaults.CornerRadius)
     AppCard(
         onClick = onToggleVisibility,
-        modifier = Modifier.fillMaxWidth(),
-        // The app's own card radius, so the hero is radius-matched to the cards it sits
-        // among in each theme rather than carrying a number of its own.
-        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
-        // No brush: the surface is neutral now, so the hero takes the ordinary flat-fill
-        // path and differs from any other card only in the colour it passes here.
+        modifier = Modifier
+            .fillMaxWidth()
+            // The mock's hero lift: a deep black shadow in dark, a soft slate one in light.
+            .shadow(
+                elevation = if (isDark) 12.dp else 6.dp,
+                shape = cardShape,
+                clip = false,
+                ambientColor = if (isDark) HeroCardShadowDark else HeroCardShadowLight,
+                spotColor = if (isDark) HeroCardShadowDark else HeroCardShadowLight
+            ),
+        shape = cardShape,
+        // The mock's to-br ramp replaces the old neutral flat fill.
         colors = AppCardColors(
-            containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
+            containerColor = if (isDark) HeroCardStartDark else HeroCardStartLight,
             contentColor = MaterialTheme.colorScheme.onSurface,
             border = BorderStroke(
                 1.dp,
-                if (isDark) HeroOutlineDark else HeroOutlineLight
+                if (isDark) HeroCardBorderDark else HeroCardBorderLight
             )
         ),
+        brush = heroCardGradient(isDark),
         elevation = 0.dp
     ) {
-        // Both decorations sit behind the content, clipped to the card's own shape by the
-        // card. The bloom is drawn first so the rail reads as the nearer edge.
+        // The mock's two corner washes sit behind the content, clipped to the card shape.
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .heroBloom()
+                .heroCardFlares(isDark)
         )
 
         Column(
@@ -182,24 +260,36 @@ fun CashFlowStatsCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Formatted Current Date (e.g. 27 Sep 2026)
-                Text(
-                    text = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) currentYearString() else currentDate,
-                    color = if (isDark) TextSecondaryDark else TextSecondaryLight,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                // Formatted Current Date (e.g. 27 Sep 2026), preceded by the mock's
+                // calendar glyph.
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Lucide.Calendar,
+                        contentDescription = null,
+                        tint = if (isDark) HeroDateIconDark else HeroDateIconLight,
+                        modifier = Modifier.size(14.dp)
                     )
-                )
+                    Text(
+                        text = if (selectedPeriod == CashFlowPeriod.THIS_YEAR) currentYearString() else currentDate,
+                        color = if (isDark) TextSecondaryDark else TextSecondaryLight,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        )
+                    )
+                }
 
                 // Period Selector Dropdown Pill
                 Box {
                     Surface(
                         shape = RoundedCornerShape(50),
-                        color = if (isDark) HeroPillDark else HeroPillLight,
+                        color = if (isDark) HeroPeriodChipDark else HeroPeriodChipLight,
                         border = BorderStroke(
                             width = 1.dp,
-                            color = if (isDark) HeroPillOutlineDark else HeroPillOutlineLight
+                            color = if (isDark) HeroPeriodChipBorderDark else HeroPeriodChipBorderLight
                         ),
                         modifier = Modifier.clickable { dropdownMenuExpanded = true }
                     ) {
@@ -212,7 +302,7 @@ fun CashFlowStatsCard(
                                     stringResource(R.string.label_this_year_cash_flow)
                                 else
                                     stringResource(R.string.label_this_month_cash_flow),
-                                color = if (isDark) TextSecondaryDark else TextSecondaryLight,
+                                color = if (isDark) HeroPeriodChipTextDark else HeroPeriodChipTextLight,
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
@@ -222,7 +312,7 @@ fun CashFlowStatsCard(
                             Icon(
                                 imageVector = PhosphorIcons.Regular.CaretDown,
                                 contentDescription = null,
-                                tint = if (isDark) TextSecondaryDark else TextSecondaryLight,
+                                tint = if (isDark) HeroPeriodChipCaretDark else HeroPeriodChipCaretLight,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -298,10 +388,11 @@ fun CashFlowStatsCard(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                color = if (isDark) HeroInsetDark else HeroInsetLight,
+                color = if (isDark) HeroNetInsetDark else HeroNetInsetLight,
+                shadowElevation = if (isDark) 0.dp else 2.dp,
                 border = BorderStroke(
                     width = 1.dp,
-                    color = if (isDark) HeroInsetOutlineDark else HeroInsetOutlineLight
+                    color = if (isDark) HeroNetInsetBorderDark else HeroNetInsetBorderLight
                 )
             ) {
                 Row(
