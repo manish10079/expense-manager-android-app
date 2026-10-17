@@ -735,14 +735,25 @@ internal fun AddTransactionScreenContent(
                     },
                     actions = {
                         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                            // Delete transaction icon (matches SelectionHeader style)
+                            // Delete transaction icon. It wears the same rounded tile as the
+                            // reset action opposite it, so edit mode keeps the header's one
+                            // control shape; only the ink changes.
                             if (isEditMode) {
-                                IconButton(
-                                    onClick = {
-                                        keyboardController?.hide()
-                                        onDeleteClick()
-                                    },
-                                    modifier = Modifier.size(24.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.formCard)
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable {
+                                            keyboardController?.hide()
+                                            onDeleteClick()
+                                        },
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Rounded.Delete,
@@ -752,22 +763,33 @@ internal fun AddTransactionScreenContent(
                                     )
                                 }
                             }
-                            // Reset form icon (only in add mode)
+                            // Reset form icon (only in add mode). It wears the same rounded
+                            // tile as the screen's other glyphs, so the header action reads as
+                            // one of the form's controls rather than a bare icon.
                             if (!isEditMode) {
-                                IconButton(
-                                    onClick = {
-                                        selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
-                                        selectedCategoryId = 0
-                                        selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
-                                        amountInput = "0"
-                                        selectedDateMillis = System.currentTimeMillis()
-                                        note = ""
-                                        noteDraft = ""
-                                        isRecurringEnabled = false
-                                        selectedRecurringFrequency = RecurringFrequency.Monthly
-                                        recurringCountInput = "12"
-                                    },
-                                    modifier = Modifier.size(24.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.formCard)
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable {
+                                            selectedTransactionTypeId = DEFAULT_TRANSACTION_TYPE_ID
+                                            selectedCategoryId = 0
+                                            selectedPaymentId = paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id ?: (paymentMethods.firstOrNull()?.id ?: 0)
+                                            amountInput = "0"
+                                            selectedDateMillis = System.currentTimeMillis()
+                                            note = ""
+                                            noteDraft = ""
+                                            isRecurringEnabled = false
+                                            selectedRecurringFrequency = RecurringFrequency.Monthly
+                                            recurringCountInput = "12"
+                                        },
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.Refresh,
