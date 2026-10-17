@@ -5,6 +5,7 @@ import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,10 +36,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -67,7 +64,7 @@ import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
 import com.mknlabs.expensetracker.core.ui.components.PeriodChipDefaults
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+
 import com.adamglin.phosphoricons.regular.Wallet
 import com.adamglin.phosphoricons.regular.TrendUp
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -111,6 +108,7 @@ import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.utils.formatDate
@@ -125,6 +123,64 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
+
+// Flat chrome for the analytics cards, the same surface the home quick cards use:
+// bg-surface #13151F with a white/5 edge in dark, white with a slate-200/70 edge in light.
+// Applied to the stats, breakdowns, top-spending and smart-tip cards — not the hero above
+// them, which keeps its own gradient.
+private val AnalyticsCardContainerDark = Color(0xFF13151F)
+private val AnalyticsCardBorderDark = Color(0x0DFFFFFF)
+private val AnalyticsCardContainerLight = Color(0xFFFFFFFF)
+private val AnalyticsCardBorderLight = Color(0xB3E2E8F0)
+
+// The Total Spending hero's fill, from the mock's glass-card: a vertical wash from
+// rgba(28,32,51,0.85) to rgba(20,23,36,0.95) over the field in dark, flat white in light.
+private val AnalyticsHeroTopDark = Color(0xD91C2033)
+private val AnalyticsHeroBottomDark = Color(0xF2141724)
+
+// The Daily Avg and Savings tiles, from the mock's quick stats: indigo-50 fill, indigo-100/60
+// edge and indigo-600 glyph in light; indigo-500/15, /30 and indigo-400 in dark. Savings
+// steps to violet-50 / violet-100/60 / violet-600 in light and purple-500 tints with
+// purple-400 in dark.
+private val DailyAvgTileDark = Color(0x266366F1)
+private val DailyAvgTileBorderDark = Color(0x4D6366F1)
+private val DailyAvgIconDark = Color(0xFF818CF8)
+private val DailyAvgTileLight = Color(0xFFEEF2FF)
+private val DailyAvgTileBorderLight = Color(0x99E0E7FF)
+private val DailyAvgIconLight = Color(0xFF4F46E5)
+
+private val SavingsTileDark = Color(0x26A855F7)
+private val SavingsTileBorderDark = Color(0x4DA855F7)
+private val SavingsIconDark = Color(0xFFC084FC)
+private val SavingsTileLight = Color(0xFFF5F3FF)
+private val SavingsTileBorderLight = Color(0x99EDE9FE)
+private val SavingsIconLight = Color(0xFF7C3AED)
+
+@Composable
+private fun analyticsHeroGradient(): Brush? =
+    if (MaterialTheme.colorScheme.isDark) {
+        Brush.verticalGradient(listOf(AnalyticsHeroTopDark, AnalyticsHeroBottomDark))
+    } else {
+        null
+    }
+
+@Composable
+internal fun analyticsCardColors(): AppCardColors = AppCardColors(
+    containerColor = if (MaterialTheme.colorScheme.isDark) {
+        AnalyticsCardContainerDark
+    } else {
+        AnalyticsCardContainerLight
+    },
+    contentColor = MaterialTheme.colorScheme.onSurface,
+    border = BorderStroke(
+        width = 1.dp,
+        color = if (MaterialTheme.colorScheme.isDark) {
+            AnalyticsCardBorderDark
+        } else {
+            AnalyticsCardBorderLight
+        }
+    )
+)
 
 /**
  * What the analytics hero is showing.
@@ -976,7 +1032,7 @@ private fun HeroAnalyticsSection(
             modifier = Modifier.fillMaxWidth(),
             shape = AppCardDefaults.shape(20.dp),
             colors = AppCardDefaults.colors(),
-            brush = darkOnlyGradient(standardCardGradient()),
+            brush = analyticsHeroGradient(),
         ) {
             // The bloom must be attached to a fill that spans the card. Its centre sits at
             // 92% of the width and 18% of the height, well inside its own radius, so a rect
@@ -1361,7 +1417,10 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.dailyDeltaDisplay.asString(),
             deltaColor = if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.dailyDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = PhosphorIcons.Regular.Wallet
+            icon = PhosphorIcons.Regular.Wallet,
+            iconFill = if (MaterialTheme.colorScheme.isDark) DailyAvgTileDark else DailyAvgTileLight,
+            iconBorder = if (MaterialTheme.colorScheme.isDark) DailyAvgTileBorderDark else DailyAvgTileBorderLight,
+            iconTint = if (MaterialTheme.colorScheme.isDark) DailyAvgIconDark else DailyAvgIconLight
         )
         InsightStatCard(
             modifier = Modifier.weight(1f),
@@ -1370,7 +1429,10 @@ private fun StatsRow(snapshot: AnalyticsSnapshotUi) {
             delta = snapshot.savingsDeltaDisplay.asString(),
             deltaColor = if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense,
             deltaBackground = (if (snapshot.savingsDeltaPercent >= 0) MaterialTheme.colorScheme.income else MaterialTheme.colorScheme.expense).copy(alpha = 0.15f),
-            icon = PhosphorIcons.Regular.TrendUp
+            icon = PhosphorIcons.Regular.TrendUp,
+            iconFill = if (MaterialTheme.colorScheme.isDark) SavingsTileDark else SavingsTileLight,
+            iconBorder = if (MaterialTheme.colorScheme.isDark) SavingsTileBorderDark else SavingsTileBorderLight,
+            iconTint = if (MaterialTheme.colorScheme.isDark) SavingsIconDark else SavingsIconLight
         )
     }
 }
@@ -1383,19 +1445,19 @@ private fun InsightStatCard(
     delta: String,
     deltaColor: Color,
     deltaBackground: Color,
+    iconFill: Color,
+    iconBorder: Color,
+    iconTint: Color,
     icon: ImageVector
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    // A neutral card; the brand is the icon tile, per the spec's accentSoft/accent pairing.
-    val iconBgColor = colorScheme.accentSoft
-    val iconRamp = brandGradient()
+    // The tile is the mock's own accent: indigo for Daily Avg, violet/purple for Savings.
     val labelColor = colorScheme.onSurfaceVariant
 
     AppCard(
         modifier = modifier,
         shape = AppCardDefaults.shape(18.dp),
-        colors = AppCardDefaults.colors(),
-        brush = darkOnlyGradient(standardCardGradient()),
+        colors = analyticsCardColors(),
         contentPadding = PaddingValues(14.dp),
     ) {
         Column(
@@ -1414,23 +1476,16 @@ private fun InsightStatCard(
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(CircleShape)
-                        .background(iconBgColor),
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(iconFill)
+                        .border(1.dp, iconBorder, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                            .drawWithCache {
-                                onDrawWithContent {
-                                    drawContent()
-                                    drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
-                                }
-                            }
+                        tint = iconTint,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
@@ -1553,11 +1608,7 @@ private fun CashFlowCard(snapshot: AnalyticsSnapshotUi) {
 
     AppCard(
         modifier = Modifier.fillMaxWidth(),
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the standard
-        // white card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
@@ -1777,11 +1828,7 @@ private fun CategoryCard(
     val reveal = rememberShareReveal(items)
     AppCard(
         modifier = modifier,
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the standard
-        // white card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
@@ -2118,11 +2165,7 @@ private fun TopSpendingCard(
 ) {
     AppCard(
         modifier = modifier,
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the standard
-        // white card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
@@ -2250,11 +2293,7 @@ private fun SmartTipCard(
 ) {
     AppCard(
         modifier = modifier,
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the standard
-        // white card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
@@ -2310,11 +2349,7 @@ private fun PaymentTypeCard(
     val reveal = rememberShareReveal(snapshot.paymentTypeBreakdown)
     AppCard(
         modifier = modifier,
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the standard
-        // white card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(

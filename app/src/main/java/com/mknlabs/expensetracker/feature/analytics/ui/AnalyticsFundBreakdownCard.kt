@@ -39,10 +39,8 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.sheet
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.track
 import kotlin.math.roundToInt
 
@@ -61,8 +59,7 @@ internal fun FundBreakdownCard(
     val reveal = rememberShareReveal(snapshot.fundBreakdown)
     AppCard(
         modifier = modifier,
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(androidx.compose.ui.graphics.Color.Transparent),
+        colors = analyticsCardColors(),
         shape = AppCardDefaults.shape(30.dp),
     ) {
         Column(
