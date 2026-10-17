@@ -122,7 +122,9 @@ fun RateAppBottomSheet(
                         contentDescription = stringResource(R.string.cd_rate_star, star),
                         tint = if (filled) MaterialTheme.colorScheme.featureGateLock
                         else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clickable { ratingState.intValue = star }
                     )
                 }
             }
