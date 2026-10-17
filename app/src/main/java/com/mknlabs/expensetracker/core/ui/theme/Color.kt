@@ -661,6 +661,20 @@ internal val FormCardLight = Color(0xFFFFFFFF)
 val ColorScheme.formCard: Color
     get() = if (isDark) FormCardDark else FormCardLight
 
+// The Tags card glyph on that same screen. The mockup keeps it blue in both themes —
+// blue-600 in light, blue-400 in dark — on a blue-50 / blue-500-at-10% tile, so it reads
+// as its own role rather than borrowing the violet accent every other tag surface uses.
+internal val TagInkDark = Color(0xFF60A5FA)    // mockup text-blue-400
+internal val TagInkLight = Color(0xFF2563EB)   // mockup text-blue-600
+internal val TagWashDark = Color(0x1A3B82F6)   // mockup bg-blue-500/10
+internal val TagWashLight = Color(0xFFEFF6FF)  // mockup bg-blue-50
+
+val ColorScheme.tagInk: Color
+    get() = if (isDark) TagInkDark else TagInkLight
+
+val ColorScheme.tagWash: Color
+    get() = if (isDark) TagWashDark else TagWashLight
+
 // The empty part of a progress bar. Named rather than borrowed from surfaceVariant
 // because the spec gives it a value of its own in each theme, and a bar whose track moved
 // with the card would stop reading as a track.

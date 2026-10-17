@@ -194,6 +194,8 @@ import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
+import com.mknlabs.expensetracker.core.ui.theme.tagInk
+import com.mknlabs.expensetracker.core.ui.theme.tagWash
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
@@ -1060,10 +1062,13 @@ internal fun AddTransactionScreenContent(
                         } else {
                             fund?.name ?: stringResource(R.string.label_fund_none)
                         }
+                        // The empty fund is drawn as the mockup's rose X, so "no fund" reads as
+                        // the expense colour the rest of the screen is using rather than as a
+                        // neutral placeholder; a picked fund keeps its own identity colour.
                         val fundColor = if (!isIncomeMode && fund != null) {
                             colorScheme.identityColor(fund.colorHex)
                         } else {
-                            colorScheme.onSurfaceVariant
+                            colorScheme.expense
                         }
                         val fundIcon = if (isIncomeMode || fund == null) Icons.Filled.Clear else fund.icon
 
@@ -3355,8 +3360,10 @@ private fun TagSelectionCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val hasTags = tags.isNotEmpty()
-    val iconTint = if (hasTags) colorScheme.accentInk else colorScheme.onSurfaceVariant
-    val iconBackgroundColor = iconTint.copy(alpha = 0.12f)
+    // The mockup keeps the tags glyph blue whether or not any tag is applied, so the card
+    // reads the same at rest as it does filled; the label above still mutes when empty.
+    val iconTint = colorScheme.tagInk
+    val iconBackgroundColor = colorScheme.tagWash
 
     AppCard(
         onClick = onClick,
