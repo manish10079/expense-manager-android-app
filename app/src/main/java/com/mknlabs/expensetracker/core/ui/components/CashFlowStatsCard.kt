@@ -120,9 +120,11 @@ private val HeroPeriodChipTextLight = Color(0xFF334155)   // text-slate-700
 private val HeroPeriodChipCaretDark = Color(0xFF94A3B8)   // text-slate-400
 private val HeroPeriodChipCaretLight = Color(0xFF64748B)  // text-slate-500
 // Net Balance inset module, quoted from the mock: black/35 over the dark card with a
-// white/5 edge, and white/90 over the light card with a slate-100 edge and shadow-sm.
+// white/5 edge, and white over the light card with a slate-100 edge and shadow-sm. The
+// light fill is opaque: the mock's white/90 sits on a backdrop blur, so it reads as one
+// even white panel rather than letting the hero ramp tint its two halves differently.
 private val HeroNetInsetDark = Color(0x59000000)         // bg-black/35
-private val HeroNetInsetLight = Color(0xE6FFFFFF)        // bg-white/90
+private val HeroNetInsetLight = Color(0xFFFFFFFF)        // white/90 over the blurred hero
 private val HeroNetInsetBorderDark = Color(0x0DFFFFFF)   // border-white/5
 private val HeroNetInsetBorderLight = Color(0xFFF1F5F9)  // border-slate-100
 
