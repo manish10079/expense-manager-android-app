@@ -88,8 +88,8 @@ import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroOutlineLight
-import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceDark
 import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -384,13 +384,14 @@ private fun FundSummaryCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
         colors = AppCardColors(
-            containerColor = if (isDark) HeroSurfaceDark else HeroSurfaceLight,
+            containerColor = if (isDark) Color.Transparent else HeroSurfaceLight,
             contentColor = MaterialTheme.colorScheme.onSurface,
             border = BorderStroke(
                 1.dp,
                 if (isDark) HeroOutlineDark else HeroOutlineLight
             )
         ),
+        brush = glassHeroGradient(),
         elevation = 0.dp
     ) {
         Box(modifier = Modifier.matchParentSize().heroBloom())
@@ -540,7 +541,10 @@ private fun FundCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        // Flat analytics card fill: #13151F in dark, white in light.
+        colors = CardDefaults.cardColors(
+            containerColor = if (MaterialTheme.colorScheme.isDark) Color(0xFF13151F) else Color(0xFFFFFFFF)
+        ),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {

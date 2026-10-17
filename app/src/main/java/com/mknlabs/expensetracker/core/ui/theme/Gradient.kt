@@ -39,6 +39,22 @@ import kotlin.math.sin
 fun darkOnlyGradient(gradient: Brush): Brush? =
     if (MaterialTheme.colorScheme.isDark) gradient else null
 
+// The analytics mock's glass-card fill: a vertical wash from rgba(28,32,51,0.85) to
+// rgba(20,23,36,0.95) over the field in dark, flat white in light. Shared by the hero
+// cards on adjacent screens so they all read as the same surface.
+private val GlassHeroTopDark = Color(0xD91C2033)
+private val GlassHeroBottomDark = Color(0xF2141724)
+
+@Composable
+fun glassHeroGradient(): Brush? =
+    if (MaterialTheme.colorScheme.isDark) {
+        remember {
+            Brush.verticalGradient(listOf(GlassHeroTopDark, GlassHeroBottomDark))
+        }
+    } else {
+        null
+    }
+
 /**
  * The Cash Flow hero's leading rail: a 3dp bar down the card's start edge.
  *

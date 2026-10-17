@@ -59,7 +59,8 @@ fun <T> AnimatedTabSwitcher(
     selectedItemId: T?,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    containerColor: Color? = null
 ) {
     if (items.isEmpty()) return
 
@@ -80,7 +81,13 @@ fun <T> AnimatedTabSwitcher(
             .height(IntrinsicSize.Min)
             .onSizeChanged { containerWidthPx = it.width }
             .clip(RoundedCornerShape(containerRadius))
-            .background(standardCardGradient())
+            .then(
+                if (containerColor != null) {
+                    Modifier.background(containerColor)
+                } else {
+                    Modifier.background(standardCardGradient())
+                }
+            )
             .padding(containerPadding)
     ) {
         val tabWidth = with(density) { (containerWidthPx.toDp() - (containerPadding * 2)) / items.size }

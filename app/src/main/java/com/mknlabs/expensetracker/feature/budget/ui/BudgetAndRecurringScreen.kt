@@ -165,6 +165,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppIconBox
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.components.AvatarRingBrush
 import com.mknlabs.expensetracker.core.ui.components.tabBadgeCount
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
@@ -183,8 +184,6 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
-import com.mknlabs.expensetracker.core.ui.theme.deepenedRamp
-import com.mknlabs.expensetracker.core.ui.theme.expenseGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.chip
@@ -202,6 +201,7 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
 import com.mknlabs.expensetracker.core.ui.theme.income
 
 import com.mknlabs.expensetracker.models.RecurringFrequency
@@ -486,7 +486,8 @@ private fun BudgetAndRecurringContent(
                         )
                     ),
                     selectedItemId = uiState.selectedTab,
-                    onItemSelected = onSelectTab
+                    onItemSelected = onSelectTab,
+                    containerColor = if (MaterialTheme.colorScheme.isDark) BudgetCardFillDark else BudgetCardFillLight
                 )
             }
 
@@ -1044,7 +1045,7 @@ private fun BudgetSummaryCard(
                     Modifier
                 }
             ),
-        brush = darkOnlyGradient(standardCardGradient()),
+        brush = glassHeroGradient(),
         shape = AppCardDefaults.shape(24.dp),
     ) {
         Box(modifier = Modifier.matchParentSize().heroBloom())
@@ -2040,6 +2041,10 @@ private fun MuteRecurringDialog(
  */
 private const val BUDGET_CARD_TEXT_SCALE = 0.9f
 
+// Flat fill from the analytics Daily Avg / Savings cards: #13151F in dark, white in light.
+private val BudgetCardFillDark = Color(0xFF13151F)
+private val BudgetCardFillLight = Color(0xFFFFFFFF)
+
 @Composable
 private fun CategoryBudgetCard(
     budget: BudgetCategoryBudgetUi,
@@ -2057,11 +2062,8 @@ private fun CategoryBudgetCard(
     } else {
         MaterialTheme.colorScheme.accentInk
     }
-    val progressAccent: Brush = if (isOverLimit) {
-        expenseGradient()
-    } else {
-        deepenedRamp(cardInk)
-    }
+    // The avatar ring's indigo → violet → fuchsia ramp, the same in both themes.
+    val progressAccent: Brush = AvatarRingBrush
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -2070,7 +2072,7 @@ private fun CategoryBudgetCard(
             // the same in every state, so the two card types sitting in the same list read
             // as one family. Health is carried by the progress bar and the status labels
             // instead of by the container.
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(if (MaterialTheme.colorScheme.isDark) BudgetCardFillDark else BudgetCardFillLight)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
@@ -2418,7 +2420,7 @@ private fun RecurringExpenseCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(if (MaterialTheme.colorScheme.isDark) BudgetCardFillDark else BudgetCardFillLight)
             // One edge for every state: the normal rule's brand hairline. A rule that is
             // due soon, overdue, daily, yearly or switched off no longer repaints its
             // outline, so state is told by the sparkle, the due ink and the chips instead.

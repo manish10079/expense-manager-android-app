@@ -57,7 +57,7 @@ private val AvatarRingFuchsia = Color(0xFFD946EF)
 // Pro badge fill, the mock's accent-violet (same value as the home header's
 // notification dot). One violet in both themes, so the badge reads as the brand mark.
 private val ProBadgeBackground = Color(0xFF8B5CF6)
-private val AvatarRingBrush: Brush = Brush.linearGradient(
+internal val AvatarRingBrush: Brush = Brush.linearGradient(
     colors = listOf(AvatarRingIndigo, AvatarRingViolet, AvatarRingFuchsia),
     // Direction is to-tr, as the mock draws it: bottom-left to top-right.
     start = Offset(0f, Float.POSITIVE_INFINITY),

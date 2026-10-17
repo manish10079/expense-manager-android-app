@@ -102,6 +102,7 @@ import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
+import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
@@ -133,11 +134,6 @@ private val AnalyticsCardBorderDark = Color(0x0DFFFFFF)
 private val AnalyticsCardContainerLight = Color(0xFFFFFFFF)
 private val AnalyticsCardBorderLight = Color(0xB3E2E8F0)
 
-// The Total Spending hero's fill, from the mock's glass-card: a vertical wash from
-// rgba(28,32,51,0.85) to rgba(20,23,36,0.95) over the field in dark, flat white in light.
-private val AnalyticsHeroTopDark = Color(0xD91C2033)
-private val AnalyticsHeroBottomDark = Color(0xF2141724)
-
 // The Daily Avg and Savings tiles, from the mock's quick stats: indigo-50 fill, indigo-100/60
 // edge and indigo-600 glyph in light; indigo-500/15, /30 and indigo-400 in dark. Savings
 // steps to violet-50 / violet-100/60 / violet-600 in light and purple-500 tints with
@@ -155,14 +151,6 @@ private val SavingsIconDark = Color(0xFFC084FC)
 private val SavingsTileLight = Color(0xFFF5F3FF)
 private val SavingsTileBorderLight = Color(0x99EDE9FE)
 private val SavingsIconLight = Color(0xFF7C3AED)
-
-@Composable
-private fun analyticsHeroGradient(): Brush? =
-    if (MaterialTheme.colorScheme.isDark) {
-        Brush.verticalGradient(listOf(AnalyticsHeroTopDark, AnalyticsHeroBottomDark))
-    } else {
-        null
-    }
 
 @Composable
 internal fun analyticsCardColors(): AppCardColors = AppCardColors(
@@ -1032,7 +1020,7 @@ private fun HeroAnalyticsSection(
             modifier = Modifier.fillMaxWidth(),
             shape = AppCardDefaults.shape(20.dp),
             colors = AppCardDefaults.colors(),
-            brush = analyticsHeroGradient(),
+            brush = glassHeroGradient(),
         ) {
             // The bloom must be attached to a fill that spans the card. Its centre sits at
             // 92% of the width and 18% of the height, well inside its own radius, so a rect
