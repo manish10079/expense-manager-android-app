@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -35,12 +36,13 @@ fun AppIconBox(
     backgroundAlpha: Float = 0.1f,
     backgroundColor: Color = tint.copy(alpha = backgroundAlpha),
     backgroundBrush: Brush? = null,
-    border: BorderStroke? = null
+    border: BorderStroke? = null,
+    shape: Shape = CircleShape
 ) {
     Box(
         modifier = modifier
             .size(size)
-            .clip(CircleShape)
+            .clip(shape)
             .then(
                 if (backgroundBrush != null) {
                     Modifier.background(backgroundBrush)
@@ -49,7 +51,7 @@ fun AppIconBox(
                 }
             )
             .then(
-                if (border != null) Modifier.border(border, CircleShape) else Modifier
+                if (border != null) Modifier.border(border, shape) else Modifier
             ),
         contentAlignment = Alignment.Center
     ) {

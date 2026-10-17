@@ -87,13 +87,37 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
-import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import kotlinx.coroutines.launch
 
 private val SeparatorSpanStyle = SpanStyle(letterSpacing = 0.8.sp)
+
+/**
+ * The wash and edge of the category glyph tile, as fractions of the glyph's own colour.
+ *
+ * The redesign mock draws the tile as one hue at 10% (dark) / one step lighter (light) and
+ * an edge at 20%, with the glyph at full strength. Category colours are single swatches
+ * rather than a 50-900 ramp, so the light pair is raised: a 10% wash and 20% edge read
+ * much fainter over a white card than over the near-black one.
+ */
+private data class CategoryBadgeAlpha(val fill: Float, val edge: Float)
+
+private val CategoryBadgeAlphaDark = CategoryBadgeAlpha(fill = 0.10f, edge = 0.20f)
+private val CategoryBadgeAlphaLight = CategoryBadgeAlpha(fill = 0.10f, edge = 0.28f)
+
+/** rounded-2xl: the mock's badge corner, and 44 dp is its w-11/h-11 tile. */
+private val CategoryBadgeShape = RoundedCornerShape(16.dp)
+
+// Recent-transaction row chrome from the mock: bg-surface in dark with a white/5 edge,
+// and white with a slate-200/70 edge in light, both at the rounded-2xl 16 dp corner.
+private val TransactionCardContainerDark = Color(0xFF13151F)
+private val TransactionCardBorderDark = Color(0x0DFFFFFF)
+private val TransactionCardContainerLight = Color(0xFFFFFFFF)
+private val TransactionCardBorderLight = Color(0xB3E2E8F0)
+private val TransactionCardShape = RoundedCornerShape(16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,7 +175,21 @@ fun TransactionCard(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
            border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f))
         )
-        else -> baseColors
+        else -> baseColors.copy(
+            containerColor = if (MaterialTheme.colorScheme.isDark) {
+                TransactionCardContainerDark
+            } else {
+                TransactionCardContainerLight
+            },
+            border = BorderStroke(
+                width = 1.dp,
+                color = if (MaterialTheme.colorScheme.isDark) {
+                    TransactionCardBorderDark
+                } else {
+                    TransactionCardBorderLight
+                }
+            )
+        )
     }
 
     // Hoisted string resources: resolved once per card slot (cached across recompositions)
@@ -175,7 +213,7 @@ fun TransactionCard(
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
+        shape = TransactionCardShape,
         colors = cardColors
     ) {
         Row(
@@ -188,25 +226,30 @@ fun TransactionCard(
             Spacer(modifier = Modifier.width(14.dp))
 
             if (showCategoryIcon) {
-                val iconBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-                val iconBorder = remember(iconBorderColor) {
+                // The mock's badge is one category hue at three intensities: a faint wash,
+                // a stronger edge, and the glyph at full strength. Light needs a stronger
+                // edge because the same alpha reads weaker over white than over the
+                // near-black card.
+                val badgeAlpha = if (MaterialTheme.colorScheme.isDark) {
+                    CategoryBadgeAlphaDark
+                } else {
+                    CategoryBadgeAlphaLight
+                }
+                val iconBorder = remember(badgeAlpha) {
                     BorderStroke(
                         width = 1.dp,
-                        color = iconBorderColor
+                        color = categoryColor.copy(alpha = badgeAlpha.edge)
                     )
                 }
                 AppIconBox(
                     icon = icon,
                     contentDescription = note,
-                    size = 50.dp,
-                    iconSize = 25.dp,
+                    size = 44.dp,
+                    iconSize = 20.dp,
                     tint = categoryColor,
-                    // The palette's own wash rather than AppIconBox's flat 10%, so the tile
-                    // follows the same light-10/dark-14 split the rest of the system uses:
-                    // 14% of a light pastel over the near-black card is a wash, while the
-                    // same 14% of a deep tone over white reads as a stain.
-                    backgroundColor = MaterialTheme.colorScheme.categorySoft(categoryColor),
-                    border = iconBorder
+                    backgroundColor = categoryColor.copy(alpha = badgeAlpha.fill),
+                    border = iconBorder,
+                    shape = CategoryBadgeShape
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }
