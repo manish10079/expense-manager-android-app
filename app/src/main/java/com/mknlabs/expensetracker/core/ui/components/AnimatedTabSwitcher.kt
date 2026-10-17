@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +47,7 @@ import com.mknlabs.expensetracker.core.ui.theme.tabSwitcherSelectedInk
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
-import com.mknlabs.expensetracker.core.ui.theme.Dimens
+
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
@@ -67,10 +68,10 @@ fun <T> AnimatedTabSwitcher(
     val density = LocalDensity.current
     var containerWidthPx by remember { mutableStateOf(0) }
     
-    val containerRadius = if (compact) 12.dp else Dimens.CardRadius
+    val containerRadius = if (compact) 10.dp else 16.dp
     val containerPadding = if (compact) 2.dp else 4.dp
-    val pillRadius = if (compact) 10.dp else 20.dp
-    val innerRadius = if (compact) 10.dp else 18.dp
+    val pillRadius = if (compact) 8.dp else 12.dp
+    val innerRadius = if (compact) 8.dp else 10.dp
     // ~5% slimmer than the previous 12dp variant, applied on every screen.
     val verticalPadding = if (compact) 6.dp else 11.dp
     val fontSize = if (compact) 10.sp else 15.sp
@@ -120,6 +121,7 @@ fun <T> AnimatedTabSwitcher(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(pillRadius))
                     .background(selectedWash)
+                    .border(1.dp, selectedInk.copy(alpha = 0.35f), RoundedCornerShape(pillRadius))
             )
         }
 

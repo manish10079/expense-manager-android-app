@@ -649,6 +649,18 @@ internal val SheetLight = Color(0xFFFAFAFC)    // spec --s3, light
 val ColorScheme.sheet: Color
     get() = if (isDark) SheetDark else SheetLight
 
+// Add/Edit transaction form cards. The addtransaction light/dark mock paints that screen's
+// whole card family on one surface: the amount card, the note row, the mic/star/calculator
+// tiles and the category/payment/fund/tag/recurring cards are all #141724 in dark and
+// #FFFFFF in light. Dark is a touch cooler and deeper than the app-wide #18181A card, so it
+// is its own role rather than a re-tint of `surface`. Light already IS the card white; it is
+// still declared, so a form card can never inherit a different surface from another theme.
+internal val FormCardDark = Color(0xFF141724)
+internal val FormCardLight = Color(0xFFFFFFFF)
+
+val ColorScheme.formCard: Color
+    get() = if (isDark) FormCardDark else FormCardLight
+
 // The empty part of a progress bar. Named rather than borrowed from surfaceVariant
 // because the spec gives it a value of its own in each theme, and a bar whose track moved
 // with the card would stop reading as a track.

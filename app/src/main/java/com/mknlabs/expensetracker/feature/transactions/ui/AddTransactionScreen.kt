@@ -125,6 +125,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -154,10 +157,10 @@ import com.adamglin.phosphoricons.fill.Star
 import com.adamglin.phosphoricons.regular.Star
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AdRewardDialog
-import com.mknlabs.expensetracker.core.ui.components.PeriodChip
-import com.mknlabs.expensetracker.core.ui.components.PeriodChipColors
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
+import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
+import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
@@ -181,7 +184,7 @@ import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.expense
-import com.mknlabs.expensetracker.core.ui.theme.hairline
+import com.mknlabs.expensetracker.core.ui.theme.formCard
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
@@ -259,6 +262,23 @@ private val recurringModeOptions = listOf(
     RecurringModeOption(RecurringFrequency.Monthly, R.string.label_monthly),
     RecurringModeOption(RecurringFrequency.Yearly, R.string.label_yearly)
 )
+
+// The mock's amount card: white in light, a vertical #171B2B → #121524 wash in dark.
+private val AmountCardDarkTop = Color(0xFF171B2B)
+private val AmountCardDarkBottom = Color(0xFF121524)
+private val AmountCardLight = Color(0xFFFFFFFF)
+private val AmountCardGradient = Brush.verticalGradient(
+    listOf(AmountCardDarkTop, AmountCardDarkBottom)
+)
+
+// The mock's corner tint: a circle pushed past the card's top-right corner, its
+// colour following the selected type.
+private val AmountGlowRadius = 160.dp
+private const val AmountGlowAlpha = 0.10f
+
+// The flat card fill the Plans tab switcher uses: #13151F in dark, white in light.
+private val TypeSwitcherFillDark = Color(0xFF13151F)
+private val TypeSwitcherFillLight = Color(0xFFFFFFFF)
 
 private fun mergeTimeWithDate(newTimeMillis: Long, currentDateMillis: Long): Long {
     val dateCal = java.util.Calendar.getInstance().apply { timeInMillis = currentDateMillis }
@@ -767,37 +787,43 @@ internal fun AddTransactionScreenContent(
                     .alpha(enter[1])
             ) {                    // Shared form blocks, reused by both the single-column (phone)
                 // and two-pane (wide) layouts so behavior stays identical.
+                // Quick-entry favorites carousel, shown just above the note row
+                // (add mode only).
+                val quickFavoritesBlock: @Composable () -> Unit = {
+                    if (!isEditMode) {
+                        QuickFavoritesRow(
+                            favorites = favorites,
+                            currencyId = currencyId,
+                            onSelectFavorite = applyFavorite,
+                            onOpenAllSheet = { isFavoritesSheetVisible = true }
+                        )
+                    }
+                }
                 val tabAndAmountBlock: @Composable () -> Unit = {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            transactionModes.forEach { mode ->
-                                val accent = if (mode.id == incomeTypeId) {
-                                    MaterialTheme.colorScheme.income
-                                } else {
-                                    MaterialTheme.colorScheme.expense
-                                }
-                                PeriodChip(
+                        AnimatedTabSwitcher(
+                            items = transactionModes.map { mode ->
+                                TabItem(
+                                    id = mode.id,
                                     label = stringResource(mode.label),
-                                    isSelected = mode.id == selectedTransactionTypeId,
-                                    onClick = { selectedTransactionTypeId = mode.id },
-                                    modifier = Modifier.weight(1f),
-                                    textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                                    colors = PeriodChipColors(
-                                        selectedContainer = accent.copy(alpha = 0.20f),
-                                        selectedContent = accent,
-                                        unselectedContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                                        unselectedBorder = MaterialTheme.colorScheme.outlineVariant,
-                                        unselectedContent = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    selectedColor = if (mode.id == incomeTypeId) {
+                                        MaterialTheme.colorScheme.income
+                                    } else {
+                                        MaterialTheme.colorScheme.expense
+                                    }
                                 )
+                            },
+                            selectedItemId = selectedTransactionTypeId,
+                            onItemSelected = { selectedTypeId -> selectedTransactionTypeId = selectedTypeId },
+                            containerColor = if (MaterialTheme.colorScheme.isDark) {
+                                TypeSwitcherFillDark
+                            } else {
+                                TypeSwitcherFillLight
                             }
-                        }
+                        )
 
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -807,6 +833,7 @@ internal fun AddTransactionScreenContent(
                                 amountText = amountInput,
                                 currencyId = currencyId,
                                 selectedTransactionTypeId = selectedTransactionTypeId,
+                                footerContent = if (isEditMode) null else quickFavoritesBlock,
                                 compact = compact,
                                 focusRequester = amountFocusRequester,
                                 canFocus = !isNoteSheetVisible,
@@ -850,7 +877,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(colorScheme.surface))
+                                .background(SolidColor(colorScheme.formCard))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -900,7 +927,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(colorScheme.surface))
+                                .background(SolidColor(colorScheme.formCard))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -933,7 +960,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(colorScheme.surface))
+                                .background(SolidColor(colorScheme.formCard))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -965,7 +992,7 @@ internal fun AddTransactionScreenContent(
                                     spotColor = if (colorScheme.isDark) colorScheme.secondary.copy(alpha = 0.06f) else CardShadowSpotLight
                                 )
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(SolidColor(colorScheme.surface))
+                                .background(SolidColor(colorScheme.formCard))
                                 .border(
                                     width = 1.dp,
                                     color = micBorderColor,
@@ -1093,18 +1120,6 @@ internal fun AddTransactionScreenContent(
                     }
                 }
 
-                // Quick-entry favorites carousel, shown just above the note row
-                // (add mode only).
-                val quickFavoritesBlock: @Composable () -> Unit = {
-                    if (!isEditMode) {
-                        QuickFavoritesRow(
-                            favorites = favorites,
-                            currencyId = currencyId,
-                            onSelectFavorite = applyFavorite,
-                            onOpenAllSheet = { isFavoritesSheetVisible = true }
-                        )
-                    }
-                }
 
                 if (wide) {
                     // Two-pane layout
@@ -1131,7 +1146,6 @@ internal fun AddTransactionScreenContent(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                         ) {
-                            quickFavoritesBlock()
                             noteBlock()
                         }
                     }
@@ -1144,7 +1158,6 @@ internal fun AddTransactionScreenContent(
                         verticalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 10.dp)
                     ) {
                         tabAndAmountBlock()
-                        quickFavoritesBlock()
                         noteBlock()
                         selectionGridBlock()
                     }
@@ -2113,6 +2126,7 @@ private fun CurrencyAmountCard(
     currencyId: Int,
     selectedTransactionTypeId: Int,
     compact: Boolean,
+    footerContent: (@Composable () -> Unit)? = null,
     focusRequester: FocusRequester,
     canFocus: Boolean = true,
     onAmountChange: (String) -> Unit,
@@ -2158,11 +2172,8 @@ private fun CurrencyAmountCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            // The card is sized by this minimum alone: its only child uses
-            // matchParentSize, so it never contributes height of its own. That makes
-            // the figure below the single knob for the card's height — the label row
-            // plus the amount's own line height need about 84dp (compact) / 98dp, so
-            // these values close the slack around them without clipping the digits.
+            // The card keeps a minimum height for the untouched state; when the quick
+            // favorites footer is present the content grows past it instead of clipping.
             .heightIn(min = if (compact) 90.dp else 104.dp)
             .shadow(
                 elevation = if (MaterialTheme.colorScheme.isDark) 8.dp else 12.dp,
@@ -2171,12 +2182,28 @@ private fun CurrencyAmountCard(
                 spotColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f) else CardShadowSpotLight
             )
             .clip(shape)
-            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.70f) else MaterialTheme.colorScheme.surface)
+            .background(
+                if (MaterialTheme.colorScheme.isDark) AmountCardGradient else SolidColor(AmountCardLight)
+            )
             .border(
                 width = 1.dp,
                 color = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline,
                 shape = shape
             )
+            .drawBehind {
+                val radiusPx = AmountGlowRadius.toPx()
+                // The tint radiates from the card's top-right corner.
+                val glowCenter = Offset(x = size.width, y = 0f)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(amountColor.copy(alpha = AmountGlowAlpha), Color.Transparent),
+                        center = glowCenter,
+                        radius = radiusPx
+                    ),
+                    radius = radiusPx,
+                    center = glowCenter
+                )
+            }
             .clickable(onClick = onClick)
     ) {
         Column(
@@ -2185,9 +2212,11 @@ private fun CurrencyAmountCard(
                 .padding(
                     horizontal = if (compact) 16.dp else 20.dp, // Tightened horizontal padding
                     vertical = if (compact) 10.dp else 12.dp    // Tightened vertical padding
-                )
-                .matchParentSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+                ),
+            // SpaceBetween keeps the label and figure apart in the short state; with the
+            // quick-favorites footer the card wraps its content, so pack it and keep the
+            // footer against the card's bottom padding.
+            verticalArrangement = if (footerContent == null) Arrangement.SpaceBetween else Arrangement.Top
         ) {
             // Top Section
             Column {
@@ -2204,13 +2233,6 @@ private fun CurrencyAmountCard(
                 )
 
                 Spacer(modifier = Modifier.height(if (compact) 2.dp else 4.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.1f)
-                        .height(1.dp)
-                        .background(MaterialTheme.colorScheme.hairline)
-                )
             }
 
             // Middle/Bottom Section: Amount Display. The symbol and figure are left-aligned
@@ -2220,8 +2242,7 @@ private fun CurrencyAmountCard(
             // than in the note row below.
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -2314,6 +2335,13 @@ private fun CurrencyAmountCard(
                 }
             }
 
+            if (footerContent != null) {
+                // No divider above the quick-favorites row: the card fill and the label
+                // already separate them, and a hairline reads as a stray line in light mode.
+                Column(modifier = Modifier.padding(top = 10.dp)) {
+                    footerContent()
+                }
+            }
             Spacer(modifier = Modifier.height(1.dp))
         }
     }
@@ -2495,7 +2523,7 @@ private fun SelectionInfoCard(
                     spotColor = if (colorScheme.isDark || highlighted) colorScheme.secondary.copy(alpha = if (highlighted) 0.15f else 0.06f) else CardShadowSpotLight
                 )
                 .clip(RoundedCornerShape(20.dp))
-                .background(SolidColor(colorScheme.surface))
+                .background(SolidColor(colorScheme.formCard))
                 .border(
                     width = if (highlighted) 0.dp else 1.dp,
                     color = if (highlighted) Color.Transparent else animatedBorderColor,
@@ -3334,7 +3362,7 @@ private fun TagSelectionCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         colors = AppCardColors(
-            containerColor = colorScheme.surface,
+            containerColor = colorScheme.formCard,
             contentColor = colorScheme.onSurface,
             border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f))
         )
@@ -3434,7 +3462,7 @@ private fun SelectionCard(
             .fillMaxWidth()
             .graphicsLayer { alpha = contentAlpha },
         colors = AppCardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.formCard,
             contentColor = MaterialTheme.colorScheme.onSurface,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (enabled) 0.5f else 0.25f))
         )
