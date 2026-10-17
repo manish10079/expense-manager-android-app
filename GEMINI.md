@@ -118,7 +118,7 @@ com.mknlabs.expensetracker/
     - **Minor:** Increment for new features (`feat`). Reset bug to 0.
     - **Bug:** Increment for bug fixes (`fix`).
     - **Other types (chore, refactor, docs, etc.):** Update the last segment of `versionName`.
-- **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `Bumped version to <versionName>`.
+- **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `Bumped version to <versionName>(<versionCode>)` — the version code goes in parentheses directly after the name, matching what `app/build.gradle.kts` declares, e.g. `Bumped version to 2.218.5(272)`.
 - **README Sync:** Whenever `versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header and the `| **Version** | <name> |` row in the feature table. Never leave README.md on an older version.
 - **Verification:** Before finalizing the commit, verify the updated version is reflected in both `app/build.gradle.kts` and `README.md`.
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
