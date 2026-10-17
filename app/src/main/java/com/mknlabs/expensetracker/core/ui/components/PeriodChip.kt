@@ -51,12 +51,60 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
  *   purpose: Analytics has four short labels and uses labelLarge, while Budget has three
  *   all-caps labels that would not fit on one line at that size.
  */
-import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
-import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+
+/**
+ * The period-chip palette, quoted from analytics_dashboard_comparison.html.
+ *
+ * Every [PeriodChip] and the analytics custom-range control read these, so the two controls
+ * cannot drift apart. Dark chips sit on obsidian-surface/90 with a white/8 edge; light chips
+ * sit on slate-200/60 with no edge; the custom-range control is solid obsidian-surface in
+ * dark, white in light, each with the mock's hairline edge. The alphas stay literal so the
+ * fills composite over the page exactly as the CSS does.
+ */
+object PeriodChipDefaults {
+    val unselectedContainer: Color
+        @Composable get() = if (MaterialTheme.colorScheme.isDark) {
+            PeriodTabContainerDark
+        } else {
+            PeriodTabContainerLight
+        }
+
+    val unselectedBorder: Color
+        @Composable get() = if (MaterialTheme.colorScheme.isDark) {
+            PeriodTabBorderDark
+        } else {
+            PeriodTabBorderLight
+        }
+
+    val customRangeContainer: Color
+        @Composable get() = if (MaterialTheme.colorScheme.isDark) {
+            CustomRangeContainerDark
+        } else {
+            CustomRangeContainerLight
+        }
+
+    val customRangeBorder: Color
+        @Composable get() = if (MaterialTheme.colorScheme.isDark) {
+            CustomRangeBorderDark
+        } else {
+            CustomRangeBorderLight
+        }
+}
+
+private val PeriodTabContainerDark = Color(0xE6131622)    // bg-obsidian-surface/90
+private val PeriodTabBorderDark = Color(0x14FFFFFF)       // border-obsidian-border
+private val PeriodTabContainerLight = Color(0x99E2E8F0)   // bg-slate-200/60
+private val PeriodTabBorderLight = Color.Transparent      // the mock draws no edge here
+
+private val CustomRangeContainerDark = Color(0xFF131622)  // bg-obsidian-surface
+private val CustomRangeBorderDark = Color(0x14FFFFFF)     // border-obsidian-border
+private val CustomRangeContainerLight = Color(0xFFFFFFFF) // bg-white
+private val CustomRangeBorderLight = Color(0xCCE2E8F0)    // border-slate-200/80
 
 
 /**
@@ -98,13 +146,13 @@ fun PeriodChip(
     val targetContainerColor = if (isSelected) {
         colors?.selectedContainer ?: MaterialTheme.colorScheme.chipSelected
     } else {
-        colors?.unselectedContainer ?: MaterialTheme.colorScheme.chip
+        colors?.unselectedContainer ?: PeriodChipDefaults.unselectedContainer
     }
 
     val targetBorderColor = if (isSelected) {
         Color.Transparent
     } else {
-        colors?.unselectedBorder ?: MaterialTheme.colorScheme.chipOutline
+        colors?.unselectedBorder ?: PeriodChipDefaults.unselectedBorder
     }
 
     val targetContentColor = if (isSelected) {

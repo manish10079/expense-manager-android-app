@@ -66,6 +66,7 @@ import com.mknlabs.expensetracker.core.ui.components.rememberBindAddFabToScroll
 import com.mknlabs.expensetracker.core.ui.components.CurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.hasCurrentPeriodIndicator
 import com.mknlabs.expensetracker.core.ui.components.PeriodChip
+import com.mknlabs.expensetracker.core.ui.components.PeriodChipDefaults
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.adamglin.phosphoricons.regular.Wallet
 import com.adamglin.phosphoricons.regular.TrendUp
@@ -98,11 +99,9 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
-import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
-import com.mknlabs.expensetracker.core.ui.theme.chipOutline
+
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
-import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
@@ -331,7 +330,7 @@ fun AnalyticsScreenContent(
                                     onClick = {
                                         if (isLocked) onLockedClick() else onDateRangeSelected(period)
                                     },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 )
                             }
                     }
@@ -858,13 +857,13 @@ private fun CustomRangeSelector(
     val containerColor = if (isSelected) {
         MaterialTheme.colorScheme.chipSelected
     } else {
-        MaterialTheme.colorScheme.chip
+        PeriodChipDefaults.customRangeContainer
     }
 
     val borderColor = if (isSelected) {
         Color.Transparent
     } else {
-        MaterialTheme.colorScheme.chipOutline
+        PeriodChipDefaults.customRangeBorder
     }
 
     val textColor = if (isSelected) {
