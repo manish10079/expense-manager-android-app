@@ -111,9 +111,9 @@ private val CategoryBadgeAlphaLight = CategoryBadgeAlpha(fill = 0.10f, edge = 0.
 /** rounded-2xl: the mock's badge corner, and 44 dp is its w-11/h-11 tile. */
 private val CategoryBadgeShape = RoundedCornerShape(16.dp)
 
-// Recent-transaction row chrome from the mock: bg-surface in dark with a white/5 edge,
-// and white with a slate-200/70 edge in light, both at the rounded-2xl 16 dp corner.
-private val TransactionCardContainerDark = Color(0xFF13151F)
+// Recent-transaction row chrome: an unfilled outline over the dark page with a white/5
+// edge, and white with a slate-200/70 edge in light, both at the rounded-2xl 16 dp corner.
+private val TransactionCardContainerDark = Color(0x00161822) // transparent: page shows through
 private val TransactionCardBorderDark = Color(0x0DFFFFFF)
 private val TransactionCardContainerLight = Color(0xFFFFFFFF)
 private val TransactionCardBorderLight = Color(0xB3E2E8F0)
@@ -167,6 +167,16 @@ fun TransactionCard(
     val categoryColor = MaterialTheme.colorScheme.categoryColor(
         categoryId = categoryId,
         colorHex = categoryColorHex
+    )
+
+    // The category chip borrows the glyph tile's own pair, so a row's category ink is the
+    // same colour in the badge and the label, and the chip sits on the badge's wash.
+    val categoryPillFill = categoryColor.copy(
+        alpha = if (MaterialTheme.colorScheme.isDark) {
+            CategoryBadgeAlphaDark.fill
+        } else {
+            CategoryBadgeAlphaLight.fill
+        }
     )
 
     val baseColors = AppCardDefaults.colors()
@@ -428,8 +438,8 @@ fun TransactionCard(
                                     if (showCategoryLabel && categoryLabel.isNotBlank()) {
                                         TransactionPill(
                                             text = categoryLabel,
-                                            color = MaterialTheme.colorScheme.accentInk,
-                                            backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                                            color = categoryColor,
+                                            backgroundColor = categoryPillFill,
                                             style = metaStyle
                                         )
                                     }
