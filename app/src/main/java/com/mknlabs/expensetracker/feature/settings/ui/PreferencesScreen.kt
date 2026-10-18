@@ -92,6 +92,7 @@ import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -236,6 +237,7 @@ private fun PreferencesScreenContent(
                     SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_currency),
+                            iconTile = SettingsTiles.Sky,
                             subtitle = stringResource(R.string.label_primary_currency),
                             icon = PhosphorIcons.Regular.CurrencyInr,
                             valueText = if (uiState.currentCurrencyLabelRes != 0) {
@@ -250,6 +252,7 @@ private fun PreferencesScreenContent(
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_decimal_places),
+                            iconTile = SettingsTiles.Emerald,
                             subtitle = stringResource(R.string.label_decimal_places_subtitle),
                             icon = PhosphorIcons.Regular.Ruler,
                             valueText = uiState.currentDecimalPlacesLabel,
@@ -260,6 +263,7 @@ private fun PreferencesScreenContent(
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_number_format),
+                            iconTile = SettingsTiles.Amber,
                             subtitle = stringResource(R.string.label_number_format_subtitle),
                             icon = PhosphorIcons.Regular.PushPin,
                             valueText = stringResource(uiState.currentGroupingLabelRes),
@@ -281,6 +285,7 @@ private fun PreferencesScreenContent(
                     SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_date_format),
+                            iconTile = SettingsTiles.Indigo,
                             subtitle = stringResource(R.string.label_date_format_subtitle),
                             icon = PhosphorIcons.Regular.CalendarBlank,
                             valueText = uiState.currentDateFormatLabel,
@@ -291,6 +296,7 @@ private fun PreferencesScreenContent(
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_time_format),
+                            iconTile = SettingsTiles.Fuchsia,
                             subtitle = stringResource(R.string.label_time_format_subtitle),
                             icon = PhosphorIcons.Regular.Clock,
                             valueText = stringResource(uiState.currentTimeFormatLabelRes),
@@ -301,6 +307,7 @@ private fun PreferencesScreenContent(
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_month_start_day),
+                            iconTile = SettingsTiles.Teal,
                             subtitle = stringResource(R.string.label_month_start_day_subtitle),
                             icon = PhosphorIcons.Regular.CalendarDots,
                             valueText = if (uiState.monthStartDay == 1) {
@@ -316,6 +323,7 @@ private fun PreferencesScreenContent(
                             SettingsGroupDivider()
                             SettingsItemCard(
                                 title = stringResource(R.string.title_language),
+                            iconTile = SettingsTiles.Rose,
                                 subtitle = stringResource(R.string.label_language_subtitle),
                                 icon = PhosphorIcons.Regular.Globe,
                                 valueText = uiState.currentLanguageLabel,
@@ -339,6 +347,7 @@ private fun PreferencesScreenContent(
                     SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_theme),
+                            iconTile = SettingsTiles.Violet,
                             subtitle = stringResource(R.string.label_theme_subtitle),
                             icon = PhosphorIcons.Regular.Palette,
                             valueText = stringResource(uiState.currentThemeModeLabelRes),
@@ -349,6 +358,7 @@ private fun PreferencesScreenContent(
                         SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_font),
+                            iconTile = SettingsTiles.Pink,
                             subtitle = stringResource(R.string.label_font_subtitle),
                             icon = PhosphorIcons.Regular.TextAa,
                             valueText = when (uiState.selectedFontMode) {
