@@ -10,6 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,6 +44,7 @@ import com.adamglin.phosphoricons.regular.Sun
 import com.adamglin.phosphoricons.regular.Tag
 import com.adamglin.phosphoricons.regular.Wallet
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +64,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -84,7 +90,11 @@ import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
-import com.mknlabs.expensetracker.core.ui.theme.CardLight
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
@@ -322,6 +332,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.BellRinging,
                     title = stringResource(id = R.string.title_expense_reminders),
+                    iconTile = SettingsTiles.Violet,
                     subtitle = stringResource(id = R.string.desc_expense_reminders),
                     type = SettingsItemType.Toggle,
                     standalone = false,
@@ -333,6 +344,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.Tag,
                     title = stringResource(id = R.string.title_budget_limit_alerts),
+                    iconTile = SettingsTiles.Sky,
                     subtitle = stringResource(id = R.string.desc_budget_limit_alerts),
                     type = SettingsItemType.Toggle,
                     standalone = false,
@@ -344,6 +356,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.Wallet,
                     title = stringResource(id = R.string.title_large_transaction_alerts),
+                    iconTile = SettingsTiles.Emerald,
                     subtitle = stringResource(id = R.string.desc_large_transaction_alerts),
                     type = SettingsItemType.Toggle,
                     standalone = false,
@@ -357,6 +370,7 @@ private fun NotificationSettingsContent(
                     SettingsItemCard(
                         icon = PhosphorIcons.Regular.Ruler,
                         title = stringResource(id = R.string.title_large_transaction_threshold),
+                    iconTile = SettingsTiles.Teal,
                         subtitle = formatCurrencyValue(
                             largeTransactionThresholdMinor.toMajorUnits(),
                             currencyId,
@@ -371,6 +385,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.ChartBar,
                     title = stringResource(id = R.string.title_weekly_summary),
+                    iconTile = SettingsTiles.Fuchsia,
                     subtitle = stringResource(id = R.string.desc_weekly_summary),
                     type = SettingsItemType.Toggle,
                     standalone = false,
@@ -384,6 +399,7 @@ private fun NotificationSettingsContent(
                     SettingsItemCard(
                         icon = PhosphorIcons.Regular.Clock,
                         title = stringResource(id = R.string.title_weekly_summary_time),
+                    iconTile = SettingsTiles.Pink,
                         subtitle = weeklyTimeLabel(weeklySummaryTimeMillis, timeFormat),
                         type = SettingsItemType.Navigation,
                         standalone = false,
@@ -401,6 +417,7 @@ private fun NotificationSettingsContent(
                 PremiumNotificationCard(
                     icon = PhosphorIcons.Regular.Sparkle,
                     titleRes = R.string.title_financial_insights,
+                    iconTile = SettingsTiles.Amber,
                     descRes = R.string.desc_financial_insights,
                     isEnabled = isFinancialInsightsEnabled,
                     isPremium = isPremium,
@@ -412,6 +429,7 @@ private fun NotificationSettingsContent(
                 PremiumNotificationCard(
                     icon = PhosphorIcons.Regular.PiggyBank,
                     titleRes = R.string.title_goal_reminders,
+                    iconTile = SettingsTiles.Indigo,
                     descRes = R.string.desc_goal_reminders,
                     isEnabled = isGoalRemindersEnabled,
                     isPremium = isPremium,
@@ -423,6 +441,7 @@ private fun NotificationSettingsContent(
                 PremiumNotificationCard(
                     icon = PhosphorIcons.Regular.Repeat,
                     titleRes = R.string.title_recurring_alerts,
+                    iconTile = SettingsTiles.Purple,
                     descRes = R.string.desc_recurring_alerts,
                     isEnabled = isBillRemindersEnabled,
                     isPremium = isPremium,
@@ -434,6 +453,7 @@ private fun NotificationSettingsContent(
                 PremiumNotificationCard(
                     icon = PhosphorIcons.Regular.CloudCheck,
                     titleRes = R.string.title_cloud_security_alerts,
+                    iconTile = SettingsTiles.Blue,
                     descRes = R.string.desc_cloud_security_alerts,
                     isEnabled = isCloudSecurityEnabled,
                     isPremium = isPremium,
@@ -452,6 +472,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.Sun,
                     title = stringResource(id = R.string.title_morning_window),
+                    iconTile = SettingsTiles.Cyan,
                     subtitle = reminderWindowLabel(
                         startHour = reminderMorningStartHour,
                         endHour = reminderMorningEndHour,
@@ -465,6 +486,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.Moon,
                     title = stringResource(id = R.string.title_evening_window),
+                    iconTile = SettingsTiles.Rose,
                     subtitle = reminderWindowLabel(
                         startHour = reminderEveningStartHour,
                         endHour = reminderEveningEndHour,
@@ -478,6 +500,7 @@ private fun NotificationSettingsContent(
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.PaperPlaneTilt,
                     title = stringResource(id = R.string.title_test_notification),
+                    iconTile = SettingsTiles.Violet,
                     subtitle = stringResource(id = R.string.desc_test_notification),
                     type = SettingsItemType.Button,
                     valueText = stringResource(id = R.string.btn_send_test_notification),
@@ -513,7 +536,7 @@ private fun NotificationSettingsContent(
     infoCategory?.let { category ->
         ModalBottomSheet(
             onDismissRequest = { infoCategory = null },
-            containerColor = MaterialTheme.colorScheme.sheet,
+            containerColor = MaterialTheme.colorScheme.profileSheet,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             Column(
@@ -568,6 +591,7 @@ private fun NotificationSettingsContent(
 @Composable
 private fun PremiumNotificationCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconTile: SettingsTilePalette,
     titleRes: Int,
     descRes: Int,
     isEnabled: Boolean,
@@ -578,6 +602,7 @@ private fun PremiumNotificationCard(
 ) {
     SettingsItemCard(
         icon = icon,
+        iconTile = iconTile,
         title = stringResource(id = titleRes),
         subtitle = stringResource(id = descRes),
         type = SettingsItemType.Toggle,
@@ -674,7 +699,7 @@ private fun ReminderTimeWindowPickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = MaterialTheme.colorScheme.profileSheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -780,16 +805,28 @@ private fun ReminderTimeWindowPickerModal(
                         } else {
                             onConfirm(start, end)
                         }
-                    },                    modifier = Modifier
+                    },
+                    modifier = Modifier
                         .weight(1.5f)
                         .heightIn(min = 54.dp),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.btn_confirm),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 54.dp)
+                            .background(brush = brandGradient()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.btn_confirm),
+                            color = MaterialTheme.colorScheme.onCta,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }
@@ -824,7 +861,7 @@ private fun LargeTransactionThresholdModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = MaterialTheme.colorScheme.profileSheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -853,14 +890,9 @@ private fun LargeTransactionThresholdModal(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     color = if (isCustom.not() && selectedPresetMinor == presetMinor) {
-                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
-                    } else if (MaterialTheme.colorScheme.isDark) {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        MaterialTheme.colorScheme.genderRowSelected
                     } else {
-                        // A picker option is one of the spec's secondary surfaces in
-                        // light. The half-strength wash it used to be sits almost on the
-                        // sheet's own white, which left the options with no edge at all.
-                        CardLight
+                        MaterialTheme.colorScheme.genderRow
                     },
                     onClick = {
                         selectedPresetMinor = presetMinor
@@ -885,11 +917,9 @@ private fun LargeTransactionThresholdModal(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 color = if (isCustom) {
-                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.12f)
-                } else if (MaterialTheme.colorScheme.isDark) {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    MaterialTheme.colorScheme.genderRowSelected
                 } else {
-                    CardLight
+                    MaterialTheme.colorScheme.genderRow
                 },
                 onClick = {
                     isCustom = true
@@ -947,16 +977,28 @@ private fun LargeTransactionThresholdModal(
                         selectedPresetMinor?.let { onConfirm(it) }
                             ?: run { errorMessage = context.getString(R.string.error_invalid_threshold) }
                     }
-                },                modifier = Modifier
+                },
+                modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 54.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues(0.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.btn_confirm),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.Bold
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 54.dp)
+                        .background(brush = brandGradient()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.btn_confirm),
+                        color = MaterialTheme.colorScheme.onCta,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
             }
         }
 
@@ -992,7 +1034,7 @@ private fun WeeklySummaryTimeModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = MaterialTheme.colorScheme.profileSheet,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
@@ -1069,16 +1111,28 @@ private fun WeeklySummaryTimeModal(
                         } else {
                             onConfirm(hourOfDay * 3_600_000L + minute * 60_000L)
                         }
-                    },                    modifier = Modifier
+                    },
+                    modifier = Modifier
                         .weight(1.5f)
                         .heightIn(min = 54.dp),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.btn_confirm),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 54.dp)
+                            .background(brush = brandGradient()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.btn_confirm),
+                            color = MaterialTheme.colorScheme.onCta,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }

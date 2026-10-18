@@ -2283,7 +2283,7 @@
 
     <string name="desc_missed_entry_reminder">Get notified if you forget to add a transaction for 2 days.</string>
 
-    <string name="title_goal_reminders">Savings Goal Reminders</string>
+    <string name="title_goal_reminders">Goal Reminder</string>
 
     <string name="desc_goal_reminders">Get a weekly nudge on your savings goals.</string>
 
@@ -3260,7 +3260,7 @@
 
     <string name="desc_expense_reminders">Daily reminders to log your expenses.</string>
 
-    <string name="title_large_transaction_alerts">Large Transaction Alerts</string>
+    <string name="title_large_transaction_alerts">Large Txns Alerts</string>
 
     <string name="desc_large_transaction_alerts">Alert when a single expense crosses your threshold.</string>
 
