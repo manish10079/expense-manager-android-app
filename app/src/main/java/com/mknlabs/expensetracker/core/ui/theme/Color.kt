@@ -11,7 +11,7 @@ val transparent= Color.Transparent;
 val PurplePrimary = Color(0xFF7B61FF)
 
 
-val BackgroundDark = Color(0xFF0B0C10)
+val BackgroundDark = Color(0xFF090B10)   // mock page ink, shared by every screen
 
 val SurfaceDark = Color(0xFF18181A)   // trial card/surface; was spec --s1 #141418
 
@@ -1020,6 +1020,18 @@ internal val TypeSwitcherFillLight = Color(0xFFFFFFFF)
 
 val ColorScheme.typeSwitcherFill: Color
     get() = if (isDark) TypeSwitcherFillDark else TypeSwitcherFillLight
+
+// ── Manage Categories screen background (manage-category-screen mockup) ────
+// The mockup's page is #090B10 — now the app's dark background — under a violet ambient
+// glow (#6D28D9 at 18%) that starts at the top edge and fades out by 70% of a
+// farthest-corner circle. Light keeps the app background and the accent glow.
+internal val ManageCategoryGlowDark = Color(0xFF6D28D9)
+
+val ColorScheme.manageCategoryScreen: Color
+    get() = background
+
+val ColorScheme.manageCategoryGlow: Color
+    get() = if (isDark) ManageCategoryGlowDark else accentInk
 
 // Settings row subtitle ink (mock-settings.html): #8E9BAE on the dark page, #5B6270 on
 // the light one. Every settings group shares it, so the sibling screens cannot drift.

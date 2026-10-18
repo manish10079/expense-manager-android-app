@@ -110,6 +110,7 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
 import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.typeSwitcherFill
@@ -227,10 +228,8 @@ private fun CategoryManagementContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
-        CategoryManagementGlow()
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -571,26 +570,6 @@ private fun CategoryColorSheet(
             )
         }
     }
-}
-
-@Composable
-private fun BoxScope.CategoryManagementGlow() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .padding(top = 92.dp)
-            .size(width = 260.dp, height = 190.dp)
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.14f),
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                    )
-                ),
-                shape = CircleShape
-            )
-    )
 }
 
 @Composable

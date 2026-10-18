@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
@@ -151,7 +152,7 @@ private fun SecurityPrivacyContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .appScreenBackground()
     ) {
         Column(
             modifier = Modifier

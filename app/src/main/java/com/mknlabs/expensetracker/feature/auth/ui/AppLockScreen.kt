@@ -72,6 +72,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.appAmbientGlow
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -628,11 +629,13 @@ private fun AppLockScreenContent(
                 .background(MaterialTheme.colorScheme.background)
         )
 
-        // Premium theme-aware card gradient overlay
+        // Premium theme-aware card gradient overlay, carrying the app's top glow so the
+        // gradient cannot hide it.
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(standardCardGradient())
+                .appAmbientGlow()
         )
 
         // Subtle radial glow for depth (Hidden in recovery/disable mode)

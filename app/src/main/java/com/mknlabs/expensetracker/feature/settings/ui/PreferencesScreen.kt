@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
@@ -202,7 +203,7 @@ private fun PreferencesScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
         Column(
             modifier = Modifier

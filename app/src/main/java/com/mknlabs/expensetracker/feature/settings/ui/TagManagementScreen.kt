@@ -37,6 +37,7 @@ import com.mknlabs.expensetracker.core.ui.components.sortedByCatalog
 import com.mknlabs.expensetracker.core.ui.components.CatalogSortSheet
 import com.mknlabs.expensetracker.core.ui.components.CatalogSort
 import com.adamglin.phosphoricons.regular.SortAscending
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -200,7 +201,7 @@ internal fun TagManagementContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
         TagManagementGlow()
 

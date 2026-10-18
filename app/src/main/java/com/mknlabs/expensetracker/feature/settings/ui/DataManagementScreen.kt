@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import android.net.Uri
@@ -190,7 +191,7 @@ private fun DataManagementContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
         Column(
             modifier = Modifier

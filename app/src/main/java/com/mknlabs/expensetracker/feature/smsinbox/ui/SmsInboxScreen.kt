@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.smsinbox.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.material3.FilterChipDefaults
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
@@ -300,7 +301,8 @@ private fun SmsInboxContent(
     onBackClick: () -> Unit = {}
 ) {
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.appScreenBackground(),
+        containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (uiState.isSelectionMode) {

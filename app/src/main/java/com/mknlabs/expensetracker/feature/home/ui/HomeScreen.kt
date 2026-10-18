@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.home.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.track
 
@@ -454,7 +455,7 @@ private fun HomeScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
             .statusBarsPadding()
             .padding(horizontal = Dimens.ScreenPadding)
     ) {

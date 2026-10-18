@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.activity.compose.BackHandler
@@ -544,7 +545,7 @@ private fun TransactionScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .pointerInput(isSearchExpanded, searchBarBounds) {

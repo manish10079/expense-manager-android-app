@@ -89,6 +89,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.LoopingConfettiCanvas
+import com.mknlabs.expensetracker.core.ui.theme.appAmbientGlow
 import com.mknlabs.expensetracker.core.ui.theme.membershipCard
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
@@ -128,6 +129,7 @@ internal fun PaywallContent(
         modifier = Modifier
             .fillMaxSize()
             .background(screenBg)
+            .appAmbientGlow()
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {

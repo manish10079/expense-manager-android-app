@@ -6,6 +6,7 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.compose.material3.FilterChipDefaults
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.ui.draw.alpha
@@ -429,7 +430,7 @@ private fun BudgetAndRecurringContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
         Column(
             modifier = Modifier

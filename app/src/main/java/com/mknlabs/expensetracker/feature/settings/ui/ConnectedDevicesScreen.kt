@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.track
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -119,7 +120,7 @@ private fun ConnectedDevicesContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {

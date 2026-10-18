@@ -59,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -204,7 +205,7 @@ internal fun MembershipDetailsContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .appScreenBackground()
     ) {
         Column(
             modifier = Modifier

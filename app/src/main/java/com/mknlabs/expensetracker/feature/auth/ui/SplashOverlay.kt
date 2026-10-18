@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
@@ -160,7 +161,7 @@ private fun SplashOverlayContent(
             .graphicsLayer {
                 alpha = (1f - ((ashT.value - 0.55f) / 0.45f)).coerceIn(0f, 1f)
             }
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
     ) {
         Box(
             modifier = Modifier

@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.analytics.ui
 
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 
@@ -321,7 +322,7 @@ fun AnalyticsScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appScreenBackground()
             .statusBarsPadding()
     ) {
         Box(
