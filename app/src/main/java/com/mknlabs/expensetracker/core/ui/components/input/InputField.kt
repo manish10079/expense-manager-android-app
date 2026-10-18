@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,15 +65,25 @@ fun InputFieldCard(
     errorText: String? = null,
     leadingIcon: ImageVector? = null,
     leadingIconBrush: Brush? = null,
+    // A caller may dress the badge around the glyph itself rather than take the accent circle:
+    // the tint of the glyph, the wash behind it and the badge's shape. All three default to the
+    // shared accent circle, so existing callers are untouched.
+    leadingIconTint: Color? = null,
+    leadingIconBackground: Color? = null,
+    leadingIconShape: Shape = CircleShape,
     onClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    // A caller drawn on a different card spec can override the field's own fill and radius.
+    // Null — every caller but Edit Profile — keeps the shared field chrome below.
+    cardShape: Shape? = null,
+    cardContainer: Color? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val focusManager = LocalFocusManager.current
 
     val isDark = colorScheme.isDark
-    val containerColor = colorScheme.surface
+    val containerColor = cardContainer ?: colorScheme.surface
     val primary = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
@@ -87,7 +98,8 @@ fun InputFieldCard(
     // the cards use, and lit in brand purple while it holds the cursor so the field being
     // typed into is never in doubt. Dark keeps the 28dp, the quarter-strength outline and
     // the 8dp lift it has always had.
-    val containerShape = if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
+    val containerShape = cardShape
+        ?: if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
     val borderColor = if (isDark) {
         colorScheme.outlineVariant.copy(alpha = if (isEnabled) 0.4f else 0.2f)
     } else {
@@ -139,16 +151,18 @@ fun InputFieldCard(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
-                            .background(primary.copy(alpha = 0.1f)),
+                            .clip(leadingIconShape)
+                            .background(leadingIconBackground ?: primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = leadingIcon,
                             contentDescription = null,
                             // A caller that passes a brush paints the glyph with it through a
-                            // SrcIn over an offscreen layer; otherwise the field's accent ink.
-                            tint = if (leadingIconBrush != null) Color.White else primary,
+                            // SrcIn over an offscreen layer; otherwise the caller's tint, and
+                            // failing that the field's accent ink.
+                            tint = if (leadingIconBrush != null) Color.White
+                            else (leadingIconTint ?: primary),
                             modifier = Modifier
                                 .size(20.dp)
                                 .then(

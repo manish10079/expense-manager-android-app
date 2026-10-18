@@ -825,3 +825,93 @@ val ColorScheme.settingsHeroSweepViolet: Color
 
 val ColorScheme.settingsHeroSweepCoral: Color
     get() = if (isDark) SettingsHeroSweepCoralDark else SettingsHeroSweepCoralLight
+
+// ── Edit Profile icon badges (mock-edit-profile.html) ───────────────────────
+// The Edit Profile screen's glyphs do not share one brand tint: the mockup gives each field
+// its own hue, and the photo actions their own violet/rose pair. Dark paints a 16% wash with
+// the 400-weight ink (20% for the photo actions), light a 12% wash with the 600-weight ink.
+// Neither theme draws a hairline around the tile, so there is no border token here at all.
+// Declared in ink/wash pairs so a badge cannot ship with one theme's fill under the other
+// theme's glyph.
+internal val ProfileBadgeEmailInkDark = Color(0xFF60A5FA)      // mock text-blue-400
+internal val ProfileBadgeEmailInkLight = Color(0xFF2563EB)     // mock text-blue-600
+internal val ProfileBadgeEmailWashDark = Color(0x293B82F6)     // #3B82F6 at 16%
+internal val ProfileBadgeEmailWashLight = Color(0x1F3B82F6)    // #3B82F6 at 12%
+
+internal val ProfileBadgeNameInkDark = Color(0xFFC084FC)       // mock text-purple-400
+internal val ProfileBadgeNameInkLight = Color(0xFF9333EA)      // mock text-purple-600
+internal val ProfileBadgeNameWashDark = Color(0x29A855F7)      // #A855F7 at 16%
+internal val ProfileBadgeNameWashLight = Color(0x1F9333EA)     // #9333EA at 12%
+
+internal val ProfileBadgePhoneInkDark = Color(0xFF34D399)      // mock text-emerald-400
+internal val ProfileBadgePhoneInkLight = Color(0xFF059669)     // mock text-emerald-600
+internal val ProfileBadgePhoneWashDark = Color(0x2910B981)     // #10B981 at 16%
+internal val ProfileBadgePhoneWashLight = Color(0x1F10B981)    // #10B981 at 12%
+
+internal val ProfileBadgeDateInkDark = Color(0xFFFBBF24)       // mock text-amber-400
+internal val ProfileBadgeDateInkLight = Color(0xFFD97706)      // mock text-amber-600
+internal val ProfileBadgeDateWashDark = Color(0x29F59E0B)      // #F59E0B at 16%
+internal val ProfileBadgeDateWashLight = Color(0x1FF59E0B)     // #F59E0B at 12%
+
+internal val ProfileBadgeGenderInkDark = Color(0xFF22D3EE)     // mock text-cyan-400
+internal val ProfileBadgeGenderInkLight = Color(0xFF0891B2)    // mock text-cyan-600
+internal val ProfileBadgeGenderWashDark = Color(0x2906B6D4)    // #06B6D4 at 16%
+internal val ProfileBadgeGenderWashLight = Color(0x1F06B6D4)   // #06B6D4 at 12%
+
+internal val ProfilePhotoEditInkDark = Color(0xFFC084FC)       // mock violet-400
+internal val ProfilePhotoEditInkLight = Color(0xFF7C3AED)      // mock violet-600
+internal val ProfilePhotoEditWashDark = Color(0x338B5CF6)      // #8B5CF6 at 20%
+internal val ProfilePhotoEditWashLight = Color(0xFFFAF5FF)     // violet-50
+
+internal val ProfilePhotoDeleteInkDark = Color(0xFFFB7185)     // mock rose-400
+internal val ProfilePhotoDeleteInkLight = Color(0xFFF43F5E)    // rose-500
+internal val ProfilePhotoDeleteWashDark = Color(0x33F43F5E)    // #F43F5E at 20%
+internal val ProfilePhotoDeleteWashLight = Color(0xFFFFF1F2)   // rose-50
+
+/**
+ * The ink and the fill of one icon badge on the Edit Profile screen: the glyph colour and the
+ * wash behind it, chosen together so light never gets a dark wash or the reverse.
+ */
+data class ProfileBadgeColors(
+    val ink: Color,
+    val wash: Color
+)
+
+val ColorScheme.profileBadgeEmail: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfileBadgeEmailInkDark, ProfileBadgeEmailWashDark)
+    else ProfileBadgeColors(ProfileBadgeEmailInkLight, ProfileBadgeEmailWashLight)
+
+val ColorScheme.profileBadgeName: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfileBadgeNameInkDark, ProfileBadgeNameWashDark)
+    else ProfileBadgeColors(ProfileBadgeNameInkLight, ProfileBadgeNameWashLight)
+
+val ColorScheme.profileBadgePhone: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfileBadgePhoneInkDark, ProfileBadgePhoneWashDark)
+    else ProfileBadgeColors(ProfileBadgePhoneInkLight, ProfileBadgePhoneWashLight)
+
+val ColorScheme.profileBadgeDate: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfileBadgeDateInkDark, ProfileBadgeDateWashDark)
+    else ProfileBadgeColors(ProfileBadgeDateInkLight, ProfileBadgeDateWashLight)
+
+val ColorScheme.profileBadgeGender: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfileBadgeGenderInkDark, ProfileBadgeGenderWashDark)
+    else ProfileBadgeColors(ProfileBadgeGenderInkLight, ProfileBadgeGenderWashLight)
+
+val ColorScheme.profilePhotoEdit: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfilePhotoEditInkDark, ProfilePhotoEditWashDark)
+    else ProfileBadgeColors(ProfilePhotoEditInkLight, ProfilePhotoEditWashLight)
+
+val ColorScheme.profilePhotoDelete: ProfileBadgeColors
+    get() = if (isDark) ProfileBadgeColors(ProfilePhotoDeleteInkDark, ProfilePhotoDeleteWashDark)
+    else ProfileBadgeColors(ProfilePhotoDeleteInkLight, ProfilePhotoDeleteWashLight)
+
+// ── Edit Profile card fill (mock-edit-profile.html) ──────────────────────────
+// The mockup's field cards sit on the Obsidian card colour (#131622) in dark and on plain
+// white in light — not on the app's own dark surface (#18181A), which is a shade lighter and
+// neutral where the mockup's is a shade cooler. A token of its own so the Edit Profile
+// cards can follow the mockup without moving every other dark screen's cards with them.
+internal val ProfileCardDark = Color(0xFF131622)   // mock obsidian.card
+internal val ProfileCardLight = Color(0xFFFFFFFF)  // mock white card
+
+val ColorScheme.profileCard: Color
+    get() = if (isDark) ProfileCardDark else ProfileCardLight

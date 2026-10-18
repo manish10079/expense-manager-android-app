@@ -23,14 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +48,17 @@ import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
 import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.CardShape16
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
+import com.mknlabs.expensetracker.core.ui.theme.profileBadgeDate
+import com.mknlabs.expensetracker.core.ui.theme.profileBadgeEmail
+import com.mknlabs.expensetracker.core.ui.theme.profileBadgeGender
+import com.mknlabs.expensetracker.core.ui.theme.profileBadgeName
+import com.mknlabs.expensetracker.core.ui.theme.profileBadgePhone
+import com.mknlabs.expensetracker.core.ui.theme.profilePhotoDelete
+import com.mknlabs.expensetracker.core.ui.theme.profileCard
+import com.mknlabs.expensetracker.core.ui.theme.profilePhotoEdit
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
@@ -98,6 +104,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.focus.onFocusChanged
 
 private const val PROFILE_PHOTO_MIME_TYPE = "image/*"
+
+// The field badges are 12dp rounded squares in the mockup, not the shared accent circles the
+// rest of the app's input fields wear.
+private val ProfileBadgeShape = RoundedCornerShape(12.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -265,6 +275,16 @@ private fun ProfileScreenContent(
         }
     }
 
+    // Each field's badge carries its own hue in the mockup rather than one brand tint: blue
+    // for email, purple for the name, emerald for the phone, amber for the date, cyan for the
+    // gender. The theme picks the pair, so light and dark never cross inks and washes.
+    val colorScheme = MaterialTheme.colorScheme
+    val emailBadge = colorScheme.profileBadgeEmail
+    val nameBadge = colorScheme.profileBadgeName
+    val phoneBadge = colorScheme.profileBadgePhone
+    val dateBadge = colorScheme.profileBadgeDate
+    val genderBadge = colorScheme.profileBadgeGender
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -346,9 +366,11 @@ private fun ProfileScreenContent(
                 // message, so light takes the shared white card; dark keeps the surface, the
                 // quarter-strength outline and the 8dp lift it has always had.
                 AppCard(
-                    shape = AppCardDefaults.shape(28.dp),
+                    // The mockup's card spec: a 16dp corner on the Obsidian card colour in dark
+                    // and on white in light, in place of the app's own 28dp dark card.
+                    shape = CardShape16,
                     colors = AppCardDefaults.colors(
-                        darkContainer = MaterialTheme.colorScheme.surface,
+                        darkContainer = colorScheme.profileCard,
                         darkBorder = androidx.compose.foundation.BorderStroke(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
@@ -364,7 +386,11 @@ private fun ProfileScreenContent(
                             onValueChange = {},
                             inputType = InputType.Text,
                             leadingIcon = PhosphorIcons.Regular.EnvelopeSimple,
-                            leadingIconBrush = brandGradient(),
+                            leadingIconTint = emailBadge.ink,
+                            leadingIconBackground = emailBadge.wash,
+                            leadingIconShape = ProfileBadgeShape,
+                            cardShape = CardShape16,
+                            cardContainer = colorScheme.profileCard,
                             placeholder = "",
                             isEnabled = false,
                             trailingContent = if (emailVerifiedState) {
@@ -474,7 +500,11 @@ private fun ProfileScreenContent(
                 onValueChange = { fullName = it },
                 inputType = InputType.Text,
                 leadingIcon = PhosphorIcons.Regular.User,
-                leadingIconBrush = brandGradient(),
+                leadingIconTint = nameBadge.ink,
+                leadingIconBackground = nameBadge.wash,
+                leadingIconShape = ProfileBadgeShape,
+                cardShape = CardShape16,
+                cardContainer = colorScheme.profileCard,
                 placeholder = stringResource(id = R.string.placeholder_guest_user)
             )
 
@@ -486,7 +516,9 @@ private fun ProfileScreenContent(
                 onPhoneNumberChange = { localPhoneNumber = it },
                 selectedCountryCode = selectedCountryCode,
                 onCountryCodeClick = { isCountryPickerVisible = true },
-                placeholder = stringResource(id = R.string.placeholder_phone_example)
+                placeholder = stringResource(id = R.string.placeholder_phone_example),
+                cardShape = CardShape16,
+                cardContainer = colorScheme.profileCard
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -497,7 +529,11 @@ private fun ProfileScreenContent(
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = PhosphorIcons.Regular.CalendarBlank,
-                leadingIconBrush = brandGradient(),
+                leadingIconTint = dateBadge.ink,
+                leadingIconBackground = dateBadge.wash,
+                leadingIconShape = ProfileBadgeShape,
+                cardShape = CardShape16,
+                cardContainer = colorScheme.profileCard,
                 placeholder = stringResource(id = R.string.placeholder_select_dob),
                 onClick = { isDatePickerVisible = true }
             )
@@ -510,7 +546,11 @@ private fun ProfileScreenContent(
                 onValueChange = {},
                 inputType = InputType.Date,
                 leadingIcon = genderToIcon(gender),
-                leadingIconBrush = brandGradient(),
+                leadingIconTint = genderBadge.ink,
+                leadingIconBackground = genderBadge.wash,
+                leadingIconShape = ProfileBadgeShape,
+                cardShape = CardShape16,
+                cardContainer = colorScheme.profileCard,
                 placeholder = selectGenderPlaceholder,
                 onClick = { isGenderPickerVisible = true },
                 trailingContent = {
@@ -551,13 +591,15 @@ private fun ProfileScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 64.dp, max = 80.dp)
+                    // The mockup's CTA is the card's 16dp corner, not the pill this used to be,
+                    // so the fill, the shape and the glow all read from the one shape token.
                     .shadow(
                         elevation = 28.dp,
-                        shape = RoundedCornerShape(999.dp),
+                        shape = CardShape16,
                         ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                         spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.26f)
                     ),
-                shape = RoundedCornerShape(999.dp),
+                shape = CardShape16,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                 )
@@ -568,7 +610,7 @@ private fun ProfileScreenContent(
                         .wrapContentHeight()
                         .background(
                             brush = brandGradient(),
-                            shape = RoundedCornerShape(999.dp)
+                            shape = CardShape16
                         )
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     contentAlignment = Alignment.Center
@@ -672,11 +714,15 @@ private fun ProfilePhotoSection(
     userTier: UserTier = UserTier.FREE,
     isAnonymous: Boolean = false
 ) {
-    val photoActionContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
-    val pencilRamp = brandGradient()
-    // Removing the photo is destructive, so the trash action carries the same error ink as
-    // every other delete control in the app; the edit action beside it keeps the neutral pair.
-    val photoDeleteIconColor = MaterialTheme.colorScheme.error
+    val colorScheme = MaterialTheme.colorScheme
+    // The mockup's photo actions: violet for the pencil, rose for the trash, each on its own
+    // wash and with no hairline around it in either theme.
+    val editBadge = colorScheme.profilePhotoEdit
+    val deleteBadge = colorScheme.profilePhotoDelete
+    val isDark = colorScheme.isDark
+    // 44dp in dark, 40dp in light, as the two supplied screens draw them. The button keeps
+    // its 48dp touch target around the smaller circle.
+    val actionSize = if (isDark) 44.dp else 40.dp
 
     ProfileAvatar(
         gender = gender,
@@ -700,41 +746,47 @@ private fun ProfilePhotoSection(
                 onSelectPhoto()
             },
             enabled = !isPhotoProcessing,
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(photoActionContainerColor)
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = PhosphorIcons.Regular.PencilSimple,
-                contentDescription = if (photoUri == null) stringResource(id = R.string.content_desc_add_photo) else stringResource(id = R.string.content_desc_edit_photo),
-                tint = androidx.compose.ui.graphics.Color.White,
+            Box(
                 modifier = Modifier
-                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                    .drawWithCache {
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(brush = pencilRamp, blendMode = BlendMode.SrcIn)
-                        }
-                    }
-            )
+                    .size(actionSize)
+                    .clip(CircleShape)
+                    .background(editBadge.wash),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = PhosphorIcons.Regular.PencilSimple,
+                    contentDescription = if (photoUri == null) stringResource(id = R.string.content_desc_add_photo) else stringResource(id = R.string.content_desc_edit_photo),
+                    tint = editBadge.ink,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
 
         IconButton(
             onClick = onRemovePhoto,
             enabled = photoUri != null && !isPhotoProcessing,
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(photoActionContainerColor)
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = PhosphorIcons.Regular.Trash,
-                contentDescription = stringResource(id = R.string.content_desc_delete_photo),
-                tint = if (photoUri != null && !isPhotoProcessing) {
-                    photoDeleteIconColor
-                } else {
-                    photoDeleteIconColor.copy(alpha = 0.65f)
-                }
-            )
+            Box(
+                modifier = Modifier
+                    .size(actionSize)
+                    .clip(CircleShape)
+                    .background(deleteBadge.wash),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = PhosphorIcons.Regular.Trash,
+                    contentDescription = stringResource(id = R.string.content_desc_delete_photo),
+                    tint = if (photoUri != null && !isPhotoProcessing) {
+                        deleteBadge.ink
+                    } else {
+                        deleteBadge.ink.copy(alpha = 0.65f)
+                    },
+                    modifier = Modifier.size(18.dp)
+                )
+            }
         }
     }
 }
@@ -798,16 +850,20 @@ private fun PhoneInputFieldCard(
     onPhoneNumberChange: (String) -> Unit,
     selectedCountryCode: String,
     onCountryCodeClick: () -> Unit,
-    placeholder: String
+    placeholder: String,
+    // The mockup's card spec, passed in by the screen so this second implementation of the
+    // field cannot drift away from the shared one on the rows above it.
+    cardShape: Shape,
+    cardContainer: Color
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val containerColor = colorScheme.surface
+    val containerColor = cardContainer
     val accent = colorScheme.accentInk
     val onSurface = colorScheme.onSurface
     val onSurfaceVariant = colorScheme.onSurfaceVariant
-    // Hoisted out of the draw lambda: brandGradient() is @Composable and cannot be invoked
-    // from inside drawWithCache.
-    val phoneIconRamp = brandGradient()
+    // Hoisted out of the draw lambda's reach: the phone field is a second implementation of
+    // the shared field, so it reads the same badge pair the shared card does.
+    val phoneBadge = colorScheme.profileBadgePhone
     // The same field spec the shared InputFieldCard follows: light takes the 16dp white
     // field on the hairline outline, lit in brand purple while it holds the cursor, and
     // dark keeps the 28dp, the quarter-strength edge and the 8dp lift. This is a second
@@ -815,7 +871,7 @@ private fun PhoneInputFieldCard(
     // has no slot for - so it has to be kept in step by hand.
     val isDark = colorScheme.isDark
     var isFocused by remember { mutableStateOf(false) }
-    val containerShape = if (isDark) RoundedCornerShape(28.dp) else RoundedCornerShape(16.dp)
+    val containerShape = cardShape
     val borderColor = if (isDark) {
         colorScheme.outlineVariant.copy(alpha = 0.4f)
     } else {
@@ -851,23 +907,15 @@ private fun PhoneInputFieldCard(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
-                    .background(accent.copy(alpha = 0.1f)),
+                    .clip(ProfileBadgeShape)
+                    .background(phoneBadge.wash),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = PhosphorIcons.Regular.Phone,
                     contentDescription = null,
-                    tint = androidx.compose.ui.graphics.Color.White,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                        .drawWithCache {
-                            onDrawWithContent {
-                                drawContent()
-                                drawRect(brush = phoneIconRamp, blendMode = BlendMode.SrcIn)
-                            }
-                        }
+                    tint = phoneBadge.ink,
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
