@@ -324,13 +324,16 @@ private fun ProfileScreenContent(
                 isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Trimmed so the photo row sits nearer the first card: with no ad slot between
+            // them the two spacers are what the eye reads as one gap, and 24 + 18 left the
+            // email card pushed a good way down the screen.
+            Spacer(modifier = Modifier.height(14.dp))
 
             AdContainer(isAdsEnabled = isAdsEnabled) {
                 NativeAdCard(placement = AdPlacement.SETTINGS_GENERAL)
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (userProfile.emailAddress.isNotBlank()) {
                 val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
@@ -723,10 +726,13 @@ private fun ProfilePhotoSection(
     // 44dp in dark, 40dp in light, as the two supplied screens draw them. The button keeps
     // its 48dp touch target around the smaller circle.
     val actionSize = if (isDark) 44.dp else 40.dp
+    // The mockup's ring is smaller than the 150dp this used to draw: 128dp in dark, 112dp in
+    // light, which also leaves the five field cards closer to the fold on a 412 x 915 screen.
+    val avatarSize = if (isDark) 128.dp else 112.dp
 
     ProfileAvatar(
         gender = gender,
-        size = 150.dp,
+        size = avatarSize,
         photoUri = photoUri,
         showBadge = false,
         userTier = userTier,
