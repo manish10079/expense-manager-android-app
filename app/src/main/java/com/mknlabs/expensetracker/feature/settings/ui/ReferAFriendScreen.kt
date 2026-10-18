@@ -90,6 +90,7 @@ import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
 import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -211,7 +212,8 @@ fun ReferAFriendContent(
                     TabItem(1, stringResource(R.string.tab_my_rewards))
                 ),
                 selectedItemId = selectedTab,
-                onItemSelected = { selectedTab = it }
+                onItemSelected = { selectedTab = it },
+                containerColor = settingsGroupCardColors().containerColor
             )
             Spacer(Modifier.height(Dimens.spacingDefault))
             Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -372,7 +374,8 @@ private fun HeroCard() {
     )
     AppCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = AppCardDefaults.shape(24.dp)
+        shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors()
     ) {
     Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(verticalAlignment = Alignment.Top) {
@@ -439,7 +442,11 @@ private fun StepCell(badge: String, title: String, subtitle: String, done: Boole
 
 @Composable
 private fun GuestRegisterCard(onLinkAccountClick: () -> Unit) {
-    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors()
+    ) {
     Column(
         modifier = Modifier.padding(Dimens.spacingMedium),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -468,7 +475,11 @@ private fun GuestRegisterCard(onLinkAccountClick: () -> Unit) {
 
 @Composable
 private fun CodeCard(code: String, onCopy: () -> Unit, onShare: () -> Unit) {
-    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors()
+    ) {
     Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Text(
             stringResource(R.string.label_your_referral_code),
@@ -537,7 +548,11 @@ private fun MonthlyProgressCard(
     val earned = (rewardsThisMonth + if (welcomeClaimed) 1 else 0).coerceIn(0, MONTHLY_CAP)
     val daysEarned = earned * DAYS_PER_REWARD
     val daysLeft = (MONTHLY_CAP - earned) * DAYS_PER_REWARD
-    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(24.dp)) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors()
+    ) {
     Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
@@ -658,6 +673,7 @@ private fun RedeemCodeCard(
     onApply: () -> Unit
 ) {
     val bringIntoView = remember { BringIntoViewRequester() }
+    val cardColors = settingsGroupCardColors()
     var fieldFocused by remember { mutableStateOf(false) }
     LaunchedEffect(fieldFocused) {
         if (fieldFocused) {
@@ -669,7 +685,8 @@ private fun RedeemCodeCard(
         modifier = Modifier
             .fillMaxWidth()
             .bringIntoViewRequester(bringIntoView),
-        shape = AppCardDefaults.shape(24.dp)
+        shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors()
     ) {
     Column(modifier = Modifier.padding(Dimens.spacingMedium)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -706,6 +723,8 @@ private fun RedeemCodeCard(
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                focusedContainerColor = cardColors.containerColor,
+                unfocusedContainerColor = cardColors.containerColor,
                 cursorColor = MaterialTheme.colorScheme.accentInk
             )
         )
@@ -796,7 +815,11 @@ private fun RewardsHistoryTab(successCount: Int, invites: List<ReferralInvite>) 
 @Composable
 private fun InviteRow(invite: ReferralInvite, dateLabel: String) {
     val initials = invite.displayName.take(2).uppercase(Locale.getDefault())
-    AppCard(modifier = Modifier.fillMaxWidth(), shape = AppCardDefaults.shape(16.dp)) {
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppCardDefaults.shape(16.dp),
+        colors = settingsGroupCardColors()
+    ) {
     Row(
         modifier = Modifier.padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -804,7 +827,7 @@ private fun InviteRow(invite: ReferralInvite, dateLabel: String) {
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(14.dp))
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center
         ) {
