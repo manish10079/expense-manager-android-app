@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.ui.window.Dialog
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Info
@@ -22,7 +20,6 @@ import com.mknlabs.expensetracker.core.ui.components.CatalogSortSheet
 import com.mknlabs.expensetracker.core.ui.components.CatalogSort
 import com.adamglin.phosphoricons.regular.SortAscending
 import com.adamglin.phosphoricons.regular.MagnifyingGlass
-import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -367,8 +364,8 @@ private fun CategoryManagementContent(
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedContainerColor = MaterialTheme.colorScheme.manageCategoryCard,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.manageCategoryCard,
                         focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         cursorColor = MaterialTheme.colorScheme.accentInk,
@@ -718,32 +715,17 @@ private fun defaultIconIdFor(tab: CategoryManagementTab): String {
 
 @Composable
 private fun CategoriesInfoDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.sheet,
-            tonalElevation = 0.dp
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = stringResource(R.string.title_what_are_categories),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.msg_categories_what),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.msg_categories_where),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+    ModernConfirmationDialog(
+        onDismissRequest = onDismiss,
+        title = stringResource(R.string.title_what_are_categories),
+        text = stringResource(R.string.msg_categories_what) + "\n\n" +
+            stringResource(R.string.msg_categories_where),
+        confirmButtonText = stringResource(R.string.label_close),
+        onConfirm = onDismiss,
+        headerIcon = PhosphorIcons.Regular.Info,
+        showDismissButton = false,
+        extraContent = {
+            Column {
                 Text(
                     text = stringResource(R.string.label_categories_example),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -755,25 +737,9 @@ private fun CategoriesInfoDialog(onDismiss: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(20.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(brandGradient())
-                        .clickable(onClick = onDismiss)
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_close),
-                        color = MaterialTheme.colorScheme.onBrandGradient,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
-    }
+    )
 }
 
 private fun previewCategoryItem(

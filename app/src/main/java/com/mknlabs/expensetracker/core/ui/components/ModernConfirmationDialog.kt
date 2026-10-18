@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -66,6 +67,8 @@ import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmTitleLight
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 
 private val ModernConfirmCardShape = RoundedCornerShape(24.dp)
 private val ModernConfirmButtonShape = RoundedCornerShape(12.dp)
@@ -141,7 +144,12 @@ private fun ModernConfirmationDialogCard(
     extraContent: (@Composable () -> Unit)? = null
 ) {
     val isDark = MaterialTheme.colorScheme.isDark
-    val cardColors = AppCardDefaults.colors()
+    // Dark adopts the Manage Categories card fill (and its hairline), so every dialog sits
+    // on the same card surface as the list that raised it; light keeps the standard card.
+    val cardColors = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    )
     val titleColor = if (isDark) ModernConfirmTitleDark else ModernConfirmTitleLight
     val bodyColor = if (isDark) ModernConfirmBodyDark else ModernConfirmBodyLight
     val closeFill = if (isDark) ModernConfirmCloseFillDark else ModernConfirmCloseFillLight
