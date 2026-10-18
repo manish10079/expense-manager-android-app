@@ -941,3 +941,20 @@ val ColorScheme.genderRow: Color
 
 val ColorScheme.genderRowSelected: Color
     get() = if (isDark) GenderRowSelectedDark else GenderRowSelectedLight
+
+// ── Cloud Sync & Devices cards (cloud_sync_merged.html) ────────────────────
+// The mockup paints the sync switch, the sync action and the device roster on one Obsidian
+// card fill, a shade cooler and darker than the app's own #18181A [surface]; the current
+// device is lifted one rung higher. Light is plain white, which is already [surface].
+internal val SyncCardDark = Color(0xFF121622)             // mock bg-[#121622]/90
+internal val SyncCardBorderDark = Color(0x14FFFFFF)       // mock border-white/[0.08]
+internal val SyncDeviceCardDark = Color(0xFF131724)       // mock bg-[#131724]
+
+val ColorScheme.syncCard: Color
+    get() = if (isDark) SyncCardDark else SurfaceLight
+
+val ColorScheme.syncCardBorder: Color
+    get() = if (isDark) SyncCardBorderDark else outline
+
+val ColorScheme.syncDeviceCard: Color
+    get() = if (isDark) SyncDeviceCardDark else SurfaceLight

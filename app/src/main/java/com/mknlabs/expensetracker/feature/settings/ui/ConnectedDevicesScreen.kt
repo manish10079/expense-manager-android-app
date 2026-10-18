@@ -3,6 +3,7 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import com.mknlabs.expensetracker.core.ui.theme.track
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,8 +29,10 @@ import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
-import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.syncCard
+import com.mknlabs.expensetracker.core.ui.theme.syncCardBorder
+import com.mknlabs.expensetracker.core.ui.theme.syncDeviceCard
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -245,10 +248,16 @@ private fun DeviceListContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
-            shape = AppCardDefaults.shape(24.dp),
-            // The shared card in both themes: the brand tint that used to be this card's
-            // dark surface is gone, so it now reads like every other card on the screen.
-            colors = AppCardDefaults.colors(),
+            shape = RoundedCornerShape(12.dp),
+            // The mockup's Obsidian card fill, #121622 with the 8% white edge in dark;
+            // light stays the standard white card.
+            colors = AppCardDefaults.colors(
+                darkContainer = MaterialTheme.colorScheme.syncCard,
+                darkBorder = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.syncCardBorder
+                )
+            ),
         ) {
             Row(
                 modifier = Modifier
@@ -269,27 +278,47 @@ private fun DeviceListContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Switch(
-                    modifier = Modifier.scale(0.9f),
-                    checked = isSyncEnabled,
-                    onCheckedChange = onSyncEnabledChange,
-                    thumbContent = if (isSyncEnabled) {
-                        {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                                tint = MaterialTheme.colorScheme.switchOnTick
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
-                        checkedTrackColor = MaterialTheme.colorScheme.switchOnTrack
-                    )
+                // Material's Switch paints a flat track, so the mockup's brand-gradient
+                // track sits behind a switch whose own checked track is transparent.
+                // Both share the same scale so the pill stays under the thumb.
+                val trackAlpha by animateFloatAsState(
+                    targetValue = if (isSyncEnabled) 1f else 0f,
+                    label = "cloudSyncTrack"
                 )
+                Box(
+                    modifier = Modifier.scale(0.9f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(52.dp)
+                            .height(32.dp)
+                            .alpha(trackAlpha)
+                            .clip(CircleShape)
+                            .background(brush = brandGradient())
+                    )
+                    Switch(
+                        checked = isSyncEnabled,
+                        onCheckedChange = onSyncEnabledChange,
+                        thumbContent = if (isSyncEnabled) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    tint = MaterialTheme.colorScheme.switchOnTick
+                                )
+                            }
+                        } else {
+                            null
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
+                            checkedTrackColor = androidx.compose.ui.graphics.Color.Transparent,
+                            checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent
+                        )
+                    )
+                }
             }
         }
 
@@ -299,87 +328,111 @@ private fun DeviceListContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
-                shape = AppCardDefaults.shape(24.dp),
+                shape = RoundedCornerShape(12.dp),
+                // The sync action shares the master switch's card fill in the mockup.
                 colors = AppCardDefaults.colors(
-                    darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
+                    darkContainer = MaterialTheme.colorScheme.syncCard,
                     darkBorder = androidx.compose.foundation.BorderStroke(
                         1.dp,
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                        MaterialTheme.colorScheme.syncCardBorder
                     )
                 ),
             ) {
-                Column(
+                // The mockup stacks the title, its info glyph and "Last synced" in one
+                // block with the Sync Now button underneath at phone width, and lays the
+                // two out side by side once the card is wide enough (sm:flex-row).
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.title_force_sync),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        IconButton(
-                            onClick = { showForceSyncInfo = true },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = stringResource(R.string.desc_force_sync),
-                                tint = MaterialTheme.colorScheme.accentInk,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        if (isSyncing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.accentInk,
-                                strokeWidth = 2.5.dp
-                            )
-                        } else {
-                            Button(
-                                onClick = onForceSyncClick,
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    contentColor = MaterialTheme.colorScheme.onBrandGradient
-                                ),
-                                modifier = Modifier.background(
-                                    brush = brandGradient(),
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.CloudSync,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = stringResource(R.string.btn_sync_now),
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                                )
-                            }
-                        }
-                    }
+                    val sideBySide = maxWidth >= 560.dp
                     val lastSyncText = if (lastSyncTimeMillis > 0L) {
                         stringResource(R.string.label_last_synced, formatDate(lastSyncTimeMillis, "MMM dd, yyyy · hh:mm a"))
                     } else {
                         stringResource(R.string.label_never_synced)
                     }
-                    Text(
-                        text = lastSyncText,
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                    )
+                    val syncAction: @Composable (Modifier) -> Unit = { modifier ->
+                        if (isSyncing) {
+                            Box(modifier, contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = MaterialTheme.colorScheme.accentInk,
+                                    strokeWidth = 2.5.dp
+                                )
+                            }
+                        } else {
+                            Button(
+                                onClick = onForceSyncClick,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.onBrandGradient
+                                ),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                                modifier = modifier.background(
+                                    brush = brandGradient(),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.CloudSync,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = stringResource(R.string.btn_sync_now),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+                                )
+                            }
+                        }
+                    }
+                    val syncInfo: @Composable () -> Unit = {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.title_force_sync),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                IconButton(
+                                    onClick = { showForceSyncInfo = true },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Info,
+                                        contentDescription = stringResource(R.string.desc_force_sync),
+                                        tint = MaterialTheme.colorScheme.accentInk,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                            Text(
+                                text = lastSyncText,
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    if (sideBySide) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            Box(Modifier.weight(1f)) { syncInfo() }
+                            syncAction(Modifier)
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            syncInfo()
+                            syncAction(Modifier.fillMaxWidth())
+                        }
+                    }
                 }
             }
         }
@@ -389,12 +442,13 @@ private fun DeviceListContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Dimens.ScreenPadding, end = Dimens.ScreenPadding, bottom = 8.dp),
-            shape = AppCardDefaults.shape(24.dp),
+            shape = RoundedCornerShape(12.dp),
+            // Same Obsidian fill as the sync cards above, as the mockup draws it.
             colors = AppCardDefaults.colors(
-                darkContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                darkContainer = MaterialTheme.colorScheme.syncCard,
                 darkBorder = androidx.compose.foundation.BorderStroke(
                     1.dp,
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    MaterialTheme.colorScheme.syncCardBorder
                 )
             ),
         ) {
@@ -489,15 +543,17 @@ private fun DeviceItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Dimens.ScreenPadding, vertical = 4.dp),
-        shape = AppCardDefaults.shape(16.dp),
-        // A row of the roster is a card in light; dark keeps the current device's own
-        // brand-edged outline, which is where that device is called out beside the badge.
+        shape = RoundedCornerShape(12.dp),
+        // A row of the roster is a white card in light. Dark takes the mockup's device
+        // fills, #131724 for the current device and #121622 for the rest, while the
+        // current device keeps its brand edge beside the badge.
         colors = AppCardDefaults.colors(
-            darkContainer = MaterialTheme.colorScheme.surface,
+            darkContainer = if (device.isCurrentDevice) MaterialTheme.colorScheme.syncDeviceCard
+            else MaterialTheme.colorScheme.syncCard,
             darkBorder = androidx.compose.foundation.BorderStroke(
                 1.dp,
                 if (device.isCurrentDevice) MaterialTheme.colorScheme.accentInk.copy(alpha = 0.3f)
-                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                else MaterialTheme.colorScheme.syncCardBorder
             )
         ),
     ) {
@@ -529,7 +585,11 @@ private fun DeviceItem(
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                // The current device's badge row needs a little air under the name; the
+                // secondary rows keep their tighter name/last-active pairing.
+                verticalArrangement = Arrangement.spacedBy(
+                    if (device.isCurrentDevice) 6.dp else 2.dp
+                )
             ) {
                 Text(
                     text = device.modelName,
@@ -558,7 +618,7 @@ private fun DeviceItem(
                         Text(
                             text = stringResource(R.string.label_active_now),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.accentInk,
+                            color = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                 } else {
