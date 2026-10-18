@@ -50,15 +50,19 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 // Avatar ring palette, taken from the homescreen redesign mock
 // (homescree-redesign-2.html): `from-accent-indigo via-accent-violet to-fuchsia-500`.
 // The same three stops draw the ring in both themes, so the avatar keeps one identity.
-private val AvatarRingIndigo = Color(0xFF6366F1)
-private val AvatarRingViolet = Color(0xFF8B5CF6)
-private val AvatarRingFuchsia = Color(0xFFD946EF)
+internal val AvatarRingIndigo = Color(0xFF6366F1)
+internal val AvatarRingViolet = Color(0xFF8B5CF6)
+internal val AvatarRingFuchsia = Color(0xFFD946EF)
+
+// The three stops in order, for the settings hero's avatar, Pro badge and animated edge,
+// which carry the same identity instead of a ramp of their own.
+internal val AvatarRingStops = listOf(AvatarRingIndigo, AvatarRingViolet, AvatarRingFuchsia)
 
 // Pro badge fill, the mock's accent-violet (same value as the home header's
 // notification dot). One violet in both themes, so the badge reads as the brand mark.
 private val ProBadgeBackground = Color(0xFF8B5CF6)
 internal val AvatarRingBrush: Brush = Brush.linearGradient(
-    colors = listOf(AvatarRingIndigo, AvatarRingViolet, AvatarRingFuchsia),
+    colors = AvatarRingStops,
     // Direction is to-tr, as the mock draws it: bottom-left to top-right.
     start = Offset(0f, Float.POSITIVE_INFINITY),
     end = Offset(Float.POSITIVE_INFINITY, 0f)

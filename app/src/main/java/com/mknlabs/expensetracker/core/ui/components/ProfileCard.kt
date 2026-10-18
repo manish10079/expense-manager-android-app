@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
@@ -65,26 +66,14 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Zap
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.SettingsHeroAvatarIndigo
-import com.mknlabs.expensetracker.core.ui.theme.SettingsHeroAvatarPurple
-import com.mknlabs.expensetracker.core.ui.theme.SettingsHeroAvatarRose
-import com.mknlabs.expensetracker.core.ui.theme.SettingsHeroProBadgeEnd
-import com.mknlabs.expensetracker.core.ui.theme.SettingsHeroProBadgeStart
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.invest
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepCoral
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepSky
-import com.mknlabs.expensetracker.core.ui.theme.settingsHeroSweepViolet
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.utils.toTitleCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private val AvatarOuter = 16.dp
-private val AvatarInnerSignedIn = 14.dp
-private val AvatarInnerSignedOut = 12.dp
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
@@ -103,13 +92,16 @@ fun ProfileCard(
     val isPremium = userTier == UserTier.PREMIUM && !isAnonymous
     val cardShape = AppCardDefaults.shape()
     val cardCorner = AppCardDefaults.CornerRadius
+    // The avatar's own ramp, so the animated edge lights the hero in the indigo → violet →
+    // fuchsia the profile circle wears. The stops keep the sweep's original shape: a soft
+    // lead-in, the ramp across the leading arc, then a fade back out.
     val sweepColors = listOf(
         Color.Transparent,
         Color.Transparent,
-        colorScheme.settingsHeroSweepSky.copy(alpha = 0f),
-        colorScheme.settingsHeroSweepSky,
-        colorScheme.settingsHeroSweepViolet,
-        colorScheme.settingsHeroSweepCoral,
+        AvatarRingStops[0].copy(alpha = 0f),
+        AvatarRingStops[0],
+        AvatarRingStops[1],
+        AvatarRingStops[2],
         Color.Transparent
     )
     val sweepStops = floatArrayOf(0f, 0.50f, 0.583f, 0.722f, 0.861f, 0.944f, 1f)
@@ -272,13 +264,9 @@ private fun SettingsHeroAvatar(
     isAnonymous: Boolean
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val ring = Brush.linearGradient(
-        colors = listOf(
-            SettingsHeroAvatarRose,
-            SettingsHeroAvatarPurple,
-            SettingsHeroAvatarIndigo
-        )
-    )
+    // The home screen avatar's circle gradient, used verbatim so the two avatars are one
+    // identity rather than two ramps that merely resemble each other.
+    val ring = AvatarRingBrush
     Box(
         modifier = Modifier.size(56.dp),
         contentAlignment = Alignment.Center
@@ -289,13 +277,15 @@ private fun SettingsHeroAvatar(
                     .fillMaxSize()
                     .drawWithContent {
                         drawContent()
-                        drawRoundRect(
+                        // A circle, matching the signed-in avatar, rather than the rounded
+                        // square this ring used to be.
+                        drawCircle(
                             color = colorScheme.outline,
+                            radius = size.minDimension / 2f - 1.dp.toPx(),
                             style = Stroke(
                                 width = 2.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f)
-                            ),
-                            cornerRadius = CornerRadius(AvatarOuter.toPx(), AvatarOuter.toPx())
+                            )
                         )
                     }
                     .padding(2.dp)
@@ -304,7 +294,7 @@ private fun SettingsHeroAvatar(
                     gender = gender,
                     photoUri = photoUri,
                     grayscale = true,
-                    shape = RoundedCornerShape(AvatarInnerSignedOut)
+                    shape = CircleShape
                 )
             }
             Box(
@@ -330,18 +320,19 @@ private fun SettingsHeroAvatar(
                     .fillMaxSize()
                     .shadow(
                         elevation = 16.dp,
-                        shape = RoundedCornerShape(AvatarOuter),
-                        ambientColor = SettingsHeroAvatarRose.copy(alpha = 0.25f),
-                        spotColor = SettingsHeroAvatarPurple.copy(alpha = 0.20f)
+                        // Circular, so the hero's avatar matches the home screen's.
+                        shape = CircleShape,
+                        ambientColor = AvatarRingIndigo.copy(alpha = 0.25f),
+                        spotColor = AvatarRingFuchsia.copy(alpha = 0.20f)
                     )
-                    .background(ring, RoundedCornerShape(AvatarOuter))
+                    .background(ring, CircleShape)
                     .padding(2.dp)
             ) {
                 SettingsHeroAvatarImage(
                     gender = gender,
                     photoUri = photoUri,
                     grayscale = false,
-                    shape = RoundedCornerShape(AvatarInnerSignedIn)
+                    shape = CircleShape
                 )
             }
         }
@@ -353,7 +344,7 @@ private fun SettingsHeroAvatarImage(
     gender: String,
     photoUri: String?,
     grayscale: Boolean,
-    shape: RoundedCornerShape
+    shape: Shape
 ) {
     val grayFilter = if (grayscale) {
         ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
@@ -397,13 +388,12 @@ private fun SettingsHeroProBadge() {
             .shadow(
                 elevation = 8.dp,
                 shape = CircleShape,
-                ambientColor = SettingsHeroProBadgeStart.copy(alpha = 0.25f),
-                spotColor = SettingsHeroProBadgeStart.copy(alpha = 0.25f)
+                ambientColor = AvatarRingViolet.copy(alpha = 0.25f),
+                spotColor = AvatarRingFuchsia.copy(alpha = 0.25f)
             )
+            // Same ramp as the avatar ring, so the badge is part of the avatar's identity.
             .background(
-                Brush.horizontalGradient(
-                    listOf(SettingsHeroProBadgeStart, SettingsHeroProBadgeEnd)
-                ),
+                Brush.horizontalGradient(AvatarRingStops),
                 CircleShape
             )
             .padding(horizontal = 7.dp, vertical = 0.dp),
