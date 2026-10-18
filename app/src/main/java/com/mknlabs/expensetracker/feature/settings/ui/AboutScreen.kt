@@ -66,10 +66,13 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.data.local.RateAppPromptStore
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -235,16 +238,19 @@ private fun AboutScreenContent(
             SupportLegalSection {
                 AboutActionItem(
                     icon = PhosphorIcons.Regular.Star,
+                    tile = SettingsTiles.Amber,
                     title = stringResource(R.string.title_rate_app),
                     onClick = { isRateSheetVisible = true }
                 )
                 AboutActionItem(
                     icon = PhosphorIcons.Regular.Envelope,
+                    tile = SettingsTiles.Sky,
                     title = stringResource(R.string.title_send_feedback),
                     onClick = onFeedbackClick
                 )
                 AboutActionItem(
                     icon = PhosphorIcons.Regular.Bug,
+                    tile = SettingsTiles.Rose,
                     title = stringResource(R.string.title_report_bug),
                     onClick = { /* Handle report bug */ }
                 )
@@ -257,11 +263,13 @@ private fun AboutScreenContent(
             SupportLegalSection {
                 AboutActionItem(
                     icon = PhosphorIcons.Regular.Lock,
+                    tile = SettingsTiles.Emerald,
                     title = stringResource(R.string.title_privacy_policy),
                     onClick = { onOpenUrl(privacyPolicyUrl) }
                 )
                 AboutActionItem(
                     icon = PhosphorIcons.Regular.FileText,
+                    tile = SettingsTiles.Indigo,
                     title = stringResource(R.string.title_terms_conditions),
                     onClick = { onOpenUrl(termsConditionsUrl) }
                 )
@@ -324,29 +332,21 @@ private fun AboutInfoCard(
 ) {
     AppCard(
         modifier = Modifier.fillMaxWidth(),
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent and no outline is added; light takes the card.
-        brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors(),
     ) {
         Column(
             modifier = Modifier.padding(24.dp)
         ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val iconRamp = brandGradient()
-            Icon(
-                imageVector = icon,
+            AppIconBox(
+                icon = icon,
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier
-                    .size(20.dp)
-                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                    .drawWithCache {
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
-                        }
-                    }
+                size = 40.dp,
+                iconSize = 24.dp,
+                tint = SettingsTiles.Violet.ink,
+                backgroundColor = SettingsTiles.Violet.fill,
+                shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -374,8 +374,8 @@ private fun DeveloperCard(
     AppCard(
         onClick = onEmailClick,
         modifier = Modifier.fillMaxWidth(),
-        brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors(),
         contentPadding = PaddingValues(24.dp),
     ) {
         Column {
@@ -415,8 +415,8 @@ private fun AboutSectionHeader(title: String) {
 private fun SupportLegalSection(content: @Composable () -> Unit) {
     AppCard(
         modifier = Modifier.fillMaxWidth(),
-        brush = darkOnlyGradient(standardCardGradient()),
         shape = AppCardDefaults.shape(24.dp),
+        colors = settingsGroupCardColors(),
     ) {
         Column {
             content()
@@ -427,6 +427,7 @@ private fun SupportLegalSection(content: @Composable () -> Unit) {
 @Composable
 private fun AboutActionItem(
     icon: ImageVector,
+    tile: SettingsTilePalette,
     title: String,
     onClick: () -> Unit
 ) {
@@ -437,20 +438,14 @@ private fun AboutActionItem(
             .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val iconRamp = brandGradient()
-        Icon(
-            imageVector = icon,
+        AppIconBox(
+            icon = icon,
             contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier
-                .size(20.dp)
-                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                .drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
-                    }
-                }
+            size = 40.dp,
+            iconSize = 24.dp,
+            tint = tile.ink,
+            backgroundColor = tile.fill,
+            shape = RoundedCornerShape(12.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(

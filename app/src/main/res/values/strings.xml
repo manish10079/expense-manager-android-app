@@ -4301,7 +4301,7 @@
 
     <string name="placeholder_feedback_hint">Write your feedback here…</string>
 
-    <string name="btn_submit_feedback">SUBMIT FEEDBACK</string>
+    <string name="btn_submit_feedback">Submit Feedback</string>
 
     <string name="msg_feedback_success">Thank you for your feedback!</string>
 
@@ -4309,7 +4309,7 @@
 
     <string name="msg_feedback_cooldown">Please wait %1$s minutes before sending feedback again.</string>
 
-    <string name="label_logged_in_as">Sending as: %1$s (ID: %2$s)</string>
+    <string name="label_logged_in_as">Sending as: %1$s</string>
 
     <string name="msg_feedback_empty">Feedback cannot be empty.</string>
 

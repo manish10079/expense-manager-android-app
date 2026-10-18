@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,8 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Feedback
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Envelope
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,13 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,8 +41,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
-import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
@@ -129,38 +137,55 @@ private fun FeedbackScreenContent(
         ) {
 
             // Info Card with User Context
+            val scheme = MaterialTheme.colorScheme
+            val dark = scheme.isDark
+            val tellUsInk = if (dark) Color(0xFFF1F5F9) else scheme.onSurface
+            val sendingInk = if (dark) Color(0xFF94A3B8) else scheme.onSurfaceVariant
+            val emailInk = if (dark) Color(0xFFCBD5E1) else scheme.onSurface
+            val fieldFill = if (dark) Color(0xFF0B0E17) else scheme.surface
+            val fieldBorder = if (dark) Color(0xFF8B5CF6) else scheme.accentInk
+            val placeholderInk = if (dark) Color(0xFF64748B) else scheme.onSurfaceVariant
+
+            // Mockup sender card: obsidian-850/90 over slate-800/80, violet-washed icon.
             AppCard(
                 modifier = Modifier.fillMaxWidth(),
-                // The gradient is the dark surface and this card's only fill, so the
-                // container beneath it stays transparent; light takes the white card.
-                brush = darkOnlyGradient(standardCardGradient()),
                 shape = AppCardDefaults.shape(24.dp),
+                colors = AppCardColors(
+                    containerColor = if (dark) Color(0xE6101421) else scheme.surface,
+                    contentColor = tellUsInk,
+                    border = BorderStroke(
+                        1.dp,
+                        if (dark) Color(0xCC1E293B) else scheme.outline
+                    )
+                ),
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Rounded.Email,
+                            imageVector = PhosphorIcons.Regular.Envelope,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.accentInk,
+                            tint = if (dark) Color(0xFFA78BFA) else scheme.accentInk,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = stringResource(R.string.label_send_feedback_desc),
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = tellUsInk,
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = stringResource(
-                            R.string.label_logged_in_as,
-                            uiState.userEmail.ifEmpty { "Anonymous" },
-                            uiState.userId.take(8)
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(color = sendingInk)) {
+                                append(stringResource(R.string.label_logged_in_as, ""))
+                            }
+                            withStyle(SpanStyle(color = emailInk)) {
+                                append(uiState.userEmail.ifEmpty { "Anonymous" })
+                            }
+                        },
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -175,14 +200,25 @@ private fun FeedbackScreenContent(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.placeholder_feedback_hint),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        color = placeholderInk
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                shape = AppOutlinedFieldDefaults.shape,
-                colors = AppOutlinedFieldDefaults.colors(),
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = fieldFill,
+                    unfocusedContainerColor = fieldFill,
+                    disabledContainerColor = fieldFill,
+                    errorContainerColor = fieldFill,
+                    focusedBorderColor = fieldBorder,
+                    unfocusedBorderColor = fieldBorder.copy(alpha = 0.5f),
+                    disabledBorderColor = fieldBorder.copy(alpha = 0.3f),
+                    cursorColor = fieldBorder,
+                    focusedTextColor = tellUsInk,
+                    unfocusedTextColor = tellUsInk
+                ),
                 maxLines = 10,
                 enabled = !uiState.isLoading && !uiState.isCooldownActive
             )
@@ -216,40 +252,56 @@ private fun FeedbackScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Submit Button
+            val submitTextReady = uiState.feedbackText.isNotBlank() && !uiState.isCooldownActive
+            val submitEnabled = submitTextReady && !uiState.isLoading
             Button(
                 onClick = onSubmitClick,
-                enabled = !uiState.isLoading && !uiState.isCooldownActive && uiState.feedbackText.isNotBlank(),
+                enabled = submitEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 56.dp)
-                    .clip(RoundedCornerShape(28.dp)),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(28.dp),
+                contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.accentInk,
-                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBrandGradient,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Feedback,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                        .clip(RoundedCornerShape(28.dp))
+                        .then(
+                            if (submitTextReady) Modifier.background(brandGradient())
+                            else Modifier.background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onBrandGradient,
+                            strokeWidth = 2.dp
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = stringResource(R.string.btn_submit_feedback),
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Feedback,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = stringResource(R.string.btn_submit_feedback),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
                     }
                 }
             }
