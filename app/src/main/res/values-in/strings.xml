@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Kategori pemasukan</string>
     <string name="label_expense_category_item">Kategori pengeluaran</string>
     <string name="msg_item_added_under">Item baru ini akan ditambahkan di bawah %1$s.</string>
-    <string name="title_auto_lock_duration">Durasi kunci otomatis</string>
+    <string name="title_auto_lock_duration">Kunci otomatis</string>
     <string name="title_biometric">Biometrik</string>
     <string name="title_block_screenshots">Blokir tangkapan layar</string>
     <string name="title_lock_as_soon_as_the_app_moves">Kunci segera setelah aplikasi ke latar belakang.</string>

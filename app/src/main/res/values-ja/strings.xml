@@ -95,7 +95,7 @@
     <string name="label_income_category_item">収入カテゴリ</string>
     <string name="label_expense_category_item">支出カテゴリ</string>
     <string name="msg_item_added_under">この項目は%1$sの下に追加されます。</string>
-    <string name="title_auto_lock_duration">自動ロックまでの時間</string>
+    <string name="title_auto_lock_duration">自動ロック</string>
     <string name="title_biometric">生体認証</string>
     <string name="title_block_screenshots">スクリーンショットをブロック</string>
     <string name="title_lock_as_soon_as_the_app_moves">アプリがバックグラウンドになったらすぐにロック。</string>

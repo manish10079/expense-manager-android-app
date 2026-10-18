@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
+import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.syncCard
 import com.mknlabs.expensetracker.core.ui.theme.syncCardBorder
@@ -315,7 +316,11 @@ private fun DeviceListContent(
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.switchOnThumb,
                             checkedTrackColor = androidx.compose.ui.graphics.Color.Transparent,
-                            checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent
+                            checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                            // Off matches the app-lock toggle on Security & Privacy.
+                            uncheckedThumbColor = MaterialTheme.colorScheme.textTertiary,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                            uncheckedBorderColor = MaterialTheme.colorScheme.textTertiary
                         )
                     )
                 }

@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Catégorie de revenu</string>
     <string name="label_expense_category_item">Catégorie de dépense</string>
     <string name="msg_item_added_under">Cet élément sera ajouté sous %1$s.</string>
-    <string name="title_auto_lock_duration">Délai de verrouillage auto</string>
+    <string name="title_auto_lock_duration">Verrouillage auto</string>
     <string name="title_biometric">Biométrie</string>
     <string name="title_block_screenshots">Bloquer les captures d\'écran</string>
     <string name="title_lock_as_soon_as_the_app_moves">Verrouiller dès que l\'app passe en arrière-plan.</string>

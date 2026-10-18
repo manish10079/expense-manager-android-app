@@ -95,7 +95,7 @@
     <string name="label_income_category_item">आय श्रेणी</string>
     <string name="label_expense_category_item">खर्च श्रेणी</string>
     <string name="msg_item_added_under">यह नई चीज़ %1$s के अंतर्गत जुड़ेगी।</string>
-    <string name="title_auto_lock_duration">ऑटो लॉक अवधि</string>
+    <string name="title_auto_lock_duration">ऑटो लॉक</string>
     <string name="title_biometric">बायोमेट्रिक</string>
     <string name="title_block_screenshots">स्क्रीनशॉट ब्लॉक करें</string>
     <string name="title_lock_as_soon_as_the_app_moves">ऐप बैकग्राउंड जाते ही लॉक करें।</string>

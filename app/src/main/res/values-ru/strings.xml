@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Категория дохода</string>
     <string name="label_expense_category_item">Категория расхода</string>
     <string name="msg_item_added_under">Этот элемент будет добавлен в %1$s.</string>
-    <string name="title_auto_lock_duration">Время автоблокировки</string>
+    <string name="title_auto_lock_duration">Автоблокировка</string>
     <string name="title_biometric">Биометрия</string>
     <string name="title_block_screenshots">Блокировать скриншоты</string>
     <string name="title_lock_as_soon_as_the_app_moves">Блокировать сразу, как приложение уйдёт в фон.</string>

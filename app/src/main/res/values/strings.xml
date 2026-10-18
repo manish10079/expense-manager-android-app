@@ -212,7 +212,7 @@
 
 
 
-    <string name="title_auto_lock_duration">Auto Lock Duration</string>
+    <string name="title_auto_lock_duration">Auto Lock</string>
 
 
 
@@ -1489,7 +1489,7 @@
 
     <string name="label_secure_app_pin">Secure app with a PIN code</string>
 
-    <string name="label_use_biometric_subtitle">Use fingerprint or face ID</string>
+    <string name="label_use_biometric_subtitle">Use fingerprint</string>
 
     <string name="label_scrambled_keypad">Scrambled Keypad</string>
 
@@ -1501,7 +1501,7 @@
 
     <string name="label_block_screenshots_subtitle">Prevent screen capture of app</string>
 
-    <string name="label_auto_lock_subtitle">When to require PIN again</string>
+    <string name="label_auto_lock_subtitle">When the app locks itself</string>
 
     <string name="label_lock_immediately">Lock as soon as app backgrounded</string>
 

@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.core.ui.components
 
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -39,7 +41,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import com.mknlabs.expensetracker.core.ui.theme.switchOnThumb
 import com.mknlabs.expensetracker.core.ui.theme.switchOnTick
-import com.mknlabs.expensetracker.core.ui.theme.switchOnTrack
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,9 +52,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
+import com.mknlabs.expensetracker.core.ui.theme.settingsSubtitleInk
 import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -76,6 +80,8 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 fun SettingsItemCard(
     icon: ImageVector,
     title: String,
+    /** When set, the icon sits on this settings tile instead of the brand gradient. */
+    iconTile: SettingsTilePalette? = null,
     subtitle: String? = null,
     type: SettingsItemType,
     valueText: String? = null,
@@ -130,7 +136,9 @@ fun SettingsItemCard(
 
     val subtitleColor = when {
         isGated -> colorScheme.disabled
-        else -> onSurfaceVariant.copy(alpha = if (finalEnabled) 1f else 0.6f)
+        // Enabled rows take the settings screen's own subtitle ink in both themes.
+        finalEnabled -> colorScheme.settingsSubtitleInk
+        else -> onSurfaceVariant.copy(alpha = 0.6f)
     }
 
     val itemContent = @Composable {
@@ -154,9 +162,14 @@ fun SettingsItemCard(
                 contentDescription = title,
                 size = 40.dp,
                 iconSize = 24.dp,
-                tint = if (brandIcon) Color.White else iconTint,
-                tintBrush = if (brandIcon) brandGradient() else null,
-                backgroundColor = iconBackground
+                tint = when {
+                    !brandIcon -> iconTint
+                    iconTile != null -> iconTile.ink
+                    else -> Color.White
+                },
+                tintBrush = if (brandIcon && iconTile == null) brandGradient() else null,
+                backgroundColor = if (brandIcon && iconTile != null) iconTile.fill else iconBackground,
+                shape = if (iconTile != null) RoundedCornerShape(12.dp) else CircleShape
             )
 
             Column(
@@ -224,38 +237,57 @@ fun SettingsItemCard(
                 when (type) {
                     SettingsItemType.Toggle -> {
                         CompositionLocalProvider(LocalRippleConfiguration provides null) {
-                            Switch(
-                                modifier = Modifier.scale(0.9f),
-                                checked = isChecked,
-                                onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
-                                enabled = finalEnabled,
-                                thumbContent = if (isChecked) {
-                                    {
-                                        Icon(
-                                            imageVector = Icons.Filled.Check,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                                            tint = colorScheme.switchOnTick
-                                        )
-                                    }
-                                } else {
-                                    null
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = colorScheme.switchOnThumb,
-                                    checkedTrackColor = colorScheme.switchOnTrack,
-                                    checkedBorderColor = Color.Transparent,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.textTertiary,
-                                    uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
-                                    uncheckedBorderColor = MaterialTheme.colorScheme.textTertiary,
-                                    disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
-                                    disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
-                                    disabledCheckedBorderColor = Color.Transparent,
-                                    disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
-                                    disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
-                                    disabledUncheckedBorderColor = Color.Transparent
-                                )
+                            // The on track is the brand gradient, drawn behind a switch
+                            // whose own checked track is transparent, the same way the
+                            // Cloud Sync toggle on the devices screen is built.
+                            val trackAlpha by animateFloatAsState(
+                                targetValue = if (isChecked && finalEnabled) 1f else 0f,
+                                label = "settingsToggleTrack"
                             )
+                            Box(
+                                modifier = Modifier.scale(0.9f),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(52.dp)
+                                        .height(32.dp)
+                                        .alpha(trackAlpha)
+                                        .clip(CircleShape)
+                                        .background(brush = brandGradient())
+                                )
+                                Switch(
+                                    checked = isChecked,
+                                    onCheckedChange = updatedOnCheckedChange?.takeIf { finalEnabled },
+                                    enabled = finalEnabled,
+                                    thumbContent = if (isChecked) {
+                                        {
+                                            Icon(
+                                                imageVector = Icons.Filled.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                                                tint = colorScheme.switchOnTick
+                                            )
+                                        }
+                                    } else {
+                                        null
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = colorScheme.switchOnThumb,
+                                        checkedTrackColor = Color.Transparent,
+                                        checkedBorderColor = Color.Transparent,
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.textTertiary,
+                                        uncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.45f),
+                                        uncheckedBorderColor = MaterialTheme.colorScheme.textTertiary,
+                                        disabledCheckedThumbColor = colorScheme.onSurface.copy(alpha = 0.38f),
+                                        disabledCheckedTrackColor = primary.copy(alpha = 0.30f),
+                                        disabledCheckedBorderColor = Color.Transparent,
+                                        disabledUncheckedThumbColor = colorScheme.surface.copy(alpha = 0.9f),
+                                        disabledUncheckedTrackColor = colorScheme.outlineVariant.copy(alpha = 0.22f),
+                                        disabledUncheckedBorderColor = Color.Transparent
+                                    )
+                                )
+                            }
                         }
                     }
 
@@ -274,7 +306,7 @@ fun SettingsItemCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = valueText,
-                                    color = if (isTimer) primary else onSurfaceVariant,
+                                    color = if (isTimer) primary else colorScheme.settingsSubtitleInk,
                                     style = if (isTimer) MaterialTheme.typography.titleMedium
                                            else MaterialTheme.typography.bodyMedium
                                 )

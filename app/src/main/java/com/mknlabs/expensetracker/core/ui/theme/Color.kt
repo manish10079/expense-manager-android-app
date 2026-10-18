@@ -958,3 +958,32 @@ val ColorScheme.syncCardBorder: Color
 
 val ColorScheme.syncDeviceCard: Color
     get() = if (isDark) SyncDeviceCardDark else SurfaceLight
+
+// Settings row subtitle ink (mock-settings.html): #8E9BAE on the dark page, #5B6270 on
+// the light one. Every settings group shares it, so the sibling screens cannot drift.
+internal val SettingsSubtitleInkDark = Color(0xFF8E9BAE)
+internal val SettingsSubtitleInkLight = Color(0xFF5B6270)
+
+val ColorScheme.settingsSubtitleInk: Color
+    get() = if (isDark) SettingsSubtitleInkDark else SettingsSubtitleInkLight
+
+// Leading-tile palette, read from the settings mockup (mock-settings.html `.tile.*`):
+// each row's icon sits on its own hue at 15% with the 400-weight ink of that hue, on a
+// 40dp tile rounded 12dp. The mockup draws the same tiles in both themes, so no pair is
+// theme-aware.
+data class SettingsTilePalette(val fill: Color, val ink: Color)
+
+internal object SettingsTiles {
+    val Violet  = SettingsTilePalette(Color(0xFF7C3AED).copy(alpha = 0.15f), Color(0xFFA78BFA))
+    val Sky     = SettingsTilePalette(Color(0xFF0EA5E9).copy(alpha = 0.15f), Color(0xFF38BDF8))
+    val Emerald = SettingsTilePalette(Color(0xFF10B981).copy(alpha = 0.15f), Color(0xFF34D399))
+    val Fuchsia = SettingsTilePalette(Color(0xFFD946EF).copy(alpha = 0.15f), Color(0xFFE879F9))
+    val Amber   = SettingsTilePalette(Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFFBBF24))
+    val Indigo  = SettingsTilePalette(Color(0xFF6366F1).copy(alpha = 0.15f), Color(0xFF818CF8))
+    val Purple  = SettingsTilePalette(Color(0xFFA855F7).copy(alpha = 0.15f), Color(0xFFC084FC))
+    val Pink    = SettingsTilePalette(Color(0xFFEC4899).copy(alpha = 0.15f), Color(0xFFF472B6))
+    val Blue    = SettingsTilePalette(Color(0xFF3B82F6).copy(alpha = 0.15f), Color(0xFF60A5FA))
+    val Teal    = SettingsTilePalette(Color(0xFF14B8A6).copy(alpha = 0.15f), Color(0xFF2DD4BF))
+    val Cyan    = SettingsTilePalette(Color(0xFF06B6D4).copy(alpha = 0.15f), Color(0xFF22D3EE))
+    val Rose    = SettingsTilePalette(Color(0xFFF43F5E).copy(alpha = 0.15f), Color(0xFFFB7185))
+}

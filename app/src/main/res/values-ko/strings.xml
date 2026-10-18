@@ -95,7 +95,7 @@
     <string name="label_income_category_item">수입 카테고리</string>
     <string name="label_expense_category_item">지출 카테고리</string>
     <string name="msg_item_added_under">이 항목은 %1$s 아래에 추가됩니다.</string>
-    <string name="title_auto_lock_duration">자동 잠금 시간</string>
+    <string name="title_auto_lock_duration">자동 잠금</string>
     <string name="title_biometric">생체 인식</string>
     <string name="title_block_screenshots">스크린샷 차단</string>
     <string name="title_lock_as_soon_as_the_app_moves">앱이 백그라운드로 가면 바로 잠급니다.</string>

@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Categoría de ingreso</string>
     <string name="label_expense_category_item">Categoría de gasto</string>
     <string name="msg_item_added_under">Este elemento se añadirá en %1$s.</string>
-    <string name="title_auto_lock_duration">Duración del autobloqueo</string>
+    <string name="title_auto_lock_duration">Autobloqueo</string>
     <string name="title_biometric">Biometría</string>
     <string name="title_block_screenshots">Bloquear capturas</string>
     <string name="title_lock_as_soon_as_the_app_moves">Bloquear en cuanto la app pase a segundo plano.</string>

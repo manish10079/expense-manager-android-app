@@ -49,6 +49,8 @@ import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
@@ -174,11 +176,12 @@ private fun SecurityPrivacyContent(
                 }
 
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_app_lock),
                             subtitle = stringResource(R.string.label_secure_app_pin),
                             icon = PhosphorIcons.Regular.Lock,
+                            iconTile = SettingsTiles.Emerald,
                             type = SettingsItemType.Toggle,
                             standalone = false,
                             isChecked = isAppLockEnabled,
@@ -189,6 +192,7 @@ private fun SecurityPrivacyContent(
                             title = stringResource(R.string.title_auto_lock_duration),
                             subtitle = stringResource(R.string.label_auto_lock_subtitle),
                             icon = PhosphorIcons.Regular.Timer,
+                            iconTile = SettingsTiles.Sky,
                             type = SettingsItemType.Value,
                             standalone = false,
                             valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
@@ -200,6 +204,7 @@ private fun SecurityPrivacyContent(
                             title = stringResource(R.string.title_biometric),
                             subtitle = stringResource(R.string.label_use_biometric_subtitle),
                             icon = PhosphorIcons.Regular.Fingerprint,
+                            iconTile = SettingsTiles.Violet,
                             type = SettingsItemType.Toggle,
                             standalone = false,
                             isEnabled = isAppLockEnabled && hasAppLockPin,
@@ -216,6 +221,7 @@ private fun SecurityPrivacyContent(
                                 title = stringResource(R.string.label_scrambled_keypad),
                                 subtitle = stringResource(R.string.label_scrambled_keypad_subtitle),
                                 icon = PhosphorIcons.Regular.GridFour,
+                                iconTile = SettingsTiles.Fuchsia,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -230,7 +236,7 @@ private fun SecurityPrivacyContent(
                 }
 
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         GatedAction(
                             feature = Feature.PRIVACY_PROTECTION,
                             onAction = { onBlurInRecentsChange(!isBlurInRecentsEnabled) }
@@ -240,6 +246,7 @@ private fun SecurityPrivacyContent(
                                 title = stringResource(R.string.label_blur_in_recents),
                                 subtitle = stringResource(R.string.label_blur_in_recents_subtitle),
                                 icon = PhosphorIcons.Regular.EyeSlash,
+                                iconTile = SettingsTiles.Indigo,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -259,6 +266,7 @@ private fun SecurityPrivacyContent(
                                 title = stringResource(R.string.title_block_screenshots),
                                 subtitle = stringResource(R.string.label_block_screenshots_subtitle),
                                 icon = PhosphorIcons.Regular.CameraSlash,
+                                iconTile = SettingsTiles.Rose,
                                 type = SettingsItemType.Toggle,
                                 standalone = false,
                                 accessLevel = accessLevel,
@@ -273,11 +281,12 @@ private fun SecurityPrivacyContent(
 
                 if (isEmailPasswordUser) {
                     item {
-                        SettingsGroup {
+                        SettingsGroup(colors = settingsGroupCardColors()) {
                             SettingsItemCard(
                                 title = stringResource(R.string.title_change_password),
                                 subtitle = stringResource(R.string.label_change_password_subtitle),
                                 icon = PhosphorIcons.Regular.Password,
+                                iconTile = SettingsTiles.Amber,
                                 type = SettingsItemType.Navigation,
                                 standalone = true,
                                 onClick = { isChangePasswordSheetVisible = true }

@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Einnahmenkategorie</string>
     <string name="label_expense_category_item">Ausgabenkategorie</string>
     <string name="msg_item_added_under">Dieser Eintrag wird unter %1$s hinzugefügt.</string>
-    <string name="title_auto_lock_duration">Auto-Sperrdauer</string>
+    <string name="title_auto_lock_duration">Auto-Sperre</string>
     <string name="title_biometric">Biometrie</string>
     <string name="title_block_screenshots">Screenshots blockieren</string>
     <string name="title_lock_as_soon_as_the_app_moves">Sperren, sobald die App in den Hintergrund geht.</string>

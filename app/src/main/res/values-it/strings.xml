@@ -95,7 +95,7 @@
     <string name="label_income_category_item">Categoria entrate</string>
     <string name="label_expense_category_item">Categoria spese</string>
     <string name="msg_item_added_under">Questo elemento verrà aggiunto sotto %1$s.</string>
-    <string name="title_auto_lock_duration">Durata blocco automatico</string>
+    <string name="title_auto_lock_duration">Blocco automatico</string>
     <string name="title_biometric">Biometria</string>
     <string name="title_block_screenshots">Blocca screenshot</string>
     <string name="title_lock_as_soon_as_the_app_moves">Blocca appena l\'app va in background.</string>

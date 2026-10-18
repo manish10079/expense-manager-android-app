@@ -2,7 +2,6 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.Intent
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -94,43 +93,33 @@ import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.components.AppCard
-import com.mknlabs.expensetracker.core.ui.components.AppCardColors
-import com.mknlabs.expensetracker.core.ui.components.SettingsCardFillDark
-import com.mknlabs.expensetracker.core.ui.components.SettingsCardFillLight
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
+import com.mknlabs.expensetracker.core.ui.theme.settingsSubtitleInk
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.core.ui.components.ProfileCard
 import com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 
-// Leading-tile palette, read from the settings mockup (mock-settings.html `.tile.*`): each
-// row's icon sits on its own hue at 15% with the 400-weight ink of that hue, on a 40dp tile
-// rounded 12dp. The mockup draws the same tiles in both themes, so no pair is theme-aware.
-// Declared here for now — these move into Color.kt once the settings redesign is finished.
-private data class SettingsTilePalette(val fill: Color, val ink: Color)
-
-private val TileViolet  = SettingsTilePalette(Color(0xFF7C3AED).copy(alpha = 0.15f), Color(0xFFA78BFA))
-private val TileSky     = SettingsTilePalette(Color(0xFF0EA5E9).copy(alpha = 0.15f), Color(0xFF38BDF8))
-private val TileEmerald = SettingsTilePalette(Color(0xFF10B981).copy(alpha = 0.15f), Color(0xFF34D399))
-private val TileFuchsia = SettingsTilePalette(Color(0xFFD946EF).copy(alpha = 0.15f), Color(0xFFE879F9))
-private val TileAmber   = SettingsTilePalette(Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFFBBF24))
-private val TileIndigo  = SettingsTilePalette(Color(0xFF6366F1).copy(alpha = 0.15f), Color(0xFF818CF8))
-private val TilePurple  = SettingsTilePalette(Color(0xFFA855F7).copy(alpha = 0.15f), Color(0xFFC084FC))
-private val TilePink    = SettingsTilePalette(Color(0xFFEC4899).copy(alpha = 0.15f), Color(0xFFF472B6))
-private val TileBlue    = SettingsTilePalette(Color(0xFF3B82F6).copy(alpha = 0.15f), Color(0xFF60A5FA))
-private val TileTeal    = SettingsTilePalette(Color(0xFF14B8A6).copy(alpha = 0.15f), Color(0xFF2DD4BF))
-private val TileCyan    = SettingsTilePalette(Color(0xFF06B6D4).copy(alpha = 0.15f), Color(0xFF22D3EE))
-private val TileRose    = SettingsTilePalette(Color(0xFFF43F5E).copy(alpha = 0.15f), Color(0xFFFB7185))
-
-// Row subtitle ink, the mockup's `--muted` (mock-settings.html): #8E9BAE on the dark page,
-// #5B6270 on the light one. Local for now, like the tiles — these move into Color.kt with
-// the rest of the settings tokens once the redesign is finished.
-private val SettingsSubtitleInkDark = Color(0xFF8E9BAE)
-private val SettingsSubtitleInkLight = Color(0xFF5B6270)
+// Leading-tile palette, shared with the sibling settings screens through Color.kt.
+private val TileViolet  = SettingsTiles.Violet
+private val TileSky     = SettingsTiles.Sky
+private val TileEmerald = SettingsTiles.Emerald
+private val TileFuchsia = SettingsTiles.Fuchsia
+private val TileAmber   = SettingsTiles.Amber
+private val TileIndigo  = SettingsTiles.Indigo
+private val TilePurple  = SettingsTiles.Purple
+private val TilePink    = SettingsTiles.Pink
+private val TileBlue    = SettingsTiles.Blue
+private val TileTeal    = SettingsTiles.Teal
+private val TileCyan    = SettingsTiles.Cyan
+private val TileRose    = SettingsTiles.Rose
 
 // Row chevron ink, the mockup's `--chev-ink` (mock-settings.html): neutral-500 on the dark
 // page, slate-400 on the light one. Local for now, like the tiles.
@@ -561,21 +550,8 @@ private fun SettingsSectionContainer(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    // The mockup's card body for this screen: #151824 on the dark page, white on the light
-    // one. Ink and outline are what the section card already carried, so only the fill moves.
-    val sectionCardColors = if (colorScheme.isDark) {
-        AppCardColors(
-            containerColor = SettingsCardFillDark,
-            contentColor = colorScheme.onSurface,
-            border = null,
-        )
-    } else {
-        AppCardColors(
-            containerColor = SettingsCardFillLight,
-            contentColor = colorScheme.onSurface,
-            border = BorderStroke(1.dp, colorScheme.outline),
-        )
-    }
+    // The settings screen's own card fill, shared with the sibling screens that join it.
+    val sectionCardColors = settingsGroupCardColors()
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(headerRes),
@@ -633,7 +609,7 @@ private fun SettingsRowItemView(
     val tileInk = if (isEnabled) data.tile.ink else colorScheme.disabled
     val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.disabled
     val subtitleColor = if (isEnabled) {
-        if (colorScheme.isDark) SettingsSubtitleInkDark else SettingsSubtitleInkLight
+        colorScheme.settingsSubtitleInk
     } else {
         colorScheme.disabled
     }
