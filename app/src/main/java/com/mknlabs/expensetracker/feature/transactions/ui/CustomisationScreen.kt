@@ -22,9 +22,11 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowDown
 import com.adamglin.phosphoricons.regular.ArrowUp
 import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.CalendarDots
 import com.adamglin.phosphoricons.regular.Clock
 import com.adamglin.phosphoricons.regular.ListChecks
 import com.adamglin.phosphoricons.regular.Tag
+import com.adamglin.phosphoricons.regular.TextAa
 import com.adamglin.phosphoricons.regular.Wallet
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -87,7 +89,10 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.AccessStatus
 
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupHeader
 
@@ -106,6 +111,7 @@ private data class TransactionCardToggleItem(
     val title: String,
     val subtitle: String,
     val icon: ImageVector,
+    val iconTile: SettingsTilePalette,
     val checked: Boolean,
     val optionId: String,
     val onCheckedChange: (Boolean) -> Unit
@@ -258,6 +264,7 @@ private fun TransactionCardCustomizeContent(
                 title = showDateTitle,
                 subtitle = showDateSubtitle,
                 icon = PhosphorIcons.Regular.CalendarBlank,
+                iconTile = SettingsTiles.Sky,
                 optionId = "showTransactionDate",
                 checked = localSettings.showTransactionDate,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionDate = it) }
@@ -266,6 +273,7 @@ private fun TransactionCardCustomizeContent(
                 title = showCategoryIconTitle,
                 subtitle = showCategoryIconSubtitle,
                 icon = PhosphorIcons.Regular.Tag,
+                iconTile = SettingsTiles.Emerald,
                 optionId = "showCategoryIcon",
                 checked = localSettings.showCategoryIcon,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryIcon = it) }
@@ -274,6 +282,7 @@ private fun TransactionCardCustomizeContent(
                 title = showTimeTitle,
                 subtitle = showTimeSubtitle,
                 icon = PhosphorIcons.Regular.Clock,
+                iconTile = SettingsTiles.Indigo,
                 optionId = "showTransactionTime",
                 checked = localSettings.showTransactionTime,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionTime = it) }
@@ -281,7 +290,8 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showCategoryTitle,
                 subtitle = showCategorySubtitle,
-                icon = PhosphorIcons.Regular.Tag,
+                icon = PhosphorIcons.Regular.TextAa,
+                iconTile = SettingsTiles.Fuchsia,
                 optionId = "showCategoryLabel",
                 checked = localSettings.showCategoryLabel,
                 onCheckedChange = { localSettings = localSettings.copy(showCategoryLabel = it) }
@@ -290,6 +300,7 @@ private fun TransactionCardCustomizeContent(
                 title = showPaymentMethodTitle,
                 subtitle = showPaymentMethodSubtitle,
                 icon = PhosphorIcons.Regular.Wallet,
+                iconTile = SettingsTiles.Amber,
                 optionId = "showPaymentMethod",
                 checked = localSettings.showPaymentMethod,
                 onCheckedChange = { localSettings = localSettings.copy(showPaymentMethod = it) }
@@ -297,7 +308,8 @@ private fun TransactionCardCustomizeContent(
             TransactionCardToggleItem(
                 title = showDateSeparatorsTitle,
                 subtitle = showDateSeparatorsSubtitle,
-                icon = PhosphorIcons.Regular.CalendarBlank,
+                icon = PhosphorIcons.Regular.CalendarDots,
+                iconTile = SettingsTiles.Teal,
                 optionId = "showDateSeparators",
                 checked = localSettings.showDateSeparators,
                 onCheckedChange = { localSettings = localSettings.copy(showDateSeparators = it) }
@@ -306,6 +318,7 @@ private fun TransactionCardCustomizeContent(
                 title = showListSummariesTitle,
                 subtitle = showListSummariesSubtitle,
                 icon = PhosphorIcons.Regular.ListChecks,
+                iconTile = SettingsTiles.Violet,
                 optionId = "showTransactionListSummaries",
                 checked = localSettings.showTransactionListSummaries,
                 onCheckedChange = { localSettings = localSettings.copy(showTransactionListSummaries = it) }
@@ -536,7 +549,7 @@ private fun TransactionCardTogglesList(
             )
         }
         item {
-            SettingsGroup {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 val groupItems = transactionCardToggleIds.mapNotNull { id ->
                     toggleItems.firstOrNull { it.optionId == id }
                 }
@@ -559,7 +572,7 @@ private fun TransactionCardTogglesList(
             )
         }
         item {
-            SettingsGroup {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 val groupItems = listLevelToggleIds.mapNotNull { id ->
                     toggleItems.firstOrNull { it.optionId == id }
                 }
@@ -587,6 +600,7 @@ private fun Boolean.ToggleSettingsItem(
     if (isInPreview) {
         SettingsItemCard(
             icon = item.icon,
+            iconTile = item.iconTile,
             title = item.title,
             subtitle = item.subtitle,
             type = SettingsItemType.Toggle,
@@ -606,6 +620,7 @@ private fun Boolean.ToggleSettingsItem(
         ) { status, onClick ->
             SettingsItemCard(
                 icon = item.icon,
+                iconTile = item.iconTile,
                 title = item.title,
                 subtitle = item.subtitle,
                 type = SettingsItemType.Toggle,
