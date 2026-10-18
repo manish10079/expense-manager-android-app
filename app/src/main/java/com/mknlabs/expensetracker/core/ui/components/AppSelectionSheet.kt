@@ -14,6 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -69,6 +72,11 @@ fun <T> AppSelectionSheet(
     rowColors: SelectionRowColors? = null,
     footerContent: (LazyListScope.() -> Unit)? = null
 ) {
+    val scope = rememberCoroutineScope()
+    // A row slides the sheet down first, then reports the choice, so a caller that drops
+    // the sheet from composition on selection does not cut its exit animation.
+    val isDismissing = remember { mutableStateOf(false) }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -151,7 +159,12 @@ fun <T> AppSelectionSheet(
                         item = item,
                         isSelected = item.id == selectedId,
                         rowColors = rowColors,
-                        onClick = { onItemSelected(item.id) }
+                        onClick = {
+                            if (!isDismissing.value) {
+                                isDismissing.value = true
+                                dismissSheetThen(scope, sheetState) { onItemSelected(item.id) }
+                            }
+                        }
                     )
                 }
 

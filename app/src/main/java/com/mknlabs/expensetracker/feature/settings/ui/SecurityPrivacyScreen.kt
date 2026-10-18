@@ -44,6 +44,8 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.dismissSheetThen
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.GatedAction
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
@@ -51,9 +53,14 @@ import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
@@ -340,9 +347,44 @@ private fun AutoLockDurationPickerSheet(
         )
     }
 
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    // Apply the choice first, then let the sheet slide down before it leaves the
+    // composition; calling onDismiss straight away would cut the exit animation.
+    val applyDuration: (Int) -> Unit = { duration ->
+        onDurationSelected(duration)
+        dismissSheetThen(scope, sheetState, onDismiss)
+    }
+
+    val colorScheme = MaterialTheme.colorScheme
+    // The gender picker's own fills: the sheet on the edit profile card colour, and the
+    // rows on its #191D2C / #F8FAFC card, #28253D / #F5F3FF once chosen.
+    val rowColors = AppCardColors(
+        containerColor = colorScheme.genderRow,
+        contentColor = colorScheme.onSurface,
+        border = null
+    )
+    val selectedRowColors = AppCardColors(
+        containerColor = colorScheme.genderRowSelected,
+        contentColor = colorScheme.onSurface,
+        border = null
+    )
+    // ...and its leading boxes: a 42dp tile rounded 14dp, surfaceVariant at half strength
+    // with onSurface ink, and secondary at 18% with accent ink once chosen.
+    val idleIconTile = SettingsTilePalette(
+        fill = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        ink = colorScheme.onSurface
+    )
+    val selectedIconTile = SettingsTilePalette(
+        fill = colorScheme.secondary.copy(alpha = 0.18f),
+        ink = colorScheme.accentInk
+    )
+    val iconTileShape = RoundedCornerShape(14.dp)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        sheetState = sheetState,
+        containerColor = colorScheme.profileSheet,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -374,18 +416,18 @@ private fun AutoLockDurationPickerSheet(
                 items(freeDurations) { duration ->
                     val title = if (duration == 0) stringResource(R.string.label_immediately) 
                                else stringResource(R.string.label_val_minutes_away, duration)
-                    val subtitle = if (duration == 0) stringResource(R.string.label_lock_immediately)
-                                  else stringResource(R.string.title_require_the_pin_again_after_va, duration)
-                    
                     SettingsItemCard(
                         icon = PhosphorIcons.Regular.Timer,
+                        iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                        iconTileShape = iconTileShape,
+                        iconTileSize = 42.dp,
+                        iconTileGlyphSize = 20.dp,
                         title = title,
-                        subtitle = subtitle,
                         type = SettingsItemType.Value,
                         isChecked = selectedDurationMinutes == duration,
+                        cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                         onClick = {
-                            onDurationSelected(duration)
-                            onDismiss()
+                            applyDuration(duration)
                         }
                     )
                 }
@@ -398,19 +440,22 @@ private fun AutoLockDurationPickerSheet(
                         optionId = duration.toString(),
                         displayName = stringResource(R.string.label_val_minutes_away, duration),
                         onAction = {
-                            onDurationSelected(duration)
-                            onDismiss()
+                            applyDuration(duration)
                         }
                     ) { status, onClick ->
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
                             icon = PhosphorIcons.Regular.Timer,
+                            iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                            iconTileShape = iconTileShape,
+                            iconTileSize = 42.dp,
+                            iconTileGlyphSize = 20.dp,
                             title = stringResource(R.string.label_val_minutes_away, duration),
-                            subtitle = stringResource(R.string.title_require_the_pin_again_after_va, duration),
                             type = SettingsItemType.Value,
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isChecked = selectedDurationMinutes == duration,
+                            cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                             onClick = onClick
                         )
                     }
@@ -424,19 +469,22 @@ private fun AutoLockDurationPickerSheet(
                         optionId = duration.toString(),
                         displayName = stringResource(R.string.label_val_minutes_away, duration),
                         onAction = {
-                            onDurationSelected(duration)
-                            onDismiss()
+                            applyDuration(duration)
                         }
                     ) { status, onClick ->
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
                             icon = PhosphorIcons.Regular.Timer,
+                            iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                            iconTileShape = iconTileShape,
+                            iconTileSize = 42.dp,
+                            iconTileGlyphSize = 20.dp,
                             title = stringResource(R.string.label_val_minutes_away, duration),
-                            subtitle = stringResource(R.string.title_require_the_pin_again_after_va, duration),
                             type = SettingsItemType.Value,
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isChecked = selectedDurationMinutes == duration,
+                            cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                             onClick = onClick
                         )
                     }
@@ -462,6 +510,13 @@ private fun AutoLockDurationPickerSheet(
                     placeholder = { Text(stringResource(R.string.placeholder_enter_minutes)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
+                    // The focused edge and the typed minutes both take the app's accent,
+                    // not the theme's default primary.
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+                        focusedLabelColor = MaterialTheme.colorScheme.accentInk,
+                        focusedTextColor = MaterialTheme.colorScheme.accentInk
+                    ),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     trailingIcon = {
                         if (isLocked) {
@@ -470,8 +525,7 @@ private fun AutoLockDurationPickerSheet(
                             AppTextButton(onClick = {
                                 val mins = customMinutesInput.toIntOrNull() ?: 0
                                 if (mins > 0) {
-                                    onDurationSelected(mins)
-                                    onDismiss()
+                                    applyDuration(mins)
                                 }
                             }) {
                                 Text(stringResource(R.string.btn_apply))

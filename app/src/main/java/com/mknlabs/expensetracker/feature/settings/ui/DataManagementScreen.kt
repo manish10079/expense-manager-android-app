@@ -465,12 +465,14 @@ private fun DataManagementContent(
                 val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).value
                 if (status is AccessStatus.Granted) {
                     if (days == 0) {
+                        isFrequencyPickerVisible = false
                         isCustomFrequencyDialogVisible = true
                     } else {
                         onAutoBackupFrequencyChange(days)
                         isFrequencyPickerVisible = false
                     }
                 } else {
+                    isFrequencyPickerVisible = false
                     showPremiumSheet = true
                 }
             },

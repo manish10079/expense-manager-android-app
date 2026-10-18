@@ -62,11 +62,13 @@ import com.mknlabs.expensetracker.core.ui.theme.textTertiary
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
@@ -82,6 +84,12 @@ fun SettingsItemCard(
     title: String,
     /** When set, the icon sits on this settings tile instead of the brand gradient. */
     iconTile: SettingsTilePalette? = null,
+    /** Card fill when [standalone]; the default is the app's tonal card. */
+    cardColors: AppCardColors? = null,
+    /** Shape and metrics of the leading tile when [iconTile] is set. */
+    iconTileShape: Shape = RoundedCornerShape(12.dp),
+    iconTileSize: Dp = 40.dp,
+    iconTileGlyphSize: Dp = 24.dp,
     subtitle: String? = null,
     type: SettingsItemType,
     valueText: String? = null,
@@ -160,8 +168,8 @@ fun SettingsItemCard(
             AppIconBox(
                 icon = if (isGated) Icons.Rounded.Lock else icon,
                 contentDescription = title,
-                size = 40.dp,
-                iconSize = 24.dp,
+                size = if (iconTile != null) iconTileSize else 40.dp,
+                iconSize = if (iconTile != null) iconTileGlyphSize else 24.dp,
                 tint = when {
                     !brandIcon -> iconTint
                     iconTile != null -> iconTile.ink
@@ -169,7 +177,7 @@ fun SettingsItemCard(
                 },
                 tintBrush = if (brandIcon && iconTile == null) brandGradient() else null,
                 backgroundColor = if (brandIcon && iconTile != null) iconTile.fill else iconBackground,
-                shape = if (iconTile != null) RoundedCornerShape(12.dp) else CircleShape
+                shape = if (iconTile != null) iconTileShape else CircleShape
             )
 
             Column(
@@ -346,7 +354,7 @@ fun SettingsItemCard(
         // visible); light gets the standard card, outline and lift included.
         AppCard(
             modifier = modifier.fillMaxWidth(),
-            colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow)
+            colors = cardColors ?: AppCardDefaults.colors(colorScheme.surfaceContainerLow)
         ) {
             itemContent()
         }
