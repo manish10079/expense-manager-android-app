@@ -29,11 +29,14 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.BellRinging
 import com.adamglin.phosphoricons.regular.ChartBar
+import com.adamglin.phosphoricons.regular.Clock
 import com.adamglin.phosphoricons.regular.CloudCheck
 import com.adamglin.phosphoricons.regular.Info
 import com.adamglin.phosphoricons.regular.Moon
+import com.adamglin.phosphoricons.regular.PaperPlaneTilt
 import com.adamglin.phosphoricons.regular.PiggyBank
 import com.adamglin.phosphoricons.regular.Repeat
+import com.adamglin.phosphoricons.regular.Ruler
 import com.adamglin.phosphoricons.regular.Sparkle
 import com.adamglin.phosphoricons.regular.Sun
 import com.adamglin.phosphoricons.regular.Tag
@@ -80,6 +83,7 @@ import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.notifications.NotificationPermissionPrefs
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.theme.CardLight
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
@@ -314,7 +318,7 @@ private fun NotificationSettingsContent(
             }
 
             // Free tier (spec categories 1-4): all functional.
-            SettingsGroup {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.BellRinging,
                     title = stringResource(id = R.string.title_expense_reminders),
@@ -351,7 +355,7 @@ private fun NotificationSettingsContent(
                 if (isLargeTransactionAlertsEnabled) {
                     SettingsGroupDivider()
                     SettingsItemCard(
-                        icon = PhosphorIcons.Regular.Wallet,
+                        icon = PhosphorIcons.Regular.Ruler,
                         title = stringResource(id = R.string.title_large_transaction_threshold),
                         subtitle = formatCurrencyValue(
                             largeTransactionThresholdMinor.toMajorUnits(),
@@ -378,7 +382,7 @@ private fun NotificationSettingsContent(
                 if (isWeeklySummaryEnabled) {
                     SettingsGroupDivider()
                     SettingsItemCard(
-                        icon = PhosphorIcons.Regular.ChartBar,
+                        icon = PhosphorIcons.Regular.Clock,
                         title = stringResource(id = R.string.title_weekly_summary_time),
                         subtitle = weeklyTimeLabel(weeklySummaryTimeMillis, timeFormat),
                         type = SettingsItemType.Navigation,
@@ -393,7 +397,7 @@ private fun NotificationSettingsContent(
             }
 
             // Premium tier (spec categories 5-8): â­-locked for Free users.
-            SettingsGroup {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 PremiumNotificationCard(
                     icon = PhosphorIcons.Regular.Sparkle,
                     titleRes = R.string.title_financial_insights,
@@ -444,7 +448,7 @@ private fun NotificationSettingsContent(
             }
 
             // Reminder time windows + test notification (plan Â§Reminders/Phase 2).
-            SettingsGroup {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 SettingsItemCard(
                     icon = PhosphorIcons.Regular.Sun,
                     title = stringResource(id = R.string.title_morning_window),
@@ -472,7 +476,7 @@ private fun NotificationSettingsContent(
                 )
                 SettingsGroupDivider()
                 SettingsItemCard(
-                    icon = PhosphorIcons.Regular.BellRinging,
+                    icon = PhosphorIcons.Regular.PaperPlaneTilt,
                     title = stringResource(id = R.string.title_test_notification),
                     subtitle = stringResource(id = R.string.desc_test_notification),
                     type = SettingsItemType.Button,
