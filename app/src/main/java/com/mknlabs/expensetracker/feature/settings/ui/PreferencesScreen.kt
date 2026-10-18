@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.disabled
@@ -232,7 +233,7 @@ private fun PreferencesScreenContent(
             ) {
                 // Group 1: Currency & Formats
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_currency),
                             subtitle = stringResource(R.string.label_primary_currency),
@@ -275,9 +276,9 @@ private fun PreferencesScreenContent(
                     }
                 }
 
-                // Group 2: Date & Time (now includes Theme for consistent spacing)
+                // Group 2: Date & Time
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         SettingsItemCard(
                             title = stringResource(R.string.title_date_format),
                             subtitle = stringResource(R.string.label_date_format_subtitle),
@@ -323,16 +324,6 @@ private fun PreferencesScreenContent(
                                 onClick = { showSheet(PreferencesSheetType.Language) }
                             )
                         }
-                        SettingsGroupDivider()
-                        SettingsItemCard(
-                            title = stringResource(R.string.title_theme),
-                            subtitle = stringResource(R.string.label_theme_subtitle),
-                            icon = PhosphorIcons.Regular.Palette,
-                            valueText = stringResource(uiState.currentThemeModeLabelRes),
-                            type = SettingsItemType.Value,
-                            standalone = false,
-                            onClick = { showSheet(PreferencesSheetType.ThemeMode) }
-                        )
                     }
                 }
 
@@ -342,9 +333,20 @@ private fun PreferencesScreenContent(
                     }
                 }
 
-                // Group 3: Font
+                // Group 3: Appearance — the theme mode and the app font share one card, so the
+                // two things that change how the app looks sit together apart from formats.
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_theme),
+                            subtitle = stringResource(R.string.label_theme_subtitle),
+                            icon = PhosphorIcons.Regular.Palette,
+                            valueText = stringResource(uiState.currentThemeModeLabelRes),
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.ThemeMode) }
+                        )
+                        SettingsGroupDivider()
                         SettingsItemCard(
                             title = stringResource(R.string.title_font),
                             subtitle = stringResource(R.string.label_font_subtitle),
