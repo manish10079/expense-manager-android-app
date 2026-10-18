@@ -48,6 +48,8 @@ import com.mknlabs.expensetracker.core.ui.theme.NamedCreatePlaceholder
 import com.mknlabs.expensetracker.core.ui.theme.NamedCreateTitleDark
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 
 private val CardShape = RoundedCornerShape(16.dp)
@@ -73,7 +75,12 @@ fun NamedCreateCard(
     extraContent: (@Composable () -> Unit)? = null
 ) {
     val dark = MaterialTheme.colorScheme.isDark
-    val cardColors = AppCardDefaults.colors()
+    // Same card as ModernConfirmationDialog: the Manage Categories fill and hairline in
+    // dark, the standard card in light. The name field reads its fill from here too.
+    val cardColors = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()

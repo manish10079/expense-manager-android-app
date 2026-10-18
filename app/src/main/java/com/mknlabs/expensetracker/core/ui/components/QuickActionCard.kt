@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +46,8 @@ import com.mknlabs.expensetracker.core.ui.theme.QuickActionOptionInkLight
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionSelectedFill
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 
 private val CardShape = RoundedCornerShape(16.dp)
 private val IconShape = RoundedCornerShape(12.dp)
@@ -70,7 +73,12 @@ fun QuickActionCard(
     headerIcon: ImageVector = Icons.Filled.Tune
 ) {
     val dark = MaterialTheme.colorScheme.isDark
-    val cardColors = AppCardDefaults.colors()
+    // Same card as ModernConfirmationDialog: the Manage Categories fill and hairline in
+    // dark, the standard card in light.
+    val cardColors = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()
