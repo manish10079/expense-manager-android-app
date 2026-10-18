@@ -76,11 +76,12 @@ fun <T> AppSelectionSheet(
     // A row slides the sheet down first, then reports the choice, so a caller that drops
     // the sheet from composition on selection does not cut its exit animation.
     val isDismissing = remember { mutableStateOf(false) }
+    val sheetContainerColor = containerColor ?: MaterialTheme.colorScheme.sheet
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = containerColor ?: MaterialTheme.colorScheme.sheet,
+        containerColor = sheetContainerColor,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -131,8 +132,8 @@ fun <T> AppSelectionSheet(
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = sheetContainerColor,
+                        unfocusedContainerColor = sheetContainerColor,
                         focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,

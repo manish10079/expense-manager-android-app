@@ -4,13 +4,14 @@ import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.disabled
-import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,6 +70,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppSelectionSheet
+import com.mknlabs.expensetracker.core.ui.components.SelectionRowColors
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
@@ -93,6 +95,9 @@ import com.mknlabs.expensetracker.monetization.AdPlacement
 import androidx.compose.ui.tooling.preview.Preview
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -202,6 +207,8 @@ private fun PreferencesScreenContent(
     selectMonthStartDay: (Int) -> Unit,
     showLanguageOption: Boolean = false
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -402,6 +409,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_search_by_country_and_pick_the),
                     items = currencyItems,
                     selectedId = uiState.selectedCurrencyId,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectCurrency(it) },
                     onDismiss = {
                         clearCurrencySearchQuery()
@@ -430,6 +442,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_language_selection_desc),
                     items = languageItems,
                     selectedId = uiState.selectedLanguageCode,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectLanguage(it) },
                     onDismiss = dismissSheet
                 )
@@ -453,6 +470,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_theme_selection_desc),
                     items = themeItems,
                     selectedId = uiState.selectedThemeMode,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectThemeMode(it) },
                     onDismiss = dismissSheet
                 )
@@ -474,6 +496,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_choose_the_date_style_you_want),
                     items = dateItems,
                     selectedId = uiState.selectedDateFormatPattern,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectDateFormat(it) },
                     onDismiss = dismissSheet
                 )
@@ -496,6 +523,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_choose_whether_time_is_shown_i),
                     items = timeItems,
                     selectedId = uiState.selectedTimeFormat,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectTimeFormat(it) },
                     onDismiss = dismissSheet
                 )
@@ -518,6 +550,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_month_start_day_subtitle),
                     items = dayItems,
                     selectedId = uiState.monthStartDay.toString(),
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { day ->
                         selectMonthStartDay(day.toInt())
                         dismissSheet()
@@ -543,6 +580,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_number_format_desc),
                     items = numberItems,
                     selectedId = uiState.selectedGroupingStyle,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectGroupingStyle(it) },
                     onDismiss = dismissSheet
                 )
@@ -564,6 +606,11 @@ private fun PreferencesScreenContent(
                     description = stringResource(R.string.label_choose_how_many_decimal_places),
                     items = decimalItems,
                     selectedId = uiState.selectedDecimalPlaces,
+                    containerColor = colorScheme.profileSheet,
+                    rowColors = SelectionRowColors(
+                        container = colorScheme.genderRow,
+                        selectedContainer = colorScheme.genderRowSelected
+                    ),
                     onItemSelected = { selectDecimalPlaces(it) },
                     onDismiss = dismissSheet
                 )
@@ -622,7 +669,8 @@ private fun FontPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        // Same fill as the gender picker, so every preferences sheet reads alike.
+        containerColor = MaterialTheme.colorScheme.profileSheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -777,10 +825,17 @@ private fun FontOptionItem(
     val lockColor = MaterialTheme.colorScheme.featureGateLock
     val isGated = isLocked && accessLevel != AccessLevel.FREE
 
+    // The gender picker's row pair, shared by every preferences sheet row.
     val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
+        MaterialTheme.colorScheme.genderRowSelected
     } else {
-        MaterialTheme.colorScheme.surfaceVariant
+        MaterialTheme.colorScheme.genderRow
+    }
+
+    val iconBoxColor = if (isSelected) {
+        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     }
 
     val contentColor = if (isSelected) {
@@ -803,20 +858,24 @@ private fun FontOptionItem(
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isGated) {
-            Icon(
-                imageVector = PhosphorIcons.Regular.Lock,
-                contentDescription = null,
-                tint = lockColor,
-                modifier = Modifier.size(20.dp)
-            )
-        } else if (isSelected) {
-            Icon(
-                imageVector = PhosphorIcons.Regular.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(20.dp)
-            )
+        // Same 42dp / 14dp tile the gender picker uses for its leading icon.
+        if (isGated || isSelected) {
+            Box(
+                modifier = Modifier
+                    .heightIn(min = 42.dp)
+                    .widthIn(min = 42.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(iconBoxColor)
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isGated) PhosphorIcons.Regular.Lock else PhosphorIcons.Regular.Check,
+                    contentDescription = null,
+                    tint = if (isGated) lockColor else MaterialTheme.colorScheme.accentInk,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.width(if (isGated || isSelected) 14.dp else 34.dp))
         Column(modifier = Modifier.weight(1f)) {
