@@ -187,6 +187,7 @@ import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.formCard
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.typeSwitcherFill
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.recurringIcon
@@ -280,9 +281,6 @@ private val AmountCardGradient = Brush.verticalGradient(
 private val AmountGlowRadius = 160.dp
 private const val AmountGlowAlpha = 0.10f
 
-// The flat card fill the Plans tab switcher uses: #13151F in dark, white in light.
-private val TypeSwitcherFillDark = Color(0xFF13151F)
-private val TypeSwitcherFillLight = Color(0xFFFFFFFF)
 
 private fun mergeTimeWithDate(newTimeMillis: Long, currentDateMillis: Long): Long {
     val dateCal = java.util.Calendar.getInstance().apply { timeInMillis = currentDateMillis }
@@ -844,11 +842,8 @@ internal fun AddTransactionScreenContent(
                             },
                             selectedItemId = selectedTransactionTypeId,
                             onItemSelected = { selectedTypeId -> selectedTransactionTypeId = selectedTypeId },
-                            containerColor = if (MaterialTheme.colorScheme.isDark) {
-                                TypeSwitcherFillDark
-                            } else {
-                                TypeSwitcherFillLight
-                            }
+                            containerColor = MaterialTheme.colorScheme.typeSwitcherFill
+
                         )
 
                         Column(

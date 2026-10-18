@@ -958,7 +958,8 @@ val ColorScheme.syncCardBorder: Color
 
 val ColorScheme.syncDeviceCard: Color
     get() = if (isDark) SyncDeviceCardDark else SurfaceLight
-// â”€â”€ Membership screen (membership mock) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// ── Membership screen (membership mock) ────────────────────────────────────
 // The mockup paints the membership card and the benefits list on one Obsidian card
 // (#131622) behind a white 8% hairline, and gives the notice, the "Free Pass" badge and
 // the date fact their own slate inks. Light keeps the app's white card and secondary ink;
@@ -987,6 +988,38 @@ val ColorScheme.membershipFactDateInk: Color
 
 val ColorScheme.membershipFactClockInk: Color
     get() = if (isDark) MembershipFactClockInkDark else AccentInkLight
+
+// ── Manage Categories count row (manage-category-screen mockup) ────────────
+// The mockup writes the row's count in slate-300 (#CBD5E1) and the three action glyphs
+// beside it in slate-400 (#94A3B8); light keeps the app's secondary ink for both.
+internal val ManageCategoryCountInkDark = Color(0xFFCBD5E1)
+internal val ManageCategoryRowIconInkDark = Color(0xFF94A3B8)
+
+val ColorScheme.manageCategoryCountInk: Color
+    get() = if (isDark) ManageCategoryCountInkDark else onSurfaceVariant
+
+val ColorScheme.manageCategoryRowIconInk: Color
+    get() = if (isDark) ManageCategoryRowIconInkDark else onSurfaceVariant
+
+// ── Manage Categories cards (manage-category-screen mockup) ────────────────
+// The mockup's category cards sit on obsidian.card (#151926) behind a white 6% hairline;
+// light keeps the app's white card. Only the fill is taken from the mockup.
+internal val ManageCategoryCardDark = Color(0xFF151926)
+internal val ManageCategoryCardBorderDark = Color(0x0FFFFFFF)
+
+val ColorScheme.manageCategoryCard: Color
+    get() = if (isDark) ManageCategoryCardDark else SurfaceLight
+
+val ColorScheme.manageCategoryCardBorder: Color
+    get() = if (isDark) ManageCategoryCardBorderDark else outline
+
+// ── Animated tab switcher fill (Add Transaction / Manage Categories) ───────
+// The switcher's flat card fill: #13151F in dark, white in light.
+internal val TypeSwitcherFillDark = Color(0xFF13151F)
+internal val TypeSwitcherFillLight = Color(0xFFFFFFFF)
+
+val ColorScheme.typeSwitcherFill: Color
+    get() = if (isDark) TypeSwitcherFillDark else TypeSwitcherFillLight
 
 // Settings row subtitle ink (mock-settings.html): #8E9BAE on the dark page, #5B6270 on
 // the light one. Every settings group shares it, so the sibling screens cannot drift.

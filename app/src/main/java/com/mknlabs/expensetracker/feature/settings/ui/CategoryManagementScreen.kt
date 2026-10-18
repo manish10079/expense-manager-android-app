@@ -94,7 +94,6 @@ import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.BrandAddFab
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.UserProfile
@@ -104,13 +103,16 @@ import com.mknlabs.expensetracker.core.ui.models.CategoryManagementItemUi
 import com.mknlabs.expensetracker.core.ui.models.CategoryManagementTab
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCountInk
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryRowIconInk
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
-import com.mknlabs.expensetracker.core.ui.theme.categorySoft
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.typeSwitcherFill
 import com.mknlabs.expensetracker.utils.ExpenseTrackerIconRegistry
 import androidx.compose.foundation.BorderStroke
 import com.mknlabs.expensetracker.core.ui.components.AnimatedTabSwitcher
@@ -255,7 +257,9 @@ private fun CategoryManagementContent(
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(tab.ordinal)
                     }
-                }
+                },
+                // Same flat fill the Add Transaction switcher wears.
+                containerColor = MaterialTheme.colorScheme.typeSwitcherFill
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -278,7 +282,8 @@ private fun CategoryManagementContent(
             } else {
                 tabItems.filter { it.title.contains(searchQuery, ignoreCase = true) }
             }).sortedByCatalog(catalogSort, createdAt = { it.createdAt }, name = { it.title })
-            val countColor = MaterialTheme.colorScheme.onSurfaceVariant
+            val countColor = MaterialTheme.colorScheme.manageCategoryCountInk
+            val rowIconColor = MaterialTheme.colorScheme.manageCategoryRowIconInk
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -296,7 +301,7 @@ private fun CategoryManagementContent(
                 Icon(
                     imageVector = PhosphorIcons.Regular.MagnifyingGlass,
                     contentDescription = stringResource(R.string.desc_search_categories),
-                    tint = countColor,
+                    tint = rowIconColor,
                     modifier = Modifier
                         .size(18.dp)
                         .clickable { isSearchExpanded = true }
@@ -305,7 +310,7 @@ private fun CategoryManagementContent(
                 Icon(
                     imageVector = PhosphorIcons.Regular.SortAscending,
                     contentDescription = stringResource(R.string.desc_sort),
-                    tint = countColor,
+                    tint = rowIconColor,
                     modifier = Modifier
                         .size(18.dp)
                         .clickable { showSortSheet = true }
@@ -314,7 +319,7 @@ private fun CategoryManagementContent(
                 Icon(
                     imageVector = PhosphorIcons.Regular.Info,
                     contentDescription = stringResource(R.string.desc_categories_info),
-                    tint = countColor,
+                    tint = rowIconColor,
                     modifier = Modifier
                         .size(18.dp)
                         .clickable { showCategoriesInfo = true }
@@ -615,9 +620,12 @@ private fun CategoryManagementCard(
             // part the user owns. The 'x' stays a separate target for the rows that may be
             // deleted, so "open the colour sheet" and "delete this" cannot be confused.
             .clickable(onClick = onClick),
-        // The gradient is the dark surface and this card's only fill, so the container
-        // beneath it stays transparent; light takes the standard white card.
-        brush = darkOnlyGradient(standardCardGradient()),
+        // The mockup's category card fill (#151926) with its white 6% hairline in dark;
+        // light keeps the standard white card.
+        colors = AppCardDefaults.colors(
+            darkContainer = colorScheme.manageCategoryCard,
+            darkBorder = BorderStroke(1.dp, colorScheme.manageCategoryCardBorder)
+        ),
         shape = AppCardDefaults.shape(20.dp),
     ) {
         Column(
@@ -630,16 +638,17 @@ private fun CategoryManagementCard(
             AppIconBox(
                 icon = item.icon,
                 contentDescription = item.title,
-                size = 48.dp,
-                iconSize = 24.dp,
+                // The mockup's badge: a 56dp rounded-2xl tile, the hue at 15% with a 20%
+                // edge, and a 28dp glyph.
+                size = 56.dp,
+                iconSize = 28.dp,
                 tint = identityColor,
-                // The palette's own wash rather than AppIconBox's flat 10%, so the tile splits
-                // light-10 / dark-14 like every other glyph tile in the system.
-                backgroundColor = colorScheme.categorySoft(identityColor),
+                backgroundColor = identityColor.copy(alpha = 0.15f),
                 border = BorderStroke(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)
-                )
+                    color = identityColor.copy(alpha = 0.20f)
+                ),
+                shape = RoundedCornerShape(16.dp)
             )
 
             Spacer(modifier = Modifier.height(10.dp))
