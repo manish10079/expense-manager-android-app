@@ -8,6 +8,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -75,6 +76,25 @@ import com.mknlabs.expensetracker.utils.toTitleCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// Card body fill, read from the settings mockup (mock-settings.html): its one `--card` token,
+// which draws the hero body inside the violet gradient edge and every settings group card.
+// #151824 on the dark page, plain white on the light one. Declared here for now — these move
+// into Color.kt once the settings redesign is finished.
+internal val SettingsCardFillDark = Color(0xFF151824)
+internal val SettingsCardFillLight = Color(0xFFFFFFFF)
+
+// The hero's edge, from the same mockup's `.profile`: a 1.5px line running to the right,
+// violet-600 at 70%, fuchsia-500 at 40%, indigo-600 at 70%. One edge for both themes —
+// the mockup never recolours it — which is what makes the card read as one identity.
+private val HeroEdgeStroke = BorderStroke(
+    1.5.dp,
+    Brush.horizontalGradient(
+        0f to Color(0xFF7C3AED).copy(alpha = 0.70f),
+        0.5f to Color(0xFFD946EF).copy(alpha = 0.40f),
+        1f to Color(0xFF4F46E5).copy(alpha = 0.70f),
+    )
+)
+
 @Composable
 @Suppress("UNUSED_PARAMETER")
 fun ProfileCard(
@@ -132,6 +152,15 @@ fun ProfileCard(
         }
     }
 
+    // The mockup's hero, fill for fill and edge for edge: body on the mockup's card colour,
+    // outline the mockup's brand gradient. Only the ink stays the theme's own.
+    val heroBody = if (colorScheme.isDark) SettingsCardFillDark else SettingsCardFillLight
+    val heroCardColors = AppCardColors(
+        containerColor = heroBody,
+        contentColor = colorScheme.onSurface,
+        border = HeroEdgeStroke,
+    )
+
     val animatedBorderModifier = if (!isPremium) {
         Modifier
     } else {
@@ -165,6 +194,7 @@ fun ProfileCard(
 
     AppCard(
         shape = cardShape,
+        colors = heroCardColors,
         modifier = modifier
             .fillMaxWidth()
             .then(animatedBorderModifier)

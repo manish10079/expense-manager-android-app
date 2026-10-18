@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.content.Intent
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -70,14 +71,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -86,6 +83,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.core.ui.components.adPassDurationLabel
@@ -96,7 +94,9 @@ import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.monetization.AdPlacement
 import com.mknlabs.expensetracker.core.ui.components.AdaptiveContent
 import com.mknlabs.expensetracker.core.ui.components.AppCard
-import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
+import com.mknlabs.expensetracker.core.ui.components.SettingsCardFillDark
+import com.mknlabs.expensetracker.core.ui.components.SettingsCardFillLight
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.NativeAdCard
 import com.mknlabs.expensetracker.core.ui.components.ProfileCard
@@ -106,6 +106,36 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.disabled
 
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
+
+// Leading-tile palette, read from the settings mockup (mock-settings.html `.tile.*`): each
+// row's icon sits on its own hue at 15% with the 400-weight ink of that hue, on a 40dp tile
+// rounded 12dp. The mockup draws the same tiles in both themes, so no pair is theme-aware.
+// Declared here for now — these move into Color.kt once the settings redesign is finished.
+private data class SettingsTilePalette(val fill: Color, val ink: Color)
+
+private val TileViolet  = SettingsTilePalette(Color(0xFF7C3AED).copy(alpha = 0.15f), Color(0xFFA78BFA))
+private val TileSky     = SettingsTilePalette(Color(0xFF0EA5E9).copy(alpha = 0.15f), Color(0xFF38BDF8))
+private val TileEmerald = SettingsTilePalette(Color(0xFF10B981).copy(alpha = 0.15f), Color(0xFF34D399))
+private val TileFuchsia = SettingsTilePalette(Color(0xFFD946EF).copy(alpha = 0.15f), Color(0xFFE879F9))
+private val TileAmber   = SettingsTilePalette(Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFFBBF24))
+private val TileIndigo  = SettingsTilePalette(Color(0xFF6366F1).copy(alpha = 0.15f), Color(0xFF818CF8))
+private val TilePurple  = SettingsTilePalette(Color(0xFFA855F7).copy(alpha = 0.15f), Color(0xFFC084FC))
+private val TilePink    = SettingsTilePalette(Color(0xFFEC4899).copy(alpha = 0.15f), Color(0xFFF472B6))
+private val TileBlue    = SettingsTilePalette(Color(0xFF3B82F6).copy(alpha = 0.15f), Color(0xFF60A5FA))
+private val TileTeal    = SettingsTilePalette(Color(0xFF14B8A6).copy(alpha = 0.15f), Color(0xFF2DD4BF))
+private val TileCyan    = SettingsTilePalette(Color(0xFF06B6D4).copy(alpha = 0.15f), Color(0xFF22D3EE))
+private val TileRose    = SettingsTilePalette(Color(0xFFF43F5E).copy(alpha = 0.15f), Color(0xFFFB7185))
+
+// Row subtitle ink, the mockup's `--muted` (mock-settings.html): #8E9BAE on the dark page,
+// #5B6270 on the light one. Local for now, like the tiles — these move into Color.kt with
+// the rest of the settings tokens once the redesign is finished.
+private val SettingsSubtitleInkDark = Color(0xFF8E9BAE)
+private val SettingsSubtitleInkLight = Color(0xFF5B6270)
+
+// Row chevron ink, the mockup's `--chev-ink` (mock-settings.html): neutral-500 on the dark
+// page, slate-400 on the light one. Local for now, like the tiles.
+private val SettingsChevronInkDark = Color(0xFF737373)
+private val SettingsChevronInkLight = Color(0xFF94A3B8)
 
 private const val DEFAULT_NOTIFICATIONS_ENABLED = true
 private const val DEFAULT_BUDGET_LIMIT_ALERTS_ENABLED = true
@@ -324,6 +354,7 @@ fun SettingsScreenContent(
                                 titleRes = R.string.label_edit_profile,
                                 subtitleRes = R.string.label_edit_profile_subtitle,
                                 icon = PhosphorIcons.Regular.User,
+                                tile = TileViolet,
                                 onClick = onProfileClick
                             )
                         )
@@ -333,6 +364,7 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_cloud_sync_devices,
                                     subtitleRes = R.string.desc_cloud_sync_devices_subtitle,
                                     icon = Lucide.Cloud,
+                                    tile = TileSky,
                                     onClick = if (isProUser) onCloudSyncDevicesClick else { {} },
                                     isEnabled = isProUser
                                 )
@@ -344,6 +376,7 @@ fun SettingsScreenContent(
                                 titleRes = R.string.title_security_privacy,
                                 subtitleRes = R.string.label_security_privacy_subtitle,
                                 icon = Lucide.Shield,
+                                tile = TileEmerald,
                                 onClick = onSecurityPrivacyClick
                             )
                         )
@@ -365,6 +398,7 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_membership,
                                     subtitleRes = if (isProUser) R.string.label_pro_active else R.string.label_free_tier,
                                     icon = Lucide.Sparkles,
+                                    tile = TileFuchsia,
                                     onClick = onMembershipClick
                                 ),
                                 SettingsRowData(
@@ -390,6 +424,7 @@ fun SettingsScreenContent(
                                         null
                                     },
                                     icon = Lucide.Star,
+                                    tile = TileAmber,
                                     onClick = if (isProUser || isAdPassActive) { {} } else onAdFreeAccessClick,
                                     isEnabled = !isProUser && !isAdPassActive,
                                     trailing = if (isAdPassActive) adFreeRemainingTime else null
@@ -405,6 +440,7 @@ fun SettingsScreenContent(
                                         R.string.label_redeem_pro_pass_subtitle
                                     },
                                     icon = Lucide.Ticket,
+                                    tile = TileIndigo,
                                     onClick = if (hasActiveStoreSubscription) { {} } else onRedeemProPassClick,
                                     isEnabled = !hasActiveStoreSubscription
                                 )
@@ -422,30 +458,35 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_manage_category,
                                     subtitleRes = R.string.label_manage_category_subtitle,
                                     icon = Lucide.LayoutGrid,
+                                    tile = TilePurple,
                                     onClick = onManageCategoryClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_manage_tags,
                                     subtitleRes = R.string.label_manage_tags_subtitle,
                                     icon = Lucide.Tags,
+                                    tile = TilePink,
                                     onClick = onManageTagsClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_app_preferences,
                                     subtitleRes = R.string.label_app_preferences_subtitle,
                                     icon = Lucide.SlidersHorizontal,
+                                    tile = TileViolet,
                                     onClick = onAppPreferencesClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_notifications,
                                     subtitleRes = R.string.label_notifications_subtitle,
                                     icon = Lucide.Bell,
+                                    tile = TileBlue,
                                     onClick = onNotificationsClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_transaction_card,
                                     subtitleRes = R.string.label_transaction_card_subtitle,
                                     icon = Lucide.CreditCard,
+                                    tile = TileTeal,
                                     onClick = onTransactionCardCustomizeClick
                                 )
                             )
@@ -462,18 +503,21 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_data_management,
                                     subtitleRes = R.string.label_data_management_subtitle,
                                     icon = Lucide.Database,
+                                    tile = TileIndigo,
                                     onClick = onDataManagementClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_refer_a_friend,
                                     subtitleRes = R.string.label_refer_a_friend_subtitle,
                                     icon = Lucide.UserPlus,
+                                    tile = TileViolet,
                                     onClick = onReferAFriendClick
                                 ),
                                 SettingsRowData(
                                     titleRes = R.string.title_share_app,
                                     subtitleRes = R.string.label_share_app_subtitle,
                                     icon = Lucide.Share2,
+                                    tile = TileCyan,
                                     onClick = {
                                         val send = Intent(Intent.ACTION_SEND).apply {
                                             type = "text/plain"
@@ -486,6 +530,7 @@ fun SettingsScreenContent(
                                     titleRes = R.string.title_about_app,
                                     subtitleRes = R.string.label_about_app_subtitle,
                                     icon = Lucide.Info,
+                                    tile = TilePurple,
                                     onClick = onAboutClick
                                 )
                             )
@@ -516,10 +561,28 @@ private fun SettingsSectionContainer(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    // The mockup's card body for this screen: #151824 on the dark page, white on the light
+    // one. Ink and outline are what the section card already carried, so only the fill moves.
+    val sectionCardColors = if (colorScheme.isDark) {
+        AppCardColors(
+            containerColor = SettingsCardFillDark,
+            contentColor = colorScheme.onSurface,
+            border = null,
+        )
+    } else {
+        AppCardColors(
+            containerColor = SettingsCardFillLight,
+            contentColor = colorScheme.onSurface,
+            border = BorderStroke(1.dp, colorScheme.outline),
+        )
+    }
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(headerRes),
-            style = MaterialTheme.typography.labelMedium,
+            // One step up from the label scale's 12sp, so the section name reads as a
+            // heading above its card; the rest of labelMedium (family, weight, tracking)
+            // stays as it was.
+            style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
             // Same third-ink weight as light in both themes so the label stays an aside
             // above the card rather than competing with the brand-gradient icon pucks.
             color = colorScheme.onSurfaceVariant,
@@ -531,10 +594,9 @@ private fun SettingsSectionContainer(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp),
-            // Dark keeps the tonal container the group has always had; light takes the
-            // white card, outline and soft lift, which is now the only container the
-            // settings rows are drawn on.
-            colors = AppCardDefaults.colors(colorScheme.surfaceContainerLow),
+            // Both modes take the mockup's own card fill, so the group cards match the
+            // hero above them rather than sitting on a tonal container of their own.
+            colors = sectionCardColors,
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 items.forEachIndexed { index, item ->
@@ -565,11 +627,16 @@ private fun SettingsRowItemView(
     val isEnabled = data.isEnabled
     val colorScheme = MaterialTheme.colorScheme
 
-    val iconTint = if (isEnabled) Color.White else colorScheme.disabled
-    val iconRamp = if (isEnabled) brandGradient() else null
-    val iconBg = if (isEnabled) colorScheme.accentInk.copy(alpha = 0.12f) else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    // The tile is the mockup's own pair per row; a disabled row keeps the neutral wash it
+    // has always had, since the mockup has no disabled state to copy.
+    val tileFill = if (isEnabled) data.tile.fill else colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    val tileInk = if (isEnabled) data.tile.ink else colorScheme.disabled
     val titleColor = if (isEnabled) colorScheme.onSurface else colorScheme.disabled
-    val subtitleColor = if (isEnabled) colorScheme.onSurfaceVariant else colorScheme.disabled
+    val subtitleColor = if (isEnabled) {
+        if (colorScheme.isDark) SettingsSubtitleInkDark else SettingsSubtitleInkLight
+    } else {
+        colorScheme.disabled
+    }
 
     Row(
         modifier = modifier
@@ -582,38 +649,21 @@ private fun SettingsRowItemView(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Leading Icon Box (40dp with centered 24dp icon)
+        // Leading Icon Tile (40dp, 12dp corners, centered 24dp icon)
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .background(
-                    color = iconBg,
-                    shape = CircleShape
+                    color = tileFill,
+                    shape = RoundedCornerShape(12.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = data.icon,
                 contentDescription = stringResource(data.titleRes),
-                tint = iconTint,
-                modifier = Modifier
-                    .size(24.dp)
-                    .then(
-                        if (iconRamp != null) {
-                            Modifier
-                                .graphicsLayer {
-                                    compositingStrategy = CompositingStrategy.Offscreen
-                                }
-                                .drawWithCache {
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(brush = iconRamp, blendMode = BlendMode.SrcIn)
-                                    }
-                                }
-                        } else {
-                            Modifier
-                        }
-                    )
+                tint = tileInk,
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -654,11 +704,11 @@ private fun SettingsRowItemView(
         if (isEnabled) {
             Spacer(modifier = Modifier.width(4.dp))
 
-            // Trailing Chevron Icon
+            // Trailing Chevron Icon, on the mockup's chevron ink
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
-                tint = colorScheme.onSurfaceVariant,
+                tint = if (colorScheme.isDark) SettingsChevronInkDark else SettingsChevronInkLight,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -682,20 +732,20 @@ private fun SettingsIsolatedLogoutRow(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Leading Icon Box with Error Tint Container
+        // Leading Icon Tile, the mockup's sign-out rose
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
-                    shape = CircleShape
+                    color = TileRose.fill,
+                    shape = RoundedCornerShape(12.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                 contentDescription = stringResource(R.string.label_logout),
-                tint = MaterialTheme.colorScheme.error,
+                tint = TileRose.ink,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -744,6 +794,8 @@ private data class SettingsRowData(
      *  [subtitleRes] when present. */
     val subtitleText: String? = null,
     val icon: ImageVector,
+    /** Leading tile fill and ink, the mockup's hue pair for this row. */
+    val tile: SettingsTilePalette,
     val onClick: () -> Unit,
     val isEnabled: Boolean = true,
     val trailing: String? = null

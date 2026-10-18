@@ -35,6 +35,14 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.appHeaderTitle
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+
+// Header ink, read from the settings mockup (mock-settings.html `.appheader`): the title is
+// the page's own ink at full strength and the back arrow that same ink at 90%. Pure white on
+// the dark page; light already draws TextPrimaryLight through [appHeaderTitle].
+// Declared here for now — these move into Color.kt with the rest of the redesign tokens.
+private val HeaderInkDark = Color(0xFFFFFFFF)
+private const val HeaderBackAlpha = 0.9f
 
 
 /**
@@ -51,6 +59,11 @@ fun AppHeader(
     // Shared tier logic (see rememberFontScaleInfo / maxLinesForTier) — never
     // multiply sizes by the raw fontScale (non-linear on Android 14+).
     val titleMaxLines = maxLinesForTier(compact = 2, large = 3, huge = 3)
+    val headerInk = if (MaterialTheme.colorScheme.isDark) {
+        HeaderInkDark
+    } else {
+        MaterialTheme.colorScheme.appHeaderTitle
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -62,9 +75,9 @@ fun AppHeader(
 
             Text(
                 text = title,
-                // The page's own ink in light; in dark the dedicated header-title token
-                // (the light field, used as ink on the near-black page).
-                color = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
+                // The page's own ink in light; pure white on the near-black page, matching
+                // the mockup's header rather than the slightly grey header-title token.
+                color = headerInk,
                 maxLines = titleMaxLines,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = true,
@@ -86,6 +99,12 @@ fun AppHeader(
 
 @Composable
 private fun BackButton(onClick: () -> Unit) {
+    // Same ink as the title, at the mockup's 90% for the arrow.
+    val headerInk = if (MaterialTheme.colorScheme.isDark) {
+        HeaderInkDark
+    } else {
+        MaterialTheme.colorScheme.appHeaderTitle
+    }
     // Visual size matches the title line so the glyph sits on the same
     // horizontal axis; the 48.dp box was dropping the title under the arrow.
     Box(
@@ -102,7 +121,7 @@ private fun BackButton(onClick: () -> Unit) {
         Icon(
             imageVector = PhosphorIcons.Regular.ArrowBendUpLeft,
             contentDescription = stringResource(R.string.desc_back),
-            tint = MaterialTheme.colorScheme.appHeaderTitle.copy(alpha = 0.75f),
+            tint = headerInk.copy(alpha = HeaderBackAlpha),
             modifier = Modifier.size(24.dp)
         )
     }
