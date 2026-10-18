@@ -43,6 +43,10 @@ import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
+import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.components.*
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
@@ -219,7 +223,7 @@ private fun DataManagementContent(
             ) {
                 // SECTION 1: CLOUD & AUTOMATION
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         GatedAction(
                             feature = Feature.AUTO_BACKUP,
                             onAction = { onAutoBackupEnabledChange(!isAutoBackupEnabled) }
@@ -229,6 +233,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.title_auto_backup),
                                 subtitle = stringResource(id = R.string.desc_auto_backup_subtitle),
                                 icon = PhosphorIcons.Regular.CloudArrowUp,
+                                iconTile = SettingsTiles.Violet,
                                 type = SettingsItemType.Toggle,
                                 accessLevel = accessLevel,
                                 isLocked = status !is AccessStatus.Granted,
@@ -248,6 +253,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.title_backup_frequency),
                                 subtitle = stringResource(id = R.string.desc_backup_frequency_subtitle),
                                 icon = PhosphorIcons.Regular.ClockCountdown,
+                                iconTile = SettingsTiles.Sky,
                                 type = SettingsItemType.Value,
                                 valueText = pluralStringResource(id = R.plurals.label_days_count_formatted, count = autoBackupFrequencyDays, autoBackupFrequencyDays),
                                 accessLevel = accessLevel,
@@ -272,7 +278,7 @@ private fun DataManagementContent(
 
                 // SECTION 2: FILE TRANSFER
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         GatedAction(
                             feature = Feature.DATA_EXPORT,
                             onAction = {
@@ -285,6 +291,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.label_export_data_json),
                                 subtitle = stringResource(id = R.string.desc_export_data_subtitle),
                                 icon = PhosphorIcons.Regular.FileArrowDown,
+                                iconTile = SettingsTiles.Emerald,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.label_export),
                                 accessLevel = accessLevel,
@@ -298,6 +305,7 @@ private fun DataManagementContent(
                             title = stringResource(id = R.string.label_import_data_json),
                             subtitle = stringResource(id = R.string.desc_import_data_subtitle),
                             icon = PhosphorIcons.Regular.FileArrowUp,
+                            iconTile = SettingsTiles.Amber,
                             type = SettingsItemType.Button,
                             valueText = stringResource(id = R.string.label_import),
                             onClick = {
@@ -320,6 +328,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.label_backup_database_db),
                                 subtitle = stringResource(id = R.string.desc_backup_db_subtitle),
                                 icon = PhosphorIcons.Regular.Database,
+                                iconTile = SettingsTiles.Indigo,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.title_backup),
                                 accessLevel = accessLevel,
@@ -338,6 +347,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.label_restore_database_db),
                                 subtitle = stringResource(id = R.string.desc_restore_db_subtitle),
                                 icon = PhosphorIcons.Regular.ArrowCounterClockwise,
+                                iconTile = SettingsTiles.Teal,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.title_restore),
                                 accessLevel = accessLevel,
@@ -352,6 +362,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.label_legacy_import),
                                 subtitle = stringResource(id = R.string.desc_legacy_import_subtitle),
                                 icon = PhosphorIcons.Regular.ClockCounterClockwise,
+                                iconTile = SettingsTiles.Fuchsia,
                                 type = SettingsItemType.Button,
                                 valueText = stringResource(id = R.string.label_migrate),
                                 onClick = {
@@ -366,7 +377,7 @@ private fun DataManagementContent(
 
                 // SECTION 3: STORAGE & MAINTENANCE
                 item {
-                    SettingsGroup {
+                    SettingsGroup(colors = settingsGroupCardColors()) {
                         GatedAction(
                             feature = Feature.TRANSACTION_COUNT,
                             onAction = { /* No action for count info */ }
@@ -376,6 +387,7 @@ private fun DataManagementContent(
                                 title = stringResource(id = R.string.title_transaction_count),
                                 subtitle = stringResource(id = R.string.desc_transaction_count_subtitle),
                                 icon = PhosphorIcons.Regular.Note,
+                                iconTile = SettingsTiles.Pink,
                                 type = SettingsItemType.Value,
                                 valueText = transactionCount.toString(),
                                 accessLevel = accessLevel,
@@ -461,6 +473,11 @@ private fun DataManagementContent(
             description = stringResource(id = R.string.desc_choose_backup_frequency),
             items = frequencyItems,
             selectedId = autoBackupFrequencyDays,
+            containerColor = MaterialTheme.colorScheme.profileSheet,
+            rowColors = SelectionRowColors(
+                container = MaterialTheme.colorScheme.genderRow,
+                selectedContainer = MaterialTheme.colorScheme.genderRowSelected
+            ),
             onItemSelected = { days ->
                 val optionId = if (days == 0) "custom" else days.toString()
                 val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).value

@@ -14,6 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +65,11 @@ fun BackupRestoreSheet(
         description = stringResource(R.string.label_select_a_backup_file),
         items = selectionItems,
         selectedId = null,
+        containerColor = MaterialTheme.colorScheme.profileSheet,
+        rowColors = SelectionRowColors(
+            container = MaterialTheme.colorScheme.genderRow,
+            selectedContainer = MaterialTheme.colorScheme.genderRowSelected
+        ),
         onItemSelected = { onBackupSelected(it) },
         onDismiss = onDismiss,
         maxListHeight = 500.dp
@@ -78,7 +86,7 @@ fun BackupRestoreSheet(
                         onManualSelectClick()
                         onDismiss()
                     }),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.genderRow,
                 border = androidx.compose.foundation.BorderStroke(
                     1.dp, 
                     MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
@@ -92,7 +100,7 @@ fun BackupRestoreSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.accentSoft),
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
