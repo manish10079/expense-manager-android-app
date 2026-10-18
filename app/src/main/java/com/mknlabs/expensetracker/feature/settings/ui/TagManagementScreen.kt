@@ -86,11 +86,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
+import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
@@ -102,13 +104,18 @@ import com.mknlabs.expensetracker.core.ui.components.CategoryColorRow
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.TagRowActionFillDark
+import com.mknlabs.expensetracker.core.ui.theme.TagRowBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.TagRowDeleteBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.TagRowDeleteFillDark
+import com.mknlabs.expensetracker.core.ui.theme.TagRowFillDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.expense
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.parseHexColorOrNull
 import com.mknlabs.expensetracker.core.ui.theme.sheet
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.models.Tag
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 
@@ -374,12 +381,12 @@ internal fun TagManagementContent(
                             .border(BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.5f)))
                             .navigationBarsPadding()
                             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         val chipShape = RoundedCornerShape(12.dp)
                         Text(
                             text = stringResource(R.string.label_merge_tags),
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.onBrandGradient,
                             textAlign = TextAlign.Center,
@@ -388,11 +395,11 @@ internal fun TagManagementContent(
                                 .clip(chipShape)
                                 .background(brandGradient())
                                 .clickable { enterSelection(TagSelectionAction.MERGE) }
-                                .padding(vertical = 10.dp)
+                                .padding(vertical = 12.dp)
                         )
                         Text(
                             text = stringResource(R.string.label_delete_tags),
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.onBrandGradient,
                             textAlign = TextAlign.Center,
@@ -401,7 +408,7 @@ internal fun TagManagementContent(
                                 .clip(chipShape)
                                 .background(brandGradient())
                                 .clickable { enterSelection(TagSelectionAction.DELETE) }
-                                .padding(vertical = 10.dp)
+                                .padding(vertical = 12.dp)
                         )
                     }
                 }
@@ -449,9 +456,10 @@ internal fun TagManagementContent(
                                     R.string.action_sms_inbox_select_all
                                 }
                             ),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.onSurface,
+                            maxLines = 1,
                             modifier = Modifier
                                 .clip(chipShape)
                                 .background(scheme.chip)
@@ -459,7 +467,7 @@ internal fun TagManagementContent(
                                 .clickable {
                                     selectedIds = if (allSelected) emptySet() else allIds
                                 }
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         val actionEnabled = canAct
@@ -469,7 +477,7 @@ internal fun TagManagementContent(
                             } else {
                                 stringResource(R.string.action_sms_inbox_delete_selected)
                             },
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.onBrandGradient,
                             modifier = Modifier
@@ -481,7 +489,7 @@ internal fun TagManagementContent(
                                         TagSelectionAction.DELETE -> showDeleteConfirm = true
                                     }
                                 }
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
                                 .then(if (actionEnabled) Modifier else Modifier.alpha(0.45f))
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -607,6 +615,30 @@ private fun TagManagementCard(
     onRenameClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+    // The mockup's row: a single line with a # tile, the name over its usage count, the
+    // spend, then the edit and delete buttons. Only dark is restyled; light stays the
+    // standard white card.
+    val identity = parseHexColorOrNull(item.colorHex) ?: colorScheme.accentInk
+    val rowFill = if (isDark) TagRowFillDark else colorScheme.surface
+    val rowEdge = if (isDark) TagRowBorderDark else colorScheme.outlineVariant.copy(alpha = 0.65f)
+    val actionFill = if (isDark) {
+        TagRowActionFillDark
+    } else {
+        colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
+    }
+    val deleteFill = if (isDark) {
+        TagRowDeleteFillDark
+    } else {
+        colorScheme.error.copy(alpha = 0.08f)
+    }
+    val deleteEdge = if (isDark) {
+        TagRowDeleteBorderDark
+    } else {
+        colorScheme.error.copy(alpha = 0.18f)
+    }
+
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -614,73 +646,126 @@ private fun TagManagementCard(
             // tap toggles the row in or out of the selection. Outside that mode it is inert,
             // so a stray tap cannot delete or rename.
             .clickable(enabled = selectionMode, onClick = onCardClick),
-        brush = darkOnlyGradient(standardCardGradient()),
-        shape = RoundedCornerShape(8.dp),
-        colors = run {
-            val base = AppCardDefaults.colors()
-            if (isSelected) {
-                base.copy(border = BorderStroke(1.dp, MaterialTheme.colorScheme.accentInk))
-            } else {
-                base
-            }
-        }
+        shape = RoundedCornerShape(16.dp),
+        colors = AppCardColors(
+            containerColor = rowFill,
+            contentColor = colorScheme.onSurface,
+            border = BorderStroke(
+                1.dp,
+                if (isSelected) colorScheme.accentInk else rowEdge
+            )
+        )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            // The # tile borrows the tag's own colour: 15% wash, 20% edge, full-strength
+            // glyph, matching the mockup's badge treatment for its violet.
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(identity.copy(alpha = 0.15f))
+                    .border(1.dp, identity.copy(alpha = 0.20f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.label_tag_prefixed, item.name),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    text = "#",
+                    color = identity,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
-
-                if (!selectionMode) {
-                    IconAction(
-                        icon = Icons.Filled.Edit,
-                        description = stringResource(R.string.desc_rename_tag, item.name),
-                        onClick = onRenameClick
-                    )
-                    IconAction(
-                        icon = Icons.Filled.Close,
-                        description = stringResource(R.string.desc_delete_tag, item.name),
-                        tint = MaterialTheme.colorScheme.error,
-                        onClick = onDeleteClick
-                    )
-                }
             }
 
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.msg_tag_transaction_count, item.transactionCount),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f)
+                    text = item.name,
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = formatCurrencyValue(item.expenseMinor / 100.0, currencyId),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(R.string.msg_tag_transaction_count, item.transactionCount),
+                    color = colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Text(
+                text = formatCurrencyValue(item.expenseMinor / 100.0, currencyId),
+                // A tag with no spend keeps the muted ink, so the row reads as idle.
+                color = if (item.expenseMinor == 0L) {
+                    colorScheme.onSurfaceVariant
+                } else {
+                    colorScheme.onSurface
+                },
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                maxLines = 1
+            )
+
+            if (!selectionMode) {
+                TagRowAction(
+                    icon = Icons.Filled.Edit,
+                    description = stringResource(R.string.desc_rename_tag, item.name),
+                    tint = colorScheme.onSurfaceVariant,
+                    fill = actionFill,
+                    onClick = onRenameClick
+                )
+                TagRowAction(
+                    icon = Icons.Filled.Close,
+                    description = stringResource(R.string.desc_delete_tag, item.name),
+                    tint = colorScheme.error,
+                    fill = deleteFill,
+                    edge = deleteEdge,
+                    onClick = onDeleteClick
                 )
             }
         }
     }
 }
 
+@Composable
+private fun TagRowAction(
+    icon: ImageVector,
+    description: String,
+    tint: Color,
+    fill: Color,
+    onClick: () -> Unit,
+    edge: Color? = null
+) {
+    // A compact 32dp button with a 16dp glyph, as in the mockup. The ripple is suppressed
+    // for the same reason the row's other icon actions suppress it: two small buttons sit
+    // tight together, and the spray of ripples read as noise.
+    val shape = RoundedCornerShape(8.dp)
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(shape)
+            .background(fill)
+            .then(edge?.let { Modifier.border(1.dp, it, shape) } ?: Modifier)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = tint,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
 @Composable
 private fun IconAction(
     icon: ImageVector,

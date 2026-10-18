@@ -684,6 +684,17 @@ val ColorScheme.tagInk: Color
 val ColorScheme.tagWash: Color
     get() = if (isDark) TagWashDark else TagWashLight
 
+// The Manage Tags row in the mockup: #131724 at 90% over the page with a white 7% hairline
+// in dark. Light keeps the standard white card, so only the dark pair is spelled out.
+internal val TagRowFillDark = Color(0xE6131724)   // mockup bg-[#131724]/90
+internal val TagRowBorderDark = Color(0x12FFFFFF) // mockup border-white/[0.07]
+
+// Icon-button chrome inside that row: a white 4% tile for edit, rose-500 at 10% with a 20%
+// edge for delete.
+internal val TagRowActionFillDark = Color(0x0AFFFFFF)
+internal val TagRowDeleteFillDark = Color(0x1AF43F5E)
+internal val TagRowDeleteBorderDark = Color(0x33F43F5E)
+
 // The Recurring card's icon tile on that screen. The mockup drops the accent for a neutral
 // slate tile — slate-100 in light, slate-800 in dark — under a slate-500/slate-400 glyph, so
 // the card reads as "off" until the switch is turned on.
