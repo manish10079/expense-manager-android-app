@@ -280,6 +280,11 @@ internal fun TagManagementContent(
                     enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
                     exit = slideOutVertically(targetOffsetY = { -it / 2 }) + fadeOut()
                 ) {
+                    val searchFill = if (MaterialTheme.colorScheme.isDark) {
+                        TagRowFillDark
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    }
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
@@ -317,8 +322,8 @@ internal fun TagManagementContent(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedContainerColor = searchFill,
+                            unfocusedContainerColor = searchFill,
                             focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             cursorColor = MaterialTheme.colorScheme.accentInk,
