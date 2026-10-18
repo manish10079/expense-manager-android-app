@@ -89,6 +89,7 @@ import com.mknlabs.expensetracker.core.ui.components.AppCard
 import com.mknlabs.expensetracker.core.ui.components.AppCardColors
 import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.LoopingConfettiCanvas
+import com.mknlabs.expensetracker.core.ui.theme.membershipCard
 import com.mknlabs.expensetracker.monetization.PurchaseState
 import com.mknlabs.expensetracker.monetization.SubscriptionOffer
 
@@ -261,6 +262,10 @@ private fun PaywallPlanCard(
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
+            // The plan cards share the membership card's Obsidian fill in dark.
+            colors = AppCardDefaults.colors(
+                darkContainer = MaterialTheme.colorScheme.membershipCard
+            ),
         ) {
             Column(Modifier.fillMaxWidth()) {
             Row(

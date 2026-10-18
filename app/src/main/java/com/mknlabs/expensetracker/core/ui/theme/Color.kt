@@ -958,6 +958,35 @@ val ColorScheme.syncCardBorder: Color
 
 val ColorScheme.syncDeviceCard: Color
     get() = if (isDark) SyncDeviceCardDark else SurfaceLight
+// â”€â”€ Membership screen (membership mock) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// The mockup paints the membership card and the benefits list on one Obsidian card
+// (#131622) behind a white 8% hairline, and gives the notice, the "Free Pass" badge and
+// the date fact their own slate inks. Light keeps the app's white card and secondary ink;
+// only the dark theme has a mockup.
+internal val MembershipCardDark = Color(0xFF131622)
+internal val MembershipCardBorderDark = Color(0x14FFFFFF)
+internal val MembershipMutedInkDark = Color(0xFF94A3B8)
+internal val MembershipFactInkDark = Color(0xFFCBD5E1)
+internal val MembershipFactClockInkDark = Color(0xFFA78BFA)
+internal val MembershipFactDateInkDark = MembershipFactInkDark.copy(alpha = 0.9f)
+
+val ColorScheme.membershipCard: Color
+    get() = if (isDark) MembershipCardDark else SurfaceLight
+
+val ColorScheme.membershipCardBorder: Color
+    get() = if (isDark) MembershipCardBorderDark else outline
+
+val ColorScheme.membershipMutedInk: Color
+    get() = if (isDark) MembershipMutedInkDark else TextSecondaryLight
+
+val ColorScheme.membershipFactInk: Color
+    get() = if (isDark) MembershipFactInkDark else TextSecondaryLight
+
+val ColorScheme.membershipFactDateInk: Color
+    get() = if (isDark) MembershipFactDateInkDark else TextSecondaryLight.copy(alpha = 0.9f)
+
+val ColorScheme.membershipFactClockInk: Color
+    get() = if (isDark) MembershipFactClockInkDark else AccentInkLight
 
 // Settings row subtitle ink (mock-settings.html): #8E9BAE on the dark page, #5B6270 on
 // the light one. Every settings group shares it, so the sibling screens cannot drift.

@@ -89,6 +89,12 @@ import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.membershipCard
+import com.mknlabs.expensetracker.core.ui.theme.membershipCardBorder
+import com.mknlabs.expensetracker.core.ui.theme.membershipFactClockInk
+import com.mknlabs.expensetracker.core.ui.theme.membershipFactDateInk
+import com.mknlabs.expensetracker.core.ui.theme.membershipFactInk
+import com.mknlabs.expensetracker.core.ui.theme.membershipMutedInk
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.premiumGold
 import com.mknlabs.expensetracker.core.ui.theme.TextSecondaryLight
@@ -254,17 +260,11 @@ internal fun MembershipDetailsContent(
                 item {
                     AppCard(
                         shape = AppCardDefaults.shape(24.dp),
-                        // A half-strength variant wash is dark's surface here and dark keeps
-                        // it; light takes the white card on the grey field. The membership
-                        // hero above keeps its tier gradient - that fill is what says which
-                        // access the user has - but the benefits list is chrome, and a tinted
-                        // panel is the shape of thing the redesign replaces with a card.
+                        // The mockup puts the benefits list on the same Obsidian card as the
+                        // hero above; light keeps the app's white card on the grey field.
                         colors = AppCardDefaults.colors(
-                            darkContainer = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            darkBorder = BorderStroke(
-                                1.dp,
-                                colorScheme.outlineVariant.copy(alpha = 0.3f)
-                            )
+                            darkContainer = colorScheme.membershipCard,
+                            darkBorder = BorderStroke(1.dp, colorScheme.membershipCardBorder)
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -318,14 +318,26 @@ internal fun MembershipDetailsContent(
                         }
 
                         primaryActionRes?.let { actionRes ->
+                            // The mockup's subscribe action: a 12dp-rounded 52dp bar filled
+                            // with the brand gradient, not a flat container colour.
                             Button(
                                 onClick = upgradeToPro,
-                                shape = RoundedCornerShape(16.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = colorScheme.secondaryContainer,
-                                    contentColor = colorScheme.onSecondaryContainer
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color.White
                                 ),
-                                modifier = Modifier.fillMaxWidth()
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .background(
+                                        brush = brandGradient(),
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
                             ) {
                                 Text(
                                     text = stringResource(actionRes),
@@ -338,12 +350,15 @@ internal fun MembershipDetailsContent(
                         AppOutlinedButton(
                             onClick = onRestoreClick,
                             enabled = !isRestoring,
-                            shape = RoundedCornerShape(16.dp),
+                            // The mockup's restore bar: the same 12dp corner at 48dp.
+                            shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 contentColor = colorScheme.accentInk
                             ),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
                         ) {
                             Text(
                                 text = stringResource(R.string.btn_restore_purchase),
@@ -427,19 +442,14 @@ private data class MembershipCardPalette(
 @Composable
 private fun membershipCardPalette(status: MembershipStatus): MembershipCardPalette {
     val colorScheme = MaterialTheme.colorScheme
-    val cardColors = AppCardDefaults.colors()
     return MembershipCardPalette(
-        surface = cardColors.containerColor,
-        border = if (colorScheme.isDark) {
-            colorScheme.outlineVariant.copy(alpha = 0.65f)
-        } else {
-            colorScheme.outline
-        },
+        surface = colorScheme.membershipCard,
+        border = colorScheme.membershipCardBorder,
         foreground = colorScheme.onSurface,
         headerLabel = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
             colorScheme.premiumGold
         } else {
-            colorScheme.onSurfaceVariant
+            colorScheme.membershipMutedInk
         },
         bodyText = colorScheme.onSurfaceVariant,
         accent = if (status == MembershipStatus.SUBSCRIPTION || status == MembershipStatus.PRO_PASS) {
@@ -505,7 +515,11 @@ private fun MembershipCard(
     AppCard(
         modifier = Modifier.fillMaxWidth(),
         shape = cardShape,
-        colors = AppCardDefaults.colors()
+        // The mockup's Obsidian card behind a white 8% hairline; light keeps the app card.
+        colors = AppCardDefaults.colors(
+            darkContainer = palette.surface,
+            darkBorder = BorderStroke(1.dp, palette.border)
+        )
     ) {
         Column(
             modifier = Modifier
@@ -570,64 +584,59 @@ private fun MembershipCardHeader(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        val brandChip = status == MembershipStatus.PRO_PASS ||
+            status == MembershipStatus.SUBSCRIPTION
+        val headerShape = RoundedCornerShape(8.dp)
+        val headerInk = if (brandChip) Color.White else palette.headerLabel
+        Row(
             modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(brush = gradient),
-            contentAlignment = Alignment.Center
+                .clip(headerShape)
+                .then(
+                    if (brandChip) {
+                        Modifier.background(brush = gradient)
+                    } else {
+                        Modifier.border(1.5.dp, palette.border, headerShape)
+                    }
+                )
+                .padding(horizontal = Dimens.spacingCompact, vertical = Dimens.spacingTiny),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // The merged card is the icon's backing; there is no separate icon tile.
             when (status) {
                 MembershipStatus.OFFLINE -> Icon(
                     painter = painterResource(R.drawable.ic_verified_off_24px),
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = headerInk,
                     modifier = Modifier.size(18.dp)
                 )
                 MembershipStatus.FREE -> Icon(
                     imageVector = Icons.Outlined.Unpublished,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = headerInk,
                     modifier = Modifier.size(18.dp)
                 )
                 MembershipStatus.PRO_PASS -> Icon(
                     imageVector = Icons.Outlined.LocalActivity,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = headerInk,
                     modifier = Modifier.size(18.dp)
                 )
                 MembershipStatus.SUBSCRIPTION -> Icon(
                     imageVector = PhosphorIcons.Regular.Crown,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = headerInk,
                     modifier = Modifier.size(18.dp)
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.width(Dimens.spacingSmall))
+            Spacer(modifier = Modifier.width(Dimens.spacingSmall))
 
-        val brandChip = status == MembershipStatus.PRO_PASS ||
-            status == MembershipStatus.SUBSCRIPTION
-        val chipShape = RoundedCornerShape(50)
-        Box(
-            modifier = Modifier
-                .clip(chipShape)
-                .then(
-                    if (brandChip) {
-                        Modifier.background(brush = gradient)
-                    } else {
-                        Modifier.border(1.5.dp, palette.border, chipShape)
-                    }
-                )
-                .padding(horizontal = Dimens.spacingCompact, vertical = Dimens.spacingTiny)
-        ) {
             Text(
                 text = chipLabel,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.6.sp,
-                color = if (brandChip) Color.White else palette.headerLabel
+                color = headerInk
             )
         }
 
@@ -644,7 +653,7 @@ private fun MembershipCardHeader(
                 color = if (isActiveBadge) {
                     MaterialTheme.colorScheme.income
                 } else {
-                    palette.foreground.copy(alpha = 0.9f)
+                    MaterialTheme.colorScheme.membershipMutedInk
                 }
             )
         }
@@ -667,12 +676,22 @@ private fun MembershipCardFacts(
     ) {
         facts.forEach { fact ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val factColor = palette.foreground.copy(alpha = 0.9f)
+                val colorScheme = MaterialTheme.colorScheme
+                // The count is the mockup's brighter slate; the date sits one step back.
+                val factColor = if (fact is MembershipFact.Date) {
+                    colorScheme.membershipFactDateInk
+                } else {
+                    colorScheme.membershipFactInk
+                }
                 if (fact.glyph != MembershipGlyph.VERIFIED) {
                     Icon(
                         imageVector = glyphIcon(fact.glyph),
                         contentDescription = null,
-                        tint = factColor,
+                        tint = when (fact.glyph) {
+                            MembershipGlyph.CLOCK -> colorScheme.membershipFactClockInk
+                            MembershipGlyph.DATE -> colorScheme.membershipMutedInk
+                            else -> factColor
+                        },
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -751,7 +770,8 @@ private fun MembershipCardPanel(panel: MembershipPanel, palette: MembershipCardP
         Text(
             text = stringResource(panel.bodyRes),
             style = MaterialTheme.typography.bodyMedium,
-            color = palette.foreground.copy(alpha = 0.85f)
+            // The mockup's notice ink: the panel states a caveat, not another headline.
+            color = MaterialTheme.colorScheme.membershipMutedInk
         )
     }
 }
