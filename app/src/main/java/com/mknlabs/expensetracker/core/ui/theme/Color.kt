@@ -915,3 +915,29 @@ internal val ProfileCardLight = Color(0xFFFFFFFF)  // mock white card
 
 val ColorScheme.profileCard: Color
     get() = if (isDark) ProfileCardDark else ProfileCardLight
+
+// ── Select Gender sheet fill (mock-select-gender.html) ──────────────────────
+// The gender sheet in the mockup is painted on the same Obsidian card colour the edit profile
+// cards use, and on white in light — one rung off the app's own #1E1E23 / #FAFAFC [sheet],
+// which every other bottom sheet still reads. Aliases rather than new literals, so the mock's
+// sheet can never drift away from the card colour it is drawn with.
+internal val ProfileSheetDark = ProfileCardDark
+internal val ProfileSheetLight = ProfileCardLight
+
+val ColorScheme.profileSheet: Color
+    get() = if (isDark) ProfileSheetDark else ProfileSheetLight
+
+// ── Select Gender option rows (mock-select-gender.html) ─────────────────────
+// The four rows in the gender sheet are cards of their own: #191D2C idle and #28253D when
+// chosen in dark, #F8FAFC idle and #F5F3FF when chosen in light. Only the fill is taken from
+// the mockup here — the row's edge, glow, icon box and "Selected" ink keep the app's own.
+internal val GenderRowDark = Color(0xFF191D2C)            // mock bg-[#191D2C]
+internal val GenderRowLight = Color(0xFFF8FAFC)           // mock bg-slate-50
+internal val GenderRowSelectedDark = Color(0xFF28253D)    // mock bg-[#28253D]
+internal val GenderRowSelectedLight = Color(0xFFF5F3FF)   // mock bg-brand-50
+
+val ColorScheme.genderRow: Color
+    get() = if (isDark) GenderRowDark else GenderRowLight
+
+val ColorScheme.genderRowSelected: Color
+    get() = if (isDark) GenderRowSelectedDark else GenderRowSelectedLight

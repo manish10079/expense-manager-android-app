@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -30,6 +31,19 @@ import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import androidx.compose.material.icons.rounded.Lock
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import androidx.compose.ui.text.style.TextOverflow
+
+/**
+ * The two fills a row in an [AppSelectionSheet] can wear: the idle card and the chosen card.
+ *
+ * Paired rather than passed as two loose colours, so a caller cannot hand over a chosen fill
+ * and leave the idle one on the app's default, which would be two design languages in one list.
+ * Aimed at the row's background only; its edge, its icon box and its "Selected" ink stay the
+ * component's own.
+ */
+data class SelectionRowColors(
+    val container: Color,
+    val selectedContainer: Color
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +60,19 @@ fun <T> AppSelectionSheet(
     searchPlaceholder: String? = null,
     maxListHeight: Dp = 440.dp,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    // A caller whose own mockup paints the sheet on a different fill can override it — the edit
+    // profile gender sheet does. Null keeps [ColorScheme.sheet], the container every other
+    // selection sheet in the app is painted on.
+    containerColor: Color? = null,
+    // The row cards' own fills, for a caller whose mockup draws them itself. Null keeps the
+    // accent wash / surfaceVariant pair every other selection sheet in the app is drawn with.
+    rowColors: SelectionRowColors? = null,
     footerContent: (LazyListScope.() -> Unit)? = null
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = containerColor ?: MaterialTheme.colorScheme.sheet,
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -129,6 +150,7 @@ fun <T> AppSelectionSheet(
                     SelectionRow(
                         item = item,
                         isSelected = item.id == selectedId,
+                        rowColors = rowColors,
                         onClick = { onItemSelected(item.id) }
                     )
                 }
@@ -149,12 +171,19 @@ fun <T> AppSelectionSheet(
 private fun <T> SelectionRow(
     item: SelectionItem<T>,
     isSelected: Boolean,
+    rowColors: SelectionRowColors?,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
+    // A caller's own pair replaces both fills together; without one the row keeps the accent
+    // wash when chosen and the variant surface when idle.
+    val backgroundColor = when {
+        rowColors == null -> if (isSelected) {
+            MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        }
+        isSelected -> rowColors.selectedContainer
+        else -> rowColors.container
     }
 
     val boxBackgroundColor = if (isSelected) {

@@ -57,8 +57,11 @@ import com.mknlabs.expensetracker.core.ui.theme.profileBadgeGender
 import com.mknlabs.expensetracker.core.ui.theme.profileBadgeName
 import com.mknlabs.expensetracker.core.ui.theme.profileBadgePhone
 import com.mknlabs.expensetracker.core.ui.theme.profilePhotoDelete
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileCard
 import com.mknlabs.expensetracker.core.ui.theme.profilePhotoEdit
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
@@ -652,6 +655,15 @@ private fun ProfileScreenContent(
             items = genderItems,
             selectedId = gender,
             sheetState = genderPickerSheetState,
+            // The mockup paints this sheet on the edit profile card colour, not on the app's
+            // own sheet token, so it is the one selection sheet that overrides the fill.
+            containerColor = colorScheme.profileSheet,
+            // ...and its four rows on the mockup's own card colours, #191D2C / #28253D in dark
+            // and #F8FAFC / #F5F3FF in light, rather than the accent wash the app rows use.
+            rowColors = SelectionRowColors(
+                container = colorScheme.genderRow,
+                selectedContainer = colorScheme.genderRowSelected
+            ),
             onDismiss = { isGenderPickerVisible = false },
             onItemSelected = { selectedGender ->
                 gender = selectedGender
