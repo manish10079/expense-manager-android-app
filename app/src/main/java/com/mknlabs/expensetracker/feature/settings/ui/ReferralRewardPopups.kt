@@ -201,7 +201,7 @@ internal fun RefereeCodeAcceptedCard(
                 alpha = cardAlpha.value
             },
         shape = cardShape,
-        colors = AppCardDefaults.colors(),
+        colors = AppCardDefaults.colors(darkContainer = Color(0xFF101019)),
         contentPadding = PaddingValues(24.dp)
     ) {
         LoopingConfettiCanvas(modifier = Modifier.matchParentSize())
@@ -404,7 +404,7 @@ internal fun ReferrerFirstTxnCard(
                 alpha = cardAlpha.value
             },
         shape = cardShape,
-        colors = AppCardDefaults.colors(),
+        colors = AppCardDefaults.colors(darkContainer = Color(0xFF101019)),
         contentPadding = PaddingValues(24.dp)
     ) {
         LoopingConfettiCanvas(modifier = Modifier.matchParentSize())
