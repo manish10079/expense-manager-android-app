@@ -3357,6 +3357,7 @@ private fun RecurringRuleEditorModal(
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.accentInk,
                                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                                 disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
                                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -3500,6 +3501,7 @@ private fun RecurringRuleEditorModal(
                                         )
                                     },
                                     colors = OutlinedTextFieldDefaults.colors(
+                                        cursorColor = MaterialTheme.colorScheme.accentInk,
                                         disabledTextColor = MaterialTheme.colorScheme.onSurface,
                                         disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
                                         disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant

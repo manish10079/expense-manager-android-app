@@ -61,6 +61,7 @@ import com.adamglin.phosphoricons.regular.Crown
 import com.adamglin.phosphoricons.regular.SealCheck
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -326,6 +327,7 @@ fun ProPassRedeemDialogCard(
                                 color = textPrimary
                             ),
                             colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.accentInk,
                                 focusedContainerColor = surfaceSubtleColor,
                                 unfocusedContainerColor = surfaceSubtleColor,
                                 disabledContainerColor = surfaceSubtleColor,
@@ -395,6 +397,7 @@ fun ProPassRedeemDialogCard(
                                 color = textPrimary
                             ),
                             colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.accentInk,
                                 focusedContainerColor = surfaceSubtleColor,
                                 unfocusedContainerColor = surfaceSubtleColor,
                                 disabledContainerColor = surfaceSubtleColor,

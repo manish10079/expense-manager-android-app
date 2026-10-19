@@ -498,7 +498,7 @@ private fun AuthLabeledField(
             } else {
                 VisualTransformation.None
             },
-            cursorBrush = SolidColor(AuthFocusGlow),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = if (dark) Color.White else Color(0xFF0F172A),
                 fontSize = 14.sp,

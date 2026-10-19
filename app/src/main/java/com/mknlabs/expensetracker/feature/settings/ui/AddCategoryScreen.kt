@@ -226,6 +226,7 @@ private fun AddCategoryScreenContent(
                     ),
                     shape = RoundedCornerShape(22.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
                         focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )
@@ -283,6 +284,7 @@ private fun AddCategoryScreenContent(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
                         focusedBorderColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.5f),
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     )

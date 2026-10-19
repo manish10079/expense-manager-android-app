@@ -1,10 +1,13 @@
 package com.mknlabs.expensetracker.core.ui.theme
 
 import android.app.Activity
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.luminance
@@ -88,10 +91,19 @@ fun ExpenseTrackerTheme(
 
     ApplySystemBarStyle(darkTheme = darkTheme)
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = typography,
-        shapes = Shapes,
-        content = content
-    )
+    // Every text field draws its selection draggers from this local, so the handles
+    // follow the brand ink rather than Material's default primary.
+    CompositionLocalProvider(
+        LocalTextSelectionColors provides TextSelectionColors(
+            handleColor = colorScheme.accentInk,
+            backgroundColor = colorScheme.accentInk.copy(alpha = 0.3f)
+        )
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = typography,
+            shapes = Shapes,
+            content = content
+        )
+    }
 }

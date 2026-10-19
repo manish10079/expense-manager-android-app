@@ -49,7 +49,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+import com.mknlabs.expensetracker.core.ui.theme.flatCard
 
 /** Wash strength for a tab's own [TabItem.selectedColor]; the brand pill uses the same 20%. */
 private const val SelectedTintAlpha = 0.20f
@@ -86,7 +86,7 @@ fun <T> AnimatedTabSwitcher(
                 if (containerColor != null) {
                     Modifier.background(containerColor)
                 } else {
-                    Modifier.background(standardCardGradient())
+                    Modifier.background(MaterialTheme.colorScheme.flatCard)
                 }
             )
             .padding(containerPadding)

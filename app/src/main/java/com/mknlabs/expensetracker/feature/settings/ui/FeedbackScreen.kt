@@ -215,7 +215,7 @@ private fun FeedbackScreenContent(
                     focusedBorderColor = fieldBorder,
                     unfocusedBorderColor = fieldBorder.copy(alpha = 0.5f),
                     disabledBorderColor = fieldBorder.copy(alpha = 0.3f),
-                    cursorColor = fieldBorder,
+                    cursorColor = scheme.accentInk,
                     focusedTextColor = tellUsInk,
                     unfocusedTextColor = tellUsInk
                 ),

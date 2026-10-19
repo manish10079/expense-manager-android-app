@@ -1945,6 +1945,7 @@ private fun RecurringTransactionSection(
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.accentInk,
                                 disabledTextColor = colorScheme.onSurface,
                                 disabledBorderColor = if (colorScheme.isDark) colorScheme.outlineVariant else colorScheme.outline,
                                 disabledContainerColor = if (colorScheme.isDark) colorScheme.surfaceVariant else colorScheme.surface
@@ -2017,6 +2018,7 @@ private fun RecurringTransactionSection(
                             ),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.accentInk,
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
                                 focusedBorderColor = colorScheme.accentInk,
@@ -2346,7 +2348,7 @@ private fun CurrencyAmountCard(
                             onNext = { onImeNext() }
                         ),
                         singleLine = true,
-                        cursorBrush = SolidColor(amountColor)
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk)
                     )
                 }
 

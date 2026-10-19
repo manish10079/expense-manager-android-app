@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -100,7 +101,9 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
 
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
+import com.mknlabs.expensetracker.core.ui.theme.flatCard
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
@@ -130,9 +133,7 @@ import kotlin.math.sin
 // bg-surface #13151F with a white/5 edge in dark, white with a slate-200/70 edge in light.
 // Applied to the stats, breakdowns, top-spending and smart-tip cards — not the hero above
 // them, which keeps its own gradient.
-private val AnalyticsCardContainerDark = Color(0xFF13151F)
 private val AnalyticsCardBorderDark = Color(0x0DFFFFFF)
-private val AnalyticsCardContainerLight = Color(0xFFFFFFFF)
 private val AnalyticsCardBorderLight = Color(0xB3E2E8F0)
 
 // The Daily Avg and Savings tiles, from the mock's quick stats: indigo-50 fill, indigo-100/60
@@ -155,11 +156,7 @@ private val SavingsIconLight = Color(0xFF7C3AED)
 
 @Composable
 internal fun analyticsCardColors(): AppCardColors = AppCardColors(
-    containerColor = if (MaterialTheme.colorScheme.isDark) {
-        AnalyticsCardContainerDark
-    } else {
-        AnalyticsCardContainerLight
-    },
+    containerColor = MaterialTheme.colorScheme.flatCard,
     contentColor = MaterialTheme.colorScheme.onSurface,
     border = BorderStroke(
         width = 1.dp,
@@ -337,7 +334,6 @@ fun AnalyticsScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = Dimens.ScreenPadding)
                 .alpha(enter[1]),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -900,9 +896,9 @@ private fun CustomRangeSelector(
     // The same five spec chip tokens PeriodChip reads, so the custom-range control and the
     // period chips beside it cannot disagree about what a selected chip looks like.
     val containerColor = if (isSelected) {
-        MaterialTheme.colorScheme.chipSelected
+        brandGradient()
     } else {
-        PeriodChipDefaults.customRangeContainer
+        SolidColor(PeriodChipDefaults.customRangeContainer)
     }
 
     val borderColor = if (isSelected) {
@@ -912,7 +908,7 @@ private fun CustomRangeSelector(
     }
 
     val textColor = if (isSelected) {
-        MaterialTheme.colorScheme.accentInk
+        MaterialTheme.colorScheme.onBrandGradient
     } else {
         MaterialTheme.colorScheme.chipInkOff
     }

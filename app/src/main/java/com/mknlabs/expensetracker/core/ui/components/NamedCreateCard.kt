@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmBrandShadow
 import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmTitleLight
@@ -143,7 +144,7 @@ fun NamedCreateCard(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal
             ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { if (confirmEnabled) onConfirm() }),
             modifier = Modifier

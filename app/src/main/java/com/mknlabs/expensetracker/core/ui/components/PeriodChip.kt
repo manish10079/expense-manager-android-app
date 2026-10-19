@@ -22,7 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +58,7 @@ import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 
 /**
  * The period-chip palette, quoted from analytics_dashboard_comparison.html.
@@ -156,7 +159,7 @@ fun PeriodChip(
     }
 
     val targetContentColor = if (isSelected) {
-        colors?.selectedContent ?: MaterialTheme.colorScheme.accentInk
+        colors?.selectedContent ?: MaterialTheme.colorScheme.onBrandGradient
     } else {
         colors?.unselectedContent ?: MaterialTheme.colorScheme.chipInkOff
     }
@@ -177,6 +180,14 @@ fun PeriodChip(
         label = "period_chip_content"
     )
 
+    // The shared palette selects with the brand gradient; a caller that supplied its own
+    // palette keeps its flat fill instead.
+    val containerBrush: Brush = if (isSelected && colors == null) {
+        brandGradient()
+    } else {
+        SolidColor(containerColor)
+    }
+
     Row(
         modifier = modifier
             // The chip's own height is the label's line plus 20.dp of padding, which is under the
@@ -184,7 +195,7 @@ fun PeriodChip(
             // chip's appearance, the construction Material's own components use.
             .minimumInteractiveComponentSize()
             .clip(RoundedCornerShape(18.dp))
-            .background(containerColor)
+            .background(containerBrush)
             .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),

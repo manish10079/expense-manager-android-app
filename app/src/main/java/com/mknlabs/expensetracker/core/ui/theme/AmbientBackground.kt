@@ -14,7 +14,7 @@ import kotlin.math.sqrt
  * The app's page: the dark background with the mockup's violet ambient glow at the top.
  *
  * The glow is the one the Manage Categories mockup introduced — a circle at 50% 0, violet
- * at 18%, gone by the 70% stop of a farthest-corner circle drawn over the first 384dp of
+ * at 18%, gone by the 70% stop of a farthest-corner circle drawn over the first 480dp of
  * the screen. Light mode keeps the plain background; every screen paints through this so
  * the glow can never appear on just one of them.
  */
@@ -37,7 +37,7 @@ fun Modifier.appAmbientGlow(): Modifier {
         if (!colorScheme.isDark) return@drawBehind
         val glow = colorScheme.manageCategoryGlow
         val halfWidth = size.width / 2f
-        val glowHeight = 384.dp.toPx()
+        val glowHeight = 480.dp.toPx()
         val radius = sqrt(halfWidth * halfWidth + glowHeight * glowHeight) * 0.7f
         drawRect(
             brush = Brush.radialGradient(

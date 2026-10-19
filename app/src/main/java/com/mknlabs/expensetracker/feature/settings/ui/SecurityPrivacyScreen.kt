@@ -514,6 +514,7 @@ private fun AutoLockDurationPickerSheet(
                     // The focused edge and the typed minutes both take the app's accent,
                     // not the theme's default primary.
                     colors = OutlinedTextFieldDefaults.colors(
+                        cursorColor = MaterialTheme.colorScheme.accentInk,
                         focusedBorderColor = MaterialTheme.colorScheme.accentInk,
                         focusedLabelColor = MaterialTheme.colorScheme.accentInk,
                         focusedTextColor = MaterialTheme.colorScheme.accentInk

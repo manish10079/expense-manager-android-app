@@ -188,7 +188,10 @@ fun UpdateEmailBottomSheet(
                         singleLine = true,
                         isError = displayError != null && newEmail.isNotBlank(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            cursorColor = MaterialTheme.colorScheme.accentInk
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -207,6 +210,9 @@ fun UpdateEmailBottomSheet(
                         isError = confirmEmail.isNotBlank() && !emailsMatch,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            cursorColor = MaterialTheme.colorScheme.accentInk
+                        ),
                         supportingText = if (confirmEmail.isNotBlank() && !emailsMatch) {
                             { Text(stringResource(id = R.string.error_emails_do_not_match), color = MaterialTheme.colorScheme.error) }
                         } else null
@@ -238,7 +244,10 @@ fun UpdateEmailBottomSheet(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            cursorColor = MaterialTheme.colorScheme.accentInk
+                        )
                     )
 
                     // Error message

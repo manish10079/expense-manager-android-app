@@ -46,7 +46,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.rounded.Close
@@ -107,15 +106,17 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import android.content.Context
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppCard
-import com.mknlabs.expensetracker.core.ui.components.AppCardDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
+import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
+import com.mknlabs.expensetracker.core.ui.components.PeriodChipDefaults
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsInboxFilter
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -538,8 +539,8 @@ private fun FilterRow(selected: SmsInboxFilter, onFilterSelected: (SmsInboxFilte
                             Modifier.background(selectedFill)
                         } else {
                             Modifier
-                                .background(scheme.chip)
-                                .border(1.dp, scheme.chipOutline, chipShape)
+                                .background(PeriodChipDefaults.unselectedContainer)
+                                .border(1.dp, PeriodChipDefaults.unselectedBorder, chipShape)
                         }
                     )
                     .clickable { onFilterSelected(filter) }
@@ -993,7 +994,7 @@ private fun DetectionCard(
         append('"')
     }
 
-    val baseColors = AppCardDefaults.colors()
+    val baseColors = settingsGroupCardColors()
     val cardColors = when {
         item.isSelected -> baseColors.copy(
             border = BorderStroke(1.dp, scheme.accentInk)
@@ -1123,7 +1124,8 @@ private fun DetectionCard(
 @Composable
 private fun ClearAllFooter(onClearAll: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(16.dp)
+    val cardColors = settingsGroupCardColors()
+    val shape = RoundedCornerShape(12.dp)
     Surface(
         color = scheme.background,
         tonalElevation = 0.dp,
@@ -1139,23 +1141,19 @@ private fun ClearAllFooter(onClearAll: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape)
-                    .background(scheme.chip)
-                    .border(BorderStroke(1.dp, scheme.chipOutline), shape)
+                    .background(cardColors.containerColor)
+                    .then(
+                        cardColors.border?.let { Modifier.border(it, shape) } ?: Modifier
+                    )
                     .clickable(onClick = onClearAll)
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = null,
-                    tint = scheme.expense,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(id = R.string.action_sms_inbox_clear_all_pending),
                     style = MaterialTheme.typography.labelLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
                 )
@@ -1173,7 +1171,8 @@ private fun BulkActionBar(
     onDelete: () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
-    val chipShape = RoundedCornerShape(12.dp)
+    val cardColors = settingsGroupCardColors()
+    val chipShape = RoundedCornerShape(8.dp)
     Surface(
         color = scheme.background.copy(alpha = 0.95f),
         tonalElevation = 0.dp,
@@ -1204,25 +1203,32 @@ private fun BulkActionBar(
                         R.string.action_sms_inbox_select_all
                     }
                 ),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelLarge,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = scheme.onSurface,
                 modifier = Modifier
                     .clip(chipShape)
-                    .background(scheme.chip)
-                    .border(BorderStroke(1.dp, scheme.chipOutline), chipShape)
+                    .background(cardColors.containerColor)
+                    .then(
+                        cardColors.border?.let { Modifier.border(it, chipShape) } ?: Modifier
+                    )
                     .clickable(onClick = onToggleSelectAll)
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(id = R.string.action_sms_inbox_delete_selected),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelLarge,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = scheme.onError,
+                color = scheme.expense,
                 modifier = Modifier
                     .clip(chipShape)
-                    .background(scheme.expense)
+                    .background(cardColors.containerColor)
+                    .then(
+                        cardColors.border?.let { Modifier.border(it, chipShape) } ?: Modifier
+                    )
                     .clickable(onClick = onDelete)
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             )
