@@ -38,8 +38,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
@@ -819,8 +817,7 @@ private fun CalculatorKeypad(
             )
         }
 
-        // Row 6: ◀, =, ▶ - the cursor keys flank the equals key, which stays
-        // the widest target on the pad.
+        // Row 6: equals spans the full row.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -830,27 +827,14 @@ private fun CalculatorKeypad(
                     } else {
                         Modifier.height(52.dp)
                     }
-                ),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                )
         ) {
             CalculatorKeyButton(
-                modifier = Modifier.weight(1f),
-                label = stringResource(id = R.string.content_desc_cursor_left),
-                icon = Icons.AutoMirrored.Filled.ArrowBack,
-                onClick = { onAction("CURSOR_LEFT") }
-            )
-            CalculatorKeyButton(
-                modifier = Modifier.weight(2f),
+                modifier = Modifier.fillMaxWidth(),
                 label = "=",
                 icon = PhosphorIcons.Bold.Equals,
                 primary = true,
                 onClick = { onAction("=") }
-            )
-            CalculatorKeyButton(
-                modifier = Modifier.weight(1f),
-                label = stringResource(id = R.string.content_desc_cursor_right),
-                icon = Icons.AutoMirrored.Filled.ArrowForward,
-                onClick = { onAction("CURSOR_RIGHT") }
             )
         }
 
@@ -1584,7 +1568,7 @@ private fun AddItemInputCard(
     )
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.9f)
             .clip(shape)
             .background(cardColors.containerColor)
             .then(

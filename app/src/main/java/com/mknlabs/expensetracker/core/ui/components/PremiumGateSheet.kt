@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
@@ -47,7 +49,11 @@ fun PremiumGateSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.62f),
         dragHandle = {
             Box(

@@ -83,7 +83,7 @@ import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.window.Dialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -165,6 +165,8 @@ import com.mknlabs.expensetracker.core.ui.models.TabItem
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.core.ui.components.QuickActionCard
+import com.mknlabs.expensetracker.core.ui.components.QuickActionOption
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
@@ -188,6 +190,7 @@ import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.formCard
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.typeSwitcherFill
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
@@ -1418,7 +1421,7 @@ internal fun AddTransactionScreenContent(
             ModalBottomSheet(
                 onDismissRequest = { isRecurringModalVisible = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = MaterialTheme.colorScheme.sheet,
+                containerColor = if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.profileSheet else MaterialTheme.colorScheme.sheet,
                 // Flat surface (no tonal tint) so this sheet matches the sort/filter sheet.
                 tonalElevation = 0.dp
             ) {
@@ -1498,74 +1501,61 @@ internal fun AddTransactionScreenContent(
                 .firstOrNull { it.id == pendingOverspendFundId }?.name
                 .orEmpty()
             val overspendRemaining = pendingOverspendFundId?.let { fundRemainingById[it] } ?: 0L
-            AlertDialog(
+            Dialog(
                 onDismissRequest = {
                     showOverspendWarning = false
                     pendingOverspendTransaction = null
                     pendingOverspendDraft = null
                     pendingOverspendFundId = null
-                },
-                containerColor = MaterialTheme.colorScheme.sheet,
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_fund_overspend),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(
-                            R.string.msg_fund_overspend,
-                            overspendFundName,
-                            formatCurrencyValue(overspendRemaining.coerceAtLeast(0L).toMajorUnits(), currencyId)
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                confirmButton = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.End,
-                        verticalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        AppTextButton(onClick = {
-                            val tx = pendingOverspendTransaction
-                            val draft = pendingOverspendDraft
-                            showOverspendWarning = false
-                            pendingOverspendTransaction = null
-                            pendingOverspendDraft = null
-                            pendingOverspendFundId = null
-                            keyboardController?.hide()
-                            if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                        }) {
-                            Text(stringResource(R.string.label_spend_anyway), fontWeight = FontWeight.Bold)
-                        }
-                        AppTextButton(onClick = {
-                            showOverspendWarning = false
-                            pendingOverspendTransaction = null
-                            pendingOverspendDraft = null
-                            pendingOverspendFundId = null
-                        }) {
-                            Text(stringResource(R.string.label_edit_amount_action))
-                        }
-                        AppTextButton(onClick = {
-                            val tx = pendingOverspendTransaction?.copy(fundId = null)
-                            val draft = pendingOverspendDraft
-                            showOverspendWarning = false
-                            pendingOverspendTransaction = null
-                            pendingOverspendDraft = null
-                            pendingOverspendFundId = null
-                            onSelectFund(null)
-                            keyboardController?.hide()
-                            if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                        }) {
-                            Text(stringResource(R.string.label_remove_fund))
+                }
+            ) {
+                QuickActionCard(
+                    title = stringResource(R.string.title_fund_overspend),
+                    caption = stringResource(
+                        R.string.msg_fund_overspend,
+                        overspendFundName,
+                        formatCurrencyValue(overspendRemaining.coerceAtLeast(0L).toMajorUnits(), currencyId)
+                    ),
+                    headerIcon = Icons.Filled.Savings,
+                    options = listOf(
+                        QuickActionOption("spend_anyway", stringResource(R.string.label_spend_anyway), Icons.Filled.AccountBalanceWallet),
+                        QuickActionOption("edit_amount", stringResource(R.string.label_edit_amount_action), Icons.Filled.EditNote),
+                        QuickActionOption("remove_fund", stringResource(R.string.label_remove_fund), Icons.Filled.Close)
+                    ),
+                    selectedId = null,
+                    onSelect = { id ->
+                        when (id) {
+                            "spend_anyway" -> {
+                                val tx = pendingOverspendTransaction
+                                val draft = pendingOverspendDraft
+                                showOverspendWarning = false
+                                pendingOverspendTransaction = null
+                                pendingOverspendDraft = null
+                                pendingOverspendFundId = null
+                                keyboardController?.hide()
+                                if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
+                            }
+                            "edit_amount" -> {
+                                showOverspendWarning = false
+                                pendingOverspendTransaction = null
+                                pendingOverspendDraft = null
+                                pendingOverspendFundId = null
+                            }
+                            "remove_fund" -> {
+                                val tx = pendingOverspendTransaction?.copy(fundId = null)
+                                val draft = pendingOverspendDraft
+                                showOverspendWarning = false
+                                pendingOverspendTransaction = null
+                                pendingOverspendDraft = null
+                                pendingOverspendFundId = null
+                                onSelectFund(null)
+                                keyboardController?.hide()
+                                if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
 
         // The recurring section steps out of its sheet so this picker (itself a
@@ -2348,7 +2338,7 @@ private fun CurrencyAmountCard(
                             onNext = { onImeNext() }
                         ),
                         singleLine = true,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.accentInk)
+                        cursorBrush = SolidColor(amountColor)
                     )
                 }
 
@@ -2849,7 +2839,11 @@ private fun FavoritesBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.sheet
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        }
     ) {
         Column(
             modifier = Modifier
@@ -3280,7 +3274,11 @@ private fun TransactionNoteBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -3603,7 +3601,7 @@ private fun CategoryBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = colorScheme.sheet,
+        containerColor = if (colorScheme.isDark) colorScheme.profileSheet else colorScheme.sheet,
         contentColor = colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -3711,7 +3709,7 @@ private fun PaymentMethodBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = colorScheme.sheet,
+        containerColor = if (colorScheme.isDark) colorScheme.profileSheet else colorScheme.sheet,
         contentColor = colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -3822,7 +3820,7 @@ private fun TagBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = colorScheme.sheet,
+        containerColor = if (colorScheme.isDark) colorScheme.profileSheet else colorScheme.sheet,
         contentColor = colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -3907,7 +3905,7 @@ private fun TagBottomSheet(
                             onClick = { onToggleTag(tag.id) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = AppCardColors(
-                                containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.surface,
+                                containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.15f) else if (colorScheme.isDark) Color(0xFF101019) else colorScheme.surface,
                                 contentColor = colorScheme.onSurface,
                                 border = BorderStroke(
                                     width = if (isSelected) 1.5.dp else 1.dp,
@@ -3982,7 +3980,7 @@ private fun SpendFromFundBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = colorScheme.sheet,
+        containerColor = if (colorScheme.isDark) colorScheme.profileSheet else colorScheme.sheet,
         contentColor = colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {

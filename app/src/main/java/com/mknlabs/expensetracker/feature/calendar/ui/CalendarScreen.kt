@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.calendar.ui
 
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.ui.draw.alpha
@@ -1171,7 +1172,11 @@ private fun MonthYearPickerDialog(
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         shape = RoundedCornerShape(28.dp)
     )
 }
@@ -1220,7 +1225,11 @@ private fun YearPickerDialog(
                 Text(stringResource(id = R.string.label_cancel_1))
             }
         },
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         shape = RoundedCornerShape(28.dp)
     )
 }

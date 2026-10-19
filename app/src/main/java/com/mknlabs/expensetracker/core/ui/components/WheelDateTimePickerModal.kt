@@ -26,6 +26,8 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 import com.mknlabs.expensetracker.utils.validateAndCalculateTimestamp
 import java.util.*
@@ -87,7 +89,11 @@ fun WheelDateTimePickerModal(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         dragHandle = {
             Box(

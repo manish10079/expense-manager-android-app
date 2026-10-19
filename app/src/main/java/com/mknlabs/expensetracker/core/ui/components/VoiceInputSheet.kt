@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.animation.core.RepeatMode
@@ -99,7 +101,11 @@ fun VoiceInputSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetBodyState,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = if (MaterialTheme.colorScheme.isDark) {
+            MaterialTheme.colorScheme.profileSheet
+        } else {
+            MaterialTheme.colorScheme.sheet
+        },
         dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
     ) {
         Column(
