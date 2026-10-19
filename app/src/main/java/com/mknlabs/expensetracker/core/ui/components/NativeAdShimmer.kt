@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import kotlinx.coroutines.delay
 
@@ -49,7 +50,13 @@ fun NativeAdShimmer() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(standardCardGradient())
+            .then(
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier.background(Color(0xFF101019))
+                } else {
+                    Modifier.background(standardCardGradient())
+                }
+            )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
@@ -117,7 +124,13 @@ fun NativeAdLargeShimmer() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(standardCardGradient())
+            .then(
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier.background(Color(0xFF101019))
+                } else {
+                    Modifier.background(standardCardGradient())
+                }
+            )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
@@ -241,7 +254,13 @@ fun AdLoadingShimmer(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(standardCardGradient())
+            .then(
+                if (MaterialTheme.colorScheme.isDark) {
+                    Modifier.background(Color(0xFF101019))
+                } else {
+                    Modifier.background(standardCardGradient())
+                }
+            )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),

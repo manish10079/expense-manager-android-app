@@ -97,12 +97,13 @@ import com.mknlabs.expensetracker.core.ui.components.TransactionCard
 import com.mknlabs.expensetracker.monetization.AccessStatus
 import com.mknlabs.expensetracker.monetization.Feature
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
+
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
+
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.income
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.horizontalSwipe
 import com.mknlabs.expensetracker.utils.getAmountColor
 
@@ -232,8 +233,7 @@ private fun CalendarScreenContent(
                     state = calendarListState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .background(MaterialTheme.colorScheme.background),
+                        .weight(1f),
                     // Top inset is the gap under the AppHeader, so it is deliberately smaller
                     // than the 18.dp between cards, and matched to the Analytics list so both
                     // screens put their first control the same distance below the header.
@@ -598,11 +598,9 @@ private fun MonthCalendarCard(
                 onSwipeLeft = onSwipeNext,
                 onSwipeRight = onSwipePrevious
             ),
-        // The gradient is the dark surface and the only fill this card has, so the
-        // container underneath it stays transparent and no outline is added; light falls
-        // back to the standard card, which is what the redesign asks of every hero.
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = AppCardDefaults.colors(
+            if (MaterialTheme.colorScheme.isDark) Color(0xFF101019) else Color.Transparent
+        ),
         shape = AppCardDefaults.shape(26.dp),
     ) {
         Column(
@@ -776,8 +774,9 @@ private fun EmptyTransactionsCard(
 ) {
     AppCard(
         modifier = Modifier.fillMaxWidth(),
-        brush = darkOnlyGradient(standardCardGradient()),
-        colors = AppCardDefaults.colors(Color.Transparent),
+        colors = AppCardDefaults.colors(
+            if (MaterialTheme.colorScheme.isDark) Color(0xFF101019) else Color.Transparent
+        ),
         shape = AppCardDefaults.shape(24.dp),
     ) {
         Column(

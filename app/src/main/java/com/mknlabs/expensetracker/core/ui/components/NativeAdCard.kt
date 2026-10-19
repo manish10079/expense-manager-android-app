@@ -126,7 +126,13 @@ fun NativeAdCard(
                 modifier = modifier
                     .fillMaxWidth()
                     .clip(adCardShape)
-                    .background(surfaceGradient())
+                    .then(
+                        if (MaterialTheme.colorScheme.isDark) {
+                            Modifier.background(Color(0xFF101019))
+                        } else {
+                            Modifier.background(surfaceGradient())
+                        }
+                    )
                     .border(
                         width = 1.dp,
                         brush = borderBrush,
