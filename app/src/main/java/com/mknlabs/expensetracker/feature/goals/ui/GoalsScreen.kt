@@ -77,6 +77,7 @@ import com.mknlabs.expensetracker.core.ui.theme.track
 import com.mknlabs.expensetracker.core.ui.theme.GoalProgressHigh
 import com.mknlabs.expensetracker.core.ui.theme.flatCard
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
@@ -392,7 +393,16 @@ fun AddGoalDialog(
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
     val identity = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null })
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    val sheetContainerColor = if (MaterialTheme.colorScheme.isDark) {
+        MaterialTheme.colorScheme.profileSheet
+    } else {
+        BottomSheetDefaults.ContainerColor
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = sheetContainerColor
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -528,7 +538,16 @@ fun EditGoalDialog(
     val isSaveEnabled = name.isNotBlank() && targetAmount > 0.0
     val identity = MaterialTheme.colorScheme.identityColor(colorHex.ifBlank { null })
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    val sheetContainerColor = if (MaterialTheme.colorScheme.isDark) {
+        MaterialTheme.colorScheme.profileSheet
+    } else {
+        BottomSheetDefaults.ContainerColor
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = sheetContainerColor
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

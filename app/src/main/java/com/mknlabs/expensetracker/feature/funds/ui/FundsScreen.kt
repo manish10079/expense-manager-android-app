@@ -34,6 +34,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -92,6 +93,7 @@ import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
 import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.identityColor
 import com.mknlabs.expensetracker.core.ui.theme.expense
@@ -953,7 +955,16 @@ internal fun CreateFundSheet(
     val amountMinor = amountText.trim().toDoubleOrNull()?.takeIf { it > 0.0 }?.toMinorUnits()
     val canSave = name.isNotBlank() && amountMinor != null
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    val sheetContainerColor = if (MaterialTheme.colorScheme.isDark) {
+        MaterialTheme.colorScheme.profileSheet
+    } else {
+        BottomSheetDefaults.ContainerColor
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = sheetContainerColor
+    ) {
         // The form scrolls; the action under it does not. The body is weighted against the
         // pinned footer so it yields its height to the action instead of pushing it off the
         // sheet: with the note field focused the sheet still ends in a reachable button.

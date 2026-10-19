@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +47,6 @@ import com.mknlabs.expensetracker.core.ui.theme.QuickActionOptionInkLight
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionSelectedFill
 import com.mknlabs.expensetracker.core.ui.theme.QuickActionSelectedInk
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
 import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 
 private val CardShape = RoundedCornerShape(16.dp)
@@ -76,7 +76,7 @@ fun QuickActionCard(
     // Same card as ModernConfirmationDialog: the Manage Categories fill and hairline in
     // dark, the standard card in light.
     val cardColors = AppCardDefaults.colors(
-        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkContainer = Color(0xFF101019),
         darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
     )
     Column(

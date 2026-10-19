@@ -67,7 +67,6 @@ import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmTitleLight
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
-import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
 import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
 
 private val ModernConfirmCardShape = RoundedCornerShape(24.dp)
@@ -147,7 +146,7 @@ private fun ModernConfirmationDialogCard(
     // Dark adopts the Manage Categories card fill (and its hairline), so every dialog sits
     // on the same card surface as the list that raised it; light keeps the standard card.
     val cardColors = AppCardDefaults.colors(
-        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkContainer = Color(0xFF101019),
         darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
     )
     val titleColor = if (isDark) ModernConfirmTitleDark else ModernConfirmTitleLight
