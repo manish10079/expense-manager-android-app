@@ -103,7 +103,6 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
-import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.core.ui.components.AppOutlinedFieldDefaults
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.models.UserTier
@@ -202,6 +201,7 @@ fun AppLockScreen(
     var enteredPin by rememberSaveable(mode) { mutableStateOf("") }
     var firstPin by rememberSaveable(mode) { mutableStateOf("") }
     var setupStage by rememberSaveable(mode) { mutableStateOf(PinSetupStage.Create) }
+    var pinMismatchFlash by remember { mutableStateOf(false) }
     var message by rememberSaveable(mode) { mutableStateOf<String?>(null) }
     // Mirrors the persisted failed-attempt counter (seeded from it) so the
     // forgot-PIN heuristic stays consistent after activity recreation.
@@ -292,7 +292,12 @@ fun AppLockScreen(
         keypadShakeOffsetPx.snapTo(0f)
     }
 
-    val confirmPinMsg = stringResource(R.string.msg_enter_the_same_pin_once_more_t)
+    LaunchedEffect(pinMismatchFlash) {
+        if (!pinMismatchFlash) return@LaunchedEffect
+        delay(5000)
+        pinMismatchFlash = false
+    }
+
     val pinMismatchMsg = stringResource(R.string.msg_pins_did_not_match_start_again)
     val incorrectPinMsg = stringResource(R.string.msg_incorrect_pin_try_again)
 
@@ -306,7 +311,7 @@ fun AppLockScreen(
                     firstPin = enteredPin
                     enteredPin = ""
                     setupStage = PinSetupStage.Confirm
-                    message = confirmPinMsg
+                    message = null
                 } else if (enteredPin == firstPin) {
                     enteredPin = ""
                     setupStage = PinSetupStage.SecurityQuestion
@@ -319,7 +324,8 @@ fun AppLockScreen(
                     firstPin = ""
                     enteredPin = ""
                     setupStage = PinSetupStage.Create
-                    message = pinMismatchMsg
+                    message = null
+                    pinMismatchFlash = true
                 }
             }
 
@@ -379,12 +385,8 @@ fun AppLockScreen(
         else -> onBackClick
     }
 
-    val title = when {
-        isRecoveryMode -> stringResource(R.string.title_recover_access)
-        mode == AppLockScreenMode.Unlock -> ""
-        else -> stringResource(R.string.title_app_lock)
-    }
     val eyebrow = when {
+        pinMismatchFlash -> pinMismatchMsg
         isRecoveryMode -> stringResource(R.string.label_verify_security_question)
         mode == AppLockScreenMode.Unlock -> ""
         setupStage == PinSetupStage.Create -> stringResource(R.string.label_create_4digit_pin)
@@ -395,7 +397,7 @@ fun AppLockScreen(
         isRecoveryMode -> stringResource(R.string.label_forgot_your_pin)
         mode == AppLockScreenMode.Unlock -> stringResource(R.string.label_welcome_back)
         setupStage == PinSetupStage.Create -> ""
-        setupStage == PinSetupStage.Confirm -> stringResource(R.string.label_confirm_pin)
+        setupStage == PinSetupStage.Confirm -> ""
         else -> stringResource(R.string.label_security_question)
     }
     // IMPORTANT: these strings are resolved UNCONDITIONALLY. A composable call
@@ -421,7 +423,7 @@ fun AppLockScreen(
         }
 
         setupStage == PinSetupStage.Create -> ""
-        setupStage == PinSetupStage.Confirm -> repeatDigitsMsg
+        setupStage == PinSetupStage.Confirm -> ""
         else -> chooseQuestionRememberMsg
     }
     val primaryActionLabel = if (isRecoveryMode) stringResource(R.string.label_disable_app_lock) else stringResource(R.string.label_save)
@@ -473,9 +475,8 @@ fun AppLockScreen(
 
     AppLockScreenContent(
         mode = mode,
-        headerAction = headerAction,
-        title = title,
         eyebrow = eyebrow,
+        eyebrowIsError = pinMismatchFlash,
         headline = headline,
         supportText = supportText,
         supportTextIsError = lockoutMessage != null || message != null,
@@ -535,9 +536,8 @@ fun AppLockScreen(
 @Composable
 private fun AppLockScreenContent(
     mode: AppLockScreenMode,
-    headerAction: (() -> Unit)?,
-    title: String,
     eyebrow: String,
+    eyebrowIsError: Boolean,
     headline: String,
     supportText: String,
     supportTextIsError: Boolean,
@@ -663,19 +663,7 @@ private fun AppLockScreenContent(
                 .navigationBarsPadding()
                 .imePadding()
         ) {
-            if (headerAction != null) {
-                if (isRecoveryMode) {
-                    Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-                }
-
-                AppHeader(
-                    title = title,
-                    onBackClick = headerAction,
-                    modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
-                )
-            } else {
-                Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
-            }
+            Spacer(modifier = Modifier.height(Dimens.HeaderSpacing))
 
             Box(
                 modifier = Modifier
@@ -726,7 +714,11 @@ private fun AppLockScreenContent(
                     if (eyebrow.isNotBlank()) {
                         Text(
                             text = eyebrow,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (eyebrowIsError) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             style = MaterialTheme.typography.labelMedium,
                             textAlign = TextAlign.Center
                         )
