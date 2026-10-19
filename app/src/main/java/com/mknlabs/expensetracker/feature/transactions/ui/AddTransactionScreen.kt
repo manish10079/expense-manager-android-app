@@ -48,6 +48,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -2294,31 +2296,36 @@ private fun CurrencyAmountCard(
                     // so mid-text insertion keeps working after validation.
                     LaunchedEffect(amountText) {
                         if (textFieldValue.text != amountText) {
-                            val cursorPos = textFieldValue.selection.start
-                                .coerceAtMost(amountText.length)
+                            val start = textFieldValue.selection.start.coerceAtMost(amountText.length)
+                            val end = textFieldValue.selection.end.coerceAtMost(amountText.length)
                             textFieldValue = TextFieldValue(
                                 text = amountText,
-                                selection = TextRange(cursorPos)
+                                selection = TextRange(start, end)
                             )
                         }
                     }
+                    val amountSelectionColors = TextSelectionColors(
+                        handleColor = amountColor,
+                        backgroundColor = amountColor.copy(alpha = 0.3f)
+                    )
+                    CompositionLocalProvider(LocalTextSelectionColors provides amountSelectionColors) {
                     BasicTextField(
                         value = textFieldValue,
                         onValueChange = { newValue ->
                             val validated = validateAmountChange(
                                 newValue.text, textFieldValue.text
                             )
-                            // Special case: if the field became "0" after validation
-                            // (e.g., user deleted the last digit), place cursor at the end
-                            val cursorPos = if (validated == "0" && newValue.text.isEmpty()) {
-                                validated.length
-                            } else {
-                                newValue.selection.start.coerceAtMost(validated.length)
+                            val selection = when {
+                                validated == "0" && newValue.text.isEmpty() ->
+                                    TextRange(validated.length)
+                                else -> TextRange(
+                                    newValue.selection.start.coerceAtMost(validated.length),
+                                    newValue.selection.end.coerceAtMost(validated.length)
+                                )
                             }
-                            // Always update so cursor taps are honoured
                             textFieldValue = TextFieldValue(
                                 text = validated,
-                                selection = TextRange(cursorPos)
+                                selection = selection
                             )
                             // Only propagate when the text actually changed
                             if (validated != amountText) {
@@ -2340,6 +2347,7 @@ private fun CurrencyAmountCard(
                         singleLine = true,
                         cursorBrush = SolidColor(amountColor)
                     )
+                    }
                 }
 
                 if (currency.position == CurrencyPosition.POSTFIX) {

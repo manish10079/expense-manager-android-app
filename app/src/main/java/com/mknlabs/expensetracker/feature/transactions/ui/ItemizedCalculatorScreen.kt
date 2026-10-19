@@ -92,6 +92,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
@@ -308,16 +309,18 @@ fun ItemizedCalculatorScreen(
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .clipToBounds(),
             userScrollEnabled = !uiState.isAddingItem,
-            beyondViewportPageCount = 1
+            beyondViewportPageCount = 0
         ) { page ->
             when (modes[page]) {
                 CalculatorMode.ITEMIZED -> {
                     ItemizedCalculatorContent(
                         // The switcher sits 10dp above the total card: the card brings 8dp
                         // of its own top inset for the shadow, so the page adds the rest.
-                        modifier = Modifier.fillMaxSize().padding(top = 2.dp),
+                        modifier = Modifier.fillMaxSize().padding(top = 2.dp).clipToBounds(),
                         items = uiState.items,
                         currencyId = currencyId,
                         amountFormatPreferences = amountFormatPreferences,
@@ -528,7 +531,9 @@ private fun ItemizedCalculatorContent(
                 }
             }
 
-            AddNewItemButton(onClick = onStartAdding)
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AddNewItemButton(onClick = onStartAdding)
+            }
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -1707,7 +1712,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
 
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.9f)
             .heightIn(min = 72.dp)
             .drawBehind {
                 drawRoundRect(

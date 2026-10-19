@@ -91,19 +91,19 @@ fun ExpenseTrackerTheme(
 
     ApplySystemBarStyle(darkTheme = darkTheme)
 
-    // Every text field draws its selection draggers from this local, so the handles
-    // follow the brand ink rather than Material's default primary.
-    CompositionLocalProvider(
-        LocalTextSelectionColors provides TextSelectionColors(
-            handleColor = colorScheme.accentInk,
-            backgroundColor = colorScheme.accentInk.copy(alpha = 0.3f)
-        )
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = typography,
+        shapes = Shapes
     ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = typography,
-            shapes = Shapes,
-            content = content
-        )
+        // Inside MaterialTheme so its default primary selection colors do not win.
+        CompositionLocalProvider(
+            LocalTextSelectionColors provides TextSelectionColors(
+                handleColor = colorScheme.accentInk,
+                backgroundColor = colorScheme.accentInk.copy(alpha = 0.3f)
+            )
+        ) {
+            content()
+        }
     }
 }
