@@ -3,11 +3,13 @@ package com.mknlabs.expensetracker.core.ui.components
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
 
 /**
  * Shared outlined-field chrome from the itemized calculator "new item" inputs:
@@ -31,4 +33,23 @@ object AppOutlinedFieldDefaults {
         focusedLabelColor = MaterialTheme.colorScheme.accentInk,
         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
+
+    @Composable
+    fun searchColors(): TextFieldColors {
+        val fill = MaterialTheme.colorScheme.manageCategoryCard
+        return OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = fill,
+            unfocusedContainerColor = fill,
+            disabledContainerColor = fill,
+            errorContainerColor = fill,
+            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            cursorColor = MaterialTheme.colorScheme.accentInk,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.accentInk,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }

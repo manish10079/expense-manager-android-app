@@ -53,7 +53,9 @@ import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
 import com.mknlabs.expensetracker.core.ui.theme.chipOutline
 import com.mknlabs.expensetracker.core.ui.theme.chipSelected
 import com.mknlabs.expensetracker.core.ui.theme.chipSelectedInk
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 import com.mknlabs.expensetracker.utils.getDefaultOrder
@@ -112,6 +114,7 @@ fun FilterBottomSheet(
     onClose: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val sheetFill = if (colorScheme.isDark) colorScheme.profileSheet else colorScheme.surface
     val orderOptions = remember(selectedSort) { getOrderOptions(selectedSort) }
 
     // PERFORMANCE: Cache the brushes to prevent per-frame allocation.
@@ -128,13 +131,13 @@ fun FilterBottomSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorScheme.surface)
+            .background(sheetFill)
     ) {
         // â”€â”€ Sticky Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colorScheme.surface)
+                .background(sheetFill)
                 .padding(horizontal = 20.dp)
         ) {
             // Drag handle
@@ -540,7 +543,7 @@ fun FilterBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colorScheme.surface)
+                .background(sheetFill)
         ) {
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.4f))
             Row(
@@ -853,13 +856,13 @@ private fun FilterSection(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                    .background(colorScheme.chipSelected),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = colorScheme.accentInk,
+                    tint = colorScheme.chipSelectedInk,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -913,8 +916,8 @@ private fun OrderOption(
     val selected = value == selectedOrder
     val shape = RoundedCornerShape(14.dp)
 
-    val bgColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.3f) else colorScheme.surfaceVariant.copy(alpha = 0.25f)
-    val borderColor = if (selected) colorScheme.accentInk.copy(alpha = 0.3f) else colorScheme.outlineVariant.copy(alpha = 0.3f)
+    val bgColor = if (selected) colorScheme.chipSelected else colorScheme.surfaceVariant.copy(alpha = 0.25f)
+    val borderColor = if (selected) Color.Transparent else colorScheme.outlineVariant.copy(alpha = 0.3f)
 
     Row(
         modifier = Modifier
@@ -935,7 +938,7 @@ private fun OrderOption(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(if (selected) colorScheme.primaryContainer.copy(alpha = 0.3f) else colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                .background(if (selected) colorScheme.chipSelected else colorScheme.surfaceVariant.copy(alpha = 0.6f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -948,7 +951,7 @@ private fun OrderOption(
                     SortType.EXPENSE_FIRST -> Icons.Default.ArrowDownward
                 },
                 contentDescription = null,
-                tint = if (selected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
+                tint = if (selected) colorScheme.chipSelectedInk else colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -959,7 +962,7 @@ private fun OrderOption(
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = if (selected) colorScheme.onSurface else colorScheme.onSurfaceVariant
+                color = if (selected) colorScheme.chipSelectedInk else colorScheme.onSurfaceVariant
             )
             Text(
                 text = subtitle,
@@ -972,7 +975,7 @@ private fun OrderOption(
             selected = selected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = colorScheme.accentInk,
+                selectedColor = colorScheme.chipSelectedInk,
                 unselectedColor = colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
             )
         )

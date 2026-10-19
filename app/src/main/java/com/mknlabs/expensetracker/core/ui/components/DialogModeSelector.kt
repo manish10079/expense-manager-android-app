@@ -177,7 +177,7 @@ fun <T> ViewPickerDialog(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            val cardColors = AppCardDefaults.colors()
+            val cardColors = AppCardDefaults.colors(darkContainer = Color(0xFF101019))
             Surface(
                 shape = RoundedCornerShape(28.dp),
                 color = cardColors.containerColor,

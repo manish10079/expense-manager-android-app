@@ -2888,7 +2888,7 @@ private fun FavoritesBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = AppOutlinedFieldDefaults.shape,
-                colors = AppOutlinedFieldDefaults.colors()
+                colors = AppOutlinedFieldDefaults.searchColors()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -3866,7 +3866,7 @@ private fun TagBottomSheet(
                     placeholder = { Text(stringResource(R.string.placeholder_search_tags)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
-                    colors = AppOutlinedFieldDefaults.colors(),
+                    colors = AppOutlinedFieldDefaults.searchColors(),
                     shape = RoundedCornerShape(12.dp)
                 )
 
