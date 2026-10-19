@@ -138,8 +138,8 @@ private val SpentTodayIconLight = Color(0xFF4F46E5)
 
 // Spent Today's card chrome, from the mock: bg-surface #13151F with a white/5 edge in
 // dark; bg-white with a slate-200/70 edge in light.
-private val SpentTodayCardDark = Color(0xFF13151F)
-private val SpentTodayCardBorderDark = Color(0x0DFFFFFF)
+private val SpentTodayCardDark = Color(0xFF101019)
+private val SpentTodayCardBorderDark = Color(0x1AFFFFFF)
 private val SpentTodayCardLight = Color(0xFFFFFFFF)
 private val SpentTodayCardBorderLight = Color(0xB3E2E8F0)
 
@@ -152,13 +152,13 @@ private val GoalsIconDark = Color(0xFFA78BFA)
 private val GoalsTileLight = Color(0xFFF5F3FF)
 private val GoalsTileBorderLight = Color(0xFFEDE9FE)
 private val GoalsIconLight = Color(0xFF7C3AED)
-private val GoalsCardDark = Color(0xFF13151F)
-private val GoalsCardBorderDark = Color(0x0DFFFFFF)
+private val GoalsCardDark = Color(0xFF101019)
+private val GoalsCardBorderDark = Color(0x1AFFFFFF)
 private val GoalsCardLight = Color(0xFFFFFFFF)
 private val GoalsCardBorderLight = Color(0xB3E2E8F0)
 private val GoalsBadgeFill = Color(0xFF7C3AED)
 private val GoalsBadgeInk = Color(0xFFFFFFFF)
-private val GoalsBadgeRingDark = Color(0xFF13151F)
+private val GoalsBadgeRingDark = Color(0xFF101019)
 private val GoalsBadgeRingLight = Color(0xFFFFFFFF)
 
 // Rotating one-liners shown where the tagline used to sit. A new one is picked every

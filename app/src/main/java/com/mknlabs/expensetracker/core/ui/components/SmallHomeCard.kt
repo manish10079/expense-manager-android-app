@@ -31,10 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,6 +56,10 @@ private val QuickCardAmountInkDark = Color(0xFFFFFFFF)
 private val QuickCardAmountInkLight = Color(0xFF0F172A)
 private val QuickCardCaretInkDark = Color(0xFF64748B)
 private val QuickCardCaretInkLight = Color(0xFF94A3B8)
+
+// Same corner washes and lift as the Cash Flow hero, so Spent Today / My Goals
+// read as the same surface in dark mode.
+private val MiniHeroShadowDark = Color(0x99000000)
 
 /**
  * One quick-action card on the home row.
@@ -80,17 +87,32 @@ fun SmallHomeCard(
     iconTint: Color? = null,
     // Optional card chrome so a caller can match a screen's own mock.
     containerColor: Color? = null,
+    containerBrush: Brush? = null,
     borderColor: Color? = null,
     badgeColor: Color? = null,
     badgeContentColor: Color? = null,
     badgeRingColor: Color? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val isDark = colorScheme.isDark
+    val cardShape = RoundedCornerShape(AppCardDefaults.CornerRadius)
 
     AppCard(
         onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(AppCardDefaults.CornerRadius),
+        modifier = modifier.then(
+            if (isDark) {
+                Modifier.shadow(
+                    elevation = 12.dp,
+                    shape = cardShape,
+                    clip = false,
+                    ambientColor = MiniHeroShadowDark,
+                    spotColor = MiniHeroShadowDark
+                )
+            } else {
+                Modifier
+            }
+        ),
+        shape = cardShape,
         colors = AppCardDefaults.colors().let { defaults ->
             if (containerColor == null && borderColor == null) {
                 defaults
@@ -102,10 +124,14 @@ fun SmallHomeCard(
                 )
             }
         },
-        contentPadding = PaddingValues(12.dp)
+        brush = containerBrush,
+        elevation = if (isDark) 0.dp else AppCardDefaults.Elevation,
+        contentPadding = PaddingValues(0.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
