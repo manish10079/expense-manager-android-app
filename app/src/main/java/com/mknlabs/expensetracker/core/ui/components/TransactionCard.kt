@@ -95,9 +95,9 @@ private val CategoryBadgeAlphaLight = CategoryBadgeAlpha(fill = 0.10f, edge = 0.
 /** rounded-2xl: the mock's badge corner, and 44 dp is its w-11/h-11 tile. */
 private val CategoryBadgeShape = RoundedCornerShape(16.dp)
 
-// Recent-transaction row chrome: an unfilled outline over the dark page with a white/5
+// Recent-transaction row chrome: the same #101019 fill as Spent Today, with a white/5
 // edge, and white with a slate-200/70 edge in light, both at the rounded-2xl 16 dp corner.
-private val TransactionCardContainerDark = Color(0x00161822) // transparent: page shows through
+private val TransactionCardContainerDark = Color(0xFF101019)
 private val TransactionCardBorderDark = Color(0x0DFFFFFF)
 private val TransactionCardContainerLight = Color(0xFFFFFFFF)
 private val TransactionCardBorderLight = Color(0xB3E2E8F0)
