@@ -118,7 +118,6 @@ private val PsychologyPhraseLight = Color(0xFF64748B)
 // The three-dot button's circle, taken from the mock: dark sits on
 // `bg-surface-secondary` (#1A1D2B) with `border-white/5` and a `text-slate-300` icon;
 // light is `bg-white` with `border-slate-200` and a `text-slate-600` icon.
-private val MoreButtonBackgroundDark = Color(0xFF1A1D2B)
 private val MoreButtonBackgroundLight = Color(0xFFFFFFFF)
 private val MoreButtonBorderDark = Color(0x0DFFFFFF)
 private val MoreButtonBorderLight = Color(0xFFE2E8F0)
@@ -662,7 +661,7 @@ private fun HomeHeaderRow(
     val isDark = MaterialTheme.colorScheme.isDark
     val greetingInk = if (isDark) GreetingNameDark else GreetingNameLight
     val phraseInk = if (isDark) PsychologyPhraseDark else PsychologyPhraseLight
-    val moreButtonBackground = if (isDark) MoreButtonBackgroundDark else MoreButtonBackgroundLight
+    val moreButtonBackground = if (isDark) Color.Transparent else MoreButtonBackgroundLight
     val moreButtonBorder = if (isDark) MoreButtonBorderDark else MoreButtonBorderLight
     val moreButtonIcon = if (isDark) MoreButtonIconDark else MoreButtonIconLight
 
@@ -850,7 +849,7 @@ private fun HomeHeaderRow(
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     if (unreadSms > 0) {
-                        TabCountBadge(count = unreadSms)
+                        TabCountBadge(count = unreadSms, containerColor = MoreButtonDotColor)
                     }
                 }
                 Text(

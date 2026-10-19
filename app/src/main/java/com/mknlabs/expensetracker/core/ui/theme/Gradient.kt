@@ -327,6 +327,27 @@ fun standardCardGradient(): Brush {
     }
 }
 
+// The itemised mockup's total/breakdown fill: a 130%-wide violet radial at the top
+// edge over obsidian. Light keeps the standard white card.
+private val BreakdownHeroGlow = Color(0x1F8B5CF6)
+private val BreakdownHeroMid = Color(0xF2141826)
+private val BreakdownHeroBase = Color(0xFF0F121C)
+
+@Composable
+fun breakdownHeroFill(): Brush {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val lightFill = MaterialTheme.colorScheme.surface
+    return remember(isDark, lightFill) {
+        if (isDark) {
+            Brush.radialGradient(
+                colors = listOf(BreakdownHeroGlow, BreakdownHeroMid, BreakdownHeroBase)
+            )
+        } else {
+            Brush.verticalGradient(colors = listOf(lightFill, lightFill))
+        }
+    }
+}
+
 // The screen surface, one rung below the card: dark steps the field #141418 up to the
 // card #1A1A20, light steps the field #FFFFFF down to its sheet rung #FAFAFC.
 @Composable

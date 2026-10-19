@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.mknlabs.expensetracker.core.ui.theme.flatCard
 
 /**
  * WhatsApp 2.26.39.74 overflow: clip-reveal from the top, not scale.
@@ -75,7 +76,7 @@ fun WhatsAppStyleDropdownMenu(
                 Surface(
                     modifier = modifier.wrapContentWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    color = AppCardDefaults.colors().containerColor,
+                    color = MaterialTheme.colorScheme.flatCard,
                     border = AppCardDefaults.colors().border,
                     shadowElevation = AppCardDefaults.Elevation,
                     tonalElevation = 0.dp

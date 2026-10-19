@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -40,7 +41,8 @@ internal fun isTabBadgeOverflow(count: Int): Boolean = count > MAX_TAB_BADGE_COU
 @Composable
 fun TabCountBadge(
     count: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.accentInk
 ) {
     val visibleText = if (isTabBadgeOverflow(count)) {
         stringResource(R.string.label_tab_count_overflow, MAX_TAB_BADGE_COUNT)
@@ -54,7 +56,7 @@ fun TabCountBadge(
             .semantics { contentDescription = badgeDescription }
             .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.accentInk)
+            .background(containerColor)
             .padding(horizontal = 4.dp, vertical = 1.dp),
         contentAlignment = Alignment.Center
     ) {

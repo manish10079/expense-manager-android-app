@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -161,11 +162,24 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmBrandShadow
+import com.mknlabs.expensetracker.core.ui.theme.ModernConfirmTitleLight
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreateCaptionDark
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreateCaptionLight
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderDark
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreateFieldBorderLight
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreatePlaceholder
+import com.mknlabs.expensetracker.core.ui.theme.NamedCreateTitleDark
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCard
+import com.mknlabs.expensetracker.core.ui.theme.manageCategoryCardBorder
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.core.ui.theme.breakdownHeroFill
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getDateTime
 
 import androidx.compose.foundation.pager.HorizontalPager
@@ -175,6 +189,40 @@ import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.window.Dialog
+
+// The itemised mockup's total hero: a violet radial glow over the obsidian card, a white
+// amount line and a violet currency glyph. Applied in light mode; dark keeps the gradient
+// it has always had.
+private val TotalHeroGlow = Color(0x1F8B5CF6)
+private val TotalHeroMid = Color(0xF2141826)
+private val TotalHeroBase = Color(0xFF0F121C)
+private val TotalHeroBorder = Color(0x14FFFFFF)
+private val TotalHeroLabel = Color(0xCCC4B5FD)
+private val TotalHeroCurrency = Color(0xFFC4B5FD)
+
+// The mockup's dashed "Add New Item" card: violet-500/30 dash over a 40% obsidian strip,
+// a violet circle around the plus and violet-200 label. Light keeps the same construction
+// with a deeper violet ink so it still reads on white.
+private val AddItemBorderDark = Color(0x4D8B5CF6)
+private val AddItemFillDark = Color(0x66121520)
+private val AddItemPlusFillDark = Color(0x338B5CF6)
+private val AddItemIconDark = Color(0xFFC4B5FD)
+private val AddItemInkDark = Color(0xFFDDD6FE)
+private val AddItemBorderLight = Color(0x738B5CF6)
+private val AddItemFillLight = Color(0x0F8B5CF6)
+private val AddItemPlusFillLight = Color(0x1F7C3AED)
+private val AddItemIconLight = Color(0xFF7C3AED)
+private val AddItemInkLight = Color(0xFF6D28D9)
+
+// The mockup's "0 ITEMS" counter pill and its muted "sub-expenses" caption.
+private val ItemsPillFillDark = Color(0x992E1065)
+private val ItemsPillBorderDark = Color(0x665B21B6)
+private val ItemsPillInkDark = Color(0xFFC4B5FD)
+private val ItemsPillFillLight = Color(0xFFEDE9FE)
+private val ItemsPillBorderLight = Color(0x99C4B5FD)
+private val ItemsPillInkLight = Color(0xFF6D28D9)
+private val SubExpensesInkDark = Color(0xFF94A3B8)
+private val SubExpensesInkLight = Color(0xFF64748B)
 
 @Composable
 fun ItemizedCalculatorScreen(
@@ -415,16 +463,40 @@ private fun ItemizedCalculatorContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(id = R.string.label_breakdown),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleSmall,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_breakdown),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.label_breakdown_sub_expenses),
+                        color = if (MaterialTheme.colorScheme.isDark) SubExpensesInkDark else SubExpensesInkLight,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
+                    )
+                }
 
+                val isDark = MaterialTheme.colorScheme.isDark
                 Text(
                     text = stringResource(id = R.string.label_items_count_formatted, items.size),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isDark) ItemsPillInkDark else ItemsPillInkLight,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp
+                    ),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isDark) ItemsPillFillDark else ItemsPillFillLight)
+                        .border(
+                            1.dp,
+                            if (isDark) ItemsPillBorderDark else ItemsPillBorderLight,
+                            CircleShape
+                        )
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 )
             }
 
@@ -1203,28 +1275,62 @@ private fun TotalAmountCard(
     currencyId: Int,
     amountFormatPreferences: AmountFormatPreferences
 ) {
-    // Light flattens the total to the shared card; dark keeps the tinted gradient.
-    val lightCard = AppCardDefaults.colors()
-    // 28dp: a step tighter than the 30dp it carried, matching the breakdown rows below.
-    val cardChrome = if (MaterialTheme.colorScheme.isDark) {
-        Modifier
-            .clip(RoundedCornerShape(28.dp))
-            .background(standardCardGradient())
-    } else {
+    val isDark = MaterialTheme.colorScheme.isDark
+    val shape = RoundedCornerShape(16.dp)
+    // Dark takes the mockup's violet hero; light keeps the standard white card with the
+    // brand currency glyph so the amount still reads on a bright page.
+    val cardChrome = if (isDark) {
         Modifier
             .shadow(
                 elevation = AppCardDefaults.Elevation,
-                shape = RoundedCornerShape(28.dp),
+                shape = shape,
                 clip = false,
                 ambientColor = CardShadowAmbientLight,
                 spotColor = CardShadowSpotLight
             )
-            .clip(RoundedCornerShape(28.dp))
+            .clip(shape)
+            .background(breakdownHeroFill())
+            .border(1.dp, TotalHeroBorder, shape)
+    } else {
+        val lightCard = AppCardDefaults.colors()
+        Modifier
+            .shadow(
+                elevation = AppCardDefaults.Elevation,
+                shape = shape,
+                clip = false,
+                ambientColor = CardShadowAmbientLight,
+                spotColor = CardShadowSpotLight
+            )
+            .clip(shape)
             .background(lightCard.containerColor)
             .then(
-                lightCard.border?.let { Modifier.border(border = it, shape = RoundedCornerShape(28.dp)) }
-                    ?: Modifier
+                lightCard.border?.let { Modifier.border(it, shape) } ?: Modifier
             )
+    }
+
+    val fullAmount = formatCurrencyValue(totalAmount, currencyId, amountFormatPreferences)
+    val symbol = getCurrency(currencyId).currencySymbol
+    val symbolStart = fullAmount.indexOf(symbol)
+    val amountText = buildAnnotatedString {
+        if (symbolStart < 0) {
+            append(fullAmount)
+        } else {
+            append(fullAmount.substring(0, symbolStart))
+            // A thin space keeps the currency glyph off the digits, as the mockup's
+            // space-x-1 + mr-0.5 do, whichever side the symbol sits on.
+            if (symbolStart > 0) append("\u2009")
+            pushStyle(
+                SpanStyle(
+                    color = if (isDark) TotalHeroCurrency else MaterialTheme.colorScheme.accentInk,
+                    fontSize = if (isDark) 34.sp else 26.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            )
+            append(symbol)
+            pop()
+            if (symbolStart == 0) append("\u2009")
+            append(fullAmount.substring(symbolStart + symbol.length))
+        }
     }
 
     Box(
@@ -1238,7 +1344,7 @@ private fun TotalAmountCard(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(id = R.string.label_total_amount),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isDark) TotalHeroLabel else MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium.copy(
                     letterSpacing = 2.2.sp,
                     fontWeight = FontWeight.SemiBold
@@ -1248,9 +1354,13 @@ private fun TotalAmountCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = formatCurrencyValue(totalAmount, currencyId, amountFormatPreferences),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge
+                text = amountText,
+                color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = if (isDark) 44.sp else MaterialTheme.typography.headlineLarge.fontSize,
+                    fontWeight = if (isDark) FontWeight.Black else MaterialTheme.typography.headlineLarge.fontWeight,
+                    letterSpacing = if (isDark) (-1).sp else MaterialTheme.typography.headlineLarge.letterSpacing
+                )
             )
         }
     }
@@ -1264,7 +1374,7 @@ private fun BreakdownItemCard(
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(16.dp)
     val colorScheme = MaterialTheme.colorScheme
     val isDark = colorScheme.isDark
     val highlightedBorderColor = colorScheme.accentInk
@@ -1275,18 +1385,23 @@ private fun BreakdownItemCard(
     val cardChrome = if (isDark) {
         Modifier
             .shadow(
-                elevation = if (item.highlighted) 18.dp else 0.dp,
+                elevation = if (item.highlighted) 18.dp else AppCardDefaults.Elevation,
                 shape = shape,
-                ambientColor = colorScheme.accentInk.copy(alpha = if (item.highlighted) 0.14f else 0f),
-                spotColor = colorScheme.secondary.copy(alpha = if (item.highlighted) 0.12f else 0f)
+                clip = false,
+                ambientColor = if (item.highlighted) colorScheme.accentInk.copy(alpha = 0.14f) else CardShadowAmbientLight,
+                spotColor = if (item.highlighted) colorScheme.secondary.copy(alpha = 0.12f) else CardShadowSpotLight
             )
             .clip(shape)
-            .background(standardCardGradient())
+            .background(breakdownHeroFill())
+            .then(
+                if (item.highlighted) Modifier else Modifier.border(1.dp, TotalHeroBorder, shape)
+            )
     } else {
         Modifier
             .shadow(
                 elevation = if (item.highlighted) 18.dp else AppCardDefaults.Elevation,
                 shape = shape,
+                clip = false,
                 ambientColor = if (item.highlighted) colorScheme.accentInk.copy(alpha = 0.14f) else CardShadowAmbientLight,
                 spotColor = if (item.highlighted) colorScheme.secondary.copy(alpha = 0.12f) else CardShadowSpotLight
             )
@@ -1309,7 +1424,7 @@ private fun BreakdownItemCard(
                 if (item.highlighted) {
                     drawRoundRect(
                         color = highlightedBorderColor,
-                        cornerRadius = CornerRadius(28.dp.toPx(), 28.dp.toPx()),
+                        cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
                         style = Stroke(width = 2.dp.toPx())
                     )
                 }
@@ -1459,32 +1574,56 @@ private fun AddItemInputCard(
     onCancel: () -> Unit,
     onAddClick: () -> Unit
 ) {
+    val dark = MaterialTheme.colorScheme.isDark
+    val shape = RoundedCornerShape(16.dp)
+    // The same chrome as the Fund Goal card: the Manage Categories fill and hairline in
+    // dark, the standard card in light.
+    val cardColors = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    )
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .clip(shape)
+            .background(cardColors.containerColor)
             .then(
-                // White in both themes already; light adds the card's hairline edge so it
-                // reads as a card rather than a hole in the field.
-                if (MaterialTheme.colorScheme.isDark) {
-                    Modifier
-                } else {
-                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(28.dp))
-                }
+                cardColors.border?.let { Modifier.border(it, shape) } ?: Modifier
             )
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = stringResource(id = R.string.label_new_item),
-            color = MaterialTheme.colorScheme.accentInk,
-            style = MaterialTheme.typography.labelLarge.copy(
-                letterSpacing = 1.2.sp,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .shadow(
+                        elevation = 6.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        ambientColor = ModernConfirmBrandShadow,
+                        spotColor = ModernConfirmBrandShadow
+                    )
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(brandGradient()),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Text(
+                text = stringResource(id = R.string.label_new_item),
+                color = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(start = 16.dp)
-        )
+            )
+        }
 
         ItemizedTextField(
             value = description,
@@ -1532,6 +1671,11 @@ private fun ItemizedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit
 ) {
+    val dark = MaterialTheme.colorScheme.isDark
+    val fieldFill = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    ).containerColor
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -1541,68 +1685,90 @@ private fun ItemizedTextField(
         label = {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (dark) NamedCreateCaptionDark else NamedCreateCaptionLight,
+                fontSize = 12.sp
             )
         },
         placeholder = {
             Text(
                 text = placeholder,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                color = NamedCreatePlaceholder,
+                fontSize = 14.sp
             )
         },
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedBorderColor = MaterialTheme.colorScheme.accentInk,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = fieldFill,
+            unfocusedContainerColor = fieldFill,
+            focusedBorderColor = if (dark) NamedCreateFieldBorderDark else NamedCreateFieldBorderLight,
+            unfocusedBorderColor = if (dark) NamedCreateFieldBorderDark else NamedCreateFieldBorderLight,
             cursorColor = MaterialTheme.colorScheme.accentInk,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.accentInk,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            focusedTextColor = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+            unfocusedTextColor = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+            focusedLabelColor = if (dark) NamedCreateCaptionDark else NamedCreateCaptionLight,
+            unfocusedLabelColor = if (dark) NamedCreateCaptionDark else NamedCreateCaptionLight
         )
     )
 }
 
 @Composable
 private fun AddNewItemButton(onClick: () -> Unit) {
-    val shape = RoundedCornerShape(28.dp)
-    val borderColor = MaterialTheme.colorScheme.outlineVariant
+    val isDark = MaterialTheme.colorScheme.isDark
+    val shape = RoundedCornerShape(16.dp)
+    val borderColor = if (isDark) AddItemBorderDark else AddItemBorderLight
+    val fillColor = if (isDark) AddItemFillDark else AddItemFillLight
+    val plusFill = if (isDark) AddItemPlusFillDark else AddItemPlusFillLight
+    val iconTint = if (isDark) AddItemIconDark else AddItemIconLight
+    val labelColor = if (isDark) AddItemInkDark else AddItemInkLight
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 70.dp)
+            .heightIn(min = 72.dp)
             .drawBehind {
                 drawRoundRect(
                     color = borderColor,
-                    cornerRadius = CornerRadius(28.dp.toPx(), 28.dp.toPx()),
+                    cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
                     style = Stroke(
-                        width = 1.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 12f)),
+                        width = 1.5.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)),
                         cap = StrokeCap.Round
                     )
                 )
             }
             .clip(shape)
-            .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surface.copy(alpha = 0f) else MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick),
+            .background(fillColor)
+            .clickable(onClick = onClick)
+            .padding(vertical = 18.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(id = R.string.content_desc_add_item),
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(20.dp)
-        )
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(plusFill)
+                .border(1.dp, borderColor, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = stringResource(id = R.string.content_desc_add_item),
+                tint = iconTint,
+                modifier = Modifier.size(16.dp)
+            )
+        }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
         Text(
             text = stringResource(id = R.string.label_add_new_item),
-            color = MaterialTheme.colorScheme.onSurface,                style = MaterialTheme.typography.titleSmall
+            color = labelColor,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.3.sp
+            )
         )
     }
 }
@@ -1613,22 +1779,27 @@ private fun SecondaryActionButton(
     label: String,
     onClick: () -> Unit
 ) {
+    val dark = MaterialTheme.colorScheme.isDark
+    val fieldFill = AppCardDefaults.colors(
+        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
+        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+    ).containerColor
+    val fieldBorder = if (dark) NamedCreateFieldBorderDark else NamedCreateFieldBorderLight
     Box(
         modifier = modifier
-            .heightIn(min = 54.dp)
-            .clip(RoundedCornerShape(24.dp))
-            // A wash against its own white card would vanish; light takes the secondary
-            // surface the spec gives a secondary action.
-            .background(if (MaterialTheme.colorScheme.isDark) standardCardGradient() else SolidColor(MaterialTheme.colorScheme.surfaceVariant))
-            .clickable(onClick = onClick),
+            .heightIn(min = 40.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(fieldFill)
+            .border(1.dp, fieldBorder, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold
-            )
+            color = if (dark) NamedCreateTitleDark else ModernConfirmTitleLight,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }
@@ -1642,20 +1813,37 @@ private fun PrimaryActionButton(
 ) {
     Box(
         modifier = modifier
-            .heightIn(min = 54.dp)
+            .heightIn(min = 40.dp)
             .alpha(if (enabled) 1f else 0.55f)
-            .clip(RoundedCornerShape(24.dp))
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(12.dp),
+                ambientColor = ModernConfirmBrandShadow,
+                spotColor = ModernConfirmBrandShadow
+            )
+            .clip(RoundedCornerShape(12.dp))
             .background(brush = brandGradient())
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onCta,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBrandGradient,
+                modifier = Modifier.size(12.dp)
             )
-        )
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onBrandGradient,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
@@ -1670,11 +1858,11 @@ private fun ApplyToNoteButton(
             .alpha(if (enabled) 1f else 0.55f)
             .shadow(
                 elevation = 22.dp,
-                shape = RoundedCornerShape(28.dp),
+                shape = RoundedCornerShape(16.dp),
                 ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.28f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
             )
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(brush = brandGradient())
             .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 14.dp),

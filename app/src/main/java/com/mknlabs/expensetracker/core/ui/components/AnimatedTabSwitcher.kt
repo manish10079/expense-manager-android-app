@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mknlabs.expensetracker.core.ui.theme.breakdownHeroFill
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
@@ -49,7 +50,6 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.models.TabItem
 
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
-import com.mknlabs.expensetracker.core.ui.theme.flatCard
 
 /** Wash strength for a tab's own [TabItem.selectedColor]; the brand pill uses the same 20%. */
 private const val SelectedTintAlpha = 0.20f
@@ -86,7 +86,7 @@ fun <T> AnimatedTabSwitcher(
                 if (containerColor != null) {
                     Modifier.background(containerColor)
                 } else {
-                    Modifier.background(MaterialTheme.colorScheme.flatCard)
+                    Modifier.background(breakdownHeroFill())
                 }
             )
             .padding(containerPadding)

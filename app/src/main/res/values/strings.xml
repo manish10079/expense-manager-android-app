@@ -938,6 +938,7 @@
     <string name="label_are_you_sure_you_want_to_delet">Are you sure you want to delete %1$s transactions? This action cannot be undone.</string>
 
     <string name="label_breakdown">Breakdown</string>
+    <string name="label_breakdown_sub_expenses">sub-expenses</string>
 
     <string name="label_cancel">CANCEL</string>
 
