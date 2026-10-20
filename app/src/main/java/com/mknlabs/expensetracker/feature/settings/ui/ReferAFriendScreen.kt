@@ -649,7 +649,11 @@ private fun RewardSlot(index: Int, earned: Int, modifier: Modifier) {
             }
         }
         Spacer(Modifier.height(4.dp))
-        Text("4 Days", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(R.string.label_reward_days_count, DAYS_PER_REWARD),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold
+        )
         Text(
             when {
                 claimed -> stringResource(R.string.label_claimed)

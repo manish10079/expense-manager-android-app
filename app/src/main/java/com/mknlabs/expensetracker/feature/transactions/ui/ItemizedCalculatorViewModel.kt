@@ -1,6 +1,8 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
+import com.mknlabs.expensetracker.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mknlabs.expensetracker.domain.repository.CalculatorHistoryRepository
@@ -22,9 +24,9 @@ import kotlin.math.abs
 
 // Enums & lightweight data types
 
-enum class CalculatorMode(val title: String) {
-    ITEMIZED("Itemized"),
-    NORMAL("Normal")
+enum class CalculatorMode(@StringRes val titleRes: Int) {
+    ITEMIZED(R.string.label_calculator_itemized),
+    NORMAL(R.string.label_calculator_normal)
 }
 
 /** Retained for source-compatibility. Active state lives in NormalCalculatorTokenState. */

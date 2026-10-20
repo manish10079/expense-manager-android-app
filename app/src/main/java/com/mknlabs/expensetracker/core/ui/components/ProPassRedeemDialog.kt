@@ -263,7 +263,7 @@ fun ProPassRedeemDialogCard(
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = "ENTER PRO CODE",
+                        text = stringResource(R.string.label_enter_pro_code),
                         color = if (isDark) Color(0xFFA897FF) else Color(0xFF5332FF),
                         style = TextStyle(
                             fontSize = 11.sp,
@@ -278,7 +278,7 @@ fun ProPassRedeemDialogCard(
             when (state) {
                 is RedemptionState.Idle, is RedemptionState.Loading -> {
                     Text(
-                        text = "Unlock Pro Access",
+                        text = stringResource(R.string.title_unlock_pro_access),
                         style = TextStyle(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -287,7 +287,7 @@ fun ProPassRedeemDialogCard(
                         color = textPrimary
                     )
                     Text(
-                        text = "Have a promo code? Enter it below to unlock full premium features.",
+                        text = stringResource(R.string.msg_unlock_pro_access_body),
                         style = TextStyle(
                             fontSize = 13.sp,
                             lineHeight = 18.sp,
@@ -305,7 +305,7 @@ fun ProPassRedeemDialogCard(
                             onValueChange = onCodeChange,
                             placeholder = {
                                 Text(
-                                    text = "e.g. PROPASS7",
+                                    text = stringResource(R.string.placeholder_pro_code_example),
                                     color = textMuted,
                                     fontSize = 15.sp,
                                     modifier = Modifier.fillMaxWidth(),
@@ -338,7 +338,7 @@ fun ProPassRedeemDialogCard(
                         )
 
                         ProPassActionButton(
-                            text = "Activate Pro Code",
+                            text = stringResource(R.string.label_activate_pro_code),
                             onClick = onRedeem,
                             enabled = code.isNotBlank() && state !is RedemptionState.Loading,
                             isLoading = state is RedemptionState.Loading
@@ -348,7 +348,7 @@ fun ProPassRedeemDialogCard(
 
                 is RedemptionState.Error -> {
                     Text(
-                        text = "Unlock Pro Access",
+                        text = stringResource(R.string.title_unlock_pro_access),
                         style = TextStyle(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -375,7 +375,7 @@ fun ProPassRedeemDialogCard(
                             onValueChange = onCodeChange,
                             placeholder = {
                                 Text(
-                                    text = "e.g. PROPASS7",
+                                    text = stringResource(R.string.placeholder_pro_code_example),
                                     color = textMuted,
                                     fontSize = 15.sp,
                                     modifier = Modifier.fillMaxWidth(),
@@ -407,7 +407,7 @@ fun ProPassRedeemDialogCard(
                         )
 
                         ProPassActionButton(
-                            text = "Activate Pro Code",
+                            text = stringResource(R.string.label_activate_pro_code),
                             onClick = onRedeem,
                             enabled = code.isNotBlank()
                         )

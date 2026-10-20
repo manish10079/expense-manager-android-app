@@ -714,6 +714,7 @@
     <string name="label_claimed">Claimed</string>
     <string name="label_next_slot">Next</string>
     <string name="label_slot_locked">Locked</string>
+    <string name="label_reward_days_count">%1$d Days</string>
     <string name="label_have_friend_code">Have a Friend\'s Code?</string>
     <string name="title_your_referrals">Your Referrals</string>
     <string name="label_total_active">Total: %1$d Active</string>
@@ -965,7 +966,7 @@
     <string name="label_customize_how_your_data_is_vis">Customize how your data is visualized</string>
 
     <string name="label_date">Date</string>
-
+    <string name="desc_miss_entry_reminder">Get notified if you forget to add a transaction for 2 days.</string>
     <string name="label_date_of_birth">DATE OF BIRTH</string>
 
     <string name="label_default_is_off_turn_it_on_to_t">Default is off. Turn it on to track this expense in Budget &amp; Recurring.</string>
@@ -3975,6 +3976,14 @@
     <string name="title_redeem_pro_pass">Redeem Pro Pass</string>
 
     <string name="label_redeem_pro_pass_subtitle">Enter promo code or pass key</string>
+
+    <string name="label_enter_pro_code">ENTER PRO CODE</string>
+    <string name="title_unlock_pro_access">Unlock Pro Access</string>
+    <string name="msg_unlock_pro_access_body">Have a promo code? Enter it below to unlock full premium features.</string>
+    <string name="placeholder_pro_code_example">e.g. PROPASS7</string>
+    <string name="label_activate_pro_code">Activate Pro Code</string>
+    <string name="label_calculator_itemized">Itemized</string>
+    <string name="label_calculator_normal">Normal</string>
 
     <!-- Shown instead on a store subscriber: a ProPass would be dated from now, a window the
 

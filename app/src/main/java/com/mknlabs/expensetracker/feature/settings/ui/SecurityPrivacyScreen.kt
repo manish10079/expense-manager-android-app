@@ -203,7 +203,7 @@ private fun SecurityPrivacyContent(
                             iconTile = SettingsTiles.Sky,
                             type = SettingsItemType.Value,
                             standalone = false,
-                            valueText = formatAutoLockDurationLabel(autoLockDurationMinutes),
+                            valueText = formatAutoLockDurationLabel(LocalContext.current, autoLockDurationMinutes),
                             isEnabled = isAppLockEnabled,
                             onClick = { isAutoLockDurationPickerVisible = true }
                         )

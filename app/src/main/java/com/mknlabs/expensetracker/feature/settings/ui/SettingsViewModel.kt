@@ -429,10 +429,14 @@ private fun buildSettingsSections(
     return settingsSections
 }
 
-fun formatAutoLockDurationLabel(minutes: Int): String {
+fun formatAutoLockDurationLabel(context: android.content.Context, minutes: Int): String {
     return if (minutes <= 0) {
-        "Immediately"
+        context.getString(com.mknlabs.expensetracker.R.string.label_immediately)
     } else {
-        "$minutes min"
+        context.resources.getQuantityString(
+            com.mknlabs.expensetracker.R.plurals.duration_minutes,
+            minutes,
+            minutes
+        )
     }
 }

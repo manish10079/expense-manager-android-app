@@ -298,7 +298,7 @@ fun ItemizedCalculatorScreen(
 
         Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
         AnimatedTabSwitcher(
-            items = modes.map { TabItem(it, it.title) },
+            items = modes.map { TabItem(it, stringResource(it.titleRes)) },
             selectedItemId = uiState.selectedMode,
             onItemSelected = { mode ->
                 coroutineScope.launch {
@@ -2204,7 +2204,7 @@ private fun CalculatorNormalScreenPreviewBody() {
             )
             Column(modifier = Modifier.weight(1f)) {
                 AnimatedTabSwitcher(
-                    items = CalculatorMode.entries.map { TabItem(it, it.title) },
+                    items = CalculatorMode.entries.map { TabItem(it, stringResource(it.titleRes)) },
                     selectedItemId = CalculatorMode.NORMAL,
                     onItemSelected = {}
                 )

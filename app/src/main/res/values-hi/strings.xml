@@ -273,20 +273,20 @@
     <string name="msg_select_tags_to_delete">मिटाने के लिए टैग चुनें</string>
     <string name="title_settings">सेटिंग</string>
     <string name="label_save">सेव</string>
-    <string name="label_cancel">रद्द करें</string>
+
     <string name="label_ok">ठीक</string>
     <string name="label_done">हो गया</string>
     <string name="label_next">आगे</string>
     <string name="label_yes">हाँ</string>
     <string name="label_no">नहीं</string>
     <string name="label_add">जोड़ें</string>
-    <string name="label_edit">संपादित करें</string>
+
     <string name="label_delete">मिटाएँ</string>
     <string name="label_view_all">सभी देखें</string>
     <string name="label_date">तारीख</string>
     <string name="label_time">समय</string>
     <string name="label_note">नोट</string>
-    <string name="label_about">परिचय</string>
+
     <string name="label_pro">प्रो</string>
     <string name="label_free">मुफ़्त</string>
     <string name="notification_action_edit">संपादित करें</string>
@@ -299,4 +299,3857 @@
     <string name="label_other">अन्य</string>
     <string name="label_not_available">उपलब्ध नहीं</string>
     <string name="format_percentage">%1$d%%</string>
+
+    <string name="title_session">सेशन</string>
+
+    <string name="title_about_caps">ऐप के बारे में</string>
+
+    <string name="label_edit_profile">प्रोफाइल बदलें</string>
+
+    <string name="label_edit_profile_subtitle">नाम, फोटो और ईमेल अपडेट करें</string>
+
+    <string name="desc_cloud_sync_devices_subtitle">दूसरे फोन/डिवाइस के साथ डाटा सिंक करें</string>
+
+    <string name="label_security_privacy_subtitle">बायोमेट्रिक, पासकोड, ऐप लॉक</string>
+
+    <string name="label_manage_category_subtitle">कैटेगरी जोड़ें, बदलें या रंग सेट करें</string>
+
+    <string name="label_app_preferences_subtitle">थीम, मुद्रा (Currency), भाषा</string>
+
+    <string name="label_transaction_card_subtitle">ऐप को अपनी पसंद से सजाएं</string>
+
+    <string name="label_data_management_subtitle">बैकअप, रीस्टोर, CSV में सेव करें</string>
+
+    <string name="label_about_subtitle">वर्जन, लाइसेंस, नियम और शर्तें</string>
+
+    <string name="label_about_app_subtitle">वर्जन, लाइसेंस, नियम और शर्तें</string>
+
+    <string name="title_refer_a_friend">दोस्तों को जोड़ें (Refer)</string>
+    <string name="label_refer_a_friend_subtitle">एक पर्सनल इनवाइट भेजें</string>
+    <string name="msg_refer_a_friend">मैं खर्चे का हिसाब रखने के लिए %1$s का इस्तेमाल कर रहा हूं। आप भी ट्राई करें:\n%2$s</string>
+    <string name="msg_refer_register_for_code">अपना रेफरल कोड पाने के लिए Google या ईमेल से रजिस्टर करें।</string>
+    <string name="btn_register_for_referral">कोड पाने के लिए रजिस्टर करें</string>
+    <string name="msg_refer_how_it_works">अपना कोड शेयर करें। जब आपका दोस्त साइन-इन करके कोड डालेगा और पहला लेन-देन जोड़ेगा, तो आप दोनों को 4 दिन का प्रो एक्सेस मिलेगा। हर महीने ज़्यादा से ज़्यादा 4 इनाम।</string>
+    <string name="label_refer_rewards_this_month">इस महीने के इनाम: %1$d / %2$d</string>
+    <string name="btn_copy_code">कोड कॉपी करें</string>
+    <string name="msg_code_copied">कोड कॉपी हो गया</string>
+    <string name="btn_share_code">इनवाइट भेजें</string>
+    <string name="msg_use_my_code">मेरा कोड %1$s इस्तेमाल करें</string>
+    <string name="label_enter_friend_code">दोस्त का कोड</string>
+    <string name="btn_apply_code">कोड लागू करें</string>
+    <string name="msg_welcome_days">आपको %1$d दिनों का Pro Pass मिला है</string>
+    <string name="error_refer_not_signed_in">कोड लागू करने के लिए साइन-इन करें</string>
+    <string name="error_refer_invalid">यह कोड सही नहीं है</string>
+    <string name="error_refer_own_code">आप खुद का कोड इस्तेमाल नहीं कर सकते</string>
+
+    <string name="error_refer_already">आप पहले से रेफरल कोड इस्तेमाल कर चुके हैं</string>
+    <string name="error_refer_network">अपना इंटरनेट कनेक्शन चेक करें और फिर कोशिश करें</string>
+
+    <string name="error_refer_unknown">यह कोड लागू नहीं हो सका</string>
+    <string name="title_refer_offer">फ्री में प्रो पाएं</string>
+    <string name="msg_refer_offer">दोस्तों को इनवाइट करें। हर सफल रेफरल पर 4 दिनों का प्रो पास पाएं, महीने में ज़्यादा से ज़्यादा 4 बार।</string>
+    <string name="title_refer_more">और दोस्तों को जोड़ें</string>
+    <string name="msg_refer_more">फ्री में ज़्यादा दिनों के लिए प्रो पाने के लिए और दोस्तों को इनवाइट करें।</string>
+    <string name="btn_refer_now">दोस्त को इनवाइट करें</string>
+    <string name="title_refer_earn">इनवाइट करें और पाएं</string>
+    <string name="label_refer_earn_subtitle">फ्री में 16 दिनों तक का प्रो एक्सेस पाएं</string>
+    <string name="desc_referral_rules">रेफरल के नियम</string>
+    <string name="title_referral_rules">रेफरल के नियम</string>
+    <string name="msg_referral_rules">हर सफल इनवाइट पर 4 दिनों का प्रो एक्सेस पाएं।\nआपके दोस्त को साइन-अप करने के बाद कम से कम 1 लेन-देन जोड़ना होगा।\nहर महीने ज़्यादा से ज़्यादा 4 इनाम (16 दिन) ही मिलेंगे।\nइनाम हर महीने की 1 तारीख को रीसेट हो जाते हैं।</string>
+    <string name="tab_refer_friends">दोस्तों को इनवाइट करें</string>
+    <string name="tab_my_rewards">मेरे इनाम</string>
+    <string name="label_pro_privilege">प्रो सुविधा</string>
+
+    <string name="title_give_7_get_7">4 दिन दें,\n4 दिन का प्रो एक्सेस पाएं</string>
+    <string name="step_share_code">कोड शेयर करें</string>
+    <string name="step_share_code_sub">इनवाइट लिंक भेजें</string>
+    <string name="step_friend_joins">दोस्त जुड़ेगा</string>
+    <string name="step_friend_joins_sub">पहला खर्च जोड़ेगा</string>
+    <string name="step_both_get_pro">दोनों को प्रो मिलेगा</string>
+    <string name="step_both_get_pro_sub">+4 दिन अनलॉक हुए</string>
+
+    <string name="label_your_referral_code">मेरा रेफरल कोड</string>
+    <string name="label_tap_to_copy">कॉपी करने के लिए टैप करें</string>
+
+    <string name="btn_share_invite_link">इनवाइट लिंक शेयर करें</string>
+    <string name="title_monthly_progress">महीने की प्रगति</string>
+
+    <string name="label_earned_of_rewards">%2$d में से %1$d इनाम मिले</string>
+    <string name="label_plus_days">+%1$d दिन</string>
+
+    <string name="label_days_left_to_max">पूरा बोनस पाने के लिए %1$d दिन बाकी</string>
+    <string name="label_max_28_days">लिमिट: 16 दिन प्रो एक्सेस</string>
+    <string name="label_claimed">मिल गया</string>
+    <string name="label_next_slot">अगला</string>
+
+    <string name="label_slot_locked">लॉक है</string>
+    <string name="label_have_friend_code">क्या दोस्त का कोड है?</string>
+
+    <string name="title_your_referrals">आपके जोड़े गए लोग</string>
+    <string name="label_total_active">कुल: %1$d एक्टिव</string>
+
+    <string name="msg_invite_more_friends">महीने के सारे इनाम पाने के लिए और दोस्तों को इनवाइट करें!</string>
+
+    <string name="msg_you_unlocked_welcome_pro">आपने दोस्त के कोड से 4 दिनों का प्रो एक्सेस अनलॉक किया है।</string>
+
+    <string name="msg_add_expense_to_complete_invite">अपने दोस्त के इनवाइट को पूरा करने के लिए एक खर्चा जोड़ें।</string>
+
+    <string name="label_signed_up_on">%1$s को जुड़े</string>
+    <string name="label_plus_7_days_pro">+4 दिन प्रो</string>
+
+    <string name="label_referral_counted">गिन लिया गया</string>
+
+    <string name="label_completed_transaction">लेन-देन पूरा हुआ</string>
+
+    <string name="label_pending">बाकी है</string>
+    <string name="label_awaiting_first_tx">पहले लेन-देन का इंतज़ार है</string>
+
+    <string name="label_test_popups">पॉप-अप टेस्ट करें:</string>
+    <string name="btn_test_referee_code">दोस्त का कोड</string>
+
+    <string name="btn_test_first_txn">पहला खर्च पूरा</string>
+
+    <string name="label_code_accepted">कोड स्वीकार हो गया</string>
+    <string name="title_you_unlocked_7_days">प्रो एक्सेस में आपका स्वागत है:\nअगले 4 दिन अनलॉक हो गए हैं</string>
+
+    <string name="msg_referral_code_applied_pro">आपका रेफरल कोड सफलता से लागू हो गया है। अगले 4 दिनों के लिए आपके अकाउंट में सभी प्रो फीचर्स अनलॉक कर दिए गए हैं।</string>
+
+    <string name="label_pro_ai_tools">पूरा प्रो एक्सेस - बिना विज्ञापन</string>
+
+    <string name="label_pro_ad_free">4 डिवाइस में डाटा सिंक</string>
+
+    <string name="label_pro_priority_themes">और भी बहुत कुछ… देखें</string>
+
+    <string name="label_valid_until">तक मान्य:</string>
+    <string name="label_free_badge">फ्री</string>
+    <string name="btn_start_exploring_pro">प्रो फीचर्स इस्तेमाल करें</string>
+
+    <string name="btn_want_more_refer">और चाहिए? 16 दिनों तक फ्री एक्सेस पाने के लिए दोस्तों को इनवाइट करें!</string>
+
+    <string name="label_first_txn_done">पहला खर्चा पूरा</string>
+
+    <string name="label_referral_completed">रेफरल पूरा हुआ</string>
+    <string name="title_you_earned_7_days">आपको मिले\n+4 दिन फ्री प्रो!</string>
+
+    <string name="msg_friend_registered_first_tx">%1$s आपके कोड से जुड़ा और अपना पहला खर्च दर्ज किया!</string>
+
+    <string name="label_monthly_rewards_progress">महीने के इनामों की प्रगति</string>
+
+    <string name="label_rewards_fraction">%1$d / %2$d इनाम</string>
+
+    <string name="label_7_days_slot">4 दिन</string>
+    <string name="msg_7_days_pro_auto_activated">4 दिनों का प्रो अपने आप चालू हो गया!</string>
+
+    <string name="btn_7_days_pro_claimed">4 दिनों का प्रो मिल गया</string>
+
+    <string name="btn_invite_more_days_left">और दोस्तों को जोड़ें (+%1$d दिन बाकी)</string>
+
+    <string name="label_test_friend_name">राहुल शर्मा</string>
+    <string name="title_share_app">ऐप शेयर करें</string>
+
+    <string name="label_share_app">ऐप शेयर करें</string>
+
+    <string name="label_share_app_subtitle">प्ले स्टोर का लिंक भेजें</string>
+
+    <string name="msg_share_app_chat">अरे! मैं रोज़ के खर्चों और बजट का हिसाब रखने के लिए Expense Tracker Budget &amp; Spend ऐप इस्तेमाल कर रहा हूं। यह बहुत काम का है! यहां से डाउनलोड करें:\n\n%1$s</string>
+
+    <string name="msg_share_app_features">पैसों का हिसाब रखना अब आसान हो गया है! मैं बजट सेट करने, रोज़ के खर्चे ट्रैक करने और बचत करने के लिए Expense Tracker Budget &amp; Spend इस्तेमाल कर रहा हूं।\n\nआप भी ट्राई करें: %1$s</string>
+
+    <string name="msg_share_app_punchy">अपने पैसों पर पूरा कंट्रोल रखें! Expense Tracker Budget &amp; Spend ऐप के साथ रोज़ का खर्च ट्रैक करें और स्मार्ट बजट बनाएं: %1$s</string>
+
+    <string name="label_notifications_subtitle">अलर्ट और याद दिलाने वाले नोटिफिकेशन मैनेज करें</string>
+
+    <string name="desc_settings_icon">सेटिंग्स आइकन</string>
+
+    <string name="title_connect_on_linkedin">LinkedIn पर जुड़ें</string>
+
+    <string name="label_connect_on_linkedin_subtitle">LinkedIn पर मनीष को फॉलो करें</string>
+
+    <string name="label_val_min">%1$d मिनट</string>
+
+    <string name="label_add_note_optional">नोट लिखें… (ऑप्शनल)</string>
+
+    <!-- Errors -->
+
+    <string name="toast_authentication_failed">लॉगिन नहीं हो सका।</string>
+
+    <string name="error_auth_cloned_or_unauthorized">गूगल लॉगिन नहीं हो सका। अगर आप डुप्लीकेट या क्लोन ऐप चला रहे हैं, तो असली ऐप का इस्तेमाल करें।</string>
+
+    <string name="error_enter_email">कृपया अपना ईमेल एड्रेस लिखें।</string>
+
+    <string name="toast_legacy_import_failed_check_the">पुरानी फाइल इंपोर्ट नहीं हो सकी। बैकअप फाइल चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="toast_database_backup_save_failed">डाटा का बैकअप सेव नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_database_restore_failed">बैकअप से डाटा रीस्टोर नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_json_exported">JSON में सेव हुआ: %1$d लेन-देन, %2$d बजट, %3$d गोल।</string>
+
+    <string name="toast_json_export_failed">JSON फाइल सेव नहीं हो सकी। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_json_import_failed">JSON फाइल से डाटा नहीं लाया जा सका। फाइल चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="toast_json_import_message">%1$d लेन-देन, %2$d बजट, %3$d नियम, %4$d गोल जोड़े गए। %5$d पुराने लेन-देन छोड़ दिए गए।</string>
+
+    <string name="toast_legacy_imported">%1$d पुराने लेन-देन जोड़े गए। %2$d पहले से मौजूद लेन-देन छोड़ दिए गए।</string>
+
+    <string name="toast_delete_transactions_failed">लेन-देन हटाए नहीं जा सके। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_pro_billing_coming_soon">प्रो प्लान खरीदने की सुविधा जल्द आ रही है!</string>
+
+    <string name="toast_unable_to_export_json_please_t">JSON फाइल सेव नहीं हो सकी। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_unable_to_import_json_check_th">JSON फाइल से डाटा नहीं लाया जा सका। फाइल चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="toast_unable_to_restore_the_database">बैकअप से डाटा रीस्टोर नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="toast_unable_to_save_the_database_ba">डाटा का बैकअप सेव नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <!-- Dialogs -->
+
+    <string name="dialog_alerts_reminders">अलर्ट और रिमाइंडर</string>
+
+    <!-- Labels -->
+
+    <string name="desc_add_item">चीज़ जोड़ें</string>
+
+    <string name="desc_ai_tip">AI टिप</string>
+
+    <string name="desc_apply_to_note">नोट में जोड़ें</string>
+
+    <string name="desc_back">पीछे जाएं</string>
+
+    <string name="desc_close_filters">फिल्टर बंद करें</string>
+
+    <string name="desc_close_search">सर्च बंद करें</string>
+
+    <string name="desc_remove_filter">फिल्टर हटाएं</string>
+
+    <string name="desc_custom_range">अपनी पसंद की तारीखें</string>
+
+    <string name="desc_delete">हटाएं</string>
+
+    <string name="desc_delete_photo">फोटो हटाएं</string>
+
+    <string name="content_desc_email_verified">ईमेल वेरीफाई हो गया</string>
+
+    <string name="desc_delete_selected">चुने हुए हटाएं</string>
+
+    <string name="desc_delete_val">%1$s हटाएं</string>
+
+    <string name="desc_delete_val_1">%1$s हटाएं</string>
+
+    <string name="desc_deselect_all">सब अन-सिलेक्ट करें</string>
+
+    <string name="desc_exit_selection">चुनना बंद करें</string>
+
+    <string name="desc_next_period">अगला समय</string>
+
+    <string name="desc_next_year">अगला साल</string>
+
+    <string name="desc_open_calculator">कैलकुलेटर खोलें</string>
+
+    <string name="desc_open_calendar">कैलेंडर खोलें</string>
+
+    <string name="desc_open_gender_options">जेंडर ऑप्शन खोलें</string>
+
+    <string name="desc_open_val">%1$s खोलें</string>
+
+    <string name="desc_open_val_1">%1$s खोलें</string>
+
+    <string name="desc_open_val_2">%1$s खोलें</string>
+
+    <string name="desc_previous_period">पिछला समय</string>
+
+    <string name="desc_previous_year">पिछला साल</string>
+
+    <string name="desc_search">खोजें</string>
+
+    <string name="desc_search_currency">करेंसी खोजें</string>
+
+    <string name="desc_select_all">सब चुनें</string>
+
+    <string name="label_12">12</string>
+
+    <string name="label_12hour">12-घंटे</string>
+
+    <string name="label_248">+24.8%</string>
+
+    <string name="label_24hour">24-घंटे</string>
+
+    <string name="label_full_access_for_duration">%1$s के लिए पूरा एक्सेस</string>
+
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+
+    <plurals name="duration_hours">
+
+        <item quantity="one">%1$d घंटा</item>
+
+        <item quantity="other">%1$d घंटे</item>
+
+    </plurals>
+
+    <plurals name="duration_minutes">
+
+        <item quantity="one">%1$d मिनट</item>
+
+        <item quantity="other">%1$d मिनट</item>
+
+    </plurals>
+
+    <string name="label_1_hour_access">1 घंटे बिना विज्ञापन का एक्सेस</string>
+
+    <string name="label_about">ऐप के बारे में</string>
+
+    <string name="label_ac">AC</string>
+
+    <string name="label_c">C</string>
+
+    <string name="label_accuracy">सटीकता</string>
+
+    <string name="label_active">चालू है</string>
+
+    <string name="label_add_a_note">नोट लिखें</string>
+
+    <string name="label_add_item">चीज़ जोड़ें</string>
+
+    <string name="label_add_new_item">नई चीज़ जोड़ें</string>
+
+    <string name="label_all_categories">सभी कैटेगरी</string>
+
+    <string name="label_app_is_starting_please_wait">ऐप शुरू हो रहा है, कृपया इंतज़ार करें...</string>
+
+    <string name="label_apply">लागू करें</string>
+
+    <string name="label_apply_custom_duration">कस्टम समय लागू करें</string>
+
+    <string name="label_apply_custom_frequency">कस्टम आवृत्ति लागू करें</string>
+
+    <string name="label_apply_filters">फिल्टर लागू करें</string>
+
+    <string name="label_apply_to_note">नोट में जोड़ें</string>
+
+    <string name="label_are_you_sure_you_want_to_delet">क्या आप सचमुच %1$s लेन-देन हटाना चाहते हैं? इसे वापस नहीं लाया जा सकेगा।</string>
+
+    <string name="label_breakdown">ब्योरा</string>
+    <string name="label_breakdown_sub_expenses">छोटे-खर्चे</string>
+
+    <string name="label_cancel">रद्द करें</string>
+
+    <string name="label_cancel_1">रद्द करें</string>
+
+    <string name="label_cash_flow_ratio">कैश फ्लो अनुपात</string>
+
+    <string name="label_choose_from_50_icons_color_sty">50 आइकनों में से चुनें। रंग अपने आप सेट रहेगा।</string>
+
+    <string name="label_choose_month">महीना चुनें</string>
+
+    <string name="label_choose_the_date_style_you_want">ऐप में दिखने वाली तारीख का स्टाइल चुनें।</string>
+
+    <string name="label_choose_the_gender_label_that_b">अपनी प्रोफाइल के हिसाब से जेंडर चुनें।</string>
+
+    <string name="label_choose_whether_time_is_shown_i">चुनें कि समय 12-घंटे में दिखेगा या 24-घंटे में।</string>
+
+    <string name="label_choose_year">साल चुनें</string>
+
+    <string name="label_clear">साफ करें</string>
+
+    <string name="label_custom_duration">कस्टम समय</string>
+
+    <string name="label_customize_how_your_data_is_vis">तय करें कि आपका हिसाब-किताब कैसे दिखेगा</string>
+
+    <string name="label_date_of_birth">जन्म तिथि</string>
+
+    <string name="label_default_is_off_turn_it_on_to_t">यह डिफ़ॉल्ट रूप से बंद है। इस खर्चे को बजट और बार-बार होने वाले खर्चों में जोड़ने के लिए चालू करें।</string>
+
+    <string name="label_delete_all">सब हटाएं</string>
+
+    <string name="label_description">विवरण (Description)</string>
+
+    <string name="label_description_1">विवरण (Description)</string>
+
+    <string name="label_edit">बदलें</string>
+
+    <string name="label_email_address">ईमेल एड्रेस</string>
+
+    <string name="label_encrypted_mode">सुरक्षित मोड (Encrypted)</string>
+
+    <string name="label_enter_minutes">मिनट लिखें</string>
+
+    <string name="label_forgot">भूल गए</string>
+
+    <string name="label_full_name">पूरा नाम</string>
+
+    <string name="label_gender">जेंडर</string>
+
+    <string name="label_github">GITHUB</string>
+
+    <string name="label_growth_index">बढ़त इंडेक्स</string>
+
+    <string name="label_handcrafted_with_precision_and">पूरी सटीकता और ❤️ के साथ निर्मित</string>
+
+    <string name="label_headertransition">HeaderTransition</string>
+
+    <string name="label_hi_val">नमस्ते, %1$s</string>
+
+    <string name="label_high_fidelity">हाई फिडेलिटी</string>
+
+    <string name="label_iconkey">iconKey</string>
+
+    <string name="label_id">आईडी (id)</string>
+
+    <string name="label_immediately">तुरंत</string>
+
+    <string name="label_itemized_calculator">सामान के हिसाब का कैलकुलेटर</string>
+
+    <string name="label_last_month">पिछला महीना</string>
+
+    <string name="label_linkedin">LINKEDIN</string>
+
+    <string name="label_month">/ महीना</string>
+
+    <string name="label_month_1">महीना</string>
+
+    <string name="label_monthly_limit">महीने की लिमिट</string>
+
+    <string name="label_name">नाम</string>
+
+    <string name="label_new_item">नई चीज़</string>
+
+    <string name="label_no_countries_matched_your_sear">आपकी खोज से कोई देश मेल नहीं खाया।</string>
+
+    <string name="label_no_payment_data_found_in_this">इस दौरान पेमेंट का कोई डाटा नहीं मिला।</string>
+
+    <string name="label_not_now">अभी नहीं</string>
+
+    <string name="label_personalize_your_vault">ऐप को अपने हिसाब से सेट करें</string>
+
+    <string name="label_phone_number">फोन नंबर</string>
+
+    <string name="label_pick_a_preset_in_5minute_steps">5-5 मिनट के गैप में चुनें (60 मिनट तक), या अपनी पसंद से मिनट लिखें।</string>
+
+    <string name="label_pick_a_preset_or_enter_a_custo">दिए गए ऑप्शन चुनें या 1 से 30 दिनों के बीच अपनी पसंद के दिन लिखें।</string>
+
+    <string name="label_premium_member">प्रो मेंबर</string>
+
+    <string name="label_private_member">प्राइवेट मेंबर</string>
+
+    <string name="label_qval">Q%1$s</string>
+
+    <string name="label_recent">हाल का</string>
+
+    <string name="label_recent_activities">हाल की गतिविधियां</string>
+
+    <string name="label_repeat_count">दोहराने की संख्या</string>
+
+    <string name="label_reset">रीसेट करें</string>
+
+    <string name="label_restore_database">डाटा रीस्टोर करें?</string>
+
+    <string name="label_save_changes">बदलाव सेव करें</string>
+
+    <string name="label_search_by_country_and_pick_the">देश का नाम खोजें और ऐप में इस्तेमाल होने वाली करेंसी (मुद्रा) चुनें।</string>
+
+    <string name="label_search_country">देश खोजें</string>
+
+    <string name="label_security_answer">सिक्योरिटी का जवाब</string>
+
+    <string name="label_select_currency">करेंसी (Currency) चुनें</string>
+
+    <string name="label_select_date_format">तारीख का फॉर्मेट चुनें</string>
+
+    <string name="label_select_decimal_places">दशमलव के स्थान चुनें</string>
+
+    <string name="label_select_gender">जेंडर चुनें</string>
+
+    <string name="label_select_number_format">नंबर का फॉर्मेट चुनें</string>
+
+    <string name="label_select_time_format">समय का फॉर्मेट चुनें</string>
+
+    <string name="label_select_visual_identity">आइकन और रंग चुनें</string>
+
+    <string name="label_selected">चुना गया</string>
+
+    <string name="label_smart_ai_tip">स्मार्ट AI टिप</string>
+
+    <string name="label_sort_filter">सॉर्ट और फिल्टर</string>
+
+    <string name="label_stepanimation">StepAnimation</string>
+
+    <string name="label_system_active">सिस्टम चालू है</string>
+
+    <!-- Pro Upgrade Randomized Slogans & Badges -->
+
+    <string name="pro_slogan_1">पैसों का हिसाब अपने आप होने दें।</string>
+
+    <string name="pro_subheadline_1">किराया, बिल और बार-बार के खर्चों को खुद लिखना बंद करें। ऑटोमैटिक एंट्री और ऑनलाइन सिंक से सब अपने आप होने दें।</string>
+
+    <string name="pro_cta_1">ऑटोमैटिक बचत चालू करें</string>
+
+    <string name="pro_slogan_2">एक बार लिखें। हर जगह अपने आप सिंक होगा।</string>
+
+    <string name="pro_subheadline_2">अपने फोन, टैबलेट और पार्टनर के फोन पर सारे वॉलेट और बैंक अकाउंट का हिसाब एक साथ और तुरंत सिंक रखें।</string>
+
+    <string name="pro_cta_2">रोज़ की लिखा-पढ़ी से छुट्टी पाएं</string>
+
+    <string name="pro_slogan_3">कोई झंझट नहीं। पैसों पर 100% कंट्रोल।</string>
+
+    <string name="pro_subheadline_3">रोज़ के खर्चों का हिसाब रखने की झंझट खत्म करें। अपने महीने के बिलों को ऑटोमैटिक दर्ज होने दें और शांति से हिसाब ट्रैक करें।</string>
+
+    <string name="pro_cta_3">ऑटोमैटिक बचत चालू करें</string>
+
+    <string name="pro_slogan_4">खर्च करने से पहले जानें कि पैसा कहां जा रहा है।</string>
+
+    <string name="pro_subheadline_4">पुराने हिसाब देखने से आगे बढ़ें। अगले महीने का बैलेंस आज ही जानने के लिए एडवांस कैटेगरी प्रेडिक्शन का इस्तेमाल करें।</string>
+
+    <string name="pro_cta_4">लाइफटाइम स्पष्टता के लिए अपग्रेड करें</string>
+
+    <string name="pro_slogan_5">अंदाज़ा लगाना छोड़ें। बचत बढ़ाना शुरू करें।</string>
+
+    <string name="pro_subheadline_5">खर्चों की अनदेखी बंद करें। प्रो एनालिटिक्स से सही जगह पहचानें जहां ज़्यादा खर्च हो रहा है और उस पैसे को बचत में लगाएं।</string>
+
+    <string name="pro_cta_5">अपनी बचत पर कंट्रोल पाएं</string>
+
+    <string name="pro_slogan_6">स्मार्ट अनुमानों के साथ पैसों के बहाव को समझें।</string>
+
+    <string name="pro_subheadline_6">महीने के बजट का अंदाज़ा लगाना छोड़ें। अपनी आदतों के हिसाब से ऑटोमैटिक पूर्वानुमान पाएं और एक मजबूत बजट बनाएं।</string>
+
+    <string name="pro_cta_6">लाइफटाइम स्पष्टता के लिए अपग्रेड करें</string>
+
+    <string name="pro_slogan_7">आपका पुराना हिसाब, हमेशा के लिए सुरक्षित।</string>
+
+    <string name="pro_subheadline_7">फोन खोने या बदलने से सालों का हिसाब नहीं मिटेगा। ऑटोमैटिक गूगल ड्राइव बैकअप और 1-क्लिक रीस्टोर के साथ डाटा सुरक्षित रखें।</string>
+
+    <string name="pro_cta_7">लाइफटाइम स्पष्टता के लिए अपग्रेड करें</string>
+
+    <string name="pro_slogan_8">फोन खराब हो या बदले, हिसाब सुरक्षित रहेगा।</string>
+
+    <string name="pro_subheadline_8">बेफिक्र रहें, आपकी लेन-देन की हिस्ट्री और बजट सुरक्षित क्लाउड स्टोरेज में ऑटोमैटिकली बैकअप और सिंक होते हैं।</string>
+
+    <string name="pro_cta_8">अपना डाटा अभी सुरक्षित करें</string>
+
+    <string name="label_take_control_of_your_wealth_wi">हमारे बेहतरीन टूल्स से अपनी बचत पर कंट्रोल पाएं।</string>
+
+    <string name="label_this_name_already_exists_in_va">यह नाम %1$s में पहले से मौजूद है।</string>
+
+    <string name="label_this_new_item_will_be_added_un">यह नई चीज़ %1$s के अंदर जोड़ी जाएगी।</string>
+
+    <string name="label_this_will_overwrite_your_curre">यह चुनी हुई .db बैकअप फाइल से आपके अभी के डाटा को बदल देगा। पुराना डाटा हट जाएगा और नई फाइल का डाटा आ जाएगा।</string>
+
+    <string name="label_today">आज</string>
+
+    <string name="label_yesterday">बीता हुआ कल</string>
+
+    <string name="label_tomorrow">आने वाला कल</string>
+
+    <string name="label_top_breakdownfirstornulllabel">टॉप: ${breakdown.firstOrNull()?.label ?: </string>
+
+    <string name="label_total_analytics">कुल एनालिटिक्स</string>
+
+    <string name="label_total_balance">कुल बैलेंस</string>
+
+    <string name="title_cash_flow">कैश फ्लो (आवक-जावक)</string>
+
+    <string name="label_this_month_cash_flow">इस महीने</string>
+
+    <string name="label_this_year_cash_flow">इस साल</string>
+
+    <string name="label_spending_cash_flow">खर्चा</string>
+
+    <string name="label_expense_cash_flow">खर्चा</string>
+
+    <string name="label_income_cash_flow">कमाई</string>
+
+    <string name="label_net_balance_cash_flow">बचा हुआ बैलेंस</string>
+
+    <string name="label_track_every_move_with_confiden">भरोसे के साथ हर खर्च का हिसाब रखें।</string>
+    <!-- Rotating psychology one-liners under the home greeting. English-only by design:
+         the copy is the feature's voice, so it is not translated per locale. -->
+    <string-array name="psychology_phrases" translatable="false">
+        <item>सतर्क रहना इच्छाशक्ति से बेहतर है।</item>
+        <item>जिस बात पर ध्यान न दें, उसे बदल नहीं सकते।</item>
+        <item>छोटी-छोटी रकम, बार-बार खर्च होकर आपकी असलियत बन जाती है।</item>
+        <item>खर्च करने से पहले दस सेकंड रुकें।</item>
+        <item>यहां हर एक नज़र सोच-समझकर लिया गया फैसला है।</item>
+        <item>पैसा वहीं जाता है जहां ध्यान होता है।</item>
+        <item>पहले ध्यान दें, बाद में खर्च करें।</item>
+        <item>जिस आंकड़े से आप बचते हैं, वही बढ़ता है।</item>
+        <item>जिसका आप हिसाब रखते हैं, वह संभल जाता है।</item>
+        <item>चीज़ खरीदने से पहले अपनी भावना को पहचानें।</item>
+        <item>एक बार खरीदना मूड है; बार-बार ऐसा होना आदत (फैसला) है।</item>
+        <item>हाथ धीमे चलेंगे, तो पैसे संभले रहेंगे।</item>
+        <item>आप अपनी इच्छा (urge) खुद नहीं हैं।</item>
+        <item>रुकने में ही असली ताकत है।</item>
+        <item>बड़ी तरक्की छोटे अंकों में छिपी होती है।</item>
+        <item>आरामदेह रहना कोई प्लान नहीं है।</item>
+        <item>स्पष्टता ही पैसों की उथल-पुथल का इलाज है।</item>
+        <item>आपके पुराने खर्चों ने ही आपकी आज की स्थिति बनाई है।</item>
+        <item>बजट का मतलब यह सोचना नहीं कि पैसे कहां गए, बल्कि अपने पैसों को बताना है कि कहां जाना है।</item>
+        <item>पैसे खर्च करने की इच्छा, रसीद मिलने से पहले ही गायब हो जाती है।</item>
+        <item>शर्म की वजह से हिसाब रखना बंद न करें; जिज्ञासा इसे ज़िंदा रखती है।</item>
+        <item>सोच-समझकर खर्च करना, बिना सोचे बचत करने से बेहतर है।</item>
+        <item>खर्च किया गया हर एक रुपया आपकी मनचाही ज़िंदगी के लिए एक वोट है।</item>
+        <item>चीज़ों को टालना अक्सर इकलौता ऐसा फिल्टर है जिसकी आपको ज़रूरत है।</item>
+        <item>शॉपिंग करके तनाव भगाना बस बीमारी का इलाज है, जड़ का नहीं।</item>
+        <item>अपनी इच्छा को पहचानें; कार्ट में चीज़ डालना छोड़ें।</item>
+        <item>अमीरी वह है जो आपके पास बचती है, वह नहीं जो आप दिखाते हैं।</item>
+        <item>मन की शांति शान-शौकत से कम कीमत में मिलती है।</item>
+        <item>खुद से पूछें: क्या मैं इसे खरीद रहा हूं या सुकून खरीद रहा हूं?</item>
+        <item>छोटे-छोटे छेद बड़े जहाजों को डुबो देते हैं।</item>
+        <item>आदतें ब्याज से भी तेज़ गति से बढ़ती हैं।</item>
+        <item>अपने खर्चों पर कंट्रोल रखें, इससे पहले कि खर्चे आप पर कंट्रोल करने लगें।</item>
+        <item>सजगता किसी आदत को एक सोच-समझकर लिया गया फैसला बना देती है।</item>
+        <item>ज़रूरतें शांत होती हैं; इच्छाएं शोर मचाती हैं।</item>
+        <item>अगर आप ऐसी चीज़ें खरीदेंगे जिनकी ज़रूरत नहीं, तो जल्द ही अपनी ज़रूरत की चीज़ें बेचनी पड़ेंगी।</item>
+        <item>छोटे सिक्कों (पैसे) का ध्यान रखें, बड़े नोट खुद संभल जाएंगे।</item>
+        <item>तुरंत मिलने वाली खुशी को \'ना\' कह पाना ही आज़ादी है।</item>
+        <item>ज़िंदगी की सबसे बेहतरीन चीज़ों के लिए बिल की ज़रूरत नहीं पड़ती।</item>
+        <item>बोरियत एक महंगा अहसास है।</item>
+        <item>तनाव में खर्च किया गया पैसा बाद में भारी पड़ता है।</item>
+        <item>आपका भविष्य का रूप (future self) आपके मौजूदा कार्ट को देख रहा है।</item>
+        <item>चेकआउट कोड डालने से पहले अपनी इच्छा की जांच करें।</item>
+        <item>पैसों का हिसाब रखना खुद की देखभाल (self-care) करना है।</item>
+        <item>ज्ञान में किया गया निवेश सबसे अच्छा ब्याज देता है—बाकी सब तो सिर्फ उपभोग है।</item>
+        <item>असली अमीरी चुपचाप पीछे बैकग्राउंड में बनती है।</item>
+        <item>ऐसे लोगों को इंप्रेस करने के लिए चीज़ें खरीदना बंद करें जिन्हें आप पसंद नहीं करते, और वह भी ऐसे पैसों से जो आपके पास नहीं हैं।</item>
+        <item>जब आपको अपनी वजह पता होती है, तो आपका बटुआ भी साथ देता है।</item>
+        <item>बिना सोचे चीज़ें इकट्ठा करने से बेहतर है सोच-समझकर खर्च करना, इससे ज़्यादा खुशी मिलती है।</item>
+        <item>दिमाग में थोड़ी समझदारी आने तक रुकें।</item>
+        <item>पैसों से जुड़ा हर फैसला कल की हकीकत तय करता है।</item>
+        <item>खरीदारी का थोड़ी देर का मज़ा सुबह तक गायब हो जाता है।</item>
+        <item>अपनी आदतों का हिसाब रखें, आपकी आदतें आपको फायदा देंगी।</item>
+        <item>अपने लक्ष्यों की स्पष्टता से विज्ञापनों के शोर को चुप करा दें।</item>
+        <item>थोड़ी देर की खुशी (dopamine) के मुकाबले लंबे समय की स्थिरता चुनें।</item>
+        <item>चीज़ों से अमीरी न मापें; इसे अपने फैसलों से मापें।</item>
+        <item>लेन-देन की शुरुआत होने से पहले उसकी वजह को पहचानें।</item>
+        <item>गति से ज़्यादा सही दिशा मायने रखती है।</item>
+        <item>आपका बैंक खाता आपकी प्राथमिकताओं का शीशा है।</item>
+        <item>समझदारी से चीज़ों का इस्तेमाल करना एक सुपरपावर है।</item>
+        <item>बड़ी खरीदारी पर एक रात की नींद लें; सुबह साफ समझ आ जाएगी।</item>
+        <item>पैसों के मामले में सादगी ही सबसे बड़ी समझदारी है।</item>
+        <item>अनुशासन वह है जो आप अभी चाहते हैं और जो आपको सबसे ज़्यादा चाहिए, उसके बीच सही चुनाव करना।</item>
+        <item>साफ-सुथरा हिसाब मन को शांत रखता है।</item>
+        <item>बचाया गया हर एक डॉलर आपके भविष्य के लिए काम करने वाला एक मजदूर है।</item>
+        <item>इच्छा को नहीं, आंकड़ों को देखें।</item>
+        <item>अपने पैसों पर काबू पाने के लिए अपनी सोच पर काबू पाना सीखें।</item>
+        <item>पैसों की शांति कोई इत्तेफाक नहीं है; यह एक प्लानिंग है।</item>
+        <item>ध्यान दें कि कब आपकी भावनाएं आपके भुगतानों को तय कर रही हैं।</item>
+        <item>किसी चीज़ की कीमत आपकी ज़िंदगी का वह हिस्सा है जो आप उसे पाने के लिए चुकाते हैं।</item>
+        <item>खुद को रोकने के लिए हर रुपये का हिसाब न रखें; खुद को मजबूत बनाने के लिए हिसाब रखें।</item>
+        <item>नियमित रूप से हिसाब रखने से पैसों की चिंता खत्म हो जाती है।</item>
+        <item>अपने खर्चों के पीछे कोई मकसद रखें।</item>
+        <item>पल भर की सोच एक महीने के पछतावे से बचा लेती है।</item>
+        <item>प्राइस टैग से आगे बढ़कर देखें कि लंबे समय में उसका क्या असर होगा।</item>
+        <item>आपका ध्यान ही तय करता है कि पैसा कहां लगेगा।</item>
+        <item>आर्थिक आज़ादी एक सिंगल एंट्री दर्ज करने से शुरू होती है।</item>
+        <item>सेल के बैनर से पीछे हटें; अपने लक्ष्यों को देखें।</item>
+        <item>सोच-समझकर काम करने से रोज़मर्रा का काम एक रस्म बन जाता है।</item>
+        <item>बिना ध्यान दिए कटने वाले सब्सक्रिप्शन चुपचाप आपकी दौलत चुरा लेते हैं।</item>
+        <item>अपनी इच्छा को महसूस करें, उसे बादल की तरह गुजर जाने दें।</item>
+        <item>आपकी पैसों की कहानी एक-एक एंट्री करके लिखी जाती है।</item>
+        <item>अपने खर्चों को अपने जरूरी उसूलों के हिसाब से रखें।</item>
+        <item>बजट एक अनुमति पत्र है जिससे आप बिना गिल्ट के उन चीज़ों पर खर्च कर सकें जो मायने रखती हैं।</item>
+        <item>स्पष्टता, कन्फ्यूजन को आत्मविश्वास में बदल देती है।</item>
+        <item>परफेक्शन से ज़्यादा आगे बढ़ने को अहमियत दें।</item>
+        <item>जब भी आप यह ऐप खोलते हैं, आप अपनी ताकत वापस पा लेते हैं।</item>
+        <item>रोज़ दोहराई जाने वाली छोटी आदतें बड़ी सफलता दिलाती हैं।</item>
+        <item>धड़ल्ले से खर्च करने की इच्छा की असली जड़ का पता लगाएं।</item>
+        <item>अमीरी रोज़मर्रा के छोटे-छोटे फैसलों की परछाई में बनती है।</item>
+        <item>पैसों पर मास्टरी हासिल करना छोटे पलों को संभालने से शुरू होता है।</item>
+        <item>अपने उसूलों को तय करने दें कि आपको कितना खर्च करना है।</item>
+        <item>पैसे आपके हैं; अपने मूड को पैसों के अधीन न होने दें।</item>
+        <item>आज की समझदारी भरी आदत कल के आर्थिक सिरदर्द से बचाती है।</item>
+        <item>ऐसी जीवनशैली बनाएं जिससे भागने के लिए आपको किसी छुट्टी या शॉपिंग स्प्री की ज़रूरत न पड़े।</item>
+        <item>सजगता बदलाव का पहला कदम है।</item>
+        <item>आपके रिकॉर्ड में आपकी उम्मीदें झलकनी चाहिए।</item>
+        <item>बारीकी से देखें कि क्या टिकता है; जो खींच रहा है उसे जाने दें।</item>
+        <item>शांति का मतलब है ऐसी कम चीज़ें रखना जिन पर आपका ध्यान जाए।</item>
+        <item>आपका आर्थिक भविष्य ऐसे ही पलों में तय होता है।</item>
+        <item>अपने लक्ष्यों पर ध्यान रखें और खर्चों को काबू में रखें।</item>
+    </string-array>
+
+    <string name="label_upgrade_to_pro">प्रो में अपग्रेड करें</string>
+
+    <string name="label_val">%1$s%</string>
+
+    <string name="label_val_1">%1$s%</string>
+
+    <string name="label_val_2">%1$s%</string>
+
+    <string name="label_val_days">%1$s दिन</string>
+
+    <string name="label_val_items">%1$s चीज़ें</string>
+
+    <string name="label_val_minutes">%1$s मिनट</string>
+
+    <string name="label_val_selected">%1$s चुने गए</string>
+
+    <string name="label_select_all_in_view">इस व्यू के सभी %1$d चुनें</string>
+
+    <string name="label_val_val">%1$s (%2$s)</string>
+
+    <string name="label_valx">%1$sX</string>
+
+    <string name="label_website">वेबसाइट</string>
+
+    <string name="label_wk_val">सप्ताह %1$s</string>
+
+    <string name="label_year">साल</string>
+
+    <string name="label_your_answer">आपका जवाब</string>
+
+    <string name="title_about">ऐप के बारे में</string>
+
+    <string name="title_about_app">ऐप के बारे में</string>
+
+    <string name="title_access">एक्सेस</string>
+
+    <string name="title_analytics">एनालिटिक्स</string>
+
+    <string name="title_architecture">आर्किटेक्चर</string>
+
+    <string name="title_auto_backup">ऑटो बैकअप</string>
+
+    <string name="title_automated_backup_every_val_day">हर %1$s दिनों में ऑटोमैटिक बैकअप।</string>
+
+    <string name="title_avg_daily">रोज़ का औसत</string>
+
+    <string name="title_backup">बैकअप</string>
+
+    <string name="title_backup_frequency">बैकअप का समय</string>
+
+    <string name="title_blur_in_recents">हाल के ऐप्स में धुंधला करें</string>
+
+    <string name="title_calendar">कैलेंडर</string>
+
+    <string name="title_choose_the_main_attribute_used">लिस्ट को व्यवस्थित करने का मुख्य तरीका चुनें।</string>
+
+    <string name="title_confirm_identity">पहचान कंफर्म करें</string>
+
+    <string name="title_currency">करेंसी</string>
+
+    <string name="title_customize">कस्टम सेटिंग्स</string>
+
+    <string name="title_daily_reminder">रोज़ का रिमाइंडर</string>
+
+    <string name="title_dashboard">डैशबोर्ड</string>
+
+    <string name="title_database">डेटाबेस</string>
+
+    <string name="title_date">तारीख</string>
+
+    <string name="title_date_format">तारीख का फॉर्मेट</string>
+
+    <string name="title_decimal_places">दशमलव के स्थान</string>
+
+    <string name="title_display_wallet_or_card_used">इस्तेमाल किया गया वॉलेट या कार्ड दिखाएं</string>
+
+    <string name="title_exact_timestamp_visibility">सही समय दिखाना</string>
+
+    <string name="title_export_json">JSON एक्सपोर्ट करें</string>
+
+    <string name="title_filters">फिल्टर</string>
+
+    <string name="title_finetune_how_results_are_ranke">चुने गए क्रम में रिजल्ट को और बेहतर बनाएं।</string>
+
+    <string name="title_follow_us">हमें फॉलो करें</string>
+
+    <string name="title_frequency">आवृत्ति (Frequency)</string>
+
+    <string name="title_highest_first">सबसे बड़ा पहले</string>
+
+    <string name="title_import_json">JSON इंपोर्ट करें</string>
+
+    <string name="title_import_legacy_data">पुराना डेटा लाएं</string>
+
+    <string name="title_json_transfer">JSON ट्रांसफर</string>
+
+    <string name="title_legal">कानूनी नियम</string>
+
+    <string name="title_maintenance">रखरखाव</string>
+
+    <string name="title_missed_entry_reminder">छूटे हुए खर्च का रिमाइंडर</string>
+
+    <string name="title_number_format">नंबर का फॉर्मेट</string>
+
+    <string name="title_order">क्रम</string>
+
+    <string name="title_payment_method">भुगतान का तरीका</string>
+
+    <string name="title_payment_mode">पेमेंट मोड</string>
+
+    <string name="title_premium_by_designnprivate_by_n">शानदार डिज़ाइन,\nसुरक्षित और निजी</string>
+
+    <string name="title_privacy_policy">प्राइवेसी पॉलिसी</string>
+
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
+
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
+
+    <string name="title_rate_app">ऐप को रेट करें</string>
+
+    <string name="title_rate_prompt">क्या यह ऐप मददगार है?</string>
+    <string name="label_how_would_you_rate">आप हमें क्या रेटिंग देंगे?</string>
+    <string name="label_submit_rating">सबमिट करें</string>
+    <string name="cd_rate_star">5 में से %1$d स्टार दें</string>
+
+    <string name="title_report_bug">बग रिपोर्ट करें</string>
+
+    <string name="title_restore">रीस्टोर करें</string>
+
+    <string name="title_savings">बचत</string>
+
+    <string name="title_secure_private">सुरक्षित और निजी</string>
+
+    <string name="title_security_privacy">सुरक्षा और प्राइवेसी</string>
+
+    <string name="title_security_privacy_1">सुरक्षा और प्राइवेसी</string>
+
+    <string name="title_privacy_options">प्राइवेसी के ऑप्शन</string>
+
+    <string name="label_privacy_options_subtitle">अपनी सहमति और डेटा चुनाव मैनेज करें</string>
+
+    <string name="title_send_feedback">सुझाव भेजें</string>
+
+    <string name="title_show_date_separators">तारीख के हिसाब से अलग करें</string>
+
+    <string name="title_show_list_summaries">अवधि का सारांश दिखाएं</string>
+
+    <string name="desc_show_list_summaries">मौजूदा समय के लिए कुल कमाई और खर्चा दिखाएं</string>
+
+    <string name="title_show_payment_method">भुगतान का तरीका दिखाएं</string>
+
+    <string name="title_sort_by">क्रम से लगाएं</string>
+
+    <string name="title_stack_multiple_filters_to_narr">लेन-देन की लिस्ट को छोटा करने के लिए कई फिल्टर लगाएं।</string>
+
+    <string name="title_support">सपोर्ट</string>
+
+    <string name="title_terms_conditions">नियम और शर्तें</string>
+
+    <string name="title_time_format">समय का फॉर्मेट</string>
+
+    <string name="title_toggle_visibility_of_transacti">लेन-देन के टैग छिपाएं या दिखाएं</string>
+
+    <string name="title_visual_analytics">विजुअल एनालिटिक्स</string>
+
+    <string name="label_other_installment">अन्य</string>
+
+    <string name="msg_installment_info">मौजूदा लेन-देन किस्त #1 है। आगे की एंट्री अपने आप बन जाएंगी।</string>
+
+    <string name="label_update_action">अपडेट करें</string>
+
+    <string name="label_add_action">जोड़ें</string>
+
+    <string name="label_am">सुबह (AM)</string>
+
+    <string name="label_pm">शाम (PM)</string>
+
+    <string name="label_secure_app_pin">PIN कोड से ऐप सुरक्षित करें</string>
+
+    <string name="label_use_biometric_subtitle">फिंगरप्रिंट का इस्तेमाल करें</string>
+
+    <string name="label_scrambled_keypad">उल्टा-पुल्टा कीपैड</string>
+
+    <string name="label_scrambled_keypad_subtitle">सुरक्षा के लिए PIN के बटन आगे-पीछे करें</string>
+
+    <string name="label_blur_in_recents">हाल के ऐप्स में धुंधला करें</string>
+
+    <string name="label_blur_in_recents_subtitle">ऐप switcher में ऐप का कंटेंट छिपाएं</string>
+
+    <string name="label_block_screenshots_subtitle">ऐप के स्क्रीनशॉट लेने से रोकें</string>
+
+    <string name="label_auto_lock_subtitle">ऐप कब लॉक होना चाहिए</string>
+
+    <string name="label_lock_immediately">बैकग्राउंड में जाते ही तुरंत लॉक करें</string>
+
+    <string name="label_val_minutes_away">%1$s मिनट दूर रहने पर लॉक करें</string>
+
+    <string name="label_auto_lock_desc">चुनें कि ऐप अपने आप कब लॉक होना चाहिए।</string>
+
+    <string name="label_primary_currency">मुख्य करेंसी</string>
+
+    <string name="label_theme_subtitle">ऐप का रंग-रूप</string>
+
+    <string name="title_language">भाषा</string>
+    <string name="label_language_subtitle">ऐप की भाषा</string>
+    <string name="label_select_language">भाषा चुनें</string>
+    <string name="label_language_selection_desc">ऐप में इस्तेमाल होने वाली भाषा चुनें। जो ट्रांसलेट नहीं है वह अंग्रेजी में रहेगा।</string>
+    <string name="label_language_system">सिस्टम डिफ़ॉल्ट</string>
+
+    <string name="label_date_format_subtitle">तारीख कैसे दिखाई जाएगी</string>
+
+    <string name="label_time_format_subtitle">12-घंटे या 24-घंटे की घड़ी</string>
+
+    <string name="label_number_format_subtitle">अंकों को लिखने का स्टाइल</string>
+
+    <string name="label_decimal_places_subtitle">रकम की सटीकता</string>
+
+    <string name="label_theme_selection_desc">चुनें कि ऐप फोन के हिसाब से बदले या एक ही थीम पर रहे।</string>
+
+    <string name="label_number_format_desc">चुनें कि बड़ी रकम को ऐप में कैसे लिखा जाए।</string>
+
+    <string name="label_select_theme">थीम चुनें</string>
+
+    <string name="title_theme">थीम</string>
+
+    <string name="label_theme_system">सिस्टम</string>
+
+    <string name="label_theme_light">लाइट</string>
+
+    <string name="label_theme_dark">डार्क</string>
+
+    <string name="desc_theme_system">फोन की सेटिंग के हिसाब से रखें</string>
+
+    <string name="desc_theme_light">हमेशा लाइट थीम रखें</string>
+
+    <string name="desc_theme_dark">हमेशा डार्क थीम रखें</string>
+
+    <!-- Font -->
+
+    <string name="title_font">फॉन्ट (लिखावट)</string>
+
+    <string name="label_font_subtitle">ऐप की लिखावट का स्टाइल</string>
+
+    <string name="label_font_app">डिफ़ॉल्ट</string>
+
+    <string name="label_font_system">सिस्टम फॉन्ट</string>
+
+    <string name="label_font_custom">कस्टम फॉन्ट</string>
+
+    <string name="label_watch_ad_to_unlock">अनलॉक करने के लिए विज्ञापन देखें</string>
+
+    <string name="label_pro_required">प्रो होना ज़रूरी है</string>
+
+    <string name="msg_system_font_ad_desc">सिस्टम फॉन्ट फ्री में अनलॉक करने के लिए एक छोटा विज्ञापन देखें।</string>
+
+    <string name="msg_custom_font_pro_desc">कस्टम फॉन्ट एक प्रो फीचर है। अनलॉक करने के लिए अपग्रेड करें।</string>
+
+    <string name="label_import_font">फॉन्ट इंपोर्ट करें</string>
+
+    <string name="label_font_count">%1$d/%2$d कस्टम फॉन्ट</string>
+
+    <string name="label_max_fonts_reached">ज़्यादा से ज़्यादा %1$d फॉन्ट हो सकते हैं। नया जोड़ने के लिए पुराना हटाएं।</string>
+
+    <string name="label_no_custom_fonts">अभी कोई कस्टम फॉन्ट नहीं है</string>
+
+    <string name="msg_import_font_success">फॉन्ट सफलतापूर्वक आ गया</string>
+
+    <string name="msg_font_changed">फॉन्ट बदल गया</string>
+
+    <string name="msg_import_font_error">फॉन्ट लाने में असफल</string>
+
+    <string name="msg_font_too_large">फॉन्ट फाइल बहुत बड़ी है। कृपया छोटी फाइल चुनें।</string>
+
+    <string name="msg_invalid_font">यह सही फॉन्ट फाइल नहीं है</string>
+
+    <string name="label_select_font">फॉन्ट चुनें</string>
+
+    <string name="label_select_font_desc">फॉन्ट हटाने के लिए देर तक दबाएं</string>
+
+    <string name="label_select_font_built_in">पहले से मौजूद</string>
+
+    <string name="label_delete_font">हटाएं</string>
+
+    <!-- Custom Month Start Day -->
+
+    <string name="title_month_start_day">महीना शुरू होता है</string>
+
+    <string name="label_month_start_day_subtitle">अपने बिलिंग चक्र का पहला दिन सेट करें</string>
+
+    <string name="label_month_start_day_value">दिन %1$d</string>
+
+    <string name="label_month_start_day_standard">1 तारीख (डिफ़ॉल्ट)</string>
+
+    <string name="label_current_period">मौजूदा समय:</string>
+
+    <string name="msg_delete_font_title">फॉन्ट हटाएं?</string>
+
+    <string name="msg_delete_font_desc">%1$s आपके कस्टम फॉन्ट से हटा दिया जाएगा।</string>
+
+    <string name="label_select">चुनें</string>
+
+    <string name="label_grouping_indian">भारतीय (1,23,456.78)</string>
+
+    <string name="label_grouping_international">अंतर्राष्ट्रीय (1,234,567.89)</string>
+
+    <!-- About -->
+
+    <string name="label_app_name_display">Expense Tracker</string>
+
+    <string name="label_follow_us">हमें फॉलो करें</string>
+
+    <string name="desc_app_icon">ऐप का आइकन</string>
+
+    <string name="label_about_app_desc">शानदार तरीके से अपने रोज़ के लेन-देन मैनेज करने के लिए एक सरल ऐप। आधुनिक यूजर के लिए डिज़ाइन किया गया है जो पैसों के साफ हिसाब और बेहतरीन अनुभव को पसंद करता है। हर डेटा को बहुत संभाल कर रखा जाता है।</string>
+
+    <!-- Analytics -->
+
+    <string name="title_yearly_analytics">सालाना एनालिटिक्स</string>
+
+    <string name="title_full_category_breakdown">पूरी कैटेगरी का ब्योरा</string>
+
+    <string name="title_full_payment_breakdown">पूरा पेमेंट ब्योरा</string>
+
+    <string name="title_payment_mode_breakdown">पेमेंट मोड का ब्योरा</string>
+
+    <string name="title_top_spending_details">सबसे ज़्यादा खर्च की डिटेल</string>
+
+    <string name="title_spending_insights">खर्च की जानकारी</string>
+
+    <string name="label_both">दोनों</string>
+
+    <string name="label_total_spent">कुल खर्च</string>
+
+    <string name="label_net_balance">बचा हुआ बैलेंस</string>
+
+    <string name="label_unlock_breakdown">ब्योरा अनलॉक करें</string>
+
+    <string name="label_unlock_top_spending">टॉप खर्च अनलॉक करें</string>
+
+    <string name="label_unlock_insights">जानकारी अनलॉक करें</string>
+
+    <string name="label_val_transactions">%1$s लेन-देन</string>
+
+    <string name="label_no_transactions_found_in_this">इस दौरान कोई लेन-देन नहीं मिला।</string>
+
+    <string name="label_top_val">टॉप: %1$s</string>
+
+    <string name="desc_show_transactions">लेन-देन दिखाएं</string>
+
+    <string name="label_unknown">अज्ञात</string>
+
+    <string name="format_thousands">%1$.1fk</string>
+
+    <string name="format_millions">%1$.1fM</string>
+
+    <string name="separator_bullet">•</string>
+
+    <string name="format_ellipsis">%1$s…</string>
+
+    <!-- Onboarding -->
+
+    <string name="desc_log_daily_spending">आसान कीपैड और स्मार्ट कैटेगरी की मदद से सेकंडों में अपना रोज़ का खर्चा दर्ज करें।</string>
+
+    <string name="desc_financial_data_secure">आपका वित्तीय डेटा आपके फोन में सुरक्षित रहता है और फिंगरप्रिंट से लॉक रहता है।</string>
+
+    <string name="desc_visualize_spending">शानदार चार्ट और कैटेगरी के ब्योरे के साथ अपने खर्च की आदतों को समझें।</string>
+
+    <string name="desc_modern_finance">आपकी उंगलियों पर आधुनिक फाइनेंस। बिना इंटरनेट के काम करता है, आपका डेटा कभी फोन से बाहर नहीं जाता।</string>
+
+    <string name="label_continue">जारी रखें</string>
+
+    <string name="label_private_by_nature">पूरी तरह निजी</string>
+
+    <string name="title_secure_your_account">अपना अकाउंट सुरक्षित करें</string>
+
+    <string name="desc_sync_and_premium_features">अलग-अलग डिवाइस में डेटा सिंक करने और प्रीमियम फीचर्स सुरक्षित रूप से इस्तेमाल करने के लिए साइन-इन करें।</string>
+
+    <string name="auth_welcome">स्वागत है</string>
+    <string name="auth_signup_subtitle">नया अकाउंट बनाने के लिए नीचे साइन-अप करें।</string>
+    <string name="auth_signin_subtitle">अपने सेव किए गए डेटा और अकाउंट को खोलने के लिए साइन-इन करें।</string>
+    <string name="auth_forgot">पासवर्ड भूल गए</string>
+    <string name="label_recommended">सुझाया गया</string>
+    <string name="auth_connecting_google">गूगल से कनेक्ट हो रहा है…</string>
+    <string name="auth_authenticating">जांच हो रही है…</string>
+    <string name="auth_already_have_account">पहले से अकाउंट है?</string>
+    <string name="auth_dont_have_account">अकाउंट नहीं है?</string>
+    <string name="label_continue_with_google">गूगल से जारी रखें</string>
+
+    <string name="content_desc_google_logo">Google</string>
+
+    <string name="msg_auth_content_preview_placeholder">ऑथेंटिकेशन कंटेंट (प्रिव्यू)</string>
+
+    <string name="label_continue_with">इससे जारी रखें</string>
+
+    <string name="label_or">या</string>
+
+    <string name="label_email">ईमेल एड्रेस</string>
+
+    <string name="label_password">पासवर्ड</string>
+
+    <string name="label_create_account">साइन अप</string>
+
+    <string name="msg_creating_account">अकाउंट बन रहा है...</string>
+
+    <string name="title_account_created">अकाउंट बन गया</string>
+
+    <string name="label_login">साइन इन</string>
+
+    <string name="label_already_have_account">पहले से अकाउंट है? साइन इन करें</string>
+
+    <string name="label_no_account_signup">अकाउंट नहीं है? साइन अप करें</string>
+
+    <string name="label_continue_as_guest">मेहमान (Guest) बनकर चलाएं</string>
+
+    <string name="desc_tell_us_about_yourself">अपने अनुभव को बेहतर बनाने के लिए अपने बारे में थोड़ी जानकारी दें।</string>
+
+    <string name="label_get_started">शुरू करें</string>
+
+    <string name="placeholder_enter_name">अपना नाम लिखें</string>
+
+    <string name="placeholder_select_dob">जन्मतिथि चुनें</string>
+
+    <string name="label_male">पुरुष</string>
+
+    <string name="label_female">महिला</string>
+
+    <string name="label_non_binary">नॉन-बाइनरी</string>
+
+    <string name="label_prefer_not_to_say">बताना नहीं चाहते</string>
+
+    <string name="msg_please_provide_your_val">कृपया अपना %1$s दें</string>
+
+    <string name="label_name_capitalized">नाम</string>
+
+    <string name="label_gender_capitalized">लिंग (Gender)</string>
+
+    <string name="label_dob_capitalized">जन्मतिथि</string>
+
+    <string name="label_expense_tracker_caps">खर्चा ट्रैकर</string>
+
+    <string name="label_secure_logging">सुरक्षित रिकॉर्ड</string>
+
+    <string name="label_architecture">आर्किटेक्चर</string>
+
+    <string name="label_100_offline">100% ऑफलाइन</string>
+
+    <string name="label_access">एक्सेस</string>
+
+    <string name="label_full_control">पूरा कंट्रोल</string>
+
+    <string name="label_zero">0</string>
+
+    <!-- Itemized Calculator -->
+
+    <string name="label_history">हिस्ट्री</string>
+
+    <string name="content_desc_calculator_history">कैलकुलेटर की हिस्ट्री खोलें</string>
+
+    <string name="content_desc_copy_history">हिساب कॉपी करें</string>
+
+    <string name="content_desc_backspace">कर्सर के बाईं तरफ का अक्षर हटाएं</string>
+
+    <string name="content_desc_cursor_left">कर्सर बाईं तरफ ले जाएं</string>
+
+    <string name="content_desc_cursor_right">कर्सर दाईं तरफ ले जाएं</string>
+
+    <string name="msg_history_long_press_hint">और ऑप्शन के लिए कार्ड को दबाकर रखें।</string>
+    <string name="msg_calculator_history_empty">अभी कोई कैलकुलेशन नहीं है</string>
+
+    <string name="msg_clear_history_confirm">कैलकुलेटर की सारी हिस्ट्री साफ करें? इसे वापस नहीं लाया जा सकेगा।</string>
+
+    <string name="label_clear_history">हिस्ट्री साफ करें</string>
+
+    <string name="toast_history_copied">कैलकुलेशन क्लिपबोर्ड पर कॉपी हो गई</string>
+
+    <string name="title_quick_action">क्विक एक्शन</string>
+    <string name="msg_history_quick_action_caption">चुनें कि इस कैलकुलेशन के साथ क्या करना है। आप इसे कभी भी बदल सकते हैं।</string>
+    <string name="label_copy_expression">समीकरण (Expression) कॉपी करें</string>
+
+    <string name="label_copy_result">रिजल्ट कॉपी करें</string>
+    <string name="label_copy_expression_and_result">समीकरण और रिजल्ट दोनों कॉपी करें</string>
+
+    <string name="label_delete_entry">एंट्री हटाएं</string>
+
+    <string name="toast_expression_copied">समीकरण क्लिपबोर्ड पर कॉपी हो गया</string>
+
+    <string name="toast_result_copied">रिजल्ट क्लिपबोर्ड पर कॉपी हो गया</string>
+
+    <string name="toast_entry_deleted">एंट्री हटा दी गई</string>
+
+    <string name="label_items_count_formatted">%1$d चीज़ें</string>
+
+    <string name="label_description_caps">विवरण</string>
+
+    <string name="label_amount_caps">रकम</string>
+
+    <string name="content_desc_delete_item">%1$s हटाएं</string>
+
+    <string name="content_desc_edit_item">%1$s बदलें</string>
+
+    <string name="placeholder_description_ex">जैसे: कॉफी हाउस</string>
+
+    <string name="placeholder_amount_zero">0.00</string>
+
+    <string name="content_desc_add_item">चीज़ जोड़ें</string>
+
+    <!-- Data Management -->
+
+    <string name="label_automated_sync">क्लाउड और ऑटोमैटिक सिंक</string>
+
+    <string name="desc_automated_sync">मैनेज करें कि बिना किसी मेहनत के आपका डेटा कैसे सुरक्षित रहता है।</string>
+
+    <string name="desc_auto_backup_subtitle">ऑटोमैटिक लोकल बैकअप</string>
+
+    <string name="desc_backup_frequency_subtitle">बैकअप कितनी बार होना चाहिए</string>
+
+    <string name="label_custom_frequency">अपनी पसंद के दिन...</string>
+
+    <string name="title_custom_backup_frequency">कस्टम अंतराल</string>
+
+    <string name="label_enter_days">दिनों की संख्या लिखें</string>
+
+    <string name="placeholder_days">दिन</string>
+
+    <plurals name="label_days_count_formatted">
+
+        <item quantity="one">1 दिन</item>
+
+        <item quantity="other">%1$d दिन</item>
+
+    </plurals>
+
+    <string name="label_data_transfer">फाइल ट्रांसफर</string>
+
+    <string name="desc_data_transfer">दूसरे फोन में डेटा भेजने या बैकअप फाइल सुरक्षित रखने के लिए मैन्युअल टूल्स।</string>
+
+    <string name="label_export_data_json">डेटा एक्सपोर्ट करें (JSON)</string>
+
+    <string name="desc_export_data_subtitle">सुरक्षित JSON फाइल डाउनलोड करें</string>
+
+    <string name="label_export">एक्सपोर्ट</string>
+
+    <string name="label_import_data_json">डेटा इंपोर्ट करें (JSON)</string>
+
+    <string name="desc_import_data_subtitle">JSON से डेटा रीस्टोर या मर्ज करें</string>
+
+    <string name="label_import">इपोर्ट</string>
+
+    <string name="label_backup_database_db">डेटाबेस बैकअप (.db)</string>
+
+    <string name="desc_backup_db_subtitle">सीधी SQLite फाइल का बैकअप</string>
+
+    <string name="label_restore_database_db">डेटाबेस रीस्टोर करें (.db)</string>
+
+    <string name="desc_restore_db_subtitle">पूरा डेटाबेस बदलना</string>
+
+    <string name="label_legacy_import">पुराना इंपोर्ट</string>
+
+    <string name="desc_legacy_import_subtitle">ऐप के पुराने वर्जनों से डेटा लाएं</string>
+
+    <string name="label_migrate">माइग्रेट करें</string>
+
+    <string name="label_utilities_and_stats">स्टोरेज और रखरखाव</string>
+
+    <string name="desc_utilities_and_stats">डेटाबेस की सेहत जांचने और रीसेट करने के टूल्स।</string>
+
+    <string name="desc_transaction_count_subtitle">डेटाबेस में कुल रिकॉर्ड</string>
+
+    <plurals name="desc_auto_backup_every_days">
+
+        <item quantity="one">हर दिन अपने आप बैकअप लें</item>
+
+        <item quantity="other">हर %1$d दिनों में अपने आप बैकअप लें</item>
+
+    </plurals>
+
+    <string name="desc_choose_backup_frequency">चुनें कि ऐप को कितनी बार अपनेआप बैकअप लेना चाहिए।</string>
+
+    <!-- Budget Screen -->
+
+    <string name="msg_no_category_budget_data">इस महीने के लिए अभी कोई कैटेगरी बजट डेटा उपलब्ध नहीं है।</string>
+
+    <string name="label_history_locked">हिस्ट्री लॉक है</string>
+
+    <string name="msg_no_recurring_items">अभी कोई बार-बार होने वाला खर्च नहीं जोड़ा गया।</string>
+
+    <string name="label_tab_budgets">बजट</string>
+
+    <string name="label_tab_recurring">बार-बार के खर्चे</string>
+
+    <!-- Tab count badge. Pro only: the count is never rendered for free users, so these strings have no locked/free-state variant. -->
+
+    <string name="label_tab_count_short">%1$d</string>
+
+    <string name="label_tab_count_overflow">%1$d+</string>
+
+    <plurals name="label_tab_item_count">
+
+        <item quantity="one">%1$d चीज़</item>
+
+        <item quantity="other">%1$d चीज़ें</item>
+
+    </plurals>
+
+    <!-- Detected SMS inbox: every bank message that looked like a payment is kept here,
+
+         so dismissing the notification never loses it. -->
+
+    <string name="label_sms_inbox_title">पकड़े गए लेन-देन</string>
+
+    <string name="label_sms_inbox_search_hint">दुकानदार, भेजने वाले या मैसेज से खोजें</string>
+
+    <string name="label_sms_inbox_filter_all">सभी</string>
+
+    <string name="label_sms_inbox_filter_income">कमाई</string>
+
+    <string name="label_sms_inbox_filter_expense">खर्चा</string>
+
+    <string name="label_sms_inbox_filter_added">जुड़े हुए</string>
+
+    <string name="label_sms_inbox_filter_ignored">छोड़े गए</string>
+
+    <string name="label_sms_inbox_filter_unread">बिना पढ़े</string>
+
+    <string name="label_sms_inbox_income">कमाई</string>
+
+    <string name="label_sms_inbox_expense">खर्चा</string>
+
+    <string name="label_sms_inbox_income_amount">%1$s कमाई</string>
+
+    <string name="label_sms_inbox_expense_amount">%1$s खर्चा</string>
+
+    <!-- No status words: a card says what it came from, never which stage of its private
+
+         lifecycle it is in. "Seen" happens by itself once a card is on screen. -->
+
+    <string name="label_sms_inbox_card_hint">लेन-देन जोड़ने वाली स्क्रीन पर खोलने के लिए किसी कार्ड पर टैप करें, ज़रूरत हो तो एडिट करें, फिर लेन-देन जोड़ने के लिए \'जोड़ें\' दबाएं।</string>
+    <string name="label_sms_inbox_swipe_hint">किसी पकड़े गए लेन-देन को हटाने के लिए बाएं या दाएं स्वाइप करें।</string>
+
+    <string name="label_sms_inbox_category">सुझाई गई कैटेगरी: %1$s</string>
+    <string name="label_sms_inbox_suggested">सुझाया गया:</string>
+    <string name="label_sms_inbox_sms">एसएमएस (SMS):</string>
+
+    <string name="label_sms_inbox_confidence_high">पूरी उम्मीद है</string>
+
+    <string name="label_sms_inbox_confidence_medium">मध्यम भरोसा</string>
+
+    <string name="label_sms_inbox_confidence_low">कम भरोसा</string>
+
+    <string name="label_sms_inbox_empty_title">अभी कोई लेन-देन नहीं पकड़ा गया</string>
+
+    <string name="label_sms_inbox_empty_filtered_title">यहां कुछ नहीं है</string>
+
+    <string name="label_sms_inbox_empty_body">जो बैंक मैसेज पेमेंट जैसे लगते हैं वे यहां दिखते हैं — नोटिफिकेशन हटाने पर भी डेटा सुरक्षित रहता है।</string>
+
+    <string name="label_sms_inbox_delete_title">पकड़ा गया मैसेज हटाएं?</string>
+    <string name="label_sms_inbox_delete_subtitle">इनबॉक्स से हमेशा के लिए हटेगा</string>
+
+    <string name="label_sms_inbox_delete_body">इससे इनबॉक्स से सेव किया हुआ मैसेज हट जाएगा। जो लेन-देन आप पहले ही जोड़ चुके हैं वे सुरक्षित रहेंगे।</string>
+
+    <string name="label_sms_inbox_edit_title">जोड़ने से पहले एडिट करें</string>
+
+    <string name="label_sms_inbox_edit_amount">रकम</string>
+
+    <string name="label_sms_inbox_edit_note">नोट (ऑप्शनल)</string>
+
+    <string name="label_sms_inbox_edit_category">कैटेगरी</string>
+
+    <!-- Home bell that opens the inbox. The count itself reuses the shared count-pill formats
+
+         (label_tab_count_short / label_tab_count_overflow) so both badges cap at 99+. -->
+
+    <string name="desc_sms_inbox_bell">पकड़े गए लेन-देन</string>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+
+        <item quantity="one">पकड़े गए लेन-देन, %1$d बिना पढ़े</item>
+
+        <item quantity="other">पकड़े गए लेन-देन, %1$d बिना पढ़े</item>
+
+    </plurals>
+
+    <string name="action_add">जोड़ें</string>
+
+    <string name="action_ignore">छोड़ें</string>
+
+    <string name="action_delete">हटाएं</string>
+
+    <string name="action_clear_all">सब साफ करें</string>
+    <string name="action_sms_inbox_clear_all_pending">सभी पेंडिंग लेन-देन साफ करें</string>
+    <string name="label_sms_inbox_selected_count">%1$d चुने गए</string>
+    <string name="action_sms_inbox_select_all">सभी चुनें</string>
+    <string name="action_sms_inbox_deselect_all">सब अन-सिलेक्ट करें</string>
+    <string name="action_sms_inbox_delete_selected">चुने हुए हटाएं</string>
+
+    <string name="action_cancel">रद्द करें</string>
+
+    <string name="msg_sms_inbox_added">%1$d पकड़ा गया लेन-देन जोड़ा गया</string>
+
+    <string name="msg_sms_inbox_added_some">%1$d जोड़े गए · %2$d पहले से आपके खाते में हैं</string>
+
+    <string name="msg_sms_inbox_already_added">पहले से आपके खाते में है — कुछ नहीं जोड़ा गया</string>
+
+    <string name="msg_sms_inbox_gone">यह मैसेज अब उपलब्ध नहीं है</string>
+
+    <string name="msg_sms_inbox_ignored">%1$d छोड़ दिया गया</string>
+
+    <string name="msg_sms_inbox_deleted">हटा दिया गया</string>
+
+    <string name="msg_sms_inbox_swiped_away">%1$d पकड़ा गया मैसेज हटाया गया</string>
+
+    <string name="msg_sms_inbox_invalid_amount">शून्य से ज़्यादा रकम लिखें</string>
+
+    <string name="label_this_month_caps">इस महीने</string>
+
+    <string name="label_custom_month_caps">अपनी पसंद का महीना</string>
+
+    <string name="label_remaining">बच गया</string>
+
+    <string name="label_over">ज़रूरत से ज़्यादा खर्च</string>
+
+    <string name="title_add_budget">बजट जोड़ें</string>
+
+    <string name="title_edit_budget">बजट बदलें</string>
+
+    <string name="msg_no_expense_categories_available">खर्च की कोई कैटेगरी उपलब्ध नहीं है</string>
+
+    <string name="label_change_caps">बदले</string>
+
+    <string name="label_edits_left_formatted">%1$d बदलाव बाकी</string>
+
+    <string name="label_locked">लॉक है</string>
+
+    <string name="content_desc_locked_formatted">%1$s लॉक है</string>
+
+    <string name="content_desc_upcoming">आने वाला</string>
+
+    <string name="label_installments_formatted">%2$d में से %1$d</string>
+
+    <string name="label_edit_recurring_rule">बार-बार होने वाला नियम बदलें</string>
+
+    <string name="title_edit_recurring">बार-बार का खर्चा बदलें</string>
+
+    <string name="label_frequency_capitalized">कितनी बार (Frequency)</string>
+
+    <string name="label_total_installments">कुल किश्तें</string>
+
+    <!-- Recurring EMI / installment plan -->
+
+    <string name="label_recurring_type">दोहराने का प्रकार</string>
+
+    <string name="label_type_regular">साधारण</string>
+
+    <string name="label_type_emi">ईएमआई / किश्तें</string>
+
+    <string name="label_emi_total_amount">कुल रकम</string>
+
+    <string name="label_emi_installment_amount">किश्त की रकम</string>
+
+    <string name="label_emi_first_due">अगली देय तारीख</string>
+
+    <string name="msg_convert_to_regular_info">आपके प्लान की शर्तें सेव हैं — वापस बदलने पर पुरानी किश्तें और भरा हुआ इतिहास वापस आ जाएगा।</string>
+
+    <string name="label_emi_paid_progress">%2$d में से %1$d भरे गए</string>
+
+    <string name="label_emi_remaining_format">बाकी %1$s</string>
+
+    <string name="label_all_settled">सब चुकता हो गया</string>
+
+    <string name="label_emis_overdue">ईएमआई बकाया है</string>
+
+    <string name="label_overdue_caps">बकाया</string>
+
+    <string name="action_view_installments">किश्तें देखें</string>
+
+    <string name="title_emis_for_format">किश्तें — %1$s</string>
+
+    <string name="label_paid_caps">चुकाया गया</string>
+
+    <string name="label_pending_caps">बाकी है</string>
+
+    <string name="label_skipped_caps">छोड़ा गया</string>
+
+    <string name="action_pay_caps">पेमेंट करें</string>
+
+    <string name="action_skip_caps">छोड़ें</string>
+
+    <string name="action_undo_caps">वापस लाएं</string>
+
+    <string name="label_pay_selected_format">चुने हुए भरें (%1$d)</string>
+
+    <string name="label_slot_index_format">#%1$d</string>
+
+    <plurals name="toast_installments_paid">
+
+        <item quantity="one">%1$d किश्त भरी गई</item>
+
+        <item quantity="other">%1$d किश्तें भरी गईं</item>
+
+    </plurals>
+
+    <string name="label_emi_plan_section">ईएमआई / लोन प्लान</string>
+
+    <string name="desc_emi_plan_toggle">इस बार-बार होने वाले खर्चे को फिक्स किश्तों वाले लोन की तरह ट्रैक करें।</string>
+
+    <string name="desc_emi_total_amount">कुल रकम जो आप चुका रहे हैं (मूलधन + ब्याज)</string>
+
+    <string name="desc_emi_installment_amount">हर किश्त की चुकानी जाने वाली रकम</string>
+
+    <string name="msg_emi_amount_mismatch">कुल रकम, किश्त की रकम × किश्तों की कुल संख्या के बराबर होनी चाहिए</string>
+
+    <!-- Create-time EMI plan (Add Transaction screen) -->
+
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+
+    <string name="msg_emi_create_info">यह लेन-देन किश्त #1 है। बाकी %1$d किश्तें प्लान में ट्रैक हो रही हैं — इन्हें बार-बार होने वाली लिस्ट से भरें, छोड़ें या चुकता करें।</string>
+
+    <string name="label_save_changes_caps">बदलाव सेव करें</string>
+
+    <string name="label_cancel_caps">रद्द करें</string>
+
+    <string name="label_category_1">कैटेगरी</string>
+
+    <string name="label_save_1">सेव करें</string>
+
+    <string name="label_update_1">अपडेट करें</string>
+
+    <string name="label_delete_1">हटाएं</string>
+
+    <string name="title_copy_previous_month_budgets">पिछले महीने का बजट कॉपी करें</string>
+
+    <string name="action_copy_all">सभी कॉपी करें</string>
+
+    <string name="action_copy_selected">चुने हुए कॉपी करें</string>
+
+    <string name="action_copy">कॉपी करें</string>
+
+    <string name="action_create_budget">बजट बनाएं</string>
+
+    <string name="msg_copy_previous_budgets_context">%1$s के बजट को %2$s में कॉपी करने के लिए चुनें।</string>
+
+    <string name="empty_copy_previous_month_title">पिछले महीने का कोई बजट नहीं मिला।</string>
+
+    <string name="msg_copy_previous_month_empty">आपने पिछले महीने कोई बजट नहीं बनाया था, इसलिए कॉपी करने के लिए कुछ नहीं है।</string>
+
+    <string name="msg_copy_all_budgets_success">पिछले महीने के सभी बजट सफलतापूर्वक कॉपी हो गए।</string>
+
+    <string name="msg_copy_selected_budgets_success">चुने हुए बजट सफलतापूर्वक कॉपी हो गए।</string>
+
+    <string name="title_copy_budgets_confirmation">बजट पहले से मौजूद है</string>
+
+    <string name="msg_copy_budgets_confirmation">%1$s में पहले से बजट हैं। पिछले महीने का बजट कॉपी करने से एक जैसे बजट दोबारा बन सकते हैं। क्या आप जारी रखना चाहते हैं?</string>
+
+    <!-- Calendar Screen -->
+
+    <string name="label_calendar_year_view">कैलेंडर सालाना व्यू</string>
+
+    <string name="label_calendar_year_picker">कैलेंडर साल चुनने वाला</string>
+
+    <string name="label_calendar_month_picker">कैलेंडर महीना चुनने वाला</string>
+
+    <string name="content_desc_jump_to_date">तारीख पर जाएं</string>
+
+    <string name="content_desc_month_picker_locked">महीना चुनने का ऑप्शन लॉक है</string>
+
+    <string name="content_desc_jump_to_year">साल पर जाएं</string>
+
+    <string name="content_desc_year_picker_locked">साल चुनने का ऑप्शन लॉक है</string>
+
+    <string name="content_desc_previous_month">पिछला महीना</string>
+
+    <string name="content_desc_next_month">अगला महीना</string>
+
+    <string name="content_desc_previous_year">पिछला साल</string>
+
+    <string name="content_desc_next_year">अगला साल</string>
+
+    <string name="title_choose_month_year">महीना और साल चुनें</string>
+
+    <!-- Transaction Card Customize Screen -->
+
+    <string name="title_show_category">कैटेगरी दिखाएं</string>
+
+    <string name="desc_display_category_label">कार्ड पर कैटेगरी का नाम दिखाएं</string>
+
+    <string name="desc_display_wallet_or_card">इस्तेमाल किया गया वॉलेट या कार्ड दिखाएं</string>
+
+    <string name="desc_group_transactions_by_day">लेन-देन को दिन के हिसाब से अलग-अलग हेडर में बांटें (जैसे: \"आज\", \"बीता हुआ कल\")।</string>
+
+    <string name="title_transaction_card_settings">कस्टम सेटिंग्स</string>
+
+    <string name="label_on_each_transaction_card">हर लेन-देन के कार्ड पर</string>
+
+    <string name="desc_on_each_transaction_card">ये सेटिंग्स कंट्रोल करती हैं कि लिस्ट में हर लेन-देन के कार्ड पर क्या जानकारी दिखेगी।</string>
+
+    <string name="label_in_the_list">लिस्ट में</string>
+
+    <string name="desc_in_the_list">ये सेटिंग्स कंट्रोल करती हैं कि लेन-देन की लिस्ट कैसे बांटी जाएगी और कार्ड के आस-पास सारांश कैसे दिखेगा।</string>
+
+    <string name="label_visual_style">रंग-रूप (Visual Style)</string>
+
+    <string name="desc_visual_style">ये सेटिंग्स मुख्य आइकन और रंग-बिरंगे लेबल तय करती हैं जो कार्ड की पहचान बनाते हैं।</string>
+
+    <string name="label_transaction_details">लेन-देन की डिटेल</string>
+
+    <string name="desc_transaction_details">ये सेटिंग्स कार्ड पर दिखने वाली खास जानकारी को कंट्रोल करती हैं।</string>
+
+    <string name="label_time_and_organization">समय और क्रम</string>
+
+    <string name="desc_time_and_organization">ये सेटिंग्स समय दिखाने का तरीका और लिस्ट में लेन-देन को व्यवस्थित करने का तरीका तय करती हैं।</string>
+
+    <string name="label_preview">प्रिव्यू</string>
+
+    <!-- Edit Profile Screen -->
+
+    <string name="placeholder_select_gender">लिंग (Gender) चुनें</string>
+
+    <string name="msg_unable_to_load_photo">यह फोटो लोड नहीं हो सकी। कृपया दूसरी फोटो चुनें।</string>
+
+    <string name="title_edit_profile">प्रोफाइल बदलें</string>
+
+    <string name="label_full_name_caps">पूरा नाम</string>
+
+    <string name="placeholder_guest_user">मेहमान यूजर</string>
+
+    <string name="label_email_address_caps">ईमेल एड्रेस</string>
+
+    <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <string name="label_phone_number_caps">फोन नंबर</string>
+
+    <string name="placeholder_phone_example">1112223334...</string>
+
+    <string name="label_date_of_birth_caps">जन्मतिथि</string>
+
+    <string name="label_gender_caps">लिंग (Gender)</string>
+
+    <string name="content_desc_open_gender_options">लिंग के ऑप्शन खोलें</string>
+
+    <string name="desc_choose_gender_label">अपनी प्रोफाइल के हिसाब से सही लिंग चुनें।</string>
+
+    <string name="content_desc_add_photo">फोटो जोड़ें</string>
+
+    <string name="content_desc_edit_photo">फोटो बदलें</string>
+
+    <string name="content_desc_delete_photo">फोटो हटाएं</string>
+
+    <string name="title_select_country">देश चुनें</string>
+
+    <string name="placeholder_search_country">देश खोजें…</string>
+
+    <!-- Notification Settings Screen -->
+
+    <string name="desc_daily_reminder">रोज़ के लेन-देन दर्ज करने का रिमाइंडर पाएं।</string>
+
+    <string name="title_budget_limit_alerts">बजट लिमिट अलर्ट</string>
+
+    <string name="desc_budget_limit_alerts">महीने का बजट पार होने पर सूचना पाएं।</string>
+
+    <string name="desc_miss_entry_reminder">अगर आप 2 दिन तक कोई लेन-देन जोड़ना भूल जाएं, तो सूचना पाएं।</string>
+
+    <string name="title_goal_reminders">बचत लक्ष्य रिमाइंडर</string>
+
+    <string name="desc_goal_reminders">अपने बचत लक्ष्यों पर हर हफ्ते एक रिमाइंडर पाएं।</string>
+
+    <!-- Splash Screen Tasks -->
+
+    <string name="msg_preparing_dashboard">डैशबोर्ड तैयार हो रहा है</string>
+
+    <string name="msg_syncing_transactions">लेन-देन सिंक हो रहे हैं</string>
+
+    <string name="msg_securing_data">डेटा सुरक्षित किया जा रहा है</string>
+
+    <string name="msg_initializing">शुरू हो रहा है</string>
+
+    <string name="label_splash_tagline">हर लेन-देन में बेहतरीन अंदाज़</string>
+
+    <string name="label_splash_footer">पूरी सटीकता और प्यार के साथ निर्मित</string>
+
+    <string name="label_budget_and_spend">बजट और खर्च</string>
+
+    <string name="msg_starting_security_services">सुरक्षा सेवाएं चालू हो रही हैं</string>
+
+    <string name="msg_loading_preferences">आपकी पसंद लोड हो रही है</string>
+
+    <string name="msg_preparing_database">डेटाबेस तैयार हो रहा है</string>
+
+    <string name="msg_initializing_database">डेटाबेस शुरू हो रहा है</string>
+
+    <string name="msg_warming_up_engine">इंजन तैयार हो रहा है</string>
+
+    <string name="msg_getting_things_ready">चीज़ें तैयार की जा रही हैं</string>
+
+    <string name="desc_select_period">समय चुनें</string>
+
+    <string name="label_all">सभी</string>
+
+    <string name="label_daily">रोज़ाना</string>
+
+    <string name="label_monthly">मासिक</string>
+
+    <string name="label_yearly">सालाना</string>
+
+    <string name="label_no_results_found">कोई परिणाम नहीं मिला।</string>
+
+    <string name="label_select_a_backup_file">अपना डेटा रीस्टोर करने के लिए बैकअप फाइल चुनें। इससे मौजूदा डेटा बदल जाएगा।</string>
+
+    <string name="label_select_file_manually">खुद फाइल चुनें...</string>
+
+    <string name="label_encrypted">सुरक्षित (Encrypted)</string>
+
+    <string name="toast_backup_restore_key_mismatch">यह बैकअप दूसरे फोन पर बनाया गया था इसलिए यहां रीस्टोर नहीं हो सकता।</string>
+
+    <string name="label_advanced_analytics_trends">एडवांस्ड एनालिटिक्स के साथ अपनी आर्थिक स्थिति को पूरी तरह समझें</string>
+
+    <string name="label_automatic_cloud_backups">क्लाउड सिंक के साथ पक्की डेटा सुरक्षा</string>
+
+    <string name="label_unlimited_recurring_rules">बार-बार होने वाले नियमों से अपने काम आसान करें</string>
+
+    <string name="label_privacy_mode_biometric_lock">फिंगरप्रिंट लॉक के साथ आपकी गाढ़ी कमाई सुरक्षित</string>
+
+    <string name="label_last_7_days">पिछले 7 दिन</string>
+
+    <string name="label_last_15_days">पिछले 15 दिन</string>
+
+    <string name="label_last_30_days">पिछले 30 दिन</string>
+
+    <string name="label_last_60_days">पिछले 60 दिन</string>
+
+    <string name="label_expense_categories">खर्च की कैटेगरी</string>
+
+    <string name="label_income_categories">कमाई की कैटेगरी</string>
+
+    <string name="label_no_categories_available">चुने गए प्रकार के लिए कोई कैटेगरी उपलब्ध नहीं है।</string>
+
+    <string name="label_min">कम से कम</string>
+
+    <string name="label_max">ज़्यादा से ज़्यादा</string>
+
+    <string name="desc_newest_order">सबसे नए लेन-देन सबसे ऊपर दिखेंगे।</string>
+
+    <string name="desc_oldest_order">पुराने लेन-देन पहले दिखेंगे।</string>
+
+    <string name="desc_highest_order">बड़ी रकम लिस्ट में सबसे ऊपर रहेगी।</string>
+
+    <string name="desc_lowest_order">छोटी रकम बड़ी रकम से पहले दिखेगी।</string>
+
+    <string name="desc_income_first_order">कमाई वाले लेन-देन खर्च से पहले दिखेंगे।</string>
+
+    <string name="desc_expense_first_order">खर्च वाले लेन-देन कमाई से पहले दिखेंगे।</string>
+
+    <string name="label_search_dots">खोजें…</string>
+
+    <string name="label_action">एक्शन</string>
+
+    <string name="label_watch_ad">विज्ञापन देखें</string>
+
+    <string name="label_premium">प्रो (Pro)</string>
+
+    <string name="label_open">खोलें</string>
+
+    <string name="title_restore_database">डेटाबेस रीस्टोर करें</string>
+
+    <string name="label_restore">रीस्टोर</string>
+
+    <string name="label_premium_features">प्रीमियम फीचर्स</string>
+
+    <string name="label_sort_by">क्रम से लगाएं</string>
+
+    <string name="title_date_range">तारीख की सीमा</string>
+
+    <string name="label_custom_range">अपनी पसंद की तारीखें</string>
+
+    <string name="label_order">क्रम</string>
+
+    <string name="label_filters">फिल्टर</string>
+
+    <string name="desc_order_subtitle">चुनें कि छंटनी किए गए नतीजे कैसे दिखाए जाएं।</string>
+
+    <string name="desc_filters_subtitle">लेन-देन की लिस्ट को छोटा करने के लिए कई फिल्टर लगाएं।</string>
+
+    <string name="desc_sort_subtitle">लिस्ट को व्यवस्थित करने के लिए मुख्य तरीका चुनें।</string>
+
+    <string name="title_transaction_type_caps">लेन-देन का प्रकार</string>
+
+    <string name="label_newest_first">नया सबसे पहले</string>
+
+    <string name="label_oldest_first">पुराना सबसे पहले</string>
+
+    <string name="label_highest_first">बड़ा सबसे पहले</string>
+
+    <string name="label_lowest_first">छोटा सबसे पहले</string>
+
+    <string name="label_income_first">कमाई पहले</string>
+
+    <string name="label_expense_first">खर्चा पहले</string>
+
+    <string name="label_payment_mode">पेमेंट मोड</string>
+
+    <string name="label_amount_range">रकम की सीमा</string>
+
+    <string name="label_categories">कैटेगरी</string>
+
+    <string name="desc_no_categories">चुने गए प्रकार के लिए कोई कैटेगरी उपलब्ध नहीं है।</string>
+
+    <string name="label_sort_filter_subtitle">तय करें कि आपके लेन-देन कैसे दिखेंगे और मैनेज होंगे।</string>
+
+    <string name="label_search_placeholder">नोट्स या रकम…</string>
+
+    <string name="label_search_by_category_wallet">कैटेगरी, वॉलेट और टैग से खोजें</string>
+
+    <string name="msg_delete_transactions_confirm">क्या आप वाकई %1$d लेन-देन हटाना चाहते हैं? इसे वापस नहीं लाया जा सकेगा।</string>
+
+    <string name="msg_delete_category_confirm">क्या आप वाकई \"%1$s\" को हटाना चाहते हैं? पुराने लेन-देन में इसका इस्तेमाल हो सकता है। इसे वापस नहीं लाया जा सकेगा।</string>
+
+    <string name="label_delete_confirm">हटाएं</string>
+
+    <string name="label_cancel_confirm">रद्द करें</string>
+
+    <string name="label_duplicate">डबल (Duplicate) करें</string>
+
+    <string name="label_undo">वापस लाएं</string>
+
+    <string name="msg_transaction_deleted">लेन-देन हटा दिया गया</string>
+
+    <string name="msg_transaction_duplicated">लेन-देन दोबारा जोड़ दिया गया</string>
+
+    <string name="toast_transaction_deleted">लेन-देन हटा दिया गया</string>
+
+    <string name="title_cannot_duplicate_recurring">वही नियम पहले से है</string>
+
+    <string name="msg_duplicate_recurring_rule">%1$s के लिए %2$s/%3$s पर पहले से एक नियम है। क्या दूसरा बनाना चाहते हैं?</string>
+
+    <string name="msg_cannot_duplicate_recurring">यह एक बार-बार होने वाला लेन-देन है (या उससे अपने आप बना है), इसलिए इसे डबल नहीं किया जा सकता।</string>
+
+    <!-- Analytics Periods -->
+
+    <string name="label_week">हफ्ता</string>
+
+    <string name="label_month_period">महीना</string>
+
+    <string name="label_year_period">साल</string>
+
+    <string name="label_custom">कस्टम</string>
+
+    <string name="label_this_week">इस हफ्ते</string>
+
+    <string name="label_this_month">इस महीने</string>
+
+    <!-- Analytics Labels &amp; Tips -->
+
+    <string name="label_wallet">वॉलेट</string>
+
+    <string name="label_general">सामान्य</string>
+
+    <string name="label_spending">खर्चा</string>
+
+    <string name="msg_unlock_insights_hint">अलग समय चुनें या और लेन-देन जोड़कर खर्च की खास बातें अनलॉक करें।</string>
+
+    <string name="label_up">बढ़ा है</string>
+
+    <string name="label_down">घटा है</string>
+
+    <string name="msg_spending_trend">इस बार आपका खर्च %1$s %2$s हुआ है। %3$s पर नज़र रखें और आप अगले महीने करीब %4$s बचा सकते हैं।</string>
+
+    <string name="msg_choose_range_dates">शुरू और आखिरी तारीख चुनें</string>
+
+    <string name="btn_cancel">रद्द करें</string>
+
+    <string name="title_select_date">तारीख चुनें</string>
+
+    <string name="title_select_time">समय चुनें</string>
+
+    <string name="title_select_date_time">तारीख और समय चुनें</string>
+
+    <string name="title_select_month">महीना चुनें</string>
+
+    <string name="title_select_year">साल चुनें</string>
+
+    <string name="title_select_date_range">तारीख की सीमा चुनें</string>
+
+    <string name="btn_apply_range">तारीखें लागू करें</string>
+
+    <string name="btn_confirm">पक्का करें</string>
+
+    <string name="label_from">तारीख से</string>
+
+    <string name="label_to">तारीख तक</string>
+
+    <string name="error_invalid_date_month">चुने गए महीने के लिए गलत तारीख।</string>
+
+    <string name="format_date_short">dd MMM</string>
+
+    <string name="label_total_spending">कुल खर्चा</string>
+
+    <string name="label_net_savings">कुल बचत</string>
+
+    <string name="label_prev_closing_balance">पिछला बचा हुआ बैलेंस</string>
+
+    <string name="title_monthly_summary">महीने का सारांश</string>
+
+    <string name="label_spending_by_payment_mode_breakdown">इस्तेमाल किए गए वॉलेट या पेमेंट के तरीके के हिसाब से खर्चों का ब्योरा।</string>
+
+    <string-array name="days_of_week_short">
+
+        <item>सोम</item>
+
+        <item>मंगल</item>
+
+        <item>बुध</item>
+
+        <item>गुरु</item>
+
+        <item>शुक्र</item>
+
+        <item>शनि</item>
+
+        <item>रवि</item>
+
+    </string-array>
+
+    <string-array name="months_short">
+
+        <item>जनवरी</item>
+
+        <item>फरवरी</item>
+
+        <item>मार्च</item>
+
+        <item>अप्रैल</item>
+
+        <item>मई</item>
+
+        <item>जून</item>
+
+        <item>जुलाई</item>
+
+        <item>अगस्त</item>
+
+        <item>सितंबर</item>
+
+        <item>अक्टूबर</item>
+
+        <item>नवंबर</item>
+
+        <item>दिसंबर</item>
+
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+
+        <item>आज आपका वॉलेट बहुत शांत है।</item>
+
+        <item>404: कोई लेन-देन नहीं मिला।</item>
+
+        <item>यहां कुछ नहीं है! क्या कॉफी पीने चलें?</item>
+
+        <item>कुछ नहीं मिला।</item>
+
+        <item>खाली लग रहा है…</item>
+
+        <item>दिखाने के लिए कोई लेन-देन नहीं है।</item>
+
+        <item>अभी कोई रिकॉर्ड नहीं है</item>
+
+        <item>क्या आप कुछ जोड़ना भूल गए?</item>
+
+        <item>खाली पन्ना। शांत जीवन।</item>
+
+        <item>आपके लेन-देन आपको भूल गए हैं।</item>
+
+        <item>वित्तीय गतिविधि: 0%</item>
+
+        <item>इस दौरान कोई डेटा नहीं मिला।</item>
+
+        <item>डेटाबेस कहता है: कुछ नहीं।</item>
+
+        <item>आपका वॉलेट एयरप्लेन मोड पर है।</item>
+
+        <item>सन्नाटा… आपके पैसे भी मेडिटेशन कर रहे हैं।</item>
+
+        <item>न खर्चा, न तनाव। दिलचस्प तरीका है।</item>
+
+        <item>आपका हिसाब-किताब सो रहा है।</item>
+
+        <item>कुछ नहीं हुआ। एक रुपया भी नहीं हिला।</item>
+
+        <item>आपके खर्चे छुट्टी पर गए हैं।</item>
+
+        <item>शून्य गतिविधि। मन की शांति मिल गई।</item>
+
+        <item>यह पन्ना आपके कमरे से ज़्यादा साफ है।</item>
+
+        <item>कोई लेन-देन नहीं। शक होता है इतनी समझदारी पर।</item>
+
+        <item>आपका बैंक अकाउंट लुकाछिपी खेल रहा है।</item>
+
+        <item>कोई एंट्री नहीं। क्या वक्त रुक गया है?</item>
+
+        <item>पैसों के मामले में सब शांत है।</item>
+
+        <item>कोई खर्चा नहीं दिखा। कमाल है।</item>
+
+        <item>आपका वॉलेट हड़ताल पर है।</item>
+
+        <item>रिपोर्ट करने के लिए कुछ नहीं है, कैप्टन।</item>
+
+        <item>आज आपके पैसे वफादार निकले।</item>
+
+        <item>कोई ड्रामा नहीं, कोई खर्चा नहीं। कभी-कभार ऐसा पल आता है।</item>
+
+        <item>आपका वॉलेट भी हैरान है।</item>
+
+        <item>यह जगह जानबूझकर खाली छोड़ी गई है।</item>
+
+        <item>आज पैसों को लेकर कोई टेंशन नहीं।</item>
+
+        <item>आपका बैलेंस मज़े कर रहा है।</item>
+
+        <item>कोई हलचल नहीं। क्या आप पैसों के मामले में ज़िंदा भी हैं?</item>
+
+        <item>आपका वॉलेट छिपकर बैठा है (Stealth mode)।</item>
+
+        <item>कोई लेन-देन नहीं। सच होने के लिए यह बहुत अच्छा है।</item>
+
+        <item>यहां कुछ नहीं हुआ। आगे बढ़ें।</item>
+
+    </string-array>
+
+    <!-- Category Management -->
+
+    <string name="desc_income_source">कमाई का ज़रिया</string>
+
+    <string name="desc_expense_category">खर्च की कैटेगरी</string>
+
+    <string name="desc_payment_method_fallback">पेमेंट का तरीका</string>
+
+    <!-- Input Field -->
+
+    <string name="error_invalid_email">कृपया सही ईमेल एड्रेस लिखें</string>
+
+    <string name="title_payment">पेमेंट</string>
+
+    <!-- Icons and Fallbacks -->
+
+    <string name="icon_label_shopping_cart">शॉपिंग</string>
+    <string name="icon_label_calculator">EMI</string>
+    <string name="icon_label_security">बीमा (Insurance)</string>
+    <string name="icon_label_package">पार्सल (Shipping)</string>
+    <string name="icon_label_fuel">ईंधन (Fuel)</string>
+    <string name="icon_label_file_text">दस्तावेज़</string>
+    <string name="icon_label_hand_coins">योगदान</string>
+    <string name="icon_label_banknote">नकद (Cash)</string>
+    <string name="icon_label_more_horizontal">अन्य</string>
+
+    <string name="icon_label_restaurant">खाना-पीना (Dining)</string>
+
+    <string name="icon_label_home">किराया और घर</string>
+
+    <string name="icon_label_directions_bus">आ आना-जाना (Transport)</string>
+
+    <string name="icon_label_directions_car">वाहन (Vehicle)</string>
+
+    <string name="icon_label_flight">यात्रा (Travel)</string>
+
+    <string name="icon_label_local_cafe">कैफे और नाश्ता</string>
+
+    <string name="icon_label_pets">पालतू जानवर</string>
+
+    <string name="icon_label_school">पढ़ाई (Education)</string>
+
+    <string name="icon_label_fitness_center">जिम (Fitness)</string>
+
+    <string name="icon_label_spa">पर्सनल केयर</string>
+
+    <string name="icon_label_movie">मनोरंजन</string>
+
+    <string name="icon_label_music_note">संगीत</string>
+
+    <string name="icon_label_sports_esports">गेमिंग</string>
+
+    <string name="icon_label_favorite">सेहत (Health)</string>
+
+    <string name="icon_label_work">तनख्वाह (Salary)</string>
+
+    <string name="icon_label_business">व्यापार</string>
+
+    <string name="icon_label_laptop_mac">गैजेट्स</string>
+
+    <string name="icon_label_phone_android">फोन और बिल</string>
+
+    <string name="icon_label_camera_alt">फोटोशूट</string>
+
+    <string name="icon_label_celebration">पार्टी</string>
+
+    <string name="icon_label_card_giftcard">उपहार (Gifts)</string>
+
+    <string name="icon_label_child_care">बच्चों की देखभाल</string>
+
+    <string name="icon_label_volunteer_activism">दान (Charity)</string>
+
+    <string name="icon_label_local_hospital">अस्पताल</string>
+
+    <string name="icon_label_medication">दवाइयां</string>
+
+    <string name="icon_label_two_wheeler">बाइक</string>
+
+    <string name="icon_label_train">ट्रेन</string>
+
+    <string name="icon_label_hotel">होटल (Stay)</string>
+
+    <string name="icon_label_beach_access">छुट्टियां (Vacation)</string>
+
+    <string name="icon_label_park">प्रकृति</string>
+
+    <string name="icon_label_hiking">ट्रैकिंग</string>
+
+    <string name="icon_label_sports_soccer">खेलकूद</string>
+
+    <string name="icon_label_sports_basketball">बास्केटबॉल</string>
+
+    <string name="icon_label_pool">तैराकी (Swimming)</string>
+
+    <string name="icon_label_directions_boat">नाव (Boat)</string>
+
+    <string name="icon_label_build">रखरखाव (Maintenance)</string>
+
+    <string name="icon_label_subscriptions">ऑनलाइन सब्सक्रिप्शन</string>
+
+    <string name="icon_label_receipt_long">बिल</string>
+
+    <string name="icon_label_account_balance">बैंक</string>
+
+    <string name="icon_label_credit_card">कार्ड</string>
+
+    <string name="icon_label_payments">कैश</string>
+
+    <string name="icon_label_qr_code">QR स्कैन</string>
+
+    <string name="icon_label_savings">बचत</string>
+
+    <string name="icon_label_attach_money">फाइनेंस</string>
+
+    <string name="icon_label_wallet">वॉलेट</string>
+
+    <string name="icon_label_currency_exchange">करेंसी एक्सचेंज</string>
+
+    <string name="icon_label_storefront">दुकान</string>
+
+    <string name="icon_label_fastfood">फास्ट फूड</string>
+
+    <string name="icon_label_cake">केक</string>
+
+    <string name="icon_label_water_drop">पानी</string>
+
+    <string name="icon_label_electric_bolt">बिजली</string>
+
+    <string name="icon_label_gas_meter">गैस</string>
+
+    <string name="icon_label_wifi">इंटरनेट</string>
+
+    <string name="icon_label_tv">टीवी</string>
+
+    <string name="icon_label_local_shipping">डिलीवरी</string>
+
+    <string name="icon_label_cleaning_services">सफाई</string>
+
+    <string name="icon_label_pest_control">कीड़े भगाने की दवा (Pest Control)</string>
+
+    <string name="icon_label_yard">बागवानी (Gardening)</string>
+
+    <string name="icon_label_plumbing">नल ठीक कराना (Plumbing)</string>
+
+    <string name="icon_label_hvac">AC/हीटिंग</string>
+
+    <string name="icon_label_garage">पार्किंग</string>
+
+    <string name="icon_label_local_laundry_service">कपड़े धोना (Laundry)</string>
+
+    <string name="icon_label_checkroom">कपड़े</string>
+
+    <string name="icon_label_ice_skating">बर्फ पर स्केटिंग</string>
+
+    <string name="icon_label_skiing">स्कीइंग</string>
+
+    <string name="icon_label_sports_tennis">टेनिस</string>
+
+    <string name="icon_label_sports_golf">गोल्फ</string>
+
+    <string name="icon_label_kayaking">कयाकिंग</string>
+
+    <string name="icon_label_surfing">सर्फिंग</string>
+
+    <string name="icon_label_directions_run">दौड़ना (Running)</string>
+
+    <string name="icon_label_pedal_bike">साइकिल चलाना</string>
+
+    <string name="icon_label_sailing">नौकायन (Sailing)</string>
+
+    <string name="icon_label_theater_comedy">नाटक / थिएटर</string>
+
+    <string name="icon_label_casino">कैसीनो</string>
+
+    <string name="icon_label_toys">खिलौने</string>
+
+    <string name="icon_label_piano">पियानो</string>
+
+    <string name="icon_label_brush">कला (Art)</string>
+
+    <string name="icon_label_palette">पेंटिंग</string>
+
+    <string name="icon_label_auto_stories">किताबें</string>
+
+    <string name="icon_label_menu_book">पढ़ाई</string>
+
+    <string name="icon_label_computer">कंप्यूटर</string>
+
+    <string name="icon_label_memory">टेक</string>
+
+    <string name="icon_label_mouse">एक्सेसरीज</string>
+
+    <string name="icon_label_keyboard">कीबोर्ड</string>
+
+    <string name="icon_label_headset">हेडसेट</string>
+
+    <string name="icon_label_speaker">स्पीकर</string>
+
+    <string name="icon_label_router">राउटर</string>
+
+    <string name="icon_label_monitor">मॉनिटर</string>
+
+    <string name="icon_label_print">प्रिंटिंग</string>
+
+    <string name="icon_label_smart_home">स्मार्ट होम</string>
+
+    <string name="icon_label_videocam">वीडियो</string>
+
+    <string name="icon_label_mic">रिकॉर्डिंग</string>
+
+    <string name="icon_label_radio">रेडियो</string>
+
+    <string name="icon_label_satellite">सैटेलाइट</string>
+
+    <string name="icon_label_explore">घूमना</string>
+
+    <string name="icon_label_terrain">पहाड़</string>
+
+    <string name="icon_label_landscape">दृश्य (Scenery)</string>
+
+    <string name="icon_label_forest">जंगल</string>
+
+    <string name="fallback_desc_cat_1">खाना-पीना</string>
+
+    <string name="fallback_desc_cat_2">ईंधन और आना-जाना</string>
+
+    <string name="fallback_desc_cat_3">शॉपिंग और ज़रूरत की चीज़ें</string>
+
+    <string name="fallback_desc_cat_4">हर महीने का खर्च</string>
+
+    <string name="fallback_desc_cat_5">सेहत और देखभाल</string>
+
+    <string name="fallback_desc_cat_6">मनोरंजन</string>
+
+    <string name="fallback_desc_cat_7">घर और रहना</string>
+
+    <string name="fallback_desc_cat_8">रोज़ की ज़रूरतें</string>
+
+    <string name="fallback_desc_cat_9">कोर्स और किताबें</string>
+
+    <string name="fallback_desc_cat_10">बिल और रीचार्ज</string>
+
+    <string name="fallback_desc_cat_11">सुरक्षा और बीमा</string>
+
+    <string name="fallback_desc_cat_12">पार्टी और उपहार</string>
+
+    <string name="fallback_desc_cat_13">पर्सनल केयर रूटीन</string>
+
+    <string name="fallback_desc_cat_14">ईंधन और सफर</string>
+
+    <string name="fallback_desc_cat_15">मरम्मत और रखरखाव</string>
+
+    <string name="fallback_desc_cat_16">ज़रूरी भुगतान</string>
+
+    <string name="fallback_desc_cat_17">पालतू जानवर का खर्च</string>
+
+    <string name="fallback_desc_cat_18">बच्चों की पढ़ाई</string>
+
+    <string name="fallback_desc_cat_19">दान और मदद</string>
+
+    <string name="fallback_desc_cat_20">अन्य खर्च</string>
+
+    <string name="fallback_desc_cat_101">तनख्वाह और कमाई</string>
+
+    <string name="fallback_desc_cat_102">व्यापार की कमाई</string>
+
+    <string name="fallback_desc_cat_103">मुनाफा और रिटर्न</string>
+
+    <string name="fallback_desc_cat_104">प्रोजेक्ट्स और गिग्स</string>
+
+    <string name="fallback_desc_cat_105">अन्य आय</string>
+
+    <string name="fallback_desc_pay_1">UPI ट्रांसफर और स्कैन</string>
+
+    <string name="fallback_desc_pay_2">हाथ में नकद (Cash)</string>
+
+    <string name="fallback_desc_pay_3">बैंक ट्रांसफर</string>
+
+    <string name="fallback_desc_pay_4">डेबिट और क्रेडिट कार्ड</string>
+
+    <string name="fallback_desc_pay_5">अन्य पेमेंट तरीका</string>
+
+    <string name="label_income_categories_count">%1$d कमाई की कैटेगरी</string>
+
+    <string name="label_expense_categories_count">%1$d खर्च की कैटेगरी</string>
+
+    <string name="label_payment_methods_count">%1$d पेमेंट के तरीके</string>
+
+    <!-- Budget Status & Labels -->
+
+    <string name="label_no_budget">कोई बजट नहीं</string>
+
+    <string name="label_add_a_budget">बजट जोड़ें</string>
+
+    <string name="label_near_limit">सीमा के करीब</string>
+
+    <string name="label_safe">सुरक्षित</string>
+
+    <string name="label_spent_limit">खर्च / लिमिट</string>
+
+    <string name="label_exceeded">सीमा पार हो गई</string>
+
+    <string name="label_budget_status_label">बजट से ज़्यादा खर्च</string>
+
+    <!-- Budget Messages -->
+
+    <string name="msg_no_budgets_locked">%1$s के लिए कोई बजट सेट नहीं किया गया था। अब हिस्ट्री लॉक कर दी गई है।</string>
+
+    <string name="msg_no_budgets_limit_reached">%1$s के लिए और बजट नहीं जोड़े जा सकते (बदलाव की सीमा पूरी हो गई है)।</string>
+
+    <string name="msg_no_budgets_start_tracking">%1$s के लिए अभी तक कोई बजट नहीं जोड़ा गया। इस महीने ट्रैक करने के लिए \'नया बजट जोड़ें\' पर टैप करें।</string>
+
+    <string name="msg_no_recurring_start_tracking">अभी कोई बार-बार होने वाला खर्च नहीं जोड़ा गया। \'बार-बार खर्च जोड़ें\' पर टैप करें और पुराना खर्चा चुनें।</string>
+
+    <!-- Budget Formatting -->
+
+    <string name="format_limit_amount">सीमा %1$s</string>
+
+    <string name="format_started_date">%1$s को शुरू हुआ</string>
+
+    <string name="label_due_today">आज भरना है</string>
+
+    <string name="label_due_tomorrow">कल भरना है</string>
+
+    <string name="format_due_in_days">%1$d दिनों में भरना है</string>
+
+    <string name="format_percent_used">%1$d%% इस्तेमाल हुआ</string>
+
+    <string name="format_remaining_pill">%1$s (%2$d%%) बाकी</string>
+
+    <string name="format_next_due">अगली तारीख %1$s</string>
+
+    <string name="format_daily_allowance">आप रोज़ %1$s खर्च कर सकते हैं</string>
+
+    <!-- Calendar Status & Labels -->
+
+    <string name="label_expense_with_val">खर्चा %1$s</string>
+
+    <string name="label_income_with_val">कमाई %1$s</string>
+
+    <string name="msg_no_calendar_entries">%1$s के लिए कोई रिकॉर्ड दर्ज नहीं है।</string>
+
+    <string name="month_jan_short">जनवरी</string>
+
+    <string name="month_feb_short">फरवरी</string>
+
+    <string name="month_mar_short">मार्च</string>
+
+    <string name="month_apr_short">अप्रैल</string>
+
+    <string name="month_may_short">मई</string>
+
+    <string name="month_jun_short">जून</string>
+
+    <string name="month_jul_short">जुलाई</string>
+
+    <string name="month_aug_short">अगस्त</string>
+
+    <string name="month_sep_short">सितंबर</string>
+
+    <string name="month_oct_short">अक्टूबर</string>
+
+    <string name="month_nov_short">नवंबर</string>
+
+    <string name="month_dec_short">दिसंबर</string>
+
+    <!-- Analytics Labels -->
+
+    <string name="label_week_short_1">हफ्ता 1</string>
+
+    <string name="label_week_short_2">हफ्ता 2</string>
+
+    <string name="label_week_short_3">हफ्ता 3</string>
+
+    <string name="label_week_short_4">हफ्ता 4</string>
+
+    <string name="label_week_short_5">हफ्ता 5</string>
+
+    <string name="label_period_short">समय %1$d</string>
+
+    <string name="format_percent">(%1$s%%)</string>
+
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+
+    <!-- Cash Flow Ratio card badge: the period's income to expense ratio, normalised to income = 1. -->
+
+    <string name="format_cash_flow_ratio">%1$s अनुपात</string>
+
+    <string name="label_zero_percent">+0%</string>
+
+    <string name="label_plus">+</string>
+
+    <string name="label_minus">-</string>
+
+    <string name="date_pattern_month_year">MMMM yyyy</string>
+
+    <string name="date_pattern_year">yyyy</string>
+
+    <string name="date_pattern_short_day_month">dd MMM</string>
+
+    <string name="date_pattern_full_short">dd MMM yyyy</string>
+
+    <string name="label_12_hour">12-घंटे</string>
+
+    <string name="label_24_hour">24-घंटे</string>
+
+    <string name="label_all_records">सभी रिकॉर्ड</string>
+
+    <string name="label_custom_payment_method">अपनी पसंद का पेमेंट तरीका</string>
+
+    <string name="notification_format_budget_approaching">%1$s! आपने अपने %3$s बजट में से %2$s इस्तेमाल कर लिया है। %4$s बाकी है।</string>
+
+    <string name="notification_format_budget_reached">बजट अलर्ट: आप %2$s के लिए अपनी %1$s सीमा तक पहुंच चुके हैं।</string>
+
+    <string name="notification_format_budget_overspent">अलर्ट: आप अपने %2$s बजट से %1$s ज़्यादा खर्च कर चुके हैं। %3$s</string>
+
+    <string name="notification_budget_approaching_1">थोड़ा धीमे चलने का वक्त आ गया है? 🛑</string>
+
+    <string name="notification_budget_approaching_2">अभी रुकने के लिए आपका भविष्य का रूप आपका शुक्रिया अदा करेगा। 😇</string>
+
+    <string name="notification_budget_approaching_3">बटुआ हल्का हो रहा है। 💸</string>
+
+    <string name="notification_budget_overspent_1">आपका बजट पीछे छूट गया है। 🏎️</string>
+
+    <string name="notification_budget_overspent_2">अब हम बजट की सीमा से बाहर आ गए हैं। 🗺️</string>
+
+    <string name="notification_budget_overspent_3">बजट की लिमिट सिर्फ एक सलाह थी, है ना? 🙃</string>
+
+    <!-- Notifications -->
+
+    <string name="notification_channel_reminders">रोज़ के रिमाइंडर</string>
+
+    <string name="notification_channel_reminders_desc">खर्चे दर्ज करने के लिए समय-समय पर रिमाइंडर।</string>
+
+    <string name="notification_channel_budget">बजट अलर्ट</string>
+
+    <string name="notification_channel_budget_desc">महीने का बजट खत्म होने के करीब पहुंचने पर अलर्ट।</string>
+
+    <string name="notification_channel_budget_exceeded">बजट सीमा पार</string>
+
+    <string name="notification_channel_budget_exceeded_desc">महीने का बजट पार होने पर अलर्ट।</string>
+
+    <string name="notification_channel_cloud_security">क्लाउड और सुरक्षा</string>
+
+    <string name="notification_channel_cloud_security_desc">आपके अकाउंट और क्लाउड सिंक से जुड़े सुरक्षा अलर्ट।</string>
+
+    <string name="notification_channel_sync_status">सिंक स्थिति</string>
+
+    <string name="notification_channel_sync_status_desc">बैकग्राउंड में डेटा सिंक होने के दौरान शांत अपडेट।</string>
+
+    <string name="notification_channel_financial_insights">खर्च की जानकारी</string>
+
+    <string name="notification_channel_financial_insights_desc">आपके खर्च की आदतों से जुड़ी खास जानकारी और अनुमान।</string>
+
+    <string name="notification_channel_recurring">बार-बार होने वाले लेन-देन</string>
+
+    <string name="notification_channel_recurring_desc">बार-बार होने वाले खर्चे अपने-आप जुड़ने पर नोटिफिकेशन।</string>
+
+    <string name="notification_title_budget_alert">बजट अलर्ट!</string>
+
+    <string name="notification_title_daily_reminder">क्या खर्चा दर्ज करने का समय हो गया?</string>
+
+    <string name="notification_title_recurring_updated">बार-बार होने वाले खर्चे अपडेट हुए</string>
+
+    <plurals name="notification_format_recurring_updated">
+
+        <item quantity="one">%1$d बार-बार होने वाला खर्चा सफलता से जोड़ा गया:\n%2$s</item>
+
+        <item quantity="other">%1$d बार-बार होने वाले खर्चे सफलता से जोड़े गए:\n%2$s</item>
+
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+
+        <item quantity="one">%1$d कैटेगरी बजट के करीब या उससे पार है</item>
+
+        <item quantity="other">%1$d कैटेगरी बजट के करीब या उससे पार हैं</item>
+
+    </plurals>
+
+    <string name="title_reminder_times">रिमाइंडर का समय</string>
+
+    <string name="title_morning_window">सुबह का समय</string>
+
+    <string name="title_evening_window">शाम का समय</string>
+
+    <string name="notification_window_format">%1$s – %2$s</string>
+
+    <string name="title_select_reminder_window">समय सेट करें</string>
+
+    <string name="label_starts_at">शुरू होता है</string>
+
+    <string name="label_ends_at">खत्म होता है</string>
+
+    <string name="title_test_notification">टेस्ट नोटिफिकेशन</string>
+
+    <string name="desc_test_notification">अभी एक सैंपल रिमाइंडर देखें</string>
+
+    <string name="btn_send_test_notification">टेस्ट नोटिफिकेशन भेजें</string>
+
+    <string name="error_reminder_window_invalid">शुरू होने का समय खत्म होने के समय से पहले होना चाहिए</string>
+
+    <string name="notification_title_daily_reminder_personalized">क्या खर्चा दर्ज करने का समय हो गया, %1$s?</string>
+
+    <string name="notification_title_missed_today">आज का हिसाब भूल गए?</string>
+
+    <!-- Smart SMS Import -->
+
+    <string name="notification_channel_goal_reminders">बचत लक्ष्य रिमाइंडर</string>
+
+    <string name="notification_channel_goal_reminders_desc">आपके बचत लक्ष्यों के लिए हर हफ्ते रिमाइंडर।</string>
+
+    <string name="notification_permission_banner_title">नोटिफिकेशन बंद हैं</string>
+
+    <string name="notification_permission_banner_desc">रिमाइंडर और अलर्ट पाने के लिए नोटिफिकेशन चालू करें।</string>
+
+    <string name="btn_allow_notifications">अनुमति दें</string>
+
+    <string name="btn_open_notification_settings">सेटिंग्स खोलें</string>
+
+    <string name="notification_channel_sms_import">स्मार्ट SMS इंपोर्ट</string>
+
+    <string name="notification_channel_sms_import_desc">पकड़े गए बैंक मैसेज सेव करने के लिए तैयार हैं।</string>
+
+    <string name="notification_channel_weekly_reports">साप्ताहिक रिपोर्ट</string>
+
+    <string name="notification_channel_weekly_reports_desc">आपके हफ्ते भर के खर्चों का रविवार का सारांश।</string>
+
+    <string name="notification_title_large_transaction">बड़ा लेन-देन पकड़ा गया</string>
+
+    <string name="notification_format_large_transaction">आपने %2$s में %1$s का खर्चा दर्ज किया — जो आपकी तय %3$s लिमिट से ज़्यादा है।</string>
+
+    <string name="notification_title_weekly_summary">हफ्ते के खर्च का सारांश</string>
+
+    <string name="notification_format_weekly_summary_up">आपने इस हफ्ते %1$s खर्च किए — पिछले हफ्ते से %2$d%% ज़्यादा।</string>
+
+    <string name="notification_format_weekly_summary_down">आपने इस हफ्ते %1$s खर्च किए — पिछले हफ्ते से %2$d%% कम।</string>
+
+    <string name="notification_format_weekly_summary_flat">आपने इस हफ्ते %1$s खर्च किए — लगभग पिछले हफ्ते जितना ही।</string>
+
+    <string name="notification_format_weekly_summary_top_category">सबसे बड़ा खर्च: %1$s।</string>
+
+    <!-- Cloud & Security Local Alerts -->
+
+    <string name="notification_title_auto_backup_failed">ऑटो-बैकअप फेल हो गया</string>
+
+    <string name="notification_desc_auto_backup_failed">लोकल डेटाबेस का ऑटोमैटिक बैकअप नहीं बन सका। स्टोरेज जांचने के लिए टैप करें।</string>
+
+    <string name="notification_title_syncing_in_progress">क्लाउड डेटा सिंक हो रहा है…</string>
+
+    <string name="notification_desc_syncing_in_progress">आपके लेन-देन और प्रोफाइल दूसरे डिवाइस में सिंक हो रहे हैं।</string>
+
+    <string name="notification_title_sync_failed">क्लाउड सिंक फेल हो गया</string>
+
+    <string name="notification_desc_sync_failed">क्लाउड डेटा सिंक पूरा नहीं हो सका। हम अपने आप दोबारा कोशिश करेंगे।</string>
+
+    <string name="notification_title_sync_pending">क्लाउड सिंक बाकी है</string>
+
+    <string name="notification_desc_sync_pending">आपके बदलाव सिंक होने का इंतज़ार कर रहे हैं। सिंक पूरा करने के लिए इंटरनेट से कनेक्ट करें।</string>
+
+    <!-- Notification category cards (spec: 8 parent categories) -->
+
+    <string name="title_expense_reminders">खर्च रिमाइंडर</string>
+
+    <string name="desc_expense_reminders">रोज़ का खर्चा दर्ज करने के रिमाइंडर।</string>
+
+    <string name="title_large_transaction_alerts">बड़े लेन-देन के अलर्ट</string>
+
+    <string name="desc_large_transaction_alerts">जब कोई एक खर्चा आपकी सेट लिमिट पार करे तब अलर्ट पाएं।</string>
+
+    <string name="title_large_transaction_threshold">बड़े खर्च की सीमा</string>
+
+    <string name="desc_large_transaction_threshold">चुनें कि किस रकम के ऊपर का खर्चा बड़ा माना जाए।</string>
+
+    <string name="placeholder_custom_threshold">रकम लिखें</string>
+
+    <string name="error_invalid_threshold">शून्य से ऊपर की सही रकम लिखें।</string>
+
+    <string name="title_weekly_summary">साप्ताहिक सारांश</string>
+
+    <string name="desc_weekly_summary">हर रविवार को आपके हफ्ते भर के खर्चों का रीकैप।</string>
+
+    <string name="title_weekly_summary_time">सारांश का समय</string>
+
+    <string name="desc_weekly_summary_time">हर रविवार को इस समय भेजा जाएगा।</string>
+
+    <string name="notification_weekly_time_format">हर रविवार को %1$s बजे</string>
+
+    <string name="title_financial_insights">स्मार्ट वित्तीय जानकारी</string>
+
+    <string name="desc_financial_insights">खर्च की आदतों और रुझानों की स्मार्ट जानकारी।</string>
+
+    <string name="title_recurring_alerts">बार-बार होने वाले खर्चों के अलर्ट</string>
+
+    <string name="desc_recurring_alerts">आपके बार-बार होने वाले बिलों और भुगतानों के रिमाइंडर।</string>
+
+    <string name="desc_recurring_rule_ladder">1-3 नियम फ्री · 4-6 के लिए विज्ञापन देखें · 7+ के लिए प्रो में अपग्रेड करें</string>
+
+    <string name="desc_recurring_rules_used_free">%2$d में से %1$d फ्री नियम इस्तेमाल हुए</string>
+
+    <string name="desc_recurring_rules_used_ad">%2$d में से %1$d विज्ञापन वाले नियम इस्तेमाल हुए</string>
+
+    <string name="desc_recurring_rules_used_premium">%1$d नियम इस्तेमाल हुए · असीमित के लिए प्रो में अपग्रेड करें</string>
+
+    <string name="title_cloud_security_alerts">क्लाउड और सुरक्षा अलर्ट</string>
+
+    <string name="desc_cloud_security_alerts">सिंक, बैकअप और अकाउंट सुरक्षा से जुड़े अलर्ट।</string>
+
+    <string name="desc_info">जानकारी</string>
+
+    <!-- Category info sheets (spec: one ⓘ per category) -->
+
+    <string name="info_expense_reminders">इसमें खर्चे दर्ज करने का रोज़ का रिमाइंडर शामिल है और अगर आपने उस दिन कुछ दर्ज नहीं किया तो एक याद दिलाने वाला अलर्ट मिलता है। आप नीचे रिमाइंडर का समय चुन सकते हैं।</string>
+
+    <string name="info_budget_alerts" formatted="false">जब कोई कैटेगरी अपने बजट के करीब पहुंचती है (75%, 90%, 100% पर) और पार होने पर आपको अलर्ट करता है।</string>
+
+    <string name="info_large_transaction">जैसे ही आप आपकी चुनी हुई सीमा से बड़ा कोई सिंगल खर्चा दर्ज करते हैं, तुरंत सूचित करता है।</string>
+
+    <string name="info_weekly_summary">पिछले हफ्ते से तुलना करते हुए पिछले 7 दिनों के खर्चों का रविवार का रीकैप।</string>
+
+    <string name="info_financial_insights">आने वाले स्मार्ट सुझाव: खर्च के तरीके, अचानक हुए बड़े खर्चे, भविष्य के अनुमान और पर्सनल सलाह।</string>
+
+    <string name="info_savings_goals" formatted="false">बचत लक्ष्य के 25%, 50% और 75% पूरा होने पर अलर्ट, लक्ष्य पूरा होने पर बधाई, और पीछे रहने पर चेतावनी देता है।</string>
+
+    <string name="info_recurring_alerts">आपके बार-बार होने वाले बिलों और भुगतानों की देय तारीख से 7 दिन, 3 दिन और 1 दिन पहले, और देय तारीख पर याद दिलाता है। हर नियम को अलग से म्यूट किया जा सकता है।</string>
+
+    <string name="info_cloud_security">क्लाउड सिंक या बैकअप फेल होने पर, और नए डिवाइस पर अकाउंट लॉगिन होने या बदलने पर अलर्ट देता है।</string>
+
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+
+    <string name="notification_format_sms_import_suggested">सुझाया गया: %1$s</string>
+
+    <string name="notification_format_sms_import_title_spent">%2$s पर %1$s खर्च हुए</string>
+
+    <string name="notification_format_sms_import_title_received">%2$s से %1$s प्राप्त हुए</string>
+
+    <string name="notification_action_add">जोड़ें</string>
+
+    <string name="notification_format_sms_import_summary">%1$d लेन-देन · %2$s</string>
+
+    <string name="notification_action_save">सेव करें</string>
+
+    <string name="notification_action_change">बदलें</string>
+
+    <string name="notification_action_open">खोलें</string>
+
+    <string name="sms_verb_debited">कटे (Debited)</string>
+
+    <string name="sms_verb_credited">आए (Credited)</string>
+
+    <string name="sms_sender_unknown">अज्ञात भेजने वाला</string>
+
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+
+    <!-- Smart SMS Import - Change sheet (Phase 4) -->
+
+    <string name="title_sms_change">लेन-देन बदलें</string>
+
+    <string name="label_choose_category">कैटेगरी चुनें</string>
+
+    <string name="label_optional_note">नोट (ऑप्शनल)</string>
+
+    <string name="toast_sms_transaction_saved">लेन-देन सेव हो गया</string>
+
+    <string name="msg_sms_save_failed">लेन-देन सेव नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <!-- Smart SMS Import - setup cards (permission resilience + MIUI guidance) -->
+
+    <string name="title_sms_detection">SMS से लेन-देन की पहचान</string>
+
+    <string name="msg_sms_permission_needed">SMS से पहचान के लिए अनुमति की ज़रूरत है। ऑटोमैटिक पहचान के लिए सेटिंग्स खोलकर अनुमति दें।</string>
+
+    <string name="label_open_app_settings">सेटिंग्स खोलें</string>
+
+    <string name="title_sms_miui_setup">Xiaomi / Poco डिवाइस सेटअप</string>
+
+    <string name="msg_sms_miui_setup_autostart">Xiaomi बैकग्राउंड में SMS पहचान रोक सकता है। इस ऐप के लिए Autostart चालू करें और बैटरी को \"No restrictions\" पर सेट करें।</string>
+
+    <string name="msg_sms_miui_setup_autostart_unknown">हम अपने आप Autostart जांच नहीं सके। ऐप सेटिंग्स खोलें और इस ऐप के लिए Autostart चालू करें।</string>
+
+    <string name="label_battery_settings">बैटरी सेटिंग्स</string>
+
+    <string name="label_sms_miui_done">मैंने चालू कर दिया है</string>
+
+    <string name="desc_dismiss_sms_permission_card">SMS अनुमति की सूचना हटाएं</string>
+
+    <string name="desc_dismiss_miui_setup_card">Xiaomi सेटअप सूचना हटाएं</string>
+
+    <string name="desc_sms_detection_icon">SMS पहचान</string>
+
+    <!-- Dynamic Notification Engine - Sarcastic Openers -->
+
+    <string name="notification_opener_1">अरे वाह</string>
+
+    <string name="notification_opener_2">दिलचस्प है</string>
+
+    <string name="notification_opener_3">आहा</string>
+
+    <string name="notification_opener_4">ज़रा खुद को तो देखो</string>
+
+    <string name="notification_opener_5">बड़ी खबर</string>
+
+    <string name="notification_opener_6">अलर्ट</string>
+
+    <string name="notification_opener_7">अपडेट</string>
+
+    <string name="notification_opener_8">अरे देखो, कौन आया है</string>
+
+    <!-- Dynamic Notification Engine - Money Reactions -->
+
+    <string name="notification_reaction_1">पैसे फुर्र से उड़ गए 💸</string>
+
+    <string name="notification_reaction_2">बटुए को झटका लगा 😬</string>
+
+    <string name="notification_reaction_3">बजट डगमगा रहा है 😳</string>
+
+    <string name="notification_reaction_4">बात बहुत तेज़ी से आगे बढ़ गई 🚀</string>
+
+    <string name="notification_reaction_5">आपके बैंक खाते ने इस पर ध्यान दिया 👀</string>
+
+    <string name="notification_reaction_6">क्या जेब में कोई छेद है?</string>
+
+    <!-- Dynamic Notification Engine - Guilt Lines -->
+
+    <string name="notification_guilt_1">उम्मीद है यह वसूल रहा होगा 😏</string>
+
+    <string name="notification_guilt_2">कोई पछतावा तो नहीं… है ना? 😬</string>
+
+    <string name="notification_guilt_3">आपका भविष्य का रूप आपको देख रहा है 👀</string>
+
+    <string name="notification_guilt_4">हम ज़्यादा शिकायत नहीं करेंगे… थोड़ा बहुत चलेगा 😌</string>
+
+    <string name="notification_guilt_5">उम्मीद है यह बहुत ज़रूरी होगा 😄</string>
+
+    <string name="notification_guilt_6">आपका बचत खाता रो रहा है।</string>
+
+    <!-- Dynamic Notification Engine - Category Lines -->
+
+    <string name="notification_food_1">फिर से खाने पर खर्च? बढ़िया 🍕</string>
+
+    <string name="notification_food_2">राजाओं की तरह खाना-पीना 👑</string>
+
+    <string name="notification_food_3">डाइट प्लान तो भूल ही जाओ 🍔</string>
+
+    <string name="notification_food_4">स्वाद > बजट, क्यों? 😏</string>
+
+    <string name="notification_food_5">कैलोरी भले न गिनी जाए, पैसे तो गिने जाएंगे।</string>
+
+    <string name="notification_shopping_1">शॉपिंग थेरेपी चालू 🛍️</string>
+
+    <string name="notification_shopping_2">अचानक सूझा या पहले से प्लान था? 😏</string>
+
+    <string name="notification_shopping_3">यह तो ज़रूरी लग रहा था 😬</string>
+
+    <string name="notification_shopping_4">शॉपिंग मूड ऑन 💳</string>
+
+    <string name="notification_shopping_5">कलेक्शन में एक और चीज़ जोड़ी जा रही है? 🛍️</string>
+
+    <string name="notification_generic_1">एक और खर्चा दर्ज हुआ 📊</string>
+
+    <string name="notification_generic_2">प्रो की तरह हिसाब रख रहे हैं 😎</string>
+
+    <string name="notification_generic_3">पैसे सही जगह… खर्च हुए? 😏</string>
+
+    <string name="notification_generic_4">नोट कर लिया गया 👀</string>
+
+    <string name="notification_generic_5">ईमानदारी से हिसाब चल रहा है 📈</string>
+
+    <!-- Dynamic Notification Engine - Budget Exceeded -->
+
+    <string name="notification_budget_exceeded_1">आपके बजट ने अभी जवाब दे दिया। वह अब और नहीं झेल सकता। 💸</string>
+
+    <string name="notification_budget_exceeded_2">खर्च की लिमिट? हमने तो ऐसा नाम ही नहीं सुना। 💅</string>
+
+    <string name="notification_budget_exceeded_3">आप तो ऐसे खर्च कर रहे हैं जैसे कोई गुप्त खजाना मिल गया हो। 🎮</string>
+
+    <string name="notification_budget_exceeded_4">बजट: पार हो गया। उदासी: जल्द आने वाली है। 📉</string>
+
+    <string name="notification_budget_exceeded_5">आपकी बचत चिल्ला रही है। 😱</string>
+
+    <!-- Dynamic Notification Engine - Missed Entry -->
+
+    <string name="notification_missed_entry_1">यहां बहुत सन्नाटा है... क्या आपने खाना-पीना बंद कर दिया? 🍔</string>
+
+    <string name="notification_missed_entry_2">आपका बटुआ कुछ ज़्यादा ही भारी लग रहा है। कुछ दर्ज तो करें! 💸</string>
+
+    <string name="notification_missed_entry_3">सन्नाटा चीख रहा है। लेन-देन कहां गए? 🕵️</string>
+
+    <string name="notification_missed_entry_4">क्या आपकी लॉटरी लगी है? आज कोई खर्चा दर्ज क्यों नहीं हुआ? 🎰</string>
+
+    <string name="notification_missed_entry_5">आपका खर्चा ट्रैकर अकेला महसूस कर रहा है। इसे कुछ डेटा तो दें। 🦴</string>
+
+    <!-- Dynamic Notification Engine - Reminders -->
+
+    <string name="notification_morning_opener_1">गुड मॉर्निंग! ☀️</string>
+
+    <string name="notification_morning_opener_2">शुभ प्रभात! ☕</string>
+
+    <string name="notification_morning_opener_3">सुबह का अपडेट! 🌅</string>
+
+    <string name="notification_morning_opener_4">उठ जाइए! 🥐</string>
+
+    <string name="notification_evening_opener_1">दिन खत्म होने वाला है! 🌙</string>
+
+    <string name="notification_evening_opener_2">शाम का हिसाब! 🌆</string>
+
+    <string name="notification_evening_opener_3">खाने का समय? 🥘</string>
+
+    <string name="notification_evening_opener_4">सोने की तैयारी? 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">क्या आपने कॉफी खरीद ली या किसी इशारे का इंतज़ार कर रहे हैं? ☕</string>
+
+    <string name="notification_sarcastic_morning_2">नाश्ते का हिसाब रखना ही आज की सबसे अच्छी कसरत होगी। 🥐</string>
+
+    <string name="notification_sarcastic_morning_3">जल्दी उठने वाले को फायदा मिलता है, लेकिन समझदार वही है जो खर्चा दर्ज करे। 🐛</string>
+
+    <string name="notification_sarcastic_morning_4">आपका बटुआ जाग गया है और उसके पास कुछ सवाल हैं। 💸</string>
+
+    <string name="notification_sarcastic_evening_1">क्या आपका बजट आज का दिन झेल पाया... या नहीं? 👀</string>
+
+    <string name="notification_sarcastic_evening_2">बिना हिसाब दर्ज किए न सोएं। डेटा सब देख रहा है। 🕵️</string>
+
+    <string name="notification_sarcastic_evening_3">रात का खाना बहुत बढ़िया था, लेकिन उसका हिसाब रखना यादगार होगा। 🥘</string>
+
+    <string name="notification_sarcastic_evening_4">आपके लिए एक छोटा सा हिसाब, आपकी बचत के लिए एक बड़ा कदम। 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s अपनी सुबह का खर्चा दर्ज करना न भूलें!</string>
+
+    <string name="notification_evening_reminder_generic">%1$s क्या रात के खाने या आने-जाने का खर्चा दर्ज करने के लिए 1 मिनट का समय है?</string>
+
+    <!-- Dynamic Notification Engine - Main Formats -->
+
+    <string name="notification_format_expense">%1$s 👀 %3$s पर %2$s खर्च हुए… %4$s. %5$s. %6$s</string>
+
+    <string name="notification_format_budget_exceeded">%1$s! आप अभी-अभी अपने %2$s बजट को पार कर गए। %3$s</string>
+
+    <string name="date_pattern_month_year_comma">MMM, yyyy</string>
+
+    <string name="label_size_unit_b">B</string>
+
+    <string name="label_size_unit_kb">KB</string>
+
+    <string name="label_size_unit_mb">MB</string>
+
+    <string name="label_size_unit_gb">GB</string>
+
+    <string name="label_size_unit_tb">TB</string>
+
+    <string name="label_zero_size">0 B</string>
+
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <!-- Force Update & Maintenance -->
+
+    <string name="title_update_required">अपडेट ज़रूरी है</string>
+
+    <string name="msg_update_required_desc">Expense Tracker का नया वर्जन उपलब्ध है। ऐप का इस्तेमाल जारी रखने के लिए कृपया नए वर्जन में अपडेट करें।</string>
+
+    <string name="btn_update_now">अभी अपडेट करें</string>
+
+    <!-- In-app update notification (Firebase Remote Config) -->
+
+    <string name="title_update_available">नया वर्जन उपलब्ध है</string>
+
+    <string name="title_update_available_version">वर्जन %s उपलब्ध है</string>
+
+    <string name="msg_update_available">Expense Tracker का नया वर्जन उपलब्ध है। नए फीचर्स और सुधारों का आनंद लेने के लिए अभी अपडेट करें।</string>
+
+    <string name="title_system_maintenance">सिस्टम रखरखाव</string>
+
+    <string name="msg_maintenance_desc">हम सेवाओं को बेहतर बनाने के लिए इस समय रखरखाव कर रहे हैं। हम जल्द ही वापस आएंगे। आपके धैर्य के लिए धन्यवाद!</string>
+
+    <string name="title_protect_your_data">साइन अप / साइन इन</string>
+
+    <string name="msg_link_account_desc">आपके पैसों का हिसाब एक ऐसी कहानी है जिसे संभाल कर रखना चाहिए। यह पक्का करने के लिए साइन इन करें कि आपकी प्रगति कभी न खोए।</string>
+
+    <string name="label_guest_user">मेहमान यूजर</string>
+
+    <string name="label_pro_expiry_format">PRO (%1$s को खत्म होगा)</string>
+
+    <string name="msg_privacy_info">हम इस जानकारी का इस्तेमाल आपके डैशबोर्ड को बेहतर बनाने और आपकी उम्र के हिसाब से जानकारी देने के लिए करते हैं। आपका डेटा 100% निजी और सुरक्षित रहता है।</string>
+
+    <string name="cd_privacy_info">प्राइवेसी की जानकारी देखें</string>
+
+    <string name="title_lets_get_started">चलिए शुरू करते हैं!</string>
+
+    <string name="desc_delete_all_data_subtitle">हमेशा के लिए हटाने की कार्रवाई</string>
+
+    <string name="label_delete_recurring">बार-बार का खर्चा हटाएं</string>
+
+    <string name="label_mute_recurring_title">नोटिफिकेशन म्यूट करें</string>
+
+    <string name="label_mute_recurring_message">क्या आप वाकई %s के लिए नोटिफिकेशन म्यूट करना चाहते हैं? आपको इस खर्चे के लिए कोई बिल रिमाइंडर नहीं मिलेगा।</string>
+
+    <string name="label_mute_yes">हां, म्यूट करें</string>
+
+    <string name="label_dont_show_again">यह मैसेज दोबारा न दिखाएं</string>
+
+    <string name="label_notifications">नोटिफिकेशन्स</string>
+
+    <string name="label_logout">साइन आउट</string>
+
+    <string name="desc_logout_subtitle">अपने अकाउंट से साइन आउट करें</string>
+
+    <string name="msg_logout_confirm">क्या आप वाकई साइन आउट करना चाहते हैं? जब तक आप दोबारा साइन इन नहीं करते, आपका क्लाउड डेटा सिंक होना बंद हो जाएगा।</string>
+
+    <string name="error_no_internet">इंटरनेट कनेक्शन नहीं है। कृपया नेटवर्क चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="error_no_google_accounts">इस फोन पर कोई Google अकाउंट नहीं मिला। कृपया साइन अप करने के लिए अपने ईमेल का इस्तेमाल करें।</string>
+
+    <string name="title_google_accounts_not_found">Google अकाउंट ज़रूरी है</string>
+
+    <string name="msg_google_accounts_not_found">कोई Google अकाउंट नहीं मिला। कृपया अपने फोन की सेटिंग्स में एक Google अकाउंट जोड़ें, फिर दोबारा कोशिश करें।</string>
+
+    <string name="label_add_account">अकाउंट जोड़ें</string>
+
+    <string name="label_retry">दोबारा कोशिश करें</string>
+
+    <string name="msg_transactions_load_failed">लेन-देन लोड नहीं हो सके।</string>
+
+    <string name="error_auth_user_not_found">अकाउंट नहीं मिला। कृपया पहले साइन अप करें।</string>
+
+    <string name="error_auth_wrong_password">गलत पासवर्ड। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="error_auth_invalid_credentials">गलत ईमेल या पासवर्ड।</string>
+
+    <string name="error_auth_email_already_in_use">यह ईमेल पहले से रजिस्टर्ड है। लॉगिन करने की कोशिश करें।</string>
+
+    <string name="error_auth_user_disabled">यह अकाउंट बंद कर दिया गया है।</string>
+
+    <string name="error_auth_too_many_requests">बहुत बार गलत कोशिश की गई। कृपया कुछ देर बाद दोबारा कोशिश करें।</string>
+
+    <string name="error_auth_weak_password">पासवर्ड बहुत कमजोर है। कृपया थोड़ा मजबूत पासवर्ड बनाएं।</string>
+
+    <string name="error_auth_generic_fail">लॉगिन नहीं हो सका। कृपया अपनी डिटेल जांचें।</string>
+
+    <string name="error_auth_operation_not_allowed">लॉगिन का यह तरीका चालू नहीं है। कृपया दूसरा तरीका अपनाएं।</string>
+
+    <string name="error_auth_token_parse">Google लॉगिन टोकन अमान्य है। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="error_auth_no_google_accounts">इस फोन पर कोई Google अकाउंट नहीं मिला। कृपया फोन की सेटिंग्स में एक Google अकाउंट जोड़ें।</string>
+
+    <string name="msg_auth_reset_email_sent">पासवर्ड रीसेट लिंक भेज दिया गया है! कृपया अपना इनबॉक्स चेक करें।</string>
+
+    <string name="label_send_magic_link">ईमेल लिंक से साइन इन करें</string>
+
+    <string name="msg_auth_magic_link_sent">मैजिक लिंक भेज दिया गया है! साइन इन करने के लिए अपना इनबॉक्स (और स्पैम फोल्डर) चेक करें।</string>
+
+    <string name="msg_identity_secured_setting_up_profile">पहचान सुरक्षित हो गई। आपकी प्रोफाइल तैयार की जा रही है...</string>
+
+    <string name="msg_account_created_successfully">अकाउंट सफलता से बन गया।</string>
+
+    <string name="msg_auth_cooldown_wait">दूसरा लिंक मांगने से पहले कृपया %1$d सेकंड इंतज़ार करें।</string>
+
+    <string name="title_cloud_sync_devices">क्लाउड सिंक और डिवाइस</string>
+
+    <string name="desc_sync_premium_subtitle">4 डिवाइस तक डेटा सिंक करें (Pro)</string>
+
+    <string name="desc_sync_active_subtitle">ऑटोमैटिक क्लाउड बैकअप चालू है</string>
+
+    <string name="desc_sync_disabled_subtitle">ऑटोमैटिक क्लाउड बैकअप बंद है</string>
+
+    <string name="desc_connected_devices">जुड़े हुए डिवाइसों की लिस्ट</string>
+
+    <string name="label_active_now">अभी एक्टिव है</string>
+
+    <string name="label_last_active">अंतिम बार एक्टिव: %1$s</string>
+
+    <string name="label_this_device">यह डिवाइस</string>
+
+    <string name="btn_unlink_device">हटाएं (Unlink)</string>
+
+    <string name="msg_unlink_device_confirm">क्या आप वाकई इस डिवाइस को हटाना चाहते हैं? उस डिवाइस पर ऑटोमैटिक सिंक बंद हो जाएगा।</string>
+
+    <string name="label_devices_used">%2$d में से %1$d डिवाइस जुड़े हैं</string>
+
+    <string name="title_cloud_sync">क्लाउड सिंक</string>
+
+    <string name="desc_cloud_sync">अपने सभी डिवाइसों में अपने लेन-देन और सेटिंग्स तुरंत सिंक रखें।</string>
+
+    <string name="title_upgrade_for_sync">क्लाउड सिंक के लिए अपग्रेड करें</string>
+
+    <string name="desc_upgrade_for_sync">ऑटोमैटिक क्लाउड बैकअप चालू करें और 4 डिवाइसों तक डेटा सिंक करें।</string>
+
+    <string name="title_ad_expiry_warning">सुविधा जल्द खत्म हो रही है</string>
+
+    <string name="msg_ad_expiry_warning">आपका बिना विज्ञापन वाला एक्सेस %1$d मिनट में खत्म हो जाएगा। क्या अगले %2$s तक सेटिंग्स चालू रखने के लिए एक और विज्ञापन देखना चाहते हैं?</string>
+
+    <string name="btn_extend_now">समय बढ़ाएं</string>
+
+    <string name="btn_maybe_later">शायद बाद में</string>
+
+    <string name="label_custom_minutes">अपनी पसंद के मिनट</string>
+
+    <string name="placeholder_enter_minutes">मिनट लिखें</string>
+
+    <string name="btn_apply">लागू करें</string>
+
+    <string name="msg_preparing_pro_experience">आपका प्रो अनुभव तैयार किया जा रहा है…</string>
+
+    <string name="msg_wont_take_long">इसमें ज़्यादा समय नहीं लगेगा</string>
+
+    <string name="label_prev">पीछे</string>
+
+    <string name="label_next_caps">आगे</string>
+
+    <string name="label_skip">छोड़ें</string>
+
+    <!-- Auth Validation & Placeholders -->
+
+    <string name="placeholder_email">name@example.com</string>
+
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="error_password_required_prefix">ज़रूरी है: </string>
+
+    <string name="error_password_min_chars">कम से कम 8 अक्षर</string>
+
+    <string name="error_password_need_digit">कम से कम 1 नंबर</string>
+
+    <string name="error_password_need_special">कम से कम 1 स्पेशल कैरेक्टर (@, # आदि)</string>
+
+    <string name="label_forgot_password">पासवर्ड भूल गए?</string>
+
+    <string name="label_resend_cooldown">%1$d सेकंड में दोबारा भेजें</string>
+
+    <string name="label_financial_goal_title">आपका नंबर 1 आर्थिक लक्ष्य क्या है?</string>
+
+    <string name="label_goal_home">सपनों का घर खरीदना</string>
+
+    <string name="label_goal_travel">दुनिया की सैर करना</string>
+
+    <string name="label_goal_debt">कर्ज़ मुक्त होना</string>
+
+    <string name="label_goal_retirement">जल्दी रिटायर होना</string>
+
+    <string name="label_goal_savings">मुसीबत के लिए फंड बनाना</string>
+
+    <string name="label_goal_car">नई गाड़ी खरीदना</string>
+
+    <string name="label_goal_education">पढ़ाई के लिए फंड</string>
+
+    <string name="label_goal_business">खुद का काम/बिज़नेस शुरू करना</string>
+
+    <string name="label_goal_invest">इन्वेस्टमेंट बढ़ाना</string>
+
+    <string name="label_goal_other">अन्य (अपनी पसंद का लक्ष्य)</string>
+
+    <string name="placeholder_enter_custom_goal">अपना लक्ष्य लिखें...</string>
+
+    <string name="label_financial_zen">आपकी दिमागी शांति</string>
+
+    <string name="msg_discipline_score_title">अकाउंट सेटअप</string>
+
+    <string name="msg_discipline_score_desc">आप बहुत अच्छा कर रहे हैं!! अपनी प्रोफाइल पूरी करें।</string>
+
+    <string name="btn_reach_100">100% पूरा करें</string>
+
+    <string name="msg_goal_faster_with_pro">प्रो फीचर्स के साथ अपने %1$s के लक्ष्य तक 20%% तेज़ी से पहुंचें।</string>
+
+    <string name="title_setup_progress">प्रोफाइल की स्थिति</string>
+
+    <string name="label_checklist_full_name">पूरा नाम</string>
+
+    <string name="label_checklist_phone">फोन नंबर</string>
+
+    <string name="label_checklist_gender">लिंग (Gender)</string>
+
+    <string name="label_checklist_dob">जन्मतिथि</string>
+
+    <string name="label_checklist_email">ईमेल एड्रेस</string>
+
+    <string name="label_checklist_signin_to_add">ईमेल जोड़ने के लिए साइन इन करें</string>
+
+    <string name="label_checklist_email_verified">ईमेल वेरीफाई हो गया</string>
+
+    <string name="label_checklist_verify_email">वेरीफाई करने के लिए प्रोफाइल पर टैप करें</string>
+
+    <string name="btn_got_it">समझ गया</string>
+
+    <!-- Goals Feature -->
+
+    <string name="title_my_goals">मेरे लक्ष्य</string>
+
+    <string name="title_add_goal">बचत लक्ष्य जोड़ें</string>
+
+    <string name="title_fund_goal">लक्ष्य में पैसे जोड़ें</string>
+
+    <string name="msg_fund_goal_caption">लिखें कि इस लक्ष्य में कितने पैसे जोड़ने हैं। आप इसे कभी भी बदल सकते हैं।</string>
+
+    <string name="title_delete_goal">लक्ष्य हटाएं</string>
+
+    <string name="msg_delete_goal_confirm">क्या आप वाकई \"%1$s\" लक्ष्य को हटाना चाहते हैं? इसे वापस नहीं लाया जा सकेगा।</string>
+
+    <string name="label_fund_amount">जोड़ने के लिए रकम</string>
+
+    <string name="label_goal_name">लक्ष्य का नाम</string>
+
+    <string name="label_target_amount">लक्ष्य की रकम</string>
+
+    <string name="label_initial_saved_amount">शुरुआती जमा रकम</string>
+
+    <string name="label_goal_name_hint">जैसे: नई कार, छुट्टियां</string>
+
+    <string name="msg_no_goals">अभी कोई लक्ष्य नहीं है। बचत शुरू करने के लिए + दबाएं!</string>
+
+    <string name="cd_add_goal">लक्ष्य जोड़ें</string>
+
+    <string name="cd_add_funds">पैसे जोड़ें</string>
+
+    <string name="cd_delete_goal">लक्ष्य हटाएं</string>
+
+    <string name="format_goal_progress">%1$d%% पूरा हुआ</string>
+
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+
+    <string name="format_goal_target">लक्ष्य: %1$s</string>
+
+    <string name="title_edit_goal">लक्ष्य बदलें</string>
+
+    <string name="cd_edit_goal">लक्ष्य बदलें</string>
+
+    <string name="title_active_goals">मौजूदा लक्ष्य</string>
+
+    <string name="title_completed_goals">पूरे हुए लक्ष्य</string>
+
+    <string name="label_goal_completed">पूरा हुआ 🎉</string>
+
+    <string name="label_deadline">आखिरी तारीख</string>
+
+    <string name="label_deadline_not_set">सेट नहीं है</string>
+
+    <string name="label_set_deadline">आखिरी तारीख सेट करें</string>
+    <!-- Email Verification -->
+
+    <string name="title_email_verification">ईमेल वेरीफाई करें</string>
+
+    <string name="label_verification_email_sent">%1$s पर एक वेरिफिकेशन ईमेल भेजा गया है। जारी रखने के लिए कृपया अपना ईमेल वेरीफाई करें (यदि इनबॉक्स में न मिले तो स्पैम या जंक फोल्डर ज़रूर देखें)।</string>
+
+    <string name="error_email_not_verified">ईमेल अभी वेरीफाई नहीं हुआ है। कृपया अपना इनबॉक्स (और स्पैम फोल्डर) चेक करें और वेरिफिकेशन लिंक पर क्लिक करें।</string>
+
+    <string name="btn_check_status">वेरीफिकेशन की स्थिति जांचें</string>
+
+    <string name="btn_resend_email">वेरीफिकेशन ईमेल दोबारा भेजें</string>
+
+    <string name="info_verification_email_sent_again">वेरीफिकेशन ईमेल दोबारा सफलतापूर्वक भेज दिया गया है। कृपया अपना इनबॉक्स और स्पैम फोल्डर देखें।</string>
+
+    <string name="error_link_still_valid">आपका मौजूदा वेरिफिकेशन लिंक अभी भी काम कर रहा है। नया लिंक मांगने से पहले कृपया अपना इनबॉक्स और स्पैम फोल्डर देखें।</string>
+
+    <string name="error_email_not_verified_expired_sent">आपका पुराना वेरिफिकेशन लिंक एक्सपायर हो गया था, इसलिए आपकी ईमेल पर नया लिंक भेज दिया गया है। कृपया अपना इनबॉक्स और स्पैम फोल्डर देखें।</string>
+
+    <string name="label_verification_link_expired">आपका वेरिफिकेशन लिंक एक्सपायर हो गया है। नया लिंक पाने के लिए नीचे \'दोबारा भेजें\' पर क्लिक करें।</string>
+
+    <string name="label_verification_link_expires_in">लिंक एक्सपायर होने में समय: %1$s</string>
+
+    <string name="btn_verify_email">ईमेल वेरीफाई करें</string>
+
+    <string name="dialog_verify_email_title">ईमेल वेरीफाई नहीं है</string>
+
+    <string name="dialog_verify_email_pro_pass">प्रो पास (Pro Pass) एक्टिवेट करने के लिए अपना ईमेल वेरीफाई करें। हम आपको एक वेरिफिकेशन लिंक भेजेंगे।</string>
+
+    <string name="dialog_verify_email_auto_backup">ऑटो बैकअप चालू करने के लिए अपना ईमेल वेरीफाई करें। इससे दूसरे फोन में भी आपका डेटा रीस्टोर हो सकेगा।</string>
+
+    <string name="dialog_verify_email_sync">अलग-अलग फोन में डेटा सिंक चालू करने के लिए अपना ईमेल वेरीफाई करें।</string>
+
+    <string name="label_verify_now">अभी वेरीफाई करें</string>
+
+    <string name="label_later">बाद में</string>
+
+    <string name="toast_verification_email_sent">वेरीफिकेशन ईमेल भेज दिया गया है — अपना इनबॉक्स चेक करें</string>
+
+    <string name="msg_email_not_verified_yet">ईमेल अभी वेरीफाई नहीं हुआ है। कृपया अपना इनबॉक्स चेक करें।</string>
+
+    <string name="msg_failed_to_check_status">स्थिति की जांच नहीं हो सकी। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_verification_email_resent">वेरीफिकेशन ईमेल दोबारा भेज दिया गया है। कृपया अपना इनबॉक्स चेक करें।</string>
+
+    <string name="msg_failed_to_resend">दोबारा भेजने में असफल। कृपया फिर से कोशिश करें।</string>
+
+    <string name="msg_email_verified_success">ईमेल सफलतापूर्वक वेरीफाई हो गया!</string>
+
+    <string name="btn_update_email">ईमेल अपडेट करें</string>
+
+    <string name="label_signed_in_with_google">Google से साइन-इन किया गया</string>
+
+    <string name="title_update_email">ईमेल एड्रेस बदलें</string>
+
+    <string name="desc_update_email">अपना नया ईमेल एड्रेस दर्ज करें। एक वेरिफिकेशन लिंक भेजा जाएगा — वेरीफाई करने के बाद ही आपका ईमेल बदलेगा।</string>
+
+    <string name="label_current_email">मौजूदा ईमेल</string>
+
+    <string name="label_new_email">नया ईमेल</string>
+
+    <string name="placeholder_enter_new_email">नया ईमेल एड्रेस लिखें</string>
+
+    <string name="label_send_verification">वेरीफिकेशन लिंक भेजें</string>
+
+    <string name="label_verify_and_update">वेरीफाई करें और बदलें</string>
+
+    <string name="msg_reauth_required">सुरक्षा के लिए, अपना ईमेल बदलने से पहले कृपया अपना मौजूदा पासवर्ड लिखें।</string>
+
+    <string name="toast_email_update_verification_sent">नए ईमेल पर वेरिफिकेशन लिंक भेज दिया गया है — इनबॉक्स चेक करें</string>
+
+    <string name="msg_email_already_in_use">यह ईमेल पहले से किसी दूसरे अकाउंट से जुड़ा हुआ है।</string>
+
+    <string name="msg_failed_to_update_email">ईमेल अपडेट नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_incorrect_password">गलत पासवर्ड। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_auth_failed">लॉगिन/सुरक्षा जांच असफल। कृपया दोबारा कोशिश करें।</string>
+
+    <!-- Update Email Flow (Phase 2) -->
+
+    <string name="title_pending_email_verification">अपने नए ईमेल को वेरीफाई करें</string>
+
+    <string name="msg_verification_sent_to_new_email">%1$s पर एक वेरिफिकेशन लिंक भेजा गया है। ईमेल बदलाव पूरा करने के लिए अपने इनबॉक्स में जाकर लिंक पर क्लिक करें।</string>
+
+    <string name="msg_current_email_unchanged">जब तक आप नया ईमेल वेरीफाई नहीं कर लेते, तब तक आपका पुराना ईमेल (%1$s) एक्टिव रहेगा।</string>
+
+    <string name="msg_checking_verification_status">वेरीफिकेशन स्थिति की जांच हो रही है…</string>
+
+    <string name="msg_email_updated_success">ईमेल बदल गया!</string>
+
+    <string name="msg_email_updated_success_desc">आपका लॉगिन ईमेल बदल दिया गया है। अब आप साइन-इन करने के लिए अपने नए ईमेल का इस्तेमाल कर सकते हैं।</string>
+
+    <string name="label_confirm_new_email">नए ईमेल की पुष्टि करें</string>
+
+    <string name="placeholder_confirm_new_email">नया ईमेल एड्रेस दोबारा लिखें</string>
+
+    <string name="error_emails_do_not_match">ईमेल मेल नहीं खा रहे हैं।</string>
+
+    <string name="msg_fill_all_fields_correctly">कृपया सभी खाने सही-सही भरें।</string>
+
+    <string name="msg_enter_current_password">कृपया अपना मौजूदा पासवर्ड लिखें।</string>
+
+    <string name="label_send_verification_to_new_email">वेरीफिकेशन लिंक भेजें</string>
+
+    <string name="btn_resend_in_seconds">%1$d सेकंड में दोबारा भेजें</string>
+
+    <string name="msg_check_spam_folder">ईमेल नहीं मिल रहा? अपना स्पैम या जंक फोल्डर चेक करें।</string>
+
+    <string name="placeholder_reenter_password_for_security">सुरक्षा के लिए पासवर्ड दोबारा लिखें</string>
+
+    <string name="desc_show_password">पासवर्ड दिखाएं</string>
+
+    <string name="desc_hide_password">पासवर्ड छिपाएं</string>
+
+    <!-- Force Cloud Sync -->
+
+    <string name="title_force_sync">सिंक करने में समस्या आ रही है?</string>
+
+    <string name="desc_force_sync">अगर आपके बदलाव अपने-आप सिंक नहीं हो रहे हैं, तो आप पूरा सिंक चालू कर सकते हैं।</string>
+
+    <string name="desc_last_synced_info">अंतिम सिंक का समय दिखाता है कि इस फोन पर क्लाउड सिंक कब पूरा हुआ था। \'कभी सिंक नहीं हुआ\' का मतलब है कि अभी तक कोई सिंक रिकॉर्ड नहीं है।</string>
+
+    <string name="btn_sync_now">अभी सिंक करें</string>
+
+    <string name="toast_force_sync_success">सिंक सफलता से पूरा हो गया!</string>
+
+    <string name="toast_force_sync_failed">सिंक फेल हो गया: %1$s</string>
+
+    <string name="label_last_synced">अंतिम सिंक: %1$s</string>
+
+    <string name="label_never_synced">कभी सिंक नहीं हुआ</string>
+
+    <!-- Change Password Feature -->
+
+    <string name="title_change_password">पासवर्ड बदलें</string>
+
+    <string name="label_change_password_subtitle">अपने अकाउंट का पासवर्ड अपडेट करें</string>
+
+    <string name="label_current_password">मौजूदा पासवर्ड</string>
+
+    <string name="label_new_password">नया पासवर्ड</string>
+
+    <string name="label_confirm_new_password">नए पासवर्ड की पुष्टि करें</string>
+
+    <string name="placeholder_current_password">मौजूदा पासवर्ड लिखें</string>
+
+    <string name="placeholder_new_password">नया पासवर्ड लिखें</string>
+
+    <string name="placeholder_confirm_new_password">नया पासवर्ड दोबारा लिखें</string>
+
+    <string name="error_passwords_do_not_match">नए पासवर्ड मेल नहीं खा रहे हैं।</string>
+
+    <string name="error_password_update_failed">पासवर्ड अपडेट नहीं हो सका। कृपया अपना पुराना पासवर्ड चेक करें और दोबारा कोशिश करें।</string>
+
+    <string name="success_password_updated">पासवर्ड सफलतापूर्वक बदल गया!</string>
+
+    <string name="btn_change_password">पासवर्ड बदलें</string>
+
+    <!-- My Membership & Subscription Feature -->
+
+    <string name="label_offline">ऑफलाइन</string>
+
+    <string name="label_backup_sync_is_off">बैकअप और सिंक बंद है</string>
+
+    <string name="label_turn_on">साइन इन करें</string>
+
+    <string name="label_sign_in_keep_data_safe">अपना डेटा सुरक्षित रखने के लिए साइन-इन करें।</string>
+
+    <string name="title_membership">मेरी मेम्बरशिप</string>
+
+    <!-- Membership card: one shared layout for the subscription, Pro Pass and free states -->
+
+    <string name="label_membership_card_subscription">Play सब्सक्रिप्शन</string>
+
+    <string name="label_membership_card_pro_pass">Pro Pass एक्सेस</string>
+
+    <string name="label_membership_card_free">फ्री प्लान</string>
+
+    <string name="label_membership_badge_free_pass">फ्री पास</string>
+
+    <string name="title_membership_pro_card">एक्सपेंस ट्रैकर प्रो</string>
+
+    <string name="title_membership_upgrade_card">Expense Tracker Pro में अपग्रेड करें</string>
+
+    <string name="msg_membership_upgrade_body">असीमित बजट, विजेट्स, बार-बार होने वाले खर्चे, एडवांस्ड एनालिटिक्स, क्लाउड बैकअप और बहुत कुछ अनलॉक करें।</string>
+
+    <string name="label_membership_managed_by_play">Google Play द्वारा प्रबंधित</string>
+
+    <string name="label_membership_unlocked_headline">सभी प्रीमियम फीचर्स अनलॉक हैं</string>
+
+    <string name="msg_membership_unlocked_body">बिलिंग और कैंसिलेशन Google Play के ज़रिए सुरक्षित रूप से मैनेज होते हैं।</string>
+
+    <string name="label_membership_pass_headline">प्रमोशनल Pro Pass से अनलॉक किया गया।</string>
+
+    <string name="msg_membership_pass_body">यह एक्सेस अपने-आप खत्म हो जाएगा। यह Google Play की सब्सक्रिप्शन नहीं है।</string>
+
+    <string name="btn_membership_buy_subscription">सब्सक्रिप्शन खरीदें</string>
+
+    <plurals name="label_membership_days_remaining">
+
+        <item quantity="one">%1$d दिन बाकी</item>
+
+        <item quantity="other">%1$d दिन बाकी</item>
+
+    </plurals>
+
+    <string name="desc_membership_settings">स्टेटस, बिलिंग चक्र या अपग्रेड डिटेल देखें</string>
+
+    <string name="label_pro_active">Pro मेंबर</string>
+
+    <string name="label_membership_benefits">मेम्बरशिप के फायदे</string>
+
+    <string name="msg_subscription_billing_issue">हम आपकी पिछली पेमेंट नहीं ले सके। Pro जारी रखने के लिए Google Play में अपना पेमेंट तरीका अपडेट करें।</string>
+
+    <string name="msg_pro_active_no_expiry">आपका Pro एक्सेस चालू है।</string>
+
+    <string name="label_na">लागू नहीं</string>
+
+    <string name="btn_sign_in_register">साइन इन / साइन अप</string>
+
+    <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
+
+    <string name="label_free_tier">फ्री प्लान</string>
+
+    <string name="label_pro_benefit_adfree">बिना विज्ञापन। सिर्फ काम पर ध्यान</string>
+
+    <string name="label_pro_benefit_devices">4 डिवाइसों तक तुरंत सिंक रखें!</string>
+
+    <string name="label_pro_benefit_custom_card">लेन-देन के कार्ड अपने हिसाब से सजाएं</string>
+
+    <string name="label_pro_benefit_advanced_features">एडवांस्ड एनालिटिक्स और बचत लक्ष्य</string>
+
+    <string name="label_pro_benefit_many_more_features">और भी बहुत कुछ... जिन्हें आप एक्सप्लोर कर सकते हैं</string>
+
+    <string name="btn_restore_purchase">पुरानी खरीदारी रीस्टोर करें</string>
+
+    <string name="btn_manage_subscription">सब्सक्रिप्शन मैनेज करें</string>
+
+    <string name="label_cancel_subscription_anytime">आप अपनी सब्सक्रिप्शन कभी भी कैंसिल कर सकते हैं</string>
+
+    <string name="label_cancel_subscription_where">आप इसे Play Store के \'Payments &amp; subscriptions\' सेक्शन से कर सकते हैं</string>
+
+    <string name="label_expires_on">%1$s को खत्म होगा</string>
+
+    <string name="label_renews_on">%1$s को रिन्यू होगा</string>
+
+    <string name="label_unlimited_offline">ऑफलाइन लोकल मोड</string>
+
+    <string name="label_offline_warning_desc">आपका डेटा सिर्फ इस फोन में सेव है। बैकअप सुरक्षित रखने के लिए साइन इन या रजिस्ट्रेशन करें।</string>
+
+    <string name="title_coming_soon">जल्द आ रहा है</string>
+
+    <string name="msg_billing_coming_soon">Google Play Billing अभी तैयार हो रही है। यह फीचर जल्द ही आने वाले अपडेट में मिलेगा।</string>
+
+    <!-- Feedback Feature -->
+
+    <string name="title_feedback">सुझाव (Feedback)</string>
+
+    <string name="label_send_feedback_desc">हमें बताएं कि आपको क्या पसंद आया या हम क्या बेहतर बना सकते हैं।</string>
+
+    <string name="placeholder_feedback_hint">अपनी राय/सुझाव यहां लिखें…</string>
+
+    <string name="btn_submit_feedback">सुझाव भेजें</string>
+
+    <string name="msg_feedback_success">आपकी राय के लिए धन्यवाद!</string>
+
+    <string name="msg_feedback_error">सुझाव नहीं भेजा जा सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_feedback_cooldown">दोबारा सुझाव भेजने से पहले कृपया %1$s मिनट इंतज़ार करें।</string>
+
+    <string name="label_logged_in_as">इसके रूप में भेजा जा रहा है: %1$s</string>
+
+    <string name="msg_feedback_empty">सुझाव का खाना खाली नहीं हो सकता।</string>
+
+    <string name="title_view_by">इसके अनुसार देखें</string>
+
+    <string name="label_welcome_back_comma">वापसी पर स्वागत है,</string>
+
+    <string name="msg_welcome_back_subtitle">आप काम शुरू करने के लिए बिल्कुल तैयार हैं!</string>
+
+    <string name="label_your_goal">आपका आर्थिक लक्ष्य</string>
+
+    <string name="label_welcome_back_fallback">दोस्त</string>
+
+    <string name="label_show_more">और दिखाएं</string>
+
+    <string name="label_show_less">कम दिखाएं</string>
+
+    <string name="title_upcoming_recurring">आने वाले नियमित खर्चे</string>
+
+    <string name="label_no_upcoming_recurring">आगे कोई नियमित खर्चा नहीं है</string>
+
+    <!-- Voice Transaction Parser -->
+
+    <string name="title_voice_add">बोलकर जोड़ें</string>
+
+    <string name="desc_voice_add">बोलकर लेन-देन दर्ज करें</string>
+
+    <string name="msg_voice_listening">सुन रहा हूं…</string>
+
+    <string name="msg_voice_processing">प्रोसेस हो रहा है…</string>
+
+    <string name="msg_voice_error_empty_input">कृपया ऐसा कुछ बोलें: \"सब्जी पर 500 रुपये खर्च किए\"</string>
+
+    <string name="msg_voice_error_no_amount">मुझे रकम समझ नहीं आई। ऐसे बोलकर देखें: \"राशन के लिए 500 रुपये दिए\"</string>
+
+    <string name="label_voice_confirm">पक्का करें</string>
+
+    <string name="label_voice_edit">बदलें</string>
+
+    <string name="label_voice_retry">दोबारा कोशिश करें</string>
+
+    <string name="label_voice_confidence_high">पूरी उम्मीद है</string>
+
+    <string name="label_voice_confidence_medium">मध्यम भरोसा</string>
+
+    <string name="label_voice_confidence_low">कम भरोसा — कृपया जांच लें</string>
+
+    <string name="label_merchant">दुकान/व्यापारी</string>
+
+    <string name="label_confidence">सटीकता</string>
+
+    <string name="label_voice_confidence">सटीकता</string>
+
+    <string name="label_category">कैटेगरी</string>
+
+    <string name="msg_voice_error_no_permission">आवाज से लिखने के लिए माइक (Microphone) की अनुमति ज़रूरी है</string>
+
+    <string name="msg_voice_error_recognizer">आवाज पहचाने में समस्या आई। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_voice_error_network">नेटवर्क समस्या। इंटरनेट चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="msg_voice_error_audio">ऑडियो रिकॉर्डिंग में दिक्कत आई। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="msg_voice_error_timeout">कोई आवाज नहीं सुनाई दी। कृपया दोबारा कोशिश करें।</string>
+
+    <!-- Widget -->
+
+    <string name="widget_description">बोलकर तुरंत लेन-देन दर्ज करें और आज के खर्चों का सारांश देखें</string>
+
+    <string name="widget_voice_channel_name">आवाज रिकॉर्डिंग</string>
+
+    <string name="widget_voice_channel_desc">होम स्क्रीन विजेट से आवाज रिकॉर्ड करते समय इस्तेमाल होता है</string>
+
+    <string name="widget_notification_recording_title">रिकॉर्डिंग चालू है…</string>
+
+    <string name="widget_notification_recording_text">अब अपना खर्चा बोलें</string>
+
+    <!-- Budget group info sheet -->
+
+    <string name="label_budget_categories_info">बजट की कैटेगरी देखें</string>
+
+    <string name="title_budget_categories">बजट की कैटेगरी</string>
+
+    <string name="label_included_categories">इस बजट में शामिल कैटेगरी</string>
+
+    <string name="label_select_all">सभी चुनें</string>
+
+    <string name="label_select_unbudgeted">केवल खाली/उपलब्ध चुनें</string>
+
+    <!-- App Shortcuts -->
+
+    <string name="shortcut_add_expense">खर्चा जोड़ें</string>
+
+    <string name="shortcut_add_expense_long">खर्चा जोड़ें</string>
+
+    <string name="shortcut_add_income">कमाई जोड़ें</string>
+
+    <string name="shortcut_add_income_long">कमाई जोड़ें</string>
+
+    <string name="shortcut_month_summary">इस महीने का कुल खर्चा</string>
+
+    <string name="shortcut_month_summary_long">इस महीने का कुल खर्चा</string>
+
+    <string name="shortcut_speak_to_add">बोलकर जोड़ें</string>
+
+    <string name="shortcut_speak_to_add_long">बोलकर जोड़ें</string>
+
+    <string name="shortcut_copy_budget">बजट कॉपी करें</string>
+
+    <string name="shortcut_copy_budget_long">बजट कॉपी करें</string>
+
+    <!-- RevenueCat -->
+
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <!-- Entitlement Guard -->
+
+    <string name="msg_feature_locked_pro_required">इस फीचर के लिए Pro सब्सक्रिप्शन ज़रूरी है</string>
+
+    <string name="msg_subscribe_to_unlock">इस फीचर को अनलॉक करने और आगे के सुधारों के लिए सब्सक्रिप्शन लें</string>
+
+    <string name="btn_upgrade">Pro में अपग्रेड करें</string>
+
+    <!-- Paywall -->
+
+    <string name="msg_paywall_subtitle">हर एक Pro फीचर अनलॉक करें और ऐप के विकास में सपोर्ट करें।</string>
+
+    <string name="msg_paywall_hero_subtitle">खर्च की पूरी जानकारी, AI वॉइस एंट्री और असीमित नियम अनलॉक करें</string>
+
+    <string name="paywall_plan_title_annual">12 महीने का प्लान</string>
+
+    <string name="paywall_plan_title_six">6 महीने का प्लान</string>
+
+    <string name="paywall_plan_title_month">1 महीने का बेस प्लान</string>
+
+    <string name="paywall_best_value_save">सबसे किफ़ायती • %1$d%% बचत</string>
+
+    <string name="paywall_per_month_suffix">/ महीना</string>
+
+    <string name="paywall_save_amount">%1$s बचाएं</string>
+
+    <string name="paywall_base_tier">शुरुआती प्लान</string>
+
+    <string name="paywall_standard_recurring">स्टैंडर्ड रिन्यूअल बिलिंग</string>
+
+    <string name="paywall_cta_continue">%1$s के साथ जारी रखें · %2$s/महीना</string>
+
+    <string name="paywall_cta_period_annual">12 महीने</string>
+
+    <string name="paywall_cta_period_six">6 महीने</string>
+
+    <string name="paywall_cta_period_month">1 महीना</string>
+
+    <string name="paywall_terms_of_use">उपयोग की शर्तें</string>
+
+    <string name="paywall_benefits_header_annual">सभी Pro फीचर्स शामिल हैं:</string>
+
+    <string name="paywall_benefits_header_six">6 महीने के Pro प्लान के फायदे:</string>
+
+    <string name="paywall_benefits_header_month">1 महीने के Pro प्लान के फायदे:</string>
+
+    <string name="paywall_benefit_ad_free">बिना किसी विज्ञापन का अनुभव</string>
+
+    <string name="paywall_benefit_txn_details">बिना एडिट मोड खोले लेन-देन की पूरी डिटेल देखें</string>
+
+    <string name="paywall_benefit_device_sync">आपके 4 डिवाइसों में ऑटोमैटिक सिंक</string>
+
+    <string name="paywall_benefit_favorites">पसंदीदा खर्चे: एक टैप में दोबारा इस्तेमाल करें</string>
+
+    <string name="paywall_benefit_recurring_yearly">असीमित नियमित नियम (7 से ज़्यादा) और सालाना ऑप्शन</string>
+
+    <string name="paywall_benefit_recurring_copy">असीमित नियमित नियम और पिछला बजट कॉपी करने का ऑप्शन</string>
+
+    <string name="paywall_benefit_recurring_only">असीमित नियमित नियम (7 से ज़्यादा)</string>
+
+    <string name="paywall_benefit_copy_budgets">पुराना बजट कॉपी करें और अपने हिसाब से महीना सेट करें</string>
+
+    <string name="paywall_benefit_ai_backups">असीमित AI वॉइस एंट्री और रोज़ाना ऑटो-बैकअप</string>
+
+    <string name="paywall_benefit_ai_backup">असीमित AI वॉइस एंट्री और रोज़ का ऑटो-बैकअप</string>
+
+    <string name="paywall_benefit_ai_daily">असीमित AI वॉइस एंट्री और रोज़ का बैकअप</string>
+
+    <string name="paywall_benefit_lock_fonts_tags">20-60 मिनट ऑटो-लॉक, कस्टम फॉन्ट और पेमेंट टैग</string>
+
+    <string name="paywall_benefit_lock_fonts">सुरक्षा ऑटो-लॉक (20-60 मि.) और कस्टम फॉन्ट</string>
+
+    <string name="paywall_benefit_lock_fonts_short">ऑटो-लॉक का समय और कस्टम फॉन्ट</string>
+
+    <string name="paywall_benefit_insights_alerts">खर्च के रुझान, लक्ष्य और क्लाउड सुरक्षा अलर्ट</string>
+
+    <string name="paywall_benefit_separators">तारीख के अलग हेडर, पेमेंट का सारांश और कस्टम आइकन</string>
+
+    <string name="paywall_benefit_many_more">और भी बहुत कुछ... एक्सप्लोर करें</string>
+
+    <string name="paywall_processing_payment">पेमेंट प्रोसेस हो रही है…</string>
+
+    <string name="paywall_please_wait">कृपया इंतज़ार करें</string>
+
+    <string name="paywall_youre_pro_now">अब आप Pro सदस्य हैं</string>
+
+    <string name="paywall_congrats_purchase">खरीदारी की बधाई!</string>
+
+    <string name="paywall_invested_in_yourself">आपने खुद पर निवेश किया है। यह बिल्कुल सही फैसला था।</string>
+
+    <string name="paywall_start_using_pro">Pro का इस्तेमाल शुरू करें</string>
+
+    <string name="paywall_payment_failed">पेमेंट फेल हो गई</string>
+
+    <string name="btn_close">बंद करें</string>
+
+    <string name="label_paywall_benefits">आपको क्या मिलेगा</string>
+
+    <string name="label_paywall_choose_plan">अपना प्लान चुनें</string>
+
+    <string name="label_paywall_plans_unavailable">प्लांस लोड नहीं हो सके।</string>
+
+    <string name="msg_paywall_plans_unavailable_desc">अपना इंटरनेट कनेक्शन जांचें और दोबारा कोशिश करें।</string>
+
+    <string name="btn_paywall_retry">दोबारा कोशिश करें</string>
+
+    <string name="content_desc_loading_plans">प्लांस लोड हो रहे हैं</string>
+
+    <string name="btn_paywall_subscribe">सब्सक्राइब करें</string>
+
+    <string name="msg_paywall_play_account_billing">Google Play इस फोन में लॉगिन Google अकाउंट से बिलिंग करता है। यह आपके Expense Tracker ईमेल से नहीं काटा जाता।</string>
+
+    <string name="desc_paywall_play_billing_info">सब्सक्रिप्शन बिलिंग की जानकारी</string>
+
+    <string name="msg_paywall_play_billing_info">जब तक आप खुद कैंसिल नहीं करते, आपकी सब्सक्रिप्शन अपने-आप रिन्यू होती रहेगी। आप Google Play Store से इसे कभी भी कैंसिल कर सकते हैं।</string>
+
+    <string name="msg_paywall_already_pro">आप पहले से Pro पर हैं। ऐप को सपोर्ट करने के लिए धन्यवाद!</string>
+
+    <string name="content_desc_paywall_plan_selected">चुना गया प्लान</string>
+
+    <string name="paywall_plan_weekly">1 हफ्ता</string>
+
+    <string name="paywall_plan_monthly">1 महीना</string>
+
+    <string name="paywall_plan_two_months">2 महीने</string>
+
+    <string name="paywall_plan_three_months">3 महीने</string>
+
+    <string name="paywall_plan_six_months">6 महीने</string>
+
+    <string name="paywall_plan_twelve_months">12 महीने</string>
+
+    <string name="paywall_plan_lifetime">लाइफटाइम (हमेशा के लिए)</string>
+
+    <string name="paywall_plan_generic">Pro प्लान</string>
+
+    <string name="paywall_discount_badge">%1$d%% छूट</string>
+
+    <string name="paywall_period_week">प्रति हफ्ता</string>
+
+    <string name="paywall_period_month">प्रति महीना</string>
+
+    <string name="paywall_period_months">प्रति अवधि</string>
+
+    <string name="paywall_period_year">प्रति साल</string>
+
+    <string name="paywall_period_one_time">एक बार (One-time)</string>
+
+    <string name="msg_paywall_purchase_success">अब आप Pro पर हैं। मज़ा लें!</string>
+
+    <string name="title_paywall_purchase_congrats">बधाई हो</string>
+
+    <string name="msg_paywall_purchase_congrats">आप Pro मेंबर बन गए हैं। असीमित इनसाइट्स, बिना विज्ञापन और हर फीचर अनलॉक। नए अनुभव का मज़ा लें।</string>
+
+    <string name="msg_paywall_purchase_sign_in">आपकी पेमेंट हो गई है। Pro इस्तेमाल करने के लिए Google या ईमेल से साइन-इन करें। अगर Pro अपने-आप चालू न हो, तो सेटिंग्स में \'मेरी मेम्बरशिप\' खोलकर \'पुरानी खरीदारी रीस्टोर करें\' पर टैप करें।</string>
+
+    <string name="content_desc_opening_play_store">Google Play खुल रहा है</string>
+
+    <string name="msg_paywall_restore_success">आपकी खरीदारी रीस्टोर हो गई है।</string>
+
+    <string name="msg_paywall_restore_nothing_found">इस अकाउंट के लिए कोई पुरानी खरीदारी नहीं मिली।</string>
+
+    <string name="msg_paywall_payment_pending">आपकी पेमेंट पेंडिंग है। पेमेंट पूरी होते ही Pro अनलॉक हो जाएगा।</string>
+
+    <string name="paywall_error_network">स्टोर से कनेक्ट नहीं हो सका। इंटरनेट चेक करके दोबारा कोशिश करें।</string>
+
+    <string name="paywall_error_store_problem">स्टोर इसे पूरा नहीं कर सका। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="paywall_error_not_allowed">इस फोन या अकाउंट पर खरीदारी की अनुमति नहीं है।</string>
+
+    <string name="paywall_error_product_unavailable">यह प्लान अभी उपलब्ध नहीं है। कृपया बाद में कोशिश करें।</string>
+
+    <string name="paywall_error_already_owned">आपके पास यह सब्सक्रिप्शन पहले से है।</string>
+
+    <string name="paywall_error_receipt_in_use">यह सब्सक्रिप्शन किसी दूसरे अकाउंट से जुड़ी है। जिस अकाउंट से खरीदा था उससे साइन-इन करके रीस्टोर करें।</string>
+
+    <string name="paywall_error_invalid_receipt">हम इस खरीदारी की पुष्टि नहीं कर सके। कृपया दोबारा कोशिश करें।</string>
+
+    <string name="paywall_error_invalid_credentials">स्टोर ने अनुरोध खारिज कर दिया। कृपया बाद में कोशिश करें।</string>
+
+    <string name="paywall_error_configuration">सब्सक्रिप्शन अभी सही से सेट नहीं है। कृपया बाद में कोशिश करें।</string>
+
+    <string name="paywall_error_billing_not_configured">इस ऐप वर्जन में सब्सक्रिप्शन उपलब्ध नहीं है।</string>
+
+    <string name="paywall_error_unknown">कुछ गड़बड़ हो गई। कृपया दोबारा कोशिश करें।</string>
+
+    <!-- Onboarding Consent Step Strings -->
+
+    <string name="desc_terms_conditions_requirement">ExpenseTracker का इस्तेमाल करने के लिए आपको इन शर्तों को स्वीकार करना होगा (चाहे मेहमान यूजर हों या रजिस्टर्ड यूजर)।</string>
+
+    <string name="label_bullet_app_usage_title">ऐप का उपयोग</string>
+
+    <string name="label_bullet_app_usage_desc">व्यक्तिगत बजट और खर्चों के हिसाब के लिए। बिना अनुमति के ऐप को री-डिस्ट्रिब्यूट या रिवर्स इंजीनियर न करें।</string>
+
+    <string name="label_bullet_privacy_title">डेटा और प्राइवेसी</string>
+
+    <string name="label_bullet_privacy_desc">आपके फोन पर ऑफलाइन-फर्स्ट। सिंक ऑप्शनल है और एंड-टू-एंड एन्क्रिप्शन से सुरक्षित है।</string>
+
+    <string name="label_bullet_subscriptions_title">सब्सक्रिप्शन</string>
+
+    <string name="label_bullet_subscriptions_desc">Pro एक्सेस Google Play Billing से सुरक्षित रूप से प्रबंधित होता है। जब तक रद्द न किया जाए, अपने-आप रिन्यू होता है।</string>
+
+    <string name="label_bullet_cancellation_title">कैंसिलेशन और डेटा एक्सपोर्ट</string>
+
+    <string name="label_bullet_cancellation_desc">Play Store से Pro कभी भी रद्द करें। जब चाहें अपना 100% डेटा एक्सपोर्ट या डिलीट करें।</string>
+
+    <string name="label_terms_clause_1">1. शर्तों की स्वीकृति: ऐप का इस्तेमाल करके, आप स्वीकार करते हैं कि आप इन नियमों व शर्तों और प्राइवेसी पॉलिसी से सहमत हैं। ये शर्तें सभी उपयोगकर्ताओं पर लागू होती हैं।</string>
+
+    <string name="label_terms_clause_2">2. लाइसेंस: हम आपको व्यक्तिगत, गैर-व्यावसायिक वित्तीय प्रबंधन के लिए सीमित, रद्द करने योग्य और गैर-विशेष लाइसेंस प्रदान करते हैं।</string>
+
+    <string name="label_terms_clause_3">3. लोकल-फर्स्ट स्टोरेज: आपका वित्तीय डेटा डिफ़ॉल्ट रूप से आपके स्थानीय फोन में एक एन्क्रिप्टेड डेटाबेस में सुरक्षित रहता है।</string>
+
+    <string name="label_terms_clause_4">4. इन-ऐप खरीदारी: सब्सक्रिप्शन Google Play की नीतियों के अनुसार बिल की जाती हैं।</string>
+
+    <string name="label_terms_clause_5">5. अस्वीकरण (Disclaimers): ExpenseTracker हिसाब-किताब रखने का एक टूल है और यह कोई आधिकारिक वित्तीय सलाह नहीं देता है।</string>
+
+    <string name="label_agree_terms_checkbox">मैंने नियम और शर्तें पढ़ ली हैं और मैं इनसे सहमत हूं</string>
+
+    <string name="label_agree_privacy_checkbox">मैं प्राइवेसी पॉलिसी और डेटा प्रबंधन की शर्तों से सहमत हूं</string>
+
+    <string name="cd_terms_checkbox">नियम और शर्तों की सहमति का चेकबॉक्स</string>
+
+    <string name="cd_privacy_checkbox">प्राइवेसी पॉलिसी की सहमति का चेकबॉक्स</string>
+
+    <string name="title_terms_required">नियम और शर्तें</string>
+
+    <string name="msg_agree_terms_required">ऐप का इस्तेमाल करने के लिए, आपको नियम व शर्तों और प्राइवेसी पॉलिसी से सहमत होना होगा। कृपया चेकबॉक्स पर टिक करें।</string>
+
+    <!-- Funds (Cash Buckets) -->
+    <string name="title_funds">फंड्स (Funds)</string>
+    <string name="title_fund_overview">ओवरव्यू</string>
+    <string name="title_what_are_funds">फंड्स क्या हैं?</string>
+    <string name="msg_funds_what">फंड पैसों का एक अलग हिस्सा/गुल्लक (bucket) है जो आप किसी एक खास मकसद के लिए अलग रखते हैं। Allocated का मतलब जो पैसे आपने डाले, spent का मतलब जो निकाला, और remaining का मतलब जो बच गया।</string>
+    <string name="msg_funds_how">एक फंड बनाएं, फिर खर्चा जोड़ते समय उसे चुनें। वह खर्चा उसी फंड से कटेगा ताकि आप बाकी पैसों को मिलाए बिना देख सकें कि उस फंड में कितने पैसे बचे हैं।</string>
+    <string name="label_funds_example">उदाहरण</string>
+    <string name="label_fund_example_name">छुट्टियां (Vacation)</string>
+    <string name="msg_funds_example">छुट्टियों (Vacation) के फंड में पैसे डालें। होटल और फ्लाइट के खर्चे उस फंड से कटकर \'Remaining\' को कम करेंगे। जब तक आप चुनेंगे नहीं, राशन का खर्चा इससे नहीं कटेगा।</string>
+    <string name="desc_funds_info">फंड्स क्या हैं और इनका इस्तेमाल कैसे करें</string>
+    <string name="label_tab_funds">फंड्स</string>
+    <string name="title_create_fund">फंड बनाएं</string>
+    <string name="title_edit_fund">फंड बदलें</string>
+    <string name="label_fund_name">फंड का नाम</string>
+    <string name="label_fund_amount_field">रकम</string>
+    <string name="label_fund_start_date_value">शुरुआत %1$s</string>
+    <string name="label_fund_icon">आइकन</string>
+    <string name="label_fund_color">रंग</string>
+
+    <string name="label_fund_note">नोट (ऑप्शनल)</string>
+
+    <string name="label_fund_summary_allocated">कुल तय रकम (Allocated)</string>
+
+    <string name="label_fund_summary_spent">खर्च हुए (Spent)</string>
+
+    <string name="label_fund_summary_remaining">बचे हुए (Remaining)</string>
+
+    <string name="label_fund_empty">अभी कोई फंड नहीं है। अलग से पैसों का हिसाब रखने के लिए एक फंड बनाएं।</string>
+
+    <string name="label_fund_spent_of">%2$s में से %1$s खर्च हुए</string>
+
+    <string name="label_fund_remaining_format">%1$s बचे हैं</string>
+
+    <string name="label_fund_status_active">एक्टिव</string>
+
+    <string name="label_fund_status_completed">खत्म (Exhausted)</string>
+
+    <string name="label_fund_status_archived">आर्काइव्ड (Archived)</string>
+
+    <string name="title_fund_breakdown">खर्च का ब्योरा</string>
+
+    <string name="label_fund_no_spending">इस फंड से अभी तक कुछ खर्च नहीं हुआ है।</string>
+
+    <string name="label_fund_linked_transactions">लेन-देन</string>
+
+    <string name="label_fund_edit">बदलें</string>
+
+    <string name="label_fund_edit_amount">रकम बदलें</string>
+
+    <string name="label_fund_archive">आर्काइव करें</string>
+
+    <string name="label_fund_unarchive">अन-आर्काइव करें</string>
+
+    <string name="label_fund_delete">हटाएं</string>
+
+    <string name="label_fund_uncategorized">बिना कैटेगरी का</string>
+
+    <string name="title_delete_fund">फंड हटाएं?</string>
+
+    <string name="msg_delete_fund_body">\"%1$s\" हटा दिया जाएगा। इससे जुड़े लेन-देन सुरक्षित रहेंगे, बस वे इस फंड से लिंक होना बंद हो जाएंगे।</string>
+
+    <string name="msg_fund_edit_amount_updates_income">इससे इस फंड को पैसा देने वाला कमाई का लेन-देन (Income transaction) भी अपडेट हो जाएगा।</string>
+
+    <string name="title_spend_from_fund">फंड</string>
+
+    <string name="label_fund_none">कोई नहीं</string>
+
+    <string name="title_fund_overspend">फंड में पैसे कम हैं</string>
+
+    <string name="msg_fund_overspend">यह खर्चा \u201c%1$s\u201d में बचे %2$s से ज़्यादा है। फिर भी खर्च दर्ज करें, रकम बदलें या इस खर्चे से फंड हटा दें।</string>
+
+    <string name="label_spend_anyway">फिर भी खर्च दर्ज करें</string>
+
+    <string name="label_edit_amount_action">रकम बदलें</string>
+
+    <string name="label_remove_fund">फंड हटाएं</string>
+
+    <string name="title_full_fund_breakdown">पूरा फंड ब्योरा</string>
+
+    <string name="title_detected_txns">पता चले लेन-देन</string>
+    <string name="title_home_calculator">कैलकुलेटर</string>
+    <string name="title_calendar_view">कैलेंडर व्यू</string>
+    <string name="title_fund_history">फंड इतिहास</string>
+    <string name="label_fund_history_inline">फंड इतिहास</string>
+    <string name="format_days_left">%1$d दिन बाकी</string>
+    <string name="format_days_overdue">%1$d दिन ओवरड्यू</string>
+    <string name="label_saved_amount">सेव्ड: %1$s</string>
+    <string name="label_remove_all_ads">सभी विज्ञापन हटाएं</string>
+    <string name="label_ad_free_active">बिना विज्ञापन एक्सेस चालू</string>
+    <string name="title_redeem_pro_pass">प्रो पास रिडीम करें</string>
+    <string name="label_redeem_pro_pass_subtitle">प्रोमो कोड या पास की डालें</string>
+    <string name="title_app_preferences">ऐप प्राथमिकताएं</string>
+    <string name="title_notifications">सूचनाएं</string>
+    <string name="title_transaction_card">कस्टमाइज़ेशन</string>
+    <string name="title_data_management">डेटा प्रबंधन</string>
+    <string name="label_enter_pro_code">प्रो कोड डालें</string>
+    <string name="title_unlock_pro_access">प्रो एक्सेस अनलॉक करें</string>
+    <string name="msg_unlock_pro_access_body">प्रोमो कोड है? पूरा प्रीमियम इस्तेमाल करने के लिए नीचे डालें।</string>
+    <string name="placeholder_pro_code_example">जैसे PROPASS7</string>
+    <string name="label_activate_pro_code">प्रो कोड चालू करें</string>
+    <string name="label_calculator_itemized">आइटमाइज़्ड</string>
+    <string name="label_calculator_normal">नॉर्मल</string>
+
+    <string name="label_reward_days_count">%1$d दिन</string>
 </resources>
