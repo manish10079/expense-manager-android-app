@@ -23,18 +23,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.darkOnlyGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
-import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 @Composable
 fun TodaySpendingCard(
@@ -47,7 +45,7 @@ fun TodaySpendingCard(
     AppCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        brush = darkOnlyGradient(standardCardGradient()),
+        colors = AppCardDefaults.colors(darkContainer = Color.Black.copy(alpha = 0.35f)),
         contentPadding = PaddingValues(
             horizontal = Dimens.PaddingMedium,
             vertical = 18.dp

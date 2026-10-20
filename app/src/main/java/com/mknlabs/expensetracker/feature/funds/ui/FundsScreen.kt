@@ -93,6 +93,7 @@ import com.mknlabs.expensetracker.core.ui.theme.HeroSurfaceLight
 import com.mknlabs.expensetracker.core.ui.theme.glassHeroGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.isDark
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.identityColor
@@ -643,10 +644,15 @@ private fun FundDetailSheet(
     onDelete: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetContainerColor = if (MaterialTheme.colorScheme.isDark) {
+        MaterialTheme.colorScheme.profileSheet
+    } else {
+        BottomSheetDefaults.ContainerColor
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.sheet,
+        containerColor = sheetContainerColor,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp
     ) {
@@ -714,7 +720,7 @@ private fun FundDetailContent(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.genderRow),
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
