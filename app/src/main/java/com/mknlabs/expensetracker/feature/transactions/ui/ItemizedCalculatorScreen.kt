@@ -1381,7 +1381,7 @@ private fun BreakdownItemCard(
                 spotColor = if (item.highlighted) colorScheme.secondary.copy(alpha = 0.12f) else CardShadowSpotLight
             )
             .clip(shape)
-            .background(breakdownHeroFill())
+            .background(Color(0xFF101019))
             .then(
                 if (item.highlighted) Modifier else Modifier.border(1.dp, TotalHeroBorder, shape)
             )
@@ -1660,8 +1660,7 @@ private fun ItemizedTextField(
 ) {
     val dark = MaterialTheme.colorScheme.isDark
     val fieldFill = AppCardDefaults.colors(
-        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
-        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+        darkContainer = Color(0xFF101019)
     ).containerColor
     OutlinedTextField(
         value = value,
@@ -1768,8 +1767,7 @@ private fun SecondaryActionButton(
 ) {
     val dark = MaterialTheme.colorScheme.isDark
     val fieldFill = AppCardDefaults.colors(
-        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
-        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+        darkContainer = Color(0xFF101019)
     ).containerColor
     val fieldBorder = if (dark) NamedCreateFieldBorderDark else NamedCreateFieldBorderLight
     Box(
