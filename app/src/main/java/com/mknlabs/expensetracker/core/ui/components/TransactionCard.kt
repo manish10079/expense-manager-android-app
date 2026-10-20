@@ -171,7 +171,7 @@ fun TransactionCard(
         )
         else -> baseColors.copy(
             containerColor = if (MaterialTheme.colorScheme.isDark) {
-                TransactionCardContainerDark
+                Color.Transparent
             } else {
                 TransactionCardContainerLight
             },
