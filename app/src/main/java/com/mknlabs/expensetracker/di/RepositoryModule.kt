@@ -17,7 +17,9 @@ import com.mknlabs.expensetracker.data.repository.ConfigurationRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ProPassRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.ReferralRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.TagRepository as TagRepositoryImpl
+import com.mknlabs.expensetracker.data.repository.PlayAppUpdateGatewayImpl
 import com.mknlabs.expensetracker.data.repository.UpdateRepositoryImpl
+import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
 import com.mknlabs.expensetracker.data.repository.SyncRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.CountryCodeRepositoryImpl
 import com.mknlabs.expensetracker.data.repository.FcmTokenRepositoryImpl
@@ -172,6 +174,11 @@ abstract class RepositoryModule {
     abstract fun bindUpdateRepository(
         impl: UpdateRepositoryImpl
     ): UpdateRepository
+    @Binds
+    @Singleton
+    abstract fun bindPlayAppUpdateGateway(
+        impl: PlayAppUpdateGatewayImpl
+    ): PlayAppUpdateGateway
 
     @Binds
     @Singleton

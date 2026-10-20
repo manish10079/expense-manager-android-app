@@ -109,7 +109,6 @@ fun PreferencesScreen(
     userTier: com.mknlabs.expensetracker.models.UserTier = com.mknlabs.expensetracker.models.UserTier.FREE
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
-    val languageUnlocked by com.mknlabs.expensetracker.feature.settings.LanguageOptionUnlock.unlocked.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
     val activity = context as? android.app.Activity
     val scope = rememberCoroutineScope()
@@ -177,8 +176,7 @@ fun PreferencesScreen(
                 )(fileName)
             }
         },
-        selectMonthStartDay = { day -> preferencesViewModel.selectMonthStartDay(day) },
-        showLanguageOption = languageUnlocked
+        selectMonthStartDay = { day -> preferencesViewModel.selectMonthStartDay(day) }
     )
 }
 
@@ -204,8 +202,7 @@ private fun PreferencesScreenContent(
     onSelectFontMode: (com.mknlabs.expensetracker.models.FontMode, String?) -> Unit,
     onImportFont: () -> Unit,
     onDeleteFont: (String) -> Unit,
-    selectMonthStartDay: (Int) -> Unit,
-    showLanguageOption: Boolean = false
+    selectMonthStartDay: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -326,19 +323,17 @@ private fun PreferencesScreenContent(
                             standalone = false,
                             onClick = { showSheet(PreferencesSheetType.MonthStartDay) }
                         )
-                        if (showLanguageOption) {
-                            SettingsGroupDivider()
-                            SettingsItemCard(
-                                title = stringResource(R.string.title_language),
+                        SettingsGroupDivider()
+                        SettingsItemCard(
+                            title = stringResource(R.string.title_language),
                             iconTile = SettingsTiles.Rose,
-                                subtitle = stringResource(R.string.label_language_subtitle),
-                                icon = PhosphorIcons.Regular.Globe,
-                                valueText = uiState.currentLanguageLabel,
-                                type = SettingsItemType.Value,
-                                standalone = false,
-                                onClick = { showSheet(PreferencesSheetType.Language) }
-                            )
-                        }
+                            subtitle = stringResource(R.string.label_language_subtitle),
+                            icon = PhosphorIcons.Regular.Globe,
+                            valueText = uiState.currentLanguageLabel,
+                            type = SettingsItemType.Value,
+                            standalone = false,
+                            onClick = { showSheet(PreferencesSheetType.Language) }
+                        )
                     }
                 }
 
@@ -426,7 +421,7 @@ private fun PreferencesScreenContent(
                 )
             }
 
-            PreferencesSheetType.Language -> if (showLanguageOption) {
+            PreferencesSheetType.Language -> {
                 val languageItems = remember(uiState.languageOptions) {
                     uiState.languageOptions.map { option ->
                         SelectionItem(

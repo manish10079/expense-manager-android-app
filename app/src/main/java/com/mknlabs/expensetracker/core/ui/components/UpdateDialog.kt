@@ -282,9 +282,10 @@ private fun MessageBody(
     }
 }
 
+@Composable
 private fun titleText(info: UpdateInfo): String {
     return info.updateTitle.ifBlank {
-        info.latestVersion.ifBlank { "Update Available" }
+        stringResource(R.string.title_update_available)
     }
 }
 
@@ -300,7 +301,6 @@ private fun PreviewNormalLight() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "Update Available",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -326,7 +326,6 @@ private fun PreviewNormalDark() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "Update Available",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -344,7 +343,6 @@ private fun PreviewCompactPortrait() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -361,7 +359,6 @@ private fun PreviewCompactLandscape() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -378,7 +375,6 @@ private fun PreviewTablet() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -395,7 +391,6 @@ private fun PreviewForced() {
         PreviewDialogCard(force = true) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "3.0.0",
                     updateTitle = "Critical Security Update",
                     updateMessage = "Critical security update \u2014 please update now:\n\n" +
                         "\u2022 Fixed authentication token leak on background sync\n" +
@@ -428,7 +423,6 @@ private fun PreviewCompactPortraitDark() {
         PreviewDialogCard(force = false) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "2.102.0",
                     updateTitle = "",
                     updateMessage = buildRemoteConfigMessage(),
                     forceUpdate = false
@@ -451,7 +445,6 @@ private fun PreviewForcedDark() {
         PreviewDialogCard(force = true) {
             UpdateDialogContent(
                 info = UpdateInfo(
-                    latestVersion = "3.0.0",
                     updateTitle = "Critical Security Update",
                     updateMessage = "Critical security update \u2014 please update now:\n\n" +
                         "\u2022 Fixed authentication token leak on background sync\n" +

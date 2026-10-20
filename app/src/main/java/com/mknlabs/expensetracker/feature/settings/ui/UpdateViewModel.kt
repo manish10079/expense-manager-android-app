@@ -2,9 +2,9 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.domain.repository.UpdateRepository
+import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
 import com.mknlabs.expensetracker.domain.update.UpdateChecker
 import com.mknlabs.expensetracker.domain.update.UpdateDecision
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,14 +13,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** UI state for the in-app update dialog. */
 sealed interface UpdateUiState {
-    /** Fetching Remote Config; nothing shown yet. */
+    /** Play availability has not answered yet. */
     data object Checking : UpdateUiState
 
-    /** No newer version, or an optional update already declined this launch. */
+    /** No Play update, or an optional update already declined this launch. */
     data object Hidden : UpdateUiState
 
     data class UpdateAvailable(
@@ -30,41 +31,48 @@ sealed interface UpdateUiState {
 }
 
 /**
- * Drives the in-app update notification dialog.
+ * Dialog is shown only when Play In-App Updates reports a store build.
+ * Remote Config supplies force and copy.
  *
- * Rules:
- * - Optional updates show **once per app launch** ("Later" or "Update Now"
- *   suppress them for the rest of the launch).
- * - Force updates are re-shown and cannot be dismissed.
+ * Optional updates show once per launch. Force updates cannot be dismissed.
  */
 @HiltViewModel
 class UpdateViewModel @Inject constructor(
     private val updateRepository: UpdateRepository,
-    private val updateChecker: UpdateChecker
+    private val updateChecker: UpdateChecker,
+    private val playAppUpdateGateway: PlayAppUpdateGateway,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UpdateUiState>(UpdateUiState.Checking)
     val uiState: StateFlow<UpdateUiState> = _uiState.asStateFlow()
 
-    /** Guards the "once per launch" rule. The ViewModel is Activity-scoped, so it lives for one launch. */
     private var optionalShownThisLaunch = false
+    private var playUpdateAvailable: Boolean? = null
 
     init {
         updateRepository.updateInfo
             .onEach { info -> onUpdateInfo(info) }
             .launchIn(viewModelScope)
         updateRepository.fetchAndActivate()
+        refreshPlayAvailability()
+    }
+
+    fun refreshPlayAvailability() {
+        viewModelScope.launch {
+            playUpdateAvailable = playAppUpdateGateway.isUpdateAvailable()
+            onUpdateInfo(updateRepository.updateInfo.value)
+        }
     }
 
     private fun onUpdateInfo(info: UpdateInfo) {
-        when (val decision = updateChecker.evaluate(
-            currentVersionCode = BuildConfig.VERSION_CODE,
-            currentVersionName = BuildConfig.VERSION_NAME,
-            info = info
-        )) {
+        val play = playUpdateAvailable
+        if (play == null) {
+            _uiState.value = UpdateUiState.Checking
+            return
+        }
+        when (val decision = updateChecker.evaluate(play, info)) {
             is UpdateDecision.UpdateAvailable -> {
                 if (decision.force) {
-                    // Force updates always show — the user cannot proceed without updating.
                     _uiState.value = UpdateUiState.UpdateAvailable(decision.info, force = true)
                 } else if (!optionalShownThisLaunch) {
                     _uiState.value = UpdateUiState.UpdateAvailable(decision.info, force = false)
@@ -86,8 +94,6 @@ class UpdateViewModel @Inject constructor(
     fun onUpdateNow() {
         val current = _uiState.value
         optionalShownThisLaunch = true
-        // Force updates stay visible: the user must return from the Play Store
-        // with the update actually installed.
         if (current is UpdateUiState.UpdateAvailable && current.force) return
         _uiState.value = UpdateUiState.Hidden
     }

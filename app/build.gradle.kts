@@ -19,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 274
-        versionName = "2.233.4"
+        versionName = "2.234.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -202,6 +202,8 @@ dependencies {
 
     // RevenueCat (uses Google Play Billing Library 8.x via v10.15.1)
     implementation(libs.revenuecat.purchases)
+    // Google Play In-App Updates (2.1.0 — current latest)
+    implementation(libs.play.app.update.ktx)
 
     // Glassmorphic Backdrop Blur (Haze)
     implementation(libs.haze)

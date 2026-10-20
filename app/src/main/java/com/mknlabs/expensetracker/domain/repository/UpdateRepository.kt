@@ -4,8 +4,8 @@ import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Provides the "latest version" parameters from Firebase Remote Config.
- * Values are emitted reactively whenever the config is fetched/activated.
+ * Force flag and dialog copy from Firebase Remote Config.
+ * Play In-App Updates is the availability check.
  */
 interface UpdateRepository {
     val updateInfo: StateFlow<UpdateInfo>

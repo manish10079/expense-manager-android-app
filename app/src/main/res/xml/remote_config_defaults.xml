@@ -10,14 +10,6 @@
 <defaultsMap>
     <!-- App update notifications (in-app update system) -->
     <entry>
-        <key>latest_version</key>
-        <value></value>
-    </entry>
-    <entry>
-        <key>latest_version_code</key>
-        <value>0</value>
-    </entry>
-    <entry>
         <key>force_update</key>
         <value>false</value>
     </entry>

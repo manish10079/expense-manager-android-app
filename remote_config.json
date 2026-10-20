@@ -1,10 +1,5 @@
 {
   "parameters": {
-    "latest_version_code": {
-      "defaultValue": {
-        "value": "226"
-      }
-    },
     "update_message": {
       "defaultValue": {
         "value": "A new version of Expense Tracker is available. Update now to enjoy the latest features and improvements."
@@ -55,11 +50,6 @@
         "value": "60"
       },
       "valueType": "NUMBER"
-    },
-    "latest_version": {
-      "defaultValue": {
-        "value": "2.95.4"
-      }
     }
   }
 }

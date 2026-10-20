@@ -51,6 +51,7 @@ import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
+import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
 import com.mknlabs.expensetracker.utils.PlayStoreLink
 import com.mknlabs.expensetracker.utils.RateAppPrompt
 import android.net.Uri
@@ -102,6 +103,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var transactionDao: TransactionDao
+
+    @Inject
+    lateinit var playAppUpdateGateway: PlayAppUpdateGateway
 
     private val splashViewModel: SplashViewModel by viewModels()
     private val appLockViewModel: AppLockViewModel by viewModels()
@@ -177,6 +181,10 @@ class MainActivity : AppCompatActivity() {
         // System UI can be restored (e.g. after notification shade or returning
         // from another app), so re-apply the landscape immersive state.
         applyImmersiveStatusBarForLandscape()
+        if (::playAppUpdateGateway.isInitialized) {
+            playAppUpdateGateway.resumeInProgressUpdate(this)
+            playAppUpdateGateway.completeDownloadedUpdate()
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -242,6 +250,15 @@ class MainActivity : AppCompatActivity() {
         val effectiveUserTier by monetizationViewModel.userTier.collectAsStateWithLifecycle()
         val updateViewModel: UpdateViewModel = hiltViewModel()
         val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
+        androidx.compose.runtime.DisposableEffect(updateViewModel) {
+            val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                    updateViewModel.refreshPlayAvailability()
+                }
+            }
+            lifecycle.addObserver(observer)
+            onDispose { lifecycle.removeObserver(observer) }
+        }
         
         val initialNavDestination = intent?.getStringExtra(NotificationHelper.EXTRA_NAV_DESTINATION)
 
@@ -534,7 +551,12 @@ class MainActivity : AppCompatActivity() {
                         info = updateAvailable.info,
                         force = updateAvailable.force,
                         onUpdateNow = {
-                            PlayStoreLink.openPlayStore(context)
+                            val activity = this@MainActivity
+                            playAppUpdateGateway.startUpdate(
+                                activity = activity,
+                                immediate = updateAvailable.force,
+                                onFlowUnavailable = { PlayStoreLink.openPlayStore(context) }
+                            )
                             updateViewModel.onUpdateNow()
                         },
                         onLater = updateViewModel::onLater
