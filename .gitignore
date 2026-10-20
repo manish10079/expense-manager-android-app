@@ -48,6 +48,11 @@ local.properties
 
 # Untracked project files
 .ohmyagent/
+1]
+_*.py
+_*.json
+_*.txt
+patch-mini-hero.ps1
 strings_ad.patch
 strings_emi.patch
 patch_lib.js
