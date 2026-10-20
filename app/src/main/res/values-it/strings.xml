@@ -1,302 +1,4531 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker: Budget e spese</string>
+
+    <string name="app_name">Expense Tracker: Budget &amp; Spend</string>
+
     <string name="title_nav_home">Home</string>
+
     <string name="title_nav_analytics">Analisi</string>
+
     <string name="title_nav_budget">Budget</string>
+
     <string name="label_already_tracked_in">Già in %1$s</string>
+
     <string name="tip_duplicate_budget_tracking">Nota: le categorie scelte sono tracciate anche in altri budget attivi. Le spese conteranno per entrambi i limiti.</string>
-    <string name="label_select_categories">Seleziona categorie</string>
-    <string name="label_budget_name_optional">Nome budget (facoltativo)</string>
+
+    <string name="label_select_categories">Scegli categorie</string>
+
+    <string name="label_budget_name_optional">Nome budget (opzionale)</string>
+
     <string name="label_budget_group">Gruppo budget</string>
+
     <string name="label_period">Periodo</string>
+
     <string name="title_nav_calendar">Calendario</string>
+
     <string name="label_ad">Annuncio</string>
+
     <string name="label_sponsored_content">Contenuto sponsorizzato</string>
-    <string name="desc_sponsored_content">Scopri questo servizio consigliato.</string>
+
+    <string name="desc_sponsored_content">Dai un\'occhiata a questo servizio consigliato.</string>
+
     <string name="btn_learn_more">SCOPRI DI PIÙ</string>
-    <string name="msg_a_security_update_is_required">È richiesto un aggiornamento di sicurezza prima di usare lo sblocco biometrico.</string>
-    <string name="msg_choose_one_security_question_f">Scegli una domanda di sicurezza per il recupero PIN.</string>
+
+    <string name="msg_a_security_update_is_required">Serve un aggiornamento di sicurezza prima di usare lo sblocco biometrico.</string>
+
+    <string name="msg_choose_one_security_question_f">Scegli una domanda di sicurezza per recuperare il PIN.</string>
+
     <string name="msg_enter_an_answer_for_your_secur">Inserisci una risposta alla domanda di sicurezza.</string>
+
     <string name="msg_enter_your_answer_to_disable_a">Inserisci la risposta per disattivare il blocco app.</string>
-    <string name="msg_incorrect_answer_try_again">Risposta errata. Riprova.</string>
-    <string name="msg_recovery_question_is_not_confi">Nessuna domanda di recupero configurata per questo blocco app.</string>
-    <string name="msg_repeat_the_same_4_digits_to_fi">Ripeti le stesse 4 cifre per completare la configurazione.</string>
-    <string name="msg_set_up_fingerprint_or_face_unl">Configura prima impronta o volto nelle impostazioni del telefono.</string>
+
+    <string name="msg_incorrect_answer_try_again">Risposta sbagliata. Riprova.</string>
+
+    <string name="msg_recovery_question_is_not_confi">La domanda di recupero non è configurata per questo blocco app.</string>
+
+    <string name="msg_repeat_the_same_4_digits_to_fi">Ripeti le stesse 4 cifre per finire la configurazione.</string>
+
+    <string name="msg_set_up_fingerprint_or_face_unl">Prima configura impronta o viso nelle impostazioni del telefono.</string>
+
     <string name="msg_this_device_does_not_support_b">Questo dispositivo non supporta l\'autenticazione biometrica.</string>
+
     <string name="toast_database_backup_saved">Backup del database salvato.</string>
+
     <string name="toast_database_restored_reloading_ap">Database ripristinato. Ricarico l\'app.</string>
+
     <string name="desc_show_balance">Mostra saldo</string>
+
     <string name="desc_hide_balance">Nascondi saldo</string>
+
     <string name="btn_use_pin">Usa PIN</string>
-    <string name="desc_delete_pin_digit">Elimina cifra PIN</string>
+
+    <string name="desc_delete_pin_digit">Cancella cifra PIN</string>
+
     <string name="desc_locked">Bloccato</string>
+
     <string name="desc_unlock_advanced_search">Sblocca ricerca avanzata</string>
+
     <string name="desc_use_biometric">Usa biometria</string>
-    <string name="label_unlock_pro_features">Sblocca la tua serenità finanziaria</string>
-    <string name="label_watch_a_short_video_to_unlock">Guarda una breve storia per sbloccare %1$s per %2$s.</string>
+
+    <string name="label_unlock_pro_features">Sblocca la tua zen finanziaria</string>
+
+    <string name="label_watch_a_short_video_to_unlock">Guarda una storia breve per sbloccare %1$s per %2$s.</string>
+
     <string name="label_watch_ad_unlock">Guarda e sblocca</string>
-    <string name="msg_biometric_authentication_is_no">L\'autenticazione biometrica non è disponibile al momento.</string>
-    <string name="msg_biometric_hardware_is_currentl">L\'hardware biometrico non è disponibile.</string>
-    <string name="msg_enter_the_same_pin_once_more_t">Inserisci di nuovo lo stesso PIN per confermare.</string>
-    <string name="msg_error_unable_to_start_biometric_auth">Impossibile avviare la biometria su questo dispositivo.</string>
-    <string name="msg_incorrect_pin_try_again">PIN errato. Riprova.</string>
+
+    <string name="msg_biometric_authentication_is_no">L\'autenticazione biometrica non è disponibile ora.</string>
+
+    <string name="msg_biometric_hardware_is_currentl">L\'hardware biometrico non è disponibile al momento.</string>
+
+    <string name="msg_enter_the_same_pin_once_more_t">Inserisci lo stesso PIN un\'altra volta per confermare.</string>
+
+    <string name="msg_error_unable_to_start_biometric_auth">Impossibile avviare l\'autenticazione biometrica su questo dispositivo.</string>
+
+    <string name="msg_incorrect_pin_try_again">PIN sbagliato. Riprova.</string>
+
     <string name="title_device_integrity_notice">Avviso di sicurezza</string>
-    <string name="msg_device_integrity_notice">Questo dispositivo sembra rootato o un emulatore. Il blocco app e altre funzioni di sicurezza possono essere meno efficaci.</string>
+
+    <string name="msg_device_integrity_notice">Questo dispositivo sembra rootato o un emulatore. Blocco app e altre protezioni possono essere meno efficaci.</string>
+
     <string name="msg_pin_locked_out">Troppi tentativi. Riprova tra %1$d s.</string>
+
     <string name="msg_pins_did_not_match_start_again">I PIN non coincidono. Ricomincia.</string>
+
     <string name="title_app_lock">Blocco app</string>
+
     <string name="title_recover_access">Recupera accesso</string>
+
     <string name="label_verify_security_question">VERIFICA DOMANDA DI SICUREZZA</string>
+
     <string name="label_biometric_security_active">SICUREZZA BIOMETRICA ATTIVA</string>
+
     <string name="label_pin_security_active">SICUREZZA PIN ATTIVA</string>
-    <string name="label_create_4digit_pin">CREA PIN A 4 CIFRE</string>
+
+    <string name="label_create_4digit_pin">CREA UN PIN A 4 CIFRE</string>
+
     <string name="label_confirm_your_pin">CONFERMA IL PIN</string>
-    <string name="label_forgot_your_pin">PIN dimenticato?</string>
+
+    <string name="label_forgot_your_pin">Hai dimenticato il PIN?</string>
+
     <string name="label_welcome_back">Bentornato</string>
+
     <string name="label_confirm_pin">Conferma PIN</string>
+
     <string name="label_security_question">Domanda di sicurezza</string>
+
     <string name="msg_answer_saved_security_question">Rispondi alla domanda salvata per disattivare il blocco app.</string>
-    <string name="msg_select_your_security_question">Seleziona la domanda salvata, poi inserisci la risposta.</string>
-    <string name="msg_select_a_security_question">Seleziona la domanda di sicurezza salvata.</string>
+
+    <string name="msg_select_your_security_question">Scegli la domanda salvata e inserisci la risposta.</string>
+
+    <string name="msg_select_a_security_question">Scegli la domanda di sicurezza salvata.</string>
+
     <string name="msg_biometric_or_pin_to_continue">Usa la biometria o inserisci il PIN per continuare.</string>
+
     <string name="msg_enter_pin_to_continue">Inserisci il PIN per continuare.</string>
+
     <string name="msg_choose_question_remember">Scegli una delle cinque domande e una risposta che ricorderai.</string>
+
     <string name="label_disable_app_lock">Disattiva blocco app</string>
-    <string name="msg_no_recovery_question_saved">Nessuna domanda di recupero ancora salvata per questo blocco.</string>
-    <string name="placeholder_type_recovery_answer">Digita la risposta di recupero</string>
+
+    <string name="msg_no_recovery_question_saved">Nessuna domanda di recupero salvata per questo blocco app.</string>
+
+    <string name="placeholder_type_recovery_answer">Scrivi la risposta di recupero</string>
+
     <string name="placeholder_enter_your_answer">Inserisci la risposta</string>
-    <string name="question_childhood_crush">Come si chiamava il tuo primo crush d\'infanzia?</string>
+
+    <string name="question_childhood_crush">Come si chiamava la tua prima cotta da piccolo?</string>
+
     <string name="question_first_school">Come si chiamava la tua prima scuola?</string>
+
     <string name="question_childhood_friend">Qual è il nome del tuo migliore amico d\'infanzia?</string>
-    <string name="question_birth_city">In quale città sei nato/a?</string>
+
+    <string name="question_birth_city">In quale città sei nato?</string>
+
     <string name="question_favorite_teacher">Qual era il cognome del tuo insegnante preferito?</string>
+
     <string name="question_pet_name">Come si chiamava il tuo primo animale?</string>
+
     <string name="title_add_category">Aggiungi categoria</string>
-    <string name="label_category_type_section">Tipo di categoria</string>
+
+    <string name="label_category_type_section">Tipo categoria</string>
+
     <string name="label_category_name_section">Nome categoria</string>
+
     <string name="label_select_visual_identity_section">Scegli identità visiva</string>
-    <string name="placeholder_income_example">es. Bonus di prestazione</string>
-    <string name="placeholder_expense_example">es. Weekend</string>
+
+    <string name="placeholder_income_example">es. Bonus di performance</string>
+
+    <string name="placeholder_expense_example">es. Fughe nel weekend</string>
+
     <string name="placeholder_payment_example">es. Portafoglio digitale</string>
+
     <string name="msg_name_already_exists">Questo nome esiste già in %1$s.</string>
+
     <string name="msg_choose_icons_info">Scegli tra 50 icone.</string>
+
     <string name="placeholder_search_icons">Cerca icone (es. \'Cibo\')…</string>
+
     <string name="label_color_section">Colore</string>
-    <string name="msg_choose_color_info">Facoltativo. Senza scelta, l\'app ne assegna uno.</string>
+
+    <string name="msg_choose_color_info">Opzionale. Senza, l\'app ne sceglie uno per te.</string>
+
     <string name="desc_color_default">Colore predefinito</string>
+
     <string name="desc_color_swatch">Colore %1$s</string>
+
     <string name="desc_color_swatch_selected">Colore %1$s, selezionato</string>
-    <string name="msg_change_color_hint">Scegli un nuovo colore o tieni quello dell\'app.</string>
+
+    <string name="msg_change_color_hint">Scegli un colore nuovo, o tieni quello dell\'app.</string>
+
     <string name="desc_change_color">Cambia colore</string>
-    <string name="msg_no_icons_found">Nessuna icona per \"%1$s\"</string>
+
+    <string name="msg_no_icons_found">Nessuna icona per "%1$s"</string>
+
     <string name="label_add_type">Aggiungi tipo</string>
-    <string name="label_payment_type_item">Tipo di pagamento</string>
+
+    <string name="label_payment_type_item">Metodo di pagamento</string>
+
     <string name="label_income_category_item">Categoria entrate</string>
+
     <string name="label_expense_category_item">Categoria spese</string>
-    <string name="msg_item_added_under">Questo elemento verrà aggiunto sotto %1$s.</string>
+
+    <string name="msg_item_added_under">Questo nuovo elemento verrà aggiunto sotto %1$s.</string>
+
     <string name="title_auto_lock_duration">Blocco automatico</string>
+
     <string name="title_biometric">Biometria</string>
+
     <string name="title_block_screenshots">Blocca screenshot</string>
+
     <string name="title_lock_as_soon_as_the_app_moves">Blocca appena l\'app va in background.</string>
-    <string name="title_require_the_pin_again_after_va">Richiedi di nuovo il PIN dopo %1$s minuti fuori dall\'app.</string>
+
+    <string name="title_require_the_pin_again_after_va">Chiedi di nuovo il PIN dopo %1$s minuti lontano dall\'app.</string>
+
     <string name="title_unlock_expense_tracker">Sblocca Expense Tracker</string>
+
     <string name="title_verify_biometric_to_enable_bio">Verifica la biometria per attivare il blocco biometrico.</string>
+
     <string name="title_verify_your_biometric_to_conti">Verifica la biometria per continuare.</string>
-    <string name="toast_biometric_authentication_is_un">La biometria non è disponibile su questa schermata.</string>
-    <string name="toast_biometric_initialization_faile">Inizializzazione biometrica non riuscita.</string>
+
+    <string name="toast_biometric_authentication_is_un">L\'autenticazione biometrica non è disponibile su questa schermata.</string>
+
+    <string name="toast_biometric_initialization_faile">Inizializzazione biometrica fallita.</string>
+
     <string name="title_add_transaction">Aggiungi transazione</string>
+
     <string name="title_edit_transaction">Modifica transazione</string>
+
     <string name="label_add_note">Aggiungi nota</string>
+
     <string name="label_no_note">Nessuna nota</string>
-    <string name="desc_view_full_note">Mostra nota completa</string>
-    <string name="desc_hide_full_note">Nascondi nota completa</string>
+
+    <string name="desc_view_full_note">Mostra nota intera</string>
+
+    <string name="desc_hide_full_note">Nascondi nota intera</string>
+
     <string name="label_off">Off</string>
+
     <string name="label_weekly">Settimanale</string>
+
     <string name="label_recurring">Ricorrente</string>
+
     <string name="label_save_note">Salva nota</string>
+
     <string name="label_what_is_this_for">A cosa serve?</string>
+
     <string name="placeholder_add_note">Aggiungi una nota...</string>
-    <string name="desc_clear_fields">Svuota campi</string>
+
+    <string name="desc_clear_fields">Pulisci campi</string>
+
     <string name="title_quick_favorites">Preferiti rapidi</string>
+
     <string name="label_all_favorites">Tutti</string>
+
     <string name="title_favorite_templates">Modelli preferiti</string>
+
     <string name="placeholder_search_favorites">Cerca modelli...</string>
+
     <string name="msg_no_favorites_yet">Nessuna transazione preferita ancora.</string>
-    <string name="msg_no_favorites_hint">Segna le transazioni frequenti come preferiti per inserirle con un tap.</string>
+
+    <string name="msg_no_favorites_hint">Segna le transazioni frequenti come preferiti per inserirle in un tap.</string>
+
     <string name="label_copy">Copia</string>
+
     <string name="msg_favorite_added">Transazione aggiunta ai preferiti.</string>
-    <string name="msg_favorite_copied">Preferito copiato.</string>
-    <string name="msg_favorite_removed">Rimosso dai preferiti.</string>
-    <string name="desc_toggle_favorite">Attiva/disattiva preferito</string>
+
+    <string name="msg_favorite_copied">Transazione preferita copiata.</string>
+
+    <string name="msg_favorite_removed">Rimossa dai preferiti.</string>
+
+    <string name="desc_toggle_favorite">Attiva/disattiva preferito per questa transazione</string>
+
     <string name="desc_open_all_favorites">Apri tutti i preferiti</string>
+
     <string name="desc_delete_favorite">Elimina preferito</string>
-    <string name="desc_select_favorite">Applica il preferito al modulo</string>
+
+    <string name="desc_select_favorite">Applica preferito al modulo</string>
+
     <string name="desc_favorite_icon">Preferito</string>
+
     <string name="desc_clear_note">Cancella nota</string>
+
     <string name="desc_clear_search">Cancella ricerca</string>
+
     <string name="desc_close">Chiudi</string>
-    <string name="label_recurring_track">Attiva per registrare automaticamente questa spesa in futuro.</string>
+
+    <string name="label_recurring_track">Attiva per tracciare automaticamente questa spesa in futuro.</string>
+
     <string name="desc_add_category">Aggiungi categoria</string>
+
     <string name="desc_add_transaction">Aggiungi transazione</string>
+
     <string name="desc_show_navigation_bar">Mostra barra di navigazione</string>
+
     <string name="desc_confirm_val_transaction">Conferma transazione %1$s</string>
+
     <string name="desc_collapse_keypad">Comprimi tastierino</string>
+
     <string name="desc_expand_keypad">Espandi tastierino</string>
+
     <string name="label_tap_to_hide_keypad">Tocca per nascondere il tastierino</string>
-    <string name="label_tap_to_slide_up_keypad">Tocca per far scorrere il tastierino</string>
+
+    <string name="label_tap_to_slide_up_keypad">Tocca per far scorrere su il tastierino</string>
+
     <string name="desc_delete_transaction">Elimina transazione</string>
-    <string name="desc_expense_tracker_logo">Logo Budget e spese</string>
+
+    <string name="desc_expense_tracker_logo">Logo Budget &amp; Spend</string>
+
     <string name="desc_search_transactions">Cerca transazioni</string>
+
     <string name="desc_todays_spending">Spese di oggi</string>
+
     <string name="dialog_budget_limit_alerts">Avvisi limite budget</string>
+
     <string name="label_add_category">Aggiungi categoria</string>
+
     <string name="label_amount">IMPORTO</string>
+
     <string name="label_amount_keypad">Tastierino importo</string>
-    <string name="label_breakdown_of_expenses_based_on">Ripartizione delle spese per portafoglio o metodo di pagamento.</string>
-    <string name="label_budgets_are_no_longer_preloade">I budget non sono più precaricati. Aggiungi il limite di categoria da tracciare questo mese.</string>
+
+    <string name="label_breakdown_of_expenses_based_on">Ripartizione delle spese in base al portafoglio o al metodo di pagamento.</string>
+
+    <string name="label_budgets_are_no_longer_preloade">I budget non sono più precaricati. Aggiungi il tetto di categoria da tracciare questo mese.</string>
+
     <string name="label_category_name_label">NOME CATEGORIA</string>
+
     <string name="label_category_type_label">TIPO CATEGORIA</string>
+
     <string name="label_choose_from_all_expense_catego">Scegli tra tutte le categorie di spesa, precaricate e personalizzate.</string>
-    <string name="label_choose_how_many_decimal_places">Scegli quante cifre decimali mostrare sugli importi.</string>
+
+    <string name="label_choose_how_many_decimal_places">Scegli quante cifre decimali mostrare nei valori di valuta.</string>
+
     <string name="label_delete_all_transactions">Eliminare tutte le transazioni?</string>
+
     <string name="label_delete_budget">Elimina budget</string>
+
     <string name="label_delete_transactions">Elimina transazioni</string>
+
     <string name="label_enter_amount">Inserisci importo</string>
+
     <string name="label_expense">SPESA</string>
+
     <string name="label_expense_category">Categoria spesa</string>
-    <string name="label_expense_tracker">Budget e spese</string>
-    <string name="label_expense_tracker_1">BUDGET E SPESE</string>
+
+    <string name="label_expense_tracker">Budget &amp; Spend</string>
+
+    <string name="label_expense_tracker_1">BUDGET &amp; SPEND</string>
+
     <string name="label_expense_title">Spesa</string>
-    <string name="label_how_many_times_this_recurring">Quante volte ripetere questa transazione ricorrente.</string>
+
+    <string name="label_how_many_times_this_recurring">Quante volte deve ripetersi questa transazione ricorrente.</string>
+
     <string name="label_income">ENTRATA</string>
+
     <string name="label_income_title">Entrata</string>
+
     <string name="label_monthly_budget">BUDGET MENSILE</string>
-    <string name="label_no_category_spending_found_in">Nessuna spesa per categoria in questo periodo.</string>
+
+    <string name="label_no_category_spending_found_in">Nessuna spesa per categoria in questo intervallo.</string>
+
     <string name="label_no_spending_data_found">Nessun dato di spesa.</string>
-    <string name="label_no_spending_transactions_in_th">Nessuna spesa nell\'intervallo selezionato.</string>
+
+    <string name="label_no_spending_transactions_in_th">Nessuna transazione di spesa nell\'intervallo scelto.</string>
+
     <string name="label_no_transactions_found">Nessuna transazione trovata</string>
-    <string name="label_ranked_by_spending_for_the_sel">Ordinato per spese nel periodo di analisi.</string>
+
+    <string name="label_ranked_by_spending_for_the_sel">Ordinate per spesa nell\'intervallo di analisi scelto.</string>
+
     <string name="label_recurring_transaction">Transazione ricorrente</string>
-    <string name="label_remove_the_budget_for_val_this">Rimuovere il budget di %1$s? Si elimina solo il limite, non le transazioni.</string>
-    <string name="label_remove_val_from_recurring_trac">Rimuovere %1$s dal tracciamento ricorrente?</string>
-    <string name="label_select_category">Seleziona categoria</string>
-    <string name="label_shape_how_your_transactions_ar">Definisci come organizzare e mostrare le transazioni.</string>
+
+    <string name="label_remove_the_budget_for_val_this">Rimuovere il budget per %1$s? Si elimina solo il tetto, non le transazioni.</string>
+
+    <string name="label_remove_val_from_recurring_trac">Togliere %1$s dal tracciamento ricorrente?</string>
+
+    <string name="label_select_category">Scegli categoria</string>
+
+    <string name="label_shape_how_your_transactions_ar">Decidi come organizzare e mostrare le transazioni.</string>
+
     <string name="label_spending_by_payment_mode">Spese per metodo di pagamento</string>
+
     <string name="label_delete_all_data">Elimina tutti i dati e reimposta l\'app</string>
+
     <string name="label_delete_account_and_data">Elimina account e tutti i dati</string>
-    <string name="desc_delete_data_warning">Questo rimuove in modo permanente tutte le spese e i budget. Se sei connesso, anche account e backup cloud verranno distrutti. Irreversibile.</string>
-    <string name="desc_delete_data_guest_warning">Cancella solo i dati su questo dispositivo. Non c\'è un account cloud da eliminare.\n\nTutto su questo telefono verrà rimosso: transazioni, budget, fondi, obiettivi, categorie, tag, backup e impostazioni.\n\nIrreversibile. Esporta prima un backup se vuoi una copia.</string>
-    <string name="desc_delete_data_signed_out_warning">Uscire non elimina l\'account. Cancella solo i dati su questo dispositivo. L\'account cloud resta finché non accedi e usi Elimina account e tutti i dati, o ci scrivi.\n\nTutto su questo telefono verrà rimosso: transazioni, budget, fondi, obiettivi, categorie, tag, backup e impostazioni.\n\nIrreversibile. Esporta prima un backup se vuoi una copia.</string>
-    <string name="desc_delete_account_and_data_warning">Questo elimina in modo permanente l\'account e tutti i dati associati. Irreversibile.\n\nFaremo:\n• Eliminare l\'account di accesso\n• Eliminare tutti i dati cloud sincronizzati (transazioni, budget, categorie, ricorrenti, obiettivi, metodi di pagamento, profilo, dispositivi, foto)\n• Cancellare tutti i dati su questo dispositivo\n\nGli altri dispositivi non potranno usare questo account. Esporta prima un backup JSON o database se vuoi una copia.</string>
-    <string name="label_this_removes_only_transactions">Questo rimuove in modo permanente tutti i dati. Azione irreversibile.</string>
+
+    <string name="desc_delete_data_warning">Questo rimuove per sempre tutte le spese e i budget. Se sei connesso, anche account e backup cloud verranno distrutti. Non si può annullare.</string>
+
+    <string name="desc_delete_data_guest_warning">Questo pulisce solo i dati su questo dispositivo. Non c\'è un account cloud da eliminare.\n\nTutto su questo telefono sparirà: transazioni, budget, fondi, obiettivi, categorie, tag, backup e impostazioni.\n\nNon si può annullare. Esporta un backup prima se vuoi una copia.</string>
+
+    <string name="desc_delete_data_signed_out_warning">Uscire non elimina l\'account. Questo pulisce solo i dati su questo dispositivo. L\'account cloud resta finché non accedi e usi Elimina account e tutti i dati, o ci scrivi.\n\nTutto su questo telefono sparirà: transazioni, budget, fondi, obiettivi, categorie, tag, backup e impostazioni.\n\nNon si può annullare. Esporta un backup prima se vuoi una copia.</string>
+
+    <string name="desc_delete_account_and_data_warning">Questo elimina per sempre l\'account e tutti i dati collegati. Non si può annullare.\n\nFaremo:\n• Eliminare l\'account di accesso\n• Eliminare tutti i dati cloud sincronizzati (transazioni, budget, categorie, ricorrenti, obiettivi, metodi di pagamento, profilo, dispositivi, foto)\n• Pulire tutti i dati su questo dispositivo\n\nGli altri dispositivi non potranno più usare questo account. Esporta un backup JSON o database prima se vuoi una copia.</string>
+
+    <string name="label_this_removes_only_transactions">Questo rimuove tutti i dati per sempre. L\'azione è irreversibile.</string>
+
     <string name="title_spent">Speso</string>
+
     <string name="label_spent_today">Speso oggi</string>
-    <string name="label_top_spending">Spese principali</string>
+
+    <string name="label_top_spending">Spese top</string>
+
     <string name="label_top_spending_by_category">Ripartizione spese</string>
+
     <string name="label_top_spending_by_payment_mode">Ripartizione pagamenti</string>
+
     <string name="label_income_breakdown">Ripartizione entrate</string>
+
     <string name="label_tags_breakdown">Ripartizione tag</string>
+
     <string name="label_no_income_breakdown">Nessuna entrata in questo periodo</string>
+
     <string name="label_no_tag_breakdown">Nessuna spesa con tag in questo periodo</string>
+
     <string name="label_all_income_categories">Tutte le entrate</string>
+
     <string name="label_all_tags_breakdown">Tutti i tag</string>
+
     <string name="title_full_income_breakdown">Ripartizione entrate</string>
+
     <string name="title_full_tag_breakdown">Ripartizione tag</string>
+
     <string name="label_total_amount">IMPORTO TOTALE</string>
+
     <string name="label_total_expenses">SPESE TOTALI</string>
+
     <string name="label_total_income">ENTRATE TOTALI</string>
+
     <string name="label_transaction_note">Nota transazione</string>
+
     <string name="label_transactionid">transactionId</string>
+
     <string name="label_transactions">Transazioni</string>
-    <string name="label_your_highest_expenses_in_the_s">Le tue spese più alte nel periodo selezionato.</string>
+
+    <string name="label_your_highest_expenses_in_the_s">Le tue spese più alte nel periodo scelto.</string>
+
     <string name="title_amount">Importo</string>
+
     <string name="title_amount_range">Intervallo importo</string>
+
     <string name="title_budget_recurring">Piani</string>
+
     <string name="title_category">Categoria</string>
+
     <string name="title_category_1">Categoria</string>
+
     <string name="title_budget_category">Categoria budget</string>
+
     <string name="title_custom_expense_category">Categoria spesa personalizzata</string>
+
     <string name="title_custom_income_category">Categoria entrate personalizzata</string>
+
     <string name="title_delete_all_transactions">Elimina tutte le transazioni</string>
+
     <string name="title_display_the_transaction_date">Mostra la data della transazione</string>
+
     <string name="title_expense">Spesa</string>
+
     <string name="title_group_transactions_by_day">Raggruppa transazioni per giorno</string>
+
     <string name="title_income">Entrata</string>
+
     <string name="title_incomeexpense_labels">Etichette entrate/spese</string>
+
     <string name="title_larger_amounts_take_priority_i">Gli importi più grandi hanno priorità in elenco.</string>
+
     <string name="title_manage_category">Gestisci categorie</string>
+
     <string name="title_manage_tags">Gestisci tag</string>
+
     <string name="label_manage_tags_subtitle">Organizza e unisci i tag</string>
+
     <string name="label_tags_count">%1$d tag</string>
+
     <string name="desc_tags_info">Cosa sono i tag</string>
+
     <string name="desc_search_tags">Cerca tag</string>
+
     <string name="placeholder_search_manage_tags">Cerca tag</string>
+
     <string name="desc_search_categories">Cerca categorie</string>
+
     <string name="placeholder_search_manage_categories">Cerca categorie</string>
+
     <string name="desc_categories_info">Cosa sono le categorie</string>
+
     <string name="title_what_are_categories">Cosa sono le categorie</string>
-    <string name="msg_categories_what">Le categorie raggruppano entrate e spese. Il metodo di pagamento è come si è mosso il denaro, ad esempio contanti o carta.</string>
+
+    <string name="msg_categories_what">Le categorie raggruppano entrate e spese. I metodi di pagamento sono come si è mosso il denaro, tipo contanti o carta.</string>
+
     <string name="msg_categories_where">Scegline una quando aggiungi una transazione. Gestisci nomi e colori qui.</string>
+
     <string name="label_categories_example">Esempio</string>
+
     <string name="label_category_example_name">Cibo</string>
+
     <string name="title_what_are_tags">Cosa sono i tag</string>
-    <string name="msg_tags_what">Un tag è un\'etichetta extra su una transazione, oltre alla categoria. Cibo, shopping e un soggiorno possono restare categorie diverse e restare collegati.</string>
-    <string name="msg_tags_where">In viaggio, aggiungi lo stesso tag a ogni spesa. Cercarlo in Transazioni o apri Analisi.</string>
+
+    <string name="msg_tags_what">Un tag è un\'etichetta extra sulla transazione, oltre alla categoria. Cibo, shopping e un soggiorno restano categorie diverse ma possono stare insieme.</string>
+
+    <string name="msg_tags_where">In viaggio, aggiungi lo stesso tag a ogni spesa. Cercalo in Transazioni, o apri Analisi per la ripartizione tag.</string>
+
     <string name="label_tags_example">Esempio</string>
+
     <string name="label_tag_example_name">vacanza</string>
+
     <string name="desc_sort">Ordina</string>
+
     <string name="title_sort">Ordina</string>
+
     <string name="label_sort_newest">Più recenti</string>
+
     <string name="label_sort_oldest">Più vecchie</string>
+
     <string name="label_sort_az">A → Z</string>
+
     <string name="label_sort_za">Z → A</string>
-    <string name="msg_no_tags_yet">Nessun tag ancora. Creane uno con +.</string>
+
+    <string name="msg_no_tags_yet">Nessun tag ancora. Creane uno con il pulsante +.</string>
+
     <string name="title_new_tag">Nuovo tag</string>
-    <string name="msg_tag_name_caption">Dai un nome breve per ritrovarlo dopo.</string>
+
+    <string name="msg_tag_name_caption">Dai a questo tag un nome corto così lo trovi dopo.</string>
+
     <string name="title_rename_tag">Rinomina tag</string>
+
     <string name="label_tag_name">Nome tag</string>
+
     <string name="label_create">Crea</string>
+
     <string name="label_rename">Rinomina</string>
+
     <string name="desc_add_tag">Aggiungi tag</string>
+
     <string name="desc_rename_tag">Rinomina %1$s</string>
+
     <string name="desc_delete_tag">Elimina %1$s</string>
+
     <string name="desc_merge_tag">Unisci %1$s</string>
-    <string name="msg_delete_tag_confirm">Eliminare \"%1$s\"? Verrà rimosso da tutte le transazioni, che restano.</string>
+
+    <string name="msg_delete_tag_confirm">Eliminare "%1$s"? Si toglie da ogni transazione, ma le transazioni restano.</string>
+
     <string name="msg_tag_transaction_count">%1$d transazioni</string>
+
     <string name="label_tag_prefixed">#%1$s</string>
+
     <string name="msg_tag_color_hint">Scegli un colore per questo tag</string>
-    <string name="msg_merge_pick_target">Unione di \"%1$s\" — tocca il tag di destinazione.</string>
+
+    <string name="msg_merge_pick_target">Unione di "%1$s" — tocca il tag in cui unirlo.</string>
+
     <string name="label_merge_tags">Unisci</string>
+
     <string name="label_delete_tags">Elimina</string>
-    <string name="msg_select_tags_to_merge">Seleziona 2 o più tag da unire</string>
+
+    <string name="msg_select_tags_to_merge">Seleziona 2 o più tag per unirli in uno</string>
+
     <string name="msg_select_tags_to_delete">Seleziona i tag da eliminare</string>
+
+    <string name="title_merge_tags">Unisci tag</string>
+
+    <string name="msg_merge_choose_target">Scegli il tag da tenere. Gli altri verranno uniti lì.</string>
+
+    <string name="label_merge_selected">Unisci %1$d</string>
+
+    <string name="label_delete_selected">Elimina %1$d</string>
+
+    <string name="msg_delete_tags_confirm">Eliminare %1$d tag? Si tolgono da ogni transazione, ma le transazioni restano.</string>
+
+    <string name="title_tags">Tag</string>
+
+    <string name="label_note_colon">Nota:</string>
+
+    <string name="label_tags_colon">Tag:</string>
+
+    <string name="label_fund_colon">Fondo:</string>
+
+    <string name="label_close">Chiudi</string>
+
+    <string name="label_add_tag">Aggiungi tag</string>
+
+    <string name="placeholder_search_tags">Cerca o crea un tag</string>
+
+    <string name="label_create_tag_named">Crea #%1$s</string>
+
+    <string name="desc_remove_tag">Rimuovi %1$s</string>
+
+    <string name="label_filter_tags">Tag</string>
+
+    <string name="label_tag_match_all">Tutti</string>
+
+    <string name="label_tag_match_any">Qualsiasi</string>
+
+    <string name="desc_filter_tags_match_mode">Abbina tutti o qualsiasi tag selezionato</string>
+
+    <string name="title_recurring_expenses">Spese ricorrenti</string>
+
+    <string name="title_show_category_icon">Mostra icona categoria</string>
+
+    <string name="title_show_transaction_date">Mostra data transazione</string>
+
+    <string name="title_show_transaction_time">Mostra ora transazione</string>
+
+    <string name="title_track_expensesneasily">Traccia le spese\ncon facilità</string>
+
+    <string name="title_transaction_card">Personalizzazione</string>
+
+    <string name="title_transaction_count">Conteggio transazioni</string>
+
+    <string name="title_transaction_type">Tipo transazione</string>
+
+    <string name="title_transactions">Transazioni</string>
+
+    <string name="title_visual_category_indicators">Indicatori visivi di categoria</string>
+
+    <string name="toast_all_transactions_deleted">Tutte le transazioni eliminate.</string>
+
+    <string name="toast_unable_to_delete_transactions">Impossibile eliminare le transazioni. Riprova.</string>
+
+    <string name="desc_profile_photo">Foto profilo</string>
+
+    <string name="desc_profile_placeholder">Segnaposto profilo</string>
+
+    <string name="desc_settings">Impostazioni</string>
+
     <string name="title_settings">Impostazioni</string>
-    <string name="label_save">Salva</string>
-    <string name="label_cancel">Annulla</string>
-    <string name="label_ok">OK</string>
-    <string name="label_done">Fatto</string>
-    <string name="label_next">Avanti</string>
-    <string name="label_yes">Sì</string>
-    <string name="label_no">No</string>
-    <string name="label_add">Aggiungi</string>
-    <string name="label_edit">Modifica</string>
-    <string name="label_delete">Elimina</string>
-    <string name="label_view_all">Vedi tutto</string>
-    <string name="label_date">Data</string>
-    <string name="label_time">Ora</string>
-    <string name="label_note">Nota</string>
+
+    <string name="title_detected_txns">Txn rilevate</string>
+
+    <string name="title_home_calculator">Calcolatrice</string>
+
+    <string name="title_calendar_view">Vista calendario</string>
+
+    <string name="desc_more_options">Altre opzioni</string>
+
+    <string name="header_account_and_security">Account e sicurezza</string>
+
+    <string name="header_membership">Abbonamento</string>
+
+    <string name="header_preferences">Preferenze</string>
+
+    <string name="header_system_and_data">Sistema e dati</string>
+
+    <string name="label_card_settings">Impostazioni scheda</string>
+
+    <string name="title_app_preferences">Preferenze app</string>
+
+    <string name="title_data_management">Gestione dati</string>
+
+    <string name="title_data_management_1">GESTIONE DATI</string>
+
+    <string name="title_notification_settings">Notifiche</string>
+
+    <string name="title_notifications">Notifiche</string>
+
+    <string name="title_notifications_1">Notifiche</string>
+
+    <string name="title_preference">PREFERENZA</string>
+
+    <string name="title_profile">Profilo</string>
+
+    <string name="title_user_profile">PROFILO UTENTE</string>
+
+    <string name="title_account">ACCOUNT</string>
+
+    <string name="title_customize_caps">PERSONALIZZA</string>
+
+    <string name="title_monetization_caps">MONETIZZAZIONE</string>
+
+    <string name="label_remove_all_ads">Rimuovi tutti gli annunci</string>
+
+    <string name="label_remove_all_ads_subtitle">Acquisto una tantum per un\'esperienza senza ads</string>
+
+    <string name="msg_watch_ad_for_ad_free">Prova Pro e UI senza ads</string>
+
+    <string name="desc_ad_free_pass_duration">Guarda un ads breve per %1$s di funzioni Pro e UI senza ads</string>
+
+    <string name="label_ad_free_active">Accesso senza ads attivo</string>
+
+    <string name="msg_ad_free_duration_remaining">Stai usando funzioni Pro e UI senza ads.</string>
+
+    <string name="label_active_caps">ATTIVO</string>
+
+    <string name="label_watch_now_caps">GUARDA ORA</string>
+
+    <string name="title_session">SESSIONE</string>
+
+    <string name="title_about_caps">INFO</string>
+
+    <string name="label_edit_profile">Modifica profilo</string>
+
+    <string name="label_edit_profile_subtitle">Aggiorna nome, avatar, email</string>
+
+    <string name="desc_cloud_sync_devices_subtitle">Sincronizza i dati tra dispositivi</string>
+
+    <string name="label_security_privacy_subtitle">Biometria, passcode, blocco app</string>
+
+    <string name="label_manage_category_subtitle">Aggiungi, modifica o colora le categorie</string>
+
+    <string name="label_app_preferences_subtitle">Tema, valuta, lingua</string>
+
+    <string name="label_transaction_card_subtitle">Personalizza l\'app</string>
+
+    <string name="label_data_management_subtitle">Backup, ripristino, export CSV</string>
+
+    <string name="label_about_subtitle">Versione, licenza, termini</string>
+
+    <string name="label_about_app_subtitle">Versione, licenza, termini</string>
+
+    <string name="title_refer_a_friend">Invita un amico</string>
+
+    <string name="label_refer_a_friend_subtitle">Manda un invito personale</string>
+
+    <string name="msg_refer_a_friend">Uso %1$s per tracciare le spese. Provalo:\n%2$s</string>
+
+    <string name="msg_refer_register_for_code">Registrati con Google o email/password per il tuo codice referral unico.</string>
+
+    <string name="btn_register_for_referral">Registrati per il codice</string>
+
+    <string name="msg_refer_how_it_works">Condividi il codice. Quando un amico accede, lo usa e aggiunge una transazione, potete avere entrambi 4 giorni di Pro. Fino a 4 premi al mese.</string>
+
+    <string name="label_refer_rewards_this_month">Premi questo mese: %1$d di %2$d</string>
+
+    <string name="btn_copy_code">Copia codice</string>
+
+    <string name="msg_code_copied">Codice copiato</string>
+
+    <string name="btn_share_code">Condividi invito</string>
+
+    <string name="msg_use_my_code">Usa il mio codice %1$s</string>
+
+    <string name="label_enter_friend_code">Codice dell\'amico</string>
+
+    <string name="btn_apply_code">Applica codice</string>
+
+    <string name="msg_welcome_days">Hai %1$d giorni di Pro Pass</string>
+
+    <string name="error_refer_not_signed_in">Accedi per applicare un codice</string>
+
+    <string name="error_refer_invalid">Quel codice non è valido</string>
+
+    <string name="error_refer_own_code">Non puoi usare il tuo codice</string>
+
+    <string name="error_refer_already">Hai già usato un codice referral</string>
+
+    <string name="error_refer_network">Controlla la connessione e riprova</string>
+
+    <string name="error_refer_unknown">Impossibile applicare quel codice</string>
+
+    <string name="title_refer_offer">Pro gratis</string>
+
+    <string name="msg_refer_offer">Invita amici. Ogni referral riuscito dà 4 giorni di Pro Pass, fino a 4 al mese.</string>
+
+    <string name="title_refer_more">Invita altri amici</string>
+
+    <string name="msg_refer_more">Invita altri amici per avere più Pro gratis.</string>
+
+    <string name="btn_refer_now">Invita un amico</string>
+
+    <string name="title_refer_earn">Invita e guadagna</string>
+
+    <string name="label_refer_earn_subtitle">Fino a 16 giorni di Pro gratis</string>
+
+    <string name="desc_referral_rules">Regole referral</string>
+
+    <string name="title_referral_rules">Regole referral</string>
+
+    <string name="msg_referral_rules">Ottieni 4 giorni Pro per ogni referral valido.\nL\'amico deve fare almeno 1 transazione dopo la registrazione.\nMassimo 4 premi (16 giorni) al mese solare.\nI premi si azzerano il 1° di ogni mese.</string>
+
+    <string name="tab_refer_friends">Invita amici</string>
+
+    <string name="tab_my_rewards">I miei premi</string>
+
+    <string name="label_pro_privilege">Privilegio Pro</string>
+
+    <string name="title_give_7_get_7">Dai 4 giorni,\nprendi 4 giorni Pro</string>
+
+    <string name="step_share_code">Condividi codice</string>
+
+    <string name="step_share_code_sub">Manda il link di invito</string>
+
+    <string name="step_friend_joins">L\'amico entra</string>
+
+    <string name="step_friend_joins_sub">Fa la 1ª attività</string>
+
+    <string name="step_both_get_pro">Entrambi Pro</string>
+
+    <string name="step_both_get_pro_sub">+4 giorni sbloccati</string>
+
+    <string name="label_your_referral_code">Il mio codice referral</string>
+
+    <string name="label_tap_to_copy">TOCCA PER COPIARE</string>
+
+    <string name="btn_share_invite_link">Condividi link invito</string>
+
+    <string name="title_monthly_progress">Progresso mensile</string>
+
+    <string name="label_earned_of_rewards">Ottenuti %1$d di %2$d premi possibili</string>
+
+    <string name="label_plus_days">+%1$d giorni</string>
+
+    <string name="label_days_left_to_max">%1$d giorni per il bonus max</string>
+
+    <string name="label_max_28_days">Max: 16 giorni Pro</string>
+
+    <string name="label_claimed">Riscattato</string>
+
+    <string name="label_next_slot">Prossimo</string>
+
+    <string name="label_slot_locked">Bloccato</string>
+
+    <string name="label_reward_days_count">%1$d giorni</string>
+
+    <string name="label_have_friend_code">Hai il codice di un amico?</string>
+
+    <string name="title_your_referrals">I tuoi referral</string>
+
+    <string name="label_total_active">Totale: %1$d attivi</string>
+
+    <string name="msg_invite_more_friends">Invita altri amici per riempire i premi del mese!</string>
+
+    <string name="msg_you_unlocked_welcome_pro">Hai sbloccato 4 giorni di Pro dal codice di un amico.</string>
+
+    <string name="msg_add_expense_to_complete_invite">Aggiungi una spesa per completare l\'invito per il tuo amico.</string>
+
+    <string name="label_signed_up_on">Iscritto il %1$s</string>
+
+    <string name="label_plus_7_days_pro">+4 giorni Pro</string>
+
+    <string name="label_referral_counted">Conteggiato</string>
+
+    <string name="label_completed_transaction">Transazione completata</string>
+
+    <string name="label_pending">In attesa</string>
+
+    <string name="label_awaiting_first_tx">In attesa della 1ª transazione</string>
+
+    <string name="label_test_popups">Popup di test:</string>
+
+    <string name="btn_test_referee_code">Codice referee</string>
+
+    <string name="btn_test_first_txn">1ª txn fatta</string>
+
+    <string name="label_code_accepted">Codice accettato</string>
+
+    <string name="title_you_unlocked_7_days">Entra in Pro:\ni prossimi 4 giorni sono sbloccati</string>
+
+    <string name="msg_referral_code_applied_pro">Il codice referral è stato applicato. Tutte le funzioni Pro sono sbloccate per 4 giorni.</string>
+
+    <string name="label_pro_ai_tools">Pro completo - senza ads</string>
+
+    <string name="label_pro_ad_free">Sync dati su 4 dispositivi</string>
+
+    <string name="label_pro_priority_themes">Molto altro… esplora</string>
+
+    <string name="label_valid_until">Valido fino a:</string>
+
+    <string name="label_free_badge">GRATIS</string>
+
+    <string name="btn_start_exploring_pro">Inizia a esplorare Pro</string>
+
+    <string name="btn_want_more_refer">Ne vuoi di più? Invita amici fino a 16 giorni!</string>
+
+    <string name="label_first_txn_done">1ª TXN FATTA</string>
+
+    <string name="label_referral_completed">Referral completato</string>
+
+    <string name="title_you_earned_7_days">Hai guadagnato\n+4 giorni Pro gratis!</string>
+
+    <string name="msg_friend_registered_first_tx">%1$s si è registrato con il tuo codice e ha fatto la 1ª transazione!</string>
+
+    <string name="label_monthly_rewards_progress">Progresso premi mensili</string>
+
+    <string name="label_rewards_fraction">%1$d / %2$d premi</string>
+
+    <string name="label_7_days_slot">4 giorni</string>
+
+    <string name="msg_7_days_pro_auto_activated">4 giorni Pro attivati automaticamente!</string>
+
+    <string name="btn_7_days_pro_claimed">4 giorni Pro riscattati</string>
+
+    <string name="btn_invite_more_days_left">Invita altri amici (+%1$d giorni rimasti)</string>
+
+    <string name="label_test_friend_name">Alex Morgan</string>
+
+    <string name="title_share_app">Condividi app</string>
+
+    <string name="label_share_app">Condividi app</string>
+
+    <string name="label_share_app_subtitle">Manda il link del Play Store</string>
+
+    <string name="msg_share_app_chat">Ehi! Uso Expense Tracker Budget &amp; Spend per tracciare spese e budget. Super utile! Guardalo qui:\n\n%1$s</string>
+
+    <string name="msg_share_app_features">Gestire i soldi è più facile! Uso Expense Tracker Budget &amp; Spend per budget, spese giornaliere e obiettivi di risparmio.\n\nProvalo: %1$s</string>
+
+    <string name="msg_share_app_punchy">Prendi in mano i tuoi soldi! Traccia le spese e imposta budget smart con Expense Tracker Budget &amp; Spend: %1$s</string>
+
+    <string name="label_notifications_subtitle">Controlla avvisi e promemoria</string>
+
+    <string name="desc_settings_icon">Icona impostazioni</string>
+
+    <string name="title_connect_on_linkedin">Connettiti su LinkedIn</string>
+
+    <string name="label_connect_on_linkedin_subtitle">Segui Manish su LinkedIn</string>
+
+    <string name="label_val_min">%1$d min</string>
+
+    <string name="label_add_note_optional">Aggiungi una nota… (opzionale)</string>
+
+    <string name="toast_authentication_failed">Autenticazione fallita.</string>
+
+    <string name="error_auth_cloned_or_unauthorized">Autenticazione Google fallita. Se usi un\'app clonata o parallel space, usa l\'app originale.</string>
+
+    <string name="error_enter_email">Inserisci il tuo indirizzo email.</string>
+
+    <string name="toast_legacy_import_failed_check_the">Import legacy fallito. Controlla il file di backup e riprova.</string>
+
+    <string name="toast_database_backup_save_failed">Impossibile salvare il backup del database. Riprova.</string>
+
+    <string name="toast_database_restore_failed">Impossibile ripristinare il backup del database. Riprova.</string>
+
+    <string name="toast_json_exported">JSON esportato: %1$d transazioni, %2$d budget, %3$d obiettivi.</string>
+
+    <string name="toast_json_export_failed">Impossibile esportare JSON. Riprova.</string>
+
+    <string name="toast_json_import_failed">Impossibile importare JSON. Controlla il file e riprova.</string>
+
+    <string name="toast_json_import_message">Importati %1$d txn, %2$d budget, %3$d regole, %4$d obiettivi. Saltati %5$d duplicati txn.</string>
+
+    <string name="toast_legacy_imported">Importate %1$d transazioni legacy. Saltate %2$d esistenti.</string>
+
+    <string name="toast_delete_transactions_failed">Impossibile eliminare le transazioni. Riprova.</string>
+
+    <string name="toast_pro_billing_coming_soon">Il billing Pro arriva presto!</string>
+
+    <string name="toast_unable_to_export_json_please_t">Impossibile esportare JSON. Riprova.</string>
+
+    <string name="toast_unable_to_import_json_check_th">Impossibile importare JSON. Controlla il file e riprova.</string>
+
+    <string name="toast_unable_to_restore_the_database">Impossibile ripristinare il backup del database. Riprova.</string>
+
+    <string name="toast_unable_to_save_the_database_ba">Impossibile salvare il backup del database. Riprova.</string>
+
+    <string name="dialog_alerts_reminders">AVVISI E PROMEMORIA</string>
+
+    <string name="desc_add_item">Aggiungi elemento</string>
+
+    <string name="desc_ai_tip">Suggerimento AI</string>
+
+    <string name="desc_apply_to_note">Applica alla nota</string>
+
+    <string name="desc_back">Indietro</string>
+
+    <string name="desc_close_filters">Chiudi filtri</string>
+
+    <string name="desc_close_search">Chiudi ricerca</string>
+
+    <string name="desc_remove_filter">Rimuovi filtro</string>
+
+    <string name="desc_custom_range">Intervallo personalizzato</string>
+
+    <string name="desc_delete">Elimina</string>
+
+    <string name="desc_delete_photo">Elimina foto</string>
+
+    <string name="content_desc_email_verified">Email verificata</string>
+
+    <string name="desc_delete_selected">Elimina selezionate</string>
+
+    <string name="desc_delete_val">Elimina %1$s</string>
+
+    <string name="desc_delete_val_1">Elimina %1$s</string>
+
+    <string name="desc_deselect_all">Deseleziona tutto</string>
+
+    <string name="desc_exit_selection">Esci dalla selezione</string>
+
+    <string name="desc_next_period">Periodo successivo</string>
+
+    <string name="desc_next_year">Anno successivo</string>
+
+    <string name="desc_open_calculator">Apri calcolatrice</string>
+
+    <string name="desc_open_calendar">Apri calendario</string>
+
+    <string name="desc_open_gender_options">Apri opzioni genere</string>
+
+    <string name="desc_open_val">Apri %1$s</string>
+
+    <string name="desc_open_val_1">Apri \%1$s</string>
+
+    <string name="desc_open_val_2">Apri %1$s</string>
+
+    <string name="desc_previous_period">Periodo precedente</string>
+
+    <string name="desc_previous_year">Anno precedente</string>
+
+    <string name="desc_search">Cerca</string>
+
+    <string name="desc_search_currency">Cerca valuta</string>
+
+    <string name="desc_select_all">Seleziona tutto</string>
+
+    <string name="label_12">12</string>
+
+    <string name="label_12hour">12 ore</string>
+
+    <string name="label_248">+24.8%</string>
+
+    <string name="label_24hour">24 ore</string>
+
+    <string name="label_full_access_for_duration">Accesso completo per %1$s</string>
+
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d ora</item>
+        <item quantity="other">%1$d ore</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d minuto</item>
+        <item quantity="other">%1$d minuti</item>
+    </plurals>
+
+    <string name="label_1_hour_access">1 ora senza ads</string>
+
     <string name="label_about">Info</string>
-    <string name="label_pro">Pro</string>
-    <string name="label_free">Gratis</string>
-    <string name="notification_action_edit">Modifica</string>
-    <string name="notification_action_ignore">Ignora</string>
-    <string name="notification_title_sms_import">Transazione rilevata</string>
-    <string name="label_developed_by">Sviluppato da</string>
-    <string name="label_funds_breakdown">Ripartizione fondi</string>
-    <string name="label_no_fund_breakdown">Nessuna spesa da fondi in questo periodo</string>
-    <string name="label_all_funds_breakdown">Tutti i fondi</string>
+
+    <string name="label_ac">AC</string>
+
+    <string name="label_c">C</string>
+
+    <string name="label_accuracy">PRECISIONE</string>
+
+    <string name="label_active">Attivo</string>
+
+    <string name="label_add_a_note">Aggiungi una nota</string>
+
+    <string name="label_add_item">Aggiungi elemento</string>
+
+    <string name="label_add_new_item">Aggiungi nuovo elemento</string>
+
+    <string name="label_all_categories">Tutte le categorie</string>
+
+    <string name="label_app_is_starting_please_wait">L\'app si sta avviando, aspetta...</string>
+
+    <string name="label_apply">Applica</string>
+
+    <string name="label_apply_custom_duration">Applica durata personalizzata</string>
+
+    <string name="label_apply_custom_frequency">Applica frequenza personalizzata</string>
+
+    <string name="label_apply_filters">Applica filtri</string>
+
+    <string name="label_apply_to_note">Applica alla nota</string>
+
+    <string name="label_are_you_sure_you_want_to_delet">Eliminare %1$s transazioni? Non si può annullare.</string>
+
+    <string name="label_breakdown">Ripartizione</string>
+
+    <string name="label_breakdown_sub_expenses">sotto-spese</string>
+
+    <string name="label_cancel">ANNULLA</string>
+
+    <string name="label_cancel_1">Annulla</string>
+
+    <string name="label_cash_flow_ratio">Rapporto di cassa</string>
+
+    <string name="label_choose_from_50_icons_color_sty">Scegli tra 50 icone. Il colore resta automatico.</string>
+
+    <string name="label_choose_month">Scegli mese</string>
+
+    <string name="label_choose_the_date_style_you_want">Scegli lo stile data da vedere in tutta l\'app.</string>
+
+    <string name="label_choose_the_gender_label_that_b">Scegli l\'etichetta di genere che ti sta meglio.</string>
+
+    <string name="label_choose_whether_time_is_shown_i">Scegli se l\'ora è in stile 12 o 24 ore.</string>
+
+    <string name="label_choose_year">Scegli anno</string>
+
+    <string name="label_clear">Pulisci</string>
+
+    <string name="label_custom_duration">Durata personalizzata</string>
+
+    <string name="label_customize_how_your_data_is_vis">Personalizza come visualizzare i dati</string>
+
+    <string name="label_date">Data</string>
+
+    <string name="desc_miss_entry_reminder">Ricevi un avviso se dimentichi di aggiungere una transazione per 2 giorni.</string>
+
+    <string name="label_date_of_birth">DATA DI NASCITA</string>
+
+    <string name="label_default_is_off_turn_it_on_to_t">Di default è off. Attivalo per tracciare questa spesa in Budget e ricorrenti.</string>
+
+    <string name="label_delete">ELIMINA</string>
+
+    <string name="label_delete_all">Elimina tutto</string>
+
+    <string name="label_description">DESCRIZIONE</string>
+
+    <string name="label_description_1">Descrizione</string>
+
+    <string name="label_developed_by">SVILUPPATO DA</string>
+
+    <string name="label_edit">MODIFICA</string>
+
+    <string name="label_email_address">INDIRIZZO EMAIL</string>
+
+    <string name="label_encrypted_mode">MODALITÀ CRIPTATA</string>
+
+    <string name="label_enter_minutes">Inserisci minuti</string>
+
+    <string name="label_forgot">DIMENTICATO</string>
+
+    <string name="label_full_name">NOME COMPLETO</string>
+
+    <string name="label_gender">GENERE</string>
+
+    <string name="label_github">GITHUB</string>
+
+    <string name="label_growth_index">INDICE DI CRESCITA</string>
+
+    <string name="label_handcrafted_with_precision_and">Fatto a mano con precisione e ❤️</string>
+
+    <string name="label_headertransition">HeaderTransition</string>
+
+    <string name="label_hi_val">Ciao, %1$s</string>
+
+    <string name="label_high_fidelity">Alta fedeltà</string>
+
+    <string name="label_iconkey">iconKey</string>
+
+    <string name="label_id">id</string>
+
+    <string name="label_immediately">Subito</string>
+
+    <string name="label_itemized_calculator">Calcolatrice per voci</string>
+
+    <string name="label_last_month">MESE SCORSO</string>
+
+    <string name="label_linkedin">LINKEDIN</string>
+
+    <string name="label_month">/ mese</string>
+
+    <string name="label_month_1">Mese</string>
+
+    <string name="label_monthly_limit">Limite mensile</string>
+
+    <string name="label_name">name</string>
+
+    <string name="label_new_item">NUOVO ELEMENTO</string>
+
+    <string name="label_no_countries_matched_your_sear">Nessun paese corrisponde alla ricerca.</string>
+
+    <string name="label_no_payment_data_found_in_this">Nessun dato di pagamento in questo intervallo.</string>
+
+    <string name="label_not_now">NON ORA</string>
+
+    <string name="label_note">Nota</string>
+
+    <string name="label_personalize_your_vault">PERSONALIZZA IL TUO VAULT</string>
+
+    <string name="label_phone_number">NUMERO DI TELEFONO</string>
+
+    <string name="label_pick_a_preset_in_5minute_steps">Scegli un preset a passi di 5 minuti fino a 60, o inserisci un valore in minuti.</string>
+
+    <string name="label_pick_a_preset_or_enter_a_custo">Scegli un preset o inserisci un valore tra 1 e 30 giorni.</string>
+
+    <string name="label_premium_member">MEMBRO PRO</string>
+
+    <string name="label_private_member">MEMBRO PRIVATO</string>
+
+    <string name="label_qval">T%1$s</string>
+
+    <string name="label_recent">Recenti</string>
+
+    <string name="label_recent_activities">Attività recenti</string>
+
+    <string name="label_repeat_count">Conteggio ripetizioni</string>
+
+    <string name="label_reset">Reset</string>
+
+    <string name="label_restore_database">Ripristinare il database?</string>
+
+    <string name="label_save">Salva</string>
+
+    <string name="label_save_changes">Salva modifiche</string>
+
+    <string name="label_search_by_country_and_pick_the">Cerca per paese e scegli la valuta da usare in tutta l\'app.</string>
+
+    <string name="label_search_country">Cerca paese</string>
+
+    <string name="label_security_answer">Risposta di sicurezza</string>
+
+    <string name="label_select_currency">Scegli valuta</string>
+
+    <string name="label_select_date_format">Scegli formato data</string>
+
+    <string name="label_select_decimal_places">Scegli cifre decimali</string>
+
+    <string name="label_select_gender">Scegli genere</string>
+
+    <string name="label_select_number_format">Scegli formato numeri</string>
+
+    <string name="label_select_time_format">Scegli formato ora</string>
+
+    <string name="label_select_visual_identity">SCEGLI IDENTITÀ VISIVA</string>
+
+    <string name="label_selected">Selezionato</string>
+
+    <string name="label_smart_ai_tip">Suggerimento AI smart</string>
+
+    <string name="label_sort_filter">Ordina e filtra</string>
+
+    <string name="label_stepanimation">StepAnimation</string>
+
+    <string name="label_system_active">Sistema attivo</string>
+
+    <string name="pro_slogan_1">Lascia che i soldi si traccino da soli.</string>
+
+    <string name="pro_subheadline_1">Smetti di digitare affitto, bollette e abbonamenti che si ripetono. Log ricorrenti automatici e sync cloud tra dispositivi fanno il lavoro noioso.</string>
+
+    <string name="pro_cta_1">Sblocca il risparmio in autopilot</string>
+
+    <string name="pro_slogan_2">Registra una volta. Sincronizza ovunque. Senza fatica.</string>
+
+    <string name="pro_subheadline_2">Tieni portafogli e conti in sync su telefono, tablet e dispositivo del partner in tempo reale, a mani libere.</string>
+
+    <string name="pro_cta_2">Via la fatica manuale</string>
+
+    <string name="pro_slogan_3">Zero lavoro manuale. 100% controllo finanziario.</string>
+
+    <string name="pro_subheadline_3">Trasforma il tracciamento giornaliero da corvée a compito in background. Automatizza i log mensili e traccia in silenzio.</string>
+
+    <string name="pro_cta_3">Sblocca il risparmio in autopilot</string>
+
+    <string name="pro_slogan_4">Vedi dove vanno i soldi prima di spenderli.</string>
+
+    <string name="pro_subheadline_4">Oltre lo storico statico. Sblocca proiezioni per categoria e previsioni di trend per vedere il saldo del mese prossimo già oggi.</string>
+
+    <string name="pro_cta_4">Passa alla chiarezza a vita</string>
+
+    <string name="pro_slogan_5">Smetti di indovinare. Inizia a far crescere il patrimonio.</string>
+
+    <string name="pro_subheadline_5">Elimina i punti ciechi. Con le analisi Pro vedi dove spendi troppo e sposti quelle perdite nei risparmi.</string>
+
+    <string name="pro_cta_5">Prendi il controllo del patrimonio</string>
+
+    <string name="pro_slogan_6">Padroneggia il flusso di cassa con proiezioni smart.</string>
+
+    <string name="pro_subheadline_6">Togli il dubbio dal budget mensile. Previsioni automatiche sulle tue abitudini per un piano solido.</string>
+
+    <string name="pro_cta_6">Passa alla chiarezza a vita</string>
+
+    <string name="pro_slogan_7">La tua storia finanziaria, al sicuro per sempre.</string>
+
+    <string name="pro_subheadline_7">Un telefono perso, rotto o nuovo non deve cancellare anni di abitudini. Proteggi i dati con backup automatici silenziosi su Google Drive e ripristino in 1 tap.</string>
+
+    <string name="pro_cta_7">Passa alla chiarezza a vita</string>
+
+    <string name="pro_slogan_8">A prova di crash. Di telefono. Di stress.</string>
+
+    <string name="pro_subheadline_8">Stai tranquillo: storico transazioni e fogli budget sono cifrati, sincronizzati e salvati in automatico sul cloud.</string>
+
+    <string name="pro_cta_8">Proteggi i dati ora</string>
+
+    <string name="label_take_control_of_your_wealth_wi">Prendi il controllo del patrimonio con i nostri strumenti più potenti.</string>
+
+    <string name="label_this_name_already_exists_in_va">Questo nome esiste già in %1$s.</string>
+
+    <string name="label_this_new_item_will_be_added_un">Questo nuovo elemento verrà aggiunto sotto %1$s.</string>
+
+    <string name="label_this_will_overwrite_your_curre">Questo sovrascrive il database attuale con il backup .db scelto. Non unisce i record mancanti. I dati esistenti verranno sostituiti.</string>
+
+    <string name="label_today">Oggi</string>
+
+    <string name="label_yesterday">Ieri</string>
+
+    <string name="label_tomorrow">Domani</string>
+
+    <string name="label_top_breakdownfirstornulllabel">Top: ${breakdown.firstOrNull()?.label ?: </string>
+
+    <string name="label_total_analytics">ANALISI TOTALI</string>
+
+    <string name="label_total_balance">SALDO TOTALE</string>
+
+    <string name="title_cash_flow">FLUSSO DI CASSA</string>
+
+    <string name="label_this_month_cash_flow">Questo mese</string>
+
+    <string name="label_this_year_cash_flow">Quest\'anno</string>
+
+    <string name="label_spending_cash_flow">Spesa</string>
+
+    <string name="label_expense_cash_flow">Spesa</string>
+
+    <string name="label_income_cash_flow">Entrata</string>
+
+    <string name="label_net_balance_cash_flow">Saldo netto</string>
+
+    <string name="label_track_every_move_with_confiden">Traccia ogni movimento con fiducia.</string>
+
+    <string-array name="psychology_phrases" translatable="false">
+        <item>Awareness beats willpower.</item>
+        <item>You can\'t change what you don\'t notice.</item>
+        <item>Small amounts, repeated, become your reality.</item>
+        <item>Pause ten seconds before you spend.</item>
+        <item>Every glance here is a choice made on purpose.</item>
+        <item>Money follows attention.</item>
+        <item>Notice first, spend second.</item>
+        <item>The number you avoid is the number that grows.</item>
+        <item>What you track, you tend.</item>
+        <item>Name the feeling before the purchase.</item>
+        <item>One purchase is a mood; a pattern is a choice.</item>
+        <item>Slower hands, steadier money.</item>
+        <item>You are not your urge.</item>
+        <item>The pause is where the power is.</item>
+        <item>Progress hides in small numbers.</item>
+        <item>Comfort is not a plan.</item>
+        <item>Clarity is the antidote to financial chaos.</item>
+        <item>Your past purchases built your present baseline.</item>
+        <item>A budget is telling your money where to go instead of wondering where it went.</item>
+        <item>Impulses fade faster than receipts.</item>
+        <item>Shame stops tracking; curiosity keeps it alive.</item>
+        <item>Intentional spending beats accidental saving.</item>
+        <item>Every rupee spent is a vote for the life you want.</item>
+        <item>Delay is often the only filter you need.</item>
+        <item>Retail therapy treats the symptom, not the cause.</item>
+        <item>Notice the craving; skip the cart.</item>
+        <item>Wealth is what you keep, not what you display.</item>
+        <item>Peace of mind costs less than luxury.</item>
+        <item>Ask yourself: am I buying this or am I buying comfort?</item>
+        <item>Small leaks sink great ships.</item>
+        <item>Habits compound faster than interest.</item>
+        <item>Control your spending before your spending controls you.</item>
+        <item>Awareness transforms a habit into a choice.</item>
+        <item>Needs are quiet; wants are loud.</item>
+        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
+        <item>Watch the pennies and the pounds will take care of themselves.</item>
+        <item>Freedom is being able to say no to immediate gratification.</item>
+        <item>The best things in life don\'t require an invoice.</item>
+        <item>Boredom is an expensive emotion.</item>
+        <item>Stress spending leaves a hangover.</item>
+        <item>Your future self is watching your current cart.</item>
+        <item>Examine the urge before you enter the checkout code.</item>
+        <item>Money management is self-care.</item>
+        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
+        <item>True wealth builds silently in the background.</item>
+        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
+        <item>When you know your why, your wallet aligns.</item>
+        <item>Mindful spending brings more joy than mindless accumulation.</item>
+        <item>Pause long enough for logic to enter the room.</item>
+        <item>Every financial choice shapes tomorrow\'s reality.</item>
+        <item>The temporary high of buying fades by morning.</item>
+        <item>Track your habits and your habits will reward you.</item>
+        <item>Silence the noise of marketing with the clarity of your goals.</item>
+        <item>Choose long-term stability over short-term dopamine.</item>
+        <item>Don\'t measure wealth by things; measure it by choices.</item>
+        <item>Recognize the trigger before it triggers the transaction.</item>
+        <item>Direction matters more than speed.</item>
+        <item>Your bank account is a mirror of your priorities.</item>
+        <item>Conscious consumption is a superpower.</item>
+        <item>Sleep on major purchases; clarity comes with dawn.</item>
+        <item>Simplicity is the ultimate sophistication in finance.</item>
+        <item>Discipline is choosing between what you want now and what you want most.</item>
+        <item>A clear ledger brings a calm mind.</item>
+        <item>Every dollar saved is a worker working for your future.</item>
+        <item>Look at the data, not the desire.</item>
+        <item>Master your mindset to master your money.</item>
+        <item>Financial peace isn\'t an accident; it\'s a design.</item>
+        <item>Notice when emotions dictate your payments.</item>
+        <item>The cost of a thing is the amount of life you exchange for it.</item>
+        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
+        <item>Habitual tracking kills financial anxiety.</item>
+        <item>Let purpose guide your purchases.</item>
+        <item>A moment of reflection prevents a month of regret.</item>
+        <item>Look beyond the price tag to the long-term impact.</item>
+        <item>Your attention determines your allocation.</item>
+        <item>Financial independence begins with a single logged entry.</item>
+        <item>Step back from the sale banner; look at your goals.</item>
+        <item>Intentionality turns routine into ritual.</item>
+        <item>Unchecked subscriptions are quiet wealth thieves.</item>
+        <item>Notice the impulse, let it pass like a cloud.</item>
+        <item>Your financial story is written one entry at a time.</item>
+        <item>Align your spending with your core values.</item>
+        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
+        <item>Clarity replaces confusion with confidence.</item>
+        <item>Choose progress over perfection.</item>
+        <item>Every time you open this app, you reclaim your power.</item>
+        <item>Small disciplines repeated daily lead to great achievements.</item>
+        <item>Reflect on the root cause of the urge to splurge.</item>
+        <item>Wealth is built in the shadows of everyday choices.</item>
+        <item>Mastering money starts with managing moments.</item>
+        <item>Let your values dictate your volume.</item>
+        <item>You own your money; don\'t let your money own your mood.</item>
+        <item>A mindful habit today saves a financial headache tomorrow.</item>
+        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
+        <item>Awareness is the first step of transformation.</item>
+        <item>Let your records reflect your aspirations.</item>
+        <item>Look closely at what stays; let go of what drains.</item>
+        <item>Peace is owning fewer things that require your attention.</item>
+        <item>Your financial future is decided in moments like this.</item>
+        <item>Keep your goals in focus and your expenses in check.</item>
+    </string-array>
+
+    <string name="label_upgrade_to_pro">Passa a Pro</string>
+
+    <string name="label_val">%1$s%</string>
+
+    <string name="label_val_1">%1$s%</string>
+
+    <string name="label_val_2">%1$s%</string>
+
+    <string name="label_val_days">%1$s giorni</string>
+
+    <string name="label_val_items">%1$s ELEMENTI</string>
+
+    <string name="label_val_minutes">%1$s minuti</string>
+
+    <string name="label_val_selected">%1$s selezionati</string>
+
+    <string name="label_select_all_in_view">Seleziona tutti i %1$d in questa vista</string>
+
+    <string name="label_val_val">%1$s (%2$s)</string>
+
+    <string name="label_valx">%1$sX</string>
+
+    <string name="label_view_all">Vedi tutto</string>
+
+    <string name="label_website">SITO</string>
+
+    <string name="label_wk_val">SETT %1$s</string>
+
+    <string name="label_year">Anno</string>
+
+    <string name="label_your_answer">La tua risposta</string>
+
+    <string name="title_about">Info</string>
+
+    <string name="title_about_app">Info app</string>
+
+    <string name="title_access">ACCESSO</string>
+
+    <string name="title_analytics">Analisi</string>
+
+    <string name="title_architecture">ARCHITETTURA</string>
+
+    <string name="title_auto_backup">Backup automatico</string>
+
+    <string name="title_automated_backup_every_val_day">Backup automatico ogni %1$s giorni.</string>
+
+    <string name="title_avg_daily">Media giornaliera</string>
+
+    <string name="title_backup">Backup</string>
+
+    <string name="title_backup_frequency">Frequenza backup</string>
+
+    <string name="title_blur_in_recents">Sfoca nei recenti</string>
+
+    <string name="title_calendar">Calendario</string>
+
+    <string name="title_choose_the_main_attribute_used">Scegli l\'attributo principale per ordinare l\'elenco.</string>
+
+    <string name="title_confirm_identity">Conferma identità</string>
+
+    <string name="title_currency">Valuta</string>
+
+    <string name="title_customize">PERSONALIZZA</string>
+
+    <string name="title_daily_reminder">Promemoria giornaliero</string>
+
+    <string name="title_dashboard">DASHBOARD</string>
+
+    <string name="title_database">DATABASE</string>
+
+    <string name="title_date">Data</string>
+
+    <string name="title_date_format">Formato data</string>
+
+    <string name="title_decimal_places">Cifre decimali</string>
+
+    <string name="title_display_wallet_or_card_used">Mostra portafoglio o carta usati</string>
+
+    <string name="title_exact_timestamp_visibility">Visibilità timestamp esatto</string>
+
+    <string name="title_export_json">Esporta JSON</string>
+
+    <string name="title_filters">Filtri</string>
+
+    <string name="title_finetune_how_results_are_ranke">Affina come si classificano i risultati nell\'ordinamento scelto.</string>
+
+    <string name="title_follow_us">SEGUICI</string>
+
+    <string name="title_frequency">Frequenza</string>
+
+    <string name="title_highest_first">Più alto prima</string>
+
+    <string name="title_import_json">Importa JSON</string>
+
+    <string name="title_import_legacy_data">Importa dati legacy</string>
+
+    <string name="title_json_transfer">TRASFERIMENTO JSON</string>
+
+    <string name="title_legal">Legale</string>
+
+    <string name="title_maintenance">MANUTENZIONE</string>
+
+    <string name="title_missed_entry_reminder">Promemoria voce mancata</string>
+
+    <string name="title_number_format">Formato numeri</string>
+
+    <string name="title_order">Ordine</string>
+
+    <string name="title_payment_method">Metodo di pagamento</string>
+
+    <string name="title_payment_mode">Metodo di pagamento</string>
+
+    <string name="title_premium_by_designnprivate_by_n">Premium per design,\nprivato per natura</string>
+
+    <string name="title_privacy_policy">Privacy policy</string>
+
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
+
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
+
+    <string name="title_rate_app">Valuta l\'app</string>
+
+    <string name="title_rate_prompt">Questa app ti è utile?</string>
+
+    <string name="label_how_would_you_rate">Come ci valuteresti?</string>
+
+    <string name="label_submit_rating">Invia</string>
+
+    <string name="cd_rate_star">Valuta %1$d su 5</string>
+
+    <string name="title_report_bug">Segnala bug</string>
+
+    <string name="title_restore">Ripristina</string>
+
+    <string name="title_savings">Risparmi</string>
+
+    <string name="title_secure_private">Sicuro e privato</string>
+
+    <string name="title_security_privacy">Sicurezza e privacy</string>
+
+    <string name="title_security_privacy_1">SICUREZZA E PRIVACY</string>
+
+    <string name="title_privacy_options">Opzioni privacy</string>
+
+    <string name="label_privacy_options_subtitle">Gestisci consenso e scelte sui dati</string>
+
+    <string name="title_send_feedback">Invia feedback</string>
+
+    <string name="title_show_date_separators">Mostra separatori data</string>
+
+    <string name="title_show_list_summaries">Mostra riepiloghi periodo</string>
+
+    <string name="desc_show_list_summaries">Mostra totali entrate e spese del periodo corrente</string>
+
+    <string name="title_show_payment_method">Mostra metodo di pagamento</string>
+
+    <string name="title_sort_by">Ordina per</string>
+
+    <string name="title_stack_multiple_filters_to_narr">Combina più filtri per restringere l\'elenco.</string>
+
+    <string name="title_support">Supporto</string>
+
+    <string name="title_terms_conditions">Termini e condizioni</string>
+
+    <string name="title_time_format">Formato ora</string>
+
+    <string name="title_toggle_visibility_of_transacti">Mostra o nascondi i tag delle transazioni</string>
+
+    <string name="title_visual_analytics">Analisi visive</string>
+
+    <string name="label_other_installment">Altro</string>
+
+    <string name="msg_installment_info">La transazione attuale è la rata #1. Le prossime voci si generano da sole.</string>
+
+    <string name="label_update_action">Aggiorna</string>
+
+    <string name="label_add_action">Aggiungi</string>
+
+    <string name="label_am">AM</string>
+
+    <string name="label_pm">PM</string>
+
+    <string name="label_secure_app_pin">Proteggi l\'app con un PIN</string>
+
+    <string name="label_use_biometric_subtitle">Usa l\'impronta</string>
+
+    <string name="label_scrambled_keypad">Tastierino mescolato</string>
+
+    <string name="label_scrambled_keypad_subtitle">Layout PIN casuale per sicurezza</string>
+
+    <string name="label_blur_in_recents">Sfoca nei recenti</string>
+
+    <string name="label_blur_in_recents_subtitle">Nascondi il contenuto nel selettore app</string>
+
+    <string name="label_block_screenshots_subtitle">Impedisci catture schermo dell\'app</string>
+
+    <string name="label_auto_lock_subtitle">Quando l\'app si blocca da sola</string>
+
+    <string name="label_lock_immediately">Blocca appena va in background</string>
+
+    <string name="label_val_minutes_away">Blocca dopo %1$d minuti lontano</string>
+
+    <string name="label_auto_lock_desc">Scegli quando l\'app deve bloccarsi da sola.</string>
+
+    <string name="label_primary_currency">Valuta principale dell\'app</string>
+
+    <string name="label_theme_subtitle">Aspetto colori dell\'app</string>
+
+    <string name="title_language">Lingua</string>
+
+    <string name="label_language_subtitle">Lingua dell\'interfaccia</string>
+
+    <string name="label_select_language">Scegli lingua</string>
+
+    <string name="label_language_selection_desc">Scegli la lingua dell\'app. Il testo non tradotto resta in inglese.</string>
+
+    <string name="label_language_system">Predefinito di sistema</string>
+
+    <string name="label_date_format_subtitle">Come si mostrano le date</string>
+
+    <string name="label_time_format_subtitle">Orologio 12h o 24h</string>
+
+    <string name="label_number_format_subtitle">Stile raggruppamento cifre</string>
+
+    <string name="label_decimal_places_subtitle">Precisione degli importi</string>
+
+    <string name="label_theme_selection_desc">Scegli se l\'app segue il dispositivo o resta su un tema fisso.</string>
+
+    <string name="label_number_format_desc">Scegli come raggruppare gli importi grandi in tutta l\'app.</string>
+
+    <string name="label_select_theme">Scegli tema</string>
+
+    <string name="title_theme">Tema</string>
+
+    <string name="label_theme_system">Sistema</string>
+
+    <string name="label_theme_light">Chiaro</string>
+
+    <string name="label_theme_dark">Scuro</string>
+
+    <string name="desc_theme_system">Segui l\'aspetto del dispositivo</string>
+
+    <string name="desc_theme_light">Usa sempre il tema chiaro</string>
+
+    <string name="desc_theme_dark">Usa sempre il tema scuro</string>
+
+    <string name="title_font">Font</string>
+
+    <string name="label_font_subtitle">Stile tipografico dell\'app</string>
+
+    <string name="label_font_app">Predefinito</string>
+
+    <string name="label_font_system">Font di sistema</string>
+
+    <string name="label_font_custom">Font personalizzato</string>
+
+    <string name="label_watch_ad_to_unlock">Guarda un ads per sbloccare</string>
+
+    <string name="label_pro_required">Serve Pro</string>
+
+    <string name="msg_system_font_ad_desc">Guarda un ads breve per sbloccare il font di sistema gratis.</string>
+
+    <string name="msg_custom_font_pro_desc">I font personalizzati sono una funzione Pro. Passa a Pro per sbloccarli.</string>
+
+    <string name="label_import_font">Importa font</string>
+
+    <string name="label_font_count">%1$d/%2$d font personalizzati</string>
+
+    <string name="label_max_fonts_reached">Massimo %1$d. Eliminane uno per aggiungerne un altro.</string>
+
+    <string name="label_no_custom_fonts">Nessun font personalizzato ancora</string>
+
+    <string name="msg_import_font_success">Font importato</string>
+
+    <string name="msg_font_changed">Font cambiato</string>
+
+    <string name="msg_import_font_error">Import del font fallito</string>
+
+    <string name="msg_font_too_large">Il file del font è troppo grande. Scegline uno più piccolo.</string>
+
+    <string name="msg_invalid_font">File font non valido</string>
+
+    <string name="label_select_font">Scegli font</string>
+
+    <string name="label_select_font_desc">Tieni premuto per eliminare il font</string>
+
+    <string name="label_select_font_built_in">Integrati</string>
+
+    <string name="label_delete_font">Elimina</string>
+
+    <string name="title_month_start_day">Il mese inizia il</string>
+
+    <string name="label_month_start_day_subtitle">Imposta il primo giorno del ciclo di fatturazione</string>
+
+    <string name="label_month_start_day_value">Giorno %1$d</string>
+
+    <string name="label_month_start_day_standard">1° (predefinito)</string>
+
+    <string name="label_current_period">Periodo attuale:</string>
+
+    <string name="msg_delete_font_title">Rimuovere il font?</string>
+
+    <string name="msg_delete_font_desc">%1$s verrà rimosso dai font personalizzati.</string>
+
+    <string name="label_select">Seleziona</string>
+
+    <string name="label_grouping_indian">Indiano (1,23,456.78)</string>
+
+    <string name="label_grouping_international">Internazionale (1,234,567.89)</string>
+
+    <string name="label_app_name_display">Expense Tracker</string>
+
+    <string name="label_follow_us">Seguici</string>
+
+    <string name="desc_app_icon">Icona app</string>
+
+    <string name="label_about_app_desc">Un\'app semplice per gestire le transazioni giornaliere con eleganza. Pensata per chi vuole chiarezza finanziaria e un\'interfaccia premium. Ogni dato è trattato come parte di un vault editoriale di alto livello.</string>
+
+    <string name="title_yearly_analytics">Analisi annuale</string>
+
+    <string name="title_full_category_breakdown">Ripartizione categorie completa</string>
+
+    <string name="title_full_payment_breakdown">Ripartizione pagamenti completa</string>
+
+    <string name="title_payment_mode_breakdown">Ripartizione metodi di pagamento</string>
+
+    <string name="title_top_spending_details">Dettaglio spese top</string>
+
+    <string name="title_spending_insights">Insight sulle spese</string>
+
+    <string name="label_both">Entrambi</string>
+
+    <string name="label_total_spent">TOTALE SPESO</string>
+
+    <string name="label_net_balance">SALDO NETTO</string>
+
+    <string name="label_unlock_breakdown">Sblocca ripartizione</string>
+
+    <string name="label_unlock_top_spending">Sblocca spese top</string>
+
+    <string name="label_unlock_insights">Sblocca insight</string>
+
+    <string name="label_val_transactions">%1$s transazioni</string>
+
+    <string name="label_no_transactions_found_in_this">Nessuna transazione in questo intervallo.</string>
+
+    <string name="label_top_val">Top: %1$s</string>
+
+    <string name="desc_show_transactions">Mostra transazioni</string>
+
+    <string name="label_unknown">Sconosciuto</string>
+
     <string name="label_other">Altro</string>
-    <string name="label_not_available">Non disponibile</string>
-    <string name="format_percentage">%1$d%%</string>
+
+    <string name="label_not_available">N/A</string>
+
+    <string name="format_percentage">%1$s%%</string>
+
+    <string name="format_thousands">%1$.1fk</string>
+
+    <string name="format_millions">%1$.1fM</string>
+
+    <string name="separator_bullet">•</string>
+
+    <string name="format_ellipsis">%1$s…</string>
+
+    <string name="desc_log_daily_spending">Registra le spese giornaliere in secondi con tastierino ottimizzato e ranking smart delle categorie.</string>
+
+    <string name="label_next">Avanti</string>
+
+    <string name="desc_financial_data_secure">I dati finanziari restano in locale e sono protetti dalla biometria.</string>
+
+    <string name="desc_visualize_spending">Visualizza le abitudini di spesa con grafici interattivi e ripartizioni dettagliate.</string>
+
+    <string name="desc_modern_finance">Finanza personale moderna a portata di mano. Offline-first di default: i dati non escono dal dispositivo.</string>
+
+    <string name="label_continue">Continua</string>
+
+    <string name="label_private_by_nature">Privato per natura</string>
+
+    <string name="title_secure_your_account">Proteggi il tuo account</string>
+
+    <string name="desc_sync_and_premium_features">Accedi per attivare il sync tra dispositivi e usare le funzioni premium in sicurezza.</string>
+
+    <string name="auth_welcome">Benvenuto</string>
+
+    <string name="auth_signup_subtitle">Registrati sotto per creare l\'account e iniziare.</string>
+
+    <string name="auth_signin_subtitle">Accedi per le preferenze salvate e l\'account.</string>
+
+    <string name="auth_forgot">Password dimenticata</string>
+
+    <string name="label_recommended">CONSIGLIATO</string>
+
+    <string name="auth_connecting_google">Connessione a Google…</string>
+
+    <string name="auth_authenticating">Autenticazione…</string>
+
+    <string name="auth_already_have_account">Hai già un account?</string>
+
+    <string name="auth_dont_have_account">Non hai un account?</string>
+
+    <string name="label_continue_with_google">Continua con Google</string>
+
+    <string name="content_desc_google_logo">Google</string>
+
+    <string name="msg_auth_content_preview_placeholder">Auth Content (Preview Placeholder)</string>
+
+    <string name="label_continue_with">Continua con</string>
+
+    <string name="label_or">OPPURE</string>
+
+    <string name="label_email">Indirizzo email</string>
+
+    <string name="label_password">Password</string>
+
+    <string name="label_create_account">Registrati</string>
+
+    <string name="msg_creating_account">Creazione account...</string>
+
+    <string name="title_account_created">Account creato</string>
+
+    <string name="label_ok">OK</string>
+
+    <string name="label_login">Accedi</string>
+
+    <string name="label_already_have_account">Hai già un account? Accedi</string>
+
+    <string name="label_no_account_signup">Non hai un account? Registrati</string>
+
+    <string name="label_continue_as_guest">Continua come ospite</string>
+
+    <string name="desc_tell_us_about_yourself">Raccontaci un po\' di te per personalizzare l\'esperienza.</string>
+
+    <string name="label_get_started">Inizia</string>
+
+    <string name="placeholder_enter_name">Inserisci il nome</string>
+
+    <string name="placeholder_select_dob">Scegli data di nascita</string>
+
+    <string name="label_male">Uomo</string>
+
+    <string name="label_female">Donna</string>
+
+    <string name="label_non_binary">Non binario</string>
+
+    <string name="label_prefer_not_to_say">Preferisco non dirlo</string>
+
+    <string name="msg_please_provide_your_val">Inserisci il tuo %1$s</string>
+
+    <string name="label_name_capitalized">Nome</string>
+
+    <string name="label_gender_capitalized">Genere</string>
+
+    <string name="label_dob_capitalized">Data di nascita</string>
+
+    <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
+
+    <string name="label_secure_logging">LOGGING SICURO</string>
+
+    <string name="label_architecture">ARCHITETTURA</string>
+
+    <string name="label_100_offline">100% offline first</string>
+
+    <string name="label_access">ACCESSO</string>
+
+    <string name="label_full_control">Controllo totale</string>
+
+    <string name="label_zero">0</string>
+
+    <string name="label_history">Cronologia</string>
+
+    <string name="content_desc_calculator_history">Apri cronologia calcolatrice</string>
+
+    <string name="content_desc_copy_history">Copia calcolo</string>
+
+    <string name="content_desc_backspace">Cancella il carattere a sinistra del cursore</string>
+
+    <string name="content_desc_cursor_left">Sposta il cursore a sinistra</string>
+
+    <string name="content_desc_cursor_right">Sposta il cursore a destra</string>
+
+    <string name="msg_history_long_press_hint">Tieni premuto una scheda per altre opzioni.</string>
+
+    <string name="msg_calculator_history_empty">Nessun calcolo ancora</string>
+
+    <string name="msg_clear_history_confirm">Cancellare tutta la cronologia della calcolatrice? Non si può annullare.</string>
+
+    <string name="label_clear_history">Cancella cronologia</string>
+
+    <string name="toast_history_copied">Calcolo copiato negli appunti</string>
+
+    <string name="title_quick_action">Azione rapida</string>
+
+    <string name="msg_history_quick_action_caption">Scegli cosa fare con questo calcolo. Puoi cambiarlo quando vuoi.</string>
+
+    <string name="label_copy_expression">Copia espressione</string>
+
+    <string name="label_copy_result">Copia risultato</string>
+
+    <string name="label_copy_expression_and_result">Copia espressione + risultato</string>
+
+    <string name="label_delete_entry">Elimina voce</string>
+
+    <string name="toast_expression_copied">Espressione copiata negli appunti</string>
+
+    <string name="toast_result_copied">Risultato copiato negli appunti</string>
+
+    <string name="toast_entry_deleted">Voce eliminata</string>
+
+    <string name="label_items_count_formatted">%1$d ELEMENTI</string>
+
+    <string name="label_description_caps">DESCRIZIONE</string>
+
+    <string name="label_amount_caps">IMPORTO</string>
+
+    <string name="content_desc_delete_item">Elimina %1$s</string>
+
+    <string name="content_desc_edit_item">Modifica %1$s</string>
+
+    <string name="placeholder_description_ex">Es. Coffee House</string>
+
+    <string name="placeholder_amount_zero">0.00</string>
+
+    <string name="content_desc_add_item">Aggiungi elemento</string>
+
+    <string name="label_automated_sync">Cloud e automazione</string>
+
+    <string name="desc_automated_sync">Gestisci come i dati sono protetti in automatico, senza sforzo manuale.</string>
+
+    <string name="desc_auto_backup_subtitle">Backup locale automatico</string>
+
+    <string name="desc_backup_frequency_subtitle">Ogni quanto fare il backup</string>
+
+    <string name="label_custom_frequency">Personalizzato...</string>
+
+    <string name="title_custom_backup_frequency">Frequenza personalizzata</string>
+
+    <string name="label_enter_days">Inserisci il numero di giorni</string>
+
+    <string name="placeholder_days">Giorni</string>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">%1$d giorno</item>
+        <item quantity="other">%1$d giorni</item>
+    </plurals>
+
+    <string name="label_data_transfer">Trasferimento file</string>
+
+    <string name="desc_data_transfer">Strumenti manuali per spostare i dati tra dispositivi o tenere un file fisico.</string>
+
+    <string name="label_export_data_json">Esporta dati (JSON)</string>
+
+    <string name="desc_export_data_subtitle">Scarica un JSON sicuro da unire</string>
+
+    <string name="label_export">Esporta</string>
+
+    <string name="label_import_data_json">Importa dati (JSON)</string>
+
+    <string name="desc_import_data_subtitle">Ripristina o unisci da JSON</string>
+
+    <string name="label_import">Importa</string>
+
+    <string name="label_backup_database_db">Backup database (.db)</string>
+
+    <string name="desc_backup_db_subtitle">Backup diretto del file SQLite</string>
+
+    <string name="label_restore_database_db">Ripristina database (.db)</string>
+
+    <string name="desc_restore_db_subtitle">Sovrascrittura completa del database</string>
+
+    <string name="label_legacy_import">Import legacy</string>
+
+    <string name="desc_legacy_import_subtitle">Importa da versioni precedenti dell\'app</string>
+
+    <string name="label_migrate">Migra</string>
+
+    <string name="label_utilities_and_stats">Storage e manutenzione</string>
+
+    <string name="desc_utilities_and_stats">Strumenti per la salute del database e azioni di "reset".</string>
+
+    <string name="desc_transaction_count_subtitle">Record totali nel database</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">Backup automatico ogni %1$d giorno</item>
+        <item quantity="other">Backup automatico ogni %1$d giorni</item>
+    </plurals>
+
+    <string name="desc_choose_backup_frequency">Scegli ogni quanto l\'app deve fare backup automatici.</string>
+
+    <string name="msg_no_category_budget_data">Nessun dato di budget per categoria questo mese ancora.</string>
+
+    <string name="label_history_locked">CRONOLOGIA BLOCCATA</string>
+
+    <string name="msg_no_recurring_items">Nessuna voce ricorrente ancora.</string>
+
+    <string name="label_tab_budgets">Budget</string>
+
+    <string name="label_tab_recurring">Ricorrenti</string>
+
+    <string name="label_tab_count_short">%1$d</string>
+
+    <string name="label_tab_count_overflow">%1$d+</string>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d elemento</item>
+        <item quantity="other">%1$d elementi</item>
+    </plurals>
+
+    <string name="label_sms_inbox_title">Transazioni rilevate</string>
+
+    <string name="label_sms_inbox_search_hint">Cerca merchant, mittente o messaggio</string>
+
+    <string name="label_sms_inbox_filter_all">Tutte</string>
+
+    <string name="label_sms_inbox_filter_income">Entrate</string>
+
+    <string name="label_sms_inbox_filter_expense">Spese</string>
+
+    <string name="label_sms_inbox_filter_added">Aggiunte</string>
+
+    <string name="label_sms_inbox_filter_ignored">Ignorate</string>
+
+    <string name="label_sms_inbox_filter_unread">Non lette</string>
+
+    <string name="label_sms_inbox_income">entrata</string>
+
+    <string name="label_sms_inbox_expense">spesa</string>
+
+    <string name="label_sms_inbox_income_amount">%1$s entrata</string>
+
+    <string name="label_sms_inbox_expense_amount">%1$s spesa</string>
+
+    <string name="label_sms_inbox_card_hint">Tocca una scheda per aprirla in aggiungi transazione, modifica se serve, poi premi Aggiungi.</string>
+
+    <string name="label_sms_inbox_swipe_hint">Scorri a sinistra/destra per eliminare un rilevamento.</string>
+
+    <string name="label_sms_inbox_category">Categoria suggerita: %1$s</string>
+
+    <string name="label_sms_inbox_suggested">Suggerito:</string>
+
+    <string name="label_sms_inbox_sms">SMS:</string>
+
+    <string name="label_sms_inbox_confidence_high">Alta confidenza</string>
+
+    <string name="label_sms_inbox_confidence_medium">Media confidenza</string>
+
+    <string name="label_sms_inbox_confidence_low">Bassa confidenza</string>
+
+    <string name="label_sms_inbox_empty_title">Nessuna transazione rilevata ancora</string>
+
+    <string name="label_sms_inbox_empty_filtered_title">Niente qui</string>
+
+    <string name="label_sms_inbox_empty_body">I messaggi della banca che sembrano pagamenti appaiono qui — anche se chiudi la notifica.</string>
+
+    <string name="label_sms_inbox_delete_title">Eliminare il rilevamento?</string>
+
+    <string name="label_sms_inbox_delete_subtitle">Azione inbox irreversibile</string>
+
+    <string name="label_sms_inbox_delete_body">Rimuove il messaggio salvato dalla inbox. Le transazioni già aggiunte restano.</string>
+
+    <string name="label_sms_inbox_edit_title">Modifica prima di aggiungere</string>
+
+    <string name="label_sms_inbox_edit_amount">Importo</string>
+
+    <string name="label_sms_inbox_edit_note">Nota (opzionale)</string>
+
+    <string name="label_sms_inbox_edit_category">Categoria</string>
+
+    <string name="desc_sms_inbox_bell">Transazioni rilevate</string>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">%1$d transazione rilevata non letta</item>
+        <item quantity="other">%1$d transazioni rilevate non lette</item>
+    </plurals>
+
+    <string name="action_add">Aggiungi</string>
+
+    <string name="action_ignore">Ignora</string>
+
+    <string name="action_delete">Elimina</string>
+
+    <string name="action_clear_all">Pulisci tutto</string>
+
+    <string name="action_sms_inbox_clear_all_pending">Pulisci tutte le transazioni in attesa</string>
+
+    <string name="label_sms_inbox_selected_count">%1$d selezionate</string>
+
+    <string name="action_sms_inbox_select_all">Seleziona tutto</string>
+
+    <string name="action_sms_inbox_deselect_all">Deseleziona tutto</string>
+
+    <string name="action_sms_inbox_delete_selected">Elimina selezionate</string>
+
+    <string name="action_cancel">Annulla</string>
+
+    <string name="msg_sms_inbox_added">Aggiunta %1$d transazione rilevata</string>
+
+    <string name="msg_sms_inbox_added_some">Aggiunte %1$d · %2$d già nel registro</string>
+
+    <string name="msg_sms_inbox_already_added">Già nel registro — niente aggiunto</string>
+
+    <string name="msg_sms_inbox_gone">Quel rilevamento non è più disponibile</string>
+
+    <string name="msg_sms_inbox_ignored">Ignorato %1$d rilevamento</string>
+
+    <string name="msg_sms_inbox_deleted">Eliminato</string>
+
+    <string name="msg_sms_inbox_swiped_away">Eliminato %1$d rilevamento</string>
+
+    <string name="msg_sms_inbox_invalid_amount">Inserisci un importo maggiore di zero</string>
+
+    <string name="label_this_month_caps">QUESTO MESE</string>
+
+    <string name="label_custom_month_caps">Mese personalizzato</string>
+
+    <string name="label_remaining">Rimanente</string>
+
+    <string name="label_over">Oltre il tetto</string>
+
+    <string name="title_add_budget">Aggiungi budget</string>
+
+    <string name="title_edit_budget">Modifica budget</string>
+
+    <string name="msg_no_expense_categories_available">Nessuna categoria di spesa disponibile</string>
+
+    <string name="label_change_caps">CAMBIA</string>
+
+    <string name="label_edits_left_formatted">%1$d MODIFICHE RIMASTE</string>
+
+    <string name="label_locked">BLOCCATO</string>
+
+    <string name="content_desc_locked_formatted">%1$s bloccato</string>
+
+    <string name="content_desc_upcoming">In arrivo</string>
+
+    <string name="label_installments_formatted">%1$d DI %2$d</string>
+
+    <string name="label_edit_recurring_rule">Modifica regola ricorrente</string>
+
+    <string name="title_edit_recurring">Modifica spesa ricorrente</string>
+
+    <string name="label_frequency_capitalized">Frequenza</string>
+
+    <string name="label_total_installments">Rate totali</string>
+
+    <string name="label_recurring_type">Tipo ricorrente</string>
+
+    <string name="label_type_regular">Normale</string>
+
+    <string name="label_type_emi">EMI / Rate</string>
+
+    <string name="label_emi_total_amount">Importo totale</string>
+
+    <string name="label_emi_installment_amount">Importo rata</string>
+
+    <string name="label_emi_first_due">Prima scadenza</string>
+
+    <string name="msg_convert_to_regular_info">I termini del piano restano salvati — tornando indietro ripristini le stesse rate con lo storico pagamenti.</string>
+
+    <string name="label_emi_paid_progress">Pagate %1$d di %2$d</string>
+
+    <string name="label_emi_remaining_format">Rimanente %1$s</string>
+
+    <string name="label_all_settled">TUTTO SALDATO</string>
+
+    <string name="label_emis_overdue">EMI IN RITARDO</string>
+
+    <string name="label_overdue_caps">IN RITARDO</string>
+
+    <string name="action_view_installments">Vedi rate</string>
+
+    <string name="title_emis_for_format">Rate — %1$s</string>
+
+    <string name="label_paid_caps">PAGATO</string>
+
+    <string name="label_pending_caps">IN ATTESA</string>
+
+    <string name="label_skipped_caps">SALTATO</string>
+
+    <string name="action_pay_caps">PAGA</string>
+
+    <string name="action_skip_caps">SALTA</string>
+
+    <string name="action_undo_caps">ANNULLA</string>
+
+    <string name="label_pay_selected_format">Paga selezionate (%1$d)</string>
+
+    <string name="label_slot_index_format">#%1$d</string>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">Pagata %1$d rata</item>
+        <item quantity="other">Pagate %1$d rate</item>
+    </plurals>
+
+    <string name="label_emi_plan_section">Piano EMI / prestito</string>
+
+    <string name="desc_emi_plan_toggle">Traccia questa spesa ricorrente come prestito a rate fisse.</string>
+
+    <string name="desc_emi_total_amount">Importo totale che stai pagando (capitale + interessi)</string>
+
+    <string name="desc_emi_installment_amount">Importo dovuto per ogni rata</string>
+
+    <string name="msg_emi_amount_mismatch">Il totale deve essere uguale a importo rata × numero di rate</string>
+
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+
+    <string name="msg_emi_create_info">Questa transazione è la rata #1. Le restanti %1$d sono nel piano — pagale, saltale o saldale dall\'elenco ricorrenti.</string>
+
+    <string name="label_save_changes_caps">SALVA MODIFICHE</string>
+
+    <string name="label_cancel_caps">ANNULLA</string>
+
+    <string name="label_category_1">Categoria</string>
+
+    <string name="label_time">Ora</string>
+
+    <string name="label_save_1">Salva</string>
+
+    <string name="label_update_1">Aggiorna</string>
+
+    <string name="label_delete_1">Elimina</string>
+
+    <string name="title_copy_previous_month_budgets">Copia budget del mese scorso</string>
+
+    <string name="action_copy_all">Copia tutti</string>
+
+    <string name="action_copy_selected">Copia selezionati</string>
+
+    <string name="action_copy">Copia</string>
+
+    <string name="action_create_budget">Crea budget</string>
+
+    <string name="msg_copy_previous_budgets_context">Scegli i budget da %1$s da copiare in %2$s.</string>
+
+    <string name="empty_copy_previous_month_title">Nessun budget trovato per il mese scorso.</string>
+
+    <string name="msg_copy_previous_month_empty">Non hai creato budget il mese scorso, quindi non c\'è niente da copiare.</string>
+
+    <string name="msg_copy_all_budgets_success">Tutti i budget del mese scorso copiati.</string>
+
+    <string name="msg_copy_selected_budgets_success">Budget selezionati copiati.</string>
+
+    <string name="title_copy_budgets_confirmation">Budget già esistenti</string>
+
+    <string name="msg_copy_budgets_confirmation">%1$s ha già dei budget. Copiare quelli del mese scorso può creare duplicati. Continuare?</string>
+
+    <string name="label_calendar_year_view">Vista anno calendario</string>
+
+    <string name="label_calendar_year_picker">Selettore anno</string>
+
+    <string name="label_calendar_month_picker">Selettore mese</string>
+
+    <string name="content_desc_jump_to_date">Vai alla data</string>
+
+    <string name="content_desc_month_picker_locked">Selettore mese bloccato</string>
+
+    <string name="content_desc_jump_to_year">Vai all\'anno</string>
+
+    <string name="content_desc_year_picker_locked">Selettore anno bloccato</string>
+
+    <string name="content_desc_previous_month">Mese precedente</string>
+
+    <string name="content_desc_next_month">Mese successivo</string>
+
+    <string name="content_desc_previous_year">Anno precedente</string>
+
+    <string name="content_desc_next_year">Anno successivo</string>
+
+    <string name="title_choose_month_year">Scegli mese e anno</string>
+
+    <string name="title_show_category">Mostra categoria</string>
+
+    <string name="desc_display_category_label">Mostra l\'etichetta categoria sulla scheda</string>
+
+    <string name="desc_display_wallet_or_card">Mostra portafoglio o carta usati</string>
+
+    <string name="desc_group_transactions_by_day">Raggruppa le transazioni sotto intestazioni giorno fisse (es. "Oggi", "Ieri").</string>
+
+    <string name="title_transaction_card_settings">Personalizzazione</string>
+
+    <string name="label_on_each_transaction_card">Su ogni scheda transazione</string>
+
+    <string name="desc_on_each_transaction_card">Queste impostazioni controllano cosa appare su ogni scheda nell\'elenco.</string>
+
+    <string name="label_in_the_list">Nell\'elenco</string>
+
+    <string name="desc_in_the_list">Queste impostazioni controllano come l\'elenco è raggruppato e riassunto intorno alle schede.</string>
+
+    <string name="label_visual_style">Stile visivo</string>
+
+    <string name="desc_visual_style">Queste impostazioni controllano icone e etichette a colori che definiscono l\'identità visiva della scheda.</string>
+
+    <string name="label_transaction_details">Dettagli transazione</string>
+
+    <string name="desc_transaction_details">Queste impostazioni controllano i dati specifici mostrati sulla scheda.</string>
+
+    <string name="label_time_and_organization">Tempo e organizzazione</string>
+
+    <string name="desc_time_and_organization">Queste impostazioni controllano come si mostra l\'ora e come si raggruppano le transazioni.</string>
+
+    <string name="label_preview">Anteprima</string>
+
+    <string name="placeholder_select_gender">Scegli genere</string>
+
+    <string name="msg_unable_to_load_photo">Impossibile caricare quell\'immagine. Prova un\'altra foto.</string>
+
+    <string name="title_edit_profile">Modifica profilo</string>
+
+    <string name="label_full_name_caps">NOME COMPLETO</string>
+
+    <string name="placeholder_guest_user">Utente ospite</string>
+
+    <string name="label_email_address_caps">INDIRIZZO EMAIL</string>
+
+    <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <string name="label_phone_number_caps">NUMERO DI TELEFONO</string>
+
+    <string name="placeholder_phone_example">1112223334...</string>
+
+    <string name="label_date_of_birth_caps">DATA DI NASCITA</string>
+
+    <string name="label_gender_caps">GENERE</string>
+
+    <string name="content_desc_open_gender_options">Apri opzioni genere</string>
+
+    <string name="desc_choose_gender_label">Scegli l\'etichetta di genere che ti sta meglio.</string>
+
+    <string name="content_desc_add_photo">Aggiungi foto</string>
+
+    <string name="content_desc_edit_photo">Modifica foto</string>
+
+    <string name="content_desc_delete_photo">Elimina foto</string>
+
+    <string name="title_select_country">Scegli paese</string>
+
+    <string name="placeholder_search_country">Cerca paese…</string>
+
+    <string name="desc_daily_reminder">Ricevi un avviso per registrare le transazioni del giorno.</string>
+
+    <string name="title_budget_limit_alerts">Avvisi limite budget</string>
+
+    <string name="desc_budget_limit_alerts">Ricevi un avviso quando superi il budget mensile.</string>
+
+    <string name="desc_missed_entry_reminder">Ricevi un avviso se dimentichi di aggiungere una transazione per 2 giorni.</string>
+
+    <string name="title_goal_reminders">Promemoria obiettivo</string>
+
+    <string name="desc_goal_reminders">Una spinta settimanale sui tuoi obiettivi di risparmio.</string>
+
+    <string name="msg_preparing_dashboard">Preparazione dashboard</string>
+
+    <string name="msg_syncing_transactions">Sincronizzazione transazioni</string>
+
+    <string name="msg_securing_data">Protezione dei dati</string>
+
+    <string name="msg_initializing">Inizializzazione</string>
+
+    <string name="label_splash_tagline">Eleganza in ogni transazione</string>
+
+    <string name="label_splash_footer">Fatto a mano con precisione e amore</string>
+
+    <string name="label_budget_and_spend">Budget &amp; Spend</string>
+
+    <string name="msg_starting_security_services">Avvio servizi di sicurezza</string>
+
+    <string name="msg_loading_preferences">Caricamento preferenze</string>
+
+    <string name="msg_preparing_database">Preparazione database</string>
+
+    <string name="msg_initializing_database">Inizializzazione database</string>
+
+    <string name="msg_warming_up_engine">Riscaldamento motore</string>
+
+    <string name="msg_getting_things_ready">Quasi pronto</string>
+
+    <string name="label_done">Fatto</string>
+
+    <string name="desc_select_period">Scegli periodo</string>
+
+    <string name="label_all">Tutto</string>
+
+    <string name="label_daily">Giornaliero</string>
+
+    <string name="label_monthly">Mensile</string>
+
+    <string name="label_yearly">Annuale</string>
+
+    <string name="label_no_results_found">Nessun risultato.</string>
+
+    <string name="label_select_a_backup_file">Scegli un file di backup per ripristinare i dati. Sovrascrive i dati attuali.</string>
+
+    <string name="label_select_file_manually">Scegli file a mano...</string>
+
+    <string name="label_encrypted">Cifrato</string>
+
+    <string name="toast_backup_restore_key_mismatch">Questo backup è stato creato su un altro dispositivo e non si può ripristinare qui.</string>
+
+    <string name="label_advanced_analytics_trends">Chiarezza totale sulla vita finanziaria con analisi avanzate</string>
+
+    <string name="label_automatic_cloud_backups">Sicurezza dati a prova di proiettile con cloud sync</string>
+
+    <string name="label_unlimited_recurring_rules">Automatizza la libertà con le regole ricorrenti</string>
+
+    <string name="label_privacy_mode_biometric_lock">Il tuo patrimonio, protetto dal blocco biometrico</string>
+
+    <string name="label_last_7_days">Ultimi 7 giorni</string>
+
+    <string name="label_last_15_days">Ultimi 15 giorni</string>
+
+    <string name="label_last_30_days">Ultimi 30 giorni</string>
+
+    <string name="label_last_60_days">Ultimi 60 giorni</string>
+
+    <string name="label_expense_categories">Categorie spesa</string>
+
+    <string name="label_income_categories">Categorie entrate</string>
+
+    <string name="label_no_categories_available">Nessuna categoria per il tipo scelto.</string>
+
+    <string name="label_min">Min</string>
+
+    <string name="label_max">Max</string>
+
+    <string name="desc_newest_order">Le transazioni più recenti in cima.</string>
+
+    <string name="desc_oldest_order">Le più vecchie prima.</string>
+
+    <string name="desc_highest_order">Gli importi più grandi hanno priorità.</string>
+
+    <string name="desc_lowest_order">Gli importi più piccoli prima di quelli grandi.</string>
+
+    <string name="desc_income_first_order">Le entrate sono raggruppate prima delle spese.</string>
+
+    <string name="desc_expense_first_order">Le spese si mostrano prima delle entrate.</string>
+
+    <string name="label_search_dots">Cerca…</string>
+
+    <string name="label_action">Azione</string>
+
+    <string name="label_watch_ad">Guarda ads</string>
+
+    <string name="label_premium">Pro</string>
+
+    <string name="label_open">Apri</string>
+
+    <string name="title_restore_database">Ripristina database</string>
+
+    <string name="label_restore">Ripristina</string>
+
+    <string name="label_premium_features">Funzioni premium</string>
+
+    <string name="label_sort_by">Ordina per</string>
+
+    <string name="title_date_range">INTERVALLO DATE</string>
+
+    <string name="label_custom_range">Intervallo personalizzato</string>
+
+    <string name="label_order">Ordine</string>
+
+    <string name="label_filters">Filtri</string>
+
+    <string name="desc_order_subtitle">Affina come si classificano i risultati nell\'ordinamento scelto.</string>
+
+    <string name="desc_filters_subtitle">Combina più filtri per restringere l\'elenco.</string>
+
+    <string name="desc_sort_subtitle">Scegli l\'attributo principale per ordinare l\'elenco.</string>
+
+    <string name="title_transaction_type_caps">TIPO TRANSAZIONE</string>
+
+    <string name="label_newest_first">Più recenti prima</string>
+
+    <string name="label_oldest_first">Più vecchie prima</string>
+
+    <string name="label_highest_first">Più alto prima</string>
+
+    <string name="label_lowest_first">Più basso prima</string>
+
+    <string name="label_income_first">Entrate prima</string>
+
+    <string name="label_expense_first">Spese prima</string>
+
+    <string name="label_payment_mode">Metodo di pagamento</string>
+
+    <string name="label_amount_range">Intervallo importo</string>
+
+    <string name="label_categories">Categorie</string>
+
+    <string name="desc_no_categories">Nessuna categoria per il tipo scelto.</string>
+
+    <string name="label_sort_filter_subtitle">Decidi come organizzare e mostrare le transazioni.</string>
+
+    <string name="label_search_placeholder">Note o importo…</string>
+
+    <string name="label_search_by_category_wallet">Cerca per categoria, portafoglio e tag</string>
+
+    <string name="msg_delete_transactions_confirm">Eliminare %1$d transazioni? Non si può annullare.</string>
+
+    <string name="msg_delete_category_confirm">Eliminare "%1$s"? Le transazioni esistenti potrebbero usarla ancora. Non si può annullare.</string>
+
+    <string name="label_delete_confirm">Elimina</string>
+
+    <string name="label_cancel_confirm">Annulla</string>
+
+    <string name="label_duplicate">Duplica</string>
+
+    <string name="label_undo">Annulla</string>
+
+    <string name="msg_transaction_deleted">Transazione eliminata</string>
+
+    <string name="msg_transaction_duplicated">Transazione duplicata</string>
+
+    <string name="toast_transaction_deleted">Transazione eliminata</string>
+
+    <string name="title_cannot_duplicate_recurring">Regola duplicata trovata</string>
+
+    <string name="msg_duplicate_recurring_rule">Hai già una regola ricorrente per %1$s a %2$s/%3$s. Crearne un\'altra?</string>
+
+    <string name="msg_cannot_duplicate_recurring">Questa transazione è ricorrente (la principale o una creata in automatico), quindi non si può duplicare.</string>
+
+    <string name="label_week">Settimana</string>
+
+    <string name="label_month_period">Mese</string>
+
+    <string name="label_year_period">Anno</string>
+
+    <string name="label_custom">Personalizzato</string>
+
+    <string name="label_this_week">Questa settimana</string>
+
+    <string name="label_this_month">Questo mese</string>
+
+    <string name="label_wallet">Portafoglio</string>
+
+    <string name="label_general">Generale</string>
+
+    <string name="label_spending">spese</string>
+
+    <string name="msg_unlock_insights_hint">Scegli un altro intervallo o aggiungi più transazioni per sbloccare insight su misura.</string>
+
+    <string name="label_up">su</string>
+
+    <string name="label_down">giù</string>
+
+    <string name="msg_spending_trend">Il trend di spesa è %1$s %2$s in questo periodo. Tieni d\'occhio %3$s e puoi risparmiare circa %4$s nel prossimo ciclo.</string>
+
+    <string name="msg_choose_range_dates">Scegli date di inizio e fine</string>
+
+    <string name="btn_cancel">Annulla</string>
+
+    <string name="title_select_date">Scegli data</string>
+
+    <string name="title_select_time">Scegli ora</string>
+
+    <string name="title_select_date_time">Scegli data e ora</string>
+
+    <string name="title_select_month">Scegli mese</string>
+
+    <string name="title_select_year">Scegli anno</string>
+
+    <string name="title_select_date_range">Scegli intervallo date</string>
+
+    <string name="btn_apply_range">Applica intervallo</string>
+
+    <string name="btn_confirm">Conferma</string>
+
+    <string name="label_from">DA</string>
+
+    <string name="label_to">A</string>
+
+    <string name="error_invalid_date_month">Data non valida per il mese scelto.</string>
+
+    <string name="format_date_short">dd MMM</string>
+
+    <string name="label_total_spending">Spesa totale</string>
+
+    <string name="label_net_savings">Risparmio netto</string>
+
+    <string name="label_prev_closing_balance">Saldo chiusura prec.</string>
+
+    <string name="title_monthly_summary">Riepilogo mensile</string>
+
+    <string name="label_spending_by_payment_mode_breakdown">Ripartizione delle spese in base al portafoglio o al metodo di pagamento.</string>
+
+    <string-array name="days_of_week_short">
+        <item>Dom</item>
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mer</item>
+        <item>Gio</item>
+        <item>Ven</item>
+        <item>Sab</item>
+    </string-array>
+
+    <string-array name="months_short">
+        <item>Gen</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>Mag</item>
+        <item>Giu</item>
+        <item>Lug</item>
+        <item>Ago</item>
+        <item>Set</item>
+        <item>Ott</item>
+        <item>Nov</item>
+        <item>Dic</item>
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+        <item>Niente qui. La calcolatrice è pronta quando lo sei tu.</item>
+        <item>Ancora vuoto. Tocca + e inizia.</item>
+        <item>Nessuna transazione. Aggiungine una e prendi il ritmo.</item>
+        <item>Lista pulita. La prima voce è a un tap.</item>
+    </string-array>
+
+    <string name="desc_income_source">Fonte di entrate</string>
+
+    <string name="desc_expense_category">Categoria spesa</string>
+
+    <string name="desc_payment_method_fallback">Metodo di pagamento</string>
+
+    <string name="error_invalid_email">Inserisci un indirizzo email valido</string>
+
+    <string name="title_payment">Pagamento</string>
+
+    <string name="icon_label_shopping_cart">Shopping</string>
+
+    <string name="icon_label_calculator">EMI</string>
+
+    <string name="icon_label_security">Assicurazione</string>
+
+    <string name="icon_label_package">Spedizioni</string>
+
+    <string name="icon_label_fuel">Carburante</string>
+
+    <string name="icon_label_file_text">Documenti</string>
+
+    <string name="icon_label_hand_coins">Contributo</string>
+
+    <string name="icon_label_banknote">Contanti</string>
+
+    <string name="icon_label_more_horizontal">Altro</string>
+
+    <string name="icon_label_restaurant">Ristoranti</string>
+
+    <string name="icon_label_home">Affitto e casa</string>
+
+    <string name="icon_label_directions_bus">Trasporti</string>
+
+    <string name="icon_label_directions_car">Veicolo</string>
+
+    <string name="icon_label_flight">Viaggi</string>
+
+    <string name="icon_label_local_cafe">Caffè e snack</string>
+
+    <string name="icon_label_pets">Animali</string>
+
+    <string name="icon_label_school">Istruzione</string>
+
+    <string name="icon_label_fitness_center">Fitness</string>
+
+    <string name="icon_label_spa">Cura personale</string>
+
+    <string name="icon_label_movie">Intrattenimento</string>
+
+    <string name="icon_label_music_note">Musica</string>
+
+    <string name="icon_label_sports_esports">Gaming</string>
+
+    <string name="icon_label_favorite">Salute</string>
+
+    <string name="icon_label_work">Stipendio</string>
+
+    <string name="icon_label_business">Business</string>
+
+    <string name="icon_label_laptop_mac">Gadget</string>
+
+    <string name="icon_label_phone_android">Telefono e bollette</string>
+
+    <string name="icon_label_camera_alt">Fotografia</string>
+
+    <string name="icon_label_celebration">Festa</string>
+
+    <string name="icon_label_card_giftcard">Regali</string>
+
+    <string name="icon_label_child_care">Cura dei bambini</string>
+
+    <string name="icon_label_volunteer_activism">Beneficenza</string>
+
+    <string name="icon_label_local_hospital">Ospedale</string>
+
+    <string name="icon_label_medication">Medicine</string>
+
+    <string name="icon_label_two_wheeler">Moto</string>
+
+    <string name="icon_label_train">Treno</string>
+
+    <string name="icon_label_hotel">Soggiorno</string>
+
+    <string name="icon_label_beach_access">Vacanza</string>
+
+    <string name="icon_label_park">Natura</string>
+
+    <string name="icon_label_hiking">Trekking</string>
+
+    <string name="icon_label_sports_soccer">Sport</string>
+
+    <string name="icon_label_sports_basketball">Basket</string>
+
+    <string name="icon_label_pool">Nuoto</string>
+
+    <string name="icon_label_directions_boat">Barca</string>
+
+    <string name="icon_label_build">Manutenzione</string>
+
+    <string name="icon_label_subscriptions">Streaming</string>
+
+    <string name="icon_label_receipt_long">Bollette</string>
+
+    <string name="icon_label_account_balance">Banca</string>
+
+    <string name="icon_label_credit_card">Carta</string>
+
+    <string name="icon_label_payments">Contanti</string>
+
+    <string name="icon_label_qr_code">Scan QR</string>
+
+    <string name="icon_label_savings">Risparmi</string>
+
+    <string name="icon_label_attach_money">Finanza</string>
+
+    <string name="icon_label_wallet">Portafoglio</string>
+
+    <string name="icon_label_currency_exchange">Cambio</string>
+
+    <string name="icon_label_storefront">Negozio</string>
+
+    <string name="icon_label_fastfood">Fast food</string>
+
+    <string name="icon_label_cake">Torta</string>
+
+    <string name="icon_label_water_drop">Acqua</string>
+
+    <string name="icon_label_electric_bolt">Elettricità</string>
+
+    <string name="icon_label_gas_meter">Gas</string>
+
+    <string name="icon_label_wifi">Internet</string>
+
+    <string name="icon_label_tv">TV</string>
+
+    <string name="icon_label_local_shipping">Consegna</string>
+
+    <string name="icon_label_cleaning_services">Pulizie</string>
+
+    <string name="icon_label_pest_control">Disinfestazione</string>
+
+    <string name="icon_label_yard">Giardinaggio</string>
+
+    <string name="icon_label_plumbing">Idraulica</string>
+
+    <string name="icon_label_hvac">Clima/riscaldamento</string>
+
+    <string name="icon_label_garage">Parcheggio</string>
+
+    <string name="icon_label_local_laundry_service">Lavanderia</string>
+
+    <string name="icon_label_checkroom">Abbigliamento</string>
+
+    <string name="icon_label_ice_skating">Pattinaggio</string>
+
+    <string name="icon_label_skiing">Sci</string>
+
+    <string name="icon_label_sports_tennis">Tennis</string>
+
+    <string name="icon_label_sports_golf">Golf</string>
+
+    <string name="icon_label_kayaking">Kayak</string>
+
+    <string name="icon_label_surfing">Surf</string>
+
+    <string name="icon_label_directions_run">Corsa</string>
+
+    <string name="icon_label_pedal_bike">Ciclismo</string>
+
+    <string name="icon_label_sailing">Vela</string>
+
+    <string name="icon_label_theater_comedy">Teatro</string>
+
+    <string name="icon_label_casino">Casinò</string>
+
+    <string name="icon_label_toys">Giocattoli</string>
+
+    <string name="icon_label_piano">Pianoforte</string>
+
+    <string name="icon_label_brush">Arte</string>
+
+    <string name="icon_label_palette">Tavolozza</string>
+
+    <string name="icon_label_auto_stories">Libri</string>
+
+    <string name="icon_label_menu_book">Studio</string>
+
+    <string name="icon_label_computer">Computer</string>
+
+    <string name="icon_label_memory">Tech</string>
+
+    <string name="icon_label_mouse">Accessori</string>
+
+    <string name="icon_label_keyboard">Tastiera</string>
+
+    <string name="icon_label_headset">Audio</string>
+
+    <string name="icon_label_speaker">Altoparlanti</string>
+
+    <string name="icon_label_router">Rete</string>
+
+    <string name="icon_label_monitor">Monitor</string>
+
+    <string name="icon_label_print">Stampa</string>
+
+    <string name="icon_label_smart_home">Casa smart</string>
+
+    <string name="icon_label_videocam">Video</string>
+
+    <string name="icon_label_mic">Registrazione</string>
+
+    <string name="icon_label_radio">Radio</string>
+
+    <string name="icon_label_satellite">Satellite</string>
+
+    <string name="icon_label_explore">Esplora</string>
+
+    <string name="icon_label_terrain">Montagne</string>
+
+    <string name="icon_label_landscape">Paesaggio</string>
+
+    <string name="icon_label_forest">Foresta</string>
+
+    <string name="fallback_desc_cat_1">Pasti e ristoranti</string>
+
+    <string name="fallback_desc_cat_2">Carburante e pendolari</string>
+
+    <string name="fallback_desc_cat_3">Retail e essenziali</string>
+
+    <string name="fallback_desc_cat_4">Ricorrenti mensili</string>
+
+    <string name="fallback_desc_cat_5">Benessere e cura</string>
+
+    <string name="fallback_desc_cat_6">Streaming e tempo libero</string>
+
+    <string name="fallback_desc_cat_7">Casa e soggiorno</string>
+
+    <string name="fallback_desc_cat_8">Essenziali quotidiani</string>
+
+    <string name="fallback_desc_cat_9">Corsi e libri</string>
+
+    <string name="fallback_desc_cat_10">Bollette e rinnovi</string>
+
+    <string name="fallback_desc_cat_11">Copertura e sicurezza</string>
+
+    <string name="fallback_desc_cat_12">Festeggiamenti e doni</string>
+
+    <string name="fallback_desc_cat_13">Routine di cura</string>
+
+    <string name="fallback_desc_cat_14">Carburante e pendolari</string>
+
+    <string name="fallback_desc_cat_15">Riparazioni e manutenzione</string>
+
+    <string name="fallback_desc_cat_16">Quote obbligatorie</string>
+
+    <string name="fallback_desc_cat_17">Spese per animali</string>
+
+    <string name="fallback_desc_cat_18">Bambini e scuola</string>
+
+    <string name="fallback_desc_cat_19">Beneficenza e doni</string>
+
+    <string name="fallback_desc_cat_20">Spesa flessibile</string>
+
+    <string name="fallback_desc_cat_101">Stipendio e busta paga</string>
+
+    <string name="fallback_desc_cat_102">Guadagni business</string>
+
+    <string name="fallback_desc_cat_103">Rendimenti e guadagni</string>
+
+    <string name="fallback_desc_cat_104">Progetti e gig</string>
+
+    <string name="fallback_desc_cat_105">Altri crediti</string>
+
+    <string name="fallback_desc_pay_1">Bonifici UPI e scan</string>
+
+    <string name="fallback_desc_pay_2">Contanti in mano</string>
+
+    <string name="fallback_desc_pay_3">Bonifici bancari</string>
+
+    <string name="fallback_desc_pay_4">Carte debito e credito</string>
+
+    <string name="fallback_desc_pay_5">Metodo di pagamento flessibile</string>
+
+    <string name="label_income_categories_count">%1$d categorie entrate</string>
+
+    <string name="label_expense_categories_count">%1$d categorie spesa</string>
+
+    <string name="label_payment_methods_count">%1$d metodi di pagamento</string>
+
+    <string name="label_no_budget">NESSUN BUDGET</string>
+
+    <string name="label_add_a_budget">AGGIUNGI UN BUDGET</string>
+
+    <string name="label_near_limit">Vicino al limite</string>
+
+    <string name="label_safe">Ok</string>
+
+    <string name="label_spent_limit">SPESO / LIMITE</string>
+
+    <string name="label_exceeded">SUPERATO</string>
+
+    <string name="label_budget_status_label">Oltre il tetto</string>
+
+    <string name="msg_no_budgets_locked">Nessun budget impostato per %1$s. Lo storico è bloccato.</string>
+
+    <string name="msg_no_budgets_limit_reached">Non si possono aggiungere altri budget per %1$s (limite modifiche raggiunto).</string>
+
+    <string name="msg_no_budgets_start_tracking">Nessun budget per %1$s ancora. Tocca AGGIUNGI NUOVO BUDGET per tracciare questo mese.</string>
+
+    <string name="msg_no_recurring_start_tracking">Nessuna spesa ricorrente ancora. Tocca AGGIUNGI RICORRENTE e scegli una transazione di spesa esistente.</string>
+
+    <string name="format_limit_amount">LIMITE %1$s</string>
+
+    <string name="format_started_date">Iniziato %1$s</string>
+
+    <string name="label_due_today">Scade oggi</string>
+
+    <string name="label_due_tomorrow">SCADE DOMANI</string>
+
+    <string name="format_due_in_days">SCADE TRA %1$d GIORNI</string>
+
+    <string name="format_percent_used">%1$d%% USATO</string>
+
+    <string name="format_remaining_pill">%1$s (%2$d%%) rimasti</string>
+
+    <string name="format_next_due">PROSSIMO %1$s</string>
+
+    <string name="format_daily_allowance">Puoi spendere %1$s/giorno</string>
+
+    <string name="label_expense_with_val">Spesa %1$s</string>
+
+    <string name="label_income_with_val">Entrata %1$s</string>
+
+    <string name="msg_no_calendar_entries">Nessuna voce registrata per %1$s.</string>
+
+    <string name="month_jan_short">GEN</string>
+
+    <string name="month_feb_short">FEB</string>
+
+    <string name="month_mar_short">MAR</string>
+
+    <string name="month_apr_short">APR</string>
+
+    <string name="month_may_short">MAG</string>
+
+    <string name="month_jun_short">GIU</string>
+
+    <string name="month_jul_short">LUG</string>
+
+    <string name="month_aug_short">AGO</string>
+
+    <string name="month_sep_short">SET</string>
+
+    <string name="month_oct_short">OTT</string>
+
+    <string name="month_nov_short">NOV</string>
+
+    <string name="month_dec_short">DIC</string>
+
+    <string name="label_week_short_1">S1</string>
+
+    <string name="label_week_short_2">S2</string>
+
+    <string name="label_week_short_3">S3</string>
+
+    <string name="label_week_short_4">S4</string>
+
+    <string name="label_week_short_5">S5</string>
+
+    <string name="label_period_short">P%1$d</string>
+
+    <string name="format_percent">(%1$s%%)</string>
+
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+
+    <string name="format_cash_flow_ratio">Rapporto %1$s</string>
+
+    <string name="label_zero_percent">+0%</string>
+
+    <string name="label_plus">+</string>
+
+    <string name="label_minus">-</string>
+
+    <string name="date_pattern_month_year">MMMM yyyy</string>
+
+    <string name="date_pattern_year">yyyy</string>
+
+    <string name="date_pattern_short_day_month">dd MMM</string>
+
+    <string name="date_pattern_full_short">dd MMM yyyy</string>
+
+    <string name="label_12_hour">12 ore</string>
+
+    <string name="label_24_hour">24 ore</string>
+
+    <string name="label_all_records">Tutti i record</string>
+
+    <string name="label_custom_payment_method">Metodo di pagamento personalizzato</string>
+
+    <string name="notification_format_budget_approaching">%1$s! Hai usato %2$s del budget %3$s. %4$s rimasti.</string>
+
+    <string name="notification_format_budget_reached">Avviso budget: hai raggiunto il limite %1$s per %2$s.</string>
+
+    <string name="notification_format_budget_overspent">Avviso: sei %1$s oltre il budget %2$s. %3$s</string>
+
+    <string name="notification_budget_approaching_1">Rallentiamo? 🛑</string>
+
+    <string name="notification_budget_approaching_2">Il te del futuro ti ringrazierà se ti fermi ora. 😇</string>
+
+    <string name="notification_budget_approaching_3">Il portafoglio sta dimagrendo. 💸</string>
+
+    <string name="notification_budget_overspent_1">Il budget è nello specchietto. 🏎️</string>
+
+    <string name="notification_budget_overspent_2">Siamo in territorio inesplorato. 🗺️</string>
+
+    <string name="notification_budget_overspent_3">Il limite era solo un suggerimento, no? 🙃</string>
+
+    <string name="notification_channel_reminders">Promemoria giornalieri</string>
+
+    <string name="notification_channel_reminders_desc">Promemoria periodici per registrare le spese.</string>
+
+    <string name="notification_channel_budget">Avvisi budget</string>
+
+    <string name="notification_channel_budget_desc">Avvisi quando ti avvicini o raggiungi il budget mensile.</string>
+
+    <string name="notification_channel_budget_exceeded">Budget superato</string>
+
+    <string name="notification_channel_budget_exceeded_desc">Avvisi quando superi il budget mensile.</string>
+
+    <string name="notification_channel_cloud_security">Cloud e sicurezza</string>
+
+    <string name="notification_channel_cloud_security_desc">Avvisi di sicurezza per account e sync cloud.</string>
+
+    <string name="notification_channel_sync_status">Stato sync</string>
+
+    <string name="notification_channel_sync_status_desc">Aggiornamenti silenziosi mentre i dati si sincronizzano in background.</string>
+
+    <string name="notification_channel_financial_insights">Insight finanziari</string>
+
+    <string name="notification_channel_financial_insights_desc">Insight e previsioni personalizzati sulle spese.</string>
+
+    <string name="notification_channel_recurring">Transazioni ricorrenti</string>
+
+    <string name="notification_channel_recurring_desc">Notifiche quando le transazioni ricorrenti si aggiungono da sole.</string>
+
+    <string name="notification_title_budget_alert">Avviso budget!</string>
+
+    <string name="notification_title_daily_reminder">Momento di registrare una spesa?</string>
+
+    <string name="notification_title_recurring_updated">Transazioni ricorrenti aggiornate</string>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">Aggiunta %1$d transazione ricorrente.</item>
+        <item quantity="other">Aggiunte %1$d transazioni ricorrenti.</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d budget ha bisogno di attenzione.</item>
+        <item quantity="other">%1$d budget hanno bisogno di attenzione.</item>
+    </plurals>
+
+    <string name="title_reminder_times">Orari promemoria</string>
+
+    <string name="title_morning_window">Finestra mattina</string>
+
+    <string name="title_evening_window">Finestra sera</string>
+
+    <string name="notification_window_format">%1$s – %2$s</string>
+
+    <string name="title_select_reminder_window">Imposta finestra</string>
+
+    <string name="label_starts_at">Inizia alle</string>
+
+    <string name="label_ends_at">Finisce alle</string>
+
+    <string name="title_test_notification">Notifica di test</string>
+
+    <string name="desc_test_notification">Mostra un promemoria di esempio ora</string>
+
+    <string name="btn_send_test_notification">Invia test</string>
+
+    <string name="error_reminder_window_invalid">L\'inizio deve essere prima della fine</string>
+
+    <string name="notification_title_daily_reminder_personalized">Momento di registrare una spesa, %1$s?</string>
+
+    <string name="notification_title_missed_today">Perso oggi?</string>
+
+    <string name="notification_channel_goal_reminders">Promemoria obiettivi di risparmio</string>
+
+    <string name="notification_channel_goal_reminders_desc">Spinte settimanali verso i tuoi obiettivi.</string>
+
+    <string name="notification_permission_banner_title">Le notifiche sono bloccate</string>
+
+    <string name="notification_permission_banner_desc">Consenti le notifiche per promemoria e avvisi.</string>
+
+    <string name="btn_allow_notifications">Consenti</string>
+
+    <string name="btn_open_notification_settings">Apri impostazioni</string>
+
+    <string name="notification_channel_sms_import">Import SMS smart</string>
+
+    <string name="notification_channel_sms_import_desc">SMS bancari rilevati pronti da salvare.</string>
+
+    <string name="notification_channel_weekly_reports">Report settimanali</string>
+
+    <string name="notification_channel_weekly_reports_desc">Riepiloghi della domenica sulle spese della settimana.</string>
+
+    <string name="notification_title_large_transaction">Transazione grande rilevata</string>
+
+    <string name="notification_format_large_transaction">Hai registrato una spesa di %1$s in %2$s — sopra la soglia %3$s per spese grandi.</string>
+
+    <string name="notification_title_weekly_summary">Riepilogo spese settimanali</string>
+
+    <string name="notification_format_weekly_summary_up">Hai speso %1$s questa settimana — %2$d%% in più della scorsa.</string>
+
+    <string name="notification_format_weekly_summary_down">Hai speso %1$s questa settimana — %2$d%% in meno della scorsa.</string>
+
+    <string name="notification_format_weekly_summary_flat">Hai speso %1$s questa settimana — più o meno come la scorsa.</string>
+
+    <string name="notification_format_weekly_summary_top_category">Categoria top: %1$s.</string>
+
+    <string name="notification_title_auto_backup_failed">Backup automatico fallito</string>
+
+    <string name="notification_desc_auto_backup_failed">Impossibile creare il backup locale automatico. Tocca per controllare lo storage.</string>
+
+    <string name="notification_title_syncing_in_progress">Sincronizzazione cloud…</string>
+
+    <string name="notification_desc_syncing_in_progress">Aggiornamento transazioni e profilo sui dispositivi.</string>
+
+    <string name="notification_title_sync_failed">Sync cloud fallito</string>
+
+    <string name="notification_desc_sync_failed">Impossibile completare il sync. Riproveremo in automatico.</string>
+
+    <string name="notification_title_sync_pending">Sync cloud in attesa</string>
+
+    <string name="notification_desc_sync_pending">Le modifiche aspettano di sincronizzarsi. Connettiti per finire.</string>
+
+    <string name="title_expense_reminders">Promemoria spese</string>
+
+    <string name="desc_expense_reminders">Promemoria giornalieri per registrare le spese.</string>
+
+    <string name="title_large_transaction_alerts">Avvisi txn grandi</string>
+
+    <string name="desc_large_transaction_alerts">Avviso quando una spesa singola supera la soglia.</string>
+
+    <string name="title_large_transaction_threshold">Soglia spesa grande</string>
+
+    <string name="desc_large_transaction_threshold">Scegli quando una spesa singola conta come grande.</string>
+
+    <string name="placeholder_custom_threshold">Inserisci importo</string>
+
+    <string name="error_invalid_threshold">Inserisci un importo valido sopra zero.</string>
+
+    <string name="title_weekly_summary">Riepilogo settimanale</string>
+
+    <string name="desc_weekly_summary">Riepilogo della domenica sulle spese della settimana.</string>
+
+    <string name="title_weekly_summary_time">Ora del riepilogo</string>
+
+    <string name="desc_weekly_summary_time">Ogni domenica a quest\'ora.</string>
+
+    <string name="notification_weekly_time_format">Ogni domenica alle %1$s</string>
+
+    <string name="title_financial_insights">Insight finanziari</string>
+
+    <string name="desc_financial_insights">Trend e previsioni smart sulle spese.</string>
+
+    <string name="title_recurring_alerts">Avvisi ricorrenti</string>
+
+    <string name="desc_recurring_alerts">Promemoria per bollette e pagamenti ricorrenti.</string>
+
+    <string name="desc_recurring_rule_ladder">Regole 1-3 gratis · 4-6 guarda un ads · 7+ passa a Pro</string>
+
+    <string name="desc_recurring_rules_used_free">%1$d di %2$d regole gratis usate</string>
+
+    <string name="desc_recurring_rules_used_ad">%1$d di %2$d regole con ads usate</string>
+
+    <string name="desc_recurring_rules_used_premium">%1$d regole · passa a Pro per illimitate</string>
+
+    <string name="title_cloud_security_alerts">Avvisi cloud e sicurezza</string>
+
+    <string name="desc_cloud_security_alerts">Avvisi su sync, backup e sicurezza account.</string>
+
+    <string name="desc_info">Info</string>
+
+    <string name="info_expense_reminders">Include un promemoria giornaliero per registrare le spese e una spinta se non hai loggato nulla quel giorno. Puoi scegliere le finestre sotto.</string>
+
+    <string name="info_budget_alerts" formatted="false">Ti avvisa quando una categoria si avvicina al budget: al 75%, 90%, 100% e quando lo superi.</string>
+
+    <string name="info_large_transaction">Ti avvisa appena registri una spesa singola sopra la soglia scelta.</string>
+
+    <string name="info_weekly_summary">Un riepilogo della domenica sugli ultimi 7 giorni rispetto alla settimana prima.</string>
+
+    <string name="info_financial_insights">Insight smart in arrivo: trend, picchi, previsioni e suggerimenti su misura.</string>
+
+    <string name="info_savings_goals" formatted="false">Avvisi di progresso al 25%, 50% e 75% di un obiettivo, una festa quando lo raggiungi e un avviso se sei in ritardo.</string>
+
+    <string name="info_recurring_alerts">Ti ricorda bollette e pagamenti ricorrenti 7 giorni, 3 giorni e 1 giorno prima, e il giorno della scadenza. Ogni regola si può silenziare.</string>
+
+    <string name="info_cloud_security">Avvisi se sync o backup falliscono, e se l\'account viene usato da un dispositivo nuovo o cambiato.</string>
+
+    <string name="notification_title_sms_import">💳 Transazione rilevata</string>
+
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+
+    <string name="notification_format_sms_import_suggested">Suggerito: %1$s</string>
+
+    <string name="notification_format_sms_import_title_spent">%1$s spesi da %2$s</string>
+
+    <string name="notification_format_sms_import_title_received">%1$s ricevuti da %2$s</string>
+
+    <string name="notification_action_add">Aggiungi</string>
+
+    <string name="notification_action_ignore">Ignora</string>
+
+    <string name="notification_action_edit">Modifica</string>
+
+    <string name="notification_format_sms_import_summary">%1$d transazioni · %2$s</string>
+
+    <string name="notification_action_save">Salva</string>
+
+    <string name="notification_action_change">Cambia</string>
+
+    <string name="notification_action_open">Apri</string>
+
+    <string name="sms_verb_debited">Addebitato</string>
+
+    <string name="sms_verb_credited">Accreditato</string>
+
+    <string name="sms_sender_unknown">Mittente sconosciuto</string>
+
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+
+    <string name="title_sms_change">Cambia transazione</string>
+
+    <string name="label_choose_category">Scegli categoria</string>
+
+    <string name="label_optional_note">Nota opzionale</string>
+
+    <string name="toast_sms_transaction_saved">Transazione salvata</string>
+
+    <string name="msg_sms_save_failed">Impossibile salvare la transazione. Riprova.</string>
+
+    <string name="title_sms_detection">Rilevamento SMS</string>
+
+    <string name="msg_sms_permission_needed">Il rilevamento SMS serve il permesso SMS. Apri le impostazioni e consenti per rilevare i messaggi bancari in automatico.</string>
+
+    <string name="label_open_app_settings">Apri impostazioni</string>
+
+    <string name="title_sms_miui_setup">Setup dispositivo Xiaomi</string>
+
+    <string name="msg_sms_miui_setup_autostart">Xiaomi può bloccare il rilevamento SMS in background. Attiva Autostart per questa app e imposta la batteria su "Nessuna restrizione".</string>
+
+    <string name="msg_sms_miui_setup_autostart_unknown">Non abbiamo verificato Autostart in automatico. Apri le impostazioni app e attiva Autostart.</string>
+
+    <string name="label_battery_settings">Impostazioni batteria</string>
+
+    <string name="label_sms_miui_done">L\'ho attivato</string>
+
+    <string name="desc_dismiss_sms_permission_card">Chiudi avviso permesso SMS</string>
+
+    <string name="desc_dismiss_miui_setup_card">Chiudi avviso setup Xiaomi</string>
+
+    <string name="desc_sms_detection_icon">Rilevamento SMS</string>
+
+    <string name="notification_opener_1">Beh beh beh</string>
+
+    <string name="notification_opener_2">Interessante</string>
+
+    <string name="notification_opener_3">Ahh</string>
+
+    <string name="notification_opener_4">Guarda un po\'</string>
+
+    <string name="notification_opener_5">Ultime notizie</string>
+
+    <string name="notification_opener_6">Avviso</string>
+
+    <string name="notification_opener_7">Aggiornamento</string>
+
+    <string name="notification_opener_8">Oh, guarda chi c\'è</string>
+
+    <string name="notification_reaction_1">i soldi sono volati via 💸</string>
+
+    <string name="notification_reaction_2">il portafoglio ha preso un colpo 😬</string>
+
+    <string name="notification_reaction_3">il budget trema 😳</string>
+
+    <string name="notification_reaction_4">è scalato in fretta 🚀</string>
+
+    <string name="notification_reaction_5">il conto ha notato 👀</string>
+
+    <string name="notification_reaction_6">c\'è un buco in tasca?</string>
+
+    <string name="notification_guilt_1">Speriamo ne valesse la pena 😏</string>
+
+    <string name="notification_guilt_2">Nessun rimpianto… vero? 😬</string>
+
+    <string name="notification_guilt_3">Il te del futuro ti guarda 👀</string>
+
+    <string name="notification_guilt_4">Non giudichiamo… troppo 😌</string>
+
+    <string name="notification_guilt_5">Meglio che sia importante 😄</string>
+
+    <string name="notification_guilt_6">Il conto risparmi sta piangendo.</string>
+
+    <string name="notification_food_1">Cibo di nuovo? Rispetto 🍕</string>
+
+    <string name="notification_food_2">Mangi da re 👑</string>
+
+    <string name="notification_food_3">La dieta ha lasciato la chat 🍔</string>
+
+    <string name="notification_food_4">Gusto > budget, eh? 😏</string>
+
+    <string name="notification_food_5">Le calorie non contano, i centesimi sì.</string>
+
+    <string name="notification_shopping_1">Retail therapy attivata 🛍️</string>
+
+    <string name="notification_shopping_2">Impulso o piano? 😏</string>
+
+    <string name="notification_shopping_3">Sembrava necessario 😬</string>
+
+    <string name="notification_shopping_4">Mood shopping ON 💳</string>
+
+    <string name="notification_shopping_5">Aggiungi alla collezione? 🛍️</string>
+
+    <string name="notification_generic_1">Un\'altra spesa registrata 📊</string>
+
+    <string name="notification_generic_2">Tracci come un pro 😎</string>
+
+    <string name="notification_generic_3">Soldi… spesi bene? 😏</string>
+
+    <string name="notification_generic_4">Annotato 👀</string>
+
+    <string name="notification_generic_5">Restiamo reali 📈</string>
+
+    <string name="notification_budget_exceeded_1">Il budget ha chiamato. Si licenzia. 💸</string>
+
+    <string name="notification_budget_exceeded_2">Limite spese? Mai sentito. 💅</string>
+
+    <string name="notification_budget_exceeded_3">Spendi come se avessi un cheat. 🎮</string>
+
+    <string name="notification_budget_exceeded_4">Budget: superato. Tristezza: imminente. 📉</string>
+
+    <string name="notification_budget_exceeded_5">I risparmi urlano. 😱</string>
+
+    <string name="notification_missed_entry_1">Troppo silenzio… hai smesso di mangiare? 🍔</string>
+
+    <string name="notification_missed_entry_2">Il portafoglio è sospettosamente pesante. Logga qualcosa! 💸</string>
+
+    <string name="notification_missed_entry_3">Il silenzio è assordante. Dove sono le transazioni? 🕵️</string>
+
+    <string name="notification_missed_entry_4">Hai vinto la lotteria? Perché nessun log oggi? 🎰</string>
+
+    <string name="notification_missed_entry_5">Il tracker è solo. Dagli dati da masticare. 🦴</string>
+
+    <string name="notification_morning_opener_1">Buongiorno! ☀️</string>
+
+    <string name="notification_morning_opener_2">Su, alzati! ☕</string>
+
+    <string name="notification_morning_opener_3">Update del mattino! 🌅</string>
+
+    <string name="notification_morning_opener_4">Sveglia sveglia! 🥐</string>
+
+    <string name="notification_evening_opener_1">Quasi fine giornata! 🌙</string>
+
+    <string name="notification_evening_opener_2">Check serale! 🌆</string>
+
+    <string name="notification_evening_opener_3">Ora di cena? 🥘</string>
+
+    <string name="notification_evening_opener_4">Si stacca? 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">Hai già comprato il caffè o aspetti un segno? ☕</string>
+
+    <string name="notification_sarcastic_morning_2">Tracciare la colazione è l\'esercizio migliore di oggi. 🥐</string>
+
+    <string name="notification_sarcastic_morning_3">Il mattiniero prende il verme, ma quello smart logga il costo. 🐛</string>
+
+    <string name="notification_sarcastic_morning_4">Il portafoglio è sveglio e ha domande. 💸</string>
+
+    <string name="notification_sarcastic_evening_1">Il budget è sopravvissuto al giorno... o no? 👀</string>
+
+    <string name="notification_sarcastic_evening_2">Non andare a dormire con segreti non loggati. I dati ti guardano. 🕵️</string>
+
+    <string name="notification_sarcastic_evening_3">La cena era ottima, ma il tracking sarà leggendario. 🥘</string>
+
+    <string name="notification_sarcastic_evening_4">Un piccolo log per te, un salto enorme per i risparmi. 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s Non dimenticare di loggare le spese del mattino!</string>
+
+    <string name="notification_evening_reminder_generic">%1$s Un minuto per loggare cena o viaggio?</string>
+
+    <string name="notification_format_expense">%1$s 👀 %2$s spesi su %3$s… %4$s. %5$s. %6$s</string>
+
+    <string name="notification_format_budget_exceeded">%1$s! Hai appena superato il budget %2$s. %3$s</string>
+
+    <string name="date_pattern_month_year_comma">MMM yyyy</string>
+
+    <string name="label_size_unit_b">B</string>
+
+    <string name="label_size_unit_kb">KB</string>
+
+    <string name="label_size_unit_mb">MB</string>
+
+    <string name="label_size_unit_gb">GB</string>
+
+    <string name="label_size_unit_tb">TB</string>
+
+    <string name="label_zero_size">0 B</string>
+
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <string name="title_update_required">Aggiornamento richiesto</string>
+
+    <string name="msg_update_required_desc">C\'è una nuova versione di Expense Tracker. Aggiorna all\'ultima per continuare a usare l\'app.</string>
+
+    <string name="btn_update_now">Aggiorna ora</string>
+
+    <string name="title_update_available">C\'è una nuova versione</string>
+
+    <string name="title_update_available_version">La versione %s è disponibile</string>
+
+    <string name="msg_update_available">C\'è una nuova versione di Expense Tracker. Aggiorna per le ultime funzioni e miglioramenti.</string>
+
+    <string name="title_system_maintenance">Manutenzione di sistema</string>
+
+    <string name="msg_maintenance_desc">Stiamo facendo manutenzione programmata per migliorare i servizi. Torniamo a breve. Grazie per la pazienza!</string>
+
+    <string name="title_protect_your_data">Registrati / Accedi</string>
+
+    <string name="msg_link_account_desc">Il tuo percorso finanziario è una storia da tenere. Accedi così risultati e progressi non svaniscono.</string>
+
+    <string name="label_guest_user">Utente ospite</string>
+
+    <string name="label_pro_expiry_format">PRO (scade il %1$s)</string>
+
+    <string name="msg_privacy_info">Usiamo queste info per personalizzare la dashboard e dare insight adatti all\'età. I dati restano 100% privati e sicuri.</string>
+
+    <string name="cd_privacy_info">Vedi info privacy</string>
+
+    <string name="title_lets_get_started">Iniziamo!</string>
+
+    <string name="desc_delete_all_data_subtitle">Azione distruttiva irreversibile</string>
+
+    <string name="label_delete_recurring">Elimina ricorrente</string>
+
+    <string name="label_mute_recurring_title">Silenzia notifiche</string>
+
+    <string name="label_mute_recurring_message">Silenziare le notifiche per %s? Non riceverai promemoria bollette per questa spesa ricorrente.</string>
+
+    <string name="label_mute_yes">Sì, silenzia</string>
+
+    <string name="label_yes">Sì</string>
+
+    <string name="label_no">No</string>
+
+    <string name="label_dont_show_again">Non mostrare più questo dialogo</string>
+
+    <string name="label_notifications">Notifiche</string>
+
+    <string name="label_logout">Esci</string>
+
+    <string name="desc_logout_subtitle">Esci dal tuo account</string>
+
+    <string name="msg_logout_confirm">Uscire? I dati cloud smetteranno di sincronizzarsi finché non rientri.</string>
+
+    <string name="error_no_internet">Nessuna connessione. Controlla la rete e riprova.</string>
+
+    <string name="error_no_google_accounts">Nessun account Google su questo dispositivo. Usa l\'email per registrarti.</string>
+
+    <string name="title_google_accounts_not_found">Serve un account Google</string>
+
+    <string name="msg_google_accounts_not_found">Nessun account Google rilevato. Aggiungine uno nelle impostazioni del dispositivo, poi riprova.</string>
+
+    <string name="label_add_account">Aggiungi account</string>
+
+    <string name="label_retry">Riprova</string>
+
+    <string name="msg_transactions_load_failed">Impossibile caricare le transazioni.</string>
+
+    <string name="error_auth_user_not_found">Account non trovato. Registrati prima.</string>
+
+    <string name="error_auth_wrong_password">Password sbagliata. Riprova.</string>
+
+    <string name="error_auth_invalid_credentials">Email o password non validi.</string>
+
+    <string name="error_auth_email_already_in_use">Questa email è già registrata. Prova ad accedere.</string>
+
+    <string name="error_auth_user_disabled">Questo account è stato disattivato.</string>
+
+    <string name="error_auth_too_many_requests">Troppi tentativi. Riprova più tardi.</string>
+
+    <string name="error_auth_weak_password">Password troppo debole. Usane una più forte.</string>
+
+    <string name="error_auth_generic_fail">Autenticazione fallita. Controlla i dettagli.</string>
+
+    <string name="error_auth_operation_not_allowed">Questo metodo di accesso non è attivo. Prova un altro modo.</string>
+
+    <string name="error_auth_token_parse">Token Google non valido. Riprova.</string>
+
+    <string name="error_auth_no_google_accounts">Nessun account Google su questo dispositivo. Aggiungine uno nelle impostazioni.</string>
+
+    <string name="msg_auth_reset_email_sent">Link di reset inviato! Controlla la posta.</string>
+
+    <string name="label_send_magic_link">Accedi con link email</string>
+
+    <string name="msg_auth_magic_link_sent">Magic link inviato! Controlla inbox (e spam) per accedere.</string>
+
+    <string name="msg_identity_secured_setting_up_profile">Identità sicura. Setup del profilo...</string>
+
+    <string name="msg_account_created_successfully">Account creato.</string>
+
+    <string name="msg_auth_cooldown_wait">Aspetta %1$d secondi prima di richiedere un altro link.</string>
+
+    <string name="title_cloud_sync_devices">Cloud sync e dispositivi</string>
+
+    <string name="desc_sync_premium_subtitle">Sincronizza i dati su 4 dispositivi (Pro)</string>
+
+    <string name="desc_sync_active_subtitle">Backup cloud automatico attivo</string>
+
+    <string name="desc_sync_disabled_subtitle">Backup cloud automatico disattivato</string>
+
+    <string name="desc_connected_devices">Elenco dispositivi connessi</string>
+
+    <string name="label_active_now">Attivo ora</string>
+
+    <string name="label_last_active">Ultimo attivo: %1$s</string>
+
+    <string name="label_this_device">Questo dispositivo</string>
+
+    <string name="btn_unlink_device">Scollega</string>
+
+    <string name="msg_unlink_device_confirm">Scollegare questo dispositivo? Il sync automatico si ferma lì.</string>
+
+    <string name="label_devices_used">%1$d di %2$d dispositivi connessi</string>
+
+    <string name="title_cloud_sync">Cloud sync</string>
+
+    <string name="desc_cloud_sync">Tieni transazioni e impostazioni sincronizzate in tempo reale su tutti i dispositivi.</string>
+
+    <string name="title_upgrade_for_sync">Passa a Pro per il cloud sync</string>
+
+    <string name="desc_upgrade_for_sync">Sblocca il backup cloud automatico e sincronizza i dati su 4 dispositivi.</string>
+
+    <string name="title_ad_expiry_warning">La comodità sta per finire</string>
+
+    <string name="msg_ad_expiry_warning">Il pass senza ads scade tra %1$d minuti. Guardare un altro ads ora per tenere le impostazioni altri %2$s?</string>
+
+    <string name="btn_extend_now">Estendi ora</string>
+
+    <string name="btn_maybe_later">Magari dopo</string>
+
+    <string name="label_custom_minutes">Minuti personalizzati</string>
+
+    <string name="placeholder_enter_minutes">Inserisci minuti</string>
+
+    <string name="btn_apply">Applica</string>
+
+    <string name="msg_preparing_pro_experience">Preparazione dell\'esperienza Pro…</string>
+
+    <string name="msg_wont_take_long">Non ci vorrà molto</string>
+
+    <string name="label_prev">PREC</string>
+
+    <string name="label_next_caps">AVANTI</string>
+
+    <string name="label_skip">SALTA</string>
+
+    <string name="placeholder_email">name@example.com</string>
+
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="error_password_required_prefix">Obbligatorio: </string>
+
+    <string name="error_password_min_chars">Almeno 8 caratteri</string>
+
+    <string name="error_password_need_digit">Almeno 1 numero</string>
+
+    <string name="error_password_need_special">Almeno 1 carattere speciale</string>
+
+    <string name="label_forgot_password">Password dimenticata?</string>
+
+    <string name="label_resend_cooldown">Reinvia tra %1$ds</string>
+
+    <string name="label_financial_goal_title">Qual è il tuo obiettivo finanziario #1?</string>
+
+    <string name="label_goal_home">Comprare la casa dei sogni</string>
+
+    <string name="label_goal_travel">Viaggiare il mondo</string>
+
+    <string name="label_goal_debt">Diventare senza debiti</string>
+
+    <string name="label_goal_retirement">Pensione anticipata</string>
+
+    <string name="label_goal_savings">Costruire una rete di sicurezza</string>
+
+    <string name="label_goal_car">Comprare un\'auto nuova</string>
+
+    <string name="label_goal_education">Fondo istruzione</string>
+
+    <string name="label_goal_business">Avviare un\'attività</string>
+
+    <string name="label_goal_invest">Far crescere gli investimenti</string>
+
+    <string name="label_goal_other">Altro (obiettivo personalizzato)</string>
+
+    <string name="placeholder_enter_custom_goal">Inserisci l\'obiettivo...</string>
+
+    <string name="label_financial_zen">La tua zen finanziaria</string>
+
+    <string name="msg_discipline_score_title">Setup account</string>
+
+    <string name="msg_discipline_score_desc">Stai andando alla grande!! Completa il profilo.</string>
+
+    <string name="btn_reach_100">Raggiungi 100%</string>
+
+    <string name="msg_goal_faster_with_pro">Raggiungi l\'obiettivo %1$s il 20%% più veloce con le funzioni Elite.</string>
+
+    <string name="title_setup_progress">Progresso profilo</string>
+
+    <string name="label_checklist_full_name">Nome completo</string>
+
+    <string name="label_checklist_phone">Numero di telefono</string>
+
+    <string name="label_checklist_gender">Genere</string>
+
+    <string name="label_checklist_dob">Data di nascita</string>
+
+    <string name="label_checklist_email">Indirizzo email</string>
+
+    <string name="label_checklist_signin_to_add">Accedi per aggiungere l\'email</string>
+
+    <string name="label_checklist_email_verified">Email verificata</string>
+
+    <string name="label_checklist_verify_email">Tocca il profilo per verificare</string>
+
+    <string name="btn_got_it">Capito</string>
+
+    <string name="title_my_goals">I miei obiettivi</string>
+
+    <string name="title_add_goal">Aggiungi obiettivo di risparmio</string>
+
+    <string name="title_fund_goal">Finanzia obiettivo</string>
+
+    <string name="msg_fund_goal_caption">Inserisci quanto aggiungere a questo obiettivo. Puoi cambiarlo quando vuoi.</string>
+
+    <string name="title_delete_goal">Elimina obiettivo</string>
+
+    <string name="msg_delete_goal_confirm">Eliminare l\'obiettivo "%1$s"? Non si può annullare.</string>
+
+    <string name="label_fund_amount">Importo da aggiungere</string>
+
+    <string name="label_goal_name">Nome obiettivo</string>
+
+    <string name="label_target_amount">Importo obiettivo</string>
+
+    <string name="label_initial_saved_amount">Importo già risparmiato</string>
+
+    <string name="label_goal_name_hint">es. Auto nuova, Vacanza</string>
+
+    <string name="msg_no_goals">Nessun obiettivo ancora. Tocca + e inizia a risparmiare!</string>
+
+    <string name="cd_add_goal">Aggiungi obiettivo</string>
+
+    <string name="cd_add_funds">Aggiungi fondi</string>
+
+    <string name="cd_delete_goal">Elimina obiettivo</string>
+
+    <string name="format_goal_progress">%1$d%% completato</string>
+
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+
+    <string name="format_goal_target">Obiettivo: %1$s</string>
+
+    <string name="title_edit_goal">Modifica obiettivo</string>
+
+    <string name="cd_edit_goal">Modifica obiettivo</string>
+
+    <string name="title_active_goals">Obiettivi attivi</string>
+
+    <string name="title_completed_goals">Completati</string>
+
+    <string name="label_goal_completed">Completato 🎉</string>
+
+    <string name="label_deadline">Scadenza</string>
+
+    <string name="label_deadline_not_set">Non impostata</string>
+
+    <string name="label_set_deadline">Imposta scadenza</string>
+
+    <string name="format_days_left">%1$d giorni rimasti</string>
+
+    <string name="label_one_day_left">1 giorno rimasto</string>
+
+    <string name="label_goal_due_today">Scade oggi</string>
+
+    <string name="format_days_overdue">%1$d giorni di ritardo</string>
+
+    <string name="label_saved_amount">Risparmiato: %1$s</string>
+
+    <string name="label_goal_icon">Icona</string>
+
+    <string name="title_choose_icon">Scegli un\'icona</string>
+
+    <string name="cd_goal_icon">Icona obiettivo</string>
+
+    <string name="title_goal_reminder">Update obiettivo di risparmio</string>
+
+    <string name="msg_goal_reminder_due_soon">Solo %1$d giorni per "%2$s" — sei al %3$d%%!</string>
+
+    <string name="title_fund_history">Storico fondi</string>
+
+    <string name="format_fund_entries_count">%1$d voci</string>
+
+    <string name="label_no_fund_history">Nessun contributo ancora</string>
+
+    <string name="label_funded_on">Finanziato il %1$s</string>
+
+    <string name="desc_toggle_fund_history">Mostra/nascondi storico fondi</string>
+
+    <string name="label_fund_history_inline">Storico fondi</string>
+
+    <string name="format_fund_entries_one">1 voce</string>
+
+    <string name="msg_goal_reminder_due_soon_1">Solo 1 giorno per "%1$s" — sei al %2$d%%!</string>
+
+    <string name="msg_goal_reminder_due_today">Scade oggi — "%1$s"! Sei al %2$d%%.</string>
+
+    <string name="msg_goal_reminder_progress">Sei al %1$d%% verso "%2$s". Continua così!</string>
+
+    <string name="title_goal_milestone">Traguardo obiettivo raggiunto</string>
+
+    <string name="msg_goal_milestone">Sei al %1$d%% verso "%2$s" — continua così!</string>
+
+    <string name="title_goal_achieved">Obiettivo raggiunto</string>
+
+    <string name="msg_goal_achieved">Complimenti! Hai raggiunto l\'obiettivo "%1$s".</string>
+
+    <string name="title_goal_behind_schedule">Obiettivo in ritardo</string>
+
+    <string name="msg_goal_behind_schedule">Potresti mancare "%1$s" — %2$d giorni a questo ritmo.</string>
+
+    <string name="label_test_goal">Obiettivo test </string>
+
+    <string name="notification_title_goal_milestone_summary">Traguardi obiettivo</string>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d obiettivo ha raggiunto un traguardo.</item>
+        <item quantity="other">%1$d obiettivi hanno raggiunto un traguardo.</item>
+    </plurals>
+
+    <string name="notification_title_upcoming_bill">Transazione in arrivo</string>
+
+    <string name="notification_format_upcoming_bill_days">%1$s per "%2$s" verrà addebitato tra %3$d giorni.</string>
+
+    <string name="notification_format_upcoming_bill_tomorrow">%1$s per "%2$s" verrà addebitato domani.</string>
+
+    <string name="notification_format_upcoming_bill_due_today">%1$s per "%2$s" scade oggi.</string>
+
+    <string name="notification_title_upcoming_bill_summary">Transazioni in arrivo</string>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d transazione in arrivo.</item>
+        <item quantity="other">%1$d transazioni in arrivo.</item>
+    </plurals>
+
+    <string name="title_redeem_pro_pass">Riscatta Pro Pass</string>
+
+    <string name="label_redeem_pro_pass_subtitle">Inserisci codice promo o pass</string>
+
+    <string name="label_enter_pro_code">INSERISCI CODICE PRO</string>
+
+    <string name="title_unlock_pro_access">Sblocca accesso Pro</string>
+
+    <string name="msg_unlock_pro_access_body">Hai un codice promo? Inseriscilo sotto per sbloccare tutte le funzioni premium.</string>
+
+    <string name="placeholder_pro_code_example">es. PROPASS7</string>
+
+    <string name="label_activate_pro_code">Attiva codice Pro</string>
+
+    <string name="label_calculator_itemized">Per voci</string>
+
+    <string name="label_calculator_normal">Normale</string>
+
+    <string name="label_redeem_pro_pass_subscribed_subtitle">Incluso nella tua sottoscrizione</string>
+
+    <string name="title_activate_pro_pass">Attiva ProPass</string>
+
+    <string name="title_pro_pass_subscribed">Hai già una sottoscrizione</string>
+
+    <string name="msg_pro_pass_subscribed">Un ProPass aggiunge tempo sopra la sottoscrizione, quindi scadrebbe mentre la sottoscrizione è ancora attiva. Gestiscila da Google Play.</string>
+
+    <string name="btn_ok">OK</string>
+
+    <string name="msg_enter_pro_pass_code">Inserisci sotto il codice ProPass alfanumerico unico.</string>
+
+    <string name="placeholder_pro_pass_code">es. EXPN-T0C3-HG41-NM1</string>
+
+    <string name="btn_activate_pro">Attiva Pro</string>
+
+    <string name="msg_pro_pass_activated">ProPass attivato! Hai %1$d giorni di accesso premium.</string>
+
+    <string name="error_invalid_pro_pass">Codice ProPass non valido o scaduto.</string>
+
+    <string name="error_redeem_not_signed_in">Accedi con Google o email per riscattare un ProPass.</string>
+
+    <string name="error_redeem_inactive">Questo codice ProPass non è più attivo.</string>
+
+    <string name="error_redeem_expired">Questo codice ProPass è scaduto.</string>
+
+    <string name="error_redeem_limit_reached">Questo codice ProPass ha raggiunto il limite di utilizzi.</string>
+
+    <string name="error_redeem_already_redeemed">Hai già riscattato questo codice ProPass.</string>
+
+    <string name="error_redeem_pass_active">Il Pro Pass è già attivo. Prova a riscattare un codice nuovo dopo la scadenza.</string>
+
+    <string name="error_redeem_subscription_active">La sottoscrizione copre già Pro, quindi un ProPass scadrebbe inutilizzato. Gestiscila da Google Play.</string>
+
+    <string name="error_redeem_network">Impossibile raggiungere il server. Controlla la connessione e riprova.</string>
+
+    <string name="error_redeem_unknown">Impossibile attivare quel codice. Riprova.</string>
+
+    <string name="label_have_a_code">Hai un codice di accesso Pro?</string>
+
+    <string name="error_underage_restriction">Devi avere almeno 15 anni per continuare.</string>
+
+    <string name="label_parental_consent">Ho il consenso dei genitori per usare questa app.</string>
+
+    <string name="error_parental_consent_required">Il consenso dei genitori è richiesto sotto i 18 anni.</string>
+
+    <string name="title_email_verification">Verifica l\'email</string>
+
+    <string name="label_verification_email_sent">Un\'email di verifica è stata inviata a %1$s. Verifica l\'email per continuare (controlla anche spam se non la vedi).</string>
+
+    <string name="error_email_not_verified">Email non ancora verificata. Controlla inbox (e spam) e clicca il link.</string>
+
+    <string name="btn_check_status">Controlla stato verifica</string>
+
+    <string name="btn_resend_email">Reinvia email di verifica</string>
+
+    <string name="info_verification_email_sent_again">Email di verifica reinviata. Controlla inbox e spam.</string>
+
+    <string name="error_link_still_valid">Il link di verifica attuale è ancora valido. Controlla inbox e spam prima di richiederne uno nuovo.</string>
+
+    <string name="error_email_not_verified_expired_sent">Il link di verifica era scaduto, quindi ne abbiamo inviato uno nuovo. Controlla inbox e spam.</string>
+
+    <string name="label_verification_link_expired">Il link di verifica è scaduto. Tocca Reinvia sotto per uno nuovo.</string>
+
+    <string name="label_verification_link_expires_in">Il link scade tra: %1$s</string>
+
+    <string name="btn_verify_email">Verifica email</string>
+
+    <string name="dialog_verify_email_title">Email non verificata</string>
+
+    <string name="dialog_verify_email_pro_pass">Verifica l\'email per attivare Pro Pass. Ti mandiamo un link.</string>
+
+    <string name="dialog_verify_email_auto_backup">Verifica l\'email per attivare il backup automatico. Così i dati si possono ripristinare su altri dispositivi.</string>
+
+    <string name="dialog_verify_email_sync">Verifica l\'email per attivare il sync tra dispositivi.</string>
+
+    <string name="label_verify_now">Verifica ora</string>
+
+    <string name="label_later">Dopo</string>
+
+    <string name="toast_verification_email_sent">Email di verifica inviata — controlla la posta</string>
+
+    <string name="msg_email_not_verified_yet">Email non ancora verificata. Controlla la posta.</string>
+
+    <string name="msg_failed_to_check_status">Impossibile controllare lo stato. Riprova.</string>
+
+    <string name="msg_verification_email_resent">Email di verifica reinviata. Controlla la posta.</string>
+
+    <string name="msg_failed_to_resend">Reinvio fallito. Riprova.</string>
+
+    <string name="msg_email_verified_success">Email verificata!</string>
+
+    <string name="btn_update_email">Aggiorna email</string>
+
+    <string name="label_signed_in_with_google">Accesso con Google</string>
+
+    <string name="title_update_email">Aggiorna indirizzo email</string>
+
+    <string name="desc_update_email">Inserisci il nuovo indirizzo. Mandiamo un link — l\'email cambia solo dopo la verifica.</string>
+
+    <string name="label_current_email">Email attuale</string>
+
+    <string name="label_new_email">Nuova email</string>
+
+    <string name="placeholder_enter_new_email">Inserisci nuovo indirizzo email</string>
+
+    <string name="label_send_verification">Invia link di verifica</string>
+
+    <string name="label_verify_and_update">Verifica e aggiorna</string>
+
+    <string name="msg_reauth_required">Per sicurezza, inserisci la password attuale per cambiare l\'email.</string>
+
+    <string name="toast_email_update_verification_sent">Link di verifica inviato alla nuova email — controlla la posta</string>
+
+    <string name="msg_email_already_in_use">Questa email è già associata a un altro account.</string>
+
+    <string name="msg_failed_to_update_email">Impossibile aggiornare l\'email. Riprova.</string>
+
+    <string name="msg_incorrect_password">Password sbagliata. Riprova.</string>
+
+    <string name="msg_auth_failed">Autenticazione fallita. Riprova.</string>
+
+    <string name="title_pending_email_verification">Verifica la nuova email</string>
+
+    <string name="msg_verification_sent_to_new_email">Un link di verifica è stato inviato a %1$s. Clicca il link in inbox per completare il cambio email.</string>
+
+    <string name="msg_current_email_unchanged">L\'email di login attuale (%1$s) resta attiva finché non verifichi la nuova.</string>
+
+    <string name="msg_checking_verification_status">Controllo stato verifica…</string>
+
+    <string name="msg_email_updated_success">Email aggiornata!</string>
+
+    <string name="msg_email_updated_success_desc">L\'email di login è cambiata. Ora puoi usare la nuova per accedere.</string>
+
+    <string name="label_confirm_new_email">Conferma nuova email</string>
+
+    <string name="placeholder_confirm_new_email">Reinserisci il nuovo indirizzo</string>
+
+    <string name="error_emails_do_not_match">Le email non coincidono.</string>
+
+    <string name="msg_fill_all_fields_correctly">Compila tutti i campi correttamente.</string>
+
+    <string name="msg_enter_current_password">Inserisci la password attuale.</string>
+
+    <string name="label_send_verification_to_new_email">Invia link di verifica</string>
+
+    <string name="btn_resend_in_seconds">Reinvia tra %1$ds</string>
+
+    <string name="msg_check_spam_folder">Non la trovi? Controlla spam o posta indesiderata.</string>
+
+    <string name="placeholder_reenter_password_for_security">Reinserisci la password per sicurezza</string>
+
+    <string name="desc_show_password">Mostra password</string>
+
+    <string name="desc_hide_password">Nascondi password</string>
+
+    <string name="title_force_sync">Problemi di sync?</string>
+
+    <string name="desc_force_sync">Se le modifiche non si sincronizzano da sole, puoi forzare un sync completo.</string>
+
+    <string name="desc_last_synced_info">Ultimo sync è data e ora in cui questo dispositivo ha finito un sync cloud riuscito. Mai sincronizzato significa che non c\'è ancora un sync completato.</string>
+
+    <string name="btn_sync_now">Sincronizza ora</string>
+
+    <string name="toast_force_sync_success">Sync completato!</string>
+
+    <string name="toast_force_sync_failed">Sync fallito: %1$s</string>
+
+    <string name="label_last_synced">Ultimo sync: %1$s</string>
+
+    <string name="label_never_synced">Mai sincronizzato</string>
+
+    <string name="title_change_password">Cambia password</string>
+
+    <string name="label_change_password_subtitle">Aggiorna la password dell\'account</string>
+
+    <string name="label_current_password">Password attuale</string>
+
+    <string name="label_new_password">Nuova password</string>
+
+    <string name="label_confirm_new_password">Conferma nuova password</string>
+
+    <string name="placeholder_current_password">Inserisci la password attuale</string>
+
+    <string name="placeholder_new_password">Inserisci la nuova password</string>
+
+    <string name="placeholder_confirm_new_password">Conferma la nuova password</string>
+
+    <string name="error_passwords_do_not_match">Le nuove password non coincidono.</string>
+
+    <string name="error_password_update_failed">Aggiornamento password fallito. Controlla la password attuale e riprova.</string>
+
+    <string name="success_password_updated">Password aggiornata!</string>
+
+    <string name="btn_change_password">Cambia password</string>
+
+    <string name="label_offline">Offline</string>
+
+    <string name="label_backup_sync_is_off">Backup e sync OFF</string>
+
+    <string name="label_turn_on">Accedi</string>
+
+    <string name="label_sign_in_keep_data_safe">Accedi per tenere i dati al sicuro.</string>
+
+    <string name="title_membership">La mia membership</string>
+
+    <string name="label_membership_card_subscription">Sottoscrizione Play</string>
+
+    <string name="label_membership_card_pro_pass">Accesso Pro Pass</string>
+
+    <string name="label_membership_card_free">Piano gratis</string>
+
+    <string name="label_membership_badge_free_pass">PASS GRATIS</string>
+
+    <string name="title_membership_pro_card">Expense Tracker Pro</string>
+
+    <string name="title_membership_upgrade_card">Passa a Expense Tracker Pro</string>
+
+    <string name="msg_membership_upgrade_body">Sblocca budget illimitati, widget, transazioni ricorrenti, analisi avanzate, backup cloud e altro.</string>
+
+    <string name="label_membership_managed_by_play">Gestito da Google Play</string>
+
+    <string name="label_membership_unlocked_headline">Tutte le funzioni premium sbloccate</string>
+
+    <string name="msg_membership_unlocked_body">Fatturazione e disdetta sono gestite in sicurezza da Google Play.</string>
+
+    <string name="label_membership_pass_headline">Sbloccato con un Pro Pass promozionale.</string>
+
+    <string name="msg_membership_pass_body">Questo accesso scade da solo. Non è una sottoscrizione Google Play.</string>
+
+    <string name="btn_membership_buy_subscription">Compra sottoscrizione</string>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d giorno rimasto</item>
+        <item quantity="other">%1$d giorni rimasti</item>
+    </plurals>
+
+    <string name="desc_membership_settings">Vedi stato, cicli di fatturazione o dettagli upgrade</string>
+
+    <string name="label_pro">Pro</string>
+
+    <string name="label_free">Gratis</string>
+
+    <string name="label_pro_active">Membro Pro</string>
+
+    <string name="label_membership_benefits">BENEFICI MEMBERSHIP</string>
+
+    <string name="msg_subscription_billing_issue">Non abbiamo potuto incassare l\'ultimo pagamento. Aggiorna il metodo in Google Play per tenere Pro.</string>
+
+    <string name="msg_pro_active_no_expiry">L\'accesso Pro è attivo.</string>
+
+    <string name="label_na">N/A</string>
+
+    <string name="btn_sign_in_register">Accedi / Registrati</string>
+
+    <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
+
+    <string name="label_free_tier">Piano gratis</string>
+
+    <string name="label_pro_benefit_adfree">Zero ads. Solo focus</string>
+
+    <string name="label_pro_benefit_devices">Sync istantaneo su 4 dispositivi!</string>
+
+    <string name="label_pro_benefit_custom_card">Schede transazione personalizzabili</string>
+
+    <string name="label_pro_benefit_advanced_features">Analisi avanzate e obiettivi</string>
+
+    <string name="label_pro_benefit_many_more_features">Molto altro… esplora</string>
+
+    <string name="btn_restore_purchase">Ripristina acquisto</string>
+
+    <string name="btn_manage_subscription">Gestisci sottoscrizione</string>
+
+    <string name="label_cancel_subscription_anytime">Puoi disdire la sottoscrizione quando vuoi</string>
+
+    <string name="label_cancel_subscription_where">Lo fai da Pagamenti e abbonamenti del Play Store</string>
+
+    <string name="label_expires_on">Scade il %1$s</string>
+
+    <string name="label_renews_on">Si rinnova il %1$s</string>
+
+    <string name="label_unlimited_offline">Modalità locale offline</string>
+
+    <string name="label_offline_warning_desc">I dati sono solo su questo dispositivo. Accedi o registrati per backup sicuri.</string>
+
+    <string name="title_coming_soon">In arrivo</string>
+
+    <string name="msg_billing_coming_soon">L\'integrazione Google Play Billing è in sviluppo. Arriverà in un aggiornamento prossimo.</string>
+
+    <string name="title_feedback">Feedback</string>
+
+    <string name="label_send_feedback_desc">Dimci cosa ti piace o cosa possiamo migliorare.</string>
+
+    <string name="placeholder_feedback_hint">Scrivi il feedback qui…</string>
+
+    <string name="btn_submit_feedback">Invia feedback</string>
+
+    <string name="msg_feedback_success">Grazie per il feedback!</string>
+
+    <string name="msg_feedback_error">Invio feedback fallito. Riprova.</string>
+
+    <string name="msg_feedback_cooldown">Aspetta %1$s minuti prima di inviare di nuovo il feedback.</string>
+
+    <string name="label_logged_in_as">Invio come: %1$s</string>
+
+    <string name="msg_feedback_empty">Il feedback non può essere vuoto.</string>
+
+    <string name="title_view_by">Vedi per</string>
+
+    <string name="label_welcome_back_comma">Bentornato,</string>
+
+    <string name="msg_welcome_back_subtitle">Sei pronto a ripartire subito!</string>
+
+    <string name="label_your_goal">IL TUO OBIETTIVO FINANZIARIO</string>
+
+    <string name="label_welcome_back_fallback">ciao</string>
+
+    <string name="label_show_more">Mostra di più</string>
+
+    <string name="label_show_less">Mostra di meno</string>
+
+    <string name="title_upcoming_recurring">Ricorrenti in arrivo</string>
+
+    <string name="label_no_upcoming_recurring">Nessuna transazione ricorrente in arrivo</string>
+
+    <string name="title_voice_add">Aggiungi con voce</string>
+
+    <string name="desc_voice_add">Aggiungi transazione con la voce</string>
+
+    <string name="msg_voice_listening">Ascolto…</string>
+
+    <string name="msg_voice_processing">Elaborazione…</string>
+
+    <string name="msg_voice_error_empty_input">Prova a dire qualcosa tipo Ho speso 50 euro per la spesa</string>
+
+    <string name="msg_voice_error_no_amount">Non ho rilevato un importo. Prova: Ho speso 50 euro per la spesa</string>
+
+    <string name="label_voice_confirm">Conferma</string>
+
+    <string name="label_voice_edit">Modifica</string>
+
+    <string name="label_voice_retry">Riprova</string>
+
+    <string name="label_voice_confidence_high">Alta confidenza</string>
+
+    <string name="label_voice_confidence_medium">Media confidenza</string>
+
+    <string name="label_voice_confidence_low">Bassa confidenza — controlla</string>
+
+    <string name="label_merchant">Esercente</string>
+
+    <string name="label_confidence">Confidenza</string>
+
+    <string name="label_voice_confidence">Confidenza</string>
+
+    <string name="label_category">Categoria</string>
+
+    <string name="msg_voice_error_no_permission">Per l\'input vocale serve il permesso microfono</string>
+
+    <string name="msg_voice_error_recognizer">Riconoscimento vocale fallito. Riprova.</string>
+
+    <string name="msg_voice_error_network">Errore di rete. Controlla la connessione e riprova.</string>
+
+    <string name="msg_voice_error_audio">Errore di registrazione. Riprova.</string>
+
+    <string name="msg_voice_error_timeout">Nessuna voce rilevata. Riprova.</string>
+
+    <string name="widget_description">Inserimento vocale rapido e riepilogo spese di oggi</string>
+
+    <string name="widget_voice_channel_name">Registrazione voce</string>
+
+    <string name="widget_voice_channel_desc">Usato mentre registri la voce dal widget home</string>
+
+    <string name="widget_notification_recording_title">Registrazione…</string>
+
+    <string name="widget_notification_recording_text">Di\' ora la transazione</string>
+
+    <string name="label_budget_categories_info">Vedi categorie budget</string>
+
+    <string name="title_budget_categories">Categorie budget</string>
+
+    <string name="label_included_categories">Categorie in questo budget</string>
+
+    <string name="label_select_all">Seleziona tutto</string>
+
+    <string name="label_select_unbudgeted">Seleziona solo disponibili</string>
+
+    <string name="label_add">Aggiungi</string>
+
+    <string name="shortcut_add_expense">Aggiungi spesa</string>
+
+    <string name="shortcut_add_expense_long">Aggiungi spesa</string>
+
+    <string name="shortcut_add_income">Aggiungi entrata</string>
+
+    <string name="shortcut_add_income_long">Aggiungi entrata</string>
+
+    <string name="shortcut_month_summary">Speso questo mese</string>
+
+    <string name="shortcut_month_summary_long">Speso questo mese</string>
+
+    <string name="shortcut_speak_to_add">Parla per aggiungere</string>
+
+    <string name="shortcut_speak_to_add_long">Parla per aggiungere</string>
+
+    <string name="shortcut_copy_budget">Copia budget</string>
+
+    <string name="shortcut_copy_budget_long">Copia budget</string>
+
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <string name="msg_feature_locked_pro_required">Questa funzione richiede una sottoscrizione Pro</string>
+
+    <string name="msg_subscribe_to_unlock">Abbonati per sbloccare questa funzione e sostenere lo sviluppo</string>
+
+    <string name="btn_upgrade">Passa a Pro</string>
+
+    <string name="msg_paywall_subtitle">Sblocca ogni funzione Pro e sostiene lo sviluppo.</string>
+
+    <string name="msg_paywall_hero_subtitle">Sblocca tutti gli insight, parsing vocale AI e regole illimitate</string>
+
+    <string name="paywall_plan_title_annual">Piano 12 mesi</string>
+
+    <string name="paywall_plan_title_six">Piano 6 mesi</string>
+
+    <string name="paywall_plan_title_month">Piano base 1 mese</string>
+
+    <string name="paywall_best_value_save">MIGLIOR VALORE • RISPARMIA %1$d%%</string>
+
+    <string name="paywall_per_month_suffix">/ mese</string>
+
+    <string name="paywall_save_amount">Risparmia %1$s</string>
+
+    <string name="paywall_base_tier">Livello base</string>
+
+    <string name="paywall_standard_recurring">Fatturazione ricorrente standard</string>
+
+    <string name="paywall_cta_continue">Continua con %1$s · %2$s/mese</string>
+
+    <string name="paywall_cta_period_annual">12 mesi</string>
+
+    <string name="paywall_cta_period_six">6 mesi</string>
+
+    <string name="paywall_cta_period_month">1 mese</string>
+
+    <string name="paywall_terms_of_use">Termini d\'uso</string>
+
+    <string name="paywall_benefits_header_annual">Include tutte le funzioni solo Pro:</string>
+
+    <string name="paywall_benefits_header_six">Benefici Pro 6 mesi inclusi:</string>
+
+    <string name="paywall_benefits_header_month">Benefici Pro mensili inclusi:</string>
+
+    <string name="paywall_benefit_ad_free">Esperienza senza ads</string>
+
+    <string name="paywall_benefit_txn_details">Vedi tutti i dettagli txn senza aprire la modifica</string>
+
+    <string name="paywall_benefit_device_sync">Sync automatico su 4 dispositivi</string>
+
+    <string name="paywall_benefit_favorites">Txn preferite: riuso in un tap</string>
+
+    <string name="paywall_benefit_recurring_yearly">Regole ricorrenti illimitate (7a+) e frequenza annuale</string>
+
+    <string name="paywall_benefit_recurring_copy">Regole ricorrenti illimitate e copia budget precedenti</string>
+
+    <string name="paywall_benefit_recurring_only">Regole ricorrenti illimitate (7a+)</string>
+
+    <string name="paywall_benefit_copy_budgets">Copia budget del mese scorso e mese budget personalizzato</string>
+
+    <string name="paywall_benefit_ai_backups">Parsing vocale AI illimitato e backup automatici giornalieri</string>
+
+    <string name="paywall_benefit_ai_backup">Parsing vocale AI illimitato e backup automatico giornaliero</string>
+
+    <string name="paywall_benefit_ai_daily">Parsing vocale AI illimitato e backup giornaliero</string>
+
+    <string name="paywall_benefit_lock_fonts_tags">Blocco auto 20–60 min, font personalizzati e tag pagamento</string>
+
+    <string name="paywall_benefit_lock_fonts">Blocco privacy auto (20-60m) e font personalizzati</string>
+
+    <string name="paywall_benefit_lock_fonts_short">Durata blocco auto e font personalizzati</string>
+
+    <string name="paywall_benefit_insights_alerts">Insight finanziari, avvisi obiettivi e sicurezza cloud</string>
+
+    <string name="paywall_benefit_separators">Separatori data, riepiloghi pagamento e icone personalizzate</string>
+
+    <string name="paywall_benefit_many_more">Molto altro... esplora</string>
+
+    <string name="paywall_processing_payment">Elaborazione pagamento…</string>
+
+    <string name="paywall_please_wait">Aspetta</string>
+
+    <string name="paywall_youre_pro_now">Ora sei Pro</string>
+
+    <string name="paywall_congrats_purchase">Complimenti per l\'acquisto</string>
+
+    <string name="paywall_invested_in_yourself">Hai appena investito in te. Scelta giusta.</string>
+
+    <string name="paywall_start_using_pro">Inizia a usare Pro</string>
+
+    <string name="paywall_payment_failed">Pagamento fallito</string>
+
+    <string name="btn_close">Chiudi</string>
+
+    <string name="label_paywall_benefits">Cosa ottieni</string>
+
+    <string name="label_paywall_choose_plan">Scegli il piano</string>
+
+    <string name="label_paywall_plans_unavailable">Impossibile caricare i piani.</string>
+
+    <string name="msg_paywall_plans_unavailable_desc">Controlla la connessione e riprova.</string>
+
+    <string name="btn_paywall_retry">Riprova</string>
+
+    <string name="content_desc_loading_plans">Caricamento piani</string>
+
+    <string name="btn_paywall_subscribe">Abbonati</string>
+
+    <string name="msg_paywall_play_account_billing">Google Play addebita l\'account Google connesso su questo dispositivo. Non va sull\'email Expense Tracker.</string>
+
+    <string name="desc_paywall_play_billing_info">Info fatturazione sottoscrizione</string>
+
+    <string name="msg_paywall_play_billing_info">La sottoscrizione si rinnova da sola finché non la disdici tu. Puoi disdire quando vuoi dal Google Play Store.</string>
+
+    <string name="msg_paywall_already_pro">Sei già Pro. Grazie per il supporto.</string>
+
+    <string name="content_desc_paywall_plan_selected">Piano selezionato</string>
+
+    <string name="paywall_plan_weekly">1 settimana</string>
+
+    <string name="paywall_plan_monthly">1 mese</string>
+
+    <string name="paywall_plan_two_months">2 mesi</string>
+
+    <string name="paywall_plan_three_months">3 mesi</string>
+
+    <string name="paywall_plan_six_months">6 mesi</string>
+
+    <string name="paywall_plan_twelve_months">12 mesi</string>
+
+    <string name="paywall_plan_lifetime">A vita</string>
+
+    <string name="paywall_plan_generic">Piano Pro</string>
+
+    <string name="paywall_discount_badge">%1$d%% DI SCONTO</string>
+
+    <string name="paywall_period_week">a settimana</string>
+
+    <string name="paywall_period_month">al mese</string>
+
+    <string name="paywall_period_months">per periodo</string>
+
+    <string name="paywall_period_year">all\'anno</string>
+
+    <string name="paywall_period_one_time">una tantum</string>
+
+    <string name="msg_paywall_purchase_success">Ora sei Pro. Goditelo!</string>
+
+    <string name="title_paywall_purchase_congrats">Complimenti</string>
+
+    <string name="msg_paywall_purchase_congrats">Sei Pro. Insight illimitati, niente ads e ogni funzione sbloccata. Goditi l\'upgrade.</string>
+
+    <string name="msg_paywall_purchase_sign_in">Il pagamento è andato. Per usare Pro, accedi con Google o email e password. Se Pro non si attiva da solo, apri Impostazioni, poi La mia membership, e tocca Ripristina acquisto.</string>
+
+    <string name="content_desc_opening_play_store">Apertura Google Play</string>
+
+    <string name="msg_paywall_restore_success">Acquisto ripristinato.</string>
+
+    <string name="msg_paywall_restore_nothing_found">Nessun acquisto precedente per questo account.</string>
+
+    <string name="msg_paywall_payment_pending">Pagamento in attesa. Pro si sblocca appena il pagamento finisce.</string>
+
+    <string name="paywall_error_network">Impossibile raggiungere lo store. Controlla la connessione e riprova.</string>
+
+    <string name="paywall_error_store_problem">Lo store non ha potuto completare. Riprova.</string>
+
+    <string name="paywall_error_not_allowed">Gli acquisti non sono consentiti su questo dispositivo o account.</string>
+
+    <string name="paywall_error_product_unavailable">Questo piano non è disponibile ora. Riprova più tardi.</string>
+
+    <string name="paywall_error_already_owned">Hai già questa sottoscrizione.</string>
+
+    <string name="paywall_error_receipt_in_use">Questa sottoscrizione è già collegata a un altro account. Accedi con l\'account che l\'ha comprata, poi ripristina.</string>
+
+    <string name="paywall_error_invalid_receipt">Impossibile verificare questo acquisto. Riprova.</string>
+
+    <string name="paywall_error_invalid_credentials">Lo store ha rifiutato la richiesta. Riprova più tardi.</string>
+
+    <string name="paywall_error_configuration">Le sottoscrizioni non sono configurate correttamente ora. Riprova più tardi.</string>
+
+    <string name="paywall_error_billing_not_configured">Le sottoscrizioni non sono disponibili in questa build.</string>
+
+    <string name="paywall_error_unknown">Qualcosa è andato storto. Riprova.</string>
+
+    <string name="desc_terms_conditions_requirement">Devi accettare questi termini per continuare a usare ExpenseTracker come ospite o con un account registrato.</string>
+
+    <string name="label_bullet_app_usage_title">Uso dell\'app</string>
+
+    <string name="label_bullet_app_usage_desc">Budget e tracking personale. Niente redistribuzione non autorizzata o reverse engineering.</string>
+
+    <string name="label_bullet_privacy_title">Dati e privacy</string>
+
+    <string name="label_bullet_privacy_desc">Offline-first sul dispositivo. Il sync è opzionale e protetto con cifratura end-to-end.</string>
+
+    <string name="label_bullet_subscriptions_title">Sottoscrizioni</string>
+
+    <string name="label_bullet_subscriptions_desc">Accesso Pro gestito in sicurezza via Google Play Billing. Si rinnova da solo se non disdici.</string>
+
+    <string name="label_bullet_cancellation_title">Disdetta ed export</string>
+
+    <string name="label_bullet_cancellation_desc">Disdici Pro quando vuoi dal Play Store. Esporta o elimina il 100% dei dati a richiesta.</string>
+
+    <string name="label_terms_clause_1">1. Accettazione dei termini: accedendo o usando l\'App, riconosci e accetti questi Termini e condizioni e la Privacy Policy. I termini vincolano tutti gli utenti (ospite o registrati).</string>
+
+    <string name="label_terms_clause_2">2. Licenza: ti diamo una licenza limitata, revocabile, non esclusiva per la gestione finanziaria personale non commerciale.</string>
+
+    <string name="label_terms_clause_3">3. Storage locale-first: i dati finanziari restano sul dispositivo, in un database cifrato di default.</string>
+
+    <string name="label_terms_clause_4">4. Acquisti in-app: le sottoscrizioni sono fatturate tramite Google Play secondo le policy dello store.</string>
+
+    <string name="label_terms_clause_5">5. Disclaimer: ExpenseTracker è uno strumento organizzativo e non fornisce consulenza finanziaria certificata.</string>
+
+    <string name="label_agree_terms_checkbox">Ho letto e accetto i Termini e condizioni</string>
+
+    <string name="label_agree_privacy_checkbox">Accetto la Privacy Policy e i termini sul trattamento dei dati</string>
+
+    <string name="cd_terms_checkbox">Checkbox consenso Termini e condizioni</string>
+
+    <string name="cd_privacy_checkbox">Checkbox consenso Privacy Policy</string>
+
+    <string name="title_terms_required">Termini e condizioni</string>
+
+    <string name="msg_agree_terms_required">Per usare questa app devi accettare Termini e condizioni e Privacy Policy. Spunta la casella.</string>
+
+    <string name="title_funds">Fondi</string>
+
+    <string name="title_fund_overview">Panoramica</string>
+
+    <string name="title_what_are_funds">Cosa sono i fondi</string>
+
+    <string name="msg_funds_what">Un fondo è un secchio di cassa messo da parte per uno scopo. Allocato è ciò che metti, speso è ciò che tiri fuori, rimanente è ciò che resta.</string>
+
+    <string name="msg_funds_how">Crea un fondo, poi sceglilo quando aggiungi una spesa. Quella spesa esce dal secchio così vedi come va il pool senza mescolarlo al resto dei soldi.</string>
+
+    <string name="label_funds_example">Esempio</string>
+
+    <string name="label_fund_example_name">Vacanza</string>
+
+    <string name="msg_funds_example">Metti soldi in un fondo Vacanza. Hotel e voli spesi da quel fondo riducono il Rimanente. La spesa resta fuori a meno che non scegli il fondo anche su quelle spese.</string>
+
+    <string name="desc_funds_info">Cosa sono i fondi e come usarli</string>
+
+    <string name="label_tab_funds">Fondi</string>
+
+    <string name="title_create_fund">Crea fondo</string>
+
+    <string name="title_edit_fund">Modifica fondo</string>
+
+    <string name="label_fund_name">Nome fondo</string>
+
+    <string name="label_fund_amount_field">Importo</string>
+
+    <string name="label_fund_start_date_value">Inizia %1$s</string>
+
+    <string name="label_fund_icon">Icona</string>
+
+    <string name="label_fund_color">Colore</string>
+
+    <string name="label_fund_note">Nota (opzionale)</string>
+
+    <string name="label_fund_summary_allocated">Allocato</string>
+
+    <string name="label_fund_summary_spent">Speso</string>
+
+    <string name="label_fund_summary_remaining">Rimanente</string>
+
+    <string name="label_fund_empty">Nessun fondo ancora. Creane uno per tracciare un pool di soldi.</string>
+
+    <string name="label_fund_spent_of">%1$s di %2$s spesi</string>
+
+    <string name="label_fund_remaining_format">%1$s rimanenti</string>
+
+    <string name="label_fund_status_active">Attivo</string>
+
+    <string name="label_fund_status_completed">Esaurito</string>
+
+    <string name="label_fund_status_archived">Archiviato</string>
+
+    <string name="title_fund_breakdown">Ripartizione spese</string>
+
+    <string name="label_fund_no_spending">Niente speso da questo fondo ancora.</string>
+
+    <string name="label_fund_linked_transactions">Transazioni</string>
+
+    <string name="label_fund_edit">Modifica</string>
+
+    <string name="label_fund_edit_amount">Modifica importo</string>
+
+    <string name="label_fund_archive">Archivia</string>
+
+    <string name="label_fund_unarchive">Togli da archivio</string>
+
+    <string name="label_fund_delete">Elimina</string>
+
+    <string name="label_fund_uncategorized">Senza categoria</string>
+
+    <string name="title_delete_fund">Eliminare il fondo?</string>
+
+    <string name="msg_delete_fund_body">"%1$s" verrà rimosso. Le transazioni restano; smettono solo di essere collegate.</string>
+
+    <string name="msg_fund_edit_amount_updates_income">Questo aggiorna anche la transazione di entrate che lo finanzia.</string>
+
+    <string name="title_spend_from_fund">Fondo</string>
+
+    <string name="label_fund_none">Nessuno</string>
+
+    <string name="title_fund_overspend">Fondo insufficiente</string>
+
+    <string name="msg_fund_overspend">Questa spesa è più dei %2$s rimasti in "%1$s". Spendi lo stesso, cambia l\'importo o togli il fondo da questa spesa.</string>
+
+    <string name="label_spend_anyway">Spendi lo stesso</string>
+
+    <string name="label_edit_amount_action">Modifica importo</string>
+
+    <string name="label_remove_fund">Rimuovi fondo</string>
+
+    <string name="label_funds_breakdown">Ripartizione fondi</string>
+
+    <string name="label_all_funds_breakdown">Tutti i fondi</string>
+
+    <string name="label_no_fund_breakdown">Nessuna spesa da fondi in questo intervallo.</string>
+
+    <string name="title_full_fund_breakdown">Ripartizione fondi completa</string>
+
 </resources>

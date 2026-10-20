@@ -11,4 +11,5 @@
     <locale android:name="ko" />
     <locale android:name="it" />
     <locale android:name="ru" />
+    <locale android:name="or" />
 </locale-config>

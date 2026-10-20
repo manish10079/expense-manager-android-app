@@ -1,302 +1,4564 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker: 예산 및 지출</string>
+
+    <string name="app_name">Expense Tracker: 예산 &amp; 지출</string>
+
     <string name="title_nav_home">홈</string>
+
     <string name="title_nav_analytics">분석</string>
+
     <string name="title_nav_budget">예산</string>
-    <string name="label_already_tracked_in">이미 %1$s에 포함됨</string>
-    <string name="tip_duplicate_budget_tracking">참고: 선택한 카테고리는 다른 활성 예산에도 추적됩니다. 지출이 두 한도에 모두 반영됩니다.</string>
-    <string name="label_select_categories">카테고리 선택</string>
-    <string name="label_budget_name_optional">예산 이름(선택)</string>
+
+    <string name="label_already_tracked_in">이미 %1$s에 있어</string>
+
+    <string name="tip_duplicate_budget_tracking">참고: 고른 카테고리는 다른 활성 예산에도 들어가. 지출이 두 한도에 다 잡혀.</string>
+
+    <string name="label_select_categories">카테고리 고르기</string>
+
+    <string name="label_budget_name_optional">예산 이름 (선택)</string>
+
     <string name="label_budget_group">예산 그룹</string>
+
     <string name="label_period">기간</string>
+
     <string name="title_nav_calendar">캘린더</string>
+
     <string name="label_ad">광고</string>
+
     <string name="label_sponsored_content">스폰서 콘텐츠</string>
-    <string name="desc_sponsored_content">추천 서비스를 확인해 보세요.</string>
-    <string name="btn_learn_more">자세히 알아보기</string>
-    <string name="msg_a_security_update_is_required">생체 인식 잠금 해제를 쓰려면 보안 업데이트가 필요합니다.</string>
-    <string name="msg_choose_one_security_question_f">PIN 복구용 보안 질문을 하나 선택하세요.</string>
-    <string name="msg_enter_an_answer_for_your_secur">보안 질문에 대한 답을 입력하세요.</string>
-    <string name="msg_enter_your_answer_to_disable_a">앱 잠금을 해제하려면 답을 입력하세요.</string>
-    <string name="msg_incorrect_answer_try_again">답이 틀렸습니다. 다시 시도하세요.</string>
-    <string name="msg_recovery_question_is_not_confi">이 앱 잠금에는 복구 질문이 설정되지 않았습니다.</string>
-    <string name="msg_repeat_the_same_4_digits_to_fi">같은 4자리를 다시 입력해 설정을 완료하세요.</string>
-    <string name="msg_set_up_fingerprint_or_face_unl">먼저 휴대폰 설정에서 지문 또는 얼굴을 등록하세요.</string>
-    <string name="msg_this_device_does_not_support_b">이 기기는 생체 인증을 지원하지 않습니다.</string>
-    <string name="toast_database_backup_saved">데이터베이스 백업이 저장되었습니다.</string>
-    <string name="toast_database_restored_reloading_ap">데이터베이스를 복원했습니다. 앱을 다시 불러옵니다.</string>
-    <string name="desc_show_balance">잔액 표시</string>
+
+    <string name="desc_sponsored_content">이 추천 서비스를 봐봐.</string>
+
+    <string name="btn_learn_more">더 알아보기</string>
+
+    <string name="msg_a_security_update_is_required">생체 잠금 해제 전에 보안 업데이트가 필요해.</string>
+
+    <string name="msg_choose_one_security_question_f">PIN 복구용 보안 질문을 하나 골라.</string>
+
+    <string name="msg_enter_an_answer_for_your_secur">보안 질문 답을 입력해.</string>
+
+    <string name="msg_enter_your_answer_to_disable_a">앱 잠금을 끄려면 답을 입력해.</string>
+
+    <string name="msg_incorrect_answer_try_again">답이 틀렸어. 다시 해봐.</string>
+
+    <string name="msg_recovery_question_is_not_confi">이 앱 잠금엔 복구 질문이 설정돼 있지 않아.</string>
+
+    <string name="msg_repeat_the_same_4_digits_to_fi">같은 숫자 4자리를 한 번 더 입력해서 설정을 끝내.</string>
+
+    <string name="msg_set_up_fingerprint_or_face_unl">먼저 휴대폰 설정에서 지문이나 얼굴 잠금 해제를 켜둬.</string>
+
+    <string name="msg_this_device_does_not_support_b">이 기기는 생체 인증을 지원하지 않아.</string>
+
+    <string name="toast_database_backup_saved">데이터베이스 백업을 저장했어.</string>
+
+    <string name="toast_database_restored_reloading_ap">데이터베이스를 복원했어. 앱을 다시 불러오는 중.</string>
+
+    <string name="desc_show_balance">잔액 보기</string>
+
     <string name="desc_hide_balance">잔액 숨기기</string>
+
     <string name="btn_use_pin">PIN 사용</string>
-    <string name="desc_delete_pin_digit">PIN 자리 삭제</string>
+
+    <string name="desc_delete_pin_digit">PIN 숫자 지우기</string>
+
     <string name="desc_locked">잠김</string>
+
     <string name="desc_unlock_advanced_search">고급 검색 잠금 해제</string>
-    <string name="desc_use_biometric">생체 인식 사용</string>
-    <string name="label_unlock_pro_features">재정 여유를 잠금 해제하세요</string>
-    <string name="label_watch_a_short_video_to_unlock">짧은 스토리를 보고 %2$s 동안 %1$s을(를) 잠금 해제하세요.</string>
+
+    <string name="desc_use_biometric">생체 인증 사용</string>
+
+    <string name="label_unlock_pro_features">재정 평온을 잠금 해제</string>
+
+    <string name="label_watch_a_short_video_to_unlock">짧은 스토리를 보고 %2$s 동안 %1$s을(를) 잠금 해제해.</string>
+
     <string name="label_watch_ad_unlock">보고 잠금 해제</string>
-    <string name="msg_biometric_authentication_is_no">지금은 생체 인증을 사용할 수 없습니다.</string>
-    <string name="msg_biometric_hardware_is_currentl">생체 인식 하드웨어를 지금은 사용할 수 없습니다.</string>
-    <string name="msg_enter_the_same_pin_once_more_t">확인을 위해 같은 PIN을 한 번 더 입력하세요.</string>
-    <string name="msg_error_unable_to_start_biometric_auth">이 기기에서 생체 인식을 시작할 수 없습니다.</string>
-    <string name="msg_incorrect_pin_try_again">PIN이 틀렸습니다. 다시 시도하세요.</string>
+
+    <string name="msg_biometric_authentication_is_no">지금은 생체 인증을 쓸 수 없어.</string>
+
+    <string name="msg_biometric_hardware_is_currentl">생체 하드웨어를 지금은 쓸 수 없어.</string>
+
+    <string name="msg_enter_the_same_pin_once_more_t">같은 PIN을 한 번 더 입력해서 확인해.</string>
+
+    <string name="msg_error_unable_to_start_biometric_auth">이 기기에서 생체 인증을 시작할 수 없어.</string>
+
+    <string name="msg_incorrect_pin_try_again">PIN이 틀렸어. 다시 해봐.</string>
+
     <string name="title_device_integrity_notice">보안 안내</string>
-    <string name="msg_device_integrity_notice">이 기기는 루팅되었거나 에뮬레이터로 보입니다. 앱 잠금 등 보안 기능이 약해질 수 있습니다.</string>
-    <string name="msg_pin_locked_out">시도가 너무 많습니다. %1$d초 후 다시 시도하세요.</string>
-    <string name="msg_pins_did_not_match_start_again">PIN이 일치하지 않습니다. 처음부터 다시 하세요.</string>
+
+    <string name="msg_device_integrity_notice">이 기기는 루팅됐거나 에뮬레이터처럼 보여. 개조된 기기에서는 앱 잠금 같은 보안이 덜 먹힐 수 있어.</string>
+
+    <string name="msg_pin_locked_out">시도가 너무 많았어. %1$d초 후에 다시 해봐.</string>
+
+    <string name="msg_pins_did_not_match_start_again">PIN이 안 맞아. 처음부터 다시.</string>
+
     <string name="title_app_lock">앱 잠금</string>
-    <string name="title_recover_access">액세스 복구</string>
+
+    <string name="title_recover_access">접근 복구</string>
+
     <string name="label_verify_security_question">보안 질문 확인</string>
-    <string name="label_biometric_security_active">생체 보안 사용 중</string>
-    <string name="label_pin_security_active">PIN 보안 사용 중</string>
+
+    <string name="label_biometric_security_active">생체 보안 켜짐</string>
+
+    <string name="label_pin_security_active">PIN 보안 켜짐</string>
+
     <string name="label_create_4digit_pin">4자리 PIN 만들기</string>
+
     <string name="label_confirm_your_pin">PIN 확인</string>
-    <string name="label_forgot_your_pin">PIN을 잊으셨나요?</string>
-    <string name="label_welcome_back">다시 오신 것을 환영합니다</string>
+
+    <string name="label_forgot_your_pin">PIN을 잊었어?</string>
+
+    <string name="label_welcome_back">다시 왔어</string>
+
     <string name="label_confirm_pin">PIN 확인</string>
+
     <string name="label_security_question">보안 질문</string>
-    <string name="msg_answer_saved_security_question">저장한 보안 질문에 답해 앱 잠금을 해제하세요.</string>
-    <string name="msg_select_your_security_question">저장한 질문을 선택한 뒤 답을 입력하세요.</string>
-    <string name="msg_select_a_security_question">저장한 보안 질문을 선택하세요.</string>
-    <string name="msg_biometric_or_pin_to_continue">계속하려면 생체 인식 또는 PIN을 사용하세요.</string>
-    <string name="msg_enter_pin_to_continue">계속하려면 PIN을 입력하세요.</string>
-    <string name="msg_choose_question_remember">다섯 질문 중 하나를 고르고 기억할 답을 입력하세요.</string>
+
+    <string name="msg_answer_saved_security_question">저장한 보안 질문에 답해서 앱 잠금을 꺼.</string>
+
+    <string name="msg_select_your_security_question">저장한 보안 질문을 고르고 답을 입력해.</string>
+
+    <string name="msg_select_a_security_question">저장한 보안 질문을 골라.</string>
+
+    <string name="msg_biometric_or_pin_to_continue">생체 인증이나 PIN으로 계속해.</string>
+
+    <string name="msg_enter_pin_to_continue">계속하려면 PIN을 입력해.</string>
+
+    <string name="msg_choose_question_remember">다섯 질문 중 하나를 고르고 기억할 답을 입력해.</string>
+
     <string name="label_disable_app_lock">앱 잠금 끄기</string>
-    <string name="msg_no_recovery_question_saved">이 앱 잠금에는 아직 복구 질문이 없습니다.</string>
-    <string name="placeholder_type_recovery_answer">복구 답변 입력</string>
-    <string name="placeholder_enter_your_answer">답을 입력하세요</string>
-    <string name="question_childhood_crush">어린 시절 첫 짝사랑의 이름은?</string>
-    <string name="question_first_school">첫 학교 이름은?</string>
-    <string name="question_childhood_friend">어린 시절 가장 친한 친구의 이름은?</string>
-    <string name="question_birth_city">태어난 도시는 어디인가요?</string>
-    <string name="question_favorite_teacher">가장 좋아한 선생님의 성은?</string>
-    <string name="question_pet_name">첫 반려동물의 이름은?</string>
+
+    <string name="msg_no_recovery_question_saved">이 앱 잠금에 저장된 복구 질문이 아직 없어.</string>
+
+    <string name="placeholder_type_recovery_answer">복구 답을 입력해</string>
+
+    <string name="placeholder_enter_your_answer">답을 입력해</string>
+
+    <string name="question_childhood_crush">어릴 때 첫 짝사랑 이름이 뭐였어?</string>
+
+    <string name="question_first_school">첫 학교 이름이 뭐였어?</string>
+
+    <string name="question_childhood_friend">어릴 때 제일 친한 친구 이름이 뭐야?</string>
+
+    <string name="question_birth_city">어느 도시에서 태어났어?</string>
+
+    <string name="question_favorite_teacher">제일 좋아한 선생님 성씨가 뭐였어?</string>
+
+    <string name="question_pet_name">첫 반려동물 이름이 뭐였어?</string>
+
     <string name="title_add_category">카테고리 추가</string>
-    <string name="label_category_type_section">카테고리 유형</string>
+
+    <string name="label_category_type_section">카테고리 종류</string>
+
     <string name="label_category_name_section">카테고리 이름</string>
-    <string name="label_select_visual_identity_section">시각적 아이덴티티 선택</string>
+
+    <string name="label_select_visual_identity_section">비주얼 아이덴티티 고르기</string>
+
     <string name="placeholder_income_example">예: 성과 보너스</string>
+
     <string name="placeholder_expense_example">예: 주말 여행</string>
-    <string name="placeholder_payment_example">예: 디지털 월렛</string>
-    <string name="msg_name_already_exists">이 이름은 이미 %1$s에 있습니다.</string>
-    <string name="msg_choose_icons_info">아이콘 50개 중에서 고르세요.</string>
-    <string name="placeholder_search_icons">아이콘 검색(예: \'음식\')…</string>
-    <string name="label_color_section">색상</string>
-    <string name="msg_choose_color_info">선택 사항입니다. 고르지 않으면 앱이 색을 지정합니다.</string>
-    <string name="desc_color_default">기본 색상</string>
-    <string name="desc_color_swatch">색상 %1$s</string>
-    <string name="desc_color_swatch_selected">색상 %1$s, 선택됨</string>
-    <string name="msg_change_color_hint">새 색을 고르거나 앱이 고른 색을 유지하세요.</string>
-    <string name="desc_change_color">색상 변경</string>
-    <string name="msg_no_icons_found">\"%1$s\"에 대한 아이콘이 없습니다</string>
-    <string name="label_add_type">유형 추가</string>
+
+    <string name="placeholder_payment_example">예: 디지털 지갑</string>
+
+    <string name="msg_name_already_exists">이 이름은 이미 %1$s에 있어.</string>
+
+    <string name="msg_choose_icons_info">아이콘 50개 중에서 골라.</string>
+
+    <string name="placeholder_search_icons">아이콘 검색 (예: \'Food\')…</string>
+
+    <string name="label_color_section">색</string>
+
+    <string name="msg_choose_color_info">선택이야. 안 고르면 앱이 색을 골라줘.</string>
+
+    <string name="desc_color_default">기본 색</string>
+
+    <string name="desc_color_swatch">색 %1$s</string>
+
+    <string name="desc_color_swatch_selected">색 %1$s, 선택됨</string>
+
+    <string name="msg_change_color_hint">새 색을 고르거나 앱이 고른 색을 유지해.</string>
+
+    <string name="desc_change_color">색 바꾸기</string>
+
+    <string name="msg_no_icons_found">"%1$s"에 맞는 아이콘이 없어</string>
+
+    <string name="label_add_type">종류 추가</string>
+
     <string name="label_payment_type_item">결제 수단</string>
+
     <string name="label_income_category_item">수입 카테고리</string>
+
     <string name="label_expense_category_item">지출 카테고리</string>
-    <string name="msg_item_added_under">이 항목은 %1$s 아래에 추가됩니다.</string>
+
+    <string name="msg_item_added_under">이 새 항목은 %1$s 아래에 추가돼.</string>
+
     <string name="title_auto_lock_duration">자동 잠금</string>
-    <string name="title_biometric">생체 인식</string>
+
+    <string name="title_biometric">생체 인증</string>
+
     <string name="title_block_screenshots">스크린샷 차단</string>
-    <string name="title_lock_as_soon_as_the_app_moves">앱이 백그라운드로 가면 바로 잠급니다.</string>
-    <string name="title_require_the_pin_again_after_va">앱을 떠난 지 %1$s분 후 PIN을 다시 요청합니다.</string>
+
+    <string name="title_lock_as_soon_as_the_app_moves">앱이 백그라운드로 가면 바로 잠가.</string>
+
+    <string name="title_require_the_pin_again_after_va">앱을 떠난 지 %1$s분이 지나면 PIN을 다시 물어봐.</string>
+
     <string name="title_unlock_expense_tracker">Expense Tracker 잠금 해제</string>
-    <string name="title_verify_biometric_to_enable_bio">생체 잠금을 켜려면 인증하세요.</string>
-    <string name="title_verify_your_biometric_to_conti">계속하려면 생체 인증하세요.</string>
-    <string name="toast_biometric_authentication_is_un">이 화면에서는 생체 인식을 사용할 수 없습니다.</string>
-    <string name="toast_biometric_initialization_faile">생체 인식 초기화에 실패했습니다.</string>
+
+    <string name="title_verify_biometric_to_enable_bio">생체 잠금을 켜려면 생체 인증을 확인해.</string>
+
+    <string name="title_verify_your_biometric_to_conti">계속하려면 생체 인증을 확인해.</string>
+
+    <string name="toast_biometric_authentication_is_un">이 화면에서는 생체 인증을 쓸 수 없어.</string>
+
+    <string name="toast_biometric_initialization_faile">생체 인증 초기화에 실패했어.</string>
+
     <string name="title_add_transaction">거래 추가</string>
+
     <string name="title_edit_transaction">거래 수정</string>
+
     <string name="label_add_note">메모 추가</string>
+
     <string name="label_no_note">메모 없음</string>
+
     <string name="desc_view_full_note">전체 메모 보기</string>
+
     <string name="desc_hide_full_note">전체 메모 숨기기</string>
-    <string name="label_off">끔</string>
+
+    <string name="label_off">끄기</string>
+
     <string name="label_weekly">매주</string>
+
     <string name="label_recurring">반복</string>
+
     <string name="label_save_note">메모 저장</string>
-    <string name="label_what_is_this_for">무엇을 위한 건가요?</string>
+
+    <string name="label_what_is_this_for">뭐에 쓴 거야?</string>
+
     <string name="placeholder_add_note">메모 추가...</string>
-    <string name="desc_clear_fields">입력 지우기</string>
+
+    <string name="desc_clear_fields">필드 지우기</string>
+
     <string name="title_quick_favorites">빠른 즐겨찾기</string>
+
     <string name="label_all_favorites">전체</string>
+
     <string name="title_favorite_templates">즐겨찾기 템플릿</string>
+
     <string name="placeholder_search_favorites">템플릿 검색...</string>
-    <string name="msg_no_favorites_yet">즐겨찾기 거래가 아직 없습니다.</string>
-    <string name="msg_no_favorites_hint">자주 쓰는 거래를 즐겨찾기로 표시하면 한 번 탭으로 입력할 수 있습니다.</string>
+
+    <string name="msg_no_favorites_yet">즐겨찾기 거래가 아직 없어.</string>
+
+    <string name="msg_no_favorites_hint">자주 쓰는 거래를 즐겨찾기로 표시하면 나중에 한 번에 입력할 수 있어.</string>
+
     <string name="label_copy">복사</string>
-    <string name="msg_favorite_added">거래를 즐겨찾기에 추가했습니다.</string>
-    <string name="msg_favorite_copied">즐겨찾기를 복사했습니다.</string>
-    <string name="msg_favorite_removed">즐겨찾기에서 제거했습니다.</string>
-    <string name="desc_toggle_favorite">이 거래의 즐겨찾기 전환</string>
+
+    <string name="msg_favorite_added">거래를 즐겨찾기에 넣었어.</string>
+
+    <string name="msg_favorite_copied">즐겨찾기 거래를 복사했어.</string>
+
+    <string name="msg_favorite_removed">즐겨찾기에서 뺐어.</string>
+
+    <string name="desc_toggle_favorite">이 거래 즐겨찾기 전환</string>
+
     <string name="desc_open_all_favorites">모든 즐겨찾기 열기</string>
+
     <string name="desc_delete_favorite">즐겨찾기 삭제</string>
-    <string name="desc_select_favorite">즐겨찾기를 양식에 적용</string>
+
+    <string name="desc_select_favorite">즐겨찾기를 폼에 적용</string>
+
     <string name="desc_favorite_icon">즐겨찾기</string>
+
     <string name="desc_clear_note">메모 지우기</string>
+
     <string name="desc_clear_search">검색 지우기</string>
+
     <string name="desc_close">닫기</string>
-    <string name="label_recurring_track">켜면 앞으로 이 지출을 자동으로 기록합니다.</string>
+
+    <string name="label_recurring_track">켜면 앞으로 이 지출을 자동으로 추적해.</string>
+
     <string name="desc_add_category">카테고리 추가</string>
+
     <string name="desc_add_transaction">거래 추가</string>
-    <string name="desc_show_navigation_bar">탐색 표시줄 표시</string>
+
+    <string name="desc_show_navigation_bar">탐색 바 보기</string>
+
     <string name="desc_confirm_val_transaction">%1$s 거래 확인</string>
+
     <string name="desc_collapse_keypad">키패드 접기</string>
+
     <string name="desc_expand_keypad">키패드 펼치기</string>
-    <string name="label_tap_to_hide_keypad">탭하여 키패드 숨기기</string>
-    <string name="label_tap_to_slide_up_keypad">탭하여 키패드 올리기</string>
+
+    <string name="label_tap_to_hide_keypad">탭해서 키패드 숨기기</string>
+
+    <string name="label_tap_to_slide_up_keypad">탭해서 키패드 올리기</string>
+
     <string name="desc_delete_transaction">거래 삭제</string>
-    <string name="desc_expense_tracker_logo">예산 및 지출 로고</string>
+
+    <string name="desc_expense_tracker_logo">Budget &amp; Spend 로고</string>
+
     <string name="desc_search_transactions">거래 검색</string>
+
     <string name="desc_todays_spending">오늘 지출</string>
+
     <string name="dialog_budget_limit_alerts">예산 한도 알림</string>
+
     <string name="label_add_category">카테고리 추가</string>
+
     <string name="label_amount">금액</string>
+
     <string name="label_amount_keypad">금액 키패드</string>
-    <string name="label_breakdown_of_expenses_based_on">지갑 또는 결제 수단별 지출 내역.</string>
-    <string name="label_budgets_are_no_longer_preloade">예산이 더 이상 미리 채워지지 않습니다. 이번 달에 추적할 카테고리 한도를 추가하세요.</string>
+
+    <string name="label_breakdown_of_expenses_based_on">지갑이나 결제 수단별 지출 내역.</string>
+
+    <string name="label_budgets_are_no_longer_preloade">예산은 더 이상 미리 안 채워져. 이번 달에 추적할 카테고리 한도를 추가해.</string>
+
     <string name="label_category_name_label">카테고리 이름</string>
-    <string name="label_category_type_label">카테고리 유형</string>
-    <string name="label_choose_from_all_expense_catego">기본 및 사용자 지정 지출 카테고리 모두에서 고르세요.</string>
-    <string name="label_choose_how_many_decimal_places">금액에 표시할 소수점 자릿수를 선택하세요.</string>
-    <string name="label_delete_all_transactions">모든 거래를 삭제할까요?</string>
+
+    <string name="label_category_type_label">카테고리 종류</string>
+
+    <string name="label_choose_from_all_expense_catego">기본이랑 직접 만든 것 포함, 모든 지출 카테고리에서 골라.</string>
+
+    <string name="label_choose_how_many_decimal_places">통화 값에 소수점 몇 자리까지 보여줄지 골라.</string>
+
+    <string name="label_delete_all_transactions">모든 거래를 삭제할까?</string>
+
     <string name="label_delete_budget">예산 삭제</string>
+
     <string name="label_delete_transactions">거래 삭제</string>
+
     <string name="label_enter_amount">금액 입력</string>
+
     <string name="label_expense">지출</string>
+
     <string name="label_expense_category">지출 카테고리</string>
-    <string name="label_expense_tracker">예산 및 지출</string>
-    <string name="label_expense_tracker_1">예산 및 지출</string>
+
+    <string name="label_expense_tracker">Budget &amp; Spend</string>
+
+    <string name="label_expense_tracker_1">BUDGET &amp; SPEND</string>
+
     <string name="label_expense_title">지출</string>
-    <string name="label_how_many_times_this_recurring">이 반복 거래를 몇 번 반복할지.</string>
+
+    <string name="label_how_many_times_this_recurring">이 반복 거래가 몇 번 반복될지.</string>
+
     <string name="label_income">수입</string>
+
     <string name="label_income_title">수입</string>
+
     <string name="label_monthly_budget">월 예산</string>
-    <string name="label_no_category_spending_found_in">이 기간에 카테고리 지출이 없습니다.</string>
-    <string name="label_no_spending_data_found">지출 데이터가 없습니다.</string>
-    <string name="label_no_spending_transactions_in_th">선택한 기간에 지출이 없습니다.</string>
-    <string name="label_no_transactions_found">거래를 찾을 수 없음</string>
-    <string name="label_ranked_by_spending_for_the_sel">분석 기간 지출 순입니다.</string>
+
+    <string name="label_no_category_spending_found_in">이 범위에서 카테고리 지출을 못 찾았어.</string>
+
+    <string name="label_no_spending_data_found">지출 데이터가 없어.</string>
+
+    <string name="label_no_spending_transactions_in_th">선택한 범위에 지출 거래가 없어.</string>
+
+    <string name="label_no_transactions_found">거래를 못 찾았어</string>
+
+    <string name="label_ranked_by_spending_for_the_sel">선택한 분석 범위의 지출 순.</string>
+
     <string name="label_recurring_transaction">반복 거래</string>
-    <string name="label_remove_the_budget_for_val_this">%1$s 예산을 제거할까요? 한도만 삭제되고 거래는 남습니다.</string>
-    <string name="label_remove_val_from_recurring_trac">%1$s을(를) 반복 추적에서 제거할까요?</string>
-    <string name="label_select_category">카테고리 선택</string>
-    <string name="label_shape_how_your_transactions_ar">거래 정리 및 표시 방식을 정합니다.</string>
+
+    <string name="label_remove_the_budget_for_val_this">%1$s 예산을 지울까? 한도만 지워지고 거래는 남아.</string>
+
+    <string name="label_remove_val_from_recurring_trac">%1$s을(를) 반복 추적에서 뺄까?</string>
+
+    <string name="label_select_category">카테고리 고르기</string>
+
+    <string name="label_shape_how_your_transactions_ar">거래가 어떻게 묶이고 보이는지 정해.</string>
+
     <string name="label_spending_by_payment_mode">결제 수단별 지출</string>
-    <string name="label_delete_all_data">모든 데이터 삭제 및 앱 초기화</string>
-    <string name="label_delete_account_and_data">계정 및 모든 데이터 삭제</string>
-    <string name="desc_delete_data_warning">모든 지출과 예산이 영구 삭제됩니다. 로그인한 경우 계정과 클라우드 백업도 삭제됩니다. 되돌릴 수 없습니다.</string>
-    <string name="desc_delete_data_guest_warning">이 기기의 데이터만 지웁니다. 삭제할 클라우드 계정은 없습니다.\n\n이 휴대폰의 모든 항목이 삭제됩니다: 거래, 예산, 자금, 목표, 카테고리, 태그, 백업, 설정.\n\n되돌릴 수 없습니다. 사본이 필요하면 먼저 백업을 내보내세요.</string>
-    <string name="desc_delete_data_signed_out_warning">로그아웃은 계정을 삭제하지 않습니다. 이 기기의 데이터만 지웁니다. 클라우드 계정은 로그인한 뒤 계정 및 모든 데이터 삭제를 쓰거나 이메일을 보낼 때까지 남습니다.\n\n이 휴대폰의 모든 항목이 삭제됩니다: 거래, 예산, 자금, 목표, 카테고리, 태그, 백업, 설정.\n\n되돌릴 수 없습니다. 사본이 필요하면 먼저 백업을 내보내세요.</string>
-    <string name="desc_delete_account_and_data_warning">계정과 관련 데이터가 영구 삭제됩니다. 되돌릴 수 없습니다.\n\n다음을 수행합니다:\n• 로그인 계정 삭제\n• 동기화된 클라우드 데이터 삭제(거래, 예산, 카테고리, 반복, 목표, 결제 수단, 프로필, 기기, 사진)\n• 이 기기의 모든 데이터 삭제\n\n다른 기기에서는 이 계정을 쓸 수 없습니다. 사본이 필요하면 먼저 JSON 또는 데이터베이스 백업을 내보내세요.</string>
-    <string name="label_this_removes_only_transactions">모든 데이터가 영구 삭제됩니다. 이 작업은 취소할 수 없습니다.</string>
-    <string name="title_spent">지출함</string>
-    <string name="label_spent_today">오늘 지출</string>
-    <string name="label_top_spending">주요 지출</string>
+
+    <string name="label_delete_all_data">모든 데이터 삭제 &amp; 앱 초기화</string>
+
+    <string name="label_delete_account_and_data">계정 &amp; 모든 데이터 삭제</string>
+
+    <string name="desc_delete_data_warning">모든 지출과 예산이 영원히 지워져. 로그인해 있으면 계정과 클라우드 백업도 삭제돼. 되돌릴 수 없어.</string>
+
+    <string name="desc_delete_data_guest_warning">이 기기의 데이터만 지워. 삭제할 클라우드 계정은 없어.\n\n이 폰의 모든 게 사라져: 거래, 예산, 자금, 목표, 카테고리, 태그, 백업, 설정.\n\n되돌릴 수 없어. 남기고 싶으면 먼저 백업을 내보내.</string>
+
+    <string name="desc_delete_data_signed_out_warning">로그아웃은 계정을 지우지 않아. 이 기기 데이터만 비워. 클라우드 계정은 다시 로그인한 뒤 계정 &amp; 모든 데이터 삭제를 쓰거나 메일로 요청하기 전까지 남아.\n\n이 폰의 모든 게 사라져: 거래, 예산, 자금, 목표, 카테고리, 태그, 백업, 설정.\n\n되돌릴 수 없어. 남기고 싶으면 먼저 백업을 내보내.</string>
+
+    <string name="desc_delete_account_and_data_warning">계정과 연결된 모든 데이터가 영원히 지워져. 되돌릴 수 없어.\n\n우리가 할 일:\n• 로그인 계정 삭제\n• 동기화된 클라우드 데이터 전부 삭제 (거래, 예산, 카테고리, 반복, 목표, 결제 수단, 프로필, 기기, 사진)\n• 이 기기의 모든 데이터 지우기\n\n다른 기기는 이 계정을 더 이상 못 써. 남기고 싶으면 먼저 JSON이나 DB 백업을 내보내.</string>
+
+    <string name="label_this_removes_only_transactions">모든 데이터가 영원히 지워져. 되돌릴 수 없어.</string>
+
+    <string name="title_spent">지출</string>
+
+    <string name="label_spent_today">오늘 쓴 돈</string>
+
+    <string name="label_top_spending">상위 지출</string>
+
     <string name="label_top_spending_by_category">지출 내역</string>
+
     <string name="label_top_spending_by_payment_mode">결제 내역</string>
+
     <string name="label_income_breakdown">수입 내역</string>
+
     <string name="label_tags_breakdown">태그 내역</string>
-    <string name="label_no_income_breakdown">이 기간에 수입이 없습니다</string>
-    <string name="label_no_tag_breakdown">이 기간에 태그가 달린 지출이 없습니다</string>
+
+    <string name="label_no_income_breakdown">이 기간에 수입이 없어</string>
+
+    <string name="label_no_tag_breakdown">이 기간에 태그된 지출이 없어</string>
+
     <string name="label_all_income_categories">모든 수입</string>
+
     <string name="label_all_tags_breakdown">모든 태그</string>
+
     <string name="title_full_income_breakdown">수입 내역</string>
+
     <string name="title_full_tag_breakdown">태그 내역</string>
+
     <string name="label_total_amount">총액</string>
+
     <string name="label_total_expenses">총 지출</string>
+
     <string name="label_total_income">총 수입</string>
+
     <string name="label_transaction_note">거래 메모</string>
+
     <string name="label_transactionid">transactionId</string>
+
     <string name="label_transactions">거래</string>
-    <string name="label_your_highest_expenses_in_the_s">선택한 기간의 가장 큰 지출입니다.</string>
+
+    <string name="label_your_highest_expenses_in_the_s">선택한 기간의 가장 큰 지출.</string>
+
     <string name="title_amount">금액</string>
+
     <string name="title_amount_range">금액 범위</string>
-    <string name="title_budget_recurring">계획</string>
+
+    <string name="title_budget_recurring">플랜</string>
+
     <string name="title_category">카테고리</string>
+
     <string name="title_category_1">카테고리</string>
+
     <string name="title_budget_category">예산 카테고리</string>
-    <string name="title_custom_expense_category">사용자 지정 지출 카테고리</string>
-    <string name="title_custom_income_category">사용자 지정 수입 카테고리</string>
+
+    <string name="title_custom_expense_category">맞춤 지출 카테고리</string>
+
+    <string name="title_custom_income_category">맞춤 수입 카테고리</string>
+
     <string name="title_delete_all_transactions">모든 거래 삭제</string>
+
     <string name="title_display_the_transaction_date">거래 날짜 표시</string>
+
     <string name="title_expense">지출</string>
-    <string name="title_group_transactions_by_day">거래를 날짜별로 그룹화</string>
+
+    <string name="title_group_transactions_by_day">날짜별로 거래 묶기</string>
+
     <string name="title_income">수입</string>
+
     <string name="title_incomeexpense_labels">수입/지출 라벨</string>
-    <string name="title_larger_amounts_take_priority_i">더 큰 금액이 목록에서 우선합니다.</string>
+
+    <string name="title_larger_amounts_take_priority_i">큰 금액이 목록에서 먼저 와.</string>
+
     <string name="title_manage_category">카테고리 관리</string>
+
     <string name="title_manage_tags">태그 관리</string>
-    <string name="label_manage_tags_subtitle">태그를 정리하고 병합</string>
+
+    <string name="label_manage_tags_subtitle">태그를 정리하고 합쳐</string>
+
     <string name="label_tags_count">태그 %1$d개</string>
-    <string name="desc_tags_info">태그란</string>
+
+    <string name="desc_tags_info">태그가 뭐야</string>
+
     <string name="desc_search_tags">태그 검색</string>
+
     <string name="placeholder_search_manage_tags">태그 검색</string>
+
     <string name="desc_search_categories">카테고리 검색</string>
+
     <string name="placeholder_search_manage_categories">카테고리 검색</string>
-    <string name="desc_categories_info">카테고리란</string>
-    <string name="title_what_are_categories">카테고리란</string>
-    <string name="msg_categories_what">카테고리는 수입과 지출을 묶습니다. 결제 수단은 현금이나 카드처럼 돈이 이동한 방식입니다.</string>
-    <string name="msg_categories_where">거래를 추가할 때 하나를 고르세요. 이름과 색은 여기에서 관리합니다.</string>
+
+    <string name="desc_categories_info">카테고리가 뭐야</string>
+
+    <string name="title_what_are_categories">카테고리가 뭐야</string>
+
+    <string name="msg_categories_what">카테고리는 수입과 지출을 묶어. 결제 수단은 현금이나 카드처럼 돈이 어떻게 움직였는지야.</string>
+
+    <string name="msg_categories_where">거래를 추가할 때 하나 골라. 이름과 색은 여기서 관리해.</string>
+
     <string name="label_categories_example">예시</string>
-    <string name="label_category_example_name">음식</string>
-    <string name="title_what_are_tags">태그란</string>
-    <string name="msg_tags_what">태그는 카테고리 외에 거래에 붙는 추가 라벨입니다. 음식, 쇼핑, 숙박은 다른 카테고리로 두면서도 연결할 수 있습니다.</string>
-    <string name="msg_tags_where">여행 중에는 각 지출에 같은 태그를 달으세요. 거래에서 검색하거나 분석을 여세요.</string>
+
+    <string name="label_category_example_name">식비</string>
+
+    <string name="title_what_are_tags">태그가 뭐야</string>
+
+    <string name="msg_tags_what">태그는 카테고리 외에 거래에 붙이는 추가 라벨이야. 식비, 쇼핑, 숙박은 카테고리가 달라도 같이 묶을 수 있어.</string>
+
+    <string name="msg_tags_where">여행 가면 모든 지출에 같은 태그를 달아. 거래에서 검색하거나 분석에서 태그 내역을 봐.</string>
+
     <string name="label_tags_example">예시</string>
-    <string name="label_tag_example_name">휴가</string>
+
+    <string name="label_tag_example_name">vacation</string>
+
     <string name="desc_sort">정렬</string>
+
     <string name="title_sort">정렬</string>
+
     <string name="label_sort_newest">최신순</string>
+
     <string name="label_sort_oldest">오래된순</string>
-    <string name="label_sort_az">A → Z</string>
-    <string name="label_sort_za">Z → A</string>
-    <string name="msg_no_tags_yet">태그가 아직 없습니다. +로 만드세요.</string>
+
+    <string name="label_sort_az">가 → 하</string>
+
+    <string name="label_sort_za">하 → 가</string>
+
+    <string name="msg_no_tags_yet">태그가 아직 없어. + 버튼으로 만들어.</string>
+
     <string name="title_new_tag">새 태그</string>
-    <string name="msg_tag_name_caption">나중에 찾기 쉬운 짧은 이름을 지정하세요.</string>
-    <string name="title_rename_tag">태그 이름 변경</string>
+
+    <string name="msg_tag_name_caption">나중에 찾기 쉽게 짧은 이름을 지어줘.</string>
+
+    <string name="title_rename_tag">태그 이름 바꾸기</string>
+
     <string name="label_tag_name">태그 이름</string>
+
     <string name="label_create">만들기</string>
-    <string name="label_rename">이름 변경</string>
+
+    <string name="label_rename">이름 바꾸기</string>
+
     <string name="desc_add_tag">태그 추가</string>
-    <string name="desc_rename_tag">%1$s 이름 변경</string>
+
+    <string name="desc_rename_tag">%1$s 이름 바꾸기</string>
+
     <string name="desc_delete_tag">%1$s 삭제</string>
-    <string name="desc_merge_tag">%1$s 병합</string>
-    <string name="msg_delete_tag_confirm">\"%1$s\"을(를) 삭제할까요? 모든 거래에서 제거되며 거래는 남습니다.</string>
+
+    <string name="desc_merge_tag">%1$s 합치기</string>
+
+    <string name="msg_delete_tag_confirm">"%1$s"을(를) 삭제할까? 모든 거래에서 빠지지만 거래 자체는 남아.</string>
+
     <string name="msg_tag_transaction_count">거래 %1$d건</string>
+
     <string name="label_tag_prefixed">#%1$s</string>
-    <string name="msg_tag_color_hint">이 태그의 색상을 선택하세요</string>
-    <string name="msg_merge_pick_target">\"%1$s\" 병합 중 — 대상 태그를 탭하세요.</string>
-    <string name="label_merge_tags">병합</string>
+
+    <string name="msg_tag_color_hint">이 태그 색을 골라</string>
+
+    <string name="msg_merge_pick_target">"%1$s" 합치는 중 — 합칠 대상 태그를 탭해.</string>
+
+    <string name="label_merge_tags">합치기</string>
+
     <string name="label_delete_tags">삭제</string>
-    <string name="msg_select_tags_to_merge">병합할 태그를 2개 이상 선택하세요</string>
-    <string name="msg_select_tags_to_delete">삭제할 태그를 선택하세요</string>
+
+    <string name="msg_select_tags_to_merge">하나로 합치려면 태그를 2개 이상 골라</string>
+
+    <string name="msg_select_tags_to_delete">삭제할 태그를 골라</string>
+
+    <string name="title_merge_tags">태그 합치기</string>
+
+    <string name="msg_merge_choose_target">남길 태그를 골라. 나머지는 그쪽으로 합쳐져.</string>
+
+    <string name="label_merge_selected">%1$d개 합치기</string>
+
+    <string name="label_delete_selected">%1$d개 삭제</string>
+
+    <string name="msg_delete_tags_confirm">태그 %1$d개를 삭제할까? 모든 거래에서 빠지지만 거래 자체는 남아.</string>
+
+    <string name="title_tags">태그</string>
+
+    <string name="label_note_colon">메모:</string>
+
+    <string name="label_tags_colon">태그:</string>
+
+    <string name="label_fund_colon">자금:</string>
+
+    <string name="label_close">닫기</string>
+
+    <string name="label_add_tag">태그 추가</string>
+
+    <string name="placeholder_search_tags">태그 검색 또는 만들기</string>
+
+    <string name="label_create_tag_named">#%1$s 만들기</string>
+
+    <string name="desc_remove_tag">%1$s 제거</string>
+
+    <string name="label_filter_tags">태그</string>
+
+    <string name="label_tag_match_all">모두</string>
+
+    <string name="label_tag_match_any">아무거나</string>
+
+    <string name="desc_filter_tags_match_mode">고른 태그를 모두 맞출지, 하나만 맞출지</string>
+
+    <string name="title_recurring_expenses">반복 지출</string>
+
+    <string name="title_show_category_icon">카테고리 아이콘 보기</string>
+
+    <string name="title_show_transaction_date">거래 날짜 보기</string>
+
+    <string name="title_show_transaction_time">거래 시간 보기</string>
+
+    <string name="title_track_expensesneasily">지출을\n쉽게 추적</string>
+
+    <string name="title_transaction_card">맞춤 설정</string>
+
+    <string name="title_transaction_count">거래 수</string>
+
+    <string name="title_transaction_type">거래 종류</string>
+
+    <string name="title_transactions">거래</string>
+
+    <string name="title_visual_category_indicators">카테고리 시각 표시</string>
+
+    <string name="toast_all_transactions_deleted">모든 거래를 삭제했어.</string>
+
+    <string name="toast_unable_to_delete_transactions">거래를 삭제할 수 없어. 다시 해봐.</string>
+
+    <string name="desc_profile_photo">프로필 사진</string>
+
+    <string name="desc_profile_placeholder">프로필 플레이스홀더</string>
+
+    <string name="desc_settings">설정</string>
+
     <string name="title_settings">설정</string>
-    <string name="label_save">저장</string>
-    <string name="label_cancel">취소</string>
-    <string name="label_ok">확인</string>
-    <string name="label_done">완료</string>
-    <string name="label_next">다음</string>
-    <string name="label_yes">예</string>
-    <string name="label_no">아니요</string>
-    <string name="label_add">추가</string>
-    <string name="label_edit">수정</string>
-    <string name="label_delete">삭제</string>
-    <string name="label_view_all">모두 보기</string>
-    <string name="label_date">날짜</string>
-    <string name="label_time">시간</string>
-    <string name="label_note">메모</string>
+
+    <string name="title_detected_txns">감지된 거래</string>
+
+    <string name="title_home_calculator">계산기</string>
+
+    <string name="title_calendar_view">캘린더 보기</string>
+
+    <string name="desc_more_options">더 보기</string>
+
+    <string name="header_account_and_security">계정 &amp; 보안</string>
+
+    <string name="header_membership">멤버십</string>
+
+    <string name="header_preferences">환경설정</string>
+
+    <string name="header_system_and_data">시스템 &amp; 데이터</string>
+
+    <string name="label_card_settings">카드 설정</string>
+
+    <string name="title_app_preferences">앱 환경설정</string>
+
+    <string name="title_data_management">데이터 관리</string>
+
+    <string name="title_data_management_1">데이터 관리</string>
+
+    <string name="title_notification_settings">알림</string>
+
+    <string name="title_notifications">알림</string>
+
+    <string name="title_notifications_1">알림</string>
+
+    <string name="title_preference">환경설정</string>
+
+    <string name="title_profile">프로필</string>
+
+    <string name="title_user_profile">사용자 프로필</string>
+
+    <string name="title_account">계정</string>
+
+    <string name="title_customize_caps">맞춤</string>
+
+    <string name="title_monetization_caps">수익화</string>
+
+    <string name="label_remove_all_ads">모든 광고 제거</string>
+
+    <string name="label_remove_all_ads_subtitle">광고 없는 경험을 위한 일회 구매</string>
+
+    <string name="msg_watch_ad_for_ad_free">Pro 기능 &amp; 광고 없는 UI 체험</string>
+
+    <string name="desc_ad_free_pass_duration">짧은 광고를 보고 Pro 기능 &amp; 광고 없는 UI %1$s</string>
+
+    <string name="label_ad_free_active">광고 없는 이용 중</string>
+
+    <string name="msg_ad_free_duration_remaining">지금 Pro급 기능과 광고 없는 UI를 쓰고 있어.</string>
+
+    <string name="label_active_caps">활성</string>
+
+    <string name="label_watch_now_caps">지금 보기</string>
+
+    <string name="title_session">세션</string>
+
+    <string name="title_about_caps">정보</string>
+
+    <string name="label_edit_profile">프로필 수정</string>
+
+    <string name="label_edit_profile_subtitle">이름, 아바타, 이메일 업데이트</string>
+
+    <string name="desc_cloud_sync_devices_subtitle">기기 간 데이터 동기화</string>
+
+    <string name="label_security_privacy_subtitle">생체, 비밀번호, 앱 잠금</string>
+
+    <string name="label_manage_category_subtitle">카테고리 추가, 수정, 색 지정</string>
+
+    <string name="label_app_preferences_subtitle">테마, 통화, 언어</string>
+
+    <string name="label_transaction_card_subtitle">앱을 내 스타일로</string>
+
+    <string name="label_data_management_subtitle">백업, 복원, CSV 내보내기</string>
+
+    <string name="label_about_subtitle">버전, 라이선스, 이용약관</string>
+
+    <string name="label_about_app_subtitle">버전, 라이선스, 이용약관</string>
+
+    <string name="title_refer_a_friend">친구 초대</string>
+
+    <string name="label_refer_a_friend_subtitle">개인 초대 보내기</string>
+
+    <string name="msg_refer_a_friend">난 %1$s로 지출을 추적하고 있어. 한번 써봐:\n%2$s</string>
+
+    <string name="msg_refer_register_for_code">고유 추천 코드를 받으려면 Google이나 이메일/비밀번호로 가입해.</string>
+
+    <string name="btn_register_for_referral">가입하고 코드 받기</string>
+
+    <string name="msg_refer_how_it_works">코드를 공유해. 친구가 로그인하고 쓰고 거래를 추가하면 둘 다 Pro 4일을 받을 수 있어. 한 달에 최대 4번.</string>
+
+    <string name="label_refer_rewards_this_month">이번 달 리워드: %1$d / %2$d</string>
+
+    <string name="btn_copy_code">코드 복사</string>
+
+    <string name="msg_code_copied">코드를 복사했어</string>
+
+    <string name="btn_share_code">초대 공유</string>
+
+    <string name="msg_use_my_code">내 코드 %1$s 써봐</string>
+
+    <string name="label_enter_friend_code">친구 코드</string>
+
+    <string name="btn_apply_code">코드 적용</string>
+
+    <string name="msg_welcome_days">Pro Pass %1$d일을 받았어</string>
+
+    <string name="error_refer_not_signed_in">코드를 적용하려면 로그인해</string>
+
+    <string name="error_refer_invalid">그 코드는 유효하지 않아</string>
+
+    <string name="error_refer_own_code">자기 코드는 못 써</string>
+
+    <string name="error_refer_already">추천 코드는 이미 썼어</string>
+
+    <string name="error_refer_network">연결을 확인하고 다시 해봐</string>
+
+    <string name="error_refer_unknown">그 코드를 적용할 수 없었어</string>
+
+    <string name="title_refer_offer">Pro 무료로 받기</string>
+
+    <string name="msg_refer_offer">친구를 초대해. 성공한 추천마다 Pro Pass 4일, 한 달에 최대 4번.</string>
+
+    <string name="title_refer_more">친구를 더 추천해</string>
+
+    <string name="msg_refer_more">친구를 더 추천해서 Pro를 더 무료로 받아.</string>
+
+    <string name="btn_refer_now">친구 초대</string>
+
+    <string name="title_refer_earn">추천하고 받기</string>
+
+    <string name="label_refer_earn_subtitle">최대 16일 Pro를 무료로</string>
+
+    <string name="desc_referral_rules">추천 규칙</string>
+
+    <string name="title_referral_rules">추천 규칙</string>
+
+    <string name="msg_referral_rules">유효한 추천마다 Pro 4일.\n친구는 가입 후 거래를 최소 1건 해야 해.\n달력 월당 최대 4회 (16일).\n리워드는 매월 1일에 초기화돼.</string>
+
+    <string name="tab_refer_friends">친구 추천</string>
+
+    <string name="tab_my_rewards">내 리워드</string>
+
+    <string name="label_pro_privilege">Pro 특권</string>
+
+    <string name="title_give_7_get_7">4일 주고,\nPro 4일 받기</string>
+
+    <string name="step_share_code">코드 공유</string>
+
+    <string name="step_share_code_sub">초대 링크 보내기</string>
+
+    <string name="step_friend_joins">친구가 가입</string>
+
+    <string name="step_friend_joins_sub">첫 활동</string>
+
+    <string name="step_both_get_pro">둘 다 Pro</string>
+
+    <string name="step_both_get_pro_sub">+4일 해제</string>
+
+    <string name="label_your_referral_code">내 추천 코드</string>
+
+    <string name="label_tap_to_copy">탭해서 복사</string>
+
+    <string name="btn_share_invite_link">초대 링크 공유</string>
+
+    <string name="title_monthly_progress">이번 달 진행</string>
+
+    <string name="label_earned_of_rewards">받을 수 있는 %2$d개 중 %1$d개 획득</string>
+
+    <string name="label_plus_days">+%1$d일</string>
+
+    <string name="label_days_left_to_max">최대 보너스까지 %1$d일 남음</string>
+
+    <string name="label_max_28_days">최대: Pro 16일</string>
+
+    <string name="label_claimed">받음</string>
+
+    <string name="label_next_slot">다음</string>
+
+    <string name="label_slot_locked">잠김</string>
+
+    <string name="label_reward_days_count">%1$d일</string>
+
+    <string name="label_have_friend_code">친구 코드 있어?</string>
+
+    <string name="title_your_referrals">내 추천</string>
+
+    <string name="label_total_active">합계: %1$d명 활성</string>
+
+    <string name="msg_invite_more_friends">이번 달 리워드를 채우려고 친구를 더 초대해!</string>
+
+    <string name="msg_you_unlocked_welcome_pro">친구 코드로 Pro 4일을 잠금 해제했어.</string>
+
+    <string name="msg_add_expense_to_complete_invite">지출 한 건을 추가해서 친구 초대를 완료해.</string>
+
+    <string name="label_signed_up_on">%1$s에 가입</string>
+
+    <string name="label_plus_7_days_pro">+Pro 4일</string>
+
+    <string name="label_referral_counted">반영됨</string>
+
+    <string name="label_completed_transaction">거래 완료</string>
+
+    <string name="label_pending">대기 중</string>
+
+    <string name="label_awaiting_first_tx">첫 거래 대기</string>
+
+    <string name="label_test_popups">테스트 팝업:</string>
+
+    <string name="btn_test_referee_code">피추천 코드</string>
+
+    <string name="btn_test_first_txn">첫 거래 완료</string>
+
+    <string name="label_code_accepted">코드 수락됨</string>
+
+    <string name="title_you_unlocked_7_days">Pro 접근:\n앞으로 4일이 열렸어</string>
+
+    <string name="msg_referral_code_applied_pro">추천 코드를 적용했어. 앞으로 4일 동안 모든 Pro 기능이 열려.</string>
+
+    <string name="label_pro_ai_tools">전체 Pro — 광고 없음</string>
+
+    <string name="label_pro_ad_free">4기기 데이터 동기화</string>
+
+    <string name="label_pro_priority_themes">더 많이… 둘러봐</string>
+
+    <string name="label_valid_until">유효 기간:</string>
+
+    <string name="label_free_badge">무료</string>
+
+    <string name="btn_start_exploring_pro">Pro 둘러보기</string>
+
+    <string name="btn_want_more_refer">더 원해? 친구를 추천해서 최대 16일!</string>
+
+    <string name="label_first_txn_done">첫 거래 완료</string>
+
+    <string name="label_referral_completed">추천 완료</string>
+
+    <string name="title_you_earned_7_days">획득했어\n+무료 Pro 4일!</string>
+
+    <string name="msg_friend_registered_first_tx">%1$s이(가) 네 코드로 가입하고 첫 거래를 끝냈어!</string>
+
+    <string name="label_monthly_rewards_progress">월간 리워드 진행</string>
+
+    <string name="label_rewards_fraction">리워드 %1$d / %2$d</string>
+
+    <string name="label_7_days_slot">4일</string>
+
+    <string name="msg_7_days_pro_auto_activated">Pro 4일이 자동으로 켜졌어!</string>
+
+    <string name="btn_7_days_pro_claimed">Pro 4일 받음</string>
+
+    <string name="btn_invite_more_days_left">친구 더 초대 (+%1$d일 남음)</string>
+
+    <string name="label_test_friend_name">Alex Morgan</string>
+
+    <string name="title_share_app">앱 공유</string>
+
+    <string name="label_share_app">앱 공유</string>
+
+    <string name="label_share_app_subtitle">Play 스토어 링크 보내기</string>
+
+    <string name="msg_share_app_chat">야! Expense Tracker Budget &amp; Spend로 매일 지출이랑 예산을 추적하고 있어. 진짜 도움이 돼! 여기서 봐봐:\n\n%1$s</string>
+
+    <string name="msg_share_app_features">돈 관리가 쉬워졌어! Expense Tracker Budget &amp; Spend로 예산 잡고, 매일 지출 추적하고, 저축 목표를 맞춰.\n\n한번 써봐: %1$s</string>
+
+    <string name="msg_share_app_punchy">돈을 잡아! Expense Tracker Budget &amp; Spend로 매일 지출을 추적하고 스마트 예산을 세워: %1$s</string>
+
+    <string name="label_notifications_subtitle">알림과 리마인더 제어</string>
+
+    <string name="desc_settings_icon">설정 아이콘</string>
+
+    <string name="title_connect_on_linkedin">LinkedIn에서 연결</string>
+
+    <string name="label_connect_on_linkedin_subtitle">Manish를 LinkedIn에서 팔로우</string>
+
+    <string name="label_val_min">%1$d분</string>
+
+    <string name="label_add_note_optional">메모 추가… (선택)</string>
+
+    <string name="toast_authentication_failed">인증에 실패했어.</string>
+
+    <string name="error_auth_cloned_or_unauthorized">Google 인증에 실패했어. 클론이나 듀얼 앱이면 원본 앱을 써.</string>
+
+    <string name="error_enter_email">이메일 주소를 입력해.</string>
+
+    <string name="toast_legacy_import_failed_check_the">레거시 가져오기에 실패했어. 백업 파일을 확인하고 다시 해봐.</string>
+
+    <string name="toast_database_backup_save_failed">데이터베이스 백업을 저장할 수 없어. 다시 해봐.</string>
+
+    <string name="toast_database_restore_failed">데이터베이스 백업을 복원할 수 없어. 다시 해봐.</string>
+
+    <string name="toast_json_exported">JSON 내보냄: 거래 %1$d, 예산 %2$d, 목표 %3$d.</string>
+
+    <string name="toast_json_export_failed">JSON을 내보낼 수 없어. 다시 해봐.</string>
+
+    <string name="toast_json_import_failed">JSON을 가져올 수 없어. 파일을 확인하고 다시 해봐.</string>
+
+    <string name="toast_json_import_message">가져옴: 거래 %1$d, 예산 %2$d, 규칙 %3$d, 목표 %4$d. 중복 거래 %5$d건은 건너뛰었어.</string>
+
+    <string name="toast_legacy_imported">레거시 거래 %1$d건을 가져왔어. 기존 %2$d건은 건너뛰었어.</string>
+
+    <string name="toast_delete_transactions_failed">거래를 삭제할 수 없어. 다시 해봐.</string>
+
+    <string name="toast_pro_billing_coming_soon">Pro 결제는 곧 나와!</string>
+
+    <string name="toast_unable_to_export_json_please_t">JSON을 내보낼 수 없어. 다시 해봐.</string>
+
+    <string name="toast_unable_to_import_json_check_th">JSON을 가져올 수 없어. 파일을 확인하고 다시 해봐.</string>
+
+    <string name="toast_unable_to_restore_the_database">데이터베이스 백업을 복원할 수 없어. 다시 해봐.</string>
+
+    <string name="toast_unable_to_save_the_database_ba">데이터베이스 백업을 저장할 수 없어. 다시 해봐.</string>
+
+    <string name="dialog_alerts_reminders">알림 &amp; 리마인더</string>
+
+    <string name="desc_add_item">항목 추가</string>
+
+    <string name="desc_ai_tip">AI 팁</string>
+
+    <string name="desc_apply_to_note">메모에 적용</string>
+
+    <string name="desc_back">뒤로</string>
+
+    <string name="desc_close_filters">필터 닫기</string>
+
+    <string name="desc_close_search">검색 닫기</string>
+
+    <string name="desc_remove_filter">필터 제거</string>
+
+    <string name="desc_custom_range">맞춤 범위</string>
+
+    <string name="desc_delete">삭제</string>
+
+    <string name="desc_delete_photo">사진 삭제</string>
+
+    <string name="content_desc_email_verified">이메일 확인됨</string>
+
+    <string name="desc_delete_selected">선택 삭제</string>
+
+    <string name="desc_delete_val">%1$s 삭제</string>
+
+    <string name="desc_delete_val_1">%1$s 삭제</string>
+
+    <string name="desc_deselect_all">모두 선택 해제</string>
+
+    <string name="desc_exit_selection">선택 모드 나가기</string>
+
+    <string name="desc_next_period">다음 기간</string>
+
+    <string name="desc_next_year">다음 해</string>
+
+    <string name="desc_open_calculator">계산기 열기</string>
+
+    <string name="desc_open_calendar">캘린더 열기</string>
+
+    <string name="desc_open_gender_options">성별 옵션 열기</string>
+
+    <string name="desc_open_val">%1$s 열기</string>
+
+    <string name="desc_open_val_1">\%1$s 열기</string>
+
+    <string name="desc_open_val_2">%1$s 열기</string>
+
+    <string name="desc_previous_period">이전 기간</string>
+
+    <string name="desc_previous_year">이전 해</string>
+
+    <string name="desc_search">검색</string>
+
+    <string name="desc_search_currency">통화 검색</string>
+
+    <string name="desc_select_all">모두 선택</string>
+
+    <string name="label_12">12</string>
+
+    <string name="label_12hour">12시간제</string>
+
+    <string name="label_248">+24.8%</string>
+
+    <string name="label_24hour">24시간제</string>
+
+    <string name="label_full_access_for_duration">%1$s 동안 전체 이용</string>
+
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d시간</item>
+        <item quantity="other">%1$d시간</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d분</item>
+        <item quantity="other">%1$d분</item>
+    </plurals>
+
+    <string name="label_1_hour_access">1시간 광고 없는 이용</string>
+
     <string name="label_about">정보</string>
-    <string name="label_pro">Pro</string>
-    <string name="label_free">무료</string>
-    <string name="notification_action_edit">수정</string>
-    <string name="notification_action_ignore">무시</string>
-    <string name="notification_title_sms_import">감지된 거래</string>
+
+    <string name="label_ac">AC</string>
+
+    <string name="label_c">C</string>
+
+    <string name="label_accuracy">정확도</string>
+
+    <string name="label_active">활성</string>
+
+    <string name="label_add_a_note">메모 추가</string>
+
+    <string name="label_add_item">항목 추가</string>
+
+    <string name="label_add_new_item">새 항목 추가</string>
+
+    <string name="label_all_categories">모든 카테고리</string>
+
+    <string name="label_app_is_starting_please_wait">앱을 시작하는 중이야, 잠깐만...</string>
+
+    <string name="label_apply">적용</string>
+
+    <string name="label_apply_custom_duration">맞춤 기간 적용</string>
+
+    <string name="label_apply_custom_frequency">맞춤 주기 적용</string>
+
+    <string name="label_apply_filters">필터 적용</string>
+
+    <string name="label_apply_to_note">메모에 적용</string>
+
+    <string name="label_are_you_sure_you_want_to_delet">거래 %1$s건을 삭제할까? 되돌릴 수 없어.</string>
+
+    <string name="label_breakdown">내역</string>
+
+    <string name="label_breakdown_sub_expenses">하위 지출</string>
+
+    <string name="label_cancel">취소</string>
+
+    <string name="label_cancel_1">취소</string>
+
+    <string name="label_cash_flow_ratio">현금흐름 비율</string>
+
+    <string name="label_choose_from_50_icons_color_sty">아이콘 50개 중에서 골라. 색 스타일은 자동이야.</string>
+
+    <string name="label_choose_month">월 고르기</string>
+
+    <string name="label_choose_the_date_style_you_want">앱 전체에 쓸 날짜 스타일을 골라.</string>
+
+    <string name="label_choose_the_gender_label_that_b">프로필에 맞는 성별 라벨을 골라.</string>
+
+    <string name="label_choose_whether_time_is_shown_i">시간을 12시간제인지 24시간제인지 골라.</string>
+
+    <string name="label_choose_year">연도 고르기</string>
+
+    <string name="label_clear">지우기</string>
+
+    <string name="label_custom_duration">맞춤 기간</string>
+
+    <string name="label_customize_how_your_data_is_vis">데이터가 어떻게 보일지 맞춰</string>
+
+    <string name="label_date">날짜</string>
+
+    <string name="desc_miss_entry_reminder">2일 동안 거래를 안 넣으면 알려줄게.</string>
+
+    <string name="label_date_of_birth">생년월일</string>
+
+    <string name="label_default_is_off_turn_it_on_to_t">기본은 꺼져 있어. 켜면 Budget &amp; Recurring에서 이 지출을 추적해.</string>
+
+    <string name="label_delete">삭제</string>
+
+    <string name="label_delete_all">모두 삭제</string>
+
+    <string name="label_description">설명</string>
+
+    <string name="label_description_1">설명</string>
+
     <string name="label_developed_by">개발</string>
-    <string name="label_funds_breakdown">자금 내역</string>
-    <string name="label_no_fund_breakdown">이 기간에 자금 지출이 없습니다</string>
-    <string name="label_all_funds_breakdown">모든 자금</string>
+
+    <string name="label_edit">수정</string>
+
+    <string name="label_email_address">이메일 주소</string>
+
+    <string name="label_encrypted_mode">암호화 모드</string>
+
+    <string name="label_enter_minutes">분 입력</string>
+
+    <string name="label_forgot">잊음</string>
+
+    <string name="label_full_name">이름</string>
+
+    <string name="label_gender">성별</string>
+
+    <string name="label_github">GITHUB</string>
+
+    <string name="label_growth_index">성장 지수</string>
+
+    <string name="label_handcrafted_with_precision_and">정성과 ❤️로 만들었어</string>
+
+    <string name="label_headertransition">HeaderTransition</string>
+
+    <string name="label_hi_val">안녕, %1$s</string>
+
+    <string name="label_high_fidelity">하이파이</string>
+
+    <string name="label_iconkey">iconKey</string>
+
+    <string name="label_id">id</string>
+
+    <string name="label_immediately">바로</string>
+
+    <string name="label_itemized_calculator">항목별 계산기</string>
+
+    <string name="label_last_month">지난달</string>
+
+    <string name="label_linkedin">LINKEDIN</string>
+
+    <string name="label_month">/ 월</string>
+
+    <string name="label_month_1">월</string>
+
+    <string name="label_monthly_limit">월 한도</string>
+
+    <string name="label_name">name</string>
+
+    <string name="label_new_item">새 항목</string>
+
+    <string name="label_no_countries_matched_your_sear">검색에 맞는 나라가 없어.</string>
+
+    <string name="label_no_payment_data_found_in_this">이 범위에 결제 데이터가 없어.</string>
+
+    <string name="label_not_now">나중에</string>
+
+    <string name="label_note">메모</string>
+
+    <string name="label_personalize_your_vault">금고를 내 스타일로</string>
+
+    <string name="label_phone_number">전화번호</string>
+
+    <string name="label_pick_a_preset_in_5minute_steps">5분 단위 프리셋(최대 60)을 고르거나 분 단위로 직접 입력해.</string>
+
+    <string name="label_pick_a_preset_or_enter_a_custo">프리셋을 고르거나 1~30일 사이 값을 입력해.</string>
+
+    <string name="label_premium_member">PRO 멤버</string>
+
+    <string name="label_private_member">프라이빗 멤버</string>
+
+    <string name="label_qval">Q%1$s</string>
+
+    <string name="label_recent">최근</string>
+
+    <string name="label_recent_activities">최근 활동</string>
+
+    <string name="label_repeat_count">반복 횟수</string>
+
+    <string name="label_reset">초기화</string>
+
+    <string name="label_restore_database">데이터베이스를 복원할까?</string>
+
+    <string name="label_save">저장</string>
+
+    <string name="label_save_changes">변경 저장</string>
+
+    <string name="label_search_by_country_and_pick_the">나라로 검색하고 앱 전체에 쓸 통화를 골라.</string>
+
+    <string name="label_search_country">나라 검색</string>
+
+    <string name="label_security_answer">보안 답</string>
+
+    <string name="label_select_currency">통화 고르기</string>
+
+    <string name="label_select_date_format">날짜 형식 고르기</string>
+
+    <string name="label_select_decimal_places">소수점 자리 고르기</string>
+
+    <string name="label_select_gender">성별 고르기</string>
+
+    <string name="label_select_number_format">숫자 형식 고르기</string>
+
+    <string name="label_select_time_format">시간 형식 고르기</string>
+
+    <string name="label_select_visual_identity">비주얼 아이덴티티 고르기</string>
+
+    <string name="label_selected">선택됨</string>
+
+    <string name="label_smart_ai_tip">스마트 AI 팁</string>
+
+    <string name="label_sort_filter">정렬 &amp; 필터</string>
+
+    <string name="label_stepanimation">StepAnimation</string>
+
+    <string name="label_system_active">시스템 활성</string>
+
+    <string name="pro_slogan_1">돈이 알아서 기록되게.</string>
+
+    <string name="pro_subheadline_1">반복되는 집세, 고지서, 구독을 매번 직접 치지 마. 자동 반복 기록과 기기 간 클라우드 동기화가 잡일을 해줘.</string>
+
+    <string name="pro_cta_1">자동 저축 잠금 해제</string>
+
+    <string name="pro_slogan_2">한 번 기록. 어디서나 동기화. 손쉽게.</string>
+
+    <string name="pro_subheadline_2">폰, 태블릿, 파트너 기기에서 지갑과 계좌가 실시간으로 맞춰져. 손댈 필요 없어.</string>
+
+    <string name="pro_cta_2">수동 번거로움은 이제 그만</string>
+
+    <string name="pro_slogan_3">수동 작업 제로. 재정 통제 100%.</string>
+
+    <string name="pro_subheadline_3">매일 지출 추적을 숙제에서 백그라운드 일로. 월 청구를 자동화하고 조용한 추적을 느껴봐.</string>
+
+    <string name="pro_cta_3">자동 저축 잠금 해제</string>
+
+    <string name="pro_slogan_4">쓰기 전에 돈이 어디로 가는지 봐.</string>
+
+    <string name="pro_subheadline_4">지난 기록만 보지 마. 카테고리별 지출 전망과 트렌드 예측으로 다음 달 잔액을 오늘 그려봐.</string>
+
+    <string name="pro_cta_4">평생 선명함으로 업그레이드</string>
+
+    <string name="pro_slogan_5">추측은 그만. 자산을 키워.</string>
+
+    <string name="pro_subheadline_5">재정 사각지대를 없애. Pro 분석으로 어디에 과소비하는지 찍고 그 구멍을 저축으로 돌려.</string>
+
+    <string name="pro_cta_5">자산을 손에 쥐어</string>
+
+    <string name="pro_slogan_6">스마트 전망으로 현금흐름을 장악해.</string>
+
+    <string name="pro_subheadline_6">월 예산에서 감 빼. 실제 습관 기반 자동 트렌드 예측으로 단단한 계획을 세워.</string>
+
+    <string name="pro_cta_6">평생 선명함으로 업그레이드</string>
+
+    <string name="pro_slogan_7">재정 기록, 영원히 안전하게.</string>
+
+    <string name="pro_subheadline_7">폰을 잃거나 깨지거나 바꿔도 몇 년의 습관이 날아가면 안 돼. Google Drive 자동 백업과 원클릭 복원으로 지켜.</string>
+
+    <string name="pro_cta_7">평생 선명함으로 업그레이드</string>
+
+    <string name="pro_slogan_8">충돌에도. 폰에도. 걱정에도 끄떡없어.</string>
+
+    <string name="pro_subheadline_8">거래 기록과 예산 시트가 암호화되고 동기화되고 클라우드에 자동 백업된다고 마음 놓아.</string>
+
+    <string name="pro_cta_8">지금 데이터 지켜</string>
+
+    <string name="label_take_control_of_your_wealth_wi">가장 강력한 도구로 자산을 손에 쥐어.</string>
+
+    <string name="label_this_name_already_exists_in_va">이 이름은 이미 %1$s에 있어.</string>
+
+    <string name="label_this_new_item_will_be_added_un">이 새 항목은 %1$s 아래에 추가돼.</string>
+
+    <string name="label_this_will_overwrite_your_curre">선택한 .db 백업으로 지금 데이터베이스를 덮어써. 빠진 기록은 합치지 않아. 기존 데이터가 바뀌어.</string>
+
+    <string name="label_today">오늘</string>
+
+    <string name="label_yesterday">어제</string>
+
+    <string name="label_tomorrow">내일</string>
+
+    <string name="label_top_breakdownfirstornulllabel">Top: ${breakdown.firstOrNull()?.label ?: </string>
+
+    <string name="label_total_analytics">총 분석</string>
+
+    <string name="label_total_balance">총 잔액</string>
+
+    <string name="title_cash_flow">현금흐름</string>
+
+    <string name="label_this_month_cash_flow">이번 달</string>
+
+    <string name="label_this_year_cash_flow">올해</string>
+
+    <string name="label_spending_cash_flow">지출</string>
+
+    <string name="label_expense_cash_flow">지출</string>
+
+    <string name="label_income_cash_flow">수입</string>
+
+    <string name="label_net_balance_cash_flow">순잔액</string>
+
+    <string name="label_track_every_move_with_confiden">모든 움직임을 자신 있게 추적해.</string>
+
+    <string-array name="psychology_phrases" translatable="false">
+        <item>Awareness beats willpower.</item>
+        <item>You can\'t change what you don\'t notice.</item>
+        <item>Small amounts, repeated, become your reality.</item>
+        <item>Pause ten seconds before you spend.</item>
+        <item>Every glance here is a choice made on purpose.</item>
+        <item>Money follows attention.</item>
+        <item>Notice first, spend second.</item>
+        <item>The number you avoid is the number that grows.</item>
+        <item>What you track, you tend.</item>
+        <item>Name the feeling before the purchase.</item>
+        <item>One purchase is a mood; a pattern is a choice.</item>
+        <item>Slower hands, steadier money.</item>
+        <item>You are not your urge.</item>
+        <item>The pause is where the power is.</item>
+        <item>Progress hides in small numbers.</item>
+        <item>Comfort is not a plan.</item>
+        <item>Clarity is the antidote to financial chaos.</item>
+        <item>Your past purchases built your present baseline.</item>
+        <item>A budget is telling your money where to go instead of wondering where it went.</item>
+        <item>Impulses fade faster than receipts.</item>
+        <item>Shame stops tracking; curiosity keeps it alive.</item>
+        <item>Intentional spending beats accidental saving.</item>
+        <item>Every rupee spent is a vote for the life you want.</item>
+        <item>Delay is often the only filter you need.</item>
+        <item>Retail therapy treats the symptom, not the cause.</item>
+        <item>Notice the craving; skip the cart.</item>
+        <item>Wealth is what you keep, not what you display.</item>
+        <item>Peace of mind costs less than luxury.</item>
+        <item>Ask yourself: am I buying this or am I buying comfort?</item>
+        <item>Small leaks sink great ships.</item>
+        <item>Habits compound faster than interest.</item>
+        <item>Control your spending before your spending controls you.</item>
+        <item>Awareness transforms a habit into a choice.</item>
+        <item>Needs are quiet; wants are loud.</item>
+        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
+        <item>Watch the pennies and the pounds will take care of themselves.</item>
+        <item>Freedom is being able to say no to immediate gratification.</item>
+        <item>The best things in life don\'t require an invoice.</item>
+        <item>Boredom is an expensive emotion.</item>
+        <item>Stress spending leaves a hangover.</item>
+        <item>Your future self is watching your current cart.</item>
+        <item>Examine the urge before you enter the checkout code.</item>
+        <item>Money management is self-care.</item>
+        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
+        <item>True wealth builds silently in the background.</item>
+        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
+        <item>When you know your why, your wallet aligns.</item>
+        <item>Mindful spending brings more joy than mindless accumulation.</item>
+        <item>Pause long enough for logic to enter the room.</item>
+        <item>Every financial choice shapes tomorrow\'s reality.</item>
+        <item>The temporary high of buying fades by morning.</item>
+        <item>Track your habits and your habits will reward you.</item>
+        <item>Silence the noise of marketing with the clarity of your goals.</item>
+        <item>Choose long-term stability over short-term dopamine.</item>
+        <item>Don\'t measure wealth by things; measure it by choices.</item>
+        <item>Recognize the trigger before it triggers the transaction.</item>
+        <item>Direction matters more than speed.</item>
+        <item>Your bank account is a mirror of your priorities.</item>
+        <item>Conscious consumption is a superpower.</item>
+        <item>Sleep on major purchases; clarity comes with dawn.</item>
+        <item>Simplicity is the ultimate sophistication in finance.</item>
+        <item>Discipline is choosing between what you want now and what you want most.</item>
+        <item>A clear ledger brings a calm mind.</item>
+        <item>Every dollar saved is a worker working for your future.</item>
+        <item>Look at the data, not the desire.</item>
+        <item>Master your mindset to master your money.</item>
+        <item>Financial peace isn\'t an accident; it\'s a design.</item>
+        <item>Notice when emotions dictate your payments.</item>
+        <item>The cost of a thing is the amount of life you exchange for it.</item>
+        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
+        <item>Habitual tracking kills financial anxiety.</item>
+        <item>Let purpose guide your purchases.</item>
+        <item>A moment of reflection prevents a month of regret.</item>
+        <item>Look beyond the price tag to the long-term impact.</item>
+        <item>Your attention determines your allocation.</item>
+        <item>Financial independence begins with a single logged entry.</item>
+        <item>Step back from the sale banner; look at your goals.</item>
+        <item>Intentionality turns routine into ritual.</item>
+        <item>Unchecked subscriptions are quiet wealth thieves.</item>
+        <item>Notice the impulse, let it pass like a cloud.</item>
+        <item>Your financial story is written one entry at a time.</item>
+        <item>Align your spending with your core values.</item>
+        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
+        <item>Clarity replaces confusion with confidence.</item>
+        <item>Choose progress over perfection.</item>
+        <item>Every time you open this app, you reclaim your power.</item>
+        <item>Small disciplines repeated daily lead to great achievements.</item>
+        <item>Reflect on the root cause of the urge to splurge.</item>
+        <item>Wealth is built in the shadows of everyday choices.</item>
+        <item>Mastering money starts with managing moments.</item>
+        <item>Let your values dictate your volume.</item>
+        <item>You own your money; don\'t let your money own your mood.</item>
+        <item>A mindful habit today saves a financial headache tomorrow.</item>
+        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
+        <item>Awareness is the first step of transformation.</item>
+        <item>Let your records reflect your aspirations.</item>
+        <item>Look closely at what stays; let go of what drains.</item>
+        <item>Peace is owning fewer things that require your attention.</item>
+        <item>Your financial future is decided in moments like this.</item>
+        <item>Keep your goals in focus and your expenses in check.</item>
+    </string-array>
+
+    <string name="label_upgrade_to_pro">Pro로 업그레이드</string>
+
+    <string name="label_val">%1$s%</string>
+
+    <string name="label_val_1">%1$s%</string>
+
+    <string name="label_val_2">%1$s%</string>
+
+    <string name="label_val_days">%1$s일</string>
+
+    <string name="label_val_items">항목 %1$s개</string>
+
+    <string name="label_val_minutes">%1$s분</string>
+
+    <string name="label_val_selected">%1$s개 선택</string>
+
+    <string name="label_select_all_in_view">이 보기에서 %1$d개 모두 선택</string>
+
+    <string name="label_val_val">%1$s (%2$s)</string>
+
+    <string name="label_valx">%1$sX</string>
+
+    <string name="label_view_all">모두 보기</string>
+
+    <string name="label_website">웹사이트</string>
+
+    <string name="label_wk_val">WK %1$s</string>
+
+    <string name="label_year">연</string>
+
+    <string name="label_your_answer">네 답</string>
+
+    <string name="title_about">정보</string>
+
+    <string name="title_about_app">앱 정보</string>
+
+    <string name="title_access">접근</string>
+
+    <string name="title_analytics">분석</string>
+
+    <string name="title_architecture">아키텍처</string>
+
+    <string name="title_auto_backup">자동 백업</string>
+
+    <string name="title_automated_backup_every_val_day">%1$s일마다 자동 백업.</string>
+
+    <string name="title_avg_daily">일평균</string>
+
+    <string name="title_backup">백업</string>
+
+    <string name="title_backup_frequency">백업 주기</string>
+
+    <string name="title_blur_in_recents">최근 앱에서 흐리게</string>
+
+    <string name="title_calendar">캘린더</string>
+
+    <string name="title_choose_the_main_attribute_used">목록을 정렬할 기준을 골라.</string>
+
+    <string name="title_confirm_identity">신원 확인</string>
+
+    <string name="title_currency">통화</string>
+
+    <string name="title_customize">맞춤</string>
+
+    <string name="title_daily_reminder">매일 리마인더</string>
+
+    <string name="title_dashboard">대시보드</string>
+
+    <string name="title_database">데이터베이스</string>
+
+    <string name="title_date">날짜</string>
+
+    <string name="title_date_format">날짜 형식</string>
+
+    <string name="title_decimal_places">소수점 자리</string>
+
+    <string name="title_display_wallet_or_card_used">사용한 지갑이나 카드 표시</string>
+
+    <string name="title_exact_timestamp_visibility">정확한 시각 표시</string>
+
+    <string name="title_export_json">JSON 내보내기</string>
+
+    <string name="title_filters">필터</string>
+
+    <string name="title_finetune_how_results_are_ranke">고른 정렬 안에서 순위를 미세 조정해.</string>
+
+    <string name="title_follow_us">팔로우</string>
+
+    <string name="title_frequency">주기</string>
+
+    <string name="title_highest_first">높은 순</string>
+
+    <string name="title_import_json">JSON 가져오기</string>
+
+    <string name="title_import_legacy_data">레거시 데이터 가져오기</string>
+
+    <string name="title_json_transfer">JSON 전송</string>
+
+    <string name="title_legal">법적 고지</string>
+
+    <string name="title_maintenance">유지보수</string>
+
+    <string name="title_missed_entry_reminder">누락 입력 리마인더</string>
+
+    <string name="title_number_format">숫자 형식</string>
+
+    <string name="title_order">순서</string>
+
+    <string name="title_payment_method">결제 수단</string>
+
+    <string name="title_payment_mode">결제 방식</string>
+
+    <string name="title_premium_by_designnprivate_by_n">디자인은 프리미엄,\n본질은 프라이빗</string>
+
+    <string name="title_privacy_policy">개인정보 처리방침</string>
+
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
+
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
+
+    <string name="title_rate_app">앱 평가</string>
+
+    <string name="title_rate_prompt">이 앱이 도움이 됐어?</string>
+
+    <string name="label_how_would_you_rate">우리를 몇 점으로 줄래?</string>
+
+    <string name="label_submit_rating">제출</string>
+
+    <string name="cd_rate_star">5점 중 %1$d점</string>
+
+    <string name="title_report_bug">버그 신고</string>
+
+    <string name="title_restore">복원</string>
+
+    <string name="title_savings">저축</string>
+
+    <string name="title_secure_private">안전 &amp; 프라이빗</string>
+
+    <string name="title_security_privacy">보안 &amp; 개인정보</string>
+
+    <string name="title_security_privacy_1">보안 &amp; 개인정보</string>
+
+    <string name="title_privacy_options">개인정보 옵션</string>
+
+    <string name="label_privacy_options_subtitle">동의와 데이터 선택을 관리해</string>
+
+    <string name="title_send_feedback">피드백 보내기</string>
+
+    <string name="title_show_date_separators">날짜 구분선 보기</string>
+
+    <string name="title_show_list_summaries">기간 요약 보기</string>
+
+    <string name="desc_show_list_summaries">현재 기간의 수입과 지출 합계를 보여줘</string>
+
+    <string name="title_show_payment_method">결제 수단 보기</string>
+
+    <string name="title_sort_by">정렬 기준</string>
+
+    <string name="title_stack_multiple_filters_to_narr">필터를 겹쳐서 거래 목록을 좁혀.</string>
+
+    <string name="title_support">지원</string>
+
+    <string name="title_terms_conditions">이용약관</string>
+
+    <string name="title_time_format">시간 형식</string>
+
+    <string name="title_toggle_visibility_of_transacti">거래 태그 표시 전환</string>
+
+    <string name="title_visual_analytics">비주얼 분석</string>
+
+    <string name="label_other_installment">기타</string>
+
+    <string name="msg_installment_info">현재 거래는 할부 #1이야. 이후 항목은 자동으로 만들어져.</string>
+
+    <string name="label_update_action">업데이트</string>
+
+    <string name="label_add_action">추가</string>
+
+    <string name="label_am">오전</string>
+
+    <string name="label_pm">오후</string>
+
+    <string name="label_secure_app_pin">PIN으로 앱을 잠가</string>
+
+    <string name="label_use_biometric_subtitle">지문 사용</string>
+
+    <string name="label_scrambled_keypad">섞인 키패드</string>
+
+    <string name="label_scrambled_keypad_subtitle">보안을 위해 PIN 배치를 랜덤으로</string>
+
+    <string name="label_blur_in_recents">최근 앱에서 흐리게</string>
+
+    <string name="label_blur_in_recents_subtitle">앱 전환기에서 내용 숨기기</string>
+
+    <string name="label_block_screenshots_subtitle">앱 화면 캡처 막기</string>
+
+    <string name="label_auto_lock_subtitle">앱이 스스로 잠글 때</string>
+
+    <string name="label_lock_immediately">백그라운드로 가면 바로 잠가</string>
+
+    <string name="label_val_minutes_away">%1$d분 떠나면 잠가</string>
+
+    <string name="label_auto_lock_desc">앱이 언제 자동으로 잠글지 골라.</string>
+
+    <string name="label_primary_currency">앱 기본 통화</string>
+
+    <string name="label_theme_subtitle">앱 색 모양</string>
+
+    <string name="title_language">언어</string>
+
+    <string name="label_language_subtitle">앱 표시 언어</string>
+
+    <string name="label_select_language">언어 고르기</string>
+
+    <string name="label_language_selection_desc">앱에서 쓸 언어를 골라. 번역 안 된 텍스트는 영어로 남아.</string>
+
+    <string name="label_language_system">시스템 기본</string>
+
+    <string name="label_date_format_subtitle">날짜가 보이는 방식</string>
+
+    <string name="label_time_format_subtitle">12시간 또는 24시간</string>
+
+    <string name="label_number_format_subtitle">숫자 묶음 스타일</string>
+
+    <string name="label_decimal_places_subtitle">금액 정밀도</string>
+
+    <string name="label_theme_selection_desc">기기를 따를지, 고정 테마로 둘지 골라.</string>
+
+    <string name="label_number_format_desc">큰 금액을 앱에서 어떻게 묶을지 골라.</string>
+
+    <string name="label_select_theme">테마 고르기</string>
+
+    <string name="title_theme">테마</string>
+
+    <string name="label_theme_system">시스템</string>
+
+    <string name="label_theme_light">라이트</string>
+
+    <string name="label_theme_dark">다크</string>
+
+    <string name="desc_theme_system">기기 모양을 따라가</string>
+
+    <string name="desc_theme_light">항상 라이트 테마</string>
+
+    <string name="desc_theme_dark">항상 다크 테마</string>
+
+    <string name="title_font">글꼴</string>
+
+    <string name="label_font_subtitle">앱 타이포그래피</string>
+
+    <string name="label_font_app">기본</string>
+
+    <string name="label_font_system">시스템 글꼴</string>
+
+    <string name="label_font_custom">맞춤 글꼴</string>
+
+    <string name="label_watch_ad_to_unlock">광고 보고 잠금 해제</string>
+
+    <string name="label_pro_required">Pro 필요</string>
+
+    <string name="msg_system_font_ad_desc">짧은 광고를 보고 시스템 글꼴을 무료로 잠금 해제해.</string>
+
+    <string name="msg_custom_font_pro_desc">맞춤 글꼴은 Pro 기능이야. 업그레이드해서 열어.</string>
+
+    <string name="label_import_font">글꼴 가져오기</string>
+
+    <string name="label_font_count">맞춤 글꼴 %1$d/%2$d</string>
+
+    <string name="label_max_fonts_reached">최대 %1$d개야. 새로 넣으려면 하나를 지워.</string>
+
+    <string name="label_no_custom_fonts">맞춤 글꼴이 아직 없어</string>
+
+    <string name="msg_import_font_success">글꼴을 가져왔어</string>
+
+    <string name="msg_font_changed">글꼴을 바꿨어</string>
+
+    <string name="msg_import_font_error">글꼴을 가져오지 못했어</string>
+
+    <string name="msg_font_too_large">글꼴 파일이 너무 커. 더 작은 파일을 골라.</string>
+
+    <string name="msg_invalid_font">유효하지 않은 글꼴 파일</string>
+
+    <string name="label_select_font">글꼴 고르기</string>
+
+    <string name="label_select_font_desc">길게 눌러서 글꼴 삭제</string>
+
+    <string name="label_select_font_built_in">내장</string>
+
+    <string name="label_delete_font">삭제</string>
+
+    <string name="title_month_start_day">월 시작일</string>
+
+    <string name="label_month_start_day_subtitle">청구 주기의 첫날을 정해</string>
+
+    <string name="label_month_start_day_value">%1$d일</string>
+
+    <string name="label_month_start_day_standard">1일 (기본)</string>
+
+    <string name="label_current_period">현재 기간:</string>
+
+    <string name="msg_delete_font_title">글꼴을 지울까?</string>
+
+    <string name="msg_delete_font_desc">%1$s이(가) 맞춤 글꼴에서 빠져.</string>
+
+    <string name="label_select">선택</string>
+
+    <string name="label_grouping_indian">인도식 (1,23,456.78)</string>
+
+    <string name="label_grouping_international">국제식 (1,234,567.89)</string>
+
+    <string name="label_app_name_display">Expense Tracker</string>
+
+    <string name="label_follow_us">팔로우</string>
+
+    <string name="desc_app_icon">앱 아이콘</string>
+
+    <string name="label_about_app_desc">매일 거래를 우아하게 관리하는 심플한 앱이야. 재정 선명함과 프리미엄 UI를 중시하는 사람을 위해 디자인됐어. 모든 데이터는 하이엔드 볼트의 일부처럼 다뤄져.</string>
+
+    <string name="title_yearly_analytics">연간 분석</string>
+
+    <string name="title_full_category_breakdown">카테고리 전체 내역</string>
+
+    <string name="title_full_payment_breakdown">결제 전체 내역</string>
+
+    <string name="title_payment_mode_breakdown">결제 방식 내역</string>
+
+    <string name="title_top_spending_details">상위 지출 상세</string>
+
+    <string name="title_spending_insights">지출 인사이트</string>
+
+    <string name="label_both">둘 다</string>
+
+    <string name="label_total_spent">총 지출</string>
+
+    <string name="label_net_balance">순잔액</string>
+
+    <string name="label_unlock_breakdown">내역 잠금 해제</string>
+
+    <string name="label_unlock_top_spending">상위 지출 잠금 해제</string>
+
+    <string name="label_unlock_insights">인사이트 잠금 해제</string>
+
+    <string name="label_val_transactions">거래 %1$s건</string>
+
+    <string name="label_no_transactions_found_in_this">이 범위에서 거래를 못 찾았어.</string>
+
+    <string name="label_top_val">상위: %1$s</string>
+
+    <string name="desc_show_transactions">거래 보기</string>
+
+    <string name="label_unknown">알 수 없음</string>
+
     <string name="label_other">기타</string>
-    <string name="label_not_available">사용할 수 없음</string>
-    <string name="format_percentage">%1$d%%</string>
+
+    <string name="label_not_available">N/A</string>
+
+    <string name="format_percentage">%1$s%%</string>
+
+    <string name="format_thousands">%1$.1fk</string>
+
+    <string name="format_millions">%1$.1fM</string>
+
+    <string name="separator_bullet">•</string>
+
+    <string name="format_ellipsis">%1$s…</string>
+
+    <string name="desc_log_daily_spending">최적화된 키패드와 스마트 카테고리 순위로 매일 지출을 몇 초 만에 기록해.</string>
+
+    <string name="label_next">다음</string>
+
+    <string name="desc_financial_data_secure">재정 데이터는 기기에 저장되고 생체 보안으로 보호돼.</string>
+
+    <string name="desc_visualize_spending">인터랙티브 차트와 카테고리 내역으로 지출 습관을 그려봐.</string>
+
+    <string name="desc_modern_finance">손안의 현대 가계부. 기본은 오프라인 우선, 데이터는 기기를 떠나지 않아.</string>
+
+    <string name="label_continue">계속</string>
+
+    <string name="label_private_by_nature">본질은 프라이빗</string>
+
+    <string name="title_secure_your_account">계정을 지켜</string>
+
+    <string name="desc_sync_and_premium_features">로그인해서 기기 간 동기화와 프리미엄 기능을 안전하게 써.</string>
+
+    <string name="auth_welcome">환영해</string>
+
+    <string name="auth_signup_subtitle">아래에서 가입해서 계정을 만들고 시작해.</string>
+
+    <string name="auth_signin_subtitle">로그인해서 저장한 설정과 계정에 들어가.</string>
+
+    <string name="auth_forgot">비밀번호 잊음</string>
+
+    <string name="label_recommended">추천</string>
+
+    <string name="auth_connecting_google">Google에 연결 중…</string>
+
+    <string name="auth_authenticating">인증 중…</string>
+
+    <string name="auth_already_have_account">이미 계정이 있어?</string>
+
+    <string name="auth_dont_have_account">계정이 없어?</string>
+
+    <string name="label_continue_with_google">Google로 계속</string>
+
+    <string name="content_desc_google_logo">Google</string>
+
+    <string name="msg_auth_content_preview_placeholder">Auth Content (Preview Placeholder)</string>
+
+    <string name="label_continue_with">계속하기</string>
+
+    <string name="label_or">또는</string>
+
+    <string name="label_email">이메일 주소</string>
+
+    <string name="label_password">비밀번호</string>
+
+    <string name="label_create_account">가입</string>
+
+    <string name="msg_creating_account">계정 만드는 중...</string>
+
+    <string name="title_account_created">계정을 만들었어</string>
+
+    <string name="label_ok">확인</string>
+
+    <string name="label_login">로그인</string>
+
+    <string name="label_already_have_account">이미 계정이 있어? 로그인</string>
+
+    <string name="label_no_account_signup">계정이 없어? 가입</string>
+
+    <string name="label_continue_as_guest">게스트로 계속</string>
+
+    <string name="desc_tell_us_about_yourself">경험을 맞추려고 너에 대해 조금 알려줘.</string>
+
+    <string name="label_get_started">시작하기</string>
+
+    <string name="placeholder_enter_name">이름을 입력해</string>
+
+    <string name="placeholder_select_dob">생년월일 고르기</string>
+
+    <string name="label_male">남성</string>
+
+    <string name="label_female">여성</string>
+
+    <string name="label_non_binary">논바이너리</string>
+
+    <string name="label_prefer_not_to_say">말하고 싶지 않음</string>
+
+    <string name="msg_please_provide_your_val">%1$s을(를) 알려줘</string>
+
+    <string name="label_name_capitalized">이름</string>
+
+    <string name="label_gender_capitalized">성별</string>
+
+    <string name="label_dob_capitalized">생년월일</string>
+
+    <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
+
+    <string name="label_secure_logging">안전한 기록</string>
+
+    <string name="label_architecture">아키텍처</string>
+
+    <string name="label_100_offline">100% 오프라인 우선</string>
+
+    <string name="label_access">접근</string>
+
+    <string name="label_full_control">완전한 제어</string>
+
+    <string name="label_zero">0</string>
+
+    <string name="label_history">기록</string>
+
+    <string name="content_desc_calculator_history">계산기 기록 열기</string>
+
+    <string name="content_desc_copy_history">계산 복사</string>
+
+    <string name="content_desc_backspace">커서 왼쪽 글자 지우기</string>
+
+    <string name="content_desc_cursor_left">커서를 왼쪽으로</string>
+
+    <string name="content_desc_cursor_right">커서를 오른쪽으로</string>
+
+    <string name="msg_history_long_press_hint">카드를 길게 눌러 더 많은 옵션.</string>
+
+    <string name="msg_calculator_history_empty">계산이 아직 없어</string>
+
+    <string name="msg_clear_history_confirm">계산기 기록을 모두 지울까? 되돌릴 수 없어.</string>
+
+    <string name="label_clear_history">기록 지우기</string>
+
+    <string name="toast_history_copied">계산을 클립보드에 복사했어</string>
+
+    <string name="title_quick_action">빠른 동작</string>
+
+    <string name="msg_history_quick_action_caption">이 계산으로 뭘 할지 골라. 언제든 바꿀 수 있어.</string>
+
+    <string name="label_copy_expression">식 복사</string>
+
+    <string name="label_copy_result">결과 복사</string>
+
+    <string name="label_copy_expression_and_result">식 + 결과 복사</string>
+
+    <string name="label_delete_entry">항목 삭제</string>
+
+    <string name="toast_expression_copied">식을 클립보드에 복사했어</string>
+
+    <string name="toast_result_copied">결과를 클립보드에 복사했어</string>
+
+    <string name="toast_entry_deleted">항목을 삭제했어</string>
+
+    <string name="label_items_count_formatted">항목 %1$d개</string>
+
+    <string name="label_description_caps">설명</string>
+
+    <string name="label_amount_caps">금액</string>
+
+    <string name="content_desc_delete_item">%1$s 삭제</string>
+
+    <string name="content_desc_edit_item">%1$s 수정</string>
+
+    <string name="placeholder_description_ex">예: 커피집</string>
+
+    <string name="placeholder_amount_zero">0.00</string>
+
+    <string name="content_desc_add_item">항목 추가</string>
+
+    <string name="label_automated_sync">클라우드 &amp; 자동화</string>
+
+    <string name="desc_automated_sync">손대지 않고 데이터가 어떻게 보호될지 관리해.</string>
+
+    <string name="desc_auto_backup_subtitle">자동 로컬 백업</string>
+
+    <string name="desc_backup_frequency_subtitle">백업을 얼마나 자주 할지</string>
+
+    <string name="label_custom_frequency">맞춤...</string>
+
+    <string name="title_custom_backup_frequency">맞춤 주기</string>
+
+    <string name="label_enter_days">일수 입력</string>
+
+    <string name="placeholder_days">일</string>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1일</item>
+        <item quantity="other">%1$d일</item>
+    </plurals>
+
+    <string name="label_data_transfer">파일 전송</string>
+
+    <string name="desc_data_transfer">기기 사이에 데이터를 옮기거나 파일을 남기고 싶을 때 쓰는 수동 도구.</string>
+
+    <string name="label_export_data_json">데이터 내보내기 (JSON)</string>
+
+    <string name="desc_export_data_subtitle">합치기 안전한 JSON 파일 다운로드</string>
+
+    <string name="label_export">내보내기</string>
+
+    <string name="label_import_data_json">데이터 가져오기 (JSON)</string>
+
+    <string name="desc_import_data_subtitle">JSON에서 복원하거나 합치기</string>
+
+    <string name="label_import">가져오기</string>
+
+    <string name="label_backup_database_db">데이터베이스 백업 (.db)</string>
+
+    <string name="desc_backup_db_subtitle">직접 SQLite 파일 백업</string>
+
+    <string name="label_restore_database_db">데이터베이스 복원 (.db)</string>
+
+    <string name="desc_restore_db_subtitle">전체 데이터베이스 덮어쓰기</string>
+
+    <string name="label_legacy_import">레거시 가져오기</string>
+
+    <string name="desc_legacy_import_subtitle">이전 앱 버전에서 가져오기</string>
+
+    <string name="label_migrate">이전</string>
+
+    <string name="label_utilities_and_stats">저장소 &amp; 유지보수</string>
+
+    <string name="desc_utilities_and_stats">데이터베이스 상태를 보고 "초기화" 동작을 하는 도구.</string>
+
+    <string name="desc_transaction_count_subtitle">데이터베이스의 총 기록</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">매일 자동 백업</item>
+        <item quantity="other">%1$d일마다 자동 백업</item>
+    </plurals>
+
+    <string name="desc_choose_backup_frequency">앱이 자동 백업을 얼마나 자주 할지 골라.</string>
+
+    <string name="msg_no_category_budget_data">이번 달 카테고리 예산 데이터가 아직 없어.</string>
+
+    <string name="label_history_locked">기록 잠김</string>
+
+    <string name="msg_no_recurring_items">반복 항목이 아직 없어.</string>
+
+    <string name="label_tab_budgets">예산</string>
+
+    <string name="label_tab_recurring">반복</string>
+
+    <string name="label_tab_count_short">%1$d</string>
+
+    <string name="label_tab_count_overflow">%1$d+</string>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">항목 %1$d개</item>
+        <item quantity="other">항목 %1$d개</item>
+    </plurals>
+
+    <string name="label_sms_inbox_title">감지된 거래</string>
+
+    <string name="label_sms_inbox_search_hint">가맹점, 발신자 또는 메시지 검색</string>
+
+    <string name="label_sms_inbox_filter_all">전체</string>
+
+    <string name="label_sms_inbox_filter_income">수입</string>
+
+    <string name="label_sms_inbox_filter_expense">지출</string>
+
+    <string name="label_sms_inbox_filter_added">추가됨</string>
+
+    <string name="label_sms_inbox_filter_ignored">무시됨</string>
+
+    <string name="label_sms_inbox_filter_unread">안 읽음</string>
+
+    <string name="label_sms_inbox_income">수입</string>
+
+    <string name="label_sms_inbox_expense">지출</string>
+
+    <string name="label_sms_inbox_income_amount">%1$s 수입</string>
+
+    <string name="label_sms_inbox_expense_amount">%1$s 지출</string>
+
+    <string name="label_sms_inbox_card_hint">카드를 탭해서 거래 추가 화면을 열고, 필요하면 고친 뒤 추가로 거래로 넣어.</string>
+
+    <string name="label_sms_inbox_swipe_hint">왼쪽/오른쪽으로 밀어서 감지된 거래 하나를 삭제해.</string>
+
+    <string name="label_sms_inbox_category">추천 카테고리: %1$s</string>
+
+    <string name="label_sms_inbox_suggested">추천:</string>
+
+    <string name="label_sms_inbox_sms">SMS:</string>
+
+    <string name="label_sms_inbox_confidence_high">신뢰도 높음</string>
+
+    <string name="label_sms_inbox_confidence_medium">신뢰도 중간</string>
+
+    <string name="label_sms_inbox_confidence_low">신뢰도 낮음</string>
+
+    <string name="label_sms_inbox_empty_title">감지된 거래가 아직 없어</string>
+
+    <string name="label_sms_inbox_empty_filtered_title">여기엔 없어</string>
+
+    <string name="label_sms_inbox_empty_body">결제처럼 보이는 은행 메시지가 여기 나와 — 알림을 닫아도 그래.</string>
+
+    <string name="label_sms_inbox_delete_title">감지를 삭제할까?</string>
+
+    <string name="label_sms_inbox_delete_subtitle">되돌릴 수 없는 받은함 동작</string>
+
+    <string name="label_sms_inbox_delete_body">받은함에서 저장된 메시지가 빠져. 이미 추가한 거래는 그대로야.</string>
+
+    <string name="label_sms_inbox_edit_title">추가하기 전에 수정</string>
+
+    <string name="label_sms_inbox_edit_amount">금액</string>
+
+    <string name="label_sms_inbox_edit_note">메모 (선택)</string>
+
+    <string name="label_sms_inbox_edit_category">카테고리</string>
+
+    <string name="desc_sms_inbox_bell">감지된 거래</string>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">안 읽은 감지 거래 %1$d건</item>
+        <item quantity="other">안 읽은 감지 거래 %1$d건</item>
+    </plurals>
+
+    <string name="action_add">추가</string>
+
+    <string name="action_ignore">무시</string>
+
+    <string name="action_delete">삭제</string>
+
+    <string name="action_clear_all">모두 지우기</string>
+
+    <string name="action_sms_inbox_clear_all_pending">대기 중인 거래 모두 지우기</string>
+
+    <string name="label_sms_inbox_selected_count">%1$d개 선택</string>
+
+    <string name="action_sms_inbox_select_all">모두 선택</string>
+
+    <string name="action_sms_inbox_deselect_all">모두 선택 해제</string>
+
+    <string name="action_sms_inbox_delete_selected">선택 삭제</string>
+
+    <string name="action_cancel">취소</string>
+
+    <string name="msg_sms_inbox_added">감지된 거래 %1$d건을 추가했어</string>
+
+    <string name="msg_sms_inbox_added_some">%1$d건 추가 · 가계부에 이미 %2$d건</string>
+
+    <string name="msg_sms_inbox_already_added">이미 가계부에 있어 — 추가된 건 없어</string>
+
+    <string name="msg_sms_inbox_gone">그 감지는 더 이상 없어</string>
+
+    <string name="msg_sms_inbox_ignored">감지 %1$d건을 무시했어</string>
+
+    <string name="msg_sms_inbox_deleted">삭제했어</string>
+
+    <string name="msg_sms_inbox_swiped_away">감지 %1$d건을 삭제했어</string>
+
+    <string name="msg_sms_inbox_invalid_amount">0보다 큰 금액을 입력해</string>
+
+    <string name="label_this_month_caps">이번 달</string>
+
+    <string name="label_custom_month_caps">맞춤 월</string>
+
+    <string name="label_remaining">남음</string>
+
+    <string name="label_over">초과 지출</string>
+
+    <string name="title_add_budget">예산 추가</string>
+
+    <string name="title_edit_budget">예산 수정</string>
+
+    <string name="msg_no_expense_categories_available">쓸 수 있는 지출 카테고리가 없어</string>
+
+    <string name="label_change_caps">변경</string>
+
+    <string name="label_edits_left_formatted">수정 %1$d회 남음</string>
+
+    <string name="label_locked">잠김</string>
+
+    <string name="content_desc_locked_formatted">%1$s 잠김</string>
+
+    <string name="content_desc_upcoming">예정</string>
+
+    <string name="label_installments_formatted">%2$d 중 %1$d</string>
+
+    <string name="label_edit_recurring_rule">반복 규칙 수정</string>
+
+    <string name="title_edit_recurring">반복 지출 수정</string>
+
+    <string name="label_frequency_capitalized">주기</string>
+
+    <string name="label_total_installments">총 할부</string>
+
+    <string name="label_recurring_type">반복 종류</string>
+
+    <string name="label_type_regular">일반</string>
+
+    <string name="label_type_emi">EMI / 할부</string>
+
+    <string name="label_emi_total_amount">총액</string>
+
+    <string name="label_emi_installment_amount">할부 금액</string>
+
+    <string name="label_emi_first_due">첫 납부일</string>
+
+    <string name="msg_convert_to_regular_info">플랜 조건은 저장돼 — 다시 바꾸면 같은 할부와 납부 기록이 돌아와.</string>
+
+    <string name="label_emi_paid_progress">%2$d 중 %1$d 냄</string>
+
+    <string name="label_emi_remaining_format">남은 %1$s</string>
+
+    <string name="label_all_settled">모두 정산</string>
+
+    <string name="label_emis_overdue">연체 EMI</string>
+
+    <string name="label_overdue_caps">연체</string>
+
+    <string name="action_view_installments">할부 보기</string>
+
+    <string name="title_emis_for_format">할부 — %1$s</string>
+
+    <string name="label_paid_caps">납부</string>
+
+    <string name="label_pending_caps">대기</string>
+
+    <string name="label_skipped_caps">건너뜀</string>
+
+    <string name="action_pay_caps">내기</string>
+
+    <string name="action_skip_caps">건너뛰기</string>
+
+    <string name="action_undo_caps">실행 취소</string>
+
+    <string name="label_pay_selected_format">선택 납부 (%1$d)</string>
+
+    <string name="label_slot_index_format">#%1$d</string>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="other">할부 %1$d건을 냈어</item>
+    </plurals>
+
+    <string name="label_emi_plan_section">EMI / 대출 플랜</string>
+
+    <string name="desc_emi_plan_toggle">이 반복 지출을 고정 할부 대출로 추적해.</string>
+
+    <string name="desc_emi_total_amount">갚는 총액 (원금 + 이자)</string>
+
+    <string name="desc_emi_installment_amount">각 할부 금액</string>
+
+    <string name="msg_emi_amount_mismatch">총액은 할부 금액 × 할부 횟수와 같아야 해</string>
+
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+
+    <string name="msg_emi_create_info">이 거래는 할부 #1이야. 남은 %1$d건은 플랜에서 추적해 — 반복 목록에서 내거나, 건너뛰거나, 정산해.</string>
+
+    <string name="label_save_changes_caps">변경 저장</string>
+
+    <string name="label_cancel_caps">취소</string>
+
+    <string name="label_category_1">카테고리</string>
+
+    <string name="label_time">시간</string>
+
+    <string name="label_save_1">저장</string>
+
+    <string name="label_update_1">업데이트</string>
+
+    <string name="label_delete_1">삭제</string>
+
+    <string name="title_copy_previous_month_budgets">지난달 예산 복사</string>
+
+    <string name="action_copy_all">모두 복사</string>
+
+    <string name="action_copy_selected">선택 복사</string>
+
+    <string name="action_copy">복사</string>
+
+    <string name="action_create_budget">예산 만들기</string>
+
+    <string name="msg_copy_previous_budgets_context">%1$s의 예산을 %2$s로 복사할 걸 골라.</string>
+
+    <string name="empty_copy_previous_month_title">지난달 예산을 못 찾았어.</string>
+
+    <string name="msg_copy_previous_month_empty">지난달에 예산을 안 만들어서 복사할 게 없어.</string>
+
+    <string name="msg_copy_all_budgets_success">지난달 예산을 모두 복사했어.</string>
+
+    <string name="msg_copy_selected_budgets_success">고른 예산을 복사했어.</string>
+
+    <string name="title_copy_budgets_confirmation">예산이 이미 있어</string>
+
+    <string name="msg_copy_budgets_confirmation">%1$s에 이미 예산이 있어. 지난달 예산을 복사하면 중복이 생길 수 있어. 계속할까?</string>
+
+    <string name="label_calendar_year_view">연간 캘린더 보기</string>
+
+    <string name="label_calendar_year_picker">연도 고르기</string>
+
+    <string name="label_calendar_month_picker">월 고르기</string>
+
+    <string name="content_desc_jump_to_date">날짜로 이동</string>
+
+    <string name="content_desc_month_picker_locked">월 선택 잠김</string>
+
+    <string name="content_desc_jump_to_year">연도로 이동</string>
+
+    <string name="content_desc_year_picker_locked">연도 선택 잠김</string>
+
+    <string name="content_desc_previous_month">이전 달</string>
+
+    <string name="content_desc_next_month">다음 달</string>
+
+    <string name="content_desc_previous_year">이전 해</string>
+
+    <string name="content_desc_next_year">다음 해</string>
+
+    <string name="title_choose_month_year">월 &amp; 연도 고르기</string>
+
+    <string name="title_show_category">카테고리 보기</string>
+
+    <string name="desc_display_category_label">카드에 카테고리 라벨 표시</string>
+
+    <string name="desc_display_wallet_or_card">사용한 지갑이나 카드 표시</string>
+
+    <string name="desc_group_transactions_by_day">고정 날짜 헤더 아래 거래를 묶어 (예: "오늘", "어제").</string>
+
+    <string name="title_transaction_card_settings">맞춤 설정</string>
+
+    <string name="label_on_each_transaction_card">각 거래 카드에</string>
+
+    <string name="desc_on_each_transaction_card">이 설정은 목록의 모든 거래 카드에 뭐가 보일지 정해.</string>
+
+    <string name="label_in_the_list">목록에서</string>
+
+    <string name="desc_in_the_list">이 설정은 그 카드들 주변에서 거래 목록이 어떻게 묶이고 요약될지 정해.</string>
+
+    <string name="label_visual_style">비주얼 스타일</string>
+
+    <string name="desc_visual_style">이 설정은 카드의 비주얼을 정하는 메인 아이콘과 색 라벨을 제어해.</string>
+
+    <string name="label_transaction_details">거래 상세</string>
+
+    <string name="desc_transaction_details">이 설정은 카드에 보이는 구체적인 데이터를 제어해.</string>
+
+    <string name="label_time_and_organization">시간 &amp; 정리</string>
+
+    <string name="desc_time_and_organization">이 설정은 시간이 어떻게 보이고 목록에서 거래가 어떻게 묶일지 정해.</string>
+
+    <string name="label_preview">미리보기</string>
+
+    <string name="placeholder_select_gender">성별 고르기</string>
+
+    <string name="msg_unable_to_load_photo">그 이미지를 불러올 수 없어. 다른 사진을 해봐.</string>
+
+    <string name="title_edit_profile">프로필 수정</string>
+
+    <string name="label_full_name_caps">이름</string>
+
+    <string name="placeholder_guest_user">게스트 사용자</string>
+
+    <string name="label_email_address_caps">이메일 주소</string>
+
+    <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <string name="label_phone_number_caps">전화번호</string>
+
+    <string name="placeholder_phone_example">1112223334...</string>
+
+    <string name="label_date_of_birth_caps">생년월일</string>
+
+    <string name="label_gender_caps">성별</string>
+
+    <string name="content_desc_open_gender_options">성별 옵션 열기</string>
+
+    <string name="desc_choose_gender_label">프로필에 맞는 성별 라벨을 골라.</string>
+
+    <string name="content_desc_add_photo">사진 추가</string>
+
+    <string name="content_desc_edit_photo">사진 수정</string>
+
+    <string name="content_desc_delete_photo">사진 삭제</string>
+
+    <string name="title_select_country">나라 고르기</string>
+
+    <string name="placeholder_search_country">나라 검색…</string>
+
+    <string name="desc_daily_reminder">매일 거래를 기록하라고 알려줄게.</string>
+
+    <string name="title_budget_limit_alerts">예산 한도 알림</string>
+
+    <string name="desc_budget_limit_alerts">월 예산을 넘으면 알려줄게.</string>
+
+    <string name="desc_missed_entry_reminder">2일 동안 거래를 안 넣으면 알려줄게.</string>
+
+    <string name="title_goal_reminders">목표 리마인더</string>
+
+    <string name="desc_goal_reminders">저축 목표에 주간으로 살짝 밀어줄게.</string>
+
+    <string name="msg_preparing_dashboard">대시보드 준비 중</string>
+
+    <string name="msg_syncing_transactions">거래 동기화 중</string>
+
+    <string name="msg_securing_data">데이터 보호 중</string>
+
+    <string name="msg_initializing">초기화 중</string>
+
+    <string name="label_splash_tagline">모든 거래에 우아함을</string>
+
+    <string name="label_splash_footer">정성과 사랑으로 만들었어</string>
+
+    <string name="label_budget_and_spend">Budget &amp; Spend</string>
+
+    <string name="msg_starting_security_services">보안 서비스 시작 중</string>
+
+    <string name="msg_loading_preferences">설정 불러오는 중</string>
+
+    <string name="msg_preparing_database">데이터베이스 준비 중</string>
+
+    <string name="msg_initializing_database">데이터베이스 초기화 중</string>
+
+    <string name="msg_warming_up_engine">엔진 워밍업 중</string>
+
+    <string name="msg_getting_things_ready">준비하는 중이야</string>
+
+    <string name="label_done">완료</string>
+
+    <string name="desc_select_period">기간 고르기</string>
+
+    <string name="label_all">전체</string>
+
+    <string name="label_daily">매일</string>
+
+    <string name="label_monthly">매월</string>
+
+    <string name="label_yearly">매년</string>
+
+    <string name="label_no_results_found">결과가 없어.</string>
+
+    <string name="label_select_a_backup_file">데이터를 복원할 백업 파일을 골라. 지금 데이터를 덮어써.</string>
+
+    <string name="label_select_file_manually">파일을 직접 고르기...</string>
+
+    <string name="label_encrypted">암호화됨</string>
+
+    <string name="toast_backup_restore_key_mismatch">이 백업은 다른 기기에서 만들어져서 여기선 복원할 수 없어.</string>
+
+    <string name="label_advanced_analytics_trends">고급 분석으로 재정 삶을 한눈에</string>
+
+    <string name="label_automatic_cloud_backups">클라우드 동기화로 단단한 데이터 보안</string>
+
+    <string name="label_unlimited_recurring_rules">반복 규칙으로 자유를 자동화</string>
+
+    <string name="label_privacy_mode_biometric_lock">자산은 생체 잠금이 지켜</string>
+
+    <string name="label_last_7_days">최근 7일</string>
+
+    <string name="label_last_15_days">최근 15일</string>
+
+    <string name="label_last_30_days">최근 30일</string>
+
+    <string name="label_last_60_days">최근 60일</string>
+
+    <string name="label_expense_categories">지출 카테고리</string>
+
+    <string name="label_income_categories">수입 카테고리</string>
+
+    <string name="label_no_categories_available">고른 종류의 카테고리가 없어.</string>
+
+    <string name="label_min">최소</string>
+
+    <string name="label_max">최대</string>
+
+    <string name="desc_newest_order">가장 최근 거래가 위에 있어.</string>
+
+    <string name="desc_oldest_order">더 이른 거래가 먼저 나와.</string>
+
+    <string name="desc_highest_order">큰 금액이 목록에서 먼저 와.</string>
+
+    <string name="desc_lowest_order">작은 금액이 큰 것보다 먼저 나와.</string>
+
+    <string name="desc_income_first_order">수입이 지출보다 먼저 묶여.</string>
+
+    <string name="desc_expense_first_order">지출이 수입보다 먼저 보여.</string>
+
+    <string name="label_search_dots">검색…</string>
+
+    <string name="label_action">동작</string>
+
+    <string name="label_watch_ad">광고 보기</string>
+
+    <string name="label_premium">Pro</string>
+
+    <string name="label_open">열기</string>
+
+    <string name="title_restore_database">데이터베이스 복원</string>
+
+    <string name="label_restore">복원</string>
+
+    <string name="label_premium_features">Pro 기능</string>
+
+    <string name="label_sort_by">정렬 기준</string>
+
+    <string name="title_date_range">날짜 범위</string>
+
+    <string name="label_custom_range">맞춤 범위</string>
+
+    <string name="label_order">순서</string>
+
+    <string name="label_filters">필터</string>
+
+    <string name="desc_order_subtitle">고른 정렬 안에서 순위를 미세 조정해.</string>
+
+    <string name="desc_filters_subtitle">필터를 겹쳐서 거래 목록을 좁혀.</string>
+
+    <string name="desc_sort_subtitle">목록을 정렬할 기준을 골라.</string>
+
+    <string name="title_transaction_type_caps">거래 종류</string>
+
+    <string name="label_newest_first">최신순</string>
+
+    <string name="label_oldest_first">오래된순</string>
+
+    <string name="label_highest_first">높은순</string>
+
+    <string name="label_lowest_first">낮은순</string>
+
+    <string name="label_income_first">수입 먼저</string>
+
+    <string name="label_expense_first">지출 먼저</string>
+
+    <string name="label_payment_mode">결제 방식</string>
+
+    <string name="label_amount_range">금액 범위</string>
+
+    <string name="label_categories">카테고리</string>
+
+    <string name="desc_no_categories">고른 종류의 카테고리가 없어.</string>
+
+    <string name="label_sort_filter_subtitle">거래가 어떻게 묶이고 보일지 정해.</string>
+
+    <string name="label_search_placeholder">메모나 금액…</string>
+
+    <string name="label_search_by_category_wallet">카테고리, 지갑, 태그로 검색</string>
+
+    <string name="msg_delete_transactions_confirm">거래 %1$d건을 삭제할까? 되돌릴 수 없어.</string>
+
+    <string name="msg_delete_category_confirm">"%1$s"을(를) 삭제할까? 기존 거래가 아직 쓸 수 있어. 되돌릴 수 없어.</string>
+
+    <string name="label_delete_confirm">삭제</string>
+
+    <string name="label_cancel_confirm">취소</string>
+
+    <string name="label_duplicate">복제</string>
+
+    <string name="label_undo">실행 취소</string>
+
+    <string name="msg_transaction_deleted">거래를 삭제했어</string>
+
+    <string name="msg_transaction_duplicated">거래를 복제했어</string>
+
+    <string name="toast_transaction_deleted">거래를 삭제했어</string>
+
+    <string name="title_cannot_duplicate_recurring">중복 규칙을 찾았어</string>
+
+    <string name="msg_duplicate_recurring_rule">%1$s의 %2$s/%3$s에 반복 규칙이 이미 있어. 하나 더 만들까?</string>
+
+    <string name="msg_cannot_duplicate_recurring">이 거래는 반복(본체거나 자동 생성)이라 복제할 수 없어.</string>
+
+    <string name="label_week">주</string>
+
+    <string name="label_month_period">월</string>
+
+    <string name="label_year_period">년</string>
+
+    <string name="label_custom">맞춤</string>
+
+    <string name="label_this_week">이번 주</string>
+
+    <string name="label_this_month">이번 달</string>
+
+    <string name="label_wallet">지갑</string>
+
+    <string name="label_general">일반</string>
+
+    <string name="label_spending">지출</string>
+
+    <string name="msg_unlock_insights_hint">다른 범위를 고르거나 거래를 더 넣어서 맞춤 지출 인사이트를 열어.</string>
+
+    <string name="label_up">상승</string>
+
+    <string name="label_down">하락</string>
+
+    <string name="msg_spending_trend">이 기간 지출 트렌드는 %1$s %2$s야. %3$s을(를) 보면 다음 주기에 약 %4$s 아낄 수 있어.</string>
+
+    <string name="msg_choose_range_dates">시작일과 종료일을 골라</string>
+
+    <string name="btn_cancel">취소</string>
+
+    <string name="title_select_date">날짜 고르기</string>
+
+    <string name="title_select_time">시간 고르기</string>
+
+    <string name="title_select_date_time">날짜와 시간 고르기</string>
+
+    <string name="title_select_month">월 고르기</string>
+
+    <string name="title_select_year">연도 고르기</string>
+
+    <string name="title_select_date_range">날짜 범위 고르기</string>
+
+    <string name="btn_apply_range">범위 적용</string>
+
+    <string name="btn_confirm">확인</string>
+
+    <string name="label_from">시작</string>
+
+    <string name="label_to">종료</string>
+
+    <string name="error_invalid_date_month">고른 달의 날짜가 유효하지 않아.</string>
+
+    <string name="format_date_short">M월 d일</string>
+
+    <string name="label_total_spending">총 지출</string>
+
+    <string name="label_net_savings">순저축</string>
+
+    <string name="label_prev_closing_balance">이전 마감 잔액</string>
+
+    <string name="title_monthly_summary">월간 요약</string>
+
+    <string name="label_spending_by_payment_mode_breakdown">지갑이나 결제 수단별 지출 내역.</string>
+
+    <string-array name="days_of_week_short">
+        <item>월</item>
+        <item>화</item>
+        <item>수</item>
+        <item>목</item>
+        <item>금</item>
+        <item>토</item>
+        <item>일</item>
+    </string-array>
+
+    <string-array name="months_short">
+        <item>1월</item>
+        <item>2월</item>
+        <item>3월</item>
+        <item>4월</item>
+        <item>5월</item>
+        <item>6월</item>
+        <item>7월</item>
+        <item>8월</item>
+        <item>9월</item>
+        <item>10월</item>
+        <item>11월</item>
+        <item>12월</item>
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+        <item>오늘 지갑이 너무 조용해.</item>
+        <item>404: 거래를 못 찾았어.</item>
+        <item>아무것도 없어! 커피라도?</item>
+        <item>아직 안 보여.</item>
+        <item>비어 있는 것 같아…</item>
+        <item>보여줄 거래가 없어.</item>
+        <item>기록이 아직 없어</item>
+        <item>뭔가 빼먹은 거 아니야?</item>
+        <item>빈 페이지. 평화로운 삶.</item>
+        <item>거래가 읽씹했어.</item>
+        <item>가계 활동: 0%</item>
+        <item>이 범위에 데이터가 없어.</item>
+        <item>데이터베이스가 말했어: null.</item>
+        <item>지갑이 비행기 모드야.</item>
+        <item>침묵… 돈도 명상 중.</item>
+        <item>안 쓰면 스트레스 없음. 재밌는 전략.</item>
+        <item>장부가 낮잠 중.</item>
+        <item>움직임 없음. 원도.</item>
+        <item>지출이 휴가 중.</item>
+        <item>활동 제로. 선, 달성.</item>
+        <item>이 페이지가 방보다 깨끗해.</item>
+        <item>거래 없음. 수상할 만큼 성실해.</item>
+        <item>계좌가 숨바꼭질 중.</item>
+        <item>입력 없음. 시간이 멈췄어?</item>
+        <item>가계 전선, 이상 없음.</item>
+        <item>지출 감지 없음. 대단해.</item>
+        <item>지갑이 파업 중.</item>
+        <item>보고 없음, 캡틴.</item>
+        <item>오늘 돈은 충실했어.</item>
+        <item>혼돈 없음, 지출 없음. 희귀해.</item>
+        <item>지갑도 당황 중.</item>
+        <item>이 공간은 의도적으로 비어 있어.</item>
+        <item>오늘은 가계 드라마 없음.</item>
+        <item>잔액이 칠링 중.</item>
+        <item>움직임 없음. 가계적으로 살아 있어?</item>
+        <item>지갑이 스텔스 모드.</item>
+        <item>거래 없음. 너무 잘했어.</item>
+        <item>아무 일도 없어. 가자.</item>
+    </string-array>
+
+    <string name="desc_income_source">수입원</string>
+
+    <string name="desc_expense_category">지출 카테고리</string>
+
+    <string name="desc_payment_method_fallback">결제 수단</string>
+
+    <string name="error_invalid_email">유효한 이메일을 입력해</string>
+
+    <string name="title_payment">결제</string>
+
+    <string name="icon_label_shopping_cart">쇼핑</string>
+
+    <string name="icon_label_calculator">EMI</string>
+
+    <string name="icon_label_security">보험</string>
+
+    <string name="icon_label_package">배송</string>
+
+    <string name="icon_label_fuel">연료</string>
+
+    <string name="icon_label_file_text">서류</string>
+
+    <string name="icon_label_hand_coins">기부</string>
+
+    <string name="icon_label_banknote">현금</string>
+
+    <string name="icon_label_more_horizontal">기타</string>
+
+    <string name="icon_label_restaurant">외식</string>
+
+    <string name="icon_label_home">집세와 집</string>
+
+    <string name="icon_label_directions_bus">교통</string>
+
+    <string name="icon_label_directions_car">차</string>
+
+    <string name="icon_label_flight">여행</string>
+
+    <string name="icon_label_local_cafe">카페와 간식</string>
+
+    <string name="icon_label_pets">반려동물</string>
+
+    <string name="icon_label_school">교육</string>
+
+    <string name="icon_label_fitness_center">피트니스</string>
+
+    <string name="icon_label_spa">개인 관리</string>
+
+    <string name="icon_label_movie">엔터테인먼트</string>
+
+    <string name="icon_label_music_note">음악</string>
+
+    <string name="icon_label_sports_esports">게임</string>
+
+    <string name="icon_label_favorite">건강</string>
+
+    <string name="icon_label_work">급여</string>
+
+    <string name="icon_label_business">비즈니스</string>
+
+    <string name="icon_label_laptop_mac">가젯</string>
+
+    <string name="icon_label_phone_android">폰과 청구</string>
+
+    <string name="icon_label_camera_alt">사진</string>
+
+    <string name="icon_label_celebration">파티</string>
+
+    <string name="icon_label_card_giftcard">선물</string>
+
+    <string name="icon_label_child_care">육아</string>
+
+    <string name="icon_label_volunteer_activism">자선</string>
+
+    <string name="icon_label_local_hospital">병원</string>
+
+    <string name="icon_label_medication">약</string>
+
+    <string name="icon_label_two_wheeler">바이크</string>
+
+    <string name="icon_label_train">기차</string>
+
+    <string name="icon_label_hotel">숙박</string>
+
+    <string name="icon_label_beach_access">휴가</string>
+
+    <string name="icon_label_park">자연</string>
+
+    <string name="icon_label_hiking">하이킹</string>
+
+    <string name="icon_label_sports_soccer">스포츠</string>
+
+    <string name="icon_label_sports_basketball">농구</string>
+
+    <string name="icon_label_pool">수영</string>
+
+    <string name="icon_label_directions_boat">보트</string>
+
+    <string name="icon_label_build">유지보수</string>
+
+    <string name="icon_label_subscriptions">스트리밍</string>
+
+    <string name="icon_label_receipt_long">청구</string>
+
+    <string name="icon_label_account_balance">은행</string>
+
+    <string name="icon_label_credit_card">카드</string>
+
+    <string name="icon_label_payments">현금</string>
+
+    <string name="icon_label_qr_code">QR 스캔</string>
+
+    <string name="icon_label_savings">저축</string>
+
+    <string name="icon_label_attach_money">금융</string>
+
+    <string name="icon_label_wallet">지갑</string>
+
+    <string name="icon_label_currency_exchange">환전</string>
+
+    <string name="icon_label_storefront">가게</string>
+
+    <string name="icon_label_fastfood">패스트푸드</string>
+
+    <string name="icon_label_cake">케이크</string>
+
+    <string name="icon_label_water_drop">수도</string>
+
+    <string name="icon_label_electric_bolt">전기</string>
+
+    <string name="icon_label_gas_meter">가스</string>
+
+    <string name="icon_label_wifi">인터넷</string>
+
+    <string name="icon_label_tv">TV</string>
+
+    <string name="icon_label_local_shipping">배달</string>
+
+    <string name="icon_label_cleaning_services">청소</string>
+
+    <string name="icon_label_pest_control">해충</string>
+
+    <string name="icon_label_yard">정원</string>
+
+    <string name="icon_label_plumbing">배관</string>
+
+    <string name="icon_label_hvac">에어컨/난방</string>
+
+    <string name="icon_label_garage">주차</string>
+
+    <string name="icon_label_local_laundry_service">세탁</string>
+
+    <string name="icon_label_checkroom">옷</string>
+
+    <string name="icon_label_ice_skating">아이스스케이트</string>
+
+    <string name="icon_label_skiing">스키</string>
+
+    <string name="icon_label_sports_tennis">테니스</string>
+
+    <string name="icon_label_sports_golf">골프</string>
+
+    <string name="icon_label_kayaking">카약</string>
+
+    <string name="icon_label_surfing">서핑</string>
+
+    <string name="icon_label_directions_run">러닝</string>
+
+    <string name="icon_label_pedal_bike">자전거</string>
+
+    <string name="icon_label_sailing">세일링</string>
+
+    <string name="icon_label_theater_comedy">극장</string>
+
+    <string name="icon_label_casino">카지노</string>
+
+    <string name="icon_label_toys">장난감</string>
+
+    <string name="icon_label_piano">피아노</string>
+
+    <string name="icon_label_brush">아트</string>
+
+    <string name="icon_label_palette">팔레트</string>
+
+    <string name="icon_label_auto_stories">책</string>
+
+    <string name="icon_label_menu_book">공부</string>
+
+    <string name="icon_label_computer">컴퓨터</string>
+
+    <string name="icon_label_memory">테크</string>
+
+    <string name="icon_label_mouse">주변기기</string>
+
+    <string name="icon_label_keyboard">키보드</string>
+
+    <string name="icon_label_headset">오디오</string>
+
+    <string name="icon_label_speaker">스피커</string>
+
+    <string name="icon_label_router">네트워크</string>
+
+    <string name="icon_label_monitor">모니터</string>
+
+    <string name="icon_label_print">인쇄</string>
+
+    <string name="icon_label_smart_home">스마트홈</string>
+
+    <string name="icon_label_videocam">영상</string>
+
+    <string name="icon_label_mic">녹음</string>
+
+    <string name="icon_label_radio">라디오</string>
+
+    <string name="icon_label_satellite">위성</string>
+
+    <string name="icon_label_explore">탐험</string>
+
+    <string name="icon_label_terrain">산</string>
+
+    <string name="icon_label_landscape">풍경</string>
+
+    <string name="icon_label_forest">숲</string>
+
+    <string name="fallback_desc_cat_1">식사와 외식</string>
+
+    <string name="fallback_desc_cat_2">연료와 출퇴근</string>
+
+    <string name="fallback_desc_cat_3">소매와 필수품</string>
+
+    <string name="fallback_desc_cat_4">매달 반복</string>
+
+    <string name="fallback_desc_cat_5">웰니스와 케어</string>
+
+    <string name="fallback_desc_cat_6">스트리밍과 여가</string>
+
+    <string name="fallback_desc_cat_7">집과 체류</string>
+
+    <string name="fallback_desc_cat_8">매일 필수품</string>
+
+    <string name="fallback_desc_cat_9">강의와 책</string>
+
+    <string name="fallback_desc_cat_10">청구와 갱신</string>
+
+    <string name="fallback_desc_cat_11">보장과 안전</string>
+
+    <string name="fallback_desc_cat_12">축하와 선물</string>
+
+    <string name="fallback_desc_cat_13">셀프케어</string>
+
+    <string name="fallback_desc_cat_14">연료와 출퇴근</string>
+
+    <string name="fallback_desc_cat_15">수리와 유지</string>
+
+    <string name="fallback_desc_cat_16">필수 납부</string>
+
+    <string name="fallback_desc_cat_17">반려동물 케어</string>
+
+    <string name="fallback_desc_cat_18">아이와 학교</string>
+
+    <string name="fallback_desc_cat_19">자선과 선물</string>
+
+    <string name="fallback_desc_cat_20">유연한 지출</string>
+
+    <string name="fallback_desc_cat_101">급여와 페이롤</string>
+
+    <string name="fallback_desc_cat_102">사업 수익</string>
+
+    <string name="fallback_desc_cat_103">수익과 이익</string>
+
+    <string name="fallback_desc_cat_104">프로젝트와 긱</string>
+
+    <string name="fallback_desc_cat_105">기타 입금</string>
+
+    <string name="fallback_desc_pay_1">UPI 이체와 스캔</string>
+
+    <string name="fallback_desc_pay_2">현금</string>
+
+    <string name="fallback_desc_pay_3">계좌이체</string>
+
+    <string name="fallback_desc_pay_4">체크/신용카드</string>
+
+    <string name="fallback_desc_pay_5">유연한 결제</string>
+
+    <string name="label_income_categories_count">수입 카테고리 %1$d</string>
+
+    <string name="label_expense_categories_count">지출 카테고리 %1$d</string>
+
+    <string name="label_payment_methods_count">결제 수단 %1$d</string>
+
+    <string name="label_no_budget">예산 없음</string>
+
+    <string name="label_add_a_budget">예산 추가</string>
+
+    <string name="label_near_limit">한도 임박</string>
+
+    <string name="label_safe">안전</string>
+
+    <string name="label_spent_limit">사용 / 한도</string>
+
+    <string name="label_exceeded">초과</string>
+
+    <string name="label_budget_status_label">초과 지출</string>
+
+    <string name="msg_no_budgets_locked">%1$s 예산이 설정되지 않았어. 기록은 잠겨 있어.</string>
+
+    <string name="msg_no_budgets_limit_reached">%1$s에는 예산을 더 못 넣어 (수정 한도).</string>
+
+    <string name="msg_no_budgets_start_tracking">%1$s 예산이 아직 없어. 새 예산 추가를 탭해서 이번 달을 추적해.</string>
+
+    <string name="msg_no_recurring_start_tracking">반복 지출이 아직 없어. 반복 추가를 탭하고 기존 지출 거래를 골라.</string>
+
+    <string name="format_limit_amount">한도 %1$s</string>
+
+    <string name="format_started_date">%1$s 시작</string>
+
+    <string name="label_due_today">오늘 마감</string>
+
+    <string name="label_due_tomorrow">내일 마감</string>
+
+    <string name="format_due_in_days">%1$d일 후 마감</string>
+
+    <string name="format_percent_used">%1$d%% 사용</string>
+
+    <string name="format_remaining_pill">남은 %1$s (%2$d%%)</string>
+
+    <string name="format_next_due">다음 %1$s</string>
+
+    <string name="format_daily_allowance">하루 %1$s까지 쓸 수 있어</string>
+
+    <string name="label_expense_with_val">지출 %1$s</string>
+
+    <string name="label_income_with_val">수입 %1$s</string>
+
+    <string name="msg_no_calendar_entries">%1$s 기록이 없어.</string>
+
+    <string name="month_jan_short">1월</string>
+
+    <string name="month_feb_short">2월</string>
+
+    <string name="month_mar_short">3월</string>
+
+    <string name="month_apr_short">4월</string>
+
+    <string name="month_may_short">5월</string>
+
+    <string name="month_jun_short">6월</string>
+
+    <string name="month_jul_short">7월</string>
+
+    <string name="month_aug_short">8월</string>
+
+    <string name="month_sep_short">9월</string>
+
+    <string name="month_oct_short">10월</string>
+
+    <string name="month_nov_short">11월</string>
+
+    <string name="month_dec_short">12월</string>
+
+    <string name="label_week_short_1">W1</string>
+
+    <string name="label_week_short_2">W2</string>
+
+    <string name="label_week_short_3">W3</string>
+
+    <string name="label_week_short_4">W4</string>
+
+    <string name="label_week_short_5">W5</string>
+
+    <string name="label_period_short">P%1$d</string>
+
+    <string name="format_percent">(%1$s%%)</string>
+
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+
+    <string name="format_cash_flow_ratio">%1$s 비율</string>
+
+    <string name="label_zero_percent">+0%</string>
+
+    <string name="label_plus">+</string>
+
+    <string name="label_minus">-</string>
+
+    <string name="date_pattern_month_year">yyyy년 M월</string>
+
+    <string name="date_pattern_year">yyyy년</string>
+
+    <string name="date_pattern_short_day_month">M월 d일</string>
+
+    <string name="date_pattern_full_short">yyyy년 M월 d일</string>
+
+    <string name="label_12_hour">12시간</string>
+
+    <string name="label_24_hour">24시간</string>
+
+    <string name="label_all_records">모든 기록</string>
+
+    <string name="label_custom_payment_method">맞춤 결제 수단</string>
+
+    <string name="notification_format_budget_approaching">%1$s! %3$s 예산의 %2$s를 썼어. 남은 %4$s.</string>
+
+    <string name="notification_format_budget_reached">예산 알림: %2$s의 %1$s 한도에 도달했어.</string>
+
+    <string name="notification_format_budget_overspent">알림: %2$s 예산을 %1$s 초과. %3$s</string>
+
+    <string name="notification_budget_approaching_1">속도 줄일까? 🛑</string>
+
+    <string name="notification_budget_approaching_2">미래의 네가 지금 멈춰줘서 고마워할 거야. 😇</string>
+
+    <string name="notification_budget_approaching_3">지갑이 가벼워지고 있어. 💸</string>
+
+    <string name="notification_budget_overspent_1">예산은 백미러 안에 있어. 🏎️</string>
+
+    <string name="notification_budget_overspent_2">미지의 영역이야. 🗺️</string>
+
+    <string name="notification_budget_overspent_3">한도는 그냥 제안이었지, 맞지? 🙃</string>
+
+    <string name="notification_channel_reminders">매일 리마인더</string>
+
+    <string name="notification_channel_reminders_desc">지출을 기록하는 주기적 리마인더.</string>
+
+    <string name="notification_channel_budget">예산 알림</string>
+
+    <string name="notification_channel_budget_desc">월 예산에 가까워지거나 도달할 때 경고.</string>
+
+    <string name="notification_channel_budget_exceeded">예산 초과</string>
+
+    <string name="notification_channel_budget_exceeded_desc">월 예산을 넘었을 때 알림.</string>
+
+    <string name="notification_channel_cloud_security">클라우드와 보안</string>
+
+    <string name="notification_channel_cloud_security_desc">계정과 클라우드 동기화 보안 알림.</string>
+
+    <string name="notification_channel_sync_status">동기화 상태</string>
+
+    <string name="notification_channel_sync_status_desc">뒤에서 데이터가 동기화될 때 조용한 업데이트.</string>
+
+    <string name="notification_channel_financial_insights">재정 인사이트</string>
+
+    <string name="notification_channel_financial_insights_desc">지출에 대한 개인 인사이트와 전망.</string>
+
+    <string name="notification_channel_recurring">반복 거래</string>
+
+    <string name="notification_channel_recurring_desc">반복 거래가 자동 추가될 때 알림.</string>
+
+    <string name="notification_title_budget_alert">예산 알림!</string>
+
+    <string name="notification_title_daily_reminder">지출 기록할 시간?</string>
+
+    <string name="notification_title_recurring_updated">반복 거래를 업데이트했어</string>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">반복 거래 %1$d건을 추가했어:\n%2$s</item>
+        <item quantity="other">반복 거래 %1$d건을 추가했어:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">예산 임박 또는 초과 카테고리 %1$d</item>
+        <item quantity="other">예산 임박 또는 초과 카테고리 %1$d</item>
+    </plurals>
+
+    <string name="title_reminder_times">리마인더 시간</string>
+
+    <string name="title_morning_window">아침 창</string>
+
+    <string name="title_evening_window">저녁 창</string>
+
+    <string name="notification_window_format">%1$s – %2$s</string>
+
+    <string name="title_select_reminder_window">창 설정</string>
+
+    <string name="label_starts_at">시작</string>
+
+    <string name="label_ends_at">종료</string>
+
+    <string name="title_test_notification">테스트 알림</string>
+
+    <string name="desc_test_notification">지금 샘플 리마인더 보내기</string>
+
+    <string name="btn_send_test_notification">테스트 보내기</string>
+
+    <string name="error_reminder_window_invalid">시작은 종료보다 앞이어야 해</string>
+
+    <string name="notification_title_daily_reminder_personalized">지출 기록할 시간, %1$s?</string>
+
+    <string name="notification_title_missed_today">오늘 잊었어?</string>
+
+    <string name="notification_channel_goal_reminders">저축 목표 리마인더</string>
+
+    <string name="notification_channel_goal_reminders_desc">저축 목표에 대한 주간 넛지.</string>
+
+    <string name="notification_permission_banner_title">알림이 차단돼 있어</string>
+
+    <string name="notification_permission_banner_desc">리마인더와 알림을 위해 알림을 허용해.</string>
+
+    <string name="btn_allow_notifications">허용</string>
+
+    <string name="btn_open_notification_settings">설정 열기</string>
+
+    <string name="notification_channel_sms_import">스마트 SMS 가져오기</string>
+
+    <string name="notification_channel_sms_import_desc">감지한 은행 거래 SMS를 저장할 수 있어.</string>
+
+    <string name="notification_channel_weekly_reports">주간 리포트</string>
+
+    <string name="notification_channel_weekly_reports_desc">일요일 주간 지출 요약.</string>
+
+    <string name="notification_title_large_transaction">큰 거래 감지</string>
+
+    <string name="notification_format_large_transaction">%2$s에서 %1$s 지출을 기록했어 — 큰 지출 임계값 %3$s를 넘었어.</string>
+
+    <string name="notification_title_weekly_summary">주간 지출 요약</string>
+
+    <string name="notification_format_weekly_summary_up">이번 주 %1$s 썼어 — 지난주보다 %2$d%% 많아.</string>
+
+    <string name="notification_format_weekly_summary_down">이번 주 %1$s 썼어 — 지난주보다 %2$d%% 적어.</string>
+
+    <string name="notification_format_weekly_summary_flat">이번 주 %1$s 썼어 — 지난주와 거의 같아.</string>
+
+    <string name="notification_format_weekly_summary_top_category">톱 카테고리: %1$s.</string>
+
+    <string name="notification_title_auto_backup_failed">자동 백업 실패</string>
+
+    <string name="notification_desc_auto_backup_failed">자동 로컬 DB 백업을 못 만들었어. 탭해서 앱 저장소를 확인해.</string>
+
+    <string name="notification_title_syncing_in_progress">클라우드 데이터 동기화 중…</string>
+
+    <string name="notification_desc_syncing_in_progress">거래와 프로필을 기기 간에 업데이트 중.</string>
+
+    <string name="notification_title_sync_failed">클라우드 동기화 실패</string>
+
+    <string name="notification_desc_sync_failed">클라우드 동기화를 끝내지 못했어. 자동으로 다시 시도해.</string>
+
+    <string name="notification_title_sync_pending">클라우드 동기화 대기</string>
+
+    <string name="notification_desc_sync_pending">변경은 동기화 대기 중. 네트워크에 연결해서 끝내.</string>
+
+    <string name="title_expense_reminders">지출 리마인더</string>
+
+    <string name="desc_expense_reminders">지출을 기록하는 매일 리마인더.</string>
+
+    <string name="title_large_transaction_alerts">큰 거래 알림</string>
+
+    <string name="desc_large_transaction_alerts">한 건 지출이 임계값을 넘으면 알림.</string>
+
+    <string name="title_large_transaction_threshold">큰 지출 임계값</string>
+
+    <string name="desc_large_transaction_threshold">한 건 지출을 크다고 볼 시점.</string>
+
+    <string name="placeholder_custom_threshold">금액 입력</string>
+
+    <string name="error_invalid_threshold">0보다 큰 유효한 금액을 넣어.</string>
+
+    <string name="title_weekly_summary">주간 요약</string>
+
+    <string name="desc_weekly_summary">일요일 주간 지출 돌아보기.</string>
+
+    <string name="title_weekly_summary_time">요약 시각</string>
+
+    <string name="desc_weekly_summary_time">매주 일요일 이 시각에 와.</string>
+
+    <string name="notification_weekly_time_format">매주 일요일 %1$s</string>
+
+    <string name="title_financial_insights">재정 인사이트</string>
+
+    <string name="desc_financial_insights">스마트 지출 트렌드와 전망.</string>
+
+    <string name="title_recurring_alerts">반복 알림</string>
+
+    <string name="desc_recurring_alerts">반복 청구와 결제 리마인더.</string>
+
+    <string name="desc_recurring_rule_ladder">규칙 1–3 무료 · 4–6은 광고 · 7+는 Pro로 업그레이드</string>
+
+    <string name="desc_recurring_rules_used_free">무료 규칙 %1$d / %2$d 사용</string>
+
+    <string name="desc_recurring_rules_used_ad">광고 규칙 %1$d / %2$d 사용</string>
+
+    <string name="desc_recurring_rules_used_premium">규칙 %1$d · 무제한은 Pro로 업그레이드</string>
+
+    <string name="title_cloud_security_alerts">클라우드와 보안 알림</string>
+
+    <string name="desc_cloud_security_alerts">동기화, 백업, 계정 보안 알림.</string>
+
+    <string name="desc_info">정보</string>
+
+    <string name="info_expense_reminders">매일 지출 기록 리마인더와, 그날 아직 아무것도 안 넣었을 때 넛지. 아래에서 창을 고를 수 있어.</string>
+
+    <string name="info_budget_alerts" formatted="false">카테고리가 예산에 가까워지면 경고: 75%, 90%, 100%, 초과 시.</string>
+
+    <string name="info_large_transaction">고른 임계값보다 큰 한 건 지출을 기록한 순간 알림.</string>
+
+    <string name="info_weekly_summary">일요일에 지난 7일 지출을 지난주와 비교하는 돌아보기.</string>
+
+    <string name="info_financial_insights">곧 올 스마트 인사이트: 트렌드, 스파이크, 전망, 개인 제안.</string>
+
+    <string name="info_savings_goals" formatted="false">저축 목표 25%, 50%, 75% 진행, 달성 축하, 지연 경고.</string>
+
+    <string name="info_recurring_alerts">반복 청구를 7일, 3일, 1일 전 그리고 당일에 리마인드. 규칙마다 음소거할 수 있어.</string>
+
+    <string name="info_cloud_security">클라우드 동기화나 백업 실패, 새 기기 접근이나 변경 알림.</string>
+
+    <string name="notification_title_sms_import">💳 거래 감지</string>
+
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+
+    <string name="notification_format_sms_import_suggested">추천: %1$s</string>
+
+    <string name="notification_format_sms_import_title_spent">%2$s에서 %1$s 씀</string>
+
+    <string name="notification_format_sms_import_title_received">%2$s에서 %1$s 받음</string>
+
+    <string name="notification_action_add">추가</string>
+
+    <string name="notification_action_ignore">무시</string>
+
+    <string name="notification_action_edit">수정</string>
+
+    <string name="notification_format_sms_import_summary">거래 %1$d건 · %2$s</string>
+
+    <string name="notification_action_save">저장</string>
+
+    <string name="notification_action_change">변경</string>
+
+    <string name="notification_action_open">열기</string>
+
+    <string name="sms_verb_debited">출금</string>
+
+    <string name="sms_verb_credited">입금</string>
+
+    <string name="sms_sender_unknown">알 수 없는 발신자</string>
+
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+
+    <string name="title_sms_change">거래 변경</string>
+
+    <string name="label_choose_category">카테고리 고르기</string>
+
+    <string name="label_optional_note">선택 메모</string>
+
+    <string name="toast_sms_transaction_saved">거래를 저장했어</string>
+
+    <string name="msg_sms_save_failed">거래를 저장하지 못했어. 다시 해봐.</string>
+
+    <string name="title_sms_detection">SMS 감지</string>
+
+    <string name="msg_sms_permission_needed">SMS 감지에는 SMS 권한이 필요해. 설정을 열고 허용하면 은행 메시지를 자동 감지해.</string>
+
+    <string name="label_open_app_settings">설정 열기</string>
+
+    <string name="title_sms_miui_setup">Xiaomi 기기 설정</string>
+
+    <string name="msg_sms_miui_setup_autostart">Xiaomi는 백그라운드 SMS 감지를 막을 수 있어. 이 앱 자동 시작을 켜고 배터리를 "제한 없음"으로.</string>
+
+    <string name="msg_sms_miui_setup_autostart_unknown">자동 시작을 자동 확인하지 못했어. 앱 설정에서 자동 시작을 켜.</string>
+
+    <string name="label_battery_settings">배터리 설정</string>
+
+    <string name="label_sms_miui_done">켰어</string>
+
+    <string name="desc_dismiss_sms_permission_card">SMS 권한 안내 닫기</string>
+
+    <string name="desc_dismiss_miui_setup_card">Xiaomi 설정 안내 닫기</string>
+
+    <string name="desc_sms_detection_icon">SMS 감지</string>
+
+    <string name="notification_opener_1">이런</string>
+
+    <string name="notification_opener_2">흥미롭네</string>
+
+    <string name="notification_opener_3">아</string>
+
+    <string name="notification_opener_4">봐봐</string>
+
+    <string name="notification_opener_5">속보</string>
+
+    <string name="notification_opener_6">알림</string>
+
+    <string name="notification_opener_7">업데이트</string>
+
+    <string name="notification_opener_8">어, 누구지</string>
+
+    <string name="notification_reaction_1">돈이 날아갔어 💸</string>
+
+    <string name="notification_reaction_2">지갑이 데미지 😬</string>
+
+    <string name="notification_reaction_3">예산이 흔들려 😳</string>
+
+    <string name="notification_reaction_4">한순간에 에스컬레이트 🚀</string>
+
+    <string name="notification_reaction_5">계좌가 알아챘어 👀</string>
+
+    <string name="notification_reaction_6">주머니에 구멍?</string>
+
+    <string name="notification_guilt_1">본전 뽑았으면 좋겠네 😏</string>
+
+    <string name="notification_guilt_2">후회는 없지… 맞지? 😬</string>
+
+    <string name="notification_guilt_3">미래의 네가 보고 있어 👀</string>
+
+    <string name="notification_guilt_4">판단은 안 해… 별로 😌</string>
+
+    <string name="notification_guilt_5">중요한 거였으면 좋겠네 😄</string>
+
+    <string name="notification_guilt_6">저축 계좌가 울고 있어.</string>
+
+    <string name="notification_food_1">또 밥? 리스펙트 🍕</string>
+
+    <string name="notification_food_2">왕처럼 먹네 👑</string>
+
+    <string name="notification_food_3">다이어트 계획, 퇴장 🍔</string>
+
+    <string name="notification_food_4">맛 > 예산, 맞지? 😏</string>
+
+    <string name="notification_food_5">칼로리는 안 세지만 돈은 세.</string>
+
+    <string name="notification_shopping_1">쇼핑 테라피 발동 🛍️</string>
+
+    <string name="notification_shopping_2">충동? 계획? 😏</string>
+
+    <string name="notification_shopping_3">필요해 보였지 😬</string>
+
+    <string name="notification_shopping_4">쇼핑 모드 ON 💳</string>
+
+    <string name="notification_shopping_5">컬렉션 추가? 🛍️</string>
+
+    <string name="notification_generic_1">또 지출 기록 📊</string>
+
+    <string name="notification_generic_2">프로처럼 추적 😎</string>
+
+    <string name="notification_generic_3">돈은… 썼어? 😏</string>
+
+    <string name="notification_generic_4">알겠어 👀</string>
+
+    <string name="notification_generic_5">리얼하게 가자 📈</string>
+
+    <string name="notification_budget_exceeded_1">예산이 전화했어. 그만둔대. 💸</string>
+
+    <string name="notification_budget_exceeded_2">지출 한도? 모르는 아이지. 💅</string>
+
+    <string name="notification_budget_exceeded_3">치트 코드 찾은 것처럼 쓰고 있어. 🎮</string>
+
+    <string name="notification_budget_exceeded_4">예산: 초과. 슬픔: 곧. 📉</string>
+
+    <string name="notification_budget_exceeded_5">저축이 비명. 😱</string>
+
+    <string name="notification_missed_entry_1">너무 조용해… 먹는 거 그만뒀어? 🍔</string>
+
+    <string name="notification_missed_entry_2">지갑이 수상하게 무거워. 뭔가 기록해! 💸</string>
+
+    <string name="notification_missed_entry_3">침묵이 시끄러워. 거래는 어디야? 🕵️</string>
+
+    <string name="notification_missed_entry_4">복권 당첨됐어? 오늘 로그가 없어? 🎰</string>
+
+    <string name="notification_missed_entry_5">트래커가 외로워. 데이터를 좀 줘. 🦴</string>
+
+    <string name="notification_morning_opener_1">좋은 아침! ☀️</string>
+
+    <string name="notification_morning_opener_2">일어나서 빛나자! ☕</string>
+
+    <string name="notification_morning_opener_3">아침 업데이트! 🌅</string>
+
+    <string name="notification_morning_opener_4">일어나 일어나! 🥐</string>
+
+    <string name="notification_evening_opener_1">하루가 거의 끝났어! 🌙</string>
+
+    <string name="notification_evening_opener_2">저녁 체크! 🌆</string>
+
+    <string name="notification_evening_opener_3">저녁 시간? 🥘</string>
+
+    <string name="notification_evening_opener_4">이미 탭아웃? 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">커피 이미 샀어? 아니면 신호 기다려? ☕</string>
+
+    <string name="notification_sarcastic_morning_2">아침 기록이 오늘 제일 큰 운동이야. 🥐</string>
+
+    <string name="notification_sarcastic_morning_3">일찍 일어나는 새는 벌레를 잡고, 똑똑한 새는 비용도 기록해. 🐛</string>
+
+    <string name="notification_sarcastic_morning_4">지갑은 깨어 있고 질문이 있어. 💸</string>
+
+    <string name="notification_sarcastic_evening_1">예산이 오늘 살아남았어… 맞아? 👀</string>
+
+    <string name="notification_sarcastic_evening_2">기록 안 한 비밀 안고 잠들지 마. 데이터가 보고 있어. 🕵️</string>
+
+    <string name="notification_sarcastic_evening_3">저녁은 최고지만, 기록은 전설이 돼. 🥘</string>
+
+    <string name="notification_sarcastic_evening_4">작은 기록이 저축의 큰 한 걸음. 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s 아침 지출, 잊지 말고 기록해!</string>
+
+    <string name="notification_evening_reminder_generic">%1$s 저녁이나 이동을 기록할 1분 있어?</string>
+
+    <string name="notification_format_expense">%1$s 👀 %3$s에 %2$s 썼어… %4$s. %5$s. %6$s</string>
+
+    <string name="notification_format_budget_exceeded">%1$s! %2$s 예산을 넘었어. %3$s</string>
+
+    <string name="date_pattern_month_year_comma">yyyy년 M월</string>
+
+    <string name="label_size_unit_b">B</string>
+
+    <string name="label_size_unit_kb">KB</string>
+
+    <string name="label_size_unit_mb">MB</string>
+
+    <string name="label_size_unit_gb">GB</string>
+
+    <string name="label_size_unit_tb">TB</string>
+
+    <string name="label_zero_size">0 B</string>
+
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <string name="title_update_required">업데이트 필요</string>
+
+    <string name="msg_update_required_desc">Expense Tracker 새 버전이 있어. 최신으로 업데이트해서 계속 써.</string>
+
+    <string name="btn_update_now">지금 업데이트</string>
+
+    <string name="title_update_available">새 버전이 있어</string>
+
+    <string name="title_update_available_version">버전 %s를 쓸 수 있어</string>
+
+    <string name="msg_update_available">Expense Tracker 새 버전이 있어. 지금 업데이트해서 최신 기능을.</string>
+
+    <string name="title_system_maintenance">시스템 점검</string>
+
+    <string name="msg_maintenance_desc">서비스 향상을 위한 정기 점검 중. 곧 돌아와. 기다려줘서 고마워!</string>
+
+    <string name="title_protect_your_data">가입 / 로그인</string>
+
+    <string name="msg_link_account_desc">재정 여정은 남길 가치가 있어. 로그인해서 성과와 진행이 안 사라지게.</string>
+
+    <string name="label_guest_user">게스트 사용자</string>
+
+    <string name="label_pro_expiry_format">PRO (%1$s까지)</string>
+
+    <string name="msg_privacy_info">이 정보로 대시보드를 맞추고 나이에 맞는 인사이트를 내. 데이터는 100% 프라이빗하고 안전해.</string>
+
+    <string name="cd_privacy_info">개인정보 안내 보기</string>
+
+    <string name="title_lets_get_started">시작하자!</string>
+
+    <string name="desc_delete_all_data_subtitle">되돌릴 수 없는 파괴적 동작</string>
+
+    <string name="label_delete_recurring">반복 삭제</string>
+
+    <string name="label_mute_recurring_title">알림 음소거</string>
+
+    <string name="label_mute_recurring_message">%s 알림을 음소거할까? 이 반복 지출 청구 리마인더는 안 와.</string>
+
+    <string name="label_mute_yes">응, 음소거</string>
+
+    <string name="label_yes">예</string>
+
+    <string name="label_no">아니요</string>
+
+    <string name="label_dont_show_again">이 대화상자를 다시 안 보여</string>
+
+    <string name="label_notifications">알림</string>
+
+    <string name="label_logout">로그아웃</string>
+
+    <string name="desc_logout_subtitle">계정에서 로그아웃</string>
+
+    <string name="msg_logout_confirm">로그아웃할까? 클라우드 데이터는 다시 로그인할 때까지 동기화 안 돼.</string>
+
+    <string name="error_no_internet">인터넷이 없어. 네트워크를 확인하고 다시 해봐.</string>
+
+    <string name="error_no_google_accounts">이 기기에 Google 계정이 없어. 이메일로 가입해.</string>
+
+    <string name="title_google_accounts_not_found">Google 계정 필요</string>
+
+    <string name="msg_google_accounts_not_found">Google 계정을 못 찾았어. 기기 설정에서 추가한 뒤 다시 해봐.</string>
+
+    <string name="label_add_account">계정 추가</string>
+
+    <string name="label_retry">다시 시도</string>
+
+    <string name="msg_transactions_load_failed">거래를 불러오지 못했어.</string>
+
+    <string name="error_auth_user_not_found">계정을 못 찾았어. 먼저 가입해.</string>
+
+    <string name="error_auth_wrong_password">비밀번호가 틀려. 다시 해봐.</string>
+
+    <string name="error_auth_invalid_credentials">이메일이나 비밀번호가 유효하지 않아.</string>
+
+    <string name="error_auth_email_already_in_use">이 이메일은 이미 가입돼. 로그인해.</string>
+
+    <string name="error_auth_user_disabled">이 계정은 비활성화됐어.</string>
+
+    <string name="error_auth_too_many_requests">시도가 너무 많아. 나중에 다시.</string>
+
+    <string name="error_auth_weak_password">비밀번호가 너무 약해. 더 강하게.</string>
+
+    <string name="error_auth_generic_fail">인증에 실패했어. 내용을 확인해.</string>
+
+    <string name="error_auth_operation_not_allowed">이 로그인 방법은 꺼져 있어. 다른 방법을.</string>
+
+    <string name="error_auth_token_parse">Google 로그인 토큰이 유효하지 않아. 다시 해봐.</string>
+
+    <string name="error_auth_no_google_accounts">이 기기에 Google 계정이 없어. 기기 설정에서 추가해.</string>
+
+    <string name="msg_auth_reset_email_sent">비밀번호 재설정 링크를 보냈어! 받은함을 봐.</string>
+
+    <string name="label_send_magic_link">이메일 링크로 로그인</string>
+
+    <string name="msg_auth_magic_link_sent">매직 링크를 보냈어! 받은함(스팸도)을 보고 로그인해.</string>
+
+    <string name="msg_identity_secured_setting_up_profile">본인 확인됐어. 프로필 준비 중...</string>
+
+    <string name="msg_account_created_successfully">계정을 만들었어.</string>
+
+    <string name="msg_auth_cooldown_wait">다음 링크까지 %1$d초 기다려.</string>
+
+    <string name="title_cloud_sync_devices">클라우드 동기화와 기기</string>
+
+    <string name="desc_sync_premium_subtitle">4기기 데이터 동기화 (Pro)</string>
+
+    <string name="desc_sync_active_subtitle">자동 클라우드 백업 켜짐</string>
+
+    <string name="desc_sync_disabled_subtitle">자동 클라우드 백업 꺼짐</string>
+
+    <string name="desc_connected_devices">연결된 기기 목록</string>
+
+    <string name="label_active_now">지금 활성</string>
+
+    <string name="label_last_active">마지막 활성: %1$s</string>
+
+    <string name="label_this_device">이 기기</string>
+
+    <string name="btn_unlink_device">연결 해제</string>
+
+    <string name="msg_unlink_device_confirm">이 기기 링크를 해제할까? 그 기기의 자동 동기화는 멈춰.</string>
+
+    <string name="label_devices_used">%2$d대 중 %1$d대 연결</string>
+
+    <string name="title_cloud_sync">클라우드 동기화</string>
+
+    <string name="desc_cloud_sync">거래와 설정을 모든 기기에서 실시간 동기화.</string>
+
+    <string name="title_upgrade_for_sync">클라우드 동기화로 업그레이드</string>
+
+    <string name="desc_upgrade_for_sync">자동 클라우드 백업과 4기기 동기화를 열어.</string>
+
+    <string name="title_ad_expiry_warning">편함이 곧 끝나</string>
+
+    <string name="msg_ad_expiry_warning">광고 없는 패스가 %1$d분 후 끝나. 광고 하나 더 보고 설정을 %2$s 더 유지할까?</string>
+
+    <string name="btn_extend_now">지금 연장</string>
+
+    <string name="btn_maybe_later">나중에</string>
+
+    <string name="label_custom_minutes">맞춤 분</string>
+
+    <string name="placeholder_enter_minutes">분 입력</string>
+
+    <string name="btn_apply">적용</string>
+
+    <string name="msg_preparing_pro_experience">Pro 경험 준비 중…</string>
+
+    <string name="msg_wont_take_long">금방이야</string>
+
+    <string name="label_prev">이전</string>
+
+    <string name="label_next_caps">다음</string>
+
+    <string name="label_skip">건너뛰기</string>
+
+    <string name="placeholder_email">name@example.com</string>
+
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="error_password_required_prefix">필수:</string>
+
+    <string name="error_password_min_chars">8자 이상</string>
+
+    <string name="error_password_need_digit">숫자 1개 이상</string>
+
+    <string name="error_password_need_special">특수문자 1개 이상</string>
+
+    <string name="label_forgot_password">비밀번호를 잊었어?</string>
+
+    <string name="label_resend_cooldown">%1$d초 후 재전송</string>
+
+    <string name="label_financial_goal_title">#1 재정 목표는?</string>
+
+    <string name="label_goal_home">꿈의 집 사기</string>
+
+    <string name="label_goal_travel">세계 여행</string>
+
+    <string name="label_goal_debt">빚 제로</string>
+
+    <string name="label_goal_retirement">조기 은퇴</string>
+
+    <string name="label_goal_savings">안전망 만들기</string>
+
+    <string name="label_goal_car">새 차 사기</string>
+
+    <string name="label_goal_education">교육 자금</string>
+
+    <string name="label_goal_business">사업 시작</string>
+
+    <string name="label_goal_invest">투자 키우기</string>
+
+    <string name="label_goal_other">기타 (맞춤 목표)</string>
+
+    <string name="placeholder_enter_custom_goal">목표를 써...</string>
+
+    <string name="label_financial_zen">재정 선</string>
+
+    <string name="msg_discipline_score_title">계정 설정</string>
+
+    <string name="msg_discipline_score_desc">좋아!! 프로필을 완성해.</string>
+
+    <string name="btn_reach_100">100%로 만들기</string>
+
+    <string name="msg_goal_faster_with_pro">%1$s 목표를 Elite 기능으로 20%% 더 빠르게.</string>
+
+    <string name="title_setup_progress">프로필 진행</string>
+
+    <string name="label_checklist_full_name">이름</string>
+
+    <string name="label_checklist_phone">전화번호</string>
+
+    <string name="label_checklist_gender">성별</string>
+
+    <string name="label_checklist_dob">생년월일</string>
+
+    <string name="label_checklist_email">이메일 주소</string>
+
+    <string name="label_checklist_signin_to_add">로그인해서 이메일 추가</string>
+
+    <string name="label_checklist_email_verified">이메일 확인됨</string>
+
+    <string name="label_checklist_verify_email">프로필을 탭해서 확인</string>
+
+    <string name="btn_got_it">알겠어</string>
+
+    <string name="title_my_goals">내 목표</string>
+
+    <string name="title_add_goal">저축 목표 추가</string>
+
+    <string name="title_fund_goal">목표에 넣기</string>
+
+    <string name="msg_fund_goal_caption">이 목표에 넣을 금액을 입력해. 언제든 바꿀 수 있어.</string>
+
+    <string name="title_delete_goal">목표 삭제</string>
+
+    <string name="msg_delete_goal_confirm">목표 "%1$s"을(를) 삭제할까? 되돌릴 수 없어.</string>
+
+    <string name="label_fund_amount">추가할 금액</string>
+
+    <string name="label_goal_name">목표 이름</string>
+
+    <string name="label_target_amount">목표 금액</string>
+
+    <string name="label_initial_saved_amount">처음 저축액</string>
+
+    <string name="label_goal_name_hint">예: 새 차, 여행</string>
+
+    <string name="msg_no_goals">목표가 아직 없어. +로 저축 시작!</string>
+
+    <string name="cd_add_goal">목표 추가</string>
+
+    <string name="cd_add_funds">자금 추가</string>
+
+    <string name="cd_delete_goal">목표 삭제</string>
+
+    <string name="format_goal_progress">%1$d%% 완료</string>
+
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+
+    <string name="format_goal_target">목표: %1$s</string>
+
+    <string name="title_edit_goal">목표 수정</string>
+
+    <string name="cd_edit_goal">목표 수정</string>
+
+    <string name="title_active_goals">진행 중 목표</string>
+
+    <string name="title_completed_goals">완료</string>
+
+    <string name="label_goal_completed">완료 🎉</string>
+
+    <string name="label_deadline">기한</string>
+
+    <string name="label_deadline_not_set">미설정</string>
+
+    <string name="label_set_deadline">기한 설정</string>
+
+    <string name="format_days_left">%1$d일 남음</string>
+
+    <string name="label_one_day_left">1일 남음</string>
+
+    <string name="label_goal_due_today">오늘 기한</string>
+
+    <string name="format_days_overdue">%1$d일 지연</string>
+
+    <string name="label_saved_amount">저축: %1$s</string>
+
+    <string name="label_goal_icon">아이콘</string>
+
+    <string name="title_choose_icon">아이콘 고르기</string>
+
+    <string name="cd_goal_icon">목표 아이콘</string>
+
+    <string name="title_goal_reminder">저축 목표 업데이트</string>
+
+    <string name="msg_goal_reminder_due_soon">"%2$s"까지 %1$d일 — %3$d%%까지 왔어!</string>
+
+    <string name="title_fund_history">입금 기록</string>
+
+    <string name="format_fund_entries_count">%1$d건</string>
+
+    <string name="label_no_fund_history">아직 기여가 없어</string>
+
+    <string name="label_funded_on">%1$s에 입금</string>
+
+    <string name="desc_toggle_fund_history">입금 기록 전환</string>
+
+    <string name="label_fund_history_inline">입금 기록</string>
+
+    <string name="format_fund_entries_one">1건</string>
+
+    <string name="msg_goal_reminder_due_soon_1">"%1$s"까지 1일 — %2$d%%까지 왔어!</string>
+
+    <string name="msg_goal_reminder_due_today">오늘 기한 — "%1$s"! %2$d%%까지 왔어.</string>
+
+    <string name="msg_goal_reminder_progress">"%2$s"까지 %1$d%%. 계속해!</string>
+
+    <string name="title_goal_milestone">목표 이정표 도달</string>
+
+    <string name="msg_goal_milestone">"%2$s"까지 %1$d%% — 계속해!</string>
+
+    <string name="title_goal_achieved">목표 달성</string>
+
+    <string name="msg_goal_achieved">축하해! "%1$s" 목표에 도달했어.</string>
+
+    <string name="title_goal_behind_schedule">목표가 일정에 뒤처짐</string>
+
+    <string name="msg_goal_behind_schedule">"%1$s"을(를) 놓칠 수 있어 — 이 페이스면 %2$d일 더.</string>
+
+    <string name="label_test_goal">테스트 목표 </string>
+
+    <string name="notification_title_goal_milestone_summary">목표 이정표</string>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">목표 %1$d개가 이정표에 도달했어</item>
+        <item quantity="other">목표 %1$d개가 이정표에 도달했어</item>
+    </plurals>
+
+    <string name="notification_title_upcoming_bill">다가오는 거래</string>
+
+    <string name="notification_format_upcoming_bill_days">"%2$s"의 %1$s은(는) %3$d일 후 빠져.</string>
+
+    <string name="notification_format_upcoming_bill_tomorrow">"%2$s"의 %1$s은(는) 내일 빠져.</string>
+
+    <string name="notification_format_upcoming_bill_due_today">"%2$s"의 %1$s은(는) 오늘 마감이야.</string>
+
+    <string name="notification_title_upcoming_bill_summary">다가오는 거래</string>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">다가오는 거래 %1$d건</item>
+        <item quantity="other">다가오는 거래 %1$d건</item>
+    </plurals>
+
+    <string name="title_redeem_pro_pass">Pro Pass 사용</string>
+
+    <string name="label_redeem_pro_pass_subtitle">프로모 코드나 패스키를 넣어</string>
+
+    <string name="label_enter_pro_code">PRO 코드 입력</string>
+
+    <string name="title_unlock_pro_access">Pro 접근 잠금 해제</string>
+
+    <string name="msg_unlock_pro_access_body">프로모 코드 있어? 아래에 넣어서 풀 프리미엄을 열어.</string>
+
+    <string name="placeholder_pro_code_example">예: PROPASS7</string>
+
+    <string name="label_activate_pro_code">Pro 코드 활성화</string>
+
+    <string name="label_calculator_itemized">항목별</string>
+
+    <string name="label_calculator_normal">일반</string>
+
+    <string name="label_redeem_pro_pass_subscribed_subtitle">구독에 포함돼 있어</string>
+
+    <string name="title_activate_pro_pass">ProPass 활성화</string>
+
+    <string name="title_pro_pass_subscribed">이미 구독이 있어</string>
+
+    <string name="msg_pro_pass_subscribed">ProPass는 구독 위에 일수를 더해서, 구독 중에 끝나. Google Play에서 구독을 관리해.</string>
+
+    <string name="btn_ok">확인</string>
+
+    <string name="msg_enter_pro_pass_code">아래에 고유 영숫자 ProPass 코드를 넣어.</string>
+
+    <string name="placeholder_pro_pass_code">예: EXPN-T0C3-HG41-NM1</string>
+
+    <string name="btn_activate_pro">Pro 활성화</string>
+
+    <string name="msg_pro_pass_activated">ProPass 활성! 프리미엄 %1$d일이 붙었어.</string>
+
+    <string name="error_invalid_pro_pass">유효하지 않거나 만료된 ProPass 코드.</string>
+
+    <string name="error_redeem_not_signed_in">ProPass 코드를 쓰려면 Google이나 이메일로 로그인해.</string>
+
+    <string name="error_redeem_inactive">이 ProPass 코드는 더 이상 유효하지 않아.</string>
+
+    <string name="error_redeem_expired">이 ProPass 코드는 만료됐어.</string>
+
+    <string name="error_redeem_limit_reached">이 ProPass 코드는 이용 한도에 도달했어.</string>
+
+    <string name="error_redeem_already_redeemed">이 ProPass 코드는 이미 썼어.</string>
+
+    <string name="error_redeem_pass_active">Pro Pass가 지금 활성이야. 지금 패스가 끝난 뒤 새 코드를.</string>
+
+    <string name="error_redeem_subscription_active">구독이 이미 Pro를 커버해서 ProPass는 남아서 끝나. Google Play에서 관리해.</string>
+
+    <string name="error_redeem_network">서버에 닿지 않아. 연결을 확인하고 다시 해봐.</string>
+
+    <string name="error_redeem_unknown">그 코드를 활성화하지 못했어. 다시 해봐.</string>
+
+    <string name="label_have_a_code">Pro 접근 코드 있어?</string>
+
+    <string name="error_underage_restriction">계속하려면 15세 이상이어야 해.</string>
+
+    <string name="label_parental_consent">이 앱을 쓰는 보호자 동의가 있어.</string>
+
+    <string name="error_parental_consent_required">18세 미만은 보호자 동의가 필요해.</string>
+
+    <string name="title_email_verification">이메일 확인</string>
+
+    <string name="label_verification_email_sent">확인 메일을 %1$s로 보냈어. 이메일을 확인해 (없으면 스팸도).</string>
+
+    <string name="error_email_not_verified">이메일은 아직 미확인. 받은함(스팸 포함)에서 확인 링크를 눌러.</string>
+
+    <string name="btn_check_status">확인 상태 보기</string>
+
+    <string name="btn_resend_email">확인 메일 재전송</string>
+
+    <string name="info_verification_email_sent_again">확인 메일을 다시 보냈어. 받은함과 스팸을 봐.</string>
+
+    <string name="error_link_still_valid">지금 확인 링크는 아직 유효해. 새 걸 요청하기 전에 받은함과 스팸을 봐.</string>
+
+    <string name="error_email_not_verified_expired_sent">확인 링크가 만료돼서 새 걸 메일로 보냈어. 받은함과 스팸을 봐.</string>
+
+    <string name="label_verification_link_expired">확인 링크가 만료됐어. 아래 재전송을 탭해서 새 걸 요청해.</string>
+
+    <string name="label_verification_link_expires_in">링크 기한: %1$s</string>
+
+    <string name="btn_verify_email">이메일 확인</string>
+
+    <string name="dialog_verify_email_title">이메일 미확인</string>
+
+    <string name="dialog_verify_email_pro_pass">Pro Pass를 활성화하려면 이메일 확인. 확인 링크를 보낼게.</string>
+
+    <string name="dialog_verify_email_auto_backup">자동 백업을 켜려면 이메일 확인. 다른 기기에서 복원할 수 있게 돼.</string>
+
+    <string name="dialog_verify_email_sync">기기 간 동기화를 켜려면 이메일 확인.</string>
+
+    <string name="label_verify_now">지금 확인</string>
+
+    <string name="label_later">나중에</string>
+
+    <string name="toast_verification_email_sent">확인 메일을 보냈어 — 받은함을 봐</string>
+
+    <string name="msg_email_not_verified_yet">이메일은 아직 미확인. 받은함을 봐.</string>
+
+    <string name="msg_failed_to_check_status">상태를 확인하지 못했어. 다시 해봐.</string>
+
+    <string name="msg_verification_email_resent">확인 메일을 다시 보냈어. 받은함을 봐.</string>
+
+    <string name="msg_failed_to_resend">재전송하지 못했어. 다시 해봐.</string>
+
+    <string name="msg_email_verified_success">이메일을 확인했어!</string>
+
+    <string name="btn_update_email">이메일 업데이트</string>
+
+    <string name="label_signed_in_with_google">Google로 로그인 중</string>
+
+    <string name="title_update_email">이메일 주소 업데이트</string>
+
+    <string name="desc_update_email">새 이메일을 넣어. 확인 링크가 와 — 확인 후에만 이메일이 바뀌어.</string>
+
+    <string name="label_current_email">지금 이메일</string>
+
+    <string name="label_new_email">새 이메일</string>
+
+    <string name="placeholder_enter_new_email">새 이메일 주소를 넣어</string>
+
+    <string name="label_send_verification">확인 링크 보내기</string>
+
+    <string name="label_verify_and_update">확인하고 업데이트</string>
+
+    <string name="msg_reauth_required">보안을 위해 이메일 변경에는 지금 비밀번호를 넣어.</string>
+
+    <string name="toast_email_update_verification_sent">새 이메일로 확인 링크를 보냈어 — 받은함을 봐</string>
+
+    <string name="msg_email_already_in_use">이 이메일은 다른 계정에 묶여 있어.</string>
+
+    <string name="msg_failed_to_update_email">이메일을 업데이트하지 못했어. 다시 해봐.</string>
+
+    <string name="msg_incorrect_password">비밀번호가 틀려. 다시 해봐.</string>
+
+    <string name="msg_auth_failed">인증에 실패했어. 다시 해봐.</string>
+
+    <string name="title_pending_email_verification">새 이메일 확인</string>
+
+    <string name="msg_verification_sent_to_new_email">확인 링크를 %1$s로 보냈어. 받은함 링크를 눌러 이메일 변경을 끝내.</string>
+
+    <string name="msg_current_email_unchanged">지금 로그인 이메일(%1$s)은 새 걸 확인할 때까지 유효해.</string>
+
+    <string name="msg_checking_verification_status">확인 상태 체크 중…</string>
+
+    <string name="msg_email_updated_success">이메일을 업데이트했어!</string>
+
+    <string name="msg_email_updated_success_desc">로그인 이메일이 바뀌었어. 새 이메일로 로그인할 수 있어.</string>
+
+    <string name="label_confirm_new_email">새 이메일 확인</string>
+
+    <string name="placeholder_confirm_new_email">새 이메일을 다시</string>
+
+    <string name="error_emails_do_not_match">이메일이 일치하지 않아.</string>
+
+    <string name="msg_fill_all_fields_correctly">모든 칸을 올바르게 채워.</string>
+
+    <string name="msg_enter_current_password">지금 비밀번호를 넣어.</string>
+
+    <string name="label_send_verification_to_new_email">확인 링크 보내기</string>
+
+    <string name="btn_resend_in_seconds">%1$d초 후 재전송</string>
+
+    <string name="msg_check_spam_folder">안 보여? 스팸 폴더를 봐.</string>
+
+    <string name="placeholder_reenter_password_for_security">보안을 위해 비밀번호 재입력</string>
+
+    <string name="desc_show_password">비밀번호 보기</string>
+
+    <string name="desc_hide_password">비밀번호 숨기기</string>
+
+    <string name="title_force_sync">동기화가 안 돼?</string>
+
+    <string name="desc_force_sync">변경이 자동 동기화되지 않으면 전체 동기화를 강제할 수 있어.</string>
+
+    <string name="desc_last_synced_info">마지막 동기화는 이 기기가 클라우드 동기화를 마지막으로 성공한 날짜와 시간이야. 아직 없음은 완료된 동기화가 기록되지 않았다는 뜻이야.</string>
+
+    <string name="btn_sync_now">지금 동기화</string>
+
+    <string name="toast_force_sync_success">동기화됐어!</string>
+
+    <string name="toast_force_sync_failed">동기화 실패: %1$s</string>
+
+    <string name="label_last_synced">마지막 동기화: %1$s</string>
+
+    <string name="label_never_synced">아직 동기화 안 했어</string>
+
+    <string name="title_change_password">비밀번호 변경</string>
+
+    <string name="label_change_password_subtitle">계정 비밀번호 업데이트</string>
+
+    <string name="label_current_password">지금 비밀번호</string>
+
+    <string name="label_new_password">새 비밀번호</string>
+
+    <string name="label_confirm_new_password">새 비밀번호 확인</string>
+
+    <string name="placeholder_current_password">지금 비밀번호를 넣어</string>
+
+    <string name="placeholder_new_password">새 비밀번호를 넣어</string>
+
+    <string name="placeholder_confirm_new_password">새 비밀번호를 확인해</string>
+
+    <string name="error_passwords_do_not_match">새 비밀번호가 일치하지 않아.</string>
+
+    <string name="error_password_update_failed">비밀번호 업데이트 실패. 지금 비밀번호를 확인하고 다시 해봐.</string>
+
+    <string name="success_password_updated">비밀번호를 업데이트했어!</string>
+
+    <string name="btn_change_password">비밀번호 변경</string>
+
+    <string name="label_offline">오프라인</string>
+
+    <string name="label_backup_sync_is_off">백업 &amp; 동기화 꺼짐</string>
+
+    <string name="label_turn_on">로그인</string>
+
+    <string name="label_sign_in_keep_data_safe">로그인해서 데이터를 지켜.</string>
+
+    <string name="title_membership">내 멤버십</string>
+
+    <string name="label_membership_card_subscription">Play 구독</string>
+
+    <string name="label_membership_card_pro_pass">Pro Pass 접근</string>
+
+    <string name="label_membership_card_free">무료 플랜</string>
+
+    <string name="label_membership_badge_free_pass">무료 패스</string>
+
+    <string name="title_membership_pro_card">Expense Tracker Pro</string>
+
+    <string name="title_membership_upgrade_card">Expense Tracker Pro로 업그레이드</string>
+
+    <string name="msg_membership_upgrade_body">무제한 예산, 위젯, 반복 거래, 고급 분석, 클라우드 백업 등을 열어.</string>
+
+    <string name="label_membership_managed_by_play">Google Play가 관리</string>
+
+    <string name="label_membership_unlocked_headline">모든 프리미엄 기능 해제</string>
+
+    <string name="msg_membership_unlocked_body">청구와 해지는 Google Play에서 안전하게 관리돼.</string>
+
+    <string name="label_membership_pass_headline">프로모 Pro Pass로 열었어.</string>
+
+    <string name="msg_membership_pass_body">이 접근은 자동으로 끝나. Google Play 구독이 아니야.</string>
+
+    <string name="btn_membership_buy_subscription">구독 구매</string>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d일 남음</item>
+        <item quantity="other">%1$d일 남음</item>
+    </plurals>
+
+    <string name="desc_membership_settings">상태, 청구 주기, 업그레이드 상세 보기</string>
+
+    <string name="label_pro">Pro</string>
+
+    <string name="label_free">무료</string>
+
+    <string name="label_pro_active">Pro 멤버</string>
+
+    <string name="label_membership_benefits">멤버십 혜택</string>
+
+    <string name="msg_subscription_billing_issue">마지막 결제를 받지 못했어. Google Play에서 결제 수단을 업데이트해서 Pro를 유지해.</string>
+
+    <string name="msg_pro_active_no_expiry">Pro 접근이 활성이야.</string>
+
+    <string name="label_na">N/A</string>
+
+    <string name="btn_sign_in_register">로그인 / 가입</string>
+
+    <string name="date_pattern_pro_expiry">yyyy년 M월 d일 a h:mm</string>
+
+    <string name="label_free_tier">무료 플랜</string>
+
+    <string name="label_pro_benefit_adfree">광고 제로. 집중만</string>
+
+    <string name="label_pro_benefit_devices">4기기에서 바로 동기화!</string>
+
+    <string name="label_pro_benefit_custom_card">커스터마이즈 가능한 거래 카드</string>
+
+    <string name="label_pro_benefit_advanced_features">고급 분석과 목표</string>
+
+    <string name="label_pro_benefit_many_more_features">더 많이… 둘러봐</string>
+
+    <string name="btn_restore_purchase">구매 복원</string>
+
+    <string name="btn_manage_subscription">구독 관리</string>
+
+    <string name="label_cancel_subscription_anytime">구독은 언제든 해지할 수 있어</string>
+
+    <string name="label_cancel_subscription_where">Play 스토어의 결제 및 정기 결제에서 할 수 있어</string>
+
+    <string name="label_expires_on">%1$s에 만료</string>
+
+    <string name="label_renews_on">%1$s에 갱신</string>
+
+    <string name="label_unlimited_offline">오프라인 로컬 모드</string>
+
+    <string name="label_offline_warning_desc">데이터는 이 기기에만 있어. 로그인하거나 가입해서 백업을 지켜.</string>
+
+    <string name="title_coming_soon">곧 나와</string>
+
+    <string name="msg_billing_coming_soon">Google Play Billing 연동은 개발 중이야. 다음 업데이트에서 쓸 수 있어.</string>
+
+    <string name="title_feedback">피드백</string>
+
+    <string name="label_send_feedback_desc">좋은 점, 고쳤으면 하는 점을 알려줘.</string>
+
+    <string name="placeholder_feedback_hint">피드백을 여기에…</string>
+
+    <string name="btn_submit_feedback">피드백 보내기</string>
+
+    <string name="msg_feedback_success">피드백 고마워!</string>
+
+    <string name="msg_feedback_error">피드백을 보내지 못했어. 다시 해봐.</string>
+
+    <string name="msg_feedback_cooldown">다음 피드백까지 %1$s분 기다려.</string>
+
+    <string name="label_logged_in_as">보내는 사람: %1$s</string>
+
+    <string name="msg_feedback_empty">피드백은 비울 수 없어.</string>
+
+    <string name="title_view_by">보기</string>
+
+    <string name="label_welcome_back_comma">다시 왔어,</string>
+
+    <string name="msg_welcome_back_subtitle">바로 이어서 할 수 있어!</string>
+
+    <string name="label_your_goal">재정 목표</string>
+
+    <string name="label_welcome_back_fallback">너</string>
+
+    <string name="label_show_more">더 보기</string>
+
+    <string name="label_show_less">덜 보기</string>
+
+    <string name="title_upcoming_recurring">다가오는 반복</string>
+
+    <string name="label_no_upcoming_recurring">다가오는 반복 거래가 없어</string>
+
+    <string name="title_voice_add">음성으로 추가</string>
+
+    <string name="desc_voice_add">음성으로 거래 추가</string>
+
+    <string name="msg_voice_listening">듣는 중…</string>
+
+    <string name="msg_voice_processing">처리 중…</string>
+
+    <string name="msg_voice_error_empty_input">"식비에 5만 원 썼어"처럼 말해봐</string>
+
+    <string name="msg_voice_error_no_amount">금액을 감지하지 못했어. "식비에 5만 원 썼어"라고 말해봐</string>
+
+    <string name="label_voice_confirm">확인</string>
+
+    <string name="label_voice_edit">수정</string>
+
+    <string name="label_voice_retry">다시 시도</string>
+
+    <string name="label_voice_confidence_high">신뢰도 높음</string>
+
+    <string name="label_voice_confidence_medium">신뢰도 중간</string>
+
+    <string name="label_voice_confidence_low">신뢰도 낮음 — 확인해</string>
+
+    <string name="label_merchant">가맹점</string>
+
+    <string name="label_confidence">신뢰도</string>
+
+    <string name="label_voice_confidence">신뢰도</string>
+
+    <string name="label_category">카테고리</string>
+
+    <string name="msg_voice_error_no_permission">음성 입력에는 마이크 권한이 필요해</string>
+
+    <string name="msg_voice_error_recognizer">음성 인식에 실패했어. 다시 해봐.</string>
+
+    <string name="msg_voice_error_network">네트워크 오류. 연결을 확인하고 다시 해봐.</string>
+
+    <string name="msg_voice_error_audio">녹음 오류. 다시 해봐.</string>
+
+    <string name="msg_voice_error_timeout">목소리를 감지하지 못했어. 다시 해봐.</string>
+
+    <string name="widget_description">빠른 음성 거래와 오늘 지출 요약</string>
+
+    <string name="widget_voice_channel_name">음성 녹음</string>
+
+    <string name="widget_voice_channel_desc">홈 위젯에서 음성 입력을 녹음할 때</string>
+
+    <string name="widget_notification_recording_title">녹음 중…</string>
+
+    <string name="widget_notification_recording_text">지금 거래를 말해</string>
+
+    <string name="label_budget_categories_info">예산 카테고리 보기</string>
+
+    <string name="title_budget_categories">예산 카테고리</string>
+
+    <string name="label_included_categories">이 예산의 카테고리</string>
+
+    <string name="label_select_all">모두 선택</string>
+
+    <string name="label_select_unbudgeted">쓸 수 있는 것만 선택</string>
+
+    <string name="label_add">추가</string>
+
+    <string name="shortcut_add_expense">지출 추가</string>
+
+    <string name="shortcut_add_expense_long">지출 추가</string>
+
+    <string name="shortcut_add_income">수입 추가</string>
+
+    <string name="shortcut_add_income_long">수입 추가</string>
+
+    <string name="shortcut_month_summary">이번 달 지출</string>
+
+    <string name="shortcut_month_summary_long">이번 달 지출</string>
+
+    <string name="shortcut_speak_to_add">말해서 추가</string>
+
+    <string name="shortcut_speak_to_add_long">말해서 추가</string>
+
+    <string name="shortcut_copy_budget">예산 복사</string>
+
+    <string name="shortcut_copy_budget_long">예산 복사</string>
+
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <string name="msg_feature_locked_pro_required">이 기능에는 Pro 구독이 필요해</string>
+
+    <string name="msg_subscribe_to_unlock">구독해서 이 기능을 열고 개발을 지원해</string>
+
+    <string name="btn_upgrade">Pro로 업그레이드</string>
+
+    <string name="msg_paywall_subtitle">모든 Pro 기능을 열고 개발을 지원해.</string>
+
+    <string name="msg_paywall_hero_subtitle">재정 인사이트, AI 음성 분석, 무제한 규칙을 모두 열어</string>
+
+    <string name="paywall_plan_title_annual">12개월 플랜</string>
+
+    <string name="paywall_plan_title_six">6개월 플랜</string>
+
+    <string name="paywall_plan_title_month">1개월 베이직</string>
+
+    <string name="paywall_best_value_save">최고 가성비 • %1$d%% 할인</string>
+
+    <string name="paywall_per_month_suffix">/ 월</string>
+
+    <string name="paywall_save_amount">%1$s 절약</string>
+
+    <string name="paywall_base_tier">베이직</string>
+
+    <string name="paywall_standard_recurring">표준 정기 결제</string>
+
+    <string name="paywall_cta_continue">%1$s로 계속 · %2$s/월</string>
+
+    <string name="paywall_cta_period_annual">12개월</string>
+
+    <string name="paywall_cta_period_six">6개월</string>
+
+    <string name="paywall_cta_period_month">1개월</string>
+
+    <string name="paywall_terms_of_use">이용약관</string>
+
+    <string name="paywall_benefits_header_annual">Pro 전용 기능이 다 들어:</string>
+
+    <string name="paywall_benefits_header_six">6개월 Pro 혜택:</string>
+
+    <string name="paywall_benefits_header_month">월간 Pro 혜택:</string>
+
+    <string name="paywall_benefit_ad_free">광고 없는 경험</string>
+
+    <string name="paywall_benefit_txn_details">수정 모드 없이 거래 상세를 전부 보기</string>
+
+    <string name="paywall_benefit_device_sync">4기기 자동 동기화</string>
+
+    <string name="paywall_benefit_favorites">즐겨찾기 거래: 한 탭으로 재사용</string>
+
+    <string name="paywall_benefit_recurring_yearly">무제한 반복 규칙(7번째~)과 연간 주기</string>
+
+    <string name="paywall_benefit_recurring_copy">무제한 반복 규칙과 지난달 예산 복사</string>
+
+    <string name="paywall_benefit_recurring_only">무제한 반복 규칙(7번째~)</string>
+
+    <string name="paywall_benefit_copy_budgets">지난달 예산 복사와 맞춤 예산 월</string>
+
+    <string name="paywall_benefit_ai_backups">무제한 AI 음성 분석과 매일 자동 백업</string>
+
+    <string name="paywall_benefit_ai_backup">무제한 AI 음성 분석과 매일 자동 백업</string>
+
+    <string name="paywall_benefit_ai_daily">무제한 AI 음성 분석과 매일 백업</string>
+
+    <string name="paywall_benefit_lock_fonts_tags">20–60분 자동 잠금, 맞춤 글꼴, 결제 태그</string>
+
+    <string name="paywall_benefit_lock_fonts">프라이버시 자동 잠금(20-60분)과 맞춤 글꼴</string>
+
+    <string name="paywall_benefit_lock_fonts_short">자동 잠금 시간과 맞춤 글꼴</string>
+
+    <string name="paywall_benefit_insights_alerts">재정 인사이트, 목표와 클라우드 보안 알림</string>
+
+    <string name="paywall_benefit_separators">날짜 구분선, 결제 요약, 맞춤 아이콘</string>
+
+    <string name="paywall_benefit_many_more">더 많이… 둘러봐</string>
+
+    <string name="paywall_processing_payment">결제 처리 중…</string>
+
+    <string name="paywall_please_wait">잠깐만</string>
+
+    <string name="paywall_youre_pro_now">지금 Pro야</string>
+
+    <string name="paywall_congrats_purchase">구매 축하해</string>
+
+    <string name="paywall_invested_in_yourself">자신에게 투자했어. 맞는 선택이야.</string>
+
+    <string name="paywall_start_using_pro">Pro 쓰기 시작</string>
+
+    <string name="paywall_payment_failed">결제에 실패했어</string>
+
+    <string name="btn_close">닫기</string>
+
+    <string name="label_paywall_benefits">받는 것</string>
+
+    <string name="label_paywall_choose_plan">플랜 고르기</string>
+
+    <string name="label_paywall_plans_unavailable">플랜을 불러오지 못했어.</string>
+
+    <string name="msg_paywall_plans_unavailable_desc">연결을 확인하고 다시 해봐.</string>
+
+    <string name="btn_paywall_retry">다시 시도</string>
+
+    <string name="content_desc_loading_plans">플랜 불러오는 중</string>
+
+    <string name="btn_paywall_subscribe">구독</string>
+
+    <string name="msg_paywall_play_account_billing">Google Play는 이 기기에 로그인된 Google 계정에 청구해. Expense Tracker 이메일에는 청구되지 않아.</string>
+
+    <string name="desc_paywall_play_billing_info">구독 청구 정보</string>
+
+    <string name="msg_paywall_play_billing_info">구독은 직접 해지할 때까지 자동 갱신돼. Google Play 스토어에서 언제든 해지할 수 있어.</string>
+
+    <string name="msg_paywall_already_pro">이미 Pro야. 응원 고마워.</string>
+
+    <string name="content_desc_paywall_plan_selected">고른 플랜</string>
+
+    <string name="paywall_plan_weekly">1주</string>
+
+    <string name="paywall_plan_monthly">1개월</string>
+
+    <string name="paywall_plan_two_months">2개월</string>
+
+    <string name="paywall_plan_three_months">3개월</string>
+
+    <string name="paywall_plan_six_months">6개월</string>
+
+    <string name="paywall_plan_twelve_months">12개월</string>
+
+    <string name="paywall_plan_lifetime">평생</string>
+
+    <string name="paywall_plan_generic">Pro 플랜</string>
+
+    <string name="paywall_discount_badge">%1$d%% 할인</string>
+
+    <string name="paywall_period_week">주당</string>
+
+    <string name="paywall_period_month">월당</string>
+
+    <string name="paywall_period_months">기간당</string>
+
+    <string name="paywall_period_year">연당</string>
+
+    <string name="paywall_period_one_time">일시불</string>
+
+    <string name="msg_paywall_purchase_success">지금 Pro야. 즐겨!</string>
+
+    <string name="title_paywall_purchase_congrats">축하해</string>
+
+    <string name="msg_paywall_purchase_congrats">Pro야. 무제한 인사이트, 광고 없음, 모든 기능 해제. 업그레이드를 즐겨.</string>
+
+    <string name="msg_paywall_purchase_sign_in">결제는 됐어. Pro를 쓰려면 Google이나 이메일과 비밀번호로 로그인해. 자동으로 안 켜지면 설정 → 내 멤버십 → 구매 복원을 탭해.</string>
+
+    <string name="content_desc_opening_play_store">Google Play 여는 중</string>
+
+    <string name="msg_paywall_restore_success">구매를 복원했어.</string>
+
+    <string name="msg_paywall_restore_nothing_found">이 계정의 이전 구매를 찾지 못했어.</string>
+
+    <string name="msg_paywall_payment_pending">결제가 대기 중이야. 끝나면 Pro가 열려.</string>
+
+    <string name="paywall_error_network">스토어에 닿지 않아. 연결을 확인하고 다시 해봐.</string>
+
+    <string name="paywall_error_store_problem">스토어가 이걸 끝내지 못했어. 다시 해봐.</string>
+
+    <string name="paywall_error_not_allowed">이 기기나 계정에서는 구매할 수 없어.</string>
+
+    <string name="paywall_error_product_unavailable">이 플랜은 지금 없어. 나중에 다시 해봐.</string>
+
+    <string name="paywall_error_already_owned">이 구독은 이미 가지고 있어.</string>
+
+    <string name="paywall_error_receipt_in_use">이 구독은 다른 계정에 이미 묶여 있어. 산 계정으로 로그인한 뒤 복원해.</string>
+
+    <string name="paywall_error_invalid_receipt">이 구매를 확인하지 못했어. 다시 해봐.</string>
+
+    <string name="paywall_error_invalid_credentials">스토어가 요청을 거절했어. 나중에 다시 해봐.</string>
+
+    <string name="paywall_error_configuration">구독이 지금 올바르게 설정되지 않았어. 나중에 다시 해봐.</string>
+
+    <string name="paywall_error_billing_not_configured">이 빌드에서는 구독을 쓸 수 없어.</string>
+
+    <string name="paywall_error_unknown">뭔가 잘못됐어. 다시 해봐.</string>
+
+    <string name="desc_terms_conditions_requirement">게스트든 가입 계정이든 ExpenseTracker를 계속 쓰려면 이 약관에 동의해야 해.</string>
+
+    <string name="label_bullet_app_usage_title">앱 사용</string>
+
+    <string name="label_bullet_app_usage_desc">개인 예산과 추적용. 무단 재배포나 리버스 엔지니어링은 안 돼.</string>
+
+    <string name="label_bullet_privacy_title">데이터 &amp; 개인정보</string>
+
+    <string name="label_bullet_privacy_desc">기기에서 오프라인 우선. 동기화는 선택이고 종단간 암호화로 보호돼.</string>
+
+    <string name="label_bullet_subscriptions_title">구독</string>
+
+    <string name="label_bullet_subscriptions_desc">Pro는 Google Play Billing으로 안전하게 관리돼. 해지하지 않으면 자동 갱신.</string>
+
+    <string name="label_bullet_cancellation_title">해지 &amp; 내보내기</string>
+
+    <string name="label_bullet_cancellation_desc">Play 스토어에서 언제든 Pro를 해지. 데이터는 원할 때 100% 내보내거나 삭제할 수 있어.</string>
+
+    <string name="label_terms_clause_1">1. 약관 동의: 앱에 접근하거나 쓰면 이 이용약관과 개인정보 처리방침에 동의하는 거야. 게스트와 가입 사용자 모두에 적용돼.</string>
+
+    <string name="label_terms_clause_2">2. 라이선스: 개인 비상업 재정 관리를 위한 제한적, 취소 가능, 비독점 라이선스를 부여해.</string>
+
+    <string name="label_terms_clause_3">3. 로컬 우선 저장: 재정 데이터는 기본적으로 암호화된 데이터베이스로 이 기기에 안전하게 저장돼.</string>
+
+    <string name="label_terms_clause_4">4. 인앱 구매: 구독은 스토어 정책에 따라 Google Play를 통해 청구돼.</string>
+
+    <string name="label_terms_clause_5">5. 면책: ExpenseTracker는 정리 도구이고 공인 재정 조언을 제공하지 않아.</string>
+
+    <string name="label_agree_terms_checkbox">이용약관을 읽고 동의했어</string>
+
+    <string name="label_agree_privacy_checkbox">개인정보 처리방침과 데이터 처리 약관에 동의해</string>
+
+    <string name="cd_terms_checkbox">이용약관 동의 체크박스</string>
+
+    <string name="cd_privacy_checkbox">개인정보 처리방침 동의 체크박스</string>
+
+    <string name="title_terms_required">이용약관</string>
+
+    <string name="msg_agree_terms_required">이 앱을 쓰려면 이용약관과 개인정보 처리방침에 동의해야 해. 체크박스를 눌러.</string>
+
+    <string name="title_funds">자금</string>
+
+    <string name="title_fund_overview">개요</string>
+
+    <string name="title_what_are_funds">자금이 뭐야</string>
+
+    <string name="msg_funds_what">자금은 한 목적을 위해 따로 둔 현금 통이야. 할당은 넣은 것, 지출은 뺀 것, 남은 건 남아 있는 거야.</string>
+
+    <string name="msg_funds_how">자금을 만든 뒤 지출을 넣을 때 골라. 그 지출이 통에서 빠져서, 나머지 돈과 섞지 않고 풀이 어떻게 가는지 볼 수 있어.</string>
+
+    <string name="label_funds_example">예시</string>
+
+    <string name="label_fund_example_name">휴가</string>
+
+    <string name="msg_funds_example">휴가 자금에 돈을 넣어. 그 자금에서 쓴 호텔과 항공은 남은 액을 줄여. 식료품은 그 지출에도 자금을 고르지 않으면 빠지지 않아.</string>
+
+    <string name="desc_funds_info">자금이 뭔지, 어떻게 쓰는지</string>
+
+    <string name="label_tab_funds">자금</string>
+
+    <string name="title_create_fund">자금 만들기</string>
+
+    <string name="title_edit_fund">자금 수정</string>
+
+    <string name="label_fund_name">자금 이름</string>
+
+    <string name="label_fund_amount_field">금액</string>
+
+    <string name="label_fund_start_date_value">%1$s 시작</string>
+
+    <string name="label_fund_icon">아이콘</string>
+
+    <string name="label_fund_color">색</string>
+
+    <string name="label_fund_note">메모 (선택)</string>
+
+    <string name="label_fund_summary_allocated">할당</string>
+
+    <string name="label_fund_summary_spent">지출</string>
+
+    <string name="label_fund_summary_remaining">남음</string>
+
+    <string name="label_fund_empty">자금이 아직 없어. 하나 만들어서 돈 풀을 추적해.</string>
+
+    <string name="label_fund_spent_of">%2$s 중 %1$s 씀</string>
+
+    <string name="label_fund_remaining_format">%1$s 남음</string>
+
+    <string name="label_fund_status_active">활성</string>
+
+    <string name="label_fund_status_completed">소진</string>
+
+    <string name="label_fund_status_archived">보관됨</string>
+
+    <string name="title_fund_breakdown">지출 내역</string>
+
+    <string name="label_fund_no_spending">이 자금에서 아직 쓴 게 없어.</string>
+
+    <string name="label_fund_linked_transactions">거래</string>
+
+    <string name="label_fund_edit">수정</string>
+
+    <string name="label_fund_edit_amount">금액 수정</string>
+
+    <string name="label_fund_archive">보관</string>
+
+    <string name="label_fund_unarchive">보관 해제</string>
+
+    <string name="label_fund_delete">삭제</string>
+
+    <string name="label_fund_uncategorized">미분류</string>
+
+    <string name="title_delete_fund">자금을 삭제할까?</string>
+
+    <string name="msg_delete_fund_body">"%1$s"이(가) 빠져. 거래는 남아; 링크만 끊어져.</string>
+
+    <string name="msg_fund_edit_amount_updates_income">이걸 채우는 수입 거래도 같이 업데이트돼.</string>
+
+    <string name="title_spend_from_fund">자금</string>
+
+    <string name="label_fund_none">없음</string>
+
+    <string name="title_fund_overspend">자금 부족</string>
+
+    <string name="msg_fund_overspend">이 지출이 "%1$s"에 남은 %2$s보다 커. 그래도 쓰거나, 금액을 바꾸거나, 이 지출에서 자금을 빼.</string>
+
+    <string name="label_spend_anyway">그래도 쓰기</string>
+
+    <string name="label_edit_amount_action">금액 수정</string>
+
+    <string name="label_remove_fund">자금 빼기</string>
+
+    <string name="label_funds_breakdown">자금 내역</string>
+
+    <string name="label_all_funds_breakdown">모든 자금</string>
+
+    <string name="label_no_fund_breakdown">이 범위에 자금 지출이 없어.</string>
+
+    <string name="title_full_fund_breakdown">전체 자금 내역</string>
+
 </resources>

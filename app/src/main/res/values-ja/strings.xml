@@ -1,302 +1,4588 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker: 予算と支出</string>
+
+    <string name="app_name">Expense Tracker : 予算と支出</string>
+
     <string name="title_nav_home">ホーム</string>
+
     <string name="title_nav_analytics">分析</string>
+
     <string name="title_nav_budget">予算</string>
-    <string name="label_already_tracked_in">すでに%1$sに含まれています</string>
-    <string name="tip_duplicate_budget_tracking">注意: 選択したカテゴリは他の有効な予算でも追跡されます。支出は両方の上限に計上されます。</string>
-    <string name="label_select_categories">カテゴリを選択</string>
+
+    <string name="label_already_tracked_in">すでに%1$sで追跡中</string>
+
+    <string name="tip_duplicate_budget_tracking">メモ：選んだカテゴリは別の有効な予算にも入ってる。支出は両方の上限に加算されるよ。</string>
+
+    <string name="label_select_categories">カテゴリを選ぶ</string>
+
     <string name="label_budget_name_optional">予算名（任意）</string>
+
     <string name="label_budget_group">予算グループ</string>
+
     <string name="label_period">期間</string>
+
     <string name="title_nav_calendar">カレンダー</string>
+
     <string name="label_ad">広告</string>
+
     <string name="label_sponsored_content">スポンサーコンテンツ</string>
-    <string name="desc_sponsored_content">おすすめのサービスをご覧ください。</string>
-    <string name="btn_learn_more">詳細を見る</string>
-    <string name="msg_a_security_update_is_required">生体認証のロック解除を使う前に、セキュリティ更新が必要です。</string>
-    <string name="msg_choose_one_security_question_f">PIN復元用のセキュリティ質問を1つ選んでください。</string>
-    <string name="msg_enter_an_answer_for_your_secur">セキュリティ質問の答えを入力してください。</string>
-    <string name="msg_enter_your_answer_to_disable_a">アプリロックを解除するには答えを入力してください。</string>
-    <string name="msg_incorrect_answer_try_again">答えが違います。もう一度お試しください。</string>
-    <string name="msg_recovery_question_is_not_confi">このアプリロックには復元用の質問が設定されていません。</string>
-    <string name="msg_repeat_the_same_4_digits_to_fi">同じ4桁をもう一度入力して設定を完了してください。</string>
-    <string name="msg_set_up_fingerprint_or_face_unl">先に端末の設定で指紋または顔認証を設定してください。</string>
-    <string name="msg_this_device_does_not_support_b">この端末は生体認証に対応していません。</string>
-    <string name="toast_database_backup_saved">データベースのバックアップを保存しました。</string>
-    <string name="toast_database_restored_reloading_ap">データベースを復元しました。アプリを再読み込みします。</string>
+
+    <string name="desc_sponsored_content">このおすすめ、ちょっと見てみて。</string>
+
+    <string name="btn_learn_more">くわしく</string>
+
+    <string name="msg_a_security_update_is_required">指紋や顔認証を使う前に、セキュリティ更新が必要だよ。</string>
+
+    <string name="msg_choose_one_security_question_f">PINを忘れたとき用に、秘密の質問を1つ選んで。</string>
+
+    <string name="msg_enter_an_answer_for_your_secur">秘密の質問の答えを書いて。</string>
+
+    <string name="msg_enter_your_answer_to_disable_a">アプリロックをオフにするには答えを書いて。</string>
+
+    <string name="msg_incorrect_answer_try_again">答えが違うよ。もう一回。</string>
+
+    <string name="msg_recovery_question_is_not_confi">このロックには復旧用の質問がまだないよ。</string>
+
+    <string name="msg_repeat_the_same_4_digits_to_fi">同じ4桁をもう一度入れて完了。</string>
+
+    <string name="msg_set_up_fingerprint_or_face_unl">先にスマホの設定で指紋か顔認証をオンにして。</string>
+
+    <string name="msg_this_device_does_not_support_b">この端末は生体認証に対応してないよ。</string>
+
+    <string name="toast_database_backup_saved">データベースのバックアップを保存したよ。</string>
+
+    <string name="toast_database_restored_reloading_ap">データベースを復元したよ。アプリを再読み込みする。</string>
+
     <string name="desc_show_balance">残高を表示</string>
-    <string name="desc_hide_balance">残高を非表示</string>
+
+    <string name="desc_hide_balance">残高を隠す</string>
+
     <string name="btn_use_pin">PINを使う</string>
-    <string name="desc_delete_pin_digit">PINの桁を削除</string>
+
+    <string name="desc_delete_pin_digit">PINの1桁を消す</string>
+
     <string name="desc_locked">ロック中</string>
-    <string name="desc_unlock_advanced_search">高度な検索を解除</string>
+
+    <string name="desc_unlock_advanced_search">詳細検索を解除</string>
+
     <string name="desc_use_biometric">生体認証を使う</string>
-    <string name="label_unlock_pro_features">お金のゆとりをアンロック</string>
-    <string name="label_watch_a_short_video_to_unlock">短いストーリーを見て、%2$sの間%1$sを解除します。</string>
+
+    <string name="label_unlock_pro_features">お金の心配を減らそう</string>
+
+    <string name="label_watch_a_short_video_to_unlock">短い動画を見て、%2$sの%1$sを解除。</string>
+
     <string name="label_watch_ad_unlock">見て解除</string>
-    <string name="msg_biometric_authentication_is_no">生体認証は現在利用できません。</string>
-    <string name="msg_biometric_hardware_is_currentl">生体認証ハードウェアは現在利用できません。</string>
-    <string name="msg_enter_the_same_pin_once_more_t">確認のため、同じPINをもう一度入力してください。</string>
-    <string name="msg_error_unable_to_start_biometric_auth">この端末で生体認証を開始できませんでした。</string>
-    <string name="msg_incorrect_pin_try_again">PINが違います。もう一度お試しください。</string>
-    <string name="title_device_integrity_notice">セキュリティに関するお知らせ</string>
-    <string name="msg_device_integrity_notice">この端末はルート化されているか、エミュレータのようです。アプリロックなどのセキュリティ機能が弱まることがあります。</string>
-    <string name="msg_pin_locked_out">試行回数が多すぎます。%1$d秒後に再試行してください。</string>
-    <string name="msg_pins_did_not_match_start_again">PINが一致しません。最初からやり直してください。</string>
+
+    <string name="msg_biometric_authentication_is_no">いま生体認証は使えないよ。</string>
+
+    <string name="msg_biometric_hardware_is_currentl">生体認証ハードウェアがいま使えないよ。</string>
+
+    <string name="msg_enter_the_same_pin_once_more_t">同じPINをもう一度入れて。</string>
+
+    <string name="msg_error_unable_to_start_biometric_auth">この端末で生体認証を開始できなかったよ。</string>
+
+    <string name="msg_incorrect_pin_try_again">PINが違うよ。もう一回。</string>
+
+    <string name="title_device_integrity_notice">セキュリティのお知らせ</string>
+
+    <string name="msg_device_integrity_notice">この端末はルート化かエミュレータみたい。ロックや保護が弱くなることがあるよ。</string>
+
+    <string name="msg_pin_locked_out">試行が多すぎ。%1$d秒待って。</string>
+
+    <string name="msg_pins_did_not_match_start_again">PINが一致しないよ。最初から。</string>
+
     <string name="title_app_lock">アプリロック</string>
-    <string name="title_recover_access">アクセスを復元</string>
-    <string name="label_verify_security_question">セキュリティ質問を確認</string>
-    <string name="label_biometric_security_active">生体認証セキュリティ有効</string>
-    <string name="label_pin_security_active">PINセキュリティ有効</string>
-    <string name="label_create_4digit_pin">4桁のPINを作成</string>
+
+    <string name="title_recover_access">アクセスを復旧</string>
+
+    <string name="label_verify_security_question">秘密の質問を確認</string>
+
+    <string name="label_biometric_security_active">生体認証オン</string>
+
+    <string name="label_pin_security_active">PINオン</string>
+
+    <string name="label_create_4digit_pin">4桁PINを作成</string>
+
     <string name="label_confirm_your_pin">PINを確認</string>
-    <string name="label_forgot_your_pin">PINをお忘れですか？</string>
-    <string name="label_welcome_back">おかえりなさい</string>
+
+    <string name="label_forgot_your_pin">PINを忘れた？</string>
+
+    <string name="label_welcome_back">おかえり</string>
+
     <string name="label_confirm_pin">PINを確認</string>
-    <string name="label_security_question">セキュリティ質問</string>
-    <string name="msg_answer_saved_security_question">保存したセキュリティ質問に答えてアプリロックを解除します。</string>
-    <string name="msg_select_your_security_question">保存した質問を選び、答えを入力してください。</string>
-    <string name="msg_select_a_security_question">保存したセキュリティ質問を選んでください。</string>
-    <string name="msg_biometric_or_pin_to_continue">続けるには生体認証またはPINを使ってください。</string>
-    <string name="msg_enter_pin_to_continue">続けるにはPINを入力してください。</string>
-    <string name="msg_choose_question_remember">5つの質問から1つ選び、覚えやすい答えを入力してください。</string>
+
+    <string name="label_security_question">秘密の質問</string>
+
+    <string name="msg_answer_saved_security_question">保存した質問に答えてロックをオフに。</string>
+
+    <string name="msg_select_your_security_question">保存した質問を選んで答えを書いて。</string>
+
+    <string name="msg_select_a_security_question">保存した秘密の質問を選んで。</string>
+
+    <string name="msg_biometric_or_pin_to_continue">生体認証かPINで続ける。</string>
+
+    <string name="msg_enter_pin_to_continue">続けるにはPINを入れて。</string>
+
+    <string name="msg_choose_question_remember">5つの質問から覚えやすい1つと答えを選んで。</string>
+
     <string name="label_disable_app_lock">アプリロックをオフ</string>
-    <string name="msg_no_recovery_question_saved">このアプリロックにはまだ復元用の質問がありません。</string>
-    <string name="placeholder_type_recovery_answer">復元用の答えを入力</string>
-    <string name="placeholder_enter_your_answer">答えを入力</string>
-    <string name="question_childhood_crush">初めて好きになった人の名前は？</string>
+
+    <string name="msg_no_recovery_question_saved">このロック用の復旧質問はまだないよ。</string>
+
+    <string name="placeholder_type_recovery_answer">復旧用の答えを書く</string>
+
+    <string name="placeholder_enter_your_answer">あなたの答え</string>
+
+    <string name="question_childhood_crush">子どものころ最初に好きだった人の名前は？</string>
+
     <string name="question_first_school">最初の学校の名前は？</string>
-    <string name="question_childhood_friend">子どもの頃の親友の名前は？</string>
-    <string name="question_birth_city">生まれた都市はどこですか？</string>
-    <string name="question_favorite_teacher">好きだった先生の苗字は？</string>
+
+    <string name="question_childhood_friend">子どものころの親友の名前は？</string>
+
+    <string name="question_birth_city">生まれた街はどこ？</string>
+
+    <string name="question_favorite_teacher">いちばん好きだった先生の苗字は？</string>
+
     <string name="question_pet_name">最初のペットの名前は？</string>
+
     <string name="title_add_category">カテゴリを追加</string>
+
     <string name="label_category_type_section">カテゴリの種類</string>
+
     <string name="label_category_name_section">カテゴリ名</string>
-    <string name="label_select_visual_identity_section">見た目を選択</string>
-    <string name="placeholder_income_example">例: 業績ボーナス</string>
-    <string name="placeholder_expense_example">例: 週末の旅行</string>
-    <string name="placeholder_payment_example">例: デジタルウォレット</string>
-    <string name="msg_name_already_exists">この名前は%1$sに既にあります。</string>
-    <string name="msg_choose_icons_info">50個のアイコンから選べます。</string>
-    <string name="placeholder_search_icons">アイコンを検索（例: \'食事\'）…</string>
+
+    <string name="label_select_visual_identity_section">見た目を選ぶ</string>
+
+    <string name="placeholder_income_example">例：ボーナス</string>
+
+    <string name="placeholder_expense_example">例：週末</string>
+
+    <string name="placeholder_payment_example">例：電子マネー</string>
+
+    <string name="msg_name_already_exists">この名前はすでに%1$sにあるよ。</string>
+
+    <string name="msg_choose_icons_info">50個のアイコンから選んで。</string>
+
+    <string name="placeholder_search_icons">アイコンを検索（例：食事）…</string>
+
     <string name="label_color_section">色</string>
-    <string name="msg_choose_color_info">任意です。選ばなければアプリが色を付けます。</string>
+
+    <string name="msg_choose_color_info">任意。選ばなければアプリが色を決めるよ。</string>
+
     <string name="desc_color_default">デフォルトの色</string>
+
     <string name="desc_color_swatch">色 %1$s</string>
+
     <string name="desc_color_swatch_selected">色 %1$s、選択中</string>
-    <string name="msg_change_color_hint">新しい色を選ぶか、アプリの色のままにします。</string>
-    <string name="desc_change_color">色を変更</string>
-    <string name="msg_no_icons_found">「%1$s」のアイコンはありません</string>
+
+    <string name="msg_change_color_hint">新しい色を選ぶか、アプリが選んだ色のままで。</string>
+
+    <string name="desc_change_color">色を変える</string>
+
+    <string name="msg_no_icons_found">「%1$s」のアイコンは見つからないよ</string>
+
     <string name="label_add_type">種類を追加</string>
+
     <string name="label_payment_type_item">支払い方法</string>
+
     <string name="label_income_category_item">収入カテゴリ</string>
+
     <string name="label_expense_category_item">支出カテゴリ</string>
-    <string name="msg_item_added_under">この項目は%1$sの下に追加されます。</string>
+
+    <string name="msg_item_added_under">この新しい項目は%1$sに入るよ。</string>
+
     <string name="title_auto_lock_duration">自動ロック</string>
+
     <string name="title_biometric">生体認証</string>
+
     <string name="title_block_screenshots">スクリーンショットをブロック</string>
-    <string name="title_lock_as_soon_as_the_app_moves">アプリがバックグラウンドになったらすぐにロック。</string>
-    <string name="title_require_the_pin_again_after_va">アプリを離れて%1$s分後にPINを再要求。</string>
+
+    <string name="title_lock_as_soon_as_the_app_moves">アプリがバックグラウンドに行ったらすぐロック。</string>
+
+    <string name="title_require_the_pin_again_after_va">アプリから%1$s分離れたら、またPINが必要。</string>
+
     <string name="title_unlock_expense_tracker">Expense Trackerのロック解除</string>
-    <string name="title_verify_biometric_to_enable_bio">生体ロックを有効にするには認証してください。</string>
-    <string name="title_verify_your_biometric_to_conti">続けるには生体認証してください。</string>
-    <string name="toast_biometric_authentication_is_un">この画面では生体認証を使えません。</string>
-    <string name="toast_biometric_initialization_faile">生体認証の初期化に失敗しました。</string>
+
+    <string name="title_verify_biometric_to_enable_bio">生体ロックをオンにするには生体認証して。</string>
+
+    <string name="title_verify_your_biometric_to_conti">続けるには生体認証して。</string>
+
+    <string name="toast_biometric_authentication_is_un">この画面では生体認証は使えないよ。</string>
+
+    <string name="toast_biometric_initialization_faile">生体認証の開始に失敗したよ。</string>
+
     <string name="title_add_transaction">取引を追加</string>
+
     <string name="title_edit_transaction">取引を編集</string>
+
     <string name="label_add_note">メモを追加</string>
+
     <string name="label_no_note">メモなし</string>
-    <string name="desc_view_full_note">メモ全体を表示</string>
-    <string name="desc_hide_full_note">メモ全体を隠す</string>
+
+    <string name="desc_view_full_note">メモ全文を見る</string>
+
+    <string name="desc_hide_full_note">メモを隠す</string>
+
     <string name="label_off">オフ</string>
+
     <string name="label_weekly">毎週</string>
-    <string name="label_recurring">定期</string>
+
+    <string name="label_recurring">繰り返し</string>
+
     <string name="label_save_note">メモを保存</string>
-    <string name="label_what_is_this_for">これは何のため？</string>
-    <string name="placeholder_add_note">メモを追加...</string>
-    <string name="desc_clear_fields">入力をクリア</string>
+
+    <string name="label_what_is_this_for">これは何用？</string>
+
+    <string name="placeholder_add_note">メモを書く…</string>
+
+    <string name="desc_clear_fields">欄をクリア</string>
+
     <string name="title_quick_favorites">クイックお気に入り</string>
+
     <string name="label_all_favorites">すべて</string>
-    <string name="title_favorite_templates">お気に入りテンプレート</string>
-    <string name="placeholder_search_favorites">テンプレートを検索...</string>
-    <string name="msg_no_favorites_yet">お気に入りの取引はまだありません。</string>
-    <string name="msg_no_favorites_hint">よく使う取引をお気に入りにすると、ワンタップで入力できます。</string>
+
+    <string name="title_favorite_templates">お気に入りテンプレ</string>
+
+    <string name="placeholder_search_favorites">テンプレを検索…</string>
+
+    <string name="msg_no_favorites_yet">お気に入りはまだないよ。</string>
+
+    <string name="msg_no_favorites_hint">よく使う取引をお気に入りにして、あとでワンタップ。</string>
+
     <string name="label_copy">コピー</string>
-    <string name="msg_favorite_added">取引をお気に入りに追加しました。</string>
-    <string name="msg_favorite_copied">お気に入りをコピーしました。</string>
-    <string name="msg_favorite_removed">お気に入りから削除しました。</string>
+
+    <string name="msg_favorite_added">取引をお気に入りに入れたよ。</string>
+
+    <string name="msg_favorite_copied">お気に入りをコピーしたよ。</string>
+
+    <string name="msg_favorite_removed">お気に入りから外したよ。</string>
+
     <string name="desc_toggle_favorite">この取引のお気に入りを切り替え</string>
-    <string name="desc_open_all_favorites">すべてのお気に入りを開く</string>
+
+    <string name="desc_open_all_favorites">お気に入りを全部開く</string>
+
     <string name="desc_delete_favorite">お気に入りを削除</string>
-    <string name="desc_select_favorite">お気に入りをフォームに適用</string>
+
+    <string name="desc_select_favorite">フォームにお気に入りを適用</string>
+
     <string name="desc_favorite_icon">お気に入り</string>
-    <string name="desc_clear_note">メモをクリア</string>
-    <string name="desc_clear_search">検索をクリア</string>
+
+    <string name="desc_clear_note">メモを消す</string>
+
+    <string name="desc_clear_search">検索を消す</string>
+
     <string name="desc_close">閉じる</string>
-    <string name="label_recurring_track">オンにすると、今後この支出を自動で記録します。</string>
+
+    <string name="label_recurring_track">オンにすると、この支出をあとで自動で記録するよ。</string>
+
     <string name="desc_add_category">カテゴリを追加</string>
+
     <string name="desc_add_transaction">取引を追加</string>
-    <string name="desc_show_navigation_bar">ナビゲーションバーを表示</string>
+
+    <string name="desc_show_navigation_bar">ナビバーを表示</string>
+
     <string name="desc_confirm_val_transaction">%1$sの取引を確定</string>
-    <string name="desc_collapse_keypad">キーパッドを閉じる</string>
-    <string name="desc_expand_keypad">キーパッドを開く</string>
-    <string name="label_tap_to_hide_keypad">タップしてキーパッドを隠す</string>
-    <string name="label_tap_to_slide_up_keypad">タップしてキーパッドを上げる</string>
+
+    <string name="desc_collapse_keypad">キーパッドをしまう</string>
+
+    <string name="desc_expand_keypad">キーパッドを出す</string>
+
+    <string name="label_tap_to_hide_keypad">タップでキーパッドを隠す</string>
+
+    <string name="label_tap_to_slide_up_keypad">タップでキーパッドを上げる</string>
+
     <string name="desc_delete_transaction">取引を削除</string>
+
     <string name="desc_expense_tracker_logo">予算と支出のロゴ</string>
+
     <string name="desc_search_transactions">取引を検索</string>
+
     <string name="desc_todays_spending">今日の支出</string>
+
     <string name="dialog_budget_limit_alerts">予算上限アラート</string>
+
     <string name="label_add_category">カテゴリを追加</string>
+
     <string name="label_amount">金額</string>
+
     <string name="label_amount_keypad">金額キーパッド</string>
-    <string name="label_breakdown_of_expenses_based_on">ウォレットまたは支払い方法別の支出内訳。</string>
-    <string name="label_budgets_are_no_longer_preloade">予算は自動では入りません。今月追跡したいカテゴリ上限を追加してください。</string>
+
+    <string name="label_breakdown_of_expenses_based_on">財布や支払い方法ごとの支出の内訳。</string>
+
+    <string name="label_budgets_are_no_longer_preloade">予算はもう自動では入らないよ。今月追いたいカテゴリ上限を追加して。</string>
+
     <string name="label_category_name_label">カテゴリ名</string>
+
     <string name="label_category_type_label">カテゴリの種類</string>
-    <string name="label_choose_from_all_expense_catego">プリセットとカスタムを含む、すべての支出カテゴリから選びます。</string>
-    <string name="label_choose_how_many_decimal_places">金額に表示する小数点以下の桁数を選びます。</string>
-    <string name="label_delete_all_transactions">すべての取引を削除しますか？</string>
+
+    <string name="label_choose_from_all_expense_catego">標準もカスタムも含めて、すべての支出カテゴリから選んで。</string>
+
+    <string name="label_choose_how_many_decimal_places">金額の小数点以下の桁数を選んで。</string>
+
+    <string name="label_delete_all_transactions">取引を全部削除する？</string>
+
     <string name="label_delete_budget">予算を削除</string>
+
     <string name="label_delete_transactions">取引を削除</string>
+
     <string name="label_enter_amount">金額を入力</string>
+
     <string name="label_expense">支出</string>
+
     <string name="label_expense_category">支出カテゴリ</string>
+
     <string name="label_expense_tracker">予算と支出</string>
+
     <string name="label_expense_tracker_1">予算と支出</string>
+
     <string name="label_expense_title">支出</string>
-    <string name="label_how_many_times_this_recurring">この定期取引を何回繰り返すか。</string>
+
+    <string name="label_how_many_times_this_recurring">この繰り返し取引を何回繰り返すか。</string>
+
     <string name="label_income">収入</string>
+
     <string name="label_income_title">収入</string>
+
     <string name="label_monthly_budget">月次予算</string>
-    <string name="label_no_category_spending_found_in">この期間にカテゴリ支出はありません。</string>
-    <string name="label_no_spending_data_found">支出データがありません。</string>
-    <string name="label_no_spending_transactions_in_th">選択した期間に支出はありません。</string>
-    <string name="label_no_transactions_found">取引が見つかりません</string>
-    <string name="label_ranked_by_spending_for_the_sel">分析期間の支出順です。</string>
-    <string name="label_recurring_transaction">定期取引</string>
-    <string name="label_remove_the_budget_for_val_this">%1$sの予算を削除しますか？上限のみ削除され、取引は残ります。</string>
-    <string name="label_remove_val_from_recurring_trac">%1$sを定期追跡から外しますか？</string>
-    <string name="label_select_category">カテゴリを選択</string>
-    <string name="label_shape_how_your_transactions_ar">取引の整理と表示方法を決めます。</string>
-    <string name="label_spending_by_payment_mode">支払い方法別の支出</string>
-    <string name="label_delete_all_data">全データを削除してアプリをリセット</string>
-    <string name="label_delete_account_and_data">アカウントと全データを削除</string>
-    <string name="desc_delete_data_warning">すべての支出と予算が完全に削除されます。サインイン中はアカウントとクラウドバックアップも削除されます。元に戻せません。</string>
-    <string name="desc_delete_data_guest_warning">この端末上のデータのみ消去します。削除するクラウドアカウントはありません。\n\nこの端末のすべてが削除されます: 取引、予算、資金、目標、カテゴリ、タグ、バックアップ、設定。\n\n元に戻せません。コピーが必要なら先にバックアップを書き出してください。</string>
-    <string name="desc_delete_data_signed_out_warning">サインアウトではアカウントは消えません。この端末上のデータのみ消去します。クラウドアカウントは、サインインして「アカウントと全データを削除」するか、メールするまで残ります。\n\nこの端末のすべてが削除されます: 取引、予算、資金、目標、カテゴリ、タグ、バックアップ、設定。\n\n元に戻せません。コピーが必要なら先にバックアップを書き出してください。</string>
-    <string name="desc_delete_account_and_data_warning">アカウントと関連データが完全に削除されます。元に戻せません。\n\n次を行います:\n• サインインアカウントの削除\n• 同期済みクラウドデータの削除（取引、予算、カテゴリ、定期、目標、支払い方法、プロフィール、端末、写真）\n• この端末の全データの消去\n\n他の端末ではこのアカウントを使えなくなります。コピーが必要なら先にJSONまたはデータベースのバックアップを書き出してください。</string>
-    <string name="label_this_removes_only_transactions">すべてのデータが完全に削除されます。この操作は取り消せません。</string>
-    <string name="title_spent">支出済み</string>
-    <string name="label_spent_today">今日の支出</string>
-    <string name="label_top_spending">主な支出</string>
+
+    <string name="label_no_category_spending_found_in">この期間のカテゴリ支出はないよ。</string>
+
+    <string name="label_no_spending_data_found">支出データはないよ。</string>
+
+    <string name="label_no_spending_transactions_in_th">選んだ期間の支出はないよ。</string>
+
+    <string name="label_no_transactions_found">取引はないよ</string>
+
+    <string name="label_ranked_by_spending_for_the_sel">分析の期間の支出順。</string>
+
+    <string name="label_recurring_transaction">繰り返し取引</string>
+
+    <string name="label_remove_the_budget_for_val_this">%1$sの予算を削除する？上限だけ消えて、取引は残るよ。</string>
+
+    <string name="label_remove_val_from_recurring_trac">%1$sを繰り返し追跡から外す？</string>
+
+    <string name="label_select_category">カテゴリを選ぶ</string>
+
+    <string name="label_shape_how_your_transactions_ar">取引の並びと表示の仕方を決めよう。</string>
+
+    <string name="label_spending_by_payment_mode">支払い方法ごとの支出</string>
+
+    <string name="label_delete_all_data">データを全部消してアプリをリセット</string>
+
+    <string name="label_delete_account_and_data">アカウントとデータを全部削除</string>
+
+    <string name="desc_delete_data_warning">支出と予算は完全に消えるよ。ログインしてるなら、アカウントとクラウドバックアップも消える。元に戻せないよ。</string>
+
+    <string name="desc_delete_data_guest_warning">この端末だけ空になるよ。クラウドアカウントはないよ。
+
+このスマホの取引、予算、資金、目標、カテゴリ、タグ、バックアップ、設定は全部消える。
+
+元に戻せないよ。コピーが要るなら先にバックアップを書き出して。</string>
+
+    <string name="desc_delete_data_signed_out_warning">ログアウトしてもアカウントは消えないよ。この端末だけ空になる。クラウドのアカウントは、またログインしてアカウント削除するか、メールするまで残るよ。
+
+このスマホの取引、予算、資金、目標、カテゴリ、タグ、バックアップ、設定は全部消える。
+
+元に戻せないよ。コピーが要るなら先にバックアップを書き出して。</string>
+
+    <string name="desc_delete_account_and_data_warning">アカウントとデータは完全に消えるよ。元に戻せない。
+
+やることは：
+• ログインアカウントを削除
+• クラウドデータ全部（取引、予算、カテゴリ、繰り返し、目標、支払い方法、プロフィール、端末、写真）を削除
+• この端末を空にする
+
+他の端末ではこのアカウントは使えないよ。コピーが要るなら先にJSONかデータベースを書き出して。</string>
+
+    <string name="label_this_removes_only_transactions">全部完全に消えるよ。元に戻せない。</string>
+
+    <string name="title_spent">使った</string>
+
+    <string name="label_spent_today">今日使った</string>
+
+    <string name="label_top_spending">いちばんの支出</string>
+
     <string name="label_top_spending_by_category">支出の内訳</string>
+
     <string name="label_top_spending_by_payment_mode">支払いの内訳</string>
+
     <string name="label_income_breakdown">収入の内訳</string>
+
     <string name="label_tags_breakdown">タグの内訳</string>
-    <string name="label_no_income_breakdown">この期間に収入はありません</string>
-    <string name="label_no_tag_breakdown">この期間にタグ付き支出はありません</string>
+
+    <string name="label_no_income_breakdown">この期間の収入はないよ</string>
+
+    <string name="label_no_tag_breakdown">この期間のタグ付き支出はないよ</string>
+
     <string name="label_all_income_categories">すべての収入</string>
+
     <string name="label_all_tags_breakdown">すべてのタグ</string>
+
     <string name="title_full_income_breakdown">収入の内訳</string>
+
     <string name="title_full_tag_breakdown">タグの内訳</string>
+
     <string name="label_total_amount">合計金額</string>
+
     <string name="label_total_expenses">支出合計</string>
+
     <string name="label_total_income">収入合計</string>
+
     <string name="label_transaction_note">取引メモ</string>
+
     <string name="label_transactionid">transactionId</string>
+
     <string name="label_transactions">取引</string>
-    <string name="label_your_highest_expenses_in_the_s">選択期間で最も大きい支出です。</string>
+
+    <string name="label_your_highest_expenses_in_the_s">選んだ期間でのいちばん大きい支出。</string>
+
     <string name="title_amount">金額</string>
+
     <string name="title_amount_range">金額の範囲</string>
+
     <string name="title_budget_recurring">プラン</string>
+
     <string name="title_category">カテゴリ</string>
+
     <string name="title_category_1">カテゴリ</string>
+
     <string name="title_budget_category">予算カテゴリ</string>
+
     <string name="title_custom_expense_category">カスタム支出カテゴリ</string>
+
     <string name="title_custom_income_category">カスタム収入カテゴリ</string>
-    <string name="title_delete_all_transactions">すべての取引を削除</string>
+
+    <string name="title_delete_all_transactions">取引を全部削除</string>
+
     <string name="title_display_the_transaction_date">取引日を表示</string>
+
     <string name="title_expense">支出</string>
-    <string name="title_group_transactions_by_day">取引を日ごとにグループ化</string>
+
+    <string name="title_group_transactions_by_day">取引を日ごとにまとめる</string>
+
     <string name="title_income">収入</string>
-    <string name="title_incomeexpense_labels">収入/支出ラベル</string>
-    <string name="title_larger_amounts_take_priority_i">金額が大きいものがリストの上になります。</string>
+
+    <string name="title_incomeexpense_labels">収入 / 支出ラベル</string>
+
+    <string name="title_larger_amounts_take_priority_i">大きい金額が先に出るよ。</string>
+
     <string name="title_manage_category">カテゴリを管理</string>
+
     <string name="title_manage_tags">タグを管理</string>
-    <string name="label_manage_tags_subtitle">タグを整理して統合</string>
-    <string name="label_tags_count">%1$d件のタグ</string>
-    <string name="desc_tags_info">タグとは</string>
+
+    <string name="label_manage_tags_subtitle">タグを整理してまとめる</string>
+
+    <string name="label_tags_count">%1$d個のタグ</string>
+
+    <string name="desc_tags_info">タグって何</string>
+
     <string name="desc_search_tags">タグを検索</string>
+
     <string name="placeholder_search_manage_tags">タグを検索</string>
+
     <string name="desc_search_categories">カテゴリを検索</string>
+
     <string name="placeholder_search_manage_categories">カテゴリを検索</string>
-    <string name="desc_categories_info">カテゴリとは</string>
-    <string name="title_what_are_categories">カテゴリとは</string>
-    <string name="msg_categories_what">カテゴリは収入と支出を分けます。支払い方法は現金やカードなど、お金の動き方です。</string>
-    <string name="msg_categories_where">取引追加時に1つ選びます。名前と色はここで管理します。</string>
+
+    <string name="desc_categories_info">カテゴリって何</string>
+
+    <string name="title_what_are_categories">カテゴリって何</string>
+
+    <string name="msg_categories_what">カテゴリは収入と支出をグループ分けするよ。支払い方法はお金の動き方、現金やカード。</string>
+
+    <string name="msg_categories_where">追加するときに1つ選んで。ここでは名前と色を整えるよ。</string>
+
     <string name="label_categories_example">例</string>
+
     <string name="label_category_example_name">食事</string>
-    <string name="title_what_are_tags">タグとは</string>
-    <string name="msg_tags_what">タグはカテゴリに加えた取引の追加ラベルです。食事・買い物・宿泊は別カテゴリのまま、まとめて扱えます。</string>
-    <string name="msg_tags_where">旅行では同じタグを各支出に付けます。取引で検索するか、分析で内訳を開きます。</string>
+
+    <string name="title_what_are_tags">タグって何</string>
+
+    <string name="msg_tags_what">タグはカテゴリ以外の追加ラベル。食事、買い物、宿泊は別カテゴリでも同じタグでまとめられるよ。</string>
+
+    <string name="msg_tags_where">旅行中は各支出に同じタグを。取引で探すか、分析でタグの内訳を見て。</string>
+
     <string name="label_tags_example">例</string>
-    <string name="label_tag_example_name">休暇</string>
+
+    <string name="label_tag_example_name">旅行</string>
+
     <string name="desc_sort">並べ替え</string>
+
     <string name="title_sort">並べ替え</string>
+
     <string name="label_sort_newest">新しい順</string>
+
     <string name="label_sort_oldest">古い順</string>
+
     <string name="label_sort_az">A → Z</string>
+
     <string name="label_sort_za">Z → A</string>
-    <string name="msg_no_tags_yet">タグはまだありません。+で作成してください。</string>
+
+    <string name="msg_no_tags_yet">タグはまだないよ。＋で作って。</string>
+
     <string name="title_new_tag">新しいタグ</string>
-    <string name="msg_tag_name_caption">後で探しやすい短い名前を付けてください。</string>
+
+    <string name="msg_tag_name_caption">あとで探しやすい短い名前をつけて。</string>
+
     <string name="title_rename_tag">タグ名を変更</string>
+
     <string name="label_tag_name">タグ名</string>
+
     <string name="label_create">作成</string>
+
     <string name="label_rename">名前を変更</string>
+
     <string name="desc_add_tag">タグを追加</string>
+
     <string name="desc_rename_tag">%1$sの名前を変更</string>
+
     <string name="desc_delete_tag">%1$sを削除</string>
+
     <string name="desc_merge_tag">%1$sを統合</string>
-    <string name="msg_delete_tag_confirm">「%1$s」を削除しますか？すべての取引から外れますが、取引自体は残ります。</string>
+
+    <string name="msg_delete_tag_confirm">「%1$s」を削除する？すべての取引から外れるけど、取引そのものは残るよ。</string>
+
     <string name="msg_tag_transaction_count">%1$d件の取引</string>
+
     <string name="label_tag_prefixed">#%1$s</string>
-    <string name="msg_tag_color_hint">このタグの色を選んでください</string>
-    <string name="msg_merge_pick_target">「%1$s」を統合中 — 統合先のタグをタップしてください。</string>
+
+    <string name="msg_tag_color_hint">このタグの色を選んで</string>
+
+    <string name="msg_merge_pick_target">「%1$s」を統合中 — まとめ先のタグをタップして。</string>
+
     <string name="label_merge_tags">統合</string>
+
     <string name="label_delete_tags">削除</string>
-    <string name="msg_select_tags_to_merge">統合するには2つ以上のタグを選んでください</string>
-    <string name="msg_select_tags_to_delete">削除するタグを選んでください</string>
+
+    <string name="msg_select_tags_to_merge">2つ以上のタグを選んで1つにまとめて</string>
+
+    <string name="msg_select_tags_to_delete">削除するタグを選んで</string>
+
+    <string name="title_merge_tags">タグを統合</string>
+
+    <string name="msg_merge_choose_target">残すタグを選んで。他はそこにまとまるよ。</string>
+
+    <string name="label_merge_selected">%1$d件を統合</string>
+
+    <string name="label_delete_selected">%1$d件を削除</string>
+
+    <string name="msg_delete_tags_confirm">タグ%1$d件を削除する？すべての取引から外れるけど、取引は残るよ。</string>
+
+    <string name="title_tags">タグ</string>
+
+    <string name="label_note_colon">メモ：</string>
+
+    <string name="label_tags_colon">タグ：</string>
+
+    <string name="label_fund_colon">資金：</string>
+
+    <string name="label_close">閉じる</string>
+
+    <string name="label_add_tag">タグを追加</string>
+
+    <string name="placeholder_search_tags">タグを検索または作成</string>
+
+    <string name="label_create_tag_named">#%1$s を作成</string>
+
+    <string name="desc_remove_tag">%1$sを外す</string>
+
+    <string name="label_filter_tags">タグ</string>
+
+    <string name="label_tag_match_all">すべて</string>
+
+    <string name="label_tag_match_any">いずれか</string>
+
+    <string name="desc_filter_tags_match_mode">選んだタグのすべて、またはいずれか</string>
+
+    <string name="title_recurring_expenses">繰り返しの支出</string>
+
+    <string name="title_show_category_icon">カテゴリアイコンを表示</string>
+
+    <string name="title_show_transaction_date">日付を表示</string>
+
+    <string name="title_show_transaction_time">時刻を表示</string>
+
+    <string name="title_track_expensesneasily">支出をかんたんに
+記録しよう</string>
+
+    <string name="title_transaction_card">カスタマイズ</string>
+
+    <string name="title_transaction_count">取引件数</string>
+
+    <string name="title_transaction_type">取引の種類</string>
+
+    <string name="title_transactions">取引</string>
+
+    <string name="title_visual_category_indicators">カテゴリの見た目</string>
+
+    <string name="toast_all_transactions_deleted">取引を全部削除したよ。</string>
+
+    <string name="toast_unable_to_delete_transactions">取引を削除できなかったよ。もう一回。</string>
+
+    <string name="desc_profile_photo">プロフィール写真</string>
+
+    <string name="desc_profile_placeholder">プロフィールのプレースホルダー</string>
+
+    <string name="desc_settings">設定</string>
+
     <string name="title_settings">設定</string>
-    <string name="label_save">保存</string>
-    <string name="label_cancel">キャンセル</string>
-    <string name="label_ok">OK</string>
-    <string name="label_done">完了</string>
-    <string name="label_next">次へ</string>
-    <string name="label_yes">はい</string>
-    <string name="label_no">いいえ</string>
-    <string name="label_add">追加</string>
-    <string name="label_edit">編集</string>
-    <string name="label_delete">削除</string>
-    <string name="label_view_all">すべて見る</string>
-    <string name="label_date">日付</string>
-    <string name="label_time">時刻</string>
-    <string name="label_note">メモ</string>
+
+    <string name="title_detected_txns">検出した取引</string>
+
+    <string name="title_home_calculator">電卓</string>
+
+    <string name="title_calendar_view">カレンダー表示</string>
+
+    <string name="desc_more_options">その他</string>
+
+    <string name="header_account_and_security">アカウントとセキュリティ</string>
+
+    <string name="header_membership">メンバーシップ</string>
+
+    <string name="header_preferences">設定</string>
+
+    <string name="header_system_and_data">システムとデータ</string>
+
+    <string name="label_card_settings">カード設定</string>
+
+    <string name="title_app_preferences">アプリの設定</string>
+
+    <string name="title_data_management">データの管理</string>
+
+    <string name="title_data_management_1">データの管理</string>
+
+    <string name="title_notification_settings">通知</string>
+
+    <string name="title_notifications">通知</string>
+
+    <string name="title_notifications_1">通知</string>
+
+    <string name="title_preference">設定</string>
+
+    <string name="title_profile">プロフィール</string>
+
+    <string name="title_user_profile">ユーザープロフィール</string>
+
+    <string name="title_account">アカウント</string>
+
+    <string name="title_customize_caps">カスタマイズ</string>
+
+    <string name="title_monetization_caps">収益化</string>
+
+    <string name="label_remove_all_ads">広告を全部オフ</string>
+
+    <string name="label_remove_all_ads_subtitle">買い切りで広告なし</string>
+
+    <string name="msg_watch_ad_for_ad_free">Pro機能と広告なしUIを試す</string>
+
+    <string name="desc_ad_free_pass_duration">短い広告を見て%1$sのProと広告なしUI</string>
+
+    <string name="label_ad_free_active">広告なしアクセス中</string>
+
+    <string name="msg_ad_free_duration_remaining">いまPro機能と広告なしUIを使えてるよ。</string>
+
+    <string name="label_active_caps">有効</string>
+
+    <string name="label_watch_now_caps">今すぐ見る</string>
+
+    <string name="title_session">セッション</string>
+
+    <string name="title_about_caps">このアプリについて</string>
+
+    <string name="label_edit_profile">プロフィールを編集</string>
+
+    <string name="label_edit_profile_subtitle">名前、アバター、メール</string>
+
+    <string name="desc_cloud_sync_devices_subtitle">端末間でデータを同期</string>
+
+    <string name="label_security_privacy_subtitle">生体認証、パスコード、アプリロック</string>
+
+    <string name="label_manage_category_subtitle">カテゴリの追加、編集、色分け</string>
+
+    <string name="label_app_preferences_subtitle">テーマ、通貨、言語</string>
+
+    <string name="label_transaction_card_subtitle">アプリを自分用に</string>
+
+    <string name="label_data_management_subtitle">バックアップ、復元、CSV書き出し</string>
+
+    <string name="label_about_subtitle">バージョン、ライセンス、利用規約</string>
+
+    <string name="label_about_app_subtitle">バージョン、ライセンス、利用規約</string>
+
+    <string name="title_refer_a_friend">友だちを招待</string>
+
+    <string name="label_refer_a_friend_subtitle">個人の招待を送る</string>
+
+    <string name="msg_refer_a_friend">%1$sで支出を記録してるよ。試してみて：
+%2$s</string>
+
+    <string name="msg_refer_register_for_code">Googleかメール／パスワードで登録して、専用の紹介コードをもらって。</string>
+
+    <string name="btn_register_for_referral">登録してコードをもらう</string>
+
+    <string name="msg_refer_how_it_works">コードをシェアして。友だちが入って使って取引を足したら、ふたりとも4日分のProがもらえるよ。月に最大4回。</string>
+
+    <string name="label_refer_rewards_this_month">今月の報酬：%1$d / %2$d</string>
+
+    <string name="btn_copy_code">コードをコピー</string>
+
+    <string name="msg_code_copied">コードをコピーしたよ</string>
+
+    <string name="btn_share_code">招待をシェア</string>
+
+    <string name="msg_use_my_code">僕のコード %1$s を使って</string>
+
+    <string name="label_enter_friend_code">友だちのコード</string>
+
+    <string name="btn_apply_code">コードを使う</string>
+
+    <string name="msg_welcome_days">Pro Passが%1$d日分ついたよ</string>
+
+    <string name="error_refer_not_signed_in">コードを使うには先にログインして</string>
+
+    <string name="error_refer_invalid">そのコードは無効だよ</string>
+
+    <string name="error_refer_own_code">自分のコードは使えないよ</string>
+
+    <string name="error_refer_already">もう紹介コードを使ってるよ</string>
+
+    <string name="error_refer_network">接続を確認してもう一回</string>
+
+    <string name="error_refer_unknown">そのコードは使えなかったよ</string>
+
+    <string name="title_refer_offer">無料Pro</string>
+
+    <string name="msg_refer_offer">友だちを招待して。成功するたびにPro Pass 4日。月に最大4回。</string>
+
+    <string name="title_refer_more">もっと招待</string>
+
+    <string name="msg_refer_more">友だちをもっと招待して、無料Proを増やそう。</string>
+
+    <string name="btn_refer_now">友だちを招待</string>
+
+    <string name="title_refer_earn">招待してゲット</string>
+
+    <string name="label_refer_earn_subtitle">最大16日の無料Pro</string>
+
+    <string name="desc_referral_rules">紹介のルール</string>
+
+    <string name="title_referral_rules">紹介のルール</string>
+
+    <string name="msg_referral_rules">有効な紹介ごとにPro 4日。
+友だちは登録後に最低1件取引して。
+暦月で最大4回（16日）。
+毎月1日にリセット。</string>
+
+    <string name="tab_refer_friends">友だちを招待</string>
+
+    <string name="tab_my_rewards">自分の報酬</string>
+
+    <string name="label_pro_privilege">Pro特典</string>
+
+    <string name="title_give_7_get_7">4日あげて、
+4日Proをもらう</string>
+
+    <string name="step_share_code">コードをシェア</string>
+
+    <string name="step_share_code_sub">招待リンクを送る</string>
+
+    <string name="step_friend_joins">友だちが参加</string>
+
+    <string name="step_friend_joins_sub">最初のアクティビティを作る</string>
+
+    <string name="step_both_get_pro">ふたりともPro</string>
+
+    <string name="step_both_get_pro_sub">+4日が開く</string>
+
+    <string name="label_your_referral_code">自分の紹介コード</string>
+
+    <string name="label_tap_to_copy">タップしてコピー</string>
+
+    <string name="btn_share_invite_link">招待リンクをシェア</string>
+
+    <string name="title_monthly_progress">今月の進捗</string>
+
+    <string name="label_earned_of_rewards">見込み報酬の%1$d / %2$dを獲得</string>
+
+    <string name="label_plus_days">+%1$d日</string>
+
+    <string name="label_days_left_to_max">最大ボーナスまであと%1$d日</string>
+
+    <string name="label_max_28_days">最大：Pro 16日</string>
+
+    <string name="label_claimed">受け取り済み</string>
+
+    <string name="label_next_slot">次</string>
+
+    <string name="label_slot_locked">ロック中</string>
+
+    <string name="label_reward_days_count">%1$d日</string>
+
+    <string name="label_have_friend_code">友だちのコードある？</string>
+
+    <string name="title_your_referrals">自分の紹介</string>
+
+    <string name="label_total_active">合計：%1$d件アクティブ</string>
+
+    <string name="msg_invite_more_friends">今月の報酬を埋めるためにもっと招待しよう！</string>
+
+    <string name="msg_you_unlocked_welcome_pro">友だちのコードでPro 4日が開いたよ。</string>
+
+    <string name="msg_add_expense_to_complete_invite">支出を1件足して友だちの招待を完了して。</string>
+
+    <string name="label_signed_up_on">%1$sに登録</string>
+
+    <string name="label_plus_7_days_pro">+4日Pro</string>
+
+    <string name="label_referral_counted">カウント済み</string>
+
+    <string name="label_completed_transaction">取引完了</string>
+
+    <string name="label_pending">保留</string>
+
+    <string name="label_awaiting_first_tx">最初の取引待ち</string>
+
+    <string name="label_test_popups">テストポップアップ：</string>
+
+    <string name="btn_test_referee_code">被紹介者のコード</string>
+
+    <string name="btn_test_first_txn">最初の取引完了</string>
+
+    <string name="label_code_accepted">コード承認</string>
+
+    <string name="title_you_unlocked_7_days">Proアクセス開始：
+次の4日が開いたよ</string>
+
+    <string name="msg_referral_code_applied_pro">紹介コードが通ったよ。全Pro機能が4日開く。</string>
+
+    <string name="label_pro_ai_tools">フルPro — 広告なし</string>
+
+    <string name="label_pro_ad_free">4端末同期</string>
+
+    <string name="label_pro_priority_themes">ほかにも…見てみて</string>
+
+    <string name="label_valid_until">有効期限：</string>
+
+    <string name="label_free_badge">無料</string>
+
+    <string name="btn_start_exploring_pro">Proを探検しはじめる</string>
+
+    <string name="btn_want_more_refer">もっと欲しい？招待して最大16日！</string>
+
+    <string name="label_first_txn_done">最初の取引完了</string>
+
+    <string name="label_referral_completed">紹介完了</string>
+
+    <string name="title_you_earned_7_days">無料Proが
++4日ついたよ！</string>
+
+    <string name="msg_friend_registered_first_tx">%1$sが君のコードで登録して、最初の取引を終えたよ！</string>
+
+    <string name="label_monthly_rewards_progress">今月の報酬の進捗</string>
+
+    <string name="label_rewards_fraction">報酬 %1$d / %2$d</string>
+
+    <string name="label_7_days_slot">4日</string>
+
+    <string name="msg_7_days_pro_auto_activated">Pro 4日が自動でオンになったよ！</string>
+
+    <string name="btn_7_days_pro_claimed">Pro 4日を受け取った</string>
+
+    <string name="btn_invite_more_days_left">もっと招待（残り+%1$d日）</string>
+
+    <string name="label_test_friend_name">Alex Morgan</string>
+
+    <string name="title_share_app">アプリをシェア</string>
+
+    <string name="label_share_app">アプリをシェア</string>
+
+    <string name="label_share_app_subtitle">Playストアのリンクを送る</string>
+
+    <string name="msg_share_app_chat">やあ！毎日の支出と予算をExpense Tracker 予算と支出で記録してるよ。すごく助かる。ここから試して：
+
+%1$s</string>
+
+    <string name="msg_share_app_features">お金の管理がもっと楽になるよ。Expense Tracker 予算と支出で予算、毎日の支出、貯蓄目標を見てる。
+
+試す： %1$s</string>
+
+    <string name="msg_share_app_punchy">お金を握ろう！毎日の支出を記録してスマートな予算をExpense Tracker 予算と支出で： %1$s</string>
+
+    <string name="label_notifications_subtitle">アラートとリマインダーを設定</string>
+
+    <string name="desc_settings_icon">設定アイコン</string>
+
+    <string name="title_connect_on_linkedin">LinkedInでつながる</string>
+
+    <string name="label_connect_on_linkedin_subtitle">ManishをLinkedInでフォロー</string>
+
+    <string name="label_val_min">%1$d分</string>
+
+    <string name="label_add_note_optional">メモを追加…（任意）</string>
+
+    <string name="toast_authentication_failed">認証に失敗したよ。</string>
+
+    <string name="error_auth_cloned_or_unauthorized">Google認証に失敗したよ。クローンや並列スペースなら、元のアプリを使って。</string>
+
+    <string name="error_enter_email">メールアドレスを入れて。</string>
+
+    <string name="toast_legacy_import_failed_check_the">旧インポートに失敗したよ。バックアップファイルを確認してもう一回。</string>
+
+    <string name="toast_database_backup_save_failed">データベースのバックアップを保存できなかったよ。もう一回。</string>
+
+    <string name="toast_database_restore_failed">データベースのバックアップを復元できなかったよ。もう一回。</string>
+
+    <string name="toast_json_exported">JSONを書き出したよ：取引%1$d、予算%2$d、目標%3$d。</string>
+
+    <string name="toast_json_export_failed">JSONを書き出せなかったよ。もう一回。</string>
+
+    <string name="toast_json_import_failed">JSONを読み込めなかったよ。ファイルを確認してもう一回。</string>
+
+    <string name="toast_json_import_message">取引%1$d、予算%2$d、ルール%3$d、目標%4$dを読み込んだよ。重複取引%5$d件はスキップ。</string>
+
+    <string name="toast_legacy_imported">旧取引%1$d件を読み込んだよ。既存%2$d件はスキップ。</string>
+
+    <string name="toast_delete_transactions_failed">取引を削除できなかったよ。もう一回。</string>
+
+    <string name="toast_pro_billing_coming_soon">Proの課金はもうすぐ！</string>
+
+    <string name="toast_unable_to_export_json_please_t">JSONを書き出せなかったよ。もう一回。</string>
+
+    <string name="toast_unable_to_import_json_check_th">JSONを読み込めなかったよ。ファイルを確認してもう一回。</string>
+
+    <string name="toast_unable_to_restore_the_database">データベースのバックアップを復元できなかったよ。もう一回。</string>
+
+    <string name="toast_unable_to_save_the_database_ba">データベースのバックアップを保存できなかったよ。もう一回。</string>
+
+    <string name="dialog_alerts_reminders">アラートとリマインダー</string>
+
+    <string name="desc_add_item">項目を追加</string>
+
+    <string name="desc_ai_tip">AIヒント</string>
+
+    <string name="desc_apply_to_note">メモに適用</string>
+
+    <string name="desc_back">戻る</string>
+
+    <string name="desc_close_filters">フィルタを閉じる</string>
+
+    <string name="desc_close_search">検索を閉じる</string>
+
+    <string name="desc_remove_filter">フィルタを外す</string>
+
+    <string name="desc_custom_range">カスタム範囲</string>
+
+    <string name="desc_delete">削除</string>
+
+    <string name="desc_delete_photo">写真を削除</string>
+
+    <string name="content_desc_email_verified">メール確認済み</string>
+
+    <string name="desc_delete_selected">選択を削除</string>
+
+    <string name="desc_delete_val">%1$sを削除</string>
+
+    <string name="desc_delete_val_1">%1$sを削除</string>
+
+    <string name="desc_deselect_all">すべて解除</string>
+
+    <string name="desc_exit_selection">選択を終了</string>
+
+    <string name="desc_next_period">次の期間</string>
+
+    <string name="desc_next_year">次の年</string>
+
+    <string name="desc_open_calculator">電卓を開く</string>
+
+    <string name="desc_open_calendar">カレンダーを開く</string>
+
+    <string name="desc_open_gender_options">性別の選択肢を開く</string>
+
+    <string name="desc_open_val">%1$sを開く</string>
+
+    <string name="desc_open_val_1">\%1$sを開く</string>
+
+    <string name="desc_open_val_2">%1$sを開く</string>
+
+    <string name="desc_previous_period">前の期間</string>
+
+    <string name="desc_previous_year">前の年</string>
+
+    <string name="desc_search">検索</string>
+
+    <string name="desc_search_currency">通貨を検索</string>
+
+    <string name="desc_select_all">すべて選択</string>
+
+    <string name="label_12">12</string>
+
+    <string name="label_12hour">12時間</string>
+
+    <string name="label_248">+24.8%</string>
+
+    <string name="label_24hour">24時間</string>
+
+    <string name="label_full_access_for_duration">%1$sフルアクセス</string>
+
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d時間</item>
+        <item quantity="other">%1$d時間</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d分</item>
+        <item quantity="other">%1$d分</item>
+    </plurals>
+
+    <string name="label_1_hour_access">広告なし1時間</string>
+
     <string name="label_about">このアプリについて</string>
-    <string name="label_pro">Pro</string>
-    <string name="label_free">無料</string>
-    <string name="notification_action_edit">編集</string>
-    <string name="notification_action_ignore">無視</string>
-    <string name="notification_title_sms_import">検出された取引</string>
-    <string name="label_developed_by">開発元</string>
-    <string name="label_funds_breakdown">資金の内訳</string>
-    <string name="label_no_fund_breakdown">この期間に資金の支出はありません</string>
-    <string name="label_all_funds_breakdown">すべての資金</string>
+
+    <string name="label_ac">AC</string>
+
+    <string name="label_c">C</string>
+
+    <string name="label_accuracy">精度</string>
+
+    <string name="label_active">有効</string>
+
+    <string name="label_add_a_note">メモを追加</string>
+
+    <string name="label_add_item">項目を追加</string>
+
+    <string name="label_add_new_item">新しい項目を追加</string>
+
+    <string name="label_all_categories">すべてのカテゴリ</string>
+
+    <string name="label_app_is_starting_please_wait">アプリ起動中、ちょっと待って…</string>
+
+    <string name="label_apply">適用</string>
+
+    <string name="label_apply_custom_duration">カスタム期間を適用</string>
+
+    <string name="label_apply_custom_frequency">カスタム頻度を適用</string>
+
+    <string name="label_apply_filters">フィルタを適用</string>
+
+    <string name="label_apply_to_note">メモに適用</string>
+
+    <string name="label_are_you_sure_you_want_to_delet">取引%1$s件を削除する？元に戻せないよ。</string>
+
+    <string name="label_breakdown">内訳</string>
+
+    <string name="label_breakdown_sub_expenses">サブ支出</string>
+
+    <string name="label_cancel">キャンセル</string>
+
+    <string name="label_cancel_1">キャンセル</string>
+
+    <string name="label_cash_flow_ratio">キャッシュフロー比率</string>
+
+    <string name="label_choose_from_50_icons_color_sty">50個のアイコンから選んで。色は自動のまま。</string>
+
+    <string name="label_choose_month">月を選ぶ</string>
+
+    <string name="label_choose_the_date_style_you_want">アプリ全体の日付の見た目を選んで。</string>
+
+    <string name="label_choose_the_gender_label_that_b">プロフィールに合う性別ラベルを選んで。</string>
+
+    <string name="label_choose_whether_time_is_shown_i">時刻を12時間か24時間か選んで。</string>
+
+    <string name="label_choose_year">年を選ぶ</string>
+
+    <string name="label_clear">クリア</string>
+
+    <string name="label_custom_duration">カスタム期間</string>
+
+    <string name="label_customize_how_your_data_is_vis">データの見え方をカスタム</string>
+
+    <string name="label_date">日付</string>
+
+    <string name="desc_miss_entry_reminder">2日取引を足し忘れたら通知が来るよ。</string>
+
+    <string name="label_date_of_birth">生年月日</string>
+
+    <string name="label_default_is_off_turn_it_on_to_t">デフォルトはオフ。オンにすると予算と繰り返しで追跡するよ。</string>
+
+    <string name="label_delete">削除</string>
+
+    <string name="label_delete_all">すべて削除</string>
+
+    <string name="label_description">説明</string>
+
+    <string name="label_description_1">説明</string>
+
+    <string name="label_developed_by">開発</string>
+
+    <string name="label_edit">編集</string>
+
+    <string name="label_email_address">メールアドレス</string>
+
+    <string name="label_encrypted_mode">暗号化モード</string>
+
+    <string name="label_enter_minutes">分を入力</string>
+
+    <string name="label_forgot">忘れた</string>
+
+    <string name="label_full_name">氏名</string>
+
+    <string name="label_gender">性別</string>
+
+    <string name="label_github">GITHUB</string>
+
+    <string name="label_growth_index">成長指数</string>
+
+    <string name="label_handcrafted_with_precision_and">丁寧に、心を込めて ❤️</string>
+
+    <string name="label_headertransition">HeaderTransition</string>
+
+    <string name="label_hi_val">やあ、%1$s</string>
+
+    <string name="label_high_fidelity">High Fidelity</string>
+
+    <string name="label_iconkey">iconKey</string>
+
+    <string name="label_id">id</string>
+
+    <string name="label_immediately">すぐ</string>
+
+    <string name="label_itemized_calculator">項目別電卓</string>
+
+    <string name="label_last_month">先月</string>
+
+    <string name="label_linkedin">LINKEDIN</string>
+
+    <string name="label_month">/ 月</string>
+
+    <string name="label_month_1">月</string>
+
+    <string name="label_monthly_limit">月の上限</string>
+
+    <string name="label_name">名前</string>
+
+    <string name="label_new_item">新しい項目</string>
+
+    <string name="label_no_countries_matched_your_sear">一致する国はないよ。</string>
+
+    <string name="label_no_payment_data_found_in_this">この範囲の支払いデータはないよ。</string>
+
+    <string name="label_not_now">あとで</string>
+
+    <string name="label_note">メモ</string>
+
+    <string name="label_personalize_your_vault">金庫を自分用に</string>
+
+    <string name="label_phone_number">電話番号</string>
+
+    <string name="label_pick_a_preset_in_5minute_steps">5分刻みで60分までのプリセットか、分を自分で入れて。</string>
+
+    <string name="label_pick_a_preset_or_enter_a_custo">プリセットか、1〜30日の値を入れて。</string>
+
+    <string name="label_premium_member">Proメンバー</string>
+
+    <string name="label_private_member">プライベートメンバー</string>
+
+    <string name="label_qval">Q%1$s</string>
+
+    <string name="label_recent">最近</string>
+
+    <string name="label_recent_activities">最近のアクティビティ</string>
+
+    <string name="label_repeat_count">繰り返し回数</string>
+
+    <string name="label_reset">リセット</string>
+
+    <string name="label_restore_database">データベースを復元する？</string>
+
+    <string name="label_save">保存</string>
+
+    <string name="label_save_changes">変更を保存</string>
+
+    <string name="label_search_by_country_and_pick_the">国を検索して、アプリの通貨を選んで。</string>
+
+    <string name="label_search_country">国を検索</string>
+
+    <string name="label_security_answer">セキュリティの答え</string>
+
+    <string name="label_select_currency">通貨を選ぶ</string>
+
+    <string name="label_select_date_format">日付形式を選ぶ</string>
+
+    <string name="label_select_decimal_places">小数桁を選ぶ</string>
+
+    <string name="label_select_gender">性別を選ぶ</string>
+
+    <string name="label_select_number_format">数値形式を選ぶ</string>
+
+    <string name="label_select_time_format">時刻形式を選ぶ</string>
+
+    <string name="label_select_visual_identity">見た目を選ぶ</string>
+
+    <string name="label_selected">選択中</string>
+
+    <string name="label_smart_ai_tip">スマートAIヒント</string>
+
+    <string name="label_sort_filter">並べ替えとフィルタ</string>
+
+    <string name="label_stepanimation">StepAnimation</string>
+
+    <string name="label_system_active">システム有効</string>
+
+    <string name="pro_slogan_1">お金の記録は、勝手に走らせよう。</string>
+
+    <string name="pro_subheadline_1">家賃、請求、サブスクの打ち直しはもうやめ。繰り返しログとクラウド同期がやるよ。</string>
+
+    <string name="pro_cta_1">自動貯蓄を開く</string>
+
+    <string name="pro_slogan_2">一度記録。どこでも同期。</string>
+
+    <string name="pro_subheadline_2">財布と口座がスマホ、タブレット、パートナーの端末でリアルタイムに揃うよ。</string>
+
+    <string name="pro_cta_2">手作業から解放</string>
+
+    <string name="pro_slogan_3">手作業ゼロ。お金のコントロール100%。</string>
+
+    <string name="pro_subheadline_3">毎日の記録は裏で動く。月の請求を自動化して、家計をゆっくり回そう。</string>
+
+    <string name="pro_cta_3">自動貯蓄を開く</string>
+
+    <string name="pro_slogan_4">使う前に、お金の行き先を見よう。</string>
+
+    <string name="pro_subheadline_4">履歴だけじゃない。カテゴリごとの見通しとトレンドで、来月の残高を今日見る。</string>
+
+    <string name="pro_cta_4">一生使える見通しにアップグレード</string>
+
+    <string name="pro_slogan_5">勘はやめて。資産を育てよう。</string>
+
+    <string name="pro_subheadline_5">死角を消す。Pro分析が漏れを見せて、貯蓄に回せるよ。</string>
+
+    <string name="pro_cta_5">資産を握ろう</string>
+
+    <string name="pro_slogan_6">スマートな見通しでキャッシュフローを掌握。</string>
+
+    <string name="pro_subheadline_6">当てずっぽうの予算はやめ。本当の買い物クセからのトレンド予測。</string>
+
+    <string name="pro_cta_6">一生使える見通しにアップグレード</string>
+
+    <string name="pro_slogan_7">家計の履歴を、ずっと安全に。</string>
+
+    <string name="pro_subheadline_7">スマホ紛失や故障で何年ものクセを消さないで。Driveの自動バックアップと1タップ復元。</string>
+
+    <string name="pro_cta_7">一生使える見通しにアップグレード</string>
+
+    <string name="pro_slogan_8">クラッシュに強い。スマホに強い。心配に強い。</string>
+
+    <string name="pro_subheadline_8">取引と予算は暗号化、同期、クラウドへ自動バックアップ。</string>
+
+    <string name="pro_cta_8">今データを守る</string>
+
+    <string name="label_take_control_of_your_wealth_wi">いちばん強いツールで資産を握ろう。</string>
+
+    <string name="label_this_name_already_exists_in_va">この名前はすでに%1$sにあるよ。</string>
+
+    <string name="label_this_new_item_will_be_added_un">この新しい項目は%1$sに入るよ。</string>
+
+    <string name="label_this_will_overwrite_your_curre">今のデータベースは、選んだ.dbバックアップで上書きされるよ。マージしない。既存データは置き換わる。</string>
+
+    <string name="label_today">今日</string>
+
+    <string name="label_yesterday">昨日</string>
+
+    <string name="label_tomorrow">明日</string>
+
+    <string name="label_top_breakdownfirstornulllabel">Top: ${breakdown.firstOrNull()?.label ?: </string>
+
+    <string name="label_total_analytics">分析合計</string>
+
+    <string name="label_total_balance">合計残高</string>
+
+    <string name="title_cash_flow">キャッシュフロー</string>
+
+    <string name="label_this_month_cash_flow">今月</string>
+
+    <string name="label_this_year_cash_flow">今年</string>
+
+    <string name="label_spending_cash_flow">支出</string>
+
+    <string name="label_expense_cash_flow">支出</string>
+
+    <string name="label_income_cash_flow">収入</string>
+
+    <string name="label_net_balance_cash_flow">純残高</string>
+
+    <string name="label_track_every_move_with_confiden">すべての動きを安心して追跡。</string>
+
+    <string-array name="psychology_phrases" translatable="false">
+        <item>Awareness beats willpower.</item>
+        <item>You can\'t change what you don\'t notice.</item>
+        <item>Small amounts, repeated, become your reality.</item>
+        <item>Pause ten seconds before you spend.</item>
+        <item>Every glance here is a choice made on purpose.</item>
+        <item>Money follows attention.</item>
+        <item>Notice first, spend second.</item>
+        <item>The number you avoid is the number that grows.</item>
+        <item>What you track, you tend.</item>
+        <item>Name the feeling before the purchase.</item>
+        <item>One purchase is a mood; a pattern is a choice.</item>
+        <item>Slower hands, steadier money.</item>
+        <item>You are not your urge.</item>
+        <item>The pause is where the power is.</item>
+        <item>Progress hides in small numbers.</item>
+        <item>Comfort is not a plan.</item>
+        <item>Clarity is the antidote to financial chaos.</item>
+        <item>Your past purchases built your present baseline.</item>
+        <item>A budget is telling your money where to go instead of wondering where it went.</item>
+        <item>Impulses fade faster than receipts.</item>
+        <item>Shame stops tracking; curiosity keeps it alive.</item>
+        <item>Intentional spending beats accidental saving.</item>
+        <item>Every rupee spent is a vote for the life you want.</item>
+        <item>Delay is often the only filter you need.</item>
+        <item>Retail therapy treats the symptom, not the cause.</item>
+        <item>Notice the craving; skip the cart.</item>
+        <item>Wealth is what you keep, not what you display.</item>
+        <item>Peace of mind costs less than luxury.</item>
+        <item>Ask yourself: am I buying this or am I buying comfort?</item>
+        <item>Small leaks sink great ships.</item>
+        <item>Habits compound faster than interest.</item>
+        <item>Control your spending before your spending controls you.</item>
+        <item>Awareness transforms a habit into a choice.</item>
+        <item>Needs are quiet; wants are loud.</item>
+        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
+        <item>Watch the pennies and the pounds will take care of themselves.</item>
+        <item>Freedom is being able to say no to immediate gratification.</item>
+        <item>The best things in life don\'t require an invoice.</item>
+        <item>Boredom is an expensive emotion.</item>
+        <item>Stress spending leaves a hangover.</item>
+        <item>Your future self is watching your current cart.</item>
+        <item>Examine the urge before you enter the checkout code.</item>
+        <item>Money management is self-care.</item>
+        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
+        <item>True wealth builds silently in the background.</item>
+        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
+        <item>When you know your why, your wallet aligns.</item>
+        <item>Mindful spending brings more joy than mindless accumulation.</item>
+        <item>Pause long enough for logic to enter the room.</item>
+        <item>Every financial choice shapes tomorrow\'s reality.</item>
+        <item>The temporary high of buying fades by morning.</item>
+        <item>Track your habits and your habits will reward you.</item>
+        <item>Silence the noise of marketing with the clarity of your goals.</item>
+        <item>Choose long-term stability over short-term dopamine.</item>
+        <item>Don\'t measure wealth by things; measure it by choices.</item>
+        <item>Recognize the trigger before it triggers the transaction.</item>
+        <item>Direction matters more than speed.</item>
+        <item>Your bank account is a mirror of your priorities.</item>
+        <item>Conscious consumption is a superpower.</item>
+        <item>Sleep on major purchases; clarity comes with dawn.</item>
+        <item>Simplicity is the ultimate sophistication in finance.</item>
+        <item>Discipline is choosing between what you want now and what you want most.</item>
+        <item>A clear ledger brings a calm mind.</item>
+        <item>Every dollar saved is a worker working for your future.</item>
+        <item>Look at the data, not the desire.</item>
+        <item>Master your mindset to master your money.</item>
+        <item>Financial peace isn\'t an accident; it\'s a design.</item>
+        <item>Notice when emotions dictate your payments.</item>
+        <item>The cost of a thing is the amount of life you exchange for it.</item>
+        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
+        <item>Habitual tracking kills financial anxiety.</item>
+        <item>Let purpose guide your purchases.</item>
+        <item>A moment of reflection prevents a month of regret.</item>
+        <item>Look beyond the price tag to the long-term impact.</item>
+        <item>Your attention determines your allocation.</item>
+        <item>Financial independence begins with a single logged entry.</item>
+        <item>Step back from the sale banner; look at your goals.</item>
+        <item>Intentionality turns routine into ritual.</item>
+        <item>Unchecked subscriptions are quiet wealth thieves.</item>
+        <item>Notice the impulse, let it pass like a cloud.</item>
+        <item>Your financial story is written one entry at a time.</item>
+        <item>Align your spending with your core values.</item>
+        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
+        <item>Clarity replaces confusion with confidence.</item>
+        <item>Choose progress over perfection.</item>
+        <item>Every time you open this app, you reclaim your power.</item>
+        <item>Small disciplines repeated daily lead to great achievements.</item>
+        <item>Reflect on the root cause of the urge to splurge.</item>
+        <item>Wealth is built in the shadows of everyday choices.</item>
+        <item>Mastering money starts with managing moments.</item>
+        <item>Let your values dictate your volume.</item>
+        <item>You own your money; don\'t let your money own your mood.</item>
+        <item>A mindful habit today saves a financial headache tomorrow.</item>
+        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
+        <item>Awareness is the first step of transformation.</item>
+        <item>Let your records reflect your aspirations.</item>
+        <item>Look closely at what stays; let go of what drains.</item>
+        <item>Peace is owning fewer things that require your attention.</item>
+        <item>Your financial future is decided in moments like this.</item>
+        <item>Keep your goals in focus and your expenses in check.</item>
+    </string-array>
+
+    <string name="label_upgrade_to_pro">Proにアップグレード</string>
+
+    <string name="label_val">%1$s%</string>
+
+    <string name="label_val_1">%1$s%</string>
+
+    <string name="label_val_2">%1$s%</string>
+
+    <string name="label_val_days">%1$s日</string>
+
+    <string name="label_val_items">%1$s件</string>
+
+    <string name="label_val_minutes">%1$s分</string>
+
+    <string name="label_val_selected">%1$s件選択</string>
+
+    <string name="label_select_all_in_view">この表示の%1$d件をすべて選択</string>
+
+    <string name="label_val_val">%1$s（%2$s）</string>
+
+    <string name="label_valx">%1$sX</string>
+
+    <string name="label_view_all">すべて見る</string>
+
+    <string name="label_website">ウェブサイト</string>
+
+    <string name="label_wk_val">第%1$s週</string>
+
+    <string name="label_year">年</string>
+
+    <string name="label_your_answer">あなたの答え</string>
+
+    <string name="title_about">このアプリについて</string>
+
+    <string name="title_about_app">アプリについて</string>
+
+    <string name="title_access">アクセス</string>
+
+    <string name="title_analytics">分析</string>
+
+    <string name="title_architecture">アーキテクチャ</string>
+
+    <string name="title_auto_backup">自動バックアップ</string>
+
+    <string name="title_automated_backup_every_val_day">%1$s日ごとの自動バックアップ。</string>
+
+    <string name="title_avg_daily">1日平均</string>
+
+    <string name="title_backup">バックアップ</string>
+
+    <string name="title_backup_frequency">バックアップの頻度</string>
+
+    <string name="title_blur_in_recents">最近の画面でぼかす</string>
+
+    <string name="title_calendar">カレンダー</string>
+
+    <string name="title_choose_the_main_attribute_used">リストを並べる主な項目を選んで。</string>
+
+    <string name="title_confirm_identity">本人確認</string>
+
+    <string name="title_currency">通貨</string>
+
+    <string name="title_customize">カスタマイズ</string>
+
+    <string name="title_daily_reminder">毎日のリマインダー</string>
+
+    <string name="title_dashboard">ダッシュボード</string>
+
+    <string name="title_database">データベース</string>
+
+    <string name="title_date">日付</string>
+
+    <string name="title_date_format">日付形式</string>
+
+    <string name="title_decimal_places">小数桁</string>
+
+    <string name="title_display_wallet_or_card_used">使った財布やカードを表示</string>
+
+    <string name="title_exact_timestamp_visibility">正確な時刻を表示</string>
+
+    <string name="title_export_json">JSONを書き出す</string>
+
+    <string name="title_filters">フィルタ</string>
+
+    <string name="title_finetune_how_results_are_ranke">選んだ並べ替えの中での順位を微調整。</string>
+
+    <string name="title_follow_us">フォロー</string>
+
+    <string name="title_frequency">頻度</string>
+
+    <string name="title_highest_first">高い順</string>
+
+    <string name="title_import_json">JSONを読み込む</string>
+
+    <string name="title_import_legacy_data">旧データを読み込む</string>
+
+    <string name="title_json_transfer">JSON転送</string>
+
+    <string name="title_legal">法的情報</string>
+
+    <string name="title_maintenance">メンテナンス</string>
+
+    <string name="title_missed_entry_reminder">入力忘れリマインダー</string>
+
+    <string name="title_number_format">数値形式</string>
+
+    <string name="title_order">順序</string>
+
+    <string name="title_payment_method">支払い方法</string>
+
+    <string name="title_payment_mode">支払いモード</string>
+
+    <string name="title_premium_by_designnprivate_by_n">デザインはプレミアム、
+本質はプライベート</string>
+
+    <string name="title_privacy_policy">プライバシーポリシー</string>
+
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
+
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
+
+    <string name="title_rate_app">アプリを評価</string>
+
+    <string name="title_rate_prompt">このアプリ、役に立った？</string>
+
+    <string name="label_how_would_you_rate">何点つける？</string>
+
+    <string name="label_submit_rating">送信</string>
+
+    <string name="cd_rate_star">5点中%1$d</string>
+
+    <string name="title_report_bug">バグを報告</string>
+
+    <string name="title_restore">復元</string>
+
+    <string name="title_savings">貯蓄</string>
+
+    <string name="title_secure_private">安全でプライベート</string>
+
+    <string name="title_security_privacy">セキュリティとプライバシー</string>
+
+    <string name="title_security_privacy_1">セキュリティとプライバシー</string>
+
+    <string name="title_privacy_options">プライバシーの選択肢</string>
+
+    <string name="label_privacy_options_subtitle">同意とデータの選択を管理</string>
+
+    <string name="title_send_feedback">フィードバックを送る</string>
+
+    <string name="title_show_date_separators">日付の区切り</string>
+
+    <string name="title_show_list_summaries">期間のまとめ</string>
+
+    <string name="desc_show_list_summaries">この期間の収入と支出の合計を表示</string>
+
+    <string name="title_show_payment_method">支払い方法を表示</string>
+
+    <string name="title_sort_by">並べ替え</string>
+
+    <string name="title_stack_multiple_filters_to_narr">フィルタを重ねてリストを絞る。</string>
+
+    <string name="title_support">サポート</string>
+
+    <string name="title_terms_conditions">利用規約</string>
+
+    <string name="title_time_format">時刻形式</string>
+
+    <string name="title_toggle_visibility_of_transacti">取引タグの表示／非表示</string>
+
+    <string name="title_visual_analytics">ビジュアル分析</string>
+
+    <string name="label_other_installment">その他</string>
+
+    <string name="msg_installment_info">この取引は分割#1。次の入力は自動で作られるよ。</string>
+
+    <string name="label_update_action">更新</string>
+
+    <string name="label_add_action">追加</string>
+
+    <string name="label_am">午前</string>
+
+    <string name="label_pm">午後</string>
+
+    <string name="label_secure_app_pin">PINでアプリを守る</string>
+
+    <string name="label_use_biometric_subtitle">指紋を使う</string>
+
+    <string name="label_scrambled_keypad">ランダムキーパッド</string>
+
+    <string name="label_scrambled_keypad_subtitle">PIN配列を混ぜてセキュリティ</string>
+
+    <string name="label_blur_in_recents">最近の画面でぼかす</string>
+
+    <string name="label_blur_in_recents_subtitle">アプリ切り替えで中身を隠す</string>
+
+    <string name="label_block_screenshots_subtitle">アプリのスクショを防ぐ</string>
+
+    <string name="label_auto_lock_subtitle">アプリが自分でロックするタイミング</string>
+
+    <string name="label_lock_immediately">バックグラウンドに行ったらすぐロック</string>
+
+    <string name="label_val_minutes_away">%1$d分離れたらロック</string>
+
+    <string name="label_auto_lock_desc">アプリが自分でロックするタイミングを選んで。</string>
+
+    <string name="label_primary_currency">アプリのメイン通貨</string>
+
+    <string name="label_theme_subtitle">アプリの色の見た目</string>
+
+    <string name="title_language">言語</string>
+
+    <string name="label_language_subtitle">アプリの表示言語</string>
+
+    <string name="label_select_language">言語を選ぶ</string>
+
+    <string name="label_language_selection_desc">アプリの言語を選んで。未翻訳のテキストは英語のまま。</string>
+
+    <string name="label_language_system">システムのデフォルト</string>
+
+    <string name="label_date_format_subtitle">日付の見せ方</string>
+
+    <string name="label_time_format_subtitle">12時間か24時間</string>
+
+    <string name="label_number_format_subtitle">桁区切りのスタイル</string>
+
+    <string name="label_decimal_places_subtitle">金額の精度</string>
+
+    <string name="label_theme_selection_desc">端末に合わせるか、固定テーマ。</string>
+
+    <string name="label_number_format_desc">大きい金額の桁のまとめ方を選んで。</string>
+
+    <string name="label_select_theme">テーマを選ぶ</string>
+
+    <string name="title_theme">テーマ</string>
+
+    <string name="label_theme_system">システム</string>
+
+    <string name="label_theme_light">ライト</string>
+
+    <string name="label_theme_dark">ダーク</string>
+
+    <string name="desc_theme_system">端末の見た目に合わせる</string>
+
+    <string name="desc_theme_light">いつもライト</string>
+
+    <string name="desc_theme_dark">いつもダーク</string>
+
+    <string name="title_font">フォント</string>
+
+    <string name="label_font_subtitle">アプリの文字のスタイル</string>
+
+    <string name="label_font_app">デフォルト</string>
+
+    <string name="label_font_system">システムフォント</string>
+
+    <string name="label_font_custom">カスタムフォント</string>
+
+    <string name="label_watch_ad_to_unlock">広告を見て解除</string>
+
+    <string name="label_pro_required">Proが必要</string>
+
+    <string name="msg_system_font_ad_desc">短い広告を見てシステムフォントを無料で解除。</string>
+
+    <string name="msg_custom_font_pro_desc">カスタムフォントはPro機能。アップグレードして解除。</string>
+
+    <string name="label_import_font">フォントを読み込む</string>
+
+    <string name="label_font_count">カスタムフォント %1$d/%2$d</string>
+
+    <string name="label_max_fonts_reached">最大%1$dに達したよ。先に1つ削除して。</string>
+
+    <string name="label_no_custom_fonts">カスタムフォントはまだないよ</string>
+
+    <string name="msg_import_font_success">フォントを読み込んだよ</string>
+
+    <string name="msg_font_changed">フォントを変えたよ</string>
+
+    <string name="msg_import_font_error">フォントを読み込めなかったよ</string>
+
+    <string name="msg_font_too_large">フォントファイルが大きすぎ。小さいのを選んで。</string>
+
+    <string name="msg_invalid_font">無効なフォントファイル</string>
+
+    <string name="label_select_font">フォントを選ぶ</string>
+
+    <string name="label_select_font_desc">長押しでフォントを削除</string>
+
+    <string name="label_select_font_built_in">内蔵</string>
+
+    <string name="label_delete_font">削除</string>
+
+    <string name="title_month_start_day">月の開始日</string>
+
+    <string name="label_month_start_day_subtitle">請求サイクルの最初の日</string>
+
+    <string name="label_month_start_day_value">%1$d日</string>
+
+    <string name="label_month_start_day_standard">1日（デフォルト）</string>
+
+    <string name="label_current_period">今の期間：</string>
+
+    <string name="msg_delete_font_title">フォントを削除する？</string>
+
+    <string name="msg_delete_font_desc">%1$sはカスタムフォントから消えるよ。</string>
+
+    <string name="label_select">選択</string>
+
+    <string name="label_grouping_indian">インド（1,23,456.78）</string>
+
+    <string name="label_grouping_international">国際（1,234,567.89）</string>
+
+    <string name="label_app_name_display">Expense Tracker</string>
+
+    <string name="label_follow_us">フォロー</string>
+
+    <string name="desc_app_icon">アプリアイコン</string>
+
+    <string name="label_about_app_desc">毎日の取引を上品に管理するシンプルなアプリ。家計の見通しとプレミアムなUIが好きな人向け。データは編集金庫みたいに扱うよ。</string>
+
+    <string name="title_yearly_analytics">年次分析</string>
+
+    <string name="title_full_category_breakdown">カテゴリの全内訳</string>
+
+    <string name="title_full_payment_breakdown">支払いの全内訳</string>
+
+    <string name="title_payment_mode_breakdown">支払い方法の内訳</string>
+
+    <string name="title_top_spending_details">いちばんの支出の詳細</string>
+
+    <string name="title_spending_insights">支出のインサイト</string>
+
+    <string name="label_both">両方</string>
+
+    <string name="label_total_spent">支出合計</string>
+
+    <string name="label_net_balance">純残高</string>
+
+    <string name="label_unlock_breakdown">内訳を解除</string>
+
+    <string name="label_unlock_top_spending">いちばんの支出を解除</string>
+
+    <string name="label_unlock_insights">インサイトを解除</string>
+
+    <string name="label_val_transactions">%1$s件の取引</string>
+
+    <string name="label_no_transactions_found_in_this">この範囲の取引はないよ。</string>
+
+    <string name="label_top_val">トップ：%1$s</string>
+
+    <string name="desc_show_transactions">取引を表示</string>
+
+    <string name="label_unknown">不明</string>
+
     <string name="label_other">その他</string>
-    <string name="label_not_available">利用不可</string>
-    <string name="format_percentage">%1$d%%</string>
+
+    <string name="label_not_available">N/A</string>
+
+    <string name="format_percentage">%1$s%%</string>
+
+    <string name="format_thousands">%1$.1fk</string>
+
+    <string name="format_millions">%1$.1fM</string>
+
+    <string name="separator_bullet">•</string>
+
+    <string name="format_ellipsis">%1$s…</string>
+
+    <string name="desc_log_daily_spending">最適化キーパッドとスマートなカテゴリ順位で、毎日の支出を数秒で記録。</string>
+
+    <string name="label_next">次へ</string>
+
+    <string name="desc_financial_data_secure">家計データは端末に保存され、生体認証で守られるよ。</string>
+
+    <string name="desc_visualize_spending">インタラクティブなグラフとカテゴリ内訳でクセを見る。</string>
+
+    <string name="desc_modern_finance">モダンな家計が手元に。デフォルトはオフライン優先。データは端末から出ないよ。</string>
+
+    <string name="label_continue">続ける</string>
+
+    <string name="label_private_by_nature">本質はプライベート</string>
+
+    <string name="title_secure_your_account">アカウントを守る</string>
+
+    <string name="desc_sync_and_premium_features">ログインして端末間同期とプレミアム機能を安全に。</string>
+
+    <string name="auth_welcome">ようこそ</string>
+
+    <string name="auth_signup_subtitle">下で登録してアカウントを作って始めよう。</string>
+
+    <string name="auth_signin_subtitle">ログインして保存した設定とアカウントへ。</string>
+
+    <string name="auth_forgot">パスワードを忘れた</string>
+
+    <string name="label_recommended">おすすめ</string>
+
+    <string name="auth_connecting_google">Googleに接続中…</string>
+
+    <string name="auth_authenticating">認証中…</string>
+
+    <string name="auth_already_have_account">もうアカウントある？</string>
+
+    <string name="auth_dont_have_account">アカウントない？</string>
+
+    <string name="label_continue_with_google">Googleで続ける</string>
+
+    <string name="content_desc_google_logo">Google</string>
+
+    <string name="msg_auth_content_preview_placeholder">認証コンテンツ（プレビュー）</string>
+
+    <string name="label_continue_with">続ける</string>
+
+    <string name="label_or">または</string>
+
+    <string name="label_email">メールアドレス</string>
+
+    <string name="label_password">パスワード</string>
+
+    <string name="label_create_account">登録</string>
+
+    <string name="msg_creating_account">アカウント作成中...</string>
+
+    <string name="title_account_created">アカウントを作ったよ</string>
+
+    <string name="label_ok">OK</string>
+
+    <string name="label_login">ログイン</string>
+
+    <string name="label_already_have_account">もうアカウントある？ログイン</string>
+
+    <string name="label_no_account_signup">アカウントない？登録</string>
+
+    <string name="label_continue_as_guest">ゲストで続ける</string>
+
+    <string name="desc_tell_us_about_yourself">体験を合わせるために、少し教えて。</string>
+
+    <string name="label_get_started">はじめる</string>
+
+    <string name="placeholder_enter_name">名前を入れて</string>
+
+    <string name="placeholder_select_dob">生年月日を選ぶ</string>
+
+    <string name="label_male">男性</string>
+
+    <string name="label_female">女性</string>
+
+    <string name="label_non_binary">ノンバイナリー</string>
+
+    <string name="label_prefer_not_to_say">答えない</string>
+
+    <string name="msg_please_provide_your_val">%1$sを入れて</string>
+
+    <string name="label_name_capitalized">名前</string>
+
+    <string name="label_gender_capitalized">性別</string>
+
+    <string name="label_dob_capitalized">生年月日</string>
+
+    <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
+
+    <string name="label_secure_logging">安全な記録</string>
+
+    <string name="label_architecture">アーキテクチャ</string>
+
+    <string name="label_100_offline">100%オフライン優先</string>
+
+    <string name="label_access">アクセス</string>
+
+    <string name="label_full_control">フルコントロール</string>
+
+    <string name="label_zero">0</string>
+
+    <string name="label_history">履歴</string>
+
+    <string name="content_desc_calculator_history">電卓履歴を開く</string>
+
+    <string name="content_desc_copy_history">計算をコピー</string>
+
+    <string name="content_desc_backspace">カーソルの左の文字を消す</string>
+
+    <string name="content_desc_cursor_left">カーソルを左へ</string>
+
+    <string name="content_desc_cursor_right">カーソルを右へ</string>
+
+    <string name="msg_history_long_press_hint">カードを長押しでほかの操作。</string>
+
+    <string name="msg_calculator_history_empty">計算はまだないよ</string>
+
+    <string name="msg_clear_history_confirm">電卓履歴を全部消す？元に戻せないよ。</string>
+
+    <string name="label_clear_history">履歴を消す</string>
+
+    <string name="toast_history_copied">計算をコピーしたよ</string>
+
+    <string name="title_quick_action">クイック操作</string>
+
+    <string name="msg_history_quick_action_caption">この計算で何するか選んで。いつでも変えられるよ。</string>
+
+    <string name="label_copy_expression">式をコピー</string>
+
+    <string name="label_copy_result">結果をコピー</string>
+
+    <string name="label_copy_expression_and_result">式＋結果をコピー</string>
+
+    <string name="label_delete_entry">項目を削除</string>
+
+    <string name="toast_expression_copied">式をコピーしたよ</string>
+
+    <string name="toast_result_copied">結果をコピーしたよ</string>
+
+    <string name="toast_entry_deleted">項目を削除したよ</string>
+
+    <string name="label_items_count_formatted">%1$d件</string>
+
+    <string name="label_description_caps">説明</string>
+
+    <string name="label_amount_caps">金額</string>
+
+    <string name="content_desc_delete_item">%1$sを削除</string>
+
+    <string name="content_desc_edit_item">%1$sを編集</string>
+
+    <string name="placeholder_description_ex">例：カフェ</string>
+
+    <string name="placeholder_amount_zero">0.00</string>
+
+    <string name="content_desc_add_item">項目を追加</string>
+
+    <string name="label_automated_sync">クラウドと自動化</string>
+
+    <string name="desc_automated_sync">手作業なしでデータを自動で守る方法を設定。</string>
+
+    <string name="desc_auto_backup_subtitle">自動のローカルバックアップ</string>
+
+    <string name="desc_backup_frequency_subtitle">バックアップの頻度</string>
+
+    <string name="label_custom_frequency">カスタム...</string>
+
+    <string name="title_custom_backup_frequency">カスタム頻度</string>
+
+    <string name="label_enter_days">日数を入力</string>
+
+    <string name="placeholder_days">日</string>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="other">%1$d日</item>
+    </plurals>
+
+    <string name="label_data_transfer">ファイル転送</string>
+
+    <string name="desc_data_transfer">端末間の移動や物理ファイル保存の手動ツール。</string>
+
+    <string name="label_export_data_json">データを書き出す（JSON）</string>
+
+    <string name="desc_export_data_subtitle">マージしやすい安全なJSONをダウンロード</string>
+
+    <string name="label_export">書き出す</string>
+
+    <string name="label_import_data_json">データを読み込む（JSON）</string>
+
+    <string name="desc_import_data_subtitle">JSONから復元またはマージ</string>
+
+    <string name="label_import">読み込む</string>
+
+    <string name="label_backup_database_db">データベースをバックアップ（.db）</string>
+
+    <string name="desc_backup_db_subtitle">SQLiteファイルの直接バックアップ</string>
+
+    <string name="label_restore_database_db">データベースを復元（.db）</string>
+
+    <string name="desc_restore_db_subtitle">データベース全体を上書き</string>
+
+    <string name="label_legacy_import">旧インポート</string>
+
+    <string name="desc_legacy_import_subtitle">古いアプリ版から読み込む</string>
+
+    <string name="label_migrate">移行</string>
+
+    <string name="label_utilities_and_stats">ストレージとメンテ</string>
+
+    <string name="desc_utilities_and_stats">データベースの健康チェックとリセット操作。</string>
+
+    <string name="desc_transaction_count_subtitle">データベースの総レコード</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="other">%1$d日ごと</item>
+    </plurals>
+
+    <string name="desc_choose_backup_frequency">アプリが自動バックアップする頻度を選んで。</string>
+
+    <string name="msg_no_category_budget_data">今月のカテゴリ予算データはまだないよ。</string>
+
+    <string name="label_history_locked">履歴ロック中</string>
+
+    <string name="msg_no_recurring_items">繰り返し項目はまだないよ。</string>
+
+    <string name="label_tab_budgets">予算</string>
+
+    <string name="label_tab_recurring">繰り返し</string>
+
+    <string name="label_tab_count_short">%1$d</string>
+
+    <string name="label_tab_count_overflow">%1$d+</string>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="other">%1$d件</item>
+    </plurals>
+
+    <string name="label_sms_inbox_title">検出した取引</string>
+
+    <string name="label_sms_inbox_search_hint">加盟店、送信者、メッセージを検索</string>
+
+    <string name="label_sms_inbox_filter_all">すべて</string>
+
+    <string name="label_sms_inbox_filter_income">収入</string>
+
+    <string name="label_sms_inbox_filter_expense">支出</string>
+
+    <string name="label_sms_inbox_filter_added">追加済み</string>
+
+    <string name="label_sms_inbox_filter_ignored">無視</string>
+
+    <string name="label_sms_inbox_filter_unread">未読</string>
+
+    <string name="label_sms_inbox_income">収入</string>
+
+    <string name="label_sms_inbox_expense">支出</string>
+
+    <string name="label_sms_inbox_income_amount">%1$s 収入</string>
+
+    <string name="label_sms_inbox_expense_amount">%1$s 支出</string>
+
+    <string name="label_sms_inbox_card_hint">カードをタップして追加画面を開き、必要なら編集して追加を押して。</string>
+
+    <string name="label_sms_inbox_swipe_hint">左右スワイプで検出を1件削除。</string>
+
+    <string name="label_sms_inbox_category">おすすめカテゴリ：%1$s</string>
+
+    <string name="label_sms_inbox_suggested">おすすめ：</string>
+
+    <string name="label_sms_inbox_sms">SMS：</string>
+
+    <string name="label_sms_inbox_confidence_high">確信度高</string>
+
+    <string name="label_sms_inbox_confidence_medium">確信度中</string>
+
+    <string name="label_sms_inbox_confidence_low">確信度低</string>
+
+    <string name="label_sms_inbox_empty_title">検出した取引はまだないよ</string>
+
+    <string name="label_sms_inbox_empty_filtered_title">ここは空だよ</string>
+
+    <string name="label_sms_inbox_empty_body">支払いっぽい銀行メッセージがここに出るよ — 通知を閉じても。</string>
+
+    <string name="label_sms_inbox_delete_title">検出を削除する？</string>
+
+    <string name="label_sms_inbox_delete_subtitle">元に戻せない受信箱の操作</string>
+
+    <string name="label_sms_inbox_delete_body">保存したメッセージを受信箱から消すよ。すでに追加した取引は残る。</string>
+
+    <string name="label_sms_inbox_edit_title">追加前に編集</string>
+
+    <string name="label_sms_inbox_edit_amount">金額</string>
+
+    <string name="label_sms_inbox_edit_note">メモ（任意）</string>
+
+    <string name="label_sms_inbox_edit_category">カテゴリ</string>
+
+    <string name="desc_sms_inbox_bell">検出した取引</string>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="other">未読%1$d件</item>
+    </plurals>
+
+    <string name="action_add">追加</string>
+
+    <string name="action_ignore">無視</string>
+
+    <string name="action_delete">削除</string>
+
+    <string name="action_clear_all">すべてクリア</string>
+
+    <string name="action_sms_inbox_clear_all_pending">保留中の取引をすべてクリア</string>
+
+    <string name="label_sms_inbox_selected_count">%1$d件選択</string>
+
+    <string name="action_sms_inbox_select_all">すべて選択</string>
+
+    <string name="action_sms_inbox_deselect_all">すべて解除</string>
+
+    <string name="action_sms_inbox_delete_selected">選択を削除</string>
+
+    <string name="action_cancel">キャンセル</string>
+
+    <string name="msg_sms_inbox_added">検出した取引を%1$d件追加したよ</string>
+
+    <string name="msg_sms_inbox_added_some">%1$d件追加 · %2$d件はもう帳簿にある</string>
+
+    <string name="msg_sms_inbox_already_added">もう帳簿にある — 追加なし</string>
+
+    <string name="msg_sms_inbox_gone">その検出はもうないよ</string>
+
+    <string name="msg_sms_inbox_ignored">検出を%1$d件無視したよ</string>
+
+    <string name="msg_sms_inbox_deleted">削除したよ</string>
+
+    <string name="msg_sms_inbox_swiped_away">検出を%1$d件削除したよ</string>
+
+    <string name="msg_sms_inbox_invalid_amount">ゼロより大きい金額を入れて</string>
+
+    <string name="label_this_month_caps">今月</string>
+
+    <string name="label_custom_month_caps">カスタム月</string>
+
+    <string name="label_remaining">残り</string>
+
+    <string name="label_over">使いすぎ</string>
+
+    <string name="title_add_budget">予算を追加</string>
+
+    <string name="title_edit_budget">予算を編集</string>
+
+    <string name="msg_no_expense_categories_available">支出カテゴリはないよ</string>
+
+    <string name="label_change_caps">変更</string>
+
+    <string name="label_edits_left_formatted">編集あと%1$d回</string>
+
+    <string name="label_locked">ロック中</string>
+
+    <string name="content_desc_locked_formatted">%1$sはロック中</string>
+
+    <string name="content_desc_upcoming">これから</string>
+
+    <string name="label_installments_formatted">%1$d / %2$d</string>
+
+    <string name="label_edit_recurring_rule">繰り返しルールを編集</string>
+
+    <string name="title_edit_recurring">繰り返し支出を編集</string>
+
+    <string name="label_frequency_capitalized">頻度</string>
+
+    <string name="label_total_installments">分割の合計</string>
+
+    <string name="label_recurring_type">繰り返しの種類</string>
+
+    <string name="label_type_regular">通常</string>
+
+    <string name="label_type_emi">EMI / 分割</string>
+
+    <string name="label_emi_total_amount">合計金額</string>
+
+    <string name="label_emi_installment_amount">分割金額</string>
+
+    <string name="label_emi_first_due">初回の期日</string>
+
+    <string name="msg_convert_to_regular_info">プラン条件は残るよ — 戻すと同じ分割と支払い履歴が戻る。</string>
+
+    <string name="label_emi_paid_progress">%2$d件中%1$d件支払い済み</string>
+
+    <string name="label_emi_remaining_format">残り %1$s</string>
+
+    <string name="label_all_settled">全部清算済み</string>
+
+    <string name="label_emis_overdue">EMI延滞</string>
+
+    <string name="label_overdue_caps">延滞</string>
+
+    <string name="action_view_installments">分割を見る</string>
+
+    <string name="title_emis_for_format">分割 — %1$s</string>
+
+    <string name="label_paid_caps">支払済み</string>
+
+    <string name="label_pending_caps">保留</string>
+
+    <string name="label_skipped_caps">スキップ</string>
+
+    <string name="action_pay_caps">支払う</string>
+
+    <string name="action_skip_caps">スキップ</string>
+
+    <string name="action_undo_caps">取り消す</string>
+
+    <string name="label_pay_selected_format">選択を支払う（%1$d）</string>
+
+    <string name="label_slot_index_format">#%1$d</string>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="other">分割%1$d件を支払ったよ</item>
+    </plurals>
+
+    <string name="label_emi_plan_section">EMI / ローンプラン</string>
+
+    <string name="desc_emi_plan_toggle">この繰り返し支出を固定分割のローンとして追跡。</string>
+
+    <string name="desc_emi_total_amount">返済する合計（元本＋利息）</string>
+
+    <string name="desc_emi_installment_amount">各回の支払い額</string>
+
+    <string name="msg_emi_amount_mismatch">合計は分割額×回数と一致して</string>
+
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+
+    <string name="msg_emi_create_info">この取引は分割#1。残り%1$d件はプランで追跡 — 繰り返しリストから支払う、スキップ、清算して。</string>
+
+    <string name="label_save_changes_caps">変更を保存</string>
+
+    <string name="label_cancel_caps">キャンセル</string>
+
+    <string name="label_category_1">カテゴリ</string>
+
+    <string name="label_time">時刻</string>
+
+    <string name="label_save_1">保存</string>
+
+    <string name="label_update_1">更新</string>
+
+    <string name="label_delete_1">削除</string>
+
+    <string name="title_copy_previous_month_budgets">先月の予算をコピー</string>
+
+    <string name="action_copy_all">すべてコピー</string>
+
+    <string name="action_copy_selected">選択をコピー</string>
+
+    <string name="action_copy">コピー</string>
+
+    <string name="action_create_budget">予算を作成</string>
+
+    <string name="msg_copy_previous_budgets_context">%1$sの予算を選んで%2$sにコピー。</string>
+
+    <string name="empty_copy_previous_month_title">先月の予算は見つからないよ。</string>
+
+    <string name="msg_copy_previous_month_empty">先月予算を作ってないから、コピーするものはないよ。</string>
+
+    <string name="msg_copy_all_budgets_success">先月の予算を全部コピーしたよ。</string>
+
+    <string name="msg_copy_selected_budgets_success">選んだ予算をコピーしたよ。</string>
+
+    <string name="title_copy_budgets_confirmation">予算はもうあるよ</string>
+
+    <string name="msg_copy_budgets_confirmation">%1$sにはもう予算があるよ。先月をコピーすると重複するかも。続ける？</string>
+
+    <string name="label_calendar_year_view">カレンダーの年表示</string>
+
+    <string name="label_calendar_year_picker">年ピッカー</string>
+
+    <string name="label_calendar_month_picker">月ピッカー</string>
+
+    <string name="content_desc_jump_to_date">日付へジャンプ</string>
+
+    <string name="content_desc_month_picker_locked">月ピッカーはロック中</string>
+
+    <string name="content_desc_jump_to_year">年へジャンプ</string>
+
+    <string name="content_desc_year_picker_locked">年ピッカーはロック中</string>
+
+    <string name="content_desc_previous_month">前の月</string>
+
+    <string name="content_desc_next_month">次の月</string>
+
+    <string name="content_desc_previous_year">前の年</string>
+
+    <string name="content_desc_next_year">次の年</string>
+
+    <string name="title_choose_month_year">月と年を選ぶ</string>
+
+    <string name="title_show_category">カテゴリを表示</string>
+
+    <string name="desc_display_category_label">カードにカテゴリラベルを表示</string>
+
+    <string name="desc_display_wallet_or_card">使った財布やカードを表示</string>
+
+    <string name="desc_group_transactions_by_day">取引を固定の日ヘッダー（例：「今日」「昨日」）でまとめる。</string>
+
+    <string name="title_transaction_card_settings">カスタマイズ</string>
+
+    <string name="label_on_each_transaction_card">各取引カード上</string>
+
+    <string name="desc_on_each_transaction_card">リストの各取引カードに何が出るか。</string>
+
+    <string name="label_in_the_list">リスト内</string>
+
+    <string name="desc_in_the_list">カードまわりのグループとまとめ方。</string>
+
+    <string name="label_visual_style">見た目</string>
+
+    <string name="desc_visual_style">メインアイコンと色ラベルでカードの見た目を決める。</string>
+
+    <string name="label_transaction_details">取引の詳細</string>
+
+    <string name="desc_transaction_details">カードに出す具体的なデータ。</string>
+
+    <string name="label_time_and_organization">時間と整理</string>
+
+    <string name="desc_time_and_organization">時刻の見せ方とリストでの取引のまとめ方。</string>
+
+    <string name="label_preview">プレビュー</string>
+
+    <string name="placeholder_select_gender">性別を選ぶ</string>
+
+    <string name="msg_unable_to_load_photo">その画像を読み込めなかったよ。別の写真を試して。</string>
+
+    <string name="title_edit_profile">プロフィールを編集</string>
+
+    <string name="label_full_name_caps">氏名</string>
+
+    <string name="placeholder_guest_user">ゲストユーザー</string>
+
+    <string name="label_email_address_caps">メールアドレス</string>
+
+    <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <string name="label_phone_number_caps">電話番号</string>
+
+    <string name="placeholder_phone_example">1112223334...</string>
+
+    <string name="label_date_of_birth_caps">生年月日</string>
+
+    <string name="label_gender_caps">性別</string>
+
+    <string name="content_desc_open_gender_options">性別の選択肢を開く</string>
+
+    <string name="desc_choose_gender_label">プロフィールに合う性別ラベルを選んで。</string>
+
+    <string name="content_desc_add_photo">写真を追加</string>
+
+    <string name="content_desc_edit_photo">写真を編集</string>
+
+    <string name="content_desc_delete_photo">写真を削除</string>
+
+    <string name="title_select_country">国を選ぶ</string>
+
+    <string name="placeholder_search_country">国を検索…</string>
+
+    <string name="desc_daily_reminder">毎日の取引を記録する通知。</string>
+
+    <string name="title_budget_limit_alerts">予算上限アラート</string>
+
+    <string name="desc_budget_limit_alerts">月の予算を超えたら通知。</string>
+
+    <string name="desc_missed_entry_reminder">2日取引を足し忘れたら通知。</string>
+
+    <string name="title_goal_reminders">目標リマインダー</string>
+
+    <string name="desc_goal_reminders">貯蓄目標の週次のひと押し。</string>
+
+    <string name="msg_preparing_dashboard">ダッシュボードを準備中</string>
+
+    <string name="msg_syncing_transactions">取引を同期中</string>
+
+    <string name="msg_securing_data">データを保護中</string>
+
+    <string name="msg_initializing">初期化中</string>
+
+    <string name="label_splash_tagline">すべての取引に上品さを</string>
+
+    <string name="label_splash_footer">丁寧に、心を込めて</string>
+
+    <string name="label_budget_and_spend">予算と支出</string>
+
+    <string name="msg_starting_security_services">セキュリティサービスを開始</string>
+
+    <string name="msg_loading_preferences">設定を読み込み中</string>
+
+    <string name="msg_preparing_database">データベースを準備中</string>
+
+    <string name="msg_initializing_database">データベースを初期化中</string>
+
+    <string name="msg_warming_up_engine">エンジンをウォームアップ</string>
+
+    <string name="msg_getting_things_ready">準備してるよ</string>
+
+    <string name="label_done">完了</string>
+
+    <string name="desc_select_period">期間を選ぶ</string>
+
+    <string name="label_all">すべて</string>
+
+    <string name="label_daily">毎日</string>
+
+    <string name="label_monthly">毎月</string>
+
+    <string name="label_yearly">毎年</string>
+
+    <string name="label_no_results_found">結果はないよ。</string>
+
+    <string name="label_select_a_backup_file">バックアップファイルを選んでデータを復元。今のデータは上書きされるよ。</string>
+
+    <string name="label_select_file_manually">ファイルを手動で選ぶ...</string>
+
+    <string name="label_encrypted">暗号化</string>
+
+    <string name="toast_backup_restore_key_mismatch">このバックアップは別の端末で作られて、ここでは復元できないよ。</string>
+
+    <string name="label_advanced_analytics_trends">高度な分析で家計の全体像</string>
+
+    <string name="label_automatic_cloud_backups">クラウド同期で頑丈なデータ保護</string>
+
+    <string name="label_unlimited_recurring_rules">繰り返しルールで自由を自動化</string>
+
+    <string name="label_privacy_mode_biometric_lock">資産は生体ロックで守る</string>
+
+    <string name="label_last_7_days">過去7日</string>
+
+    <string name="label_last_15_days">過去15日</string>
+
+    <string name="label_last_30_days">過去30日</string>
+
+    <string name="label_last_60_days">過去60日</string>
+
+    <string name="label_expense_categories">支出カテゴリ</string>
+
+    <string name="label_income_categories">収入カテゴリ</string>
+
+    <string name="label_no_categories_available">選んだ種類のカテゴリはないよ。</string>
+
+    <string name="label_min">最小</string>
+
+    <string name="label_max">最大</string>
+
+    <string name="desc_newest_order">いちばん新しい取引が上。</string>
+
+    <string name="desc_oldest_order">古い取引が先。</string>
+
+    <string name="desc_highest_order">大きい金額が優先。</string>
+
+    <string name="desc_lowest_order">小さい金額が先。</string>
+
+    <string name="desc_income_first_order">収入を支出の前にまとめる。</string>
+
+    <string name="desc_expense_first_order">支出を収入の前に表示。</string>
+
+    <string name="label_search_dots">検索…</string>
+
+    <string name="label_action">操作</string>
+
+    <string name="label_watch_ad">広告を見る</string>
+
+    <string name="label_premium">Pro</string>
+
+    <string name="label_open">開く</string>
+
+    <string name="title_restore_database">データベースを復元</string>
+
+    <string name="label_restore">復元</string>
+
+    <string name="label_premium_features">Pro機能</string>
+
+    <string name="label_sort_by">並べ替え</string>
+
+    <string name="title_date_range">日付範囲</string>
+
+    <string name="label_custom_range">カスタム範囲</string>
+
+    <string name="label_order">順序</string>
+
+    <string name="label_filters">フィルタ</string>
+
+    <string name="desc_order_subtitle">選んだ並べ替えの中での順位を微調整。</string>
+
+    <string name="desc_filters_subtitle">フィルタを重ねて取引リストを絞る。</string>
+
+    <string name="desc_sort_subtitle">リストを並べる主な項目を選んで。</string>
+
+    <string name="title_transaction_type_caps">取引の種類</string>
+
+    <string name="label_newest_first">新しい順</string>
+
+    <string name="label_oldest_first">古い順</string>
+
+    <string name="label_highest_first">高い順</string>
+
+    <string name="label_lowest_first">低い順</string>
+
+    <string name="label_income_first">収入が先</string>
+
+    <string name="label_expense_first">支出が先</string>
+
+    <string name="label_payment_mode">支払い方法</string>
+
+    <string name="label_amount_range">金額の範囲</string>
+
+    <string name="label_categories">カテゴリ</string>
+
+    <string name="desc_no_categories">選んだ種類のカテゴリはないよ。</string>
+
+    <string name="label_sort_filter_subtitle">取引の並びと表示の仕方を決めよう。</string>
+
+    <string name="label_search_placeholder">メモか金額…</string>
+
+    <string name="label_search_by_category_wallet">カテゴリ、財布、タグで検索</string>
+
+    <string name="msg_delete_transactions_confirm">取引%1$d件を削除する？元に戻せないよ。</string>
+
+    <string name="msg_delete_category_confirm">「%1$s」を削除する？既存の取引がまだ使ってるかも。元に戻せないよ。</string>
+
+    <string name="label_delete_confirm">削除</string>
+
+    <string name="label_cancel_confirm">キャンセル</string>
+
+    <string name="label_duplicate">複製</string>
+
+    <string name="label_undo">取り消す</string>
+
+    <string name="msg_transaction_deleted">取引を削除したよ</string>
+
+    <string name="msg_transaction_duplicated">取引を複製したよ</string>
+
+    <string name="toast_transaction_deleted">取引を削除したよ</string>
+
+    <string name="title_cannot_duplicate_recurring">重複ルールが見つかったよ</string>
+
+    <string name="msg_duplicate_recurring_rule">%1$sの%2$s/%3$sに繰り返しルールがもうあるよ。もう1つ作る？</string>
+
+    <string name="msg_cannot_duplicate_recurring">この取引は繰り返し（本体か自動生成）だから複製できないよ。</string>
+
+    <string name="label_week">週</string>
+
+    <string name="label_month_period">月</string>
+
+    <string name="label_year_period">年</string>
+
+    <string name="label_custom">カスタム</string>
+
+    <string name="label_this_week">今週</string>
+
+    <string name="label_this_month">今月</string>
+
+    <string name="label_wallet">財布</string>
+
+    <string name="label_general">一般</string>
+
+    <string name="label_spending">支出</string>
+
+    <string name="msg_unlock_insights_hint">別の範囲を選ぶか取引を足して、自分向けの支出インサイトを解除。</string>
+
+    <string name="label_up">上昇</string>
+
+    <string name="label_down">下降</string>
+
+    <string name="msg_spending_trend">この期間の支出トレンドは%1$s %2$s。%3$sに気をつけて、次のサイクルで約%4$s節約できるよ。</string>
+
+    <string name="msg_choose_range_dates">開始日と終了日を選んで</string>
+
+    <string name="btn_cancel">キャンセル</string>
+
+    <string name="title_select_date">日付を選ぶ</string>
+
+    <string name="title_select_time">時刻を選ぶ</string>
+
+    <string name="title_select_date_time">日付と時刻を選ぶ</string>
+
+    <string name="title_select_month">月を選ぶ</string>
+
+    <string name="title_select_year">年を選ぶ</string>
+
+    <string name="title_select_date_range">日付範囲を選ぶ</string>
+
+    <string name="btn_apply_range">範囲を適用</string>
+
+    <string name="btn_confirm">確定</string>
+
+    <string name="label_from">開始</string>
+
+    <string name="label_to">終了</string>
+
+    <string name="error_invalid_date_month">選んだ月の日付が無効だよ。</string>
+
+    <string name="format_date_short">M月d日</string>
+
+    <string name="label_total_spending">支出合計</string>
+
+    <string name="label_net_savings">純貯蓄</string>
+
+    <string name="label_prev_closing_balance">前回の締め残高</string>
+
+    <string name="title_monthly_summary">月次まとめ</string>
+
+    <string name="label_spending_by_payment_mode_breakdown">財布や支払い方法ごとの支出の内訳。</string>
+
+    <string-array name="days_of_week_short">
+        <item>月</item>
+        <item>火</item>
+        <item>水</item>
+        <item>木</item>
+        <item>金</item>
+        <item>土</item>
+        <item>日</item>
+    </string-array>
+
+    <string-array name="months_short">
+        <item>1月</item>
+        <item>2月</item>
+        <item>3月</item>
+        <item>4月</item>
+        <item>5月</item>
+        <item>6月</item>
+        <item>7月</item>
+        <item>8月</item>
+        <item>9月</item>
+        <item>10月</item>
+        <item>11月</item>
+        <item>12月</item>
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+        <item>今日の財布、静かすぎ。</item>
+        <item>404：取引が見つからない。</item>
+        <item>何もない！コーヒーでも？</item>
+        <item>まだ見つからないよ。</item>
+        <item>空っぽみたい…</item>
+        <item>表示する取引はないよ。</item>
+        <item>記録はまだないよ</item>
+        <item>何か足し忘れた？</item>
+        <item>空白のページ。平和な暮らし。</item>
+        <item>取引に既読スルーされた。</item>
+        <item>家計アクティビティ：0%</item>
+        <item>この範囲にデータはないよ。</item>
+        <item>データベース曰く：null。</item>
+        <item>財布は機内モード。</item>
+        <item>沈黙…お金も瞑想中。</item>
+        <item>使わない、ストレスなし。面白い戦略。</item>
+        <item>帳簿が昼寝中。</item>
+        <item>動かない。円すら。</item>
+        <item>支出は休暇中。</item>
+        <item>アクティビティゼロ。禅、達成。</item>
+        <item>このページ、部屋よりきれい。</item>
+        <item>取引なし。怪しいくらい真面目。</item>
+        <item>口座がかくれんぼ中。</item>
+        <item>入力なし。時間が止まった？</item>
+        <item>家計戦線、異常なし。</item>
+        <item>支出検出なし。すごい。</item>
+        <item>財布がストライキ。</item>
+        <item>報告なし、キャプテン。</item>
+        <item>今日のお金は忠実だった。</item>
+        <item>カオスなし、支出なし。レア。</item>
+        <item>財布も困惑中。</item>
+        <item>このスペースは意図的に空白。</item>
+        <item>今日は家計ドラマなし。</item>
+        <item>残高がチルしてる。</item>
+        <item>動きなし。家計的に生きてる？</item>
+        <item>財布はステルスモード。</item>
+        <item>取引なし。うますぎる。</item>
+        <item>何も起きてない。先へ。</item>
+    </string-array>
+
+    <string name="desc_income_source">収入源</string>
+
+    <string name="desc_expense_category">支出カテゴリ</string>
+
+    <string name="desc_payment_method_fallback">支払い方法</string>
+
+    <string name="error_invalid_email">有効なメールアドレスを入れて</string>
+
+    <string name="title_payment">支払い</string>
+
+    <string name="icon_label_shopping_cart">買い物</string>
+
+    <string name="icon_label_calculator">EMI</string>
+
+    <string name="icon_label_security">保険</string>
+
+    <string name="icon_label_package">配送</string>
+
+    <string name="icon_label_fuel">燃料</string>
+
+    <string name="icon_label_file_text">書類</string>
+
+    <string name="icon_label_hand_coins">寄付</string>
+
+    <string name="icon_label_banknote">現金</string>
+
+    <string name="icon_label_more_horizontal">その他</string>
+
+    <string name="icon_label_restaurant">外食</string>
+
+    <string name="icon_label_home">家賃と家</string>
+
+    <string name="icon_label_directions_bus">交通</string>
+
+    <string name="icon_label_directions_car">車</string>
+
+    <string name="icon_label_flight">旅行</string>
+
+    <string name="icon_label_local_cafe">カフェと軽食</string>
+
+    <string name="icon_label_pets">ペット</string>
+
+    <string name="icon_label_school">教育</string>
+
+    <string name="icon_label_fitness_center">フィットネス</string>
+
+    <string name="icon_label_spa">身だしなみ</string>
+
+    <string name="icon_label_movie">エンタメ</string>
+
+    <string name="icon_label_music_note">音楽</string>
+
+    <string name="icon_label_sports_esports">ゲーム</string>
+
+    <string name="icon_label_favorite">健康</string>
+
+    <string name="icon_label_work">給料</string>
+
+    <string name="icon_label_business">ビジネス</string>
+
+    <string name="icon_label_laptop_mac">ガジェット</string>
+
+    <string name="icon_label_phone_android">スマホと請求</string>
+
+    <string name="icon_label_camera_alt">写真</string>
+
+    <string name="icon_label_celebration">パーティー</string>
+
+    <string name="icon_label_card_giftcard">ギフト</string>
+
+    <string name="icon_label_child_care">育児</string>
+
+    <string name="icon_label_volunteer_activism">慈善</string>
+
+    <string name="icon_label_local_hospital">病院</string>
+
+    <string name="icon_label_medication">薬</string>
+
+    <string name="icon_label_two_wheeler">バイク</string>
+
+    <string name="icon_label_train">電車</string>
+
+    <string name="icon_label_hotel">宿泊</string>
+
+    <string name="icon_label_beach_access">休暇</string>
+
+    <string name="icon_label_park">自然</string>
+
+    <string name="icon_label_hiking">ハイキング</string>
+
+    <string name="icon_label_sports_soccer">スポーツ</string>
+
+    <string name="icon_label_sports_basketball">バスケ</string>
+
+    <string name="icon_label_pool">水泳</string>
+
+    <string name="icon_label_directions_boat">ボート</string>
+
+    <string name="icon_label_build">メンテナンス</string>
+
+    <string name="icon_label_subscriptions">配信</string>
+
+    <string name="icon_label_receipt_long">請求</string>
+
+    <string name="icon_label_account_balance">銀行</string>
+
+    <string name="icon_label_credit_card">カード</string>
+
+    <string name="icon_label_payments">現金</string>
+
+    <string name="icon_label_qr_code">QRスキャン</string>
+
+    <string name="icon_label_savings">貯蓄</string>
+
+    <string name="icon_label_attach_money">金融</string>
+
+    <string name="icon_label_wallet">財布</string>
+
+    <string name="icon_label_currency_exchange">両替</string>
+
+    <string name="icon_label_storefront">店</string>
+
+    <string name="icon_label_fastfood">ファストフード</string>
+
+    <string name="icon_label_cake">ケーキ</string>
+
+    <string name="icon_label_water_drop">水道</string>
+
+    <string name="icon_label_electric_bolt">電気</string>
+
+    <string name="icon_label_gas_meter">ガス</string>
+
+    <string name="icon_label_wifi">ネット</string>
+
+    <string name="icon_label_tv">テレビ</string>
+
+    <string name="icon_label_local_shipping">配達</string>
+
+    <string name="icon_label_cleaning_services">掃除</string>
+
+    <string name="icon_label_pest_control">害虫</string>
+
+    <string name="icon_label_yard">庭</string>
+
+    <string name="icon_label_plumbing">配管</string>
+
+    <string name="icon_label_hvac">エアコン／暖房</string>
+
+    <string name="icon_label_garage">駐車</string>
+
+    <string name="icon_label_local_laundry_service">洗濯</string>
+
+    <string name="icon_label_checkroom">服</string>
+
+    <string name="icon_label_ice_skating">アイススケート</string>
+
+    <string name="icon_label_skiing">スキー</string>
+
+    <string name="icon_label_sports_tennis">テニス</string>
+
+    <string name="icon_label_sports_golf">ゴルフ</string>
+
+    <string name="icon_label_kayaking">カヤック</string>
+
+    <string name="icon_label_surfing">サーフィン</string>
+
+    <string name="icon_label_directions_run">ランニング</string>
+
+    <string name="icon_label_pedal_bike">自転車</string>
+
+    <string name="icon_label_sailing">セーリング</string>
+
+    <string name="icon_label_theater_comedy">劇場</string>
+
+    <string name="icon_label_casino">カジノ</string>
+
+    <string name="icon_label_toys">おもちゃ</string>
+
+    <string name="icon_label_piano">ピアノ</string>
+
+    <string name="icon_label_brush">アート</string>
+
+    <string name="icon_label_palette">パレット</string>
+
+    <string name="icon_label_auto_stories">本</string>
+
+    <string name="icon_label_menu_book">勉強</string>
+
+    <string name="icon_label_computer">パソコン</string>
+
+    <string name="icon_label_memory">テック</string>
+
+    <string name="icon_label_mouse">周辺機器</string>
+
+    <string name="icon_label_keyboard">キーボード</string>
+
+    <string name="icon_label_headset">オーディオ</string>
+
+    <string name="icon_label_speaker">スピーカー</string>
+
+    <string name="icon_label_router">ネットワーク</string>
+
+    <string name="icon_label_monitor">モニター</string>
+
+    <string name="icon_label_print">印刷</string>
+
+    <string name="icon_label_smart_home">スマートホーム</string>
+
+    <string name="icon_label_videocam">動画</string>
+
+    <string name="icon_label_mic">録音</string>
+
+    <string name="icon_label_radio">ラジオ</string>
+
+    <string name="icon_label_satellite">衛星</string>
+
+    <string name="icon_label_explore">探索</string>
+
+    <string name="icon_label_terrain">山</string>
+
+    <string name="icon_label_landscape">景色</string>
+
+    <string name="icon_label_forest">森</string>
+
+    <string name="fallback_desc_cat_1">食事と外食</string>
+
+    <string name="fallback_desc_cat_2">燃料と通勤</string>
+
+    <string name="fallback_desc_cat_3">小売と必需品</string>
+
+    <string name="fallback_desc_cat_4">毎月の繰り返し</string>
+
+    <string name="fallback_desc_cat_5">ウェルネスとケア</string>
+
+    <string name="fallback_desc_cat_6">配信とレジャー</string>
+
+    <string name="fallback_desc_cat_7">家と滞在</string>
+
+    <string name="fallback_desc_cat_8">毎日の必需品</string>
+
+    <string name="fallback_desc_cat_9">講座と本</string>
+
+    <string name="fallback_desc_cat_10">請求と更新</string>
+
+    <string name="fallback_desc_cat_11">保障と安全</string>
+
+    <string name="fallback_desc_cat_12">お祝いと贈り物</string>
+
+    <string name="fallback_desc_cat_13">セルフケア</string>
+
+    <string name="fallback_desc_cat_14">燃料と通勤</string>
+
+    <string name="fallback_desc_cat_15">修理と維持</string>
+
+    <string name="fallback_desc_cat_16">必須の支払い</string>
+
+    <string name="fallback_desc_cat_17">ペットのケア</string>
+
+    <string name="fallback_desc_cat_18">子どもと学校</string>
+
+    <string name="fallback_desc_cat_19">慈善と贈り物</string>
+
+    <string name="fallback_desc_cat_20">柔軟な支出</string>
+
+    <string name="fallback_desc_cat_101">給料と給与</string>
+
+    <string name="fallback_desc_cat_102">事業の収益</string>
+
+    <string name="fallback_desc_cat_103">リターンと利益</string>
+
+    <string name="fallback_desc_cat_104">プロジェクトとギグ</string>
+
+    <string name="fallback_desc_cat_105">その他の入金</string>
+
+    <string name="fallback_desc_pay_1">UPI送金とスキャン</string>
+
+    <string name="fallback_desc_pay_2">手元の現金</string>
+
+    <string name="fallback_desc_pay_3">銀行振込</string>
+
+    <string name="fallback_desc_pay_4">デビットとクレジットカード</string>
+
+    <string name="fallback_desc_pay_5">柔軟な支払い</string>
+
+    <string name="label_income_categories_count">収入カテゴリ%1$d</string>
+
+    <string name="label_expense_categories_count">支出カテゴリ%1$d</string>
+
+    <string name="label_payment_methods_count">支払い方法%1$d</string>
+
+    <string name="label_no_budget">予算なし</string>
+
+    <string name="label_add_a_budget">予算を追加</string>
+
+    <string name="label_near_limit">上限間近</string>
+
+    <string name="label_safe">安心</string>
+
+    <string name="label_spent_limit">使用 / 上限</string>
+
+    <string name="label_exceeded">超過</string>
+
+    <string name="label_budget_status_label">使いすぎ</string>
+
+    <string name="msg_no_budgets_locked">%1$sの予算は設定されてないよ。履歴はロック中。</string>
+
+    <string name="msg_no_budgets_limit_reached">%1$sにはもう予算を足せないよ（編集上限）。</string>
+
+    <string name="msg_no_budgets_start_tracking">%1$sの予算はまだないよ。新しい予算を追加をタップして今月を追跡。</string>
+
+    <string name="msg_no_recurring_start_tracking">繰り返し支出はまだないよ。繰り返しを追加をタップして、既存の支出取引を選んで。</string>
+
+    <string name="format_limit_amount">上限 %1$s</string>
+
+    <string name="format_started_date">%1$s開始</string>
+
+    <string name="label_due_today">今日期日</string>
+
+    <string name="label_due_tomorrow">明日期日</string>
+
+    <string name="format_due_in_days">期日まで%1$d日</string>
+
+    <string name="format_percent_used">%1$d%%使用</string>
+
+    <string name="format_remaining_pill">残り%1$s（%2$d%%）</string>
+
+    <string name="format_next_due">次 %1$s</string>
+
+    <string name="format_daily_allowance">1日%1$sまで使えるよ</string>
+
+    <string name="label_expense_with_val">支出 %1$s</string>
+
+    <string name="label_income_with_val">収入 %1$s</string>
+
+    <string name="msg_no_calendar_entries">%1$sの記録はないよ。</string>
+
+    <string name="month_jan_short">1月</string>
+
+    <string name="month_feb_short">2月</string>
+
+    <string name="month_mar_short">3月</string>
+
+    <string name="month_apr_short">4月</string>
+
+    <string name="month_may_short">5月</string>
+
+    <string name="month_jun_short">6月</string>
+
+    <string name="month_jul_short">7月</string>
+
+    <string name="month_aug_short">8月</string>
+
+    <string name="month_sep_short">9月</string>
+
+    <string name="month_oct_short">10月</string>
+
+    <string name="month_nov_short">11月</string>
+
+    <string name="month_dec_short">12月</string>
+
+    <string name="label_week_short_1">W1</string>
+
+    <string name="label_week_short_2">W2</string>
+
+    <string name="label_week_short_3">W3</string>
+
+    <string name="label_week_short_4">W4</string>
+
+    <string name="label_week_short_5">W5</string>
+
+    <string name="label_period_short">P%1$d</string>
+
+    <string name="format_percent">(%1$s%%)</string>
+
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+
+    <string name="format_cash_flow_ratio">%1$s比率</string>
+
+    <string name="label_zero_percent">+0%</string>
+
+    <string name="label_plus">+</string>
+
+    <string name="label_minus">-</string>
+
+    <string name="date_pattern_month_year">yyyy年M月</string>
+
+    <string name="date_pattern_year">yyyy年</string>
+
+    <string name="date_pattern_short_day_month">M月d日</string>
+
+    <string name="date_pattern_full_short">yyyy年M月d日</string>
+
+    <string name="label_12_hour">12時間</string>
+
+    <string name="label_24_hour">24時間</string>
+
+    <string name="label_all_records">すべての記録</string>
+
+    <string name="label_custom_payment_method">カスタム支払い方法</string>
+
+    <string name="notification_format_budget_approaching">%1$s！%3$s予算の%2$sを使ったよ。残り%4$s。</string>
+
+    <string name="notification_format_budget_reached">予算アラート：%2$sの%1$s上限に達したよ。</string>
+
+    <string name="notification_format_budget_overspent">アラート：%2$s予算を%1$s超過。%3$s</string>
+
+    <string name="notification_budget_approaching_1">ペース落とす？ 🛑</string>
+
+    <string name="notification_budget_approaching_2">未来の自分が、今止めてくれてありがとうって言うよ。 😇</string>
+
+    <string name="notification_budget_approaching_3">財布が軽くなってきた。 💸</string>
+
+    <string name="notification_budget_overspent_1">予算はバックミラーの中。 🏎️</string>
+
+    <string name="notification_budget_overspent_2">未踏の領域だよ。 🗺️</string>
+
+    <string name="notification_budget_overspent_3">上限はただの提案だった、よね？ 🙃</string>
+
+    <string name="notification_channel_reminders">毎日のリマインダー</string>
+
+    <string name="notification_channel_reminders_desc">支出を記録する定期リマインダー。</string>
+
+    <string name="notification_channel_budget">予算アラート</string>
+
+    <string name="notification_channel_budget_desc">月の予算に近づいたり達したりしたときの警告。</string>
+
+    <string name="notification_channel_budget_exceeded">予算超過</string>
+
+    <string name="notification_channel_budget_exceeded_desc">月の予算を超えたときのアラート。</string>
+
+    <string name="notification_channel_cloud_security">クラウドとセキュリティ</string>
+
+    <string name="notification_channel_cloud_security_desc">アカウントとクラウド同期のセキュリティアラート。</string>
+
+    <string name="notification_channel_sync_status">同期ステータス</string>
+
+    <string name="notification_channel_sync_status_desc">裏でデータが同期してるときの静かな更新。</string>
+
+    <string name="notification_channel_financial_insights">家計インサイト</string>
+
+    <string name="notification_channel_financial_insights_desc">支出のパーソナルなインサイトと見通し。</string>
+
+    <string name="notification_channel_recurring">繰り返し取引</string>
+
+    <string name="notification_channel_recurring_desc">繰り返し取引が自動追加されたときの通知。</string>
+
+    <string name="notification_title_budget_alert">予算アラート！</string>
+
+    <string name="notification_title_daily_reminder">支出を記録する時間？</string>
+
+    <string name="notification_title_recurring_updated">繰り返し取引を更新したよ</string>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">繰り返し取引を%1$d件追加したよ：\n%2$s</item>
+        <item quantity="other">繰り返し取引を%1$d件追加したよ：\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">予算間近または超過のカテゴリ%1$d</item>
+        <item quantity="other">予算間近または超過のカテゴリ%1$d</item>
+    </plurals>
+
+    <string name="title_reminder_times">リマインダーの時間</string>
+
+    <string name="title_morning_window">朝のウィンドウ</string>
+
+    <string name="title_evening_window">夜のウィンドウ</string>
+
+    <string name="notification_window_format">%1$s – %2$s</string>
+
+    <string name="title_select_reminder_window">ウィンドウを設定</string>
+
+    <string name="label_starts_at">開始</string>
+
+    <string name="label_ends_at">終了</string>
+
+    <string name="title_test_notification">テスト通知</string>
+
+    <string name="desc_test_notification">今すぐサンプルのリマインダーを出す</string>
+
+    <string name="btn_send_test_notification">テストを送る</string>
+
+    <string name="error_reminder_window_invalid">開始は終了より前にして</string>
+
+    <string name="notification_title_daily_reminder_personalized">支出を記録する時間、%1$s？</string>
+
+    <string name="notification_title_missed_today">今日、忘れた？</string>
+
+    <string name="notification_channel_goal_reminders">貯蓄目標リマインダー</string>
+
+    <string name="notification_channel_goal_reminders_desc">貯蓄目標への週次のひと押し。</string>
+
+    <string name="notification_permission_banner_title">通知がブロックされてるよ</string>
+
+    <string name="notification_permission_banner_desc">リマインダーとアラートのために通知を許可して。</string>
+
+    <string name="btn_allow_notifications">許可</string>
+
+    <string name="btn_open_notification_settings">設定を開く</string>
+
+    <string name="notification_channel_sms_import">スマートSMSインポート</string>
+
+    <string name="notification_channel_sms_import_desc">検出した銀行取引SMSを保存できるよ。</string>
+
+    <string name="notification_channel_weekly_reports">週次レポート</string>
+
+    <string name="notification_channel_weekly_reports_desc">日曜の週次支出まとめ。</string>
+
+    <string name="notification_title_large_transaction">大きな取引を検出</string>
+
+    <string name="notification_format_large_transaction">%2$sで%1$sの支出を記録したよ — 大きな支出のしきい値%3$sを超えてる。</string>
+
+    <string name="notification_title_weekly_summary">週次の支出まとめ</string>
+
+    <string name="notification_format_weekly_summary_up">今週%1$s使ったよ — 先週より%2$d%%多い。</string>
+
+    <string name="notification_format_weekly_summary_down">今週%1$s使ったよ — 先週より%2$d%%少ない。</string>
+
+    <string name="notification_format_weekly_summary_flat">今週%1$s使ったよ — 先週とほぼ同じ。</string>
+
+    <string name="notification_format_weekly_summary_top_category">トップカテゴリ：%1$s。</string>
+
+    <string name="notification_title_auto_backup_failed">自動バックアップ失敗</string>
+
+    <string name="notification_desc_auto_backup_failed">自動のローカルDBバックアップを作れなかったよ。タップしてアプリのストレージを確認。</string>
+
+    <string name="notification_title_syncing_in_progress">クラウドデータを同期中…</string>
+
+    <string name="notification_desc_syncing_in_progress">取引とプロフィールを端末間で更新中。</string>
+
+    <string name="notification_title_sync_failed">クラウド同期失敗</string>
+
+    <string name="notification_desc_sync_failed">クラウド同期を完了できなかったよ。自動で再試行する。</string>
+
+    <string name="notification_title_sync_pending">クラウド同期保留</string>
+
+    <string name="notification_desc_sync_pending">変更は同期待ち。ネットワークにつないで完了して。</string>
+
+    <string name="title_expense_reminders">支出リマインダー</string>
+
+    <string name="desc_expense_reminders">支出を記録する毎日のリマインダー。</string>
+
+    <string name="title_large_transaction_alerts">大きな取引アラート</string>
+
+    <string name="desc_large_transaction_alerts">1件の支出がしきい値を超えたらアラート。</string>
+
+    <string name="title_large_transaction_threshold">大きな支出のしきい値</string>
+
+    <string name="desc_large_transaction_threshold">1件の支出を大きいとみなすタイミング。</string>
+
+    <string name="placeholder_custom_threshold">金額を入力</string>
+
+    <string name="error_invalid_threshold">ゼロより大きい有効な金額を入れて。</string>
+
+    <string name="title_weekly_summary">週次まとめ</string>
+
+    <string name="desc_weekly_summary">日曜の週次支出の振り返り。</string>
+
+    <string name="title_weekly_summary_time">まとめの時刻</string>
+
+    <string name="desc_weekly_summary_time">毎週日曜のこの時刻に届くよ。</string>
+
+    <string name="notification_weekly_time_format">毎週日曜 %1$s</string>
+
+    <string name="title_financial_insights">家計インサイト</string>
+
+    <string name="desc_financial_insights">スマートな支出トレンドと見通し。</string>
+
+    <string name="title_recurring_alerts">繰り返しアラート</string>
+
+    <string name="desc_recurring_alerts">繰り返しの請求と支払いのリマインダー。</string>
+
+    <string name="desc_recurring_rule_ladder">ルール1–3無料 · 4–6は広告 · 7+はProにアップグレード</string>
+
+    <string name="desc_recurring_rules_used_free">無料ルール %1$d / %2$d 使用</string>
+
+    <string name="desc_recurring_rules_used_ad">広告付きルール %1$d / %2$d 使用</string>
+
+    <string name="desc_recurring_rules_used_premium">ルール%1$d · 無制限はProにアップグレード</string>
+
+    <string name="title_cloud_security_alerts">クラウドとセキュリティのアラート</string>
+
+    <string name="desc_cloud_security_alerts">同期、バックアップ、アカウントセキュリティのアラート。</string>
+
+    <string name="desc_info">情報</string>
+
+    <string name="info_expense_reminders">毎日の支出記録リマインダーと、その日まだ何も記録してないときのひと押し。下でウィンドウを選べるよ。</string>
+
+    <string name="info_budget_alerts" formatted="false">カテゴリが予算に近づいたら警告：75%、90%、100%、超過時。</string>
+
+    <string name="info_large_transaction">選んだしきい値より大きい1件の支出を記録した瞬間に通知。</string>
+
+    <string name="info_weekly_summary">日曜に過去7日の支出を前週と比べる振り返り。</string>
+
+    <string name="info_financial_insights">これから来るスマートインサイト：トレンド、スパイク、見通し、パーソナルな提案。</string>
+
+    <string name="info_savings_goals" formatted="false">貯蓄目標の25%、50%、75%の進捗、達成のお祝い、遅れの警告。</string>
+
+    <string name="info_recurring_alerts">繰り返しの請求を7日、3日、1日前と期日当日にリマインド。ルールごとにミュートできるよ。</string>
+
+    <string name="info_cloud_security">クラウド同期やバックアップ失敗、新しい端末からのアクセスや変更のアラート。</string>
+
+    <string name="notification_title_sms_import">💳 取引を検出</string>
+
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+
+    <string name="notification_format_sms_import_suggested">おすすめ：%1$s</string>
+
+    <string name="notification_format_sms_import_title_spent">%2$sで%1$s使った</string>
+
+    <string name="notification_format_sms_import_title_received">%2$sから%1$s受け取った</string>
+
+    <string name="notification_action_add">追加</string>
+
+    <string name="notification_action_ignore">無視</string>
+
+    <string name="notification_action_edit">編集</string>
+
+    <string name="notification_format_sms_import_summary">%1$d件の取引 · %2$s</string>
+
+    <string name="notification_action_save">保存</string>
+
+    <string name="notification_action_change">変更</string>
+
+    <string name="notification_action_open">開く</string>
+
+    <string name="sms_verb_debited">引き落とし</string>
+
+    <string name="sms_verb_credited">入金</string>
+
+    <string name="sms_sender_unknown">不明な送信者</string>
+
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+
+    <string name="title_sms_change">取引を変更</string>
+
+    <string name="label_choose_category">カテゴリを選ぶ</string>
+
+    <string name="label_optional_note">任意のメモ</string>
+
+    <string name="toast_sms_transaction_saved">取引を保存したよ</string>
+
+    <string name="msg_sms_save_failed">取引を保存できなかったよ。もう一回。</string>
+
+    <string name="title_sms_detection">SMS検出</string>
+
+    <string name="msg_sms_permission_needed">SMS検出にはSMS権限が必要。設定を開いて許可すると、銀行メッセージを自動検出するよ。</string>
+
+    <string name="label_open_app_settings">設定を開く</string>
+
+    <string name="title_sms_miui_setup">Xiaomi端末の設定</string>
+
+    <string name="msg_sms_miui_setup_autostart">Xiaomiは裏のSMS検出を止めることがあるよ。このアプリの自動起動をオンにして、電池を「制限なし」に。</string>
+
+    <string name="msg_sms_miui_setup_autostart_unknown">自動起動を自動確認できなかったよ。アプリ設定を開いて自動起動をオンにして。</string>
+
+    <string name="label_battery_settings">電池の設定</string>
+
+    <string name="label_sms_miui_done">オンにしたよ</string>
+
+    <string name="desc_dismiss_sms_permission_card">SMS権限のお知らせを閉じる</string>
+
+    <string name="desc_dismiss_miui_setup_card">Xiaomi設定のお知らせを閉じる</string>
+
+    <string name="desc_sms_detection_icon">SMS検出</string>
+
+    <string name="notification_opener_1">おやおや</string>
+
+    <string name="notification_opener_2">おもしろい</string>
+
+    <string name="notification_opener_3">ああ</string>
+
+    <string name="notification_opener_4">見てごらん</string>
+
+    <string name="notification_opener_5">速報</string>
+
+    <string name="notification_opener_6">アラート</string>
+
+    <string name="notification_opener_7">更新</string>
+
+    <string name="notification_opener_8">あら、誰でしょう</string>
+
+    <string name="notification_reaction_1">お金が飛んでった 💸</string>
+
+    <string name="notification_reaction_2">財布がダメージ 😬</string>
+
+    <string name="notification_reaction_3">予算が揺れてる 😳</string>
+
+    <string name="notification_reaction_4">一気にエスカレート 🚀</string>
+
+    <string name="notification_reaction_5">口座が気づいた 👀</string>
+
+    <string name="notification_reaction_6">ポケットに穴？</string>
+
+    <string name="notification_guilt_1">元取れたといいね 😏</string>
+
+    <string name="notification_guilt_2">後悔なし…だよね？ 😬</string>
+
+    <string name="notification_guilt_3">未来の自分が見てる 👀</string>
+
+    <string name="notification_guilt_4">ジャッジはしない…あまり 😌</string>
+
+    <string name="notification_guilt_5">大事なやつだといいね 😄</string>
+
+    <string name="notification_guilt_6">貯蓄口座が泣いてる。</string>
+
+    <string name="notification_food_1">また飯？リスペクト 🍕</string>
+
+    <string name="notification_food_2">王様食い 👑</string>
+
+    <string name="notification_food_3">ダイエット計画、退室 🍔</string>
+
+    <string name="notification_food_4">味 > 予算、でしょ？ 😏</string>
+
+    <string name="notification_food_5">カロリーは数えないけど、銭は数える。</string>
+
+    <string name="notification_shopping_1">買い物セラピー発動 🛍️</string>
+
+    <string name="notification_shopping_2">衝動？計画？ 😏</string>
+
+    <string name="notification_shopping_3">必要に見えた 😬</string>
+
+    <string name="notification_shopping_4">買い物モードON 💳</string>
+
+    <string name="notification_shopping_5">コレクション追加？ 🛍️</string>
+
+    <string name="notification_generic_1">また支出を記録 📊</string>
+
+    <string name="notification_generic_2">プロみたいに追跡 😎</string>
+
+    <string name="notification_generic_3">お金は…使った？ 😏</string>
+
+    <string name="notification_generic_4">了解 👀</string>
+
+    <string name="notification_generic_5">リアルにいこう 📈</string>
+
+    <string name="notification_budget_exceeded_1">予算が電話してきた。辞めるって。 💸</string>
+
+    <string name="notification_budget_exceeded_2">支出上限？知らない子ですね。 💅</string>
+
+    <string name="notification_budget_exceeded_3">チートコード見つけたみたいに使ってる。 🎮</string>
+
+    <string name="notification_budget_exceeded_4">予算：超過。悲しみ：まもなく。 📉</string>
+
+    <string name="notification_budget_exceeded_5">貯蓄が悲鳴。 😱</string>
+
+    <string name="notification_missed_entry_1">静かすぎ…食べるのやめた？ 🍔</string>
+
+    <string name="notification_missed_entry_2">財布が怪しく重い。何か記録して！ 💸</string>
+
+    <string name="notification_missed_entry_3">沈黙がうるさい。取引はどこ？ 🕵️</string>
+
+    <string name="notification_missed_entry_4">宝くじ当たった？今日ログないよ？ 🎰</string>
+
+    <string name="notification_missed_entry_5">トラッカーが寂しい。データをかじらせて。 🦴</string>
+
+    <string name="notification_morning_opener_1">おはよう！ ☀️</string>
+
+    <string name="notification_morning_opener_2">起きて輝こう！ ☕</string>
+
+    <string name="notification_morning_opener_3">朝の更新！ 🌅</string>
+
+    <string name="notification_morning_opener_4">起きて起きて！ 🥐</string>
+
+    <string name="notification_evening_opener_1">一日もうすぐ終わり！ 🌙</string>
+
+    <string name="notification_evening_opener_2">夜のチェック！ 🌆</string>
+
+    <string name="notification_evening_opener_3">夕飯の時間？ 🥘</string>
+
+    <string name="notification_evening_opener_4">もうタップアウト？ 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">コーヒーもう買った？それとも合図待ち？ ☕</string>
+
+    <string name="notification_sarcastic_morning_2">朝食の記録が、今日いちばんの運動だよ。 🥐</string>
+
+    <string name="notification_sarcastic_morning_3">早起きは三文の徳、賢い鳥はコストも記録。 🐛</string>
+
+    <string name="notification_sarcastic_morning_4">財布は起きてて、質問があるよ。 💸</string>
+
+    <string name="notification_sarcastic_evening_1">予算は今日生き延びた…のか？ 👀</string>
+
+    <string name="notification_sarcastic_evening_2">未記録の秘密を抱えて寝ないで。データが見てる。 🕵️</string>
+
+    <string name="notification_sarcastic_evening_3">夕飯は最高、でも記録は伝説になるよ。 🥘</string>
+
+    <string name="notification_sarcastic_evening_4">小さな記録が、貯蓄の大きな一歩。 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s 朝の支出、忘れずに記録して！</string>
+
+    <string name="notification_evening_reminder_generic">%1$s 夕飯や移動を記録する1分ある？</string>
+
+    <string name="notification_format_expense">%1$s 👀 %3$sに%2$s使った… %4$s。%5$s。%6$s</string>
+
+    <string name="notification_format_budget_exceeded">%1$s！%2$s予算を超えたよ。%3$s</string>
+
+    <string name="date_pattern_month_year_comma">yyyy年M月</string>
+
+    <string name="label_size_unit_b">B</string>
+
+    <string name="label_size_unit_kb">KB</string>
+
+    <string name="label_size_unit_mb">MB</string>
+
+    <string name="label_size_unit_gb">GB</string>
+
+    <string name="label_size_unit_tb">TB</string>
+
+    <string name="label_zero_size">0 B</string>
+
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <string name="title_update_required">更新が必要</string>
+
+    <string name="msg_update_required_desc">Expense Trackerの新しいバージョンがあるよ。最新に更新して使い続けて。</string>
+
+    <string name="btn_update_now">今すぐ更新</string>
+
+    <string name="title_update_available">新しいバージョンがあるよ</string>
+
+    <string name="title_update_available_version">バージョン%sが使えるよ</string>
+
+    <string name="msg_update_available">Expense Trackerの新しいバージョンがあるよ。今すぐ更新して最新機能を。</string>
+
+    <string name="title_system_maintenance">システムメンテナンス</string>
+
+    <string name="msg_maintenance_desc">サービス向上のための定期メンテナンス中。すぐ戻るよ。待っててくれてありがとう！</string>
+
+    <string name="title_protect_your_data">登録 / ログイン</string>
+
+    <string name="msg_link_account_desc">家計の旅は残す価値があるよ。ログインして成果と進捗が消えないように。</string>
+
+    <string name="label_guest_user">ゲストユーザー</string>
+
+    <string name="label_pro_expiry_format">PRO（%1$sまで）</string>
+
+    <string name="msg_privacy_info">この情報でダッシュボードを合わせ、年齢に合うインサイトを出すよ。データは100%プライベートで安全。</string>
+
+    <string name="cd_privacy_info">プライバシー情報を見る</string>
+
+    <string name="title_lets_get_started">はじめよう！</string>
+
+    <string name="desc_delete_all_data_subtitle">元に戻せない破壊的な操作</string>
+
+    <string name="label_delete_recurring">繰り返しを削除</string>
+
+    <string name="label_mute_recurring_title">通知をミュート</string>
+
+    <string name="label_mute_recurring_message">%sの通知をミュートする？この繰り返し支出の請求リマインダーは来なくなるよ。</string>
+
+    <string name="label_mute_yes">うん、ミュート</string>
+
+    <string name="label_yes">はい</string>
+
+    <string name="label_no">いいえ</string>
+
+    <string name="label_dont_show_again">このダイアログを再表示しない</string>
+
+    <string name="label_notifications">通知</string>
+
+    <string name="label_logout">ログアウト</string>
+
+    <string name="desc_logout_subtitle">アカウントからログアウト</string>
+
+    <string name="msg_logout_confirm">ログアウトする？クラウドデータは再ログインまで同期しないよ。</string>
+
+    <string name="error_no_internet">インターネットがないよ。ネットワークを確認してもう一回。</string>
+
+    <string name="error_no_google_accounts">この端末にGoogleアカウントはないよ。メールで登録して。</string>
+
+    <string name="title_google_accounts_not_found">Googleアカウントが必要</string>
+
+    <string name="msg_google_accounts_not_found">Googleアカウントが見つからないよ。端末設定で追加してからもう一回。</string>
+
+    <string name="label_add_account">アカウントを追加</string>
+
+    <string name="label_retry">再試行</string>
+
+    <string name="msg_transactions_load_failed">取引を読み込めなかったよ。</string>
+
+    <string name="error_auth_user_not_found">アカウントが見つからないよ。先に登録して。</string>
+
+    <string name="error_auth_wrong_password">パスワードが違うよ。もう一回。</string>
+
+    <string name="error_auth_invalid_credentials">メールかパスワードが無効だよ。</string>
+
+    <string name="error_auth_email_already_in_use">このメールはもう登録済み。ログインして。</string>
+
+    <string name="error_auth_user_disabled">このアカウントは無効になってるよ。</string>
+
+    <string name="error_auth_too_many_requests">試行が多すぎ。あとでまた。</string>
+
+    <string name="error_auth_weak_password">パスワードが弱すぎ。もっと強いのにして。</string>
+
+    <string name="error_auth_generic_fail">認証に失敗したよ。内容を確認して。</string>
+
+    <string name="error_auth_operation_not_allowed">このログイン方法はオフだよ。別の方法を。</string>
+
+    <string name="error_auth_token_parse">Googleログインのトークンが無効。もう一回。</string>
+
+    <string name="error_auth_no_google_accounts">この端末にGoogleアカウントはないよ。端末設定で追加して。</string>
+
+    <string name="msg_auth_reset_email_sent">パスワードリセットリンクを送ったよ！受信箱を見て。</string>
+
+    <string name="label_send_magic_link">メールリンクでログイン</string>
+
+    <string name="msg_auth_magic_link_sent">マジックリンクを送ったよ！受信箱（と迷惑メール）を見てログインして。</string>
+
+    <string name="msg_identity_secured_setting_up_profile">本人確認できた。プロフィールを準備中...</string>
+
+    <string name="msg_account_created_successfully">アカウントを作ったよ。</string>
+
+    <string name="msg_auth_cooldown_wait">次のリンクまで%1$d秒待って。</string>
+
+    <string name="title_cloud_sync_devices">クラウド同期と端末</string>
+
+    <string name="desc_sync_premium_subtitle">4端末でデータ同期（Pro）</string>
+
+    <string name="desc_sync_active_subtitle">自動クラウドバックアップはオン</string>
+
+    <string name="desc_sync_disabled_subtitle">自動クラウドバックアップはオフ</string>
+
+    <string name="desc_connected_devices">接続中の端末リスト</string>
+
+    <string name="label_active_now">いまアクティブ</string>
+
+    <string name="label_last_active">最終アクティブ：%1$s</string>
+
+    <string name="label_this_device">この端末</string>
+
+    <string name="btn_unlink_device">解除</string>
+
+    <string name="msg_unlink_device_confirm">この端末のリンクを外す？その端末の自動同期は止まるよ。</string>
+
+    <string name="label_devices_used">%2$d台中%1$d台接続</string>
+
+    <string name="title_cloud_sync">クラウド同期</string>
+
+    <string name="desc_cloud_sync">取引と設定をすべての端末でリアルタイム同期。</string>
+
+    <string name="title_upgrade_for_sync">クラウド同期にアップグレード</string>
+
+    <string name="desc_upgrade_for_sync">自動クラウドバックアップと4端末同期を解除。</string>
+
+    <string name="title_ad_expiry_warning">便利さがもうすぐ終わる</string>
+
+    <string name="msg_ad_expiry_warning">広告なしパスは%1$d分で切れるよ。もう一本見て設定をさらに%2$sキープする？</string>
+
+    <string name="btn_extend_now">今すぐ延長</string>
+
+    <string name="btn_maybe_later">あとで</string>
+
+    <string name="label_custom_minutes">カスタム分</string>
+
+    <string name="placeholder_enter_minutes">分を入力</string>
+
+    <string name="btn_apply">適用</string>
+
+    <string name="msg_preparing_pro_experience">Pro体験を準備中…</string>
+
+    <string name="msg_wont_take_long">すぐ終わるよ</string>
+
+    <string name="label_prev">前へ</string>
+
+    <string name="label_next_caps">次へ</string>
+
+    <string name="label_skip">スキップ</string>
+
+    <string name="placeholder_email">name@example.com</string>
+
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="error_password_required_prefix">必須：</string>
+
+    <string name="error_password_min_chars">8文字以上</string>
+
+    <string name="error_password_need_digit">数字を1つ以上</string>
+
+    <string name="error_password_need_special">記号を1つ以上</string>
+
+    <string name="label_forgot_password">パスワードを忘れた？</string>
+
+    <string name="label_resend_cooldown">%1$d秒後に再送</string>
+
+    <string name="label_financial_goal_title">#1の家計目標は？</string>
+
+    <string name="label_goal_home">夢の家を買う</string>
+
+    <string name="label_goal_travel">世界を旅する</string>
+
+    <string name="label_goal_debt">借金ゼロ</string>
+
+    <string name="label_goal_retirement">早期リタイア</string>
+
+    <string name="label_goal_savings">安全網を作る</string>
+
+    <string name="label_goal_car">新しい車を買う</string>
+
+    <string name="label_goal_education">教育資金</string>
+
+    <string name="label_goal_business">事業を始める</string>
+
+    <string name="label_goal_invest">投資を育てる</string>
+
+    <string name="label_goal_other">その他（カスタム目標）</string>
+
+    <string name="placeholder_enter_custom_goal">目標を書いて...</string>
+
+    <string name="label_financial_zen">家計の禅</string>
+
+    <string name="msg_discipline_score_title">アカウント設定</string>
+
+    <string name="msg_discipline_score_desc">いい感じ！！プロフィールを完成させて。</string>
+
+    <string name="btn_reach_100">100%にする</string>
+
+    <string name="msg_goal_faster_with_pro">%1$sの目標をElite機能で20%%速く。</string>
+
+    <string name="title_setup_progress">プロフィールの進捗</string>
+
+    <string name="label_checklist_full_name">氏名</string>
+
+    <string name="label_checklist_phone">電話番号</string>
+
+    <string name="label_checklist_gender">性別</string>
+
+    <string name="label_checklist_dob">生年月日</string>
+
+    <string name="label_checklist_email">メールアドレス</string>
+
+    <string name="label_checklist_signin_to_add">ログインしてメールを追加</string>
+
+    <string name="label_checklist_email_verified">メール確認済み</string>
+
+    <string name="label_checklist_verify_email">プロフィールをタップして確認</string>
+
+    <string name="btn_got_it">わかった</string>
+
+    <string name="title_my_goals">自分の目標</string>
+
+    <string name="title_add_goal">貯蓄目標を追加</string>
+
+    <string name="title_fund_goal">目標に入金</string>
+
+    <string name="msg_fund_goal_caption">この目標に足す金額を入れて。いつでも変えられるよ。</string>
+
+    <string name="title_delete_goal">目標を削除</string>
+
+    <string name="msg_delete_goal_confirm">目標「%1$s」を削除する？元に戻せないよ。</string>
+
+    <string name="label_fund_amount">追加する金額</string>
+
+    <string name="label_goal_name">目標名</string>
+
+    <string name="label_target_amount">目標金額</string>
+
+    <string name="label_initial_saved_amount">最初の貯蓄額</string>
+
+    <string name="label_goal_name_hint">例：新しい車、旅行</string>
+
+    <string name="msg_no_goals">目標はまだないよ。＋で貯蓄スタート！</string>
+
+    <string name="cd_add_goal">目標を追加</string>
+
+    <string name="cd_add_funds">資金を追加</string>
+
+    <string name="cd_delete_goal">目標を削除</string>
+
+    <string name="format_goal_progress">%1$d%%完了</string>
+
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+
+    <string name="format_goal_target">目標：%1$s</string>
+
+    <string name="title_edit_goal">目標を編集</string>
+
+    <string name="cd_edit_goal">目標を編集</string>
+
+    <string name="title_active_goals">進行中の目標</string>
+
+    <string name="title_completed_goals">完了</string>
+
+    <string name="label_goal_completed">完了 🎉</string>
+
+    <string name="label_deadline">期限</string>
+
+    <string name="label_deadline_not_set">未設定</string>
+
+    <string name="label_set_deadline">期限を設定</string>
+
+    <string name="format_days_left">あと%1$d日</string>
+
+    <string name="label_one_day_left">あと1日</string>
+
+    <string name="label_goal_due_today">今日期限</string>
+
+    <string name="format_days_overdue">%1$d日遅れ</string>
+
+    <string name="label_saved_amount">貯蓄：%1$s</string>
+
+    <string name="label_goal_icon">アイコン</string>
+
+    <string name="title_choose_icon">アイコンを選ぶ</string>
+
+    <string name="cd_goal_icon">目標アイコン</string>
+
+    <string name="title_goal_reminder">貯蓄目標の更新</string>
+
+    <string name="msg_goal_reminder_due_soon">「%2$s」まであと%1$d日 — %3$d%%まで来てるよ！</string>
+
+    <string name="title_fund_history">資金履歴</string>
+
+    <string name="format_fund_entries_count">%1$d件</string>
+
+    <string name="label_no_fund_history">まだ拠出はないよ</string>
+
+    <string name="label_funded_on">%1$sに入金</string>
+
+    <string name="desc_toggle_fund_history">入金履歴を切り替え</string>
+
+    <string name="label_fund_history_inline">入金履歴</string>
+
+    <string name="format_fund_entries_one">1件</string>
+
+    <string name="msg_goal_reminder_due_soon_1">「%1$s」まであと1日 — %2$d%%まで来てるよ！</string>
+
+    <string name="msg_goal_reminder_due_today">今日期限 — 「%1$s」！%2$d%%まで来てるよ。</string>
+
+    <string name="msg_goal_reminder_progress">「%2$s」まで%1$d%%。続けて！</string>
+
+    <string name="title_goal_milestone">目標の節目に到達</string>
+
+    <string name="msg_goal_milestone">「%2$s」まで%1$d%% — 続けて！</string>
+
+    <string name="title_goal_achieved">目標達成</string>
+
+    <string name="msg_goal_achieved">おめでとう！「%1$s」の目標に達したよ。</string>
+
+    <string name="title_goal_behind_schedule">目標が予定より遅れ</string>
+
+    <string name="msg_goal_behind_schedule">「%1$s」を逃すかも — このペースだとあと%2$d日。</string>
+
+    <string name="label_test_goal">テスト目標 </string>
+
+    <string name="notification_title_goal_milestone_summary">目標の節目</string>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d件の目標が節目に達したよ</item>
+        <item quantity="other">%1$d件の目標が節目に達したよ</item>
+    </plurals>
+
+    <string name="notification_title_upcoming_bill">これからの取引</string>
+
+    <string name="notification_format_upcoming_bill_days">「%2$s」の%1$sは%3$d日後に引き落とされるよ。</string>
+
+    <string name="notification_format_upcoming_bill_tomorrow">「%2$s」の%1$sは明日引き落とされるよ。</string>
+
+    <string name="notification_format_upcoming_bill_due_today">「%2$s」の%1$sは今日期日だよ。</string>
+
+    <string name="notification_title_upcoming_bill_summary">これからの取引</string>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">これからの取引%1$d件</item>
+        <item quantity="other">これからの取引%1$d件</item>
+    </plurals>
+
+    <string name="title_redeem_pro_pass">Pro Passを使う</string>
+
+    <string name="label_redeem_pro_pass_subtitle">プロモコードかパスキーを入れて</string>
+
+    <string name="label_enter_pro_code">PROコードを入力</string>
+
+    <string name="title_unlock_pro_access">Proアクセスを解除</string>
+
+    <string name="msg_unlock_pro_access_body">プロモコードある？下に入れてフルプレミアムを解除。</string>
+
+    <string name="placeholder_pro_code_example">例：PROPASS7</string>
+
+    <string name="label_activate_pro_code">Proコードを有効化</string>
+
+    <string name="label_calculator_itemized">項目別</string>
+
+    <string name="label_calculator_normal">通常</string>
+
+    <string name="label_redeem_pro_pass_subscribed_subtitle">サブスクに含まれるよ</string>
+
+    <string name="title_activate_pro_pass">ProPassを有効化</string>
+
+    <string name="title_pro_pass_subscribed">もうサブスクがあるよ</string>
+
+    <string name="msg_pro_pass_subscribed">ProPassはサブスクの上に日数を足すから、サブスク中に切れるよ。Google Playでサブスクを管理して。</string>
+
+    <string name="btn_ok">OK</string>
+
+    <string name="msg_enter_pro_pass_code">下にユニークな英数字のProPassコードを入れて。</string>
+
+    <string name="placeholder_pro_pass_code">例：EXPN-T0C3-HG41-NM1</string>
+
+    <string name="btn_activate_pro">Proを有効化</string>
+
+    <string name="msg_pro_pass_activated">ProPass有効！プレミアムが%1$d日ついたよ。</string>
+
+    <string name="error_invalid_pro_pass">無効か期限切れのProPassコード。</string>
+
+    <string name="error_redeem_not_signed_in">ProPassコードを使うにはGoogleかメールでログインして。</string>
+
+    <string name="error_redeem_inactive">このProPassコードはもう無効だよ。</string>
+
+    <string name="error_redeem_expired">このProPassコードは期限切れだよ。</string>
+
+    <string name="error_redeem_limit_reached">このProPassコードは利用上限に達したよ。</string>
+
+    <string name="error_redeem_already_redeemed">このProPassコードはもう使ったよ。</string>
+
+    <string name="error_redeem_pass_active">Pro Passはいま有効。今のパスが切れてから新しいコードを。</string>
+
+    <string name="error_redeem_subscription_active">サブスクがもうProをカバーしてるから、ProPassは余って切れるよ。Google Playで管理して。</string>
+
+    <string name="error_redeem_network">サーバーに届かないよ。接続を確認してもう一回。</string>
+
+    <string name="error_redeem_unknown">そのコードを有効化できなかったよ。もう一回。</string>
+
+    <string name="label_have_a_code">Proアクセスコードある？</string>
+
+    <string name="error_underage_restriction">続けるには15歳以上が必要だよ。</string>
+
+    <string name="label_parental_consent">このアプリを使う保護者の同意があるよ。</string>
+
+    <string name="error_parental_consent_required">18歳未満は保護者の同意が必要。</string>
+
+    <string name="title_email_verification">メールを確認</string>
+
+    <string name="label_verification_email_sent">確認メールを%1$sに送ったよ。続けてメールを確認して（見当たらなければ迷惑フォルダも）。</string>
+
+    <string name="error_email_not_verified">メールはまだ未確認。受信箱（迷惑フォルダ含む）を見て確認リンクをクリックして。</string>
+
+    <string name="btn_check_status">確認ステータスを見る</string>
+
+    <string name="btn_resend_email">確認メールを再送</string>
+
+    <string name="info_verification_email_sent_again">確認メールを再送したよ。受信箱と迷惑フォルダを見て。</string>
+
+    <string name="error_link_still_valid">今の確認リンクはまだ有効。新しいのを頼む前に受信箱と迷惑フォルダを見て。</string>
+
+    <string name="error_email_not_verified_expired_sent">確認リンクは期限切れだったから、新しいのをメールに送ったよ。受信箱と迷惑フォルダを見て。</string>
+
+    <string name="label_verification_link_expired">確認リンクは期限切れ。下の再送をタップして新しいのを頼んで。</string>
+
+    <string name="label_verification_link_expires_in">リンクの期限：%1$s</string>
+
+    <string name="btn_verify_email">メールを確認</string>
+
+    <string name="dialog_verify_email_title">メール未確認</string>
+
+    <string name="dialog_verify_email_pro_pass">Pro Passを有効にするにはメール確認。確認リンクを送るよ。</string>
+
+    <string name="dialog_verify_email_auto_backup">自動バックアップをオンにするにはメール確認。他の端末で復元できるようになるよ。</string>
+
+    <string name="dialog_verify_email_sync">端末間同期をオンにするにはメール確認。</string>
+
+    <string name="label_verify_now">今すぐ確認</string>
+
+    <string name="label_later">あとで</string>
+
+    <string name="toast_verification_email_sent">確認メールを送ったよ — 受信箱を見て</string>
+
+    <string name="msg_email_not_verified_yet">メールはまだ未確認。受信箱を見て。</string>
+
+    <string name="msg_failed_to_check_status">ステータスを確認できなかったよ。もう一回。</string>
+
+    <string name="msg_verification_email_resent">確認メールを再送したよ。受信箱を見て。</string>
+
+    <string name="msg_failed_to_resend">再送できなかったよ。もう一回。</string>
+
+    <string name="msg_email_verified_success">メールを確認できたよ！</string>
+
+    <string name="btn_update_email">メールを更新</string>
+
+    <string name="label_signed_in_with_google">Googleでログイン中</string>
+
+    <string name="title_update_email">メールアドレスを更新</string>
+
+    <string name="desc_update_email">新しいメールを入れて。確認リンクが届く — 確認後にだけメールが変わるよ。</string>
+
+    <string name="label_current_email">今のメール</string>
+
+    <string name="label_new_email">新しいメール</string>
+
+    <string name="placeholder_enter_new_email">新しいメールアドレスを入れて</string>
+
+    <string name="label_send_verification">確認リンクを送る</string>
+
+    <string name="label_verify_and_update">確認して更新</string>
+
+    <string name="msg_reauth_required">セキュリティのため、メール変更には今のパスワードを入れて。</string>
+
+    <string name="toast_email_update_verification_sent">新しいメールに確認リンクを送ったよ — 受信箱を見て</string>
+
+    <string name="msg_email_already_in_use">このメールは別のアカウントに紐づいてるよ。</string>
+
+    <string name="msg_failed_to_update_email">メールを更新できなかったよ。もう一回。</string>
+
+    <string name="msg_incorrect_password">パスワードが違うよ。もう一回。</string>
+
+    <string name="msg_auth_failed">認証に失敗したよ。もう一回。</string>
+
+    <string name="title_pending_email_verification">新しいメールを確認</string>
+
+    <string name="msg_verification_sent_to_new_email">確認リンクを%1$sに送ったよ。受信箱のリンクをクリックしてメール変更を完了して。</string>
+
+    <string name="msg_current_email_unchanged">今のログインメール（%1$s）は、新しいのを確認するまで有効。</string>
+
+    <string name="msg_checking_verification_status">確認ステータスをチェック中…</string>
+
+    <string name="msg_email_updated_success">メールを更新したよ！</string>
+
+    <string name="msg_email_updated_success_desc">ログインメールが変わったよ。新しいメールでログインできる。</string>
+
+    <string name="label_confirm_new_email">新しいメールを確認</string>
+
+    <string name="placeholder_confirm_new_email">新しいメールをもう一度</string>
+
+    <string name="error_emails_do_not_match">メールが一致しないよ。</string>
+
+    <string name="msg_fill_all_fields_correctly">すべての欄を正しく埋めて。</string>
+
+    <string name="msg_enter_current_password">今のパスワードを入れて。</string>
+
+    <string name="label_send_verification_to_new_email">確認リンクを送る</string>
+
+    <string name="btn_resend_in_seconds">%1$d秒後に再送</string>
+
+    <string name="msg_check_spam_folder">見つからない？迷惑メールフォルダを見て。</string>
+
+    <string name="placeholder_reenter_password_for_security">セキュリティのためパスワードを再入力</string>
+
+    <string name="desc_show_password">パスワードを表示</string>
+
+    <string name="desc_hide_password">パスワードを隠す</string>
+
+    <string name="title_force_sync">同期がうまくいかない？</string>
+
+    <string name="desc_force_sync">変更が自動同期されないときは、フル同期を強制できるよ。</string>
+
+    <string name="desc_last_synced_info">最終同期は、この端末がクラウド同期を最後に成功した日時。未同期はまだ完了した同期が記録されてないよ。</string>
+
+    <string name="btn_sync_now">今すぐ同期</string>
+
+    <string name="toast_force_sync_success">同期できたよ！</string>
+
+    <string name="toast_force_sync_failed">同期失敗：%1$s</string>
+
+    <string name="label_last_synced">最終同期：%1$s</string>
+
+    <string name="label_never_synced">まだ同期してないよ</string>
+
+    <string name="title_change_password">パスワードを変更</string>
+
+    <string name="label_change_password_subtitle">アカウントのパスワードを更新</string>
+
+    <string name="label_current_password">今のパスワード</string>
+
+    <string name="label_new_password">新しいパスワード</string>
+
+    <string name="label_confirm_new_password">新しいパスワードを確認</string>
+
+    <string name="placeholder_current_password">今のパスワードを入れて</string>
+
+    <string name="placeholder_new_password">新しいパスワードを入れて</string>
+
+    <string name="placeholder_confirm_new_password">新しいパスワードを確認</string>
+
+    <string name="error_passwords_do_not_match">新しいパスワードが一致しないよ。</string>
+
+    <string name="error_password_update_failed">パスワード更新に失敗。今のパスワードを確認してもう一回。</string>
+
+    <string name="success_password_updated">パスワードを更新したよ！</string>
+
+    <string name="btn_change_password">パスワードを変更</string>
+
+    <string name="label_offline">オフライン</string>
+
+    <string name="label_backup_sync_is_off">バックアップと同期はオフ</string>
+
+    <string name="label_turn_on">ログイン</string>
+
+    <string name="label_sign_in_keep_data_safe">ログインしてデータを守って。</string>
+
+    <string name="title_membership">自分のメンバーシップ</string>
+
+    <string name="label_membership_card_subscription">Playサブスク</string>
+
+    <string name="label_membership_card_pro_pass">Pro Passアクセス</string>
+
+    <string name="label_membership_card_free">無料プラン</string>
+
+    <string name="label_membership_badge_free_pass">無料パス</string>
+
+    <string name="title_membership_pro_card">Expense Tracker Pro</string>
+
+    <string name="title_membership_upgrade_card">Expense Tracker Proにアップグレード</string>
+
+    <string name="msg_membership_upgrade_body">無制限の予算、ウィジェット、繰り返し取引、高度な分析、クラウドバックアップなど。</string>
+
+    <string name="label_membership_managed_by_play">Google Playが管理</string>
+
+    <string name="label_membership_unlocked_headline">すべてのプレミアム機能が解除</string>
+
+    <string name="msg_membership_unlocked_body">請求と解約はGoogle Playで安全に管理されるよ。</string>
+
+    <string name="label_membership_pass_headline">プロモのPro Passで解除したよ。</string>
+
+    <string name="msg_membership_pass_body">このアクセスは自動で切れるよ。Google Playのサブスクじゃない。</string>
+
+    <string name="btn_membership_buy_subscription">サブスクを買う</string>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">残り%1$d日</item>
+        <item quantity="other">残り%1$d日</item>
+    </plurals>
+
+    <string name="desc_membership_settings">ステータス、請求サイクル、アップグレード詳細を見る</string>
+
+    <string name="label_pro">Pro</string>
+
+    <string name="label_free">無料</string>
+
+    <string name="label_pro_active">Proメンバー</string>
+
+    <string name="label_membership_benefits">メンバーシップ特典</string>
+
+    <string name="msg_subscription_billing_issue">前回の支払いを取れなかったよ。Google Playで支払い方法を更新してProをキープ。</string>
+
+    <string name="msg_pro_active_no_expiry">Proアクセスは有効だよ。</string>
+
+    <string name="label_na">N/A</string>
+
+    <string name="btn_sign_in_register">ログイン / 登録</string>
+
+    <string name="date_pattern_pro_expiry">yyyy年M月d日 a h:mm</string>
+
+    <string name="label_free_tier">無料プラン</string>
+
+    <string name="label_pro_benefit_adfree">広告ゼロ。集中だけ</string>
+
+    <string name="label_pro_benefit_devices">4端末ですぐ同期！</string>
+
+    <string name="label_pro_benefit_custom_card">カスタムできる取引カード</string>
+
+    <string name="label_pro_benefit_advanced_features">高度な分析と目標</string>
+
+    <string name="label_pro_benefit_many_more_features">ほかにもたくさん…探検して</string>
+
+    <string name="btn_restore_purchase">購入を復元</string>
+
+    <string name="btn_manage_subscription">サブスクを管理</string>
+
+    <string name="label_cancel_subscription_anytime">サブスクはいつでも解約できるよ</string>
+
+    <string name="label_cancel_subscription_where">Playストアの支払いと定期購入からできるよ</string>
+
+    <string name="label_expires_on">%1$sに期限</string>
+
+    <string name="label_renews_on">%1$sに更新</string>
+
+    <string name="label_unlimited_offline">オフラインのローカルモード</string>
+
+    <string name="label_offline_warning_desc">データはこの端末だけ。ログインか登録でバックアップを守って。</string>
+
+    <string name="title_coming_soon">近日公開</string>
+
+    <string name="msg_billing_coming_soon">Google Play Billing連携は開発中。次の更新で使えるよ。</string>
+
+    <string name="title_feedback">フィードバック</string>
+
+    <string name="label_send_feedback_desc">好きなところ、直してほしいところを教えて。</string>
+
+    <string name="placeholder_feedback_hint">フィードバックをここに…</string>
+
+    <string name="btn_submit_feedback">フィードバックを送る</string>
+
+    <string name="msg_feedback_success">フィードバックありがとう！</string>
+
+    <string name="msg_feedback_error">フィードバックを送れなかったよ。もう一回。</string>
+
+    <string name="msg_feedback_cooldown">次のフィードバックまで%1$s分待って。</string>
+
+    <string name="label_logged_in_as">送信者：%1$s</string>
+
+    <string name="msg_feedback_empty">フィードバックは空にできないよ。</string>
+
+    <string name="title_view_by">表示</string>
+
+    <string name="label_welcome_back_comma">おかえり、</string>
+
+    <string name="msg_welcome_back_subtitle">すぐ再開できるよ！</string>
+
+    <string name="label_your_goal">家計の目標</string>
+
+    <string name="label_welcome_back_fallback">きみ</string>
+
+    <string name="label_show_more">もっと見る</string>
+
+    <string name="label_show_less">少なく見る</string>
+
+    <string name="title_upcoming_recurring">これからの繰り返し</string>
+
+    <string name="label_no_upcoming_recurring">これからの繰り返し取引はないよ</string>
+
+    <string name="title_voice_add">音声で追加</string>
+
+    <string name="desc_voice_add">音声で取引を追加</string>
+
+    <string name="msg_voice_listening">聞いてるよ…</string>
+
+    <string name="msg_voice_processing">処理中…</string>
+
+    <string name="msg_voice_error_empty_input">「食料に50ドル使った」みたいに言ってみて</string>
+
+    <string name="msg_voice_error_no_amount">金額を検出できなかったよ。「食料に50ドル使った」と言ってみて</string>
+
+    <string name="label_voice_confirm">確定</string>
+
+    <string name="label_voice_edit">編集</string>
+
+    <string name="label_voice_retry">もう一回</string>
+
+    <string name="label_voice_confidence_high">確信度高</string>
+
+    <string name="label_voice_confidence_medium">確信度中</string>
+
+    <string name="label_voice_confidence_low">確信度低 — 確認して</string>
+
+    <string name="label_merchant">加盟店</string>
+
+    <string name="label_confidence">確信度</string>
+
+    <string name="label_voice_confidence">確信度</string>
+
+    <string name="label_category">カテゴリ</string>
+
+    <string name="msg_voice_error_no_permission">音声入力にはマイク権限が必要だよ</string>
+
+    <string name="msg_voice_error_recognizer">音声認識に失敗したよ。もう一回。</string>
+
+    <string name="msg_voice_error_network">ネットワークエラー。接続を確認してもう一回。</string>
+
+    <string name="msg_voice_error_audio">録音エラー。もう一回。</string>
+
+    <string name="msg_voice_error_timeout">声を検出できなかったよ。もう一回。</string>
+
+    <string name="widget_description">クイック音声取引と今日の支出まとめ</string>
+
+    <string name="widget_voice_channel_name">音声録音</string>
+
+    <string name="widget_voice_channel_desc">ホームウィジェットから音声入力を録音するとき</string>
+
+    <string name="widget_notification_recording_title">録音中…</string>
+
+    <string name="widget_notification_recording_text">今取引を話して</string>
+
+    <string name="label_budget_categories_info">予算カテゴリを見る</string>
+
+    <string name="title_budget_categories">予算カテゴリ</string>
+
+    <string name="label_included_categories">この予算のカテゴリ</string>
+
+    <string name="label_select_all">すべて選択</string>
+
+    <string name="label_select_unbudgeted">使えるものだけ選択</string>
+
+    <string name="label_add">追加</string>
+
+    <string name="shortcut_add_expense">支出を追加</string>
+
+    <string name="shortcut_add_expense_long">支出を追加</string>
+
+    <string name="shortcut_add_income">収入を追加</string>
+
+    <string name="shortcut_add_income_long">収入を追加</string>
+
+    <string name="shortcut_month_summary">今月の支出</string>
+
+    <string name="shortcut_month_summary_long">今月の支出</string>
+
+    <string name="shortcut_speak_to_add">話して追加</string>
+
+    <string name="shortcut_speak_to_add_long">話して追加</string>
+
+    <string name="shortcut_copy_budget">予算をコピー</string>
+
+    <string name="shortcut_copy_budget_long">予算をコピー</string>
+
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <string name="msg_feature_locked_pro_required">この機能にはProサブスクが必要</string>
+
+    <string name="msg_subscribe_to_unlock">サブスクしてこの機能を解除し、開発を支えて</string>
+
+    <string name="btn_upgrade">Proにアップグレード</string>
+
+    <string name="msg_paywall_subtitle">すべてのPro機能を解除して開発を支えて。</string>
+
+    <string name="msg_paywall_hero_subtitle">家計インサイト、AI音声解析、無制限ルールを全部解除</string>
+
+    <string name="paywall_plan_title_annual">12か月プラン</string>
+
+    <string name="paywall_plan_title_six">6か月プラン</string>
+
+    <string name="paywall_plan_title_month">1か月ベーシック</string>
+
+    <string name="paywall_best_value_save">いちばんお得 • %1$d%%オフ</string>
+
+    <string name="paywall_per_month_suffix">/ 月</string>
+
+    <string name="paywall_save_amount">%1$sお得</string>
+
+    <string name="paywall_base_tier">ベーシック</string>
+
+    <string name="paywall_standard_recurring">標準の継続課金</string>
+
+    <string name="paywall_cta_continue">%1$sで続ける · %2$s/月</string>
+
+    <string name="paywall_cta_period_annual">12か月</string>
+
+    <string name="paywall_cta_period_six">6か月</string>
+
+    <string name="paywall_cta_period_month">1か月</string>
+
+    <string name="paywall_terms_of_use">利用規約</string>
+
+    <string name="paywall_benefits_header_annual">Pro限定機能が全部入るよ：</string>
+
+    <string name="paywall_benefits_header_six">6か月Proの特典：</string>
+
+    <string name="paywall_benefits_header_month">月次Proの特典：</string>
+
+    <string name="paywall_benefit_ad_free">広告なしの体験</string>
+
+    <string name="paywall_benefit_txn_details">編集モードを開かずに取引詳細を全部見る</string>
+
+    <string name="paywall_benefit_device_sync">4端末の自動同期</string>
+
+    <string name="paywall_benefit_favorites">お気に入り取引：ワンタップで再利用</string>
+
+    <string name="paywall_benefit_recurring_yearly">無制限の繰り返しルール（7件目〜）と年次頻度</string>
+
+    <string name="paywall_benefit_recurring_copy">無制限の繰り返しルールと前月予算のコピー</string>
+
+    <string name="paywall_benefit_recurring_only">無制限の繰り返しルール（7件目〜）</string>
+
+    <string name="paywall_benefit_copy_budgets">前月予算のコピーとカスタム予算月</string>
+
+    <string name="paywall_benefit_ai_backups">無制限のAI音声解析と毎日の自動バックアップ</string>
+
+    <string name="paywall_benefit_ai_backup">無制限のAI音声解析と毎日の自動バックアップ</string>
+
+    <string name="paywall_benefit_ai_daily">無制限のAI音声解析と毎日のバックアップ</string>
+
+    <string name="paywall_benefit_lock_fonts_tags">20–60分の自動ロック、カスタムフォント、支払いタグ</string>
+
+    <string name="paywall_benefit_lock_fonts">プライバシー自動ロック（20-60分）とカスタムフォント</string>
+
+    <string name="paywall_benefit_lock_fonts_short">自動ロック時間とカスタムフォント</string>
+
+    <string name="paywall_benefit_insights_alerts">家計インサイト、目標とクラウドセキュリティのアラート</string>
+
+    <string name="paywall_benefit_separators">日付区切り、支払いまとめ、カスタムアイコン</string>
+
+    <string name="paywall_benefit_many_more">ほかにもたくさん…探検して</string>
+
+    <string name="paywall_processing_payment">支払い処理中…</string>
+
+    <string name="paywall_please_wait">ちょっと待って</string>
+
+    <string name="paywall_youre_pro_now">いまProだよ</string>
+
+    <string name="paywall_congrats_purchase">購入おめでとう</string>
+
+    <string name="paywall_invested_in_yourself">自分に投資したよ。正解。</string>
+
+    <string name="paywall_start_using_pro">Proを使い始める</string>
+
+    <string name="paywall_payment_failed">支払いに失敗したよ</string>
+
+    <string name="btn_close">閉じる</string>
+
+    <string name="label_paywall_benefits">もらえるもの</string>
+
+    <string name="label_paywall_choose_plan">プランを選ぶ</string>
+
+    <string name="label_paywall_plans_unavailable">プランを読み込めなかったよ。</string>
+
+    <string name="msg_paywall_plans_unavailable_desc">接続を確認してもう一回。</string>
+
+    <string name="btn_paywall_retry">再試行</string>
+
+    <string name="content_desc_loading_plans">プランを読み込み中</string>
+
+    <string name="btn_paywall_subscribe">購読</string>
+
+    <string name="msg_paywall_play_account_billing">Google Playは、この端末でログイン中のGoogleアカウントに請求するよ。Expense Trackerのメールには課金されない。</string>
+
+    <string name="desc_paywall_play_billing_info">サブスクの請求について</string>
+
+    <string name="msg_paywall_play_billing_info">サブスクは自分で解約するまで自動更新。Google Playストアからいつでも解約できるよ。</string>
+
+    <string name="msg_paywall_already_pro">もうProだよ。応援ありがとう。</string>
+
+    <string name="content_desc_paywall_plan_selected">選んだプラン</string>
+
+    <string name="paywall_plan_weekly">1週間</string>
+
+    <string name="paywall_plan_monthly">1か月</string>
+
+    <string name="paywall_plan_two_months">2か月</string>
+
+    <string name="paywall_plan_three_months">3か月</string>
+
+    <string name="paywall_plan_six_months">6か月</string>
+
+    <string name="paywall_plan_twelve_months">12か月</string>
+
+    <string name="paywall_plan_lifetime">買い切り</string>
+
+    <string name="paywall_plan_generic">Proプラン</string>
+
+    <string name="paywall_discount_badge">%1$d%%オフ</string>
+
+    <string name="paywall_period_week">週あたり</string>
+
+    <string name="paywall_period_month">月あたり</string>
+
+    <string name="paywall_period_months">期間あたり</string>
+
+    <string name="paywall_period_year">年あたり</string>
+
+    <string name="paywall_period_one_time">一回払い</string>
+
+    <string name="msg_paywall_purchase_success">いまProだよ。楽しんで！</string>
+
+    <string name="title_paywall_purchase_congrats">おめでとう</string>
+
+    <string name="msg_paywall_purchase_congrats">Proだよ。無制限のインサイト、広告なし、全機能解除。アップグレードを楽しんで。</string>
+
+    <string name="msg_paywall_purchase_sign_in">支払いは通ったよ。Proを使うにはGoogleかメールとパスワードでログインして。自動でオンにならないときは、設定 → 自分のメンバーシップ → 購入を復元をタップ。</string>
+
+    <string name="content_desc_opening_play_store">Google Playを開いてる</string>
+
+    <string name="msg_paywall_restore_success">購入を復元したよ。</string>
+
+    <string name="msg_paywall_restore_nothing_found">このアカウントの過去の購入は見つからないよ。</string>
+
+    <string name="msg_paywall_payment_pending">支払い待ち。完了したらProが解除されるよ。</string>
+
+    <string name="paywall_error_network">ストアに届かないよ。接続を確認してもう一回。</string>
+
+    <string name="paywall_error_store_problem">ストアが完了できなかったよ。もう一回。</string>
+
+    <string name="paywall_error_not_allowed">この端末やアカウントでは購入できないよ。</string>
+
+    <string name="paywall_error_product_unavailable">このプランはいま使えないよ。あとでまた。</string>
+
+    <string name="paywall_error_already_owned">このサブスクはもう持ってるよ。</string>
+
+    <string name="paywall_error_receipt_in_use">このサブスクは別のアカウントに紐づいてるよ。買ったアカウントでログインして復元して。</string>
+
+    <string name="paywall_error_invalid_receipt">この購入を確認できなかったよ。もう一回。</string>
+
+    <string name="paywall_error_invalid_credentials">ストアがリクエストを拒否したよ。あとでまた。</string>
+
+    <string name="paywall_error_configuration">サブスクの設定がいま正しくないよ。あとでまた。</string>
+
+    <string name="paywall_error_billing_not_configured">このビルドではサブスクは使えないよ。</string>
+
+    <string name="paywall_error_unknown">うまくいかなかったよ。もう一回。</string>
+
+    <string name="desc_terms_conditions_requirement">ゲストでも登録アカウントでも、ExpenseTrackerを使い続けるにはこの規約に同意して。</string>
+
+    <string name="label_bullet_app_usage_title">アプリの使い方</string>
+
+    <string name="label_bullet_app_usage_desc">個人の予算と記録向け。無断再配布やリバースエンジニアリングは禁止。</string>
+
+    <string name="label_bullet_privacy_title">データとプライバシー</string>
+
+    <string name="label_bullet_privacy_desc">端末ファーストのオフライン。同期は任意でエンドツーエンド暗号化。</string>
+
+    <string name="label_bullet_subscriptions_title">サブスク</string>
+
+    <string name="label_bullet_subscriptions_desc">ProはGoogle Play Billingで安全に管理。解約しない限り自動更新。</string>
+
+    <string name="label_bullet_cancellation_title">解約と書き出し</string>
+
+    <string name="label_bullet_cancellation_desc">PlayストアでいつでもProを解約。データは100%書き出し・削除できるよ。</string>
+
+    <string name="label_terms_clause_1">1. 規約の承諾：アプリにアクセスまたは使用すると、本利用規約とプライバシーポリシーに同意したことになるよ。ゲストも登録ユーザーも対象。</string>
+
+    <string name="label_terms_clause_2">2. ライセンス：個人の非商用の家計管理向けに、限定・取消可能・非独占のライセンスを付与するよ。</string>
+
+    <string name="label_terms_clause_3">3. ローカルファースト保存：家計データは既定で端末の暗号化データベースに安全に保存されるよ。</string>
+
+    <string name="label_terms_clause_4">4. アプリ内購入：サブスクはGoogle Playのストアポリシーに従って請求されるよ。</string>
+
+    <string name="label_terms_clause_5">5. 免責：ExpenseTrackerは整理のツールで、認定された金融アドバイスは提供しないよ。</string>
+
+    <string name="label_agree_terms_checkbox">利用規約を読んで同意する</string>
+
+    <string name="label_agree_privacy_checkbox">プライバシーポリシーとデータ取り扱いに同意する</string>
+
+    <string name="cd_terms_checkbox">利用規約の同意チェック</string>
+
+    <string name="cd_privacy_checkbox">プライバシーポリシーの同意チェック</string>
+
+    <string name="title_terms_required">利用規約</string>
+
+    <string name="msg_agree_terms_required">このアプリを使うには利用規約とプライバシーポリシーに同意して。チェックを入れて。</string>
+
+    <string name="title_funds">資金</string>
+
+    <string name="title_fund_overview">概要</string>
+
+    <string name="title_what_are_funds">資金って何</string>
+
+    <string name="msg_funds_what">資金は、ひとつの目的のために取り分ける現金のバケツ。割り当ては入れた額、支出はそこから出した額、残りは残ってる額だよ。</string>
+
+    <string name="msg_funds_how">資金を作って、支出を足すときに選んで。その支出はバケツから減るから、ほかのお金と混ぜずにプールの様子が見えるよ。</string>
+
+    <string name="label_funds_example">例</string>
+
+    <string name="label_fund_example_name">旅行</string>
+
+    <string name="msg_funds_example">旅行資金にお金を入れて。その資金からのホテルや航空券は残りを減らす。食料品は、その支出でも資金を選ばない限り対象外。</string>
+
+    <string name="desc_funds_info">資金とは何か、どう使うか</string>
+
+    <string name="label_tab_funds">資金</string>
+
+    <string name="title_create_fund">資金を作成</string>
+
+    <string name="title_edit_fund">資金を編集</string>
+
+    <string name="label_fund_name">名前</string>
+
+    <string name="label_fund_amount_field">金額</string>
+
+    <string name="label_fund_start_date_value">%1$s開始</string>
+
+    <string name="label_fund_icon">アイコン</string>
+
+    <string name="label_fund_color">色</string>
+
+    <string name="label_fund_note">メモ（任意）</string>
+
+    <string name="label_fund_summary_allocated">割り当て</string>
+
+    <string name="label_fund_summary_spent">支出</string>
+
+    <string name="label_fund_summary_remaining">残り</string>
+
+    <string name="label_fund_empty">資金はまだないよ。作ってお金のプールを追跡して。</string>
+
+    <string name="label_fund_spent_of">%2$sのうち%1$sを使った</string>
+
+    <string name="label_fund_remaining_format">残り%1$s</string>
+
+    <string name="label_fund_status_active">進行中</string>
+
+    <string name="label_fund_status_completed">使い切り</string>
+
+    <string name="label_fund_status_archived">アーカイブ</string>
+
+    <string name="title_fund_breakdown">支出の内訳</string>
+
+    <string name="label_fund_no_spending">この資金からの支出はまだないよ。</string>
+
+    <string name="label_fund_linked_transactions">取引</string>
+
+    <string name="label_fund_edit">編集</string>
+
+    <string name="label_fund_edit_amount">金額を編集</string>
+
+    <string name="label_fund_archive">アーカイブ</string>
+
+    <string name="label_fund_unarchive">アーカイブ解除</string>
+
+    <string name="label_fund_delete">削除</string>
+
+    <string name="label_fund_uncategorized">未分類</string>
+
+    <string name="title_delete_fund">資金を削除</string>
+
+    <string name="msg_delete_fund_body">「%1$s」を削除するよ。取引は残るけど、この資金とのリンクは切れる。</string>
+
+    <string name="msg_fund_edit_amount_updates_income">これを資金にしてる収入取引も更新するよ。</string>
+
+    <string name="title_spend_from_fund">資金</string>
+
+    <string name="label_fund_none">なし</string>
+
+    <string name="title_fund_overspend">資金が足りない</string>
+
+    <string name="msg_fund_overspend">この支出は「%1$s」の残り%2$sより多いよ。このまま使う、金額を変える、またはこの支出から資金を外して。</string>
+
+    <string name="label_spend_anyway">このまま使う</string>
+
+    <string name="label_edit_amount_action">金額を編集</string>
+
+    <string name="label_remove_fund">資金を外す</string>
+
+    <string name="label_funds_breakdown">資金の内訳</string>
+
+    <string name="label_all_funds_breakdown">すべての資金</string>
+
+    <string name="label_no_fund_breakdown">この範囲に資金からの支出はないよ。</string>
+
+    <string name="title_full_fund_breakdown">資金の全内訳</string>
+
 </resources>

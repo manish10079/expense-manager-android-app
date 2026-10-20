@@ -1,302 +1,4588 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Expense Tracker: Anggaran &amp; Pengeluaran</string>
+
+    <string name="app_name">Expense Tracker : Anggaran dan belanja</string>
+
     <string name="title_nav_home">Beranda</string>
+
     <string name="title_nav_analytics">Analitik</string>
+
     <string name="title_nav_budget">Anggaran</string>
+
     <string name="label_already_tracked_in">Sudah di %1$s</string>
-    <string name="tip_duplicate_budget_tracking">Catatan: kategori yang dipilih juga dilacak di anggaran aktif lain. Pengeluaran akan dihitung ke kedua batas.</string>
+
+    <string name="tip_duplicate_budget_tracking">Catatan: kategori yang dipilih juga masuk anggaran aktif lain. Pengeluaran nambah ke dua plafon.</string>
+
     <string name="label_select_categories">Pilih kategori</string>
+
     <string name="label_budget_name_optional">Nama anggaran (opsional)</string>
+
     <string name="label_budget_group">Grup anggaran</string>
+
     <string name="label_period">Periode</string>
+
     <string name="title_nav_calendar">Kalender</string>
+
     <string name="label_ad">Iklan</string>
-    <string name="label_sponsored_content">Konten bersponsor</string>
-    <string name="desc_sponsored_content">Lihat layanan yang direkomendasikan ini.</string>
-    <string name="btn_learn_more">PELAJARI LEBIH LANJUT</string>
-    <string name="msg_a_security_update_is_required">Pembaruan keamanan diperlukan sebelum buka kunci biometrik dapat digunakan.</string>
-    <string name="msg_choose_one_security_question_f">Pilih satu pertanyaan keamanan untuk pemulihan PIN.</string>
-    <string name="msg_enter_an_answer_for_your_secur">Masukkan jawaban untuk pertanyaan keamanan Anda.</string>
-    <string name="msg_enter_your_answer_to_disable_a">Masukkan jawaban Anda untuk menonaktifkan kunci aplikasi.</string>
+
+    <string name="label_sponsored_content">Konten sponsor</string>
+
+    <string name="desc_sponsored_content">Coba lihat rekomendasi ini.</string>
+
+    <string name="btn_learn_more">SELENGKAPNYA</string>
+
+    <string name="msg_a_security_update_is_required">Perlu update keamanan dulu sebelum pakai sidik jari atau wajah.</string>
+
+    <string name="msg_choose_one_security_question_f">Pilih satu pertanyaan keamanan kalau PIN-mu lupa.</string>
+
+    <string name="msg_enter_an_answer_for_your_secur">Tulis jawaban pertanyaan keamananmu.</string>
+
+    <string name="msg_enter_your_answer_to_disable_a">Tulis jawabanmu buat matiin kunci aplikasi.</string>
+
     <string name="msg_incorrect_answer_try_again">Jawaban salah. Coba lagi.</string>
-    <string name="msg_recovery_question_is_not_confi">Pertanyaan pemulihan belum diatur untuk kunci aplikasi ini.</string>
-    <string name="msg_repeat_the_same_4_digits_to_fi">Ulangi 4 digit yang sama untuk menyelesaikan pengaturan.</string>
-    <string name="msg_set_up_fingerprint_or_face_unl">Atur sidik jari atau wajah di pengaturan ponsel terlebih dahulu.</string>
-    <string name="msg_this_device_does_not_support_b">Perangkat ini tidak mendukung autentikasi biometrik.</string>
-    <string name="toast_database_backup_saved">Cadangan basis data disimpan.</string>
-    <string name="toast_database_restored_reloading_ap">Basis data dipulihkan. Memuat ulang aplikasi.</string>
+
+    <string name="msg_recovery_question_is_not_confi">Kunci ini belum punya pertanyaan pemulihan.</string>
+
+    <string name="msg_repeat_the_same_4_digits_to_fi">Ulangi 4 digit yang sama biar selesai.</string>
+
+    <string name="msg_set_up_fingerprint_or_face_unl">Aktifin dulu sidik jari atau wajah di pengaturan HP.</string>
+
+    <string name="msg_this_device_does_not_support_b">Perangkat ini nggak dukung biometrik.</string>
+
+    <string name="toast_database_backup_saved">Cadangan database tersimpan.</string>
+
+    <string name="toast_database_restored_reloading_ap">Database dipulihkan. Aplikasi dimuat ulang.</string>
+
     <string name="desc_show_balance">Tampilkan saldo</string>
+
     <string name="desc_hide_balance">Sembunyikan saldo</string>
-    <string name="btn_use_pin">Gunakan PIN</string>
-    <string name="desc_delete_pin_digit">Hapus digit PIN</string>
+
+    <string name="btn_use_pin">Pakai PIN</string>
+
+    <string name="desc_delete_pin_digit">Hapus satu digit PIN</string>
+
     <string name="desc_locked">Terkunci</string>
+
     <string name="desc_unlock_advanced_search">Buka pencarian lanjutan</string>
-    <string name="desc_use_biometric">Gunakan biometrik</string>
-    <string name="label_unlock_pro_features">Buka ketenangan finansial Anda</string>
-    <string name="label_watch_a_short_video_to_unlock">Tonton cerita singkat untuk membuka %1$s selama %2$s.</string>
-    <string name="label_watch_ad_unlock">Tonton &amp; buka</string>
-    <string name="msg_biometric_authentication_is_no">Autentikasi biometrik tidak tersedia saat ini.</string>
-    <string name="msg_biometric_hardware_is_currentl">Perangkat keras biometrik sedang tidak tersedia.</string>
-    <string name="msg_enter_the_same_pin_once_more_t">Masukkan PIN yang sama sekali lagi untuk mengonfirmasi.</string>
-    <string name="msg_error_unable_to_start_biometric_auth">Tidak dapat memulai biometrik di perangkat ini.</string>
+
+    <string name="desc_use_biometric">Pakai biometrik</string>
+
+    <string name="label_unlock_pro_features">Tenang urusan uang</string>
+
+    <string name="label_watch_a_short_video_to_unlock">Tonton sebentar buat buka %1$s selama %2$s.</string>
+
+    <string name="label_watch_ad_unlock">Tonton dan buka</string>
+
+    <string name="msg_biometric_authentication_is_no">Biometrik lagi nggak tersedia.</string>
+
+    <string name="msg_biometric_hardware_is_currentl">Hardware biometrik lagi nggak tersedia.</string>
+
+    <string name="msg_enter_the_same_pin_once_more_t">Ketik PIN yang sama sekali lagi.</string>
+
+    <string name="msg_error_unable_to_start_biometric_auth">Gagal mulai biometrik di perangkat ini.</string>
+
     <string name="msg_incorrect_pin_try_again">PIN salah. Coba lagi.</string>
+
     <string name="title_device_integrity_notice">Pemberitahuan keamanan</string>
-    <string name="msg_device_integrity_notice">Perangkat ini tampak di-root atau berupa emulator. Kunci aplikasi dan fitur keamanan lain mungkin kurang efektif.</string>
-    <string name="msg_pin_locked_out">Terlalu banyak percobaan. Coba lagi dalam %1$d dtk.</string>
-    <string name="msg_pins_did_not_match_start_again">PIN tidak cocok. Mulai lagi.</string>
+
+    <string name="msg_device_integrity_notice">Perangkat ini kelihatan di-root atau emulator. Kunci dan proteksi lain bisa kurang andal.</string>
+
+    <string name="msg_pin_locked_out">Terlalu banyak percobaan. Tunggu %1$d dtk.</string>
+
+    <string name="msg_pins_did_not_match_start_again">PIN-nya nggak cocok. Mulai lagi.</string>
+
     <string name="title_app_lock">Kunci aplikasi</string>
+
     <string name="title_recover_access">Pulihkan akses</string>
-    <string name="label_verify_security_question">VERIFIKASI PERTANYAAN KEAMANAN</string>
-    <string name="label_biometric_security_active">KEAMANAN BIOMETRIK AKTIF</string>
-    <string name="label_pin_security_active">KEAMANAN PIN AKTIF</string>
+
+    <string name="label_verify_security_question">CEK PERTANYAAN KEAMANAN</string>
+
+    <string name="label_biometric_security_active">BIOMETRIK AKTIF</string>
+
+    <string name="label_pin_security_active">PIN AKTIF</string>
+
     <string name="label_create_4digit_pin">BUAT PIN 4 DIGIT</string>
-    <string name="label_confirm_your_pin">KONFIRMASI PIN ANDA</string>
+
+    <string name="label_confirm_your_pin">KONFIRMASI PIN-MU</string>
+
     <string name="label_forgot_your_pin">Lupa PIN?</string>
-    <string name="label_welcome_back">Selamat datang kembali</string>
+
+    <string name="label_welcome_back">Hai lagi</string>
+
     <string name="label_confirm_pin">Konfirmasi PIN</string>
+
     <string name="label_security_question">Pertanyaan keamanan</string>
-    <string name="msg_answer_saved_security_question">Jawab pertanyaan keamanan yang tersimpan untuk menonaktifkan kunci aplikasi.</string>
-    <string name="msg_select_your_security_question">Pilih pertanyaan yang Anda simpan, lalu masukkan jawaban.</string>
-    <string name="msg_select_a_security_question">Pilih pertanyaan keamanan yang Anda simpan.</string>
-    <string name="msg_biometric_or_pin_to_continue">Gunakan biometrik atau masukkan PIN untuk lanjut.</string>
-    <string name="msg_enter_pin_to_continue">Masukkan PIN untuk lanjut.</string>
-    <string name="msg_choose_question_remember">Pilih salah satu dari lima pertanyaan dan jawaban yang mudah diingat.</string>
-    <string name="label_disable_app_lock">Nonaktifkan kunci aplikasi</string>
-    <string name="msg_no_recovery_question_saved">Belum ada pertanyaan pemulihan untuk kunci aplikasi ini.</string>
-    <string name="placeholder_type_recovery_answer">Ketik jawaban pemulihan</string>
-    <string name="placeholder_enter_your_answer">Masukkan jawaban Anda</string>
-    <string name="question_childhood_crush">Siapa nama gebetan masa kecil pertama Anda?</string>
-    <string name="question_first_school">Apa nama sekolah pertama Anda?</string>
-    <string name="question_childhood_friend">Apa nama depan sahabat masa kecil Anda?</string>
-    <string name="question_birth_city">Di kota mana Anda lahir?</string>
-    <string name="question_favorite_teacher">Apa nama belakang guru favorit Anda?</string>
-    <string name="question_pet_name">Apa nama hewan peliharaan pertama Anda?</string>
+
+    <string name="msg_answer_saved_security_question">Jawab pertanyaan yang tersimpan buat matiin kunci.</string>
+
+    <string name="msg_select_your_security_question">Pilih pertanyaan tersimpan lalu tulis jawabannya.</string>
+
+    <string name="msg_select_a_security_question">Pilih pertanyaan keamanan yang tersimpan.</string>
+
+    <string name="msg_biometric_or_pin_to_continue">Lanjut pakai biometrik atau PIN.</string>
+
+    <string name="msg_enter_pin_to_continue">Ketik PIN-mu buat lanjut.</string>
+
+    <string name="msg_choose_question_remember">Pilih salah satu dari lima pertanyaan dan jawaban yang kamu ingat.</string>
+
+    <string name="label_disable_app_lock">Matikan kunci aplikasi</string>
+
+    <string name="msg_no_recovery_question_saved">Belum ada pertanyaan pemulihan buat kunci ini.</string>
+
+    <string name="placeholder_type_recovery_answer">Tulis jawaban pemulihan</string>
+
+    <string name="placeholder_enter_your_answer">Jawabanmu</string>
+
+    <string name="question_childhood_crush">Siapa nama crush pertamamu waktu kecil?</string>
+
+    <string name="question_first_school">Apa nama sekolah pertamamu?</string>
+
+    <string name="question_childhood_friend">Siapa nama sahabatmu waktu kecil?</string>
+
+    <string name="question_birth_city">Kamu lahir di kota mana?</string>
+
+    <string name="question_favorite_teacher">Apa nama belakang gurumu yang paling kamu suka?</string>
+
+    <string name="question_pet_name">Siapa nama hewan peliharaan pertamamu?</string>
+
     <string name="title_add_category">Tambah kategori</string>
+
     <string name="label_category_type_section">Jenis kategori</string>
+
     <string name="label_category_name_section">Nama kategori</string>
-    <string name="label_select_visual_identity_section">Pilih identitas visual</string>
-    <string name="placeholder_income_example">mis. Bonus kinerja</string>
-    <string name="placeholder_expense_example">mis. Liburan akhir pekan</string>
-    <string name="placeholder_payment_example">mis. Dompet digital</string>
+
+    <string name="label_select_visual_identity_section">Pilih tampilan</string>
+
+    <string name="placeholder_income_example">cth. Bonus</string>
+
+    <string name="placeholder_expense_example">cth. Weekend</string>
+
+    <string name="placeholder_payment_example">cth. Dompet digital</string>
+
     <string name="msg_name_already_exists">Nama ini sudah ada di %1$s.</string>
+
     <string name="msg_choose_icons_info">Pilih dari 50 ikon.</string>
-    <string name="placeholder_search_icons">Cari ikon (mis. \'Makanan\')…</string>
+
+    <string name="placeholder_search_icons">Cari ikon (cth. \'Makanan\')…</string>
+
     <string name="label_color_section">Warna</string>
-    <string name="msg_choose_color_info">Opsional. Tanpa pilihan, aplikasi memilihkan warna.</string>
+
+    <string name="msg_choose_color_info">Opsional. Kalau nggak dipilih, aplikasi yang milihkan.</string>
+
     <string name="desc_color_default">Warna default</string>
+
     <string name="desc_color_swatch">Warna %1$s</string>
+
     <string name="desc_color_swatch_selected">Warna %1$s, dipilih</string>
+
     <string name="msg_change_color_hint">Pilih warna baru, atau tetap pakai yang dipilih aplikasi.</string>
-    <string name="desc_change_color">Ubah warna</string>
-    <string name="msg_no_icons_found">Tidak ada ikon untuk \"%1$s\"</string>
+
+    <string name="desc_change_color">Ganti warna</string>
+
+    <string name="msg_no_icons_found">Nggak ada ikon untuk « %1$s »</string>
+
     <string name="label_add_type">Tambah jenis</string>
-    <string name="label_payment_type_item">Jenis pembayaran</string>
+
+    <string name="label_payment_type_item">Cara bayar</string>
+
     <string name="label_income_category_item">Kategori pemasukan</string>
+
     <string name="label_expense_category_item">Kategori pengeluaran</string>
-    <string name="msg_item_added_under">Item baru ini akan ditambahkan di bawah %1$s.</string>
+
+    <string name="msg_item_added_under">Item baru ini masuk ke %1$s.</string>
+
     <string name="title_auto_lock_duration">Kunci otomatis</string>
+
     <string name="title_biometric">Biometrik</string>
-    <string name="title_block_screenshots">Blokir tangkapan layar</string>
-    <string name="title_lock_as_soon_as_the_app_moves">Kunci segera setelah aplikasi ke latar belakang.</string>
+
+    <string name="title_block_screenshots">Blokir screenshot</string>
+
+    <string name="title_lock_as_soon_as_the_app_moves">Kunci begitu aplikasi ke latar belakang.</string>
+
     <string name="title_require_the_pin_again_after_va">Minta PIN lagi setelah %1$s menit di luar aplikasi.</string>
+
     <string name="title_unlock_expense_tracker">Buka Expense Tracker</string>
-    <string name="title_verify_biometric_to_enable_bio">Verifikasi biometrik untuk mengaktifkan kunci biometrik.</string>
-    <string name="title_verify_your_biometric_to_conti">Verifikasi biometrik untuk lanjut.</string>
-    <string name="toast_biometric_authentication_is_un">Biometrik tidak tersedia di layar ini.</string>
-    <string name="toast_biometric_initialization_faile">Inisialisasi biometrik gagal.</string>
+
+    <string name="title_verify_biometric_to_enable_bio">Konfirmasi biometrik buat nyalain kunci biometrik.</string>
+
+    <string name="title_verify_your_biometric_to_conti">Konfirmasi biometrikmu buat lanjut.</string>
+
+    <string name="toast_biometric_authentication_is_un">Biometrik nggak tersedia di layar ini.</string>
+
+    <string name="toast_biometric_initialization_faile">Gagal mulai biometrik.</string>
+
     <string name="title_add_transaction">Tambah transaksi</string>
-    <string name="title_edit_transaction">Edit transaksi</string>
+
+    <string name="title_edit_transaction">Ubah transaksi</string>
+
     <string name="label_add_note">Tambah catatan</string>
-    <string name="label_no_note">Tidak ada catatan</string>
+
+    <string name="label_no_note">Tanpa catatan</string>
+
     <string name="desc_view_full_note">Lihat catatan lengkap</string>
-    <string name="desc_hide_full_note">Sembunyikan catatan lengkap</string>
-    <string name="label_off">Nonaktif</string>
+
+    <string name="desc_hide_full_note">Sembunyikan catatan</string>
+
+    <string name="label_off">Mati</string>
+
     <string name="label_weekly">Mingguan</string>
+
     <string name="label_recurring">Berulang</string>
+
     <string name="label_save_note">Simpan catatan</string>
-    <string name="label_what_is_this_for">Ini untuk apa?</string>
-    <string name="placeholder_add_note">Tambahkan catatan...</string>
-    <string name="desc_clear_fields">Hapus isian</string>
+
+    <string name="label_what_is_this_for">Ini buat apa?</string>
+
+    <string name="placeholder_add_note">Tulis catatan…</string>
+
+    <string name="desc_clear_fields">Kosongkan kolom</string>
+
     <string name="title_quick_favorites">Favorit cepat</string>
+
     <string name="label_all_favorites">Semua</string>
-    <string name="title_favorite_templates">Templat favorit</string>
-    <string name="placeholder_search_favorites">Cari templat...</string>
-    <string name="msg_no_favorites_yet">Belum ada transaksi favorit.</string>
-    <string name="msg_no_favorites_hint">Tandai transaksi yang sering dipakai sebagai favorit untuk input sekali ketuk.</string>
+
+    <string name="title_favorite_templates">Template favorit</string>
+
+    <string name="placeholder_search_favorites">Cari template…</string>
+
+    <string name="msg_no_favorites_yet">Belum ada favorit.</string>
+
+    <string name="msg_no_favorites_hint">Tandai transaksi yang sering kamu pakai; nanti tinggal tap.</string>
+
     <string name="label_copy">Salin</string>
-    <string name="msg_favorite_added">Transaksi ditambahkan ke favorit.</string>
-    <string name="msg_favorite_copied">Favorit berhasil disalin.</string>
+
+    <string name="msg_favorite_added">Transaksi masuk favorit.</string>
+
+    <string name="msg_favorite_copied">Favorit disalin.</string>
+
     <string name="msg_favorite_removed">Dihapus dari favorit.</string>
-    <string name="desc_toggle_favorite">Alihkan favorit untuk transaksi ini</string>
+
+    <string name="desc_toggle_favorite">Tandai atau hapus favorit transaksi ini</string>
+
     <string name="desc_open_all_favorites">Buka semua favorit</string>
+
     <string name="desc_delete_favorite">Hapus favorit</string>
-    <string name="desc_select_favorite">Terapkan favorit ke formulir</string>
+
+    <string name="desc_select_favorite">Pakai favorit di formulir</string>
+
     <string name="desc_favorite_icon">Favorit</string>
+
     <string name="desc_clear_note">Hapus catatan</string>
+
     <string name="desc_clear_search">Hapus pencarian</string>
+
     <string name="desc_close">Tutup</string>
-    <string name="label_recurring_track">Aktifkan untuk mencatat pengeluaran ini secara otomatis nanti.</string>
+
+    <string name="label_recurring_track">Nyalakan buat catat pengeluaran ini otomatis nanti.</string>
+
     <string name="desc_add_category">Tambah kategori</string>
+
     <string name="desc_add_transaction">Tambah transaksi</string>
+
     <string name="desc_show_navigation_bar">Tampilkan bilah navigasi</string>
+
     <string name="desc_confirm_val_transaction">Konfirmasi transaksi %1$s</string>
-    <string name="desc_collapse_keypad">Ciutkan keypad</string>
-    <string name="desc_expand_keypad">Perluas keypad</string>
-    <string name="label_tap_to_hide_keypad">Ketuk untuk menyembunyikan keypad</string>
-    <string name="label_tap_to_slide_up_keypad">Ketuk untuk menaikkan keypad</string>
+
+    <string name="desc_collapse_keypad">Sembunyikan keypad</string>
+
+    <string name="desc_expand_keypad">Tampilkan keypad</string>
+
+    <string name="label_tap_to_hide_keypad">Tap buat sembunyikan keypad</string>
+
+    <string name="label_tap_to_slide_up_keypad">Tap buat naikkan keypad</string>
+
     <string name="desc_delete_transaction">Hapus transaksi</string>
-    <string name="desc_expense_tracker_logo">Logo Anggaran &amp; Pengeluaran</string>
+
+    <string name="desc_expense_tracker_logo">Logo Anggaran dan belanja</string>
+
     <string name="desc_search_transactions">Cari transaksi</string>
+
     <string name="desc_todays_spending">Pengeluaran hari ini</string>
-    <string name="dialog_budget_limit_alerts">Peringatan batas anggaran</string>
+
+    <string name="dialog_budget_limit_alerts">Peringatan plafon anggaran</string>
+
     <string name="label_add_category">Tambah kategori</string>
+
     <string name="label_amount">JUMLAH</string>
+
     <string name="label_amount_keypad">Keypad jumlah</string>
-    <string name="label_breakdown_of_expenses_based_on">Rincian pengeluaran berdasarkan dompet atau metode pembayaran.</string>
-    <string name="label_budgets_are_no_longer_preloade">Anggaran tidak lagi dimuat otomatis. Tambahkan batas kategori yang ingin dilacak bulan ini.</string>
+
+    <string name="label_breakdown_of_expenses_based_on">Rincian pengeluaran menurut dompet atau cara bayar.</string>
+
+    <string name="label_budgets_are_no_longer_preloade">Anggaran nggak lagi terisi otomatis. Tambah plafon kategori yang mau kamu pantau bulan ini.</string>
+
     <string name="label_category_name_label">NAMA KATEGORI</string>
+
     <string name="label_category_type_label">JENIS KATEGORI</string>
-    <string name="label_choose_from_all_expense_catego">Pilih dari semua kategori pengeluaran, bawaan dan kustom.</string>
-    <string name="label_choose_how_many_decimal_places">Pilih berapa digit desimal yang ditampilkan pada nilai uang.</string>
+
+    <string name="label_choose_from_all_expense_catego">Pilih dari semua kategori pengeluaran, bawaan dan buatanmu.</string>
+
+    <string name="label_choose_how_many_decimal_places">Pilih berapa desimal yang tampil di jumlah uang.</string>
+
     <string name="label_delete_all_transactions">Hapus semua transaksi?</string>
+
     <string name="label_delete_budget">Hapus anggaran</string>
+
     <string name="label_delete_transactions">Hapus transaksi</string>
+
     <string name="label_enter_amount">Masukkan jumlah</string>
+
     <string name="label_expense">PENGELUARAN</string>
+
     <string name="label_expense_category">Kategori pengeluaran</string>
-    <string name="label_expense_tracker">Anggaran &amp; Pengeluaran</string>
-    <string name="label_expense_tracker_1">ANGGARAN &amp; PENGELUARAN</string>
+
+    <string name="label_expense_tracker">Anggaran dan belanja</string>
+
+    <string name="label_expense_tracker_1">ANGGARAN DAN BELANJA</string>
+
     <string name="label_expense_title">Pengeluaran</string>
+
     <string name="label_how_many_times_this_recurring">Berapa kali transaksi berulang ini harus diulang.</string>
+
     <string name="label_income">PEMASUKAN</string>
+
     <string name="label_income_title">Pemasukan</string>
+
     <string name="label_monthly_budget">ANGGARAN BULANAN</string>
-    <string name="label_no_category_spending_found_in">Tidak ada pengeluaran kategori di rentang ini.</string>
-    <string name="label_no_spending_data_found">Tidak ada data pengeluaran.</string>
-    <string name="label_no_spending_transactions_in_th">Tidak ada pengeluaran di rentang yang dipilih.</string>
-    <string name="label_no_transactions_found">Tidak ada transaksi</string>
-    <string name="label_ranked_by_spending_for_the_sel">Diurutkan menurut pengeluaran untuk rentang analitik.</string>
+
+    <string name="label_no_category_spending_found_in">Nggak ada pengeluaran kategori di periode ini.</string>
+
+    <string name="label_no_spending_data_found">Nggak ada data pengeluaran.</string>
+
+    <string name="label_no_spending_transactions_in_th">Nggak ada pengeluaran di periode yang dipilih.</string>
+
+    <string name="label_no_transactions_found">Nggak ada transaksi</string>
+
+    <string name="label_ranked_by_spending_for_the_sel">Diurutkan menurut pengeluaran di rentang analitik.</string>
+
     <string name="label_recurring_transaction">Transaksi berulang</string>
-    <string name="label_remove_the_budget_for_val_this">Hapus anggaran %1$s? Hanya batas anggaran yang dihapus, bukan transaksi.</string>
+
+    <string name="label_remove_the_budget_for_val_this">Hapus anggaran %1$s? Ini cuma hapus plafon, bukan transaksinya.</string>
+
     <string name="label_remove_val_from_recurring_trac">Hapus %1$s dari pelacakan berulang?</string>
+
     <string name="label_select_category">Pilih kategori</string>
-    <string name="label_shape_how_your_transactions_ar">Atur cara transaksi diorganisasi dan ditampilkan.</string>
-    <string name="label_spending_by_payment_mode">Pengeluaran menurut metode pembayaran</string>
-    <string name="label_delete_all_data">Hapus semua data &amp; reset aplikasi</string>
-    <string name="label_delete_account_and_data">Hapus akun &amp; semua data</string>
-    <string name="desc_delete_data_warning">Ini akan menghapus permanen semua pengeluaran dan anggaran. Jika Anda masuk, akun dan cadangan cloud juga akan dihancurkan. Tidak dapat dibatalkan.</string>
-    <string name="desc_delete_data_guest_warning">Ini hanya menghapus data di perangkat ini. Tidak ada akun cloud untuk dihapus.\n\nSemua di ponsel ini akan dihapus: transaksi, anggaran, dana, tujuan, kategori, tag, cadangan, dan pengaturan.\n\nTidak dapat dibatalkan. Ekspor cadangan dulu jika ingin menyimpan salinan.</string>
-    <string name="desc_delete_data_signed_out_warning">Keluar tidak menghapus akun. Ini hanya menghapus data di perangkat ini. Akun cloud tetap ada sampai Anda masuk dan menggunakan Hapus akun &amp; semua data, atau mengirim email.\n\nSemua di ponsel ini akan dihapus: transaksi, anggaran, dana, tujuan, kategori, tag, cadangan, dan pengaturan.\n\nTidak dapat dibatalkan. Ekspor cadangan dulu jika ingin menyimpan salinan.</string>
-    <string name="desc_delete_account_and_data_warning">Ini menghapus permanen akun dan semua data terkait. Tidak dapat dibatalkan.\n\nKami akan:\n• Menghapus akun masuk Anda\n• Menghapus semua data cloud yang disinkronkan (transaksi, anggaran, kategori, berulang, tujuan, metode pembayaran, profil, perangkat, foto)\n• Menghapus semua data di perangkat ini\n\nPerangkat lain tidak dapat memakai akun ini. Ekspor cadangan JSON atau basis data dulu jika ingin menyimpan salinan.</string>
-    <string name="label_this_removes_only_transactions">Ini akan menghapus semua data secara permanen. Tindakan ini tidak dapat dibatalkan.</string>
+
+    <string name="label_shape_how_your_transactions_ar">Atur cara transaksi kamu ditata dan ditampilkan.</string>
+
+    <string name="label_spending_by_payment_mode">Pengeluaran menurut cara bayar</string>
+
+    <string name="label_delete_all_data">Hapus semua data dan reset aplikasi</string>
+
+    <string name="label_delete_account_and_data">Hapus akun dan semua data</string>
+
+    <string name="desc_delete_data_warning">Ini hapus permanen pengeluaran dan anggaranmu. Kalau kamu masuk, akun dan cadangan cloud ikut hilang. Nggak bisa dibatalin.</string>
+
+    <string name="desc_delete_data_guest_warning">Ini cuma kosongin perangkat ini. Nggak ada akun cloud.
+
+Semua di HP ini hilang: transaksi, anggaran, dana, tujuan, kategori, tag, cadangan, dan pengaturan.
+
+Nggak bisa dibatalin. Ekspor cadangan dulu kalau mau simpan salinan.</string>
+
+    <string name="desc_delete_data_signed_out_warning">Keluar nggak menghapus akun. Ini cuma kosongin perangkat. Akun cloud tetap ada sampai kamu masuk lagi dan pakai Hapus akun, atau kirim email ke kami.
+
+Semua di HP ini hilang: transaksi, anggaran, dana, tujuan, kategori, tag, cadangan, dan pengaturan.
+
+Nggak bisa dibatalin. Ekspor cadangan dulu kalau mau simpan salinan.</string>
+
+    <string name="desc_delete_account_and_data_warning">Ini hapus permanen akun dan semua datamu. Nggak bisa dibatalin.
+
+Kita akan:
+• Hapus akun masukmu
+• Hapus semua data cloud (transaksi, anggaran, kategori, berulang, tujuan, cara bayar, profil, perangkat, foto)
+• Kosongkan perangkat ini
+
+Perangkat lain nggak bisa pakai akun ini. Ekspor JSON atau database dulu kalau mau simpan salinan.</string>
+
+    <string name="label_this_removes_only_transactions">Ini hapus semuanya permanen. Nggak bisa dibatalin.</string>
+
     <string name="title_spent">Terpakai</string>
+
     <string name="label_spent_today">Terpakai hari ini</string>
-    <string name="label_top_spending">Pengeluaran teratas</string>
+
+    <string name="label_top_spending">Pengeluaran terbesar</string>
+
     <string name="label_top_spending_by_category">Rincian pengeluaran</string>
+
     <string name="label_top_spending_by_payment_mode">Rincian pembayaran</string>
+
     <string name="label_income_breakdown">Rincian pemasukan</string>
+
     <string name="label_tags_breakdown">Rincian tag</string>
-    <string name="label_no_income_breakdown">Tidak ada pemasukan di periode ini</string>
-    <string name="label_no_tag_breakdown">Tidak ada pengeluaran bertag di periode ini</string>
+
+    <string name="label_no_income_breakdown">Nggak ada pemasukan di periode ini</string>
+
+    <string name="label_no_tag_breakdown">Nggak ada pengeluaran ber-tag di periode ini</string>
+
     <string name="label_all_income_categories">Semua pemasukan</string>
+
     <string name="label_all_tags_breakdown">Semua tag</string>
+
     <string name="title_full_income_breakdown">Rincian pemasukan</string>
+
     <string name="title_full_tag_breakdown">Rincian tag</string>
+
     <string name="label_total_amount">JUMLAH TOTAL</string>
+
     <string name="label_total_expenses">TOTAL PENGELUARAN</string>
+
     <string name="label_total_income">TOTAL PEMASUKAN</string>
+
     <string name="label_transaction_note">Catatan transaksi</string>
+
     <string name="label_transactionid">transactionId</string>
+
     <string name="label_transactions">Transaksi</string>
-    <string name="label_your_highest_expenses_in_the_s">Pengeluaran terbesar Anda di periode yang dipilih.</string>
+
+    <string name="label_your_highest_expenses_in_the_s">Pengeluaran terbesarmu di periode yang dipilih.</string>
+
     <string name="title_amount">Jumlah</string>
+
     <string name="title_amount_range">Rentang jumlah</string>
+
     <string name="title_budget_recurring">Rencana</string>
+
     <string name="title_category">Kategori</string>
+
     <string name="title_category_1">Kategori</string>
+
     <string name="title_budget_category">Kategori anggaran</string>
-    <string name="title_custom_expense_category">Kategori pengeluaran kustom</string>
-    <string name="title_custom_income_category">Kategori pemasukan kustom</string>
+
+    <string name="title_custom_expense_category">Kategori pengeluaran sendiri</string>
+
+    <string name="title_custom_income_category">Kategori pemasukan sendiri</string>
+
     <string name="title_delete_all_transactions">Hapus semua transaksi</string>
+
     <string name="title_display_the_transaction_date">Tampilkan tanggal transaksi</string>
+
     <string name="title_expense">Pengeluaran</string>
+
     <string name="title_group_transactions_by_day">Kelompokkan transaksi per hari</string>
+
     <string name="title_income">Pemasukan</string>
-    <string name="title_incomeexpense_labels">Label pemasukan/pengeluaran</string>
-    <string name="title_larger_amounts_take_priority_i">Jumlah lebih besar diutamakan dalam daftar.</string>
+
+    <string name="title_incomeexpense_labels">Label pemasukan / pengeluaran</string>
+
+    <string name="title_larger_amounts_take_priority_i">Jumlah lebih besar tampil dulu.</string>
+
     <string name="title_manage_category">Kelola kategori</string>
+
     <string name="title_manage_tags">Kelola tag</string>
-    <string name="label_manage_tags_subtitle">Atur dan gabungkan tag Anda</string>
+
+    <string name="label_manage_tags_subtitle">Atur dan gabungkan tagmu</string>
+
     <string name="label_tags_count">%1$d tag</string>
+
     <string name="desc_tags_info">Apa itu tag</string>
+
     <string name="desc_search_tags">Cari tag</string>
+
     <string name="placeholder_search_manage_tags">Cari tag</string>
+
     <string name="desc_search_categories">Cari kategori</string>
+
     <string name="placeholder_search_manage_categories">Cari kategori</string>
+
     <string name="desc_categories_info">Apa itu kategori</string>
+
     <string name="title_what_are_categories">Apa itu kategori</string>
-    <string name="msg_categories_what">Kategori mengelompokkan pemasukan dan pengeluaran. Metode pembayaran adalah cara uang berpindah, seperti tunai atau kartu.</string>
-    <string name="msg_categories_where">Pilih satu saat menambah transaksi. Kelola nama dan warna di sini.</string>
+
+    <string name="msg_categories_what">Kategori mengelompokkan pemasukan dan pengeluaran. Cara bayar itu bagaimana uang bergerak, tunai atau kartu.</string>
+
+    <string name="msg_categories_where">Pilih satu saat menambah. Di sini kamu atur nama dan warna.</string>
+
     <string name="label_categories_example">Contoh</string>
+
     <string name="label_category_example_name">Makanan</string>
+
     <string name="title_what_are_tags">Apa itu tag</string>
-    <string name="msg_tags_what">Tag adalah label tambahan pada transaksi, selain kategori. Makanan, belanja, dan penginapan bisa tetap kategori berbeda tapi tetap terhubung.</string>
-    <string name="msg_tags_where">Saat perjalanan, tambahkan tag yang sama ke setiap pengeluaran. Cari di Transaksi, atau buka Analitik.</string>
+
+    <string name="msg_tags_what">Tag itu label ekstra di transaksi, selain kategori. Makan, belanja, dan menginap bisa beda kategori tapi tetap kumpul.</string>
+
+    <string name="msg_tags_where">Pas traveling, pakai tag yang sama di tiap pengeluaran. Cari di Transaksi, atau buka Analitik buat rincian tag.</string>
+
     <string name="label_tags_example">Contoh</string>
+
     <string name="label_tag_example_name">liburan</string>
+
     <string name="desc_sort">Urutkan</string>
+
     <string name="title_sort">Urutkan</string>
+
     <string name="label_sort_newest">Terbaru dulu</string>
+
     <string name="label_sort_oldest">Terlama dulu</string>
+
     <string name="label_sort_az">A → Z</string>
+
     <string name="label_sort_za">Z → A</string>
+
     <string name="msg_no_tags_yet">Belum ada tag. Buat dengan tombol +.</string>
+
     <string name="title_new_tag">Tag baru</string>
-    <string name="msg_tag_name_caption">Beri nama pendek agar mudah dicari nanti.</string>
-    <string name="title_rename_tag">Ganti nama tag</string>
+
+    <string name="msg_tag_name_caption">Kasih nama pendek biar gampang dicari nanti.</string>
+
+    <string name="title_rename_tag">Ubah nama tag</string>
+
     <string name="label_tag_name">Nama tag</string>
+
     <string name="label_create">Buat</string>
-    <string name="label_rename">Ganti nama</string>
+
+    <string name="label_rename">Ubah nama</string>
+
     <string name="desc_add_tag">Tambah tag</string>
-    <string name="desc_rename_tag">Ganti nama %1$s</string>
+
+    <string name="desc_rename_tag">Ubah nama %1$s</string>
+
     <string name="desc_delete_tag">Hapus %1$s</string>
+
     <string name="desc_merge_tag">Gabungkan %1$s</string>
-    <string name="msg_delete_tag_confirm">Hapus \"%1$s\"? Tag dihapus dari setiap transaksi, transaksinya tetap ada.</string>
+
+    <string name="msg_delete_tag_confirm">Hapus « %1$s »? Tag hilang dari semua transaksi, transaksinya tetap.</string>
+
     <string name="msg_tag_transaction_count">%1$d transaksi</string>
+
     <string name="label_tag_prefixed">#%1$s</string>
-    <string name="msg_tag_color_hint">Pilih warna untuk tag ini</string>
-    <string name="msg_merge_pick_target">Menggabungkan \"%1$s\" — ketuk tag tujuan.</string>
+
+    <string name="msg_tag_color_hint">Pilih warna buat tag ini</string>
+
+    <string name="msg_merge_pick_target">Menggabungkan « %1$s » — tap tag tujuan.</string>
+
     <string name="label_merge_tags">Gabungkan</string>
+
     <string name="label_delete_tags">Hapus</string>
-    <string name="msg_select_tags_to_merge">Pilih 2 tag atau lebih untuk digabung</string>
-    <string name="msg_select_tags_to_delete">Pilih tag yang akan dihapus</string>
+
+    <string name="msg_select_tags_to_merge">Pilih 2 tag atau lebih buat digabung jadi satu</string>
+
+    <string name="msg_select_tags_to_delete">Pilih tag yang mau dihapus</string>
+
+    <string name="title_merge_tags">Gabungkan tag</string>
+
+    <string name="msg_merge_choose_target">Pilih tag yang tetap. Yang lain digabung ke situ.</string>
+
+    <string name="label_merge_selected">Gabungkan %1$d</string>
+
+    <string name="label_delete_selected">Hapus %1$d</string>
+
+    <string name="msg_delete_tags_confirm">Hapus %1$d tag? Hilang dari semua transaksi, transaksinya tetap.</string>
+
+    <string name="title_tags">Tag</string>
+
+    <string name="label_note_colon">Catatan:</string>
+
+    <string name="label_tags_colon">Tag:</string>
+
+    <string name="label_fund_colon">Dana:</string>
+
+    <string name="label_close">Tutup</string>
+
+    <string name="label_add_tag">Tambah tag</string>
+
+    <string name="placeholder_search_tags">Cari atau buat tag</string>
+
+    <string name="label_create_tag_named">Buat #%1$s</string>
+
+    <string name="desc_remove_tag">Hapus %1$s</string>
+
+    <string name="label_filter_tags">Tag</string>
+
+    <string name="label_tag_match_all">Semua</string>
+
+    <string name="label_tag_match_any">Salah satu</string>
+
+    <string name="desc_filter_tags_match_mode">Semua tag yang dipilih, atau salah satu</string>
+
+    <string name="title_recurring_expenses">Pengeluaran berulang</string>
+
+    <string name="title_show_category_icon">Tampilkan ikon kategori</string>
+
+    <string name="title_show_transaction_date">Tampilkan tanggal</string>
+
+    <string name="title_show_transaction_time">Tampilkan jam</string>
+
+    <string name="title_track_expensesneasily">Lacak pengeluaran
+dengan gampang</string>
+
+    <string name="title_transaction_card">Kustomisasi</string>
+
+    <string name="title_transaction_count">Jumlah transaksi</string>
+
+    <string name="title_transaction_type">Jenis transaksi</string>
+
+    <string name="title_transactions">Transaksi</string>
+
+    <string name="title_visual_category_indicators">Indikator visual kategori</string>
+
+    <string name="toast_all_transactions_deleted">Semua transaksi dihapus.</string>
+
+    <string name="toast_unable_to_delete_transactions">Gagal hapus transaksi. Coba lagi.</string>
+
+    <string name="desc_profile_photo">Foto profil</string>
+
+    <string name="desc_profile_placeholder">Placeholder profil</string>
+
+    <string name="desc_settings">Pengaturan</string>
+
     <string name="title_settings">Pengaturan</string>
-    <string name="label_save">Simpan</string>
-    <string name="label_cancel">Batal</string>
-    <string name="label_ok">OK</string>
-    <string name="label_done">Selesai</string>
-    <string name="label_next">Berikutnya</string>
-    <string name="label_yes">Ya</string>
-    <string name="label_no">Tidak</string>
-    <string name="label_add">Tambah</string>
-    <string name="label_edit">Edit</string>
-    <string name="label_delete">Hapus</string>
-    <string name="label_view_all">Lihat semua</string>
-    <string name="label_date">Tanggal</string>
-    <string name="label_time">Waktu</string>
-    <string name="label_note">Catatan</string>
+
+    <string name="title_detected_txns">Transaksi terdeteksi</string>
+
+    <string name="title_home_calculator">Kalkulator</string>
+
+    <string name="title_calendar_view">Tampilan kalender</string>
+
+    <string name="desc_more_options">Opsi lain</string>
+
+    <string name="header_account_and_security">Akun dan keamanan</string>
+
+    <string name="header_membership">Keanggotaan</string>
+
+    <string name="header_preferences">Preferensi</string>
+
+    <string name="header_system_and_data">Sistem dan data</string>
+
+    <string name="label_card_settings">Pengaturan kartu</string>
+
+    <string name="title_app_preferences">Preferensi aplikasi</string>
+
+    <string name="title_data_management">Kelola data</string>
+
+    <string name="title_data_management_1">KELOLA DATA</string>
+
+    <string name="title_notification_settings">Notifikasi</string>
+
+    <string name="title_notifications">Notifikasi</string>
+
+    <string name="title_notifications_1">Notifikasi</string>
+
+    <string name="title_preference">PREFERENSI</string>
+
+    <string name="title_profile">Profil</string>
+
+    <string name="title_user_profile">PROFIL PENGGUNA</string>
+
+    <string name="title_account">AKUN</string>
+
+    <string name="title_customize_caps">KUSTOMISASI</string>
+
+    <string name="title_monetization_caps">MONETISASI</string>
+
+    <string name="label_remove_all_ads">Hilangkan semua iklan</string>
+
+    <string name="label_remove_all_ads_subtitle">Beli sekali, tanpa iklan</string>
+
+    <string name="msg_watch_ad_for_ad_free">Coba fitur Pro dan UI tanpa iklan</string>
+
+    <string name="desc_ad_free_pass_duration">Tonton iklan singkat buat %1$s Pro dan UI tanpa iklan</string>
+
+    <string name="label_ad_free_active">Akses tanpa iklan aktif</string>
+
+    <string name="msg_ad_free_duration_remaining">Kamu lagi nikmatin fitur Pro dan UI tanpa iklan.</string>
+
+    <string name="label_active_caps">AKTIF</string>
+
+    <string name="label_watch_now_caps">TONTON</string>
+
+    <string name="title_session">SESI</string>
+
+    <string name="title_about_caps">TENTANG</string>
+
+    <string name="label_edit_profile">Ubah profil</string>
+
+    <string name="label_edit_profile_subtitle">Nama, avatar, email</string>
+
+    <string name="desc_cloud_sync_devices_subtitle">Sinkron data antar perangkat</string>
+
+    <string name="label_security_privacy_subtitle">Biometrik, kode, kunci aplikasi</string>
+
+    <string name="label_manage_category_subtitle">Tambah, ubah, atau warnai kategori</string>
+
+    <string name="label_app_preferences_subtitle">Tema, mata uang, bahasa</string>
+
+    <string name="label_transaction_card_subtitle">Personalisasi aplikasimu</string>
+
+    <string name="label_data_management_subtitle">Cadangan, pulihkan, ekspor CSV</string>
+
+    <string name="label_about_subtitle">Versi, lisensi, syarat layanan</string>
+
+    <string name="label_about_app_subtitle">Versi, lisensi, syarat layanan</string>
+
+    <string name="title_refer_a_friend">Ajak teman</string>
+
+    <string name="label_refer_a_friend_subtitle">Kirim undangan pribadi</string>
+
+    <string name="msg_refer_a_friend">Aku pakai %1$s buat lacak pengeluaran. Coba:
+%2$s</string>
+
+    <string name="msg_refer_register_for_code">Daftar pakai Google atau email/kata sandi buat kode referral unikmu.</string>
+
+    <string name="btn_register_for_referral">Daftar buat dapat kode</string>
+
+    <string name="msg_refer_how_it_works">Bagikan kodemu. Kalau teman masuk, pakai, dan nambah transaksi, kalian berdua bisa dapat 4 hari Pro. Maks 4 hadiah per bulan.</string>
+
+    <string name="label_refer_rewards_this_month">Hadiah bulan ini: %1$d dari %2$d</string>
+
+    <string name="btn_copy_code">Salin kode</string>
+
+    <string name="msg_code_copied">Kode disalin</string>
+
+    <string name="btn_share_code">Bagikan undangan</string>
+
+    <string name="msg_use_my_code">Pakai kodku %1$s</string>
+
+    <string name="label_enter_friend_code">Kode teman</string>
+
+    <string name="btn_apply_code">Pakai kode</string>
+
+    <string name="msg_welcome_days">Kamu dapat %1$d hari Pro Pass</string>
+
+    <string name="error_refer_not_signed_in">Masuk dulu buat pakai kode</string>
+
+    <string name="error_refer_invalid">Kode itu nggak valid</string>
+
+    <string name="error_refer_own_code">Kamu nggak bisa pakai kodemu sendiri</string>
+
+    <string name="error_refer_already">Kamu sudah pakai kode referral</string>
+
+    <string name="error_refer_network">Cek koneksi lalu coba lagi</string>
+
+    <string name="error_refer_unknown">Gagal pakai kode itu</string>
+
+    <string name="title_refer_offer">Pro gratis</string>
+
+    <string name="msg_refer_offer">Ajak teman. Tiap referral sukses kasih 4 hari Pro Pass, maks 4 per bulan.</string>
+
+    <string name="title_refer_more">Ajak lagi</string>
+
+    <string name="msg_refer_more">Ajak teman lagi buat lebih banyak Pro gratis.</string>
+
+    <string name="btn_refer_now">Ajak teman</string>
+
+    <string name="title_refer_earn">Ajak dan dapat</string>
+
+    <string name="label_refer_earn_subtitle">Sampai 16 hari Pro gratis</string>
+
+    <string name="desc_referral_rules">Aturan referral</string>
+
+    <string name="title_referral_rules">Aturan referral</string>
+
+    <string name="msg_referral_rules">4 hari Pro per referral valid.
+Teman harus buat minimal 1 transaksi setelah daftar.
+Maks 4 hadiah (16 hari) per bulan kalender.
+Reset tiap tanggal 1.</string>
+
+    <string name="tab_refer_friends">Ajak teman</string>
+
+    <string name="tab_my_rewards">Hadiahku</string>
+
+    <string name="label_pro_privilege">Hak Pro</string>
+
+    <string name="title_give_7_get_7">Kasih 4 hari,
+dapat 4 hari Pro</string>
+
+    <string name="step_share_code">Bagikan kode</string>
+
+    <string name="step_share_code_sub">Kirim tautan undangan</string>
+
+    <string name="step_friend_joins">Teman gabung</string>
+
+    <string name="step_friend_joins_sub">Buat aktivitas pertama</string>
+
+    <string name="step_both_get_pro">Berdua dapat Pro</string>
+
+    <string name="step_both_get_pro_sub">+4 hari kebuka</string>
+
+    <string name="label_your_referral_code">Kode referralku</string>
+
+    <string name="label_tap_to_copy">TAP BUAT SALIN</string>
+
+    <string name="btn_share_invite_link">Bagikan tautan undangan</string>
+
+    <string name="title_monthly_progress">Progres bulan ini</string>
+
+    <string name="label_earned_of_rewards">Dapat %1$d dari %2$d hadiah potensial</string>
+
+    <string name="label_plus_days">+%1$d hari</string>
+
+    <string name="label_days_left_to_max">%1$d hari lagi ke bonus maks</string>
+
+    <string name="label_max_28_days">Maks: 16 hari Pro</string>
+
+    <string name="label_claimed">Diambil</string>
+
+    <string name="label_next_slot">Berikutnya</string>
+
+    <string name="label_slot_locked">Terkunci</string>
+
+    <string name="label_reward_days_count">%1$d hari</string>
+
+    <string name="label_have_friend_code">Punya kode teman?</string>
+
+    <string name="title_your_referrals">Referralmu</string>
+
+    <string name="label_total_active">Total: %1$d aktif</string>
+
+    <string name="msg_invite_more_friends">Ajak lagi biar hadiah bulan ini penuh!</string>
+
+    <string name="msg_you_unlocked_welcome_pro">Kamu buka 4 hari Pro dari kode teman.</string>
+
+    <string name="msg_add_expense_to_complete_invite">Tambah satu pengeluaran buat selesaikan undangan temanmu.</string>
+
+    <string name="label_signed_up_on">Daftar %1$s</string>
+
+    <string name="label_plus_7_days_pro">+4 hari Pro</string>
+
+    <string name="label_referral_counted">Terhitung</string>
+
+    <string name="label_completed_transaction">Transaksi selesai</string>
+
+    <string name="label_pending">Menunggu</string>
+
+    <string name="label_awaiting_first_tx">Menunggu transaksi pertama</string>
+
+    <string name="label_test_popups">Popup tes:</string>
+
+    <string name="btn_test_referee_code">Kode yang diajak</string>
+
+    <string name="btn_test_first_txn">Tx pertama selesai</string>
+
+    <string name="label_code_accepted">Kode diterima</string>
+
+    <string name="title_you_unlocked_7_days">Masuk akses Pro:
+4 hari berikutnya kebuka</string>
+
+    <string name="msg_referral_code_applied_pro">Kode referralmu berhasil. Semua fitur Pro kebuka 4 hari.</string>
+
+    <string name="label_pro_ai_tools">Pro penuh — tanpa iklan</string>
+
+    <string name="label_pro_ad_free">Sinkron 4 perangkat</string>
+
+    <string name="label_pro_priority_themes">Dan lainnya… jelajahi</string>
+
+    <string name="label_valid_until">Berlaku sampai:</string>
+
+    <string name="label_free_badge">GRATIS</string>
+
+    <string name="btn_start_exploring_pro">Mulai jelajah Pro</string>
+
+    <string name="btn_want_more_refer">Mau lebih? Ajak teman sampai 16 hari!</string>
+
+    <string name="label_first_txn_done">TX PERTAMA SELESAI</string>
+
+    <string name="label_referral_completed">Referral selesai</string>
+
+    <string name="title_you_earned_7_days">Kamu dapat
++4 hari Pro gratis!</string>
+
+    <string name="msg_friend_registered_first_tx">%1$s daftar pakai kodemu dan selesaikan transaksi pertamanya!</string>
+
+    <string name="label_monthly_rewards_progress">Progres hadiah bulan ini</string>
+
+    <string name="label_rewards_fraction">%1$d / %2$d hadiah</string>
+
+    <string name="label_7_days_slot">4 hari</string>
+
+    <string name="msg_7_days_pro_auto_activated">4 hari Pro otomatis aktif!</string>
+
+    <string name="btn_7_days_pro_claimed">4 hari Pro diambil</string>
+
+    <string name="btn_invite_more_days_left">Ajak lagi (+%1$d hari tersisa)</string>
+
+    <string name="label_test_friend_name">Alex Morgan</string>
+
+    <string name="title_share_app">Bagikan aplikasi</string>
+
+    <string name="label_share_app">Bagikan aplikasi</string>
+
+    <string name="label_share_app_subtitle">Kirim tautan Play Store</string>
+
+    <string name="msg_share_app_chat">Hai! Aku pakai Expense Tracker Anggaran dan belanja buat lacak pengeluaran harian dan anggaran. Sangat membantu. Coba di sini:
+
+%1$s</string>
+
+    <string name="msg_share_app_features">Urus uang jadi lebih gampang. Aku pakai Expense Tracker Anggaran dan belanja buat anggaran, pengeluaran harian, dan tujuan tabungan.
+
+Coba: %1$s</string>
+
+    <string name="msg_share_app_punchy">Kendalikan uangmu! Lacak pengeluaran harian dan pasang anggaran pintar dengan Expense Tracker Anggaran dan belanja: %1$s</string>
+
+    <string name="label_notifications_subtitle">Atur peringatan dan pengingat</string>
+
+    <string name="desc_settings_icon">Ikon pengaturan</string>
+
+    <string name="title_connect_on_linkedin">Sambung di LinkedIn</string>
+
+    <string name="label_connect_on_linkedin_subtitle">Ikuti Manish di LinkedIn</string>
+
+    <string name="label_val_min">%1$d mnt</string>
+
+    <string name="label_add_note_optional">Tambah catatan… (opsional)</string>
+
+    <string name="toast_authentication_failed">Autentikasi gagal.</string>
+
+    <string name="error_auth_cloned_or_unauthorized">Google gagal. Kalau kamu pakai klon atau ruang paralel, pakai aplikasi aslinya.</string>
+
+    <string name="error_enter_email">Masukkan alamat emailmu.</string>
+
+    <string name="toast_legacy_import_failed_check_the">Impor lama gagal. Cek file cadangan lalu coba lagi.</string>
+
+    <string name="toast_database_backup_save_failed">Gagal simpan cadangan database. Coba lagi.</string>
+
+    <string name="toast_database_restore_failed">Gagal pulihkan cadangan database. Coba lagi.</string>
+
+    <string name="toast_json_exported">JSON diekspor: %1$d transaksi, %2$d anggaran, %3$d tujuan.</string>
+
+    <string name="toast_json_export_failed">Gagal ekspor JSON. Coba lagi.</string>
+
+    <string name="toast_json_import_failed">Gagal impor JSON. Cek filenya lalu coba lagi.</string>
+
+    <string name="toast_json_import_message">Diimpor %1$d tx, %2$d anggaran, %3$d aturan, %4$d tujuan. %5$d duplikat tx dilewati.</string>
+
+    <string name="toast_legacy_imported">%1$d transaksi lama diimpor. %2$d yang sudah ada dilewati.</string>
+
+    <string name="toast_delete_transactions_failed">Gagal hapus transaksi. Coba lagi.</string>
+
+    <string name="toast_pro_billing_coming_soon">Tagihan Pro segera hadir!</string>
+
+    <string name="toast_unable_to_export_json_please_t">Gagal ekspor JSON. Coba lagi.</string>
+
+    <string name="toast_unable_to_import_json_check_th">Gagal impor JSON. Cek filenya lalu coba lagi.</string>
+
+    <string name="toast_unable_to_restore_the_database">Gagal pulihkan cadangan database. Coba lagi.</string>
+
+    <string name="toast_unable_to_save_the_database_ba">Gagal simpan cadangan database. Coba lagi.</string>
+
+    <string name="dialog_alerts_reminders">PERINGATAN DAN PENGINGAT</string>
+
+    <string name="desc_add_item">Tambah item</string>
+
+    <string name="desc_ai_tip">Tips AI</string>
+
+    <string name="desc_apply_to_note">Terapkan ke catatan</string>
+
+    <string name="desc_back">Kembali</string>
+
+    <string name="desc_close_filters">Tutup filter</string>
+
+    <string name="desc_close_search">Tutup pencarian</string>
+
+    <string name="desc_remove_filter">Hapus filter</string>
+
+    <string name="desc_custom_range">Rentang kustom</string>
+
+    <string name="desc_delete">Hapus</string>
+
+    <string name="desc_delete_photo">Hapus foto</string>
+
+    <string name="content_desc_email_verified">Email terverifikasi</string>
+
+    <string name="desc_delete_selected">Hapus yang dipilih</string>
+
+    <string name="desc_delete_val">Hapus %1$s</string>
+
+    <string name="desc_delete_val_1">Hapus %1$s</string>
+
+    <string name="desc_deselect_all">Batal pilih semua</string>
+
+    <string name="desc_exit_selection">Keluar dari pilihan</string>
+
+    <string name="desc_next_period">Periode berikutnya</string>
+
+    <string name="desc_next_year">Tahun berikutnya</string>
+
+    <string name="desc_open_calculator">Buka kalkulator</string>
+
+    <string name="desc_open_calendar">Buka kalender</string>
+
+    <string name="desc_open_gender_options">Buka opsi gender</string>
+
+    <string name="desc_open_val">Buka %1$s</string>
+
+    <string name="desc_open_val_1">Buka \%1$s</string>
+
+    <string name="desc_open_val_2">Buka %1$s</string>
+
+    <string name="desc_previous_period">Periode sebelumnya</string>
+
+    <string name="desc_previous_year">Tahun sebelumnya</string>
+
+    <string name="desc_search">Cari</string>
+
+    <string name="desc_search_currency">Cari mata uang</string>
+
+    <string name="desc_select_all">Pilih semua</string>
+
+    <string name="label_12">12</string>
+
+    <string name="label_12hour">12 jam</string>
+
+    <string name="label_248">+24,8%</string>
+
+    <string name="label_24hour">24 jam</string>
+
+    <string name="label_full_access_for_duration">Akses penuh selama %1$s</string>
+
+    <string name="label_duration_hours_minutes">%1$s %2$s</string>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d jam</item>
+        <item quantity="other">%1$d jam</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d menit</item>
+        <item quantity="other">%1$d menit</item>
+    </plurals>
+
+    <string name="label_1_hour_access">1 jam tanpa iklan</string>
+
     <string name="label_about">Tentang</string>
-    <string name="label_pro">Pro</string>
-    <string name="label_free">Gratis</string>
-    <string name="notification_action_edit">Edit</string>
-    <string name="notification_action_ignore">Abaikan</string>
-    <string name="notification_title_sms_import">Transaksi terdeteksi</string>
-    <string name="label_developed_by">Dikembangkan oleh</string>
-    <string name="label_funds_breakdown">Rincian dana</string>
-    <string name="label_no_fund_breakdown">Tidak ada pengeluaran dana di periode ini</string>
-    <string name="label_all_funds_breakdown">Semua dana</string>
+
+    <string name="label_ac">AC</string>
+
+    <string name="label_c">C</string>
+
+    <string name="label_accuracy">AKURASI</string>
+
+    <string name="label_active">Aktif</string>
+
+    <string name="label_add_a_note">Tambah catatan</string>
+
+    <string name="label_add_item">Tambah item</string>
+
+    <string name="label_add_new_item">Tambah item baru</string>
+
+    <string name="label_all_categories">Semua kategori</string>
+
+    <string name="label_app_is_starting_please_wait">Aplikasi mulai, tunggu sebentar...</string>
+
+    <string name="label_apply">Terapkan</string>
+
+    <string name="label_apply_custom_duration">Terapkan durasi kustom</string>
+
+    <string name="label_apply_custom_frequency">Terapkan frekuensi kustom</string>
+
+    <string name="label_apply_filters">Terapkan filter</string>
+
+    <string name="label_apply_to_note">Terapkan ke catatan</string>
+
+    <string name="label_are_you_sure_you_want_to_delet">Yakin hapus %1$s transaksi? Nggak bisa dibatalin.</string>
+
+    <string name="label_breakdown">Rincian</string>
+
+    <string name="label_breakdown_sub_expenses">sub-pengeluaran</string>
+
+    <string name="label_cancel">BATAL</string>
+
+    <string name="label_cancel_1">Batal</string>
+
+    <string name="label_cash_flow_ratio">Rasio arus kas</string>
+
+    <string name="label_choose_from_50_icons_color_sty">Pilih dari 50 ikon. Warna tetap otomatis.</string>
+
+    <string name="label_choose_month">Pilih bulan</string>
+
+    <string name="label_choose_the_date_style_you_want">Pilih gaya tanggal di seluruh aplikasi.</string>
+
+    <string name="label_choose_the_gender_label_that_b">Pilih label gender yang cocok buat profilmu.</string>
+
+    <string name="label_choose_whether_time_is_shown_i">Tampilkan jam gaya 12 atau 24 jam.</string>
+
+    <string name="label_choose_year">Pilih tahun</string>
+
+    <string name="label_clear">Hapus</string>
+
+    <string name="label_custom_duration">Durasi kustom</string>
+
+    <string name="label_customize_how_your_data_is_vis">Atur cara datamu ditampilkan</string>
+
+    <string name="label_date">Tanggal</string>
+
+    <string name="desc_miss_entry_reminder">Dapat notif kalau kamu lupa nambah transaksi 2 hari.</string>
+
+    <string name="label_date_of_birth">TANGGAL LAHIR</string>
+
+    <string name="label_default_is_off_turn_it_on_to_t">Default mati. Nyalakan buat lacak ini di Anggaran dan berulang.</string>
+
+    <string name="label_delete">HAPUS</string>
+
+    <string name="label_delete_all">Hapus semua</string>
+
+    <string name="label_description">DESKRIPSI</string>
+
+    <string name="label_description_1">Deskripsi</string>
+
+    <string name="label_developed_by">DIKEMBANGKAN OLEH</string>
+
+    <string name="label_edit">UBAH</string>
+
+    <string name="label_email_address">ALAMAT EMAIL</string>
+
+    <string name="label_encrypted_mode">MODE TERENKRIPSI</string>
+
+    <string name="label_enter_minutes">Masukkan menit</string>
+
+    <string name="label_forgot">LUPA</string>
+
+    <string name="label_full_name">NAMA LENGKAP</string>
+
+    <string name="label_gender">GENDER</string>
+
+    <string name="label_github">GITHUB</string>
+
+    <string name="label_growth_index">INDEKS PERTUMBUHAN</string>
+
+    <string name="label_handcrafted_with_precision_and">Dibuat dengan teliti dan ❤️</string>
+
+    <string name="label_headertransition">HeaderTransition</string>
+
+    <string name="label_hi_val">Hai, %1$s</string>
+
+    <string name="label_high_fidelity">High Fidelity</string>
+
+    <string name="label_iconkey">iconKey</string>
+
+    <string name="label_id">id</string>
+
+    <string name="label_immediately">Langsung</string>
+
+    <string name="label_itemized_calculator">Kalkulator per item</string>
+
+    <string name="label_last_month">BULAN LALU</string>
+
+    <string name="label_linkedin">LINKEDIN</string>
+
+    <string name="label_month">/ bulan</string>
+
+    <string name="label_month_1">Bulan</string>
+
+    <string name="label_monthly_limit">Plafon bulanan</string>
+
+    <string name="label_name">nama</string>
+
+    <string name="label_new_item">ITEM BARU</string>
+
+    <string name="label_no_countries_matched_your_sear">Nggak ada negara yang cocok.</string>
+
+    <string name="label_no_payment_data_found_in_this">Nggak ada data pembayaran di rentang ini.</string>
+
+    <string name="label_not_now">NANTI SAJA</string>
+
+    <string name="label_note">Catatan</string>
+
+    <string name="label_personalize_your_vault">PERSONALISASI BRANGKASMU</string>
+
+    <string name="label_phone_number">NOMOR HP</string>
+
+    <string name="label_pick_a_preset_in_5minute_steps">Pilih preset 5 menit sampai 60, atau masukkan menit kustom.</string>
+
+    <string name="label_pick_a_preset_or_enter_a_custo">Pilih preset atau nilai antara 1 dan 30 hari.</string>
+
+    <string name="label_premium_member">ANGGOTA PRO</string>
+
+    <string name="label_private_member">ANGGOTA PRIVAT</string>
+
+    <string name="label_qval">K%1$s</string>
+
+    <string name="label_recent">Terbaru</string>
+
+    <string name="label_recent_activities">Aktivitas terbaru</string>
+
+    <string name="label_repeat_count">Jumlah ulang</string>
+
+    <string name="label_reset">Reset</string>
+
+    <string name="label_restore_database">Pulihkan database?</string>
+
+    <string name="label_save">Simpan</string>
+
+    <string name="label_save_changes">Simpan perubahan</string>
+
+    <string name="label_search_by_country_and_pick_the">Cari negara dan pilih mata uang di aplikasi.</string>
+
+    <string name="label_search_country">Cari negara</string>
+
+    <string name="label_security_answer">Jawaban keamanan</string>
+
+    <string name="label_select_currency">Pilih mata uang</string>
+
+    <string name="label_select_date_format">Pilih format tanggal</string>
+
+    <string name="label_select_decimal_places">Pilih desimal</string>
+
+    <string name="label_select_gender">Pilih gender</string>
+
+    <string name="label_select_number_format">Pilih format angka</string>
+
+    <string name="label_select_time_format">Pilih format jam</string>
+
+    <string name="label_select_visual_identity">PILIH TAMPILAN</string>
+
+    <string name="label_selected">Dipilih</string>
+
+    <string name="label_smart_ai_tip">Tips AI pintar</string>
+
+    <string name="label_sort_filter">Urutkan dan filter</string>
+
+    <string name="label_stepanimation">StepAnimation</string>
+
+    <string name="label_system_active">Sistem aktif</string>
+
+    <string name="pro_slogan_1">Biarkan uangmu tercatat sendiri.</string>
+
+    <string name="pro_subheadline_1">Stop ngetik ulang sewa, tagihan, dan langganan. Log berulang otomatis dan sinkron cloud yang urus.</string>
+
+    <string name="pro_cta_1">Buka tabungan autopilot</string>
+
+    <string name="pro_slogan_2">Catat sekali. Sinkron di mana-mana.</string>
+
+    <string name="pro_subheadline_2">Dompet dan rekening tetap selaras real-time di HP, tablet, dan perangkat pasanganmu.</string>
+
+    <string name="pro_cta_2">Lepas kerja manual</string>
+
+    <string name="pro_slogan_3">Nol kerja tangan. 100% kendali uang.</string>
+
+    <string name="pro_subheadline_3">Lacak harian jadi tugas latar. Otomatisin tagihan bulan dan biarkan keuangan jalan pelan.</string>
+
+    <string name="pro_cta_3">Buka tabungan autopilot</string>
+
+    <string name="pro_slogan_4">Lihat ke mana uang pergi sebelum kamu belanja.</string>
+
+    <string name="pro_subheadline_4">Lebih dari riwayat. Proyeksi per kategori dan tren buat saldo bulan depan, hari ini.</string>
+
+    <string name="pro_cta_4">Upgrade ke kejelasan seumur hidup</string>
+
+    <string name="pro_slogan_5">Stop nebak. Mulai tumbuhkan kekayaan.</string>
+
+    <string name="pro_subheadline_5">Hilangkan titik buta. Analitik Pro nunjukin di mana bocor, biar dialihin ke tabungan.</string>
+
+    <string name="pro_cta_5">Kendalikan kekayaanmu</string>
+
+    <string name="pro_slogan_6">Kuasai arus kas dengan proyeksi pintar.</string>
+
+    <string name="pro_subheadline_6">Anggaran tanpa tebak-tebakan. Perkiraan tren dari kebiasaan belanjamu yang beneran.</string>
+
+    <string name="pro_cta_6">Upgrade ke kejelasan seumur hidup</string>
+
+    <string name="pro_slogan_7">Riwayat keuanganmu, aman selamanya.</string>
+
+    <string name="pro_subheadline_7">HP hilang atau rusak nggak boleh hapus kebiasaan bertahun-tahun. Cadangan Drive otomatis dan pulihkan 1 tap.</string>
+
+    <string name="pro_cta_7">Upgrade ke kejelasan seumur hidup</string>
+
+    <string name="pro_slogan_8">Anti-crash. Anti-HP. Anti-khawatir.</string>
+
+    <string name="pro_subheadline_8">Transaksi dan anggaran terenkripsi, tersinkron, dan tercadang otomatis ke cloud.</string>
+
+    <string name="pro_cta_8">Amankan datamu sekarang</string>
+
+    <string name="label_take_control_of_your_wealth_wi">Kendalikan kekayaanmu dengan alat paling kuat kami.</string>
+
+    <string name="label_this_name_already_exists_in_va">Nama ini sudah ada di %1$s.</string>
+
+    <string name="label_this_new_item_will_be_added_un">Item baru ini masuk ke %1$s.</string>
+
+    <string name="label_this_will_overwrite_your_curre">Ini menimpa database sekarang dengan cadangan .db yang dipilih. Nggak digabung. Data yang ada diganti.</string>
+
+    <string name="label_today">Hari ini</string>
+
+    <string name="label_yesterday">Kemarin</string>
+
+    <string name="label_tomorrow">Besok</string>
+
+    <string name="label_top_breakdownfirstornulllabel">Top: ${breakdown.firstOrNull()?.label ?: </string>
+
+    <string name="label_total_analytics">TOTAL ANALITIK</string>
+
+    <string name="label_total_balance">TOTAL SALDO</string>
+
+    <string name="title_cash_flow">ARUS KAS</string>
+
+    <string name="label_this_month_cash_flow">Bulan ini</string>
+
+    <string name="label_this_year_cash_flow">Tahun ini</string>
+
+    <string name="label_spending_cash_flow">Pengeluaran</string>
+
+    <string name="label_expense_cash_flow">Pengeluaran</string>
+
+    <string name="label_income_cash_flow">Pemasukan</string>
+
+    <string name="label_net_balance_cash_flow">Saldo bersih</string>
+
+    <string name="label_track_every_move_with_confiden">Lacak tiap gerak dengan tenang.</string>
+
+    <string-array name="psychology_phrases" translatable="false">
+        <item>Awareness beats willpower.</item>
+        <item>You can\'t change what you don\'t notice.</item>
+        <item>Small amounts, repeated, become your reality.</item>
+        <item>Pause ten seconds before you spend.</item>
+        <item>Every glance here is a choice made on purpose.</item>
+        <item>Money follows attention.</item>
+        <item>Notice first, spend second.</item>
+        <item>The number you avoid is the number that grows.</item>
+        <item>What you track, you tend.</item>
+        <item>Name the feeling before the purchase.</item>
+        <item>One purchase is a mood; a pattern is a choice.</item>
+        <item>Slower hands, steadier money.</item>
+        <item>You are not your urge.</item>
+        <item>The pause is where the power is.</item>
+        <item>Progress hides in small numbers.</item>
+        <item>Comfort is not a plan.</item>
+        <item>Clarity is the antidote to financial chaos.</item>
+        <item>Your past purchases built your present baseline.</item>
+        <item>A budget is telling your money where to go instead of wondering where it went.</item>
+        <item>Impulses fade faster than receipts.</item>
+        <item>Shame stops tracking; curiosity keeps it alive.</item>
+        <item>Intentional spending beats accidental saving.</item>
+        <item>Every rupee spent is a vote for the life you want.</item>
+        <item>Delay is often the only filter you need.</item>
+        <item>Retail therapy treats the symptom, not the cause.</item>
+        <item>Notice the craving; skip the cart.</item>
+        <item>Wealth is what you keep, not what you display.</item>
+        <item>Peace of mind costs less than luxury.</item>
+        <item>Ask yourself: am I buying this or am I buying comfort?</item>
+        <item>Small leaks sink great ships.</item>
+        <item>Habits compound faster than interest.</item>
+        <item>Control your spending before your spending controls you.</item>
+        <item>Awareness transforms a habit into a choice.</item>
+        <item>Needs are quiet; wants are loud.</item>
+        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
+        <item>Watch the pennies and the pounds will take care of themselves.</item>
+        <item>Freedom is being able to say no to immediate gratification.</item>
+        <item>The best things in life don\'t require an invoice.</item>
+        <item>Boredom is an expensive emotion.</item>
+        <item>Stress spending leaves a hangover.</item>
+        <item>Your future self is watching your current cart.</item>
+        <item>Examine the urge before you enter the checkout code.</item>
+        <item>Money management is self-care.</item>
+        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
+        <item>True wealth builds silently in the background.</item>
+        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
+        <item>When you know your why, your wallet aligns.</item>
+        <item>Mindful spending brings more joy than mindless accumulation.</item>
+        <item>Pause long enough for logic to enter the room.</item>
+        <item>Every financial choice shapes tomorrow\'s reality.</item>
+        <item>The temporary high of buying fades by morning.</item>
+        <item>Track your habits and your habits will reward you.</item>
+        <item>Silence the noise of marketing with the clarity of your goals.</item>
+        <item>Choose long-term stability over short-term dopamine.</item>
+        <item>Don\'t measure wealth by things; measure it by choices.</item>
+        <item>Recognize the trigger before it triggers the transaction.</item>
+        <item>Direction matters more than speed.</item>
+        <item>Your bank account is a mirror of your priorities.</item>
+        <item>Conscious consumption is a superpower.</item>
+        <item>Sleep on major purchases; clarity comes with dawn.</item>
+        <item>Simplicity is the ultimate sophistication in finance.</item>
+        <item>Discipline is choosing between what you want now and what you want most.</item>
+        <item>A clear ledger brings a calm mind.</item>
+        <item>Every dollar saved is a worker working for your future.</item>
+        <item>Look at the data, not the desire.</item>
+        <item>Master your mindset to master your money.</item>
+        <item>Financial peace isn\'t an accident; it\'s a design.</item>
+        <item>Notice when emotions dictate your payments.</item>
+        <item>The cost of a thing is the amount of life you exchange for it.</item>
+        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
+        <item>Habitual tracking kills financial anxiety.</item>
+        <item>Let purpose guide your purchases.</item>
+        <item>A moment of reflection prevents a month of regret.</item>
+        <item>Look beyond the price tag to the long-term impact.</item>
+        <item>Your attention determines your allocation.</item>
+        <item>Financial independence begins with a single logged entry.</item>
+        <item>Step back from the sale banner; look at your goals.</item>
+        <item>Intentionality turns routine into ritual.</item>
+        <item>Unchecked subscriptions are quiet wealth thieves.</item>
+        <item>Notice the impulse, let it pass like a cloud.</item>
+        <item>Your financial story is written one entry at a time.</item>
+        <item>Align your spending with your core values.</item>
+        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
+        <item>Clarity replaces confusion with confidence.</item>
+        <item>Choose progress over perfection.</item>
+        <item>Every time you open this app, you reclaim your power.</item>
+        <item>Small disciplines repeated daily lead to great achievements.</item>
+        <item>Reflect on the root cause of the urge to splurge.</item>
+        <item>Wealth is built in the shadows of everyday choices.</item>
+        <item>Mastering money starts with managing moments.</item>
+        <item>Let your values dictate your volume.</item>
+        <item>You own your money; don\'t let your money own your mood.</item>
+        <item>A mindful habit today saves a financial headache tomorrow.</item>
+        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
+        <item>Awareness is the first step of transformation.</item>
+        <item>Let your records reflect your aspirations.</item>
+        <item>Look closely at what stays; let go of what drains.</item>
+        <item>Peace is owning fewer things that require your attention.</item>
+        <item>Your financial future is decided in moments like this.</item>
+        <item>Keep your goals in focus and your expenses in check.</item>
+    </string-array>
+
+    <string name="label_upgrade_to_pro">Upgrade ke Pro</string>
+
+    <string name="label_val">%1$s%</string>
+
+    <string name="label_val_1">%1$s%</string>
+
+    <string name="label_val_2">%1$s%</string>
+
+    <string name="label_val_days">%1$s hari</string>
+
+    <string name="label_val_items">%1$s ITEM</string>
+
+    <string name="label_val_minutes">%1$s menit</string>
+
+    <string name="label_val_selected">%1$s dipilih</string>
+
+    <string name="label_select_all_in_view">Pilih semua %1$d di tampilan ini</string>
+
+    <string name="label_val_val">%1$s (%2$s)</string>
+
+    <string name="label_valx">%1$sX</string>
+
+    <string name="label_view_all">Lihat semua</string>
+
+    <string name="label_website">SITUS</string>
+
+    <string name="label_wk_val">MGG %1$s</string>
+
+    <string name="label_year">Tahun</string>
+
+    <string name="label_your_answer">Jawabanmu</string>
+
+    <string name="title_about">Tentang</string>
+
+    <string name="title_about_app">Tentang aplikasi</string>
+
+    <string name="title_access">AKSES</string>
+
+    <string name="title_analytics">Analitik</string>
+
+    <string name="title_architecture">ARSITEKTUR</string>
+
+    <string name="title_auto_backup">Cadangan otomatis</string>
+
+    <string name="title_automated_backup_every_val_day">Cadangan otomatis tiap %1$s hari.</string>
+
+    <string name="title_avg_daily">Rata-rata harian</string>
+
+    <string name="title_backup">Cadangan</string>
+
+    <string name="title_backup_frequency">Frekuensi cadangan</string>
+
+    <string name="title_blur_in_recents">Buramkan di Recents</string>
+
+    <string name="title_calendar">Kalender</string>
+
+    <string name="title_choose_the_main_attribute_used">Pilih atribut utama buat merapikan daftar.</string>
+
+    <string name="title_confirm_identity">Konfirmasi identitas</string>
+
+    <string name="title_currency">Mata uang</string>
+
+    <string name="title_customize">KUSTOMISASI</string>
+
+    <string name="title_daily_reminder">Pengingat harian</string>
+
+    <string name="title_dashboard">DASBOR</string>
+
+    <string name="title_database">DATABASE</string>
+
+    <string name="title_date">Tanggal</string>
+
+    <string name="title_date_format">Format tanggal</string>
+
+    <string name="title_decimal_places">Desimal</string>
+
+    <string name="title_display_wallet_or_card_used">Tampilkan dompet atau kartu</string>
+
+    <string name="title_exact_timestamp_visibility">Tampilkan jam persis</string>
+
+    <string name="title_export_json">Ekspor JSON</string>
+
+    <string name="title_filters">Filter</string>
+
+    <string name="title_finetune_how_results_are_ranke">Rapikan peringkat dalam urutan yang dipilih.</string>
+
+    <string name="title_follow_us">IKUTI KAMI</string>
+
+    <string name="title_frequency">Frekuensi</string>
+
+    <string name="title_highest_first">Tertinggi dulu</string>
+
+    <string name="title_import_json">Impor JSON</string>
+
+    <string name="title_import_legacy_data">Impor data lama</string>
+
+    <string name="title_json_transfer">TRANSFER JSON</string>
+
+    <string name="title_legal">Legal</string>
+
+    <string name="title_maintenance">PEMELIHARAAN</string>
+
+    <string name="title_missed_entry_reminder">Pengingat entri terlewat</string>
+
+    <string name="title_number_format">Format angka</string>
+
+    <string name="title_order">Urutan</string>
+
+    <string name="title_payment_method">Cara bayar</string>
+
+    <string name="title_payment_mode">Mode bayar</string>
+
+    <string name="title_premium_by_designnprivate_by_n">Premium dari desain,
+privat dari sifat</string>
+
+    <string name="title_privacy_policy">Kebijakan privasi</string>
+
+    <string name="url_privacy_policy">https://expense-tracker-2ea00.web.app/privacy.html</string>
+
+    <string name="url_terms_conditions">https://expense-tracker-2ea00.web.app/terms.html</string>
+
+    <string name="url_rate_app">https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker</string>
+
+    <string name="default_web_client_id">943230999662-oop45u1vqethipcapecknv0m7j2gssne.apps.googleusercontent.com</string>
+
+    <string name="title_rate_app">Nilai aplikasi</string>
+
+    <string name="title_rate_prompt">Aplikasi ini membantu?</string>
+
+    <string name="label_how_would_you_rate">Kamu kasih nilai berapa?</string>
+
+    <string name="label_submit_rating">Kirim</string>
+
+    <string name="cd_rate_star">Nilai %1$d dari 5</string>
+
+    <string name="title_report_bug">Lapor bug</string>
+
+    <string name="title_restore">Pulihkan</string>
+
+    <string name="title_savings">Tabungan</string>
+
+    <string name="title_secure_private">Aman dan privat</string>
+
+    <string name="title_security_privacy">Keamanan dan privasi</string>
+
+    <string name="title_security_privacy_1">KEAMANAN DAN PRIVASI</string>
+
+    <string name="title_privacy_options">Opsi privasi</string>
+
+    <string name="label_privacy_options_subtitle">Kelola persetujuan dan pilihan datamu</string>
+
+    <string name="title_send_feedback">Kirim masukan</string>
+
+    <string name="title_show_date_separators">Pemisah tanggal</string>
+
+    <string name="title_show_list_summaries">Ringkasan periode</string>
+
+    <string name="desc_show_list_summaries">Tampilkan total pemasukan dan pengeluaran periode ini</string>
+
+    <string name="title_show_payment_method">Tampilkan cara bayar</string>
+
+    <string name="title_sort_by">Urutkan menurut</string>
+
+    <string name="title_stack_multiple_filters_to_narr">Tumpuk filter buat mempersempit daftar.</string>
+
+    <string name="title_support">Dukungan</string>
+
+    <string name="title_terms_conditions">Syarat dan ketentuan</string>
+
+    <string name="title_time_format">Format jam</string>
+
+    <string name="title_toggle_visibility_of_transacti">Tampilkan atau sembunyikan tag transaksi</string>
+
+    <string name="title_visual_analytics">Analitik visual</string>
+
+    <string name="label_other_installment">Lainnya</string>
+
+    <string name="msg_installment_info">Transaksi ini cicilan #1. Entri berikutnya dibuat otomatis.</string>
+
+    <string name="label_update_action">Perbarui</string>
+
+    <string name="label_add_action">Tambah</string>
+
+    <string name="label_am">AM</string>
+
+    <string name="label_pm">PM</string>
+
+    <string name="label_secure_app_pin">Amankan aplikasi dengan PIN</string>
+
+    <string name="label_use_biometric_subtitle">Pakai sidik jari</string>
+
+    <string name="label_scrambled_keypad">Keypad acak</string>
+
+    <string name="label_scrambled_keypad_subtitle">Acak tata letak PIN buat keamanan</string>
+
+    <string name="label_blur_in_recents">Buramkan di Recents</string>
+
+    <string name="label_blur_in_recents_subtitle">Sembunyikan isi aplikasi di pengalih aplikasi</string>
+
+    <string name="label_block_screenshots_subtitle">Cegah screenshot aplikasi</string>
+
+    <string name="label_auto_lock_subtitle">Kapan aplikasi mengunci sendiri</string>
+
+    <string name="label_lock_immediately">Kunci begitu aplikasi ke latar</string>
+
+    <string name="label_val_minutes_away">Kunci setelah %1$d menit pergi</string>
+
+    <string name="label_auto_lock_desc">Pilih kapan aplikasi mengunci sendiri.</string>
+
+    <string name="label_primary_currency">Mata uang utama aplikasi</string>
+
+    <string name="label_theme_subtitle">Tampilan warna aplikasi</string>
+
+    <string name="title_language">Bahasa</string>
+
+    <string name="label_language_subtitle">Bahasa tampilan aplikasi</string>
+
+    <string name="label_select_language">Pilih bahasa</string>
+
+    <string name="label_language_selection_desc">Pilih bahasa di aplikasi. Teks yang belum diterjemahkan tetap bahasa Inggris.</string>
+
+    <string name="label_language_system">Default sistem</string>
+
+    <string name="label_date_format_subtitle">Cara tanggal ditampilkan</string>
+
+    <string name="label_time_format_subtitle">Jam 12 atau 24 jam</string>
+
+    <string name="label_number_format_subtitle">Gaya pengelompokan digit</string>
+
+    <string name="label_decimal_places_subtitle">Ketelitian jumlah</string>
+
+    <string name="label_theme_selection_desc">Aplikasi mengikuti perangkat, atau tema tetap.</string>
+
+    <string name="label_number_format_desc">Pilih cara jumlah besar dikelompokkan di aplikasi.</string>
+
+    <string name="label_select_theme">Pilih tema</string>
+
+    <string name="title_theme">Tema</string>
+
+    <string name="label_theme_system">Sistem</string>
+
+    <string name="label_theme_light">Terang</string>
+
+    <string name="label_theme_dark">Gelap</string>
+
+    <string name="desc_theme_system">Ikuti tampilan perangkat</string>
+
+    <string name="desc_theme_light">Selalu tema terang</string>
+
+    <string name="desc_theme_dark">Selalu tema gelap</string>
+
+    <string name="title_font">Font</string>
+
+    <string name="label_font_subtitle">Gaya tipografi aplikasi</string>
+
+    <string name="label_font_app">Default</string>
+
+    <string name="label_font_system">Font sistem</string>
+
+    <string name="label_font_custom">Font kustom</string>
+
+    <string name="label_watch_ad_to_unlock">Tonton iklan buat buka</string>
+
+    <string name="label_pro_required">Perlu Pro</string>
+
+    <string name="msg_system_font_ad_desc">Tonton iklan singkat buat buka Font sistem gratis.</string>
+
+    <string name="msg_custom_font_pro_desc">Font kustom itu fitur Pro. Upgrade buat buka.</string>
+
+    <string name="label_import_font">Impor font</string>
+
+    <string name="label_font_count">%1$d/%2$d font kustom</string>
+
+    <string name="label_max_fonts_reached">Maks %1$d tercapai. Hapus satu dulu.</string>
+
+    <string name="label_no_custom_fonts">Belum ada font kustom</string>
+
+    <string name="msg_import_font_success">Font berhasil diimpor</string>
+
+    <string name="msg_font_changed">Font berhasil diganti</string>
+
+    <string name="msg_import_font_error">Gagal impor font</string>
+
+    <string name="msg_font_too_large">File font terlalu besar. Pilih yang lebih kecil.</string>
+
+    <string name="msg_invalid_font">File font tidak valid</string>
+
+    <string name="label_select_font">Pilih font</string>
+
+    <string name="label_select_font_desc">Tekan lama buat hapus font</string>
+
+    <string name="label_select_font_built_in">Bawaan</string>
+
+    <string name="label_delete_font">Hapus</string>
+
+    <string name="title_month_start_day">Bulan mulai pada</string>
+
+    <string name="label_month_start_day_subtitle">Hari pertama siklus tagihanmu</string>
+
+    <string name="label_month_start_day_value">Hari %1$d</string>
+
+    <string name="label_month_start_day_standard">Tanggal 1 (default)</string>
+
+    <string name="label_current_period">Periode sekarang:</string>
+
+    <string name="msg_delete_font_title">Hapus font?</string>
+
+    <string name="msg_delete_font_desc">%1$s akan dihapus dari font kustommu.</string>
+
+    <string name="label_select">Pilih</string>
+
+    <string name="label_grouping_indian">India (1,23,456.78)</string>
+
+    <string name="label_grouping_international">Internasional (1,234,567.89)</string>
+
+    <string name="label_app_name_display">Expense Tracker</string>
+
+    <string name="label_follow_us">Ikuti kami</string>
+
+    <string name="desc_app_icon">Ikon aplikasi</string>
+
+    <string name="label_about_app_desc">Aplikasi simpel buat kelola transaksi harian dengan elegan. Dirancang buat yang suka kejelasan keuangan dan antarmuka premium. Tiap data diperlakukan seperti brankas editorial.</string>
+
+    <string name="title_yearly_analytics">Analitik tahunan</string>
+
+    <string name="title_full_category_breakdown">Rincian kategori lengkap</string>
+
+    <string name="title_full_payment_breakdown">Rincian pembayaran lengkap</string>
+
+    <string name="title_payment_mode_breakdown">Rincian cara bayar</string>
+
+    <string name="title_top_spending_details">Detail pengeluaran terbesar</string>
+
+    <string name="title_spending_insights">Wawasan belanja</string>
+
+    <string name="label_both">Keduanya</string>
+
+    <string name="label_total_spent">TOTAL TERPAKAI</string>
+
+    <string name="label_net_balance">SALDO BERSIH</string>
+
+    <string name="label_unlock_breakdown">Buka rincian</string>
+
+    <string name="label_unlock_top_spending">Buka pengeluaran terbesar</string>
+
+    <string name="label_unlock_insights">Buka wawasan</string>
+
+    <string name="label_val_transactions">%1$s transaksi</string>
+
+    <string name="label_no_transactions_found_in_this">Nggak ada transaksi di rentang ini.</string>
+
+    <string name="label_top_val">Top: %1$s</string>
+
+    <string name="desc_show_transactions">Tampilkan transaksi</string>
+
+    <string name="label_unknown">Tidak diketahui</string>
+
     <string name="label_other">Lainnya</string>
-    <string name="label_not_available">Tidak tersedia</string>
-    <string name="format_percentage">%1$d%%</string>
+
+    <string name="label_not_available">N/A</string>
+
+    <string name="format_percentage">%1$s%%</string>
+
+    <string name="format_thousands">%1$.1fk</string>
+
+    <string name="format_millions">%1$.1fJt</string>
+
+    <string name="separator_bullet">•</string>
+
+    <string name="format_ellipsis">%1$s…</string>
+
+    <string name="desc_log_daily_spending">Catat belanja harian dalam detik, keypad rapi dan ranking kategori pintar.</string>
+
+    <string name="label_next">Lanjut</string>
+
+    <string name="desc_financial_data_secure">Data keuanganmu disimpan lokal dan dilindungi biometrik.</string>
+
+    <string name="desc_visualize_spending">Lihat kebiasaan belanja dengan grafik interaktif dan rincian kategori.</string>
+
+    <string name="desc_modern_finance">Keuangan pribadi modern di ujung jari. Offline dulu: datamu nggak keluar perangkat.</string>
+
+    <string name="label_continue">Lanjut</string>
+
+    <string name="label_private_by_nature">Privat dari sifat</string>
+
+    <string name="title_secure_your_account">Amankan akunmu</string>
+
+    <string name="desc_sync_and_premium_features">Masuk buat sinkron antar perangkat dan fitur premium dengan aman.</string>
+
+    <string name="auth_welcome">Selamat datang</string>
+
+    <string name="auth_signup_subtitle">Daftar di bawah buat buat akun dan mulai.</string>
+
+    <string name="auth_signin_subtitle">Masuk buat akses preferensi dan akunmu.</string>
+
+    <string name="auth_forgot">Lupa kata sandi</string>
+
+    <string name="label_recommended">DIREKOMENDASIKAN</string>
+
+    <string name="auth_connecting_google">Menyambung ke Google…</string>
+
+    <string name="auth_authenticating">Mengautentikasi…</string>
+
+    <string name="auth_already_have_account">Sudah punya akun?</string>
+
+    <string name="auth_dont_have_account">Belum punya akun?</string>
+
+    <string name="label_continue_with_google">Lanjut dengan Google</string>
+
+    <string name="content_desc_google_logo">Google</string>
+
+    <string name="msg_auth_content_preview_placeholder">Konten auth (pratinjau)</string>
+
+    <string name="label_continue_with">Lanjut dengan</string>
+
+    <string name="label_or">ATAU</string>
+
+    <string name="label_email">Alamat email</string>
+
+    <string name="label_password">Kata sandi</string>
+
+    <string name="label_create_account">Daftar</string>
+
+    <string name="msg_creating_account">Membuat akun...</string>
+
+    <string name="title_account_created">Akun dibuat</string>
+
+    <string name="label_ok">OK</string>
+
+    <string name="label_login">Masuk</string>
+
+    <string name="label_already_have_account">Sudah punya akun? Masuk</string>
+
+    <string name="label_no_account_signup">Belum punya akun? Daftar</string>
+
+    <string name="label_continue_as_guest">Lanjut sebagai tamu</string>
+
+    <string name="desc_tell_us_about_yourself">Cerita sedikit tentang dirimu buat personalisasi.</string>
+
+    <string name="label_get_started">Mulai</string>
+
+    <string name="placeholder_enter_name">Masukkan namamu</string>
+
+    <string name="placeholder_select_dob">Pilih tanggal lahir</string>
+
+    <string name="label_male">Pria</string>
+
+    <string name="label_female">Wanita</string>
+
+    <string name="label_non_binary">Non-biner</string>
+
+    <string name="label_prefer_not_to_say">Lebih baik tidak bilang</string>
+
+    <string name="msg_please_provide_your_val">Isi %1$s kamu</string>
+
+    <string name="label_name_capitalized">Nama</string>
+
+    <string name="label_gender_capitalized">Gender</string>
+
+    <string name="label_dob_capitalized">Tanggal lahir</string>
+
+    <string name="label_expense_tracker_caps">EXPENSE TRACKER</string>
+
+    <string name="label_secure_logging">PENCATATAN AMAN</string>
+
+    <string name="label_architecture">ARSITEKTUR</string>
+
+    <string name="label_100_offline">100% offline dulu</string>
+
+    <string name="label_access">AKSES</string>
+
+    <string name="label_full_control">Kendali penuh</string>
+
+    <string name="label_zero">0</string>
+
+    <string name="label_history">Riwayat</string>
+
+    <string name="content_desc_calculator_history">Buka riwayat kalkulator</string>
+
+    <string name="content_desc_copy_history">Salin perhitungan</string>
+
+    <string name="content_desc_backspace">Hapus karakter di kiri kursor</string>
+
+    <string name="content_desc_cursor_left">Geser kursor ke kiri</string>
+
+    <string name="content_desc_cursor_right">Geser kursor ke kanan</string>
+
+    <string name="msg_history_long_press_hint">Tekan lama kartu buat opsi lain.</string>
+
+    <string name="msg_calculator_history_empty">Belum ada perhitungan</string>
+
+    <string name="msg_clear_history_confirm">Hapus semua riwayat kalkulator? Nggak bisa dibatalin.</string>
+
+    <string name="label_clear_history">Hapus riwayat</string>
+
+    <string name="toast_history_copied">Perhitungan disalin</string>
+
+    <string name="title_quick_action">Aksi cepat</string>
+
+    <string name="msg_history_quick_action_caption">Pilih apa yang dilakukan ke perhitungan ini. Bisa diganti kapan saja.</string>
+
+    <string name="label_copy_expression">Salin ekspresi</string>
+
+    <string name="label_copy_result">Salin hasil</string>
+
+    <string name="label_copy_expression_and_result">Salin ekspresi + hasil</string>
+
+    <string name="label_delete_entry">Hapus entri</string>
+
+    <string name="toast_expression_copied">Ekspresi disalin</string>
+
+    <string name="toast_result_copied">Hasil disalin</string>
+
+    <string name="toast_entry_deleted">Entri dihapus</string>
+
+    <string name="label_items_count_formatted">%1$d ITEM</string>
+
+    <string name="label_description_caps">DESKRIPSI</string>
+
+    <string name="label_amount_caps">JUMLAH</string>
+
+    <string name="content_desc_delete_item">Hapus %1$s</string>
+
+    <string name="content_desc_edit_item">Ubah %1$s</string>
+
+    <string name="placeholder_description_ex">Cth. Kedai kopi</string>
+
+    <string name="placeholder_amount_zero">0.00</string>
+
+    <string name="content_desc_add_item">Tambah item</string>
+
+    <string name="label_automated_sync">Cloud dan otomatisasi</string>
+
+    <string name="desc_automated_sync">Atur cara datamu dilindungi otomatis tanpa kerja manual.</string>
+
+    <string name="desc_auto_backup_subtitle">Cadangan lokal otomatis</string>
+
+    <string name="desc_backup_frequency_subtitle">Seberapa sering cadangan</string>
+
+    <string name="label_custom_frequency">Kustom...</string>
+
+    <string name="title_custom_backup_frequency">Frekuensi kustom</string>
+
+    <string name="label_enter_days">Masukkan jumlah hari</string>
+
+    <string name="placeholder_days">Hari</string>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="other">%1$d hari</item>
+    </plurals>
+
+    <string name="label_data_transfer">Transfer file</string>
+
+    <string name="desc_data_transfer">Alat manual buat pindah data antar perangkat atau simpan file fisik.</string>
+
+    <string name="label_export_data_json">Ekspor data (JSON)</string>
+
+    <string name="desc_export_data_subtitle">Unduh file JSON yang aman digabung</string>
+
+    <string name="label_export">Ekspor</string>
+
+    <string name="label_import_data_json">Impor data (JSON)</string>
+
+    <string name="desc_import_data_subtitle">Pulihkan atau gabung dari JSON</string>
+
+    <string name="label_import">Impor</string>
+
+    <string name="label_backup_database_db">Cadangkan database (.db)</string>
+
+    <string name="desc_backup_db_subtitle">Cadangan file SQLite langsung</string>
+
+    <string name="label_restore_database_db">Pulihkan database (.db)</string>
+
+    <string name="desc_restore_db_subtitle">Timpa seluruh database</string>
+
+    <string name="label_legacy_import">Impor lama</string>
+
+    <string name="desc_legacy_import_subtitle">Impor dari versi aplikasi lama</string>
+
+    <string name="label_migrate">Migrasi</string>
+
+    <string name="label_utilities_and_stats">Penyimpanan dan pemeliharaan</string>
+
+    <string name="desc_utilities_and_stats">Alat pantau kesehatan database dan aksi reset.</string>
+
+    <string name="desc_transaction_count_subtitle">Total rekaman di database</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="other">Tiap %1$d hari</item>
+    </plurals>
+
+    <string name="desc_choose_backup_frequency">Pilih seberapa sering aplikasi cadangan otomatis.</string>
+
+    <string name="msg_no_category_budget_data">Belum ada data anggaran kategori bulan ini.</string>
+
+    <string name="label_history_locked">RIWAYAT TERKUNCI</string>
+
+    <string name="msg_no_recurring_items">Belum ada item berulang.</string>
+
+    <string name="label_tab_budgets">Anggaran</string>
+
+    <string name="label_tab_recurring">Berulang</string>
+
+    <string name="label_tab_count_short">%1$d</string>
+
+    <string name="label_tab_count_overflow">%1$d+</string>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="other">%1$d item</item>
+    </plurals>
+
+    <string name="label_sms_inbox_title">Transaksi terdeteksi</string>
+
+    <string name="label_sms_inbox_search_hint">Cari merchant, pengirim, atau pesan</string>
+
+    <string name="label_sms_inbox_filter_all">Semua</string>
+
+    <string name="label_sms_inbox_filter_income">Pemasukan</string>
+
+    <string name="label_sms_inbox_filter_expense">Pengeluaran</string>
+
+    <string name="label_sms_inbox_filter_added">Ditambah</string>
+
+    <string name="label_sms_inbox_filter_ignored">Diabaikan</string>
+
+    <string name="label_sms_inbox_filter_unread">Belum dibaca</string>
+
+    <string name="label_sms_inbox_income">pemasukan</string>
+
+    <string name="label_sms_inbox_expense">pengeluaran</string>
+
+    <string name="label_sms_inbox_income_amount">%1$s pemasukan</string>
+
+    <string name="label_sms_inbox_expense_amount">%1$s pengeluaran</string>
+
+    <string name="label_sms_inbox_card_hint">Tap kartu buat buka di layar tambah, edit kalau perlu, lalu tekan Tambah.</string>
+
+    <string name="label_sms_inbox_swipe_hint">Geser kiri / kanan buat hapus satu deteksi.</string>
+
+    <string name="label_sms_inbox_category">Kategori saran: %1$s</string>
+
+    <string name="label_sms_inbox_suggested">Saran:</string>
+
+    <string name="label_sms_inbox_sms">SMS:</string>
+
+    <string name="label_sms_inbox_confidence_high">Yakin tinggi</string>
+
+    <string name="label_sms_inbox_confidence_medium">Yakin sedang</string>
+
+    <string name="label_sms_inbox_confidence_low">Yakin rendah</string>
+
+    <string name="label_sms_inbox_empty_title">Belum ada transaksi terdeteksi</string>
+
+    <string name="label_sms_inbox_empty_filtered_title">Kosong di sini</string>
+
+    <string name="label_sms_inbox_empty_body">Pesan bank yang kayak pembayaran muncul di sini — meski notifnya kamu tutup.</string>
+
+    <string name="label_sms_inbox_delete_title">Hapus deteksi?</string>
+
+    <string name="label_sms_inbox_delete_subtitle">Aksi kotak masuk yang nggak bisa dibatalin</string>
+
+    <string name="label_sms_inbox_delete_body">Ini hapus pesan tersimpan dari kotak masuk. Transaksi yang sudah ditambah tetap.</string>
+
+    <string name="label_sms_inbox_edit_title">Ubah sebelum menambah</string>
+
+    <string name="label_sms_inbox_edit_amount">Jumlah</string>
+
+    <string name="label_sms_inbox_edit_note">Catatan (opsional)</string>
+
+    <string name="label_sms_inbox_edit_category">Kategori</string>
+
+    <string name="desc_sms_inbox_bell">Transaksi terdeteksi</string>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="other">%1$d belum dibaca</item>
+    </plurals>
+
+    <string name="action_add">Tambah</string>
+
+    <string name="action_ignore">Abaikan</string>
+
+    <string name="action_delete">Hapus</string>
+
+    <string name="action_clear_all">Hapus semua</string>
+
+    <string name="action_sms_inbox_clear_all_pending">Hapus semua transaksi tertunda</string>
+
+    <string name="label_sms_inbox_selected_count">%1$d dipilih</string>
+
+    <string name="action_sms_inbox_select_all">Pilih semua</string>
+
+    <string name="action_sms_inbox_deselect_all">Batal pilih semua</string>
+
+    <string name="action_sms_inbox_delete_selected">Hapus yang dipilih</string>
+
+    <string name="action_cancel">Batal</string>
+
+    <string name="msg_sms_inbox_added">%1$d transaksi terdeteksi ditambah</string>
+
+    <string name="msg_sms_inbox_added_some">Ditambah %1$d · %2$d sudah di buku</string>
+
+    <string name="msg_sms_inbox_already_added">Sudah di buku — nggak ada yang ditambah</string>
+
+    <string name="msg_sms_inbox_gone">Deteksi itu sudah nggak ada</string>
+
+    <string name="msg_sms_inbox_ignored">%1$d deteksi diabaikan</string>
+
+    <string name="msg_sms_inbox_deleted">Dihapus</string>
+
+    <string name="msg_sms_inbox_swiped_away">%1$d deteksi dihapus</string>
+
+    <string name="msg_sms_inbox_invalid_amount">Masukkan jumlah lebih dari nol</string>
+
+    <string name="label_this_month_caps">BULAN INI</string>
+
+    <string name="label_custom_month_caps">Bulan kustom</string>
+
+    <string name="label_remaining">Sisa</string>
+
+    <string name="label_over">Kelebihan</string>
+
+    <string name="title_add_budget">Tambah anggaran</string>
+
+    <string name="title_edit_budget">Ubah anggaran</string>
+
+    <string name="msg_no_expense_categories_available">Nggak ada kategori pengeluaran</string>
+
+    <string name="label_change_caps">GANTI</string>
+
+    <string name="label_edits_left_formatted">SISA %1$d EDIT</string>
+
+    <string name="label_locked">TERKUNCI</string>
+
+    <string name="content_desc_locked_formatted">%1$s terkunci</string>
+
+    <string name="content_desc_upcoming">Mendatang</string>
+
+    <string name="label_installments_formatted">%1$d DARI %2$d</string>
+
+    <string name="label_edit_recurring_rule">Ubah aturan berulang</string>
+
+    <string name="title_edit_recurring">Ubah pengeluaran berulang</string>
+
+    <string name="label_frequency_capitalized">Frekuensi</string>
+
+    <string name="label_total_installments">Total cicilan</string>
+
+    <string name="label_recurring_type">Jenis berulang</string>
+
+    <string name="label_type_regular">Biasa</string>
+
+    <string name="label_type_emi">EMI / cicilan</string>
+
+    <string name="label_emi_total_amount">Jumlah total</string>
+
+    <string name="label_emi_installment_amount">Jumlah cicilan</string>
+
+    <string name="label_emi_first_due">Jatuh tempo pertama</string>
+
+    <string name="msg_convert_to_regular_info">Syarat rencana tetap tersimpan — balik lagi pulihin cicilan yang sama dengan riwayat bayar utuh.</string>
+
+    <string name="label_emi_paid_progress">Dibayar %1$d dari %2$d</string>
+
+    <string name="label_emi_remaining_format">Sisa %1$s</string>
+
+    <string name="label_all_settled">SEMUA LUNAS</string>
+
+    <string name="label_emis_overdue">EMI TERLAMBAT</string>
+
+    <string name="label_overdue_caps">TERLAMBAT</string>
+
+    <string name="action_view_installments">Lihat cicilan</string>
+
+    <string name="title_emis_for_format">Cicilan — %1$s</string>
+
+    <string name="label_paid_caps">DIBAYAR</string>
+
+    <string name="label_pending_caps">MENUNGGU</string>
+
+    <string name="label_skipped_caps">DILEWATI</string>
+
+    <string name="action_pay_caps">BAYAR</string>
+
+    <string name="action_skip_caps">LEWATI</string>
+
+    <string name="action_undo_caps">BATAL</string>
+
+    <string name="label_pay_selected_format">Bayar yang dipilih (%1$d)</string>
+
+    <string name="label_slot_index_format">#%1$d</string>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="other">%1$d cicilan dibayar</item>
+    </plurals>
+
+    <string name="label_emi_plan_section">Rencana EMI / pinjaman</string>
+
+    <string name="desc_emi_plan_toggle">Lacak pengeluaran berulang ini sebagai pinjaman dengan cicilan tetap.</string>
+
+    <string name="desc_emi_total_amount">Total yang kamu lunasi (pokok + bunga)</string>
+
+    <string name="desc_emi_installment_amount">Jumlah tiap cicilan</string>
+
+    <string name="msg_emi_amount_mismatch">Total harus sama dengan jumlah cicilan × jumlah tenor</string>
+
+    <string name="label_emi_frequency_format">EMI · %1$s</string>
+
+    <string name="msg_emi_create_info">Transaksi ini cicilan #1. Sisa %1$d dilacak di rencana — bayar, lewati, atau lunasi dari daftar berulang.</string>
+
+    <string name="label_save_changes_caps">SIMPAN PERUBAHAN</string>
+
+    <string name="label_cancel_caps">BATAL</string>
+
+    <string name="label_category_1">Kategori</string>
+
+    <string name="label_time">Waktu</string>
+
+    <string name="label_save_1">Simpan</string>
+
+    <string name="label_update_1">Perbarui</string>
+
+    <string name="label_delete_1">Hapus</string>
+
+    <string name="title_copy_previous_month_budgets">Salin anggaran bulan lalu</string>
+
+    <string name="action_copy_all">Salin semua</string>
+
+    <string name="action_copy_selected">Salin yang dipilih</string>
+
+    <string name="action_copy">Salin</string>
+
+    <string name="action_create_budget">Buat anggaran</string>
+
+    <string name="msg_copy_previous_budgets_context">Pilih anggaran dari %1$s buat disalin ke %2$s.</string>
+
+    <string name="empty_copy_previous_month_title">Nggak ada anggaran bulan lalu.</string>
+
+    <string name="msg_copy_previous_month_empty">Kamu nggak buat anggaran bulan lalu, jadi nggak ada yang disalin.</string>
+
+    <string name="msg_copy_all_budgets_success">Semua anggaran bulan lalu disalin.</string>
+
+    <string name="msg_copy_selected_budgets_success">Anggaran yang dipilih disalin.</string>
+
+    <string name="title_copy_budgets_confirmation">Anggaran sudah ada</string>
+
+    <string name="msg_copy_budgets_confirmation">%1$s sudah punya anggaran. Menyalin bulan lalu bisa bikin duplikat. Lanjut?</string>
+
+    <string name="label_calendar_year_view">Tampilan tahun kalender</string>
+
+    <string name="label_calendar_year_picker">Pemilih tahun</string>
+
+    <string name="label_calendar_month_picker">Pemilih bulan</string>
+
+    <string name="content_desc_jump_to_date">Lompat ke tanggal</string>
+
+    <string name="content_desc_month_picker_locked">Pemilih bulan terkunci</string>
+
+    <string name="content_desc_jump_to_year">Lompat ke tahun</string>
+
+    <string name="content_desc_year_picker_locked">Pemilih tahun terkunci</string>
+
+    <string name="content_desc_previous_month">Bulan sebelumnya</string>
+
+    <string name="content_desc_next_month">Bulan berikutnya</string>
+
+    <string name="content_desc_previous_year">Tahun sebelumnya</string>
+
+    <string name="content_desc_next_year">Tahun berikutnya</string>
+
+    <string name="title_choose_month_year">Pilih bulan dan tahun</string>
+
+    <string name="title_show_category">Tampilkan kategori</string>
+
+    <string name="desc_display_category_label">Tampilkan label kategori di kartu</string>
+
+    <string name="desc_display_wallet_or_card">Tampilkan dompet atau kartu</string>
+
+    <string name="desc_group_transactions_by_day">Kelompokkan transaksi di bawah header hari (cth. « Hari ini », « Kemarin »).</string>
+
+    <string name="title_transaction_card_settings">Kustomisasi</string>
+
+    <string name="label_on_each_transaction_card">Di tiap kartu transaksi</string>
+
+    <string name="desc_on_each_transaction_card">Pengaturan ini atur info di tiap kartu transaksi di daftar.</string>
+
+    <string name="label_in_the_list">Di daftar</string>
+
+    <string name="desc_in_the_list">Pengaturan ini atur pengelompokan dan ringkasan daftar di sekitar kartu.</string>
+
+    <string name="label_visual_style">Gaya visual</string>
+
+    <string name="desc_visual_style">Pengaturan ini atur ikon utama dan label berwarna yang jadi identitas kartu.</string>
+
+    <string name="label_transaction_details">Detail transaksi</string>
+
+    <string name="desc_transaction_details">Pengaturan ini atur data spesifik yang tampil di kartu.</string>
+
+    <string name="label_time_and_organization">Waktu dan organisasi</string>
+
+    <string name="desc_time_and_organization">Pengaturan ini atur tampilan waktu dan pengelompokan transaksi di daftar.</string>
+
+    <string name="label_preview">Pratinjau</string>
+
+    <string name="placeholder_select_gender">Pilih gender</string>
+
+    <string name="msg_unable_to_load_photo">Gagal muat gambar. Coba foto lain.</string>
+
+    <string name="title_edit_profile">Ubah profil</string>
+
+    <string name="label_full_name_caps">NAMA LENGKAP</string>
+
+    <string name="placeholder_guest_user">Pengguna tamu</string>
+
+    <string name="label_email_address_caps">ALAMAT EMAIL</string>
+
+    <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <string name="label_phone_number_caps">NOMOR HP</string>
+
+    <string name="placeholder_phone_example">1112223334...</string>
+
+    <string name="label_date_of_birth_caps">TANGGAL LAHIR</string>
+
+    <string name="label_gender_caps">GENDER</string>
+
+    <string name="content_desc_open_gender_options">Buka opsi gender</string>
+
+    <string name="desc_choose_gender_label">Pilih label gender yang cocok buat profilmu.</string>
+
+    <string name="content_desc_add_photo">Tambah foto</string>
+
+    <string name="content_desc_edit_photo">Ubah foto</string>
+
+    <string name="content_desc_delete_photo">Hapus foto</string>
+
+    <string name="title_select_country">Pilih negara</string>
+
+    <string name="placeholder_search_country">Cari negara…</string>
+
+    <string name="desc_daily_reminder">Dapat notif buat catat transaksi harian.</string>
+
+    <string name="title_budget_limit_alerts">Peringatan plafon anggaran</string>
+
+    <string name="desc_budget_limit_alerts">Dapat notif kalau kamu lewat anggaran bulanan.</string>
+
+    <string name="desc_missed_entry_reminder">Dapat notif kalau kamu lupa nambah transaksi 2 hari.</string>
+
+    <string name="title_goal_reminders">Pengingat tujuan</string>
+
+    <string name="desc_goal_reminders">Dorongan mingguan buat tujuan tabunganmu.</string>
+
+    <string name="msg_preparing_dashboard">Menyiapkan dasbormu</string>
+
+    <string name="msg_syncing_transactions">Menyinkron transaksmu</string>
+
+    <string name="msg_securing_data">Mengamankan datamu</string>
+
+    <string name="msg_initializing">Memulai</string>
+
+    <string name="label_splash_tagline">Elegansi di tiap transaksi</string>
+
+    <string name="label_splash_footer">Dibuat dengan teliti dan cinta</string>
+
+    <string name="label_budget_and_spend">Anggaran dan belanja</string>
+
+    <string name="msg_starting_security_services">Memulai layanan keamanan</string>
+
+    <string name="msg_loading_preferences">Memuat preferensimu</string>
+
+    <string name="msg_preparing_database">Menyiapkan database</string>
+
+    <string name="msg_initializing_database">Memulai database</string>
+
+    <string name="msg_warming_up_engine">Memanaskan mesin</string>
+
+    <string name="msg_getting_things_ready">Menyiapkan semuanya</string>
+
+    <string name="label_done">Selesai</string>
+
+    <string name="desc_select_period">Pilih periode</string>
+
+    <string name="label_all">Semua</string>
+
+    <string name="label_daily">Harian</string>
+
+    <string name="label_monthly">Bulanan</string>
+
+    <string name="label_yearly">Tahunan</string>
+
+    <string name="label_no_results_found">Nggak ada hasil.</string>
+
+    <string name="label_select_a_backup_file">Pilih file cadangan buat pulihkan data. Data sekarang ditimpa.</string>
+
+    <string name="label_select_file_manually">Pilih file manual...</string>
+
+    <string name="label_encrypted">Terenkripsi</string>
+
+    <string name="toast_backup_restore_key_mismatch">Cadangan ini dari perangkat lain dan nggak bisa dipulihkan di sini.</string>
+
+    <string name="label_advanced_analytics_trends">Kejelasan total hidup keuanganmu dengan analitik lanjutan</string>
+
+    <string name="label_automatic_cloud_backups">Keamanan data kuat dengan sinkron cloud</string>
+
+    <string name="label_unlimited_recurring_rules">Otomatisin kebebasanmu dengan aturan berulang</string>
+
+    <string name="label_privacy_mode_biometric_lock">Kekayaanmu dijaga kunci biometrik</string>
+
+    <string name="label_last_7_days">7 hari terakhir</string>
+
+    <string name="label_last_15_days">15 hari terakhir</string>
+
+    <string name="label_last_30_days">30 hari terakhir</string>
+
+    <string name="label_last_60_days">60 hari terakhir</string>
+
+    <string name="label_expense_categories">Kategori pengeluaran</string>
+
+    <string name="label_income_categories">Kategori pemasukan</string>
+
+    <string name="label_no_categories_available">Nggak ada kategori buat jenis yang dipilih.</string>
+
+    <string name="label_min">Min</string>
+
+    <string name="label_max">Maks</string>
+
+    <string name="desc_newest_order">Transaksi terbaru di atas.</string>
+
+    <string name="desc_oldest_order">Transaksi lama tampil dulu.</string>
+
+    <string name="desc_highest_order">Jumlah lebih besar dulu.</string>
+
+    <string name="desc_lowest_order">Jumlah kecil tampil sebelum yang besar.</string>
+
+    <string name="desc_income_first_order">Pemasukan dikelompokkan sebelum pengeluaran.</string>
+
+    <string name="desc_expense_first_order">Pengeluaran tampil sebelum pemasukan.</string>
+
+    <string name="label_search_dots">Cari…</string>
+
+    <string name="label_action">Aksi</string>
+
+    <string name="label_watch_ad">Tonton iklan</string>
+
+    <string name="label_premium">Pro</string>
+
+    <string name="label_open">Buka</string>
+
+    <string name="title_restore_database">Pulihkan database</string>
+
+    <string name="label_restore">Pulihkan</string>
+
+    <string name="label_premium_features">Fitur Pro</string>
+
+    <string name="label_sort_by">Urutkan menurut</string>
+
+    <string name="title_date_range">RENTANG TANGGAL</string>
+
+    <string name="label_custom_range">Rentang kustom</string>
+
+    <string name="label_order">Urutan</string>
+
+    <string name="label_filters">Filter</string>
+
+    <string name="desc_order_subtitle">Rapikan peringkat dalam urutan yang dipilih.</string>
+
+    <string name="desc_filters_subtitle">Tumpuk filter buat mempersempit daftar transaksi.</string>
+
+    <string name="desc_sort_subtitle">Pilih atribut utama buat merapikan daftar.</string>
+
+    <string name="title_transaction_type_caps">JENIS TRANSAKSI</string>
+
+    <string name="label_newest_first">Terbaru dulu</string>
+
+    <string name="label_oldest_first">Terlama dulu</string>
+
+    <string name="label_highest_first">Tertinggi dulu</string>
+
+    <string name="label_lowest_first">Terendah dulu</string>
+
+    <string name="label_income_first">Pemasukan dulu</string>
+
+    <string name="label_expense_first">Pengeluaran dulu</string>
+
+    <string name="label_payment_mode">Cara bayar</string>
+
+    <string name="label_amount_range">Rentang jumlah</string>
+
+    <string name="label_categories">Kategori</string>
+
+    <string name="desc_no_categories">Nggak ada kategori buat jenis yang dipilih.</string>
+
+    <string name="label_sort_filter_subtitle">Atur cara transaksi kamu ditata dan ditampilkan.</string>
+
+    <string name="label_search_placeholder">Catatan atau jumlah…</string>
+
+    <string name="label_search_by_category_wallet">Cari kategori, dompet, dan tag</string>
+
+    <string name="msg_delete_transactions_confirm">Yakin hapus %1$d transaksi? Nggak bisa dibatalin.</string>
+
+    <string name="msg_delete_category_confirm">Yakin hapus « %1$s »? Transaksi yang ada mungkin masih pakai. Nggak bisa dibatalin.</string>
+
+    <string name="label_delete_confirm">Hapus</string>
+
+    <string name="label_cancel_confirm">Batal</string>
+
+    <string name="label_duplicate">Duplikat</string>
+
+    <string name="label_undo">Urungkan</string>
+
+    <string name="msg_transaction_deleted">Transaksi dihapus</string>
+
+    <string name="msg_transaction_duplicated">Transaksi diduplikat</string>
+
+    <string name="toast_transaction_deleted">Transaksi dihapus</string>
+
+    <string name="title_cannot_duplicate_recurring">Aturan duplikat ketemu</string>
+
+    <string name="msg_duplicate_recurring_rule">Kamu sudah punya aturan berulang buat %1$s di %2$s/%3$s. Buat lagi?</string>
+
+    <string name="msg_cannot_duplicate_recurring">Transaksi ini berulang (utama atau otomatis), jadi nggak bisa diduplikat.</string>
+
+    <string name="label_week">Minggu</string>
+
+    <string name="label_month_period">Bulan</string>
+
+    <string name="label_year_period">Tahun</string>
+
+    <string name="label_custom">Kustom</string>
+
+    <string name="label_this_week">Minggu ini</string>
+
+    <string name="label_this_month">Bulan ini</string>
+
+    <string name="label_wallet">Dompet</string>
+
+    <string name="label_general">Umum</string>
+
+    <string name="label_spending">pengeluaran</string>
+
+    <string name="msg_unlock_insights_hint">Pilih rentang lain atau tambah transaksi buat buka wawasan belanja.</string>
+
+    <string name="label_up">naik</string>
+
+    <string name="label_down">turun</string>
+
+    <string name="msg_spending_trend">Tren belanjamu %1$s %2$s periode ini. Jaga %3$s dan kamu bisa hemat sekitar %4$s siklus berikutnya.</string>
+
+    <string name="msg_choose_range_dates">Pilih tanggal mulai dan akhir</string>
+
+    <string name="btn_cancel">Batal</string>
+
+    <string name="title_select_date">Pilih tanggal</string>
+
+    <string name="title_select_time">Pilih jam</string>
+
+    <string name="title_select_date_time">Pilih tanggal dan jam</string>
+
+    <string name="title_select_month">Pilih bulan</string>
+
+    <string name="title_select_year">Pilih tahun</string>
+
+    <string name="title_select_date_range">Pilih rentang tanggal</string>
+
+    <string name="btn_apply_range">Terapkan rentang</string>
+
+    <string name="btn_confirm">Konfirmasi</string>
+
+    <string name="label_from">DARI</string>
+
+    <string name="label_to">SAMPAI</string>
+
+    <string name="error_invalid_date_month">Tanggal nggak valid buat bulan yang dipilih.</string>
+
+    <string name="format_date_short">dd MMM</string>
+
+    <string name="label_total_spending">Total pengeluaran</string>
+
+    <string name="label_net_savings">Tabungan bersih</string>
+
+    <string name="label_prev_closing_balance">Saldo tutup sebelumnya</string>
+
+    <string name="title_monthly_summary">Ringkasan bulanan</string>
+
+    <string name="label_spending_by_payment_mode_breakdown">Rincian pengeluaran menurut dompet atau cara bayar.</string>
+
+    <string-array name="days_of_week_short">
+        <item>Sen</item>
+        <item>Sel</item>
+        <item>Rab</item>
+        <item>Kam</item>
+        <item>Jum</item>
+        <item>Sab</item>
+        <item>Min</item>
+    </string-array>
+
+    <string-array name="months_short">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>Mei</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Agu</item>
+        <item>Sep</item>
+        <item>Okt</item>
+        <item>Nov</item>
+        <item>Des</item>
+    </string-array>
+
+    <string-array name="empty_transaction_messages">
+        <item>Dompetmu terlalu sepi hari ini.</item>
+        <item>404: Transaksi nggak ketemu.</item>
+        <item>Kosong! Ngopi dulu?</item>
+        <item>Belum ketemu apa-apa.</item>
+        <item>Kayaknya kosong…</item>
+        <item>Nggak ada transaksi buat ditampilkan.</item>
+        <item>Belum ada catatan</item>
+        <item>Lupa nambah sesuatu?</item>
+        <item>Halaman kosong. Hidup damai.</item>
+        <item>Transaksimu ngilangin kamu.</item>
+        <item>Aktivitas keuangan: 0%</item>
+        <item>Nggak ada data di rentang ini.</item>
+        <item>Database bilang: null.</item>
+        <item>Dompetmu mode pesawat.</item>
+        <item>Hening… uangmu lagi meditasi.</item>
+        <item>Nggak belanja, nggak stres. Strategi menarik.</item>
+        <item>Bukumu lagi tidur siang.</item>
+        <item>Nggak ada yang gerak. Satupun.</item>
+        <item>Pengeluaranmu lagi liburan.</item>
+        <item>Aktivitas nol. Zen tercapai.</item>
+        <item>Halaman ini lebih rapi dari kamarmu.</item>
+        <item>Nggak ada transaksi. Mencurigakan bertanggung jawab.</item>
+        <item>Rekeningmu lagi petak umpet.</item>
+        <item>Nggak ada entri. Waktu berhenti?</item>
+        <item>Semua tenang di garis keuangan.</item>
+        <item>Nggak ada belanja. Keren.</item>
+        <item>Dompetmu mogok.</item>
+        <item>Nggak ada laporan, kapten.</item>
+        <item>Uangmu setia hari ini.</item>
+        <item>Nggak chaos, nggak belanja. Momen langka.</item>
+        <item>Dompetmu pun bingung.</item>
+        <item>Ruang ini sengaja dikosongin.</item>
+        <item>Nggak ada drama keuangan hari ini.</item>
+        <item>Saldomu lagi santai.</item>
+        <item>Nggak ada aktivitas. Masih hidup secara finansial?</item>
+        <item>Dompetmu mode siluman.</item>
+        <item>Nggak ada transaksi. Terlalu bagus.</item>
+        <item>Nggak terjadi apa-apa. Lanjut.</item>
+    </string-array>
+
+    <string name="desc_income_source">Sumber pemasukan</string>
+
+    <string name="desc_expense_category">Kategori pengeluaran</string>
+
+    <string name="desc_payment_method_fallback">Cara bayar</string>
+
+    <string name="error_invalid_email">Masukkan alamat email yang valid</string>
+
+    <string name="title_payment">Pembayaran</string>
+
+    <string name="icon_label_shopping_cart">Belanja</string>
+
+    <string name="icon_label_calculator">EMI</string>
+
+    <string name="icon_label_security">Asuransi</string>
+
+    <string name="icon_label_package">Pengiriman</string>
+
+    <string name="icon_label_fuel">Bahan bakar</string>
+
+    <string name="icon_label_file_text">Dokumen</string>
+
+    <string name="icon_label_hand_coins">Kontribusi</string>
+
+    <string name="icon_label_banknote">Tunai</string>
+
+    <string name="icon_label_more_horizontal">Lainnya</string>
+
+    <string name="icon_label_restaurant">Makan di luar</string>
+
+    <string name="icon_label_home">Sewa dan rumah</string>
+
+    <string name="icon_label_directions_bus">Transportasi</string>
+
+    <string name="icon_label_directions_car">Kendaraan</string>
+
+    <string name="icon_label_flight">Travel</string>
+
+    <string name="icon_label_local_cafe">Kafe dan camilan</string>
+
+    <string name="icon_label_pets">Hewan</string>
+
+    <string name="icon_label_school">Pendidikan</string>
+
+    <string name="icon_label_fitness_center">Fitness</string>
+
+    <string name="icon_label_spa">Perawatan diri</string>
+
+    <string name="icon_label_movie">Hiburan</string>
+
+    <string name="icon_label_music_note">Musik</string>
+
+    <string name="icon_label_sports_esports">Gaming</string>
+
+    <string name="icon_label_favorite">Kesehatan</string>
+
+    <string name="icon_label_work">Gaji</string>
+
+    <string name="icon_label_business">Bisnis</string>
+
+    <string name="icon_label_laptop_mac">Gadget</string>
+
+    <string name="icon_label_phone_android">HP dan tagihan</string>
+
+    <string name="icon_label_camera_alt">Fotografi</string>
+
+    <string name="icon_label_celebration">Pesta</string>
+
+    <string name="icon_label_card_giftcard">Hadiah</string>
+
+    <string name="icon_label_child_care">Anak</string>
+
+    <string name="icon_label_volunteer_activism">Amal</string>
+
+    <string name="icon_label_local_hospital">Rumah sakit</string>
+
+    <string name="icon_label_medication">Obat</string>
+
+    <string name="icon_label_two_wheeler">Motor</string>
+
+    <string name="icon_label_train">Kereta</string>
+
+    <string name="icon_label_hotel">Menginap</string>
+
+    <string name="icon_label_beach_access">Liburan</string>
+
+    <string name="icon_label_park">Alam</string>
+
+    <string name="icon_label_hiking">Hiking</string>
+
+    <string name="icon_label_sports_soccer">Olahraga</string>
+
+    <string name="icon_label_sports_basketball">Basket</string>
+
+    <string name="icon_label_pool">Renang</string>
+
+    <string name="icon_label_directions_boat">Perahu</string>
+
+    <string name="icon_label_build">Perawatan</string>
+
+    <string name="icon_label_subscriptions">Streaming</string>
+
+    <string name="icon_label_receipt_long">Tagihan</string>
+
+    <string name="icon_label_account_balance">Bank</string>
+
+    <string name="icon_label_credit_card">Kartu</string>
+
+    <string name="icon_label_payments">Tunai</string>
+
+    <string name="icon_label_qr_code">Scan QR</string>
+
+    <string name="icon_label_savings">Tabungan</string>
+
+    <string name="icon_label_attach_money">Keuangan</string>
+
+    <string name="icon_label_wallet">Dompet</string>
+
+    <string name="icon_label_currency_exchange">Tukar</string>
+
+    <string name="icon_label_storefront">Toko</string>
+
+    <string name="icon_label_fastfood">Cepat saji</string>
+
+    <string name="icon_label_cake">Kue</string>
+
+    <string name="icon_label_water_drop">Air</string>
+
+    <string name="icon_label_electric_bolt">Listrik</string>
+
+    <string name="icon_label_gas_meter">Gas</string>
+
+    <string name="icon_label_wifi">Internet</string>
+
+    <string name="icon_label_tv">TV</string>
+
+    <string name="icon_label_local_shipping">Pengiriman</string>
+
+    <string name="icon_label_cleaning_services">Kebersihan</string>
+
+    <string name="icon_label_pest_control">Hama</string>
+
+    <string name="icon_label_yard">Kebun</string>
+
+    <string name="icon_label_plumbing">Pipa</string>
+
+    <string name="icon_label_hvac">AC/pemanas</string>
+
+    <string name="icon_label_garage">Parkir</string>
+
+    <string name="icon_label_local_laundry_service">Laundry</string>
+
+    <string name="icon_label_checkroom">Pakaian</string>
+
+    <string name="icon_label_ice_skating">Seluncur es</string>
+
+    <string name="icon_label_skiing">Ski</string>
+
+    <string name="icon_label_sports_tennis">Tenis</string>
+
+    <string name="icon_label_sports_golf">Golf</string>
+
+    <string name="icon_label_kayaking">Kayak</string>
+
+    <string name="icon_label_surfing">Selancar</string>
+
+    <string name="icon_label_directions_run">Lari</string>
+
+    <string name="icon_label_pedal_bike">Sepeda</string>
+
+    <string name="icon_label_sailing">Berlayar</string>
+
+    <string name="icon_label_theater_comedy">Teater</string>
+
+    <string name="icon_label_casino">Kasino</string>
+
+    <string name="icon_label_toys">Mainan</string>
+
+    <string name="icon_label_piano">Piano</string>
+
+    <string name="icon_label_brush">Seni</string>
+
+    <string name="icon_label_palette">Palet</string>
+
+    <string name="icon_label_auto_stories">Buku</string>
+
+    <string name="icon_label_menu_book">Belajar</string>
+
+    <string name="icon_label_computer">Komputer</string>
+
+    <string name="icon_label_memory">Teknologi</string>
+
+    <string name="icon_label_mouse">Aksesori</string>
+
+    <string name="icon_label_keyboard">Keyboard</string>
+
+    <string name="icon_label_headset">Audio</string>
+
+    <string name="icon_label_speaker">Speaker</string>
+
+    <string name="icon_label_router">Jaringan</string>
+
+    <string name="icon_label_monitor">Monitor</string>
+
+    <string name="icon_label_print">Cetak</string>
+
+    <string name="icon_label_smart_home">Rumah pintar</string>
+
+    <string name="icon_label_videocam">Video</string>
+
+    <string name="icon_label_mic">Rekaman</string>
+
+    <string name="icon_label_radio">Radio</string>
+
+    <string name="icon_label_satellite">Satelit</string>
+
+    <string name="icon_label_explore">Jelajah</string>
+
+    <string name="icon_label_terrain">Gunung</string>
+
+    <string name="icon_label_landscape">Pemandangan</string>
+
+    <string name="icon_label_forest">Hutan</string>
+
+    <string name="fallback_desc_cat_1">Makan dan restoran</string>
+
+    <string name="fallback_desc_cat_2">Bensin dan commute</string>
+
+    <string name="fallback_desc_cat_3">Retail dan kebutuhan</string>
+
+    <string name="fallback_desc_cat_4">Berulang bulanan</string>
+
+    <string name="fallback_desc_cat_5">Kesehatan dan perawatan</string>
+
+    <string name="fallback_desc_cat_6">Streaming dan rekreasi</string>
+
+    <string name="fallback_desc_cat_7">Rumah dan menginap</string>
+
+    <string name="fallback_desc_cat_8">Kebutuhan harian</string>
+
+    <string name="fallback_desc_cat_9">Kursus dan buku</string>
+
+    <string name="fallback_desc_cat_10">Tagihan dan perpanjangan</string>
+
+    <string name="fallback_desc_cat_11">Perlindungan dan keamanan</string>
+
+    <string name="fallback_desc_cat_12">Perayaan dan memberi</string>
+
+    <string name="fallback_desc_cat_13">Perawatan diri</string>
+
+    <string name="fallback_desc_cat_14">Bensin dan commute</string>
+
+    <string name="fallback_desc_cat_15">Perbaikan dan rawat</string>
+
+    <string name="fallback_desc_cat_16">Kewajiban wajib</string>
+
+    <string name="fallback_desc_cat_17">Perawatan hewan</string>
+
+    <string name="fallback_desc_cat_18">Anak dan sekolah</string>
+
+    <string name="fallback_desc_cat_19">Amal dan memberi</string>
+
+    <string name="fallback_desc_cat_20">Pengeluaran fleksibel</string>
+
+    <string name="fallback_desc_cat_101">Gaji dan payroll</string>
+
+    <string name="fallback_desc_cat_102">Pendapatan bisnis</string>
+
+    <string name="fallback_desc_cat_103">Imbal hasil dan keuntungan</string>
+
+    <string name="fallback_desc_cat_104">Proyek dan gig</string>
+
+    <string name="fallback_desc_cat_105">Kredit lain</string>
+
+    <string name="fallback_desc_pay_1">Transfer dan scan UPI</string>
+
+    <string name="fallback_desc_pay_2">Tunai di tangan</string>
+
+    <string name="fallback_desc_pay_3">Transfer bank</string>
+
+    <string name="fallback_desc_pay_4">Kartu debit dan kredit</string>
+
+    <string name="fallback_desc_pay_5">Cara bayar fleksibel</string>
+
+    <string name="label_income_categories_count">%1$d kategori pemasukan</string>
+
+    <string name="label_expense_categories_count">%1$d kategori pengeluaran</string>
+
+    <string name="label_payment_methods_count">%1$d cara bayar</string>
+
+    <string name="label_no_budget">TANPA ANGGARAN</string>
+
+    <string name="label_add_a_budget">TAMBAH ANGGARAN</string>
+
+    <string name="label_near_limit">Mendekati plafon</string>
+
+    <string name="label_safe">Aman</string>
+
+    <string name="label_spent_limit">TERPAKAI / PLAFON</string>
+
+    <string name="label_exceeded">TERLEWATI</string>
+
+    <string name="label_budget_status_label">Kelebihan</string>
+
+    <string name="msg_no_budgets_locked">Nggak ada anggaran buat %1$s. Riwayat terkunci.</string>
+
+    <string name="msg_no_budgets_limit_reached">Nggak bisa nambah anggaran buat %1$s (batas edit tercapai).</string>
+
+    <string name="msg_no_budgets_start_tracking">Belum ada anggaran buat %1$s. Tap TAMBAH ANGGARAN BARU buat mulai bulan ini.</string>
+
+    <string name="msg_no_recurring_start_tracking">Belum ada pengeluaran berulang. Tap TAMBAH BERULANG dan pilih transaksi pengeluaran yang ada.</string>
+
+    <string name="format_limit_amount">PLAFON %1$s</string>
+
+    <string name="format_started_date">Mulai %1$s</string>
+
+    <string name="label_due_today">Jatuh tempo hari ini</string>
+
+    <string name="label_due_tomorrow">JATUH TEMPO BESOK</string>
+
+    <string name="format_due_in_days">JATUH TEMPO %1$d HARI LAGI</string>
+
+    <string name="format_percent_used">%1$d%% TERPAKAI</string>
+
+    <string name="format_remaining_pill">Sisa %1$s (%2$d%%)</string>
+
+    <string name="format_next_due">BERIKUTNYA %1$s</string>
+
+    <string name="format_daily_allowance">Kamu bisa belanja %1$s/hari</string>
+
+    <string name="label_expense_with_val">Pengeluaran %1$s</string>
+
+    <string name="label_income_with_val">Pemasukan %1$s</string>
+
+    <string name="msg_no_calendar_entries">Nggak ada entri buat %1$s.</string>
+
+    <string name="month_jan_short">JAN</string>
+
+    <string name="month_feb_short">FEB</string>
+
+    <string name="month_mar_short">MAR</string>
+
+    <string name="month_apr_short">APR</string>
+
+    <string name="month_may_short">MEI</string>
+
+    <string name="month_jun_short">JUN</string>
+
+    <string name="month_jul_short">JUL</string>
+
+    <string name="month_aug_short">AGU</string>
+
+    <string name="month_sep_short">SEP</string>
+
+    <string name="month_oct_short">OKT</string>
+
+    <string name="month_nov_short">NOV</string>
+
+    <string name="month_dec_short">DES</string>
+
+    <string name="label_week_short_1">M1</string>
+
+    <string name="label_week_short_2">M2</string>
+
+    <string name="label_week_short_3">M3</string>
+
+    <string name="label_week_short_4">M4</string>
+
+    <string name="label_week_short_5">M5</string>
+
+    <string name="label_period_short">P%1$d</string>
+
+    <string name="format_percent">(%1$s%%)</string>
+
+    <string name="format_percent_signed">%1$s%2$s%%</string>
+
+    <string name="format_cash_flow_ratio">Rasio %1$s</string>
+
+    <string name="label_zero_percent">+0%</string>
+
+    <string name="label_plus">+</string>
+
+    <string name="label_minus">-</string>
+
+    <string name="date_pattern_month_year">MMMM yyyy</string>
+
+    <string name="date_pattern_year">yyyy</string>
+
+    <string name="date_pattern_short_day_month">dd MMM</string>
+
+    <string name="date_pattern_full_short">dd MMM yyyy</string>
+
+    <string name="label_12_hour">12 jam</string>
+
+    <string name="label_24_hour">24 jam</string>
+
+    <string name="label_all_records">Semua catatan</string>
+
+    <string name="label_custom_payment_method">Cara bayar kustom</string>
+
+    <string name="notification_format_budget_approaching">%1$s! Kamu pakai %2$s dari anggaran %3$s. Sisa %4$s.</string>
+
+    <string name="notification_format_budget_reached">Peringatan anggaran: kamu sampai plafon %1$s buat %2$s.</string>
+
+    <string name="notification_format_budget_overspent">Peringatan: kamu kelebihan %1$s dari anggaran %2$s. %3$s</string>
+
+    <string name="notification_budget_approaching_1">Saatnya pelan-pelan? 🛑</string>
+
+    <string name="notification_budget_approaching_2">Dirimu nanti berterima kasih kalau berhenti sekarang. 😇</string>
+
+    <string name="notification_budget_approaching_3">Dompet mulai ringan. 💸</string>
+
+    <string name="notification_budget_overspent_1">Anggaranmu sudah di kaca spion. 🏎️</string>
+
+    <string name="notification_budget_overspent_2">Kita masuk wilayah yang belum dipetakan. 🗺️</string>
+
+    <string name="notification_budget_overspent_3">Plafon cuma saran, kan? 🙃</string>
+
+    <string name="notification_channel_reminders">Pengingat harian</string>
+
+    <string name="notification_channel_reminders_desc">Pengingat berkala buat catat pengeluaran.</string>
+
+    <string name="notification_channel_budget">Peringatan anggaran</string>
+
+    <string name="notification_channel_budget_desc">Peringatan saat kamu mendekati atau sampai anggaran bulanan.</string>
+
+    <string name="notification_channel_budget_exceeded">Anggaran terlewati</string>
+
+    <string name="notification_channel_budget_exceeded_desc">Peringatan saat kamu lewat anggaran bulanan.</string>
+
+    <string name="notification_channel_cloud_security">Cloud dan keamanan</string>
+
+    <string name="notification_channel_cloud_security_desc">Peringatan keamanan akun dan sinkron cloud.</string>
+
+    <string name="notification_channel_sync_status">Status sinkron</string>
+
+    <string name="notification_channel_sync_status_desc">Update pelan saat datamu sinkron di latar.</string>
+
+    <string name="notification_channel_financial_insights">Wawasan keuangan</string>
+
+    <string name="notification_channel_financial_insights_desc">Wawasan dan prakiraan belanja yang dipersonalisasi.</string>
+
+    <string name="notification_channel_recurring">Transaksi berulang</string>
+
+    <string name="notification_channel_recurring_desc">Notif saat transaksi berulang ditambah otomatis.</string>
+
+    <string name="notification_title_budget_alert">Peringatan anggaran!</string>
+
+    <string name="notification_title_daily_reminder">Waktunya catat pengeluaran?</string>
+
+    <string name="notification_title_recurring_updated">Transaksi berulang diperbarui</string>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">Berhasil nambah %1$d transaksi berulang:\n%2$s</item>
+        <item quantity="other">Berhasil nambah %1$d transaksi berulang:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d kategori mendekati atau lewat anggaran</item>
+        <item quantity="other">%1$d kategori mendekati atau lewat anggaran</item>
+    </plurals>
+
+    <string name="title_reminder_times">Waktu pengingat</string>
+
+    <string name="title_morning_window">Jendela pagi</string>
+
+    <string name="title_evening_window">Jendela malam</string>
+
+    <string name="notification_window_format">%1$s – %2$s</string>
+
+    <string name="title_select_reminder_window">Atur jendela</string>
+
+    <string name="label_starts_at">Mulai jam</string>
+
+    <string name="label_ends_at">Selesai jam</string>
+
+    <string name="title_test_notification">Tes notifikasi</string>
+
+    <string name="desc_test_notification">Tampilkan contoh pengingat sekarang</string>
+
+    <string name="btn_send_test_notification">Kirim tes</string>
+
+    <string name="error_reminder_window_invalid">Waktu mulai harus sebelum waktu selesai</string>
+
+    <string name="notification_title_daily_reminder_personalized">Waktunya catat pengeluaran, %1$s?</string>
+
+    <string name="notification_title_missed_today">Kelewatan hari ini?</string>
+
+    <string name="notification_channel_goal_reminders">Pengingat tujuan tabungan</string>
+
+    <string name="notification_channel_goal_reminders_desc">Dorongan mingguan ke tujuan tabunganmu.</string>
+
+    <string name="notification_permission_banner_title">Notifikasi diblokir</string>
+
+    <string name="notification_permission_banner_desc">Izinkan notifikasi buat pengingat dan peringatan.</string>
+
+    <string name="btn_allow_notifications">Izinkan</string>
+
+    <string name="btn_open_notification_settings">Buka pengaturan</string>
+
+    <string name="notification_channel_sms_import">Impor SMS pintar</string>
+
+    <string name="notification_channel_sms_import_desc">SMS transaksi bank siap disimpan.</string>
+
+    <string name="notification_channel_weekly_reports">Laporan mingguan</string>
+
+    <string name="notification_channel_weekly_reports_desc">Ringkasan Minggu pengeluaran minggu ini.</string>
+
+    <string name="notification_title_large_transaction">Transaksi besar terdeteksi</string>
+
+    <string name="notification_format_large_transaction">Kamu catat pengeluaran %1$s di %2$s — di atas ambang %3$s.</string>
+
+    <string name="notification_title_weekly_summary">Ringkasan belanja mingguan</string>
+
+    <string name="notification_format_weekly_summary_up">Kamu belanja %1$s minggu ini — %2$d%% lebih dari minggu lalu.</string>
+
+    <string name="notification_format_weekly_summary_down">Kamu belanja %1$s minggu ini — %2$d%% lebih sedikit dari minggu lalu.</string>
+
+    <string name="notification_format_weekly_summary_flat">Kamu belanja %1$s minggu ini — hampir sama dengan minggu lalu.</string>
+
+    <string name="notification_format_weekly_summary_top_category">Kategori teratas: %1$s.</string>
+
+    <string name="notification_title_auto_backup_failed">Cadangan otomatis gagal</string>
+
+    <string name="notification_desc_auto_backup_failed">Gagal buat cadangan database lokal otomatis. Tap buat cek penyimpanan aplikasi.</string>
+
+    <string name="notification_title_syncing_in_progress">Menyinkron data cloud…</string>
+
+    <string name="notification_desc_syncing_in_progress">Memperbarui transaksi dan profilmu antar perangkat.</string>
+
+    <string name="notification_title_sync_failed">Sinkron cloud gagal</string>
+
+    <string name="notification_desc_sync_failed">Gagal selesaikan sinkron cloud. Kita coba lagi otomatis.</string>
+
+    <string name="notification_title_sync_pending">Sinkron cloud tertunda</string>
+
+    <string name="notification_desc_sync_pending">Perubahanmu nunggu sinkron. Sambung jaringan buat selesai.</string>
+
+    <string name="title_expense_reminders">Pengingat pengeluaran</string>
+
+    <string name="desc_expense_reminders">Pengingat harian buat catat pengeluaran.</string>
+
+    <string name="title_large_transaction_alerts">Peringatan transaksi besar</string>
+
+    <string name="desc_large_transaction_alerts">Peringatan saat satu pengeluaran lewat ambangmu.</string>
+
+    <string name="title_large_transaction_threshold">Ambang pengeluaran besar</string>
+
+    <string name="desc_large_transaction_threshold">Pilih kapan satu pengeluaran dihitung besar.</string>
+
+    <string name="placeholder_custom_threshold">Masukkan jumlah</string>
+
+    <string name="error_invalid_threshold">Masukkan jumlah valid di atas nol.</string>
+
+    <string name="title_weekly_summary">Ringkasan mingguan</string>
+
+    <string name="desc_weekly_summary">Rekap Minggu pengeluaran minggu ini.</string>
+
+    <string name="title_weekly_summary_time">Waktu ringkasan</string>
+
+    <string name="desc_weekly_summary_time">Dikirim tiap Minggu jam ini.</string>
+
+    <string name="notification_weekly_time_format">Tiap Minggu jam %1$s</string>
+
+    <string name="title_financial_insights">Wawasan keuangan</string>
+
+    <string name="desc_financial_insights">Tren belanja pintar dan prakiraan.</string>
+
+    <string name="title_recurring_alerts">Peringatan berulang</string>
+
+    <string name="desc_recurring_alerts">Pengingat tagihan dan pembayaran berulang.</string>
+
+    <string name="desc_recurring_rule_ladder">Aturan 1–3 gratis · 4–6 tonton iklan · 7+ upgrade ke Pro</string>
+
+    <string name="desc_recurring_rules_used_free">%1$d dari %2$d aturan gratis terpakai</string>
+
+    <string name="desc_recurring_rules_used_ad">%1$d dari %2$d aturan iklan terpakai</string>
+
+    <string name="desc_recurring_rules_used_premium">%1$d aturan · upgrade ke Pro buat tanpa batas</string>
+
+    <string name="title_cloud_security_alerts">Peringatan cloud dan keamanan</string>
+
+    <string name="desc_cloud_security_alerts">Peringatan sinkron, cadangan, dan keamanan akun.</string>
+
+    <string name="desc_info">Info</string>
+
+    <string name="info_expense_reminders">Termasuk pengingat harian catat pengeluaran dan dorongan kalau kamu belum catat hari itu. Jendela pengingat bisa dipilih di bawah.</string>
+
+    <string name="info_budget_alerts" formatted="false">Peringatan saat kategori mendekati anggaran: 75%, 90%, 100%, dan saat terlewati.</string>
+
+    <string name="info_large_transaction">Notif begitu kamu catat satu pengeluaran lebih besar dari ambang yang dipilih.</string>
+
+    <string name="info_weekly_summary">Rekap Minggu 7 hari terakhir dibanding minggu sebelumnya.</string>
+
+    <string name="info_financial_insights">Wawasan pintar yang segera: tren belanja, lonjakan, prakiraan, dan saran personal.</string>
+
+    <string name="info_savings_goals" formatted="false">Peringatan progres 25%, 50%, dan 75% tujuan tabungan, perayaan saat tercapai, dan peringatan kalau kamu tertinggal.</string>
+
+    <string name="info_recurring_alerts">Pengingat tagihan berulang 7 hari, 3 hari, dan 1 hari sebelum jatuh tempo, plus di hari H. Tiap aturan bisa dibisukan sendiri.</string>
+
+    <string name="info_cloud_security">Peringatan saat sinkron atau cadangan gagal, dan saat akun diakses dari perangkat baru atau diubah.</string>
+
+    <string name="notification_title_sms_import">💳 Transaksi terdeteksi</string>
+
+    <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
+
+    <string name="notification_format_sms_import_suggested">Saran: %1$s</string>
+
+    <string name="notification_format_sms_import_title_spent">%1$s terpakai di %2$s</string>
+
+    <string name="notification_format_sms_import_title_received">%1$s diterima dari %2$s</string>
+
+    <string name="notification_action_add">Tambah</string>
+
+    <string name="notification_action_ignore">Abaikan</string>
+
+    <string name="notification_action_edit">Ubah</string>
+
+    <string name="notification_format_sms_import_summary">%1$d transaksi · %2$s</string>
+
+    <string name="notification_action_save">Simpan</string>
+
+    <string name="notification_action_change">Ganti</string>
+
+    <string name="notification_action_open">Buka</string>
+
+    <string name="sms_verb_debited">Debet</string>
+
+    <string name="sms_verb_credited">Kredit</string>
+
+    <string name="sms_sender_unknown">Pengirim tidak diketahui</string>
+
+    <string name="notification_format_sms_open_note">%1$s · %2$s</string>
+
+    <string name="title_sms_change">Ubah transaksi</string>
+
+    <string name="label_choose_category">Pilih kategori</string>
+
+    <string name="label_optional_note">Catatan opsional</string>
+
+    <string name="toast_sms_transaction_saved">Transaksi disimpan</string>
+
+    <string name="msg_sms_save_failed">Gagal simpan transaksi. Coba lagi.</string>
+
+    <string name="title_sms_detection">Deteksi SMS</string>
+
+    <string name="msg_sms_permission_needed">Deteksi SMS butuh izin SMS. Buka pengaturan dan izinkan buat deteksi pesan bank otomatis.</string>
+
+    <string name="label_open_app_settings">Buka pengaturan</string>
+
+    <string name="title_sms_miui_setup">Pengaturan perangkat Xiaomi</string>
+
+    <string name="msg_sms_miui_setup_autostart">Xiaomi bisa blokir deteksi SMS di latar. Aktifkan Autostart buat aplikasi ini dan set baterai ke « Tanpa batasan ».</string>
+
+    <string name="msg_sms_miui_setup_autostart_unknown">Kita nggak bisa cek Autostart otomatis. Buka pengaturan aplikasi dan aktifkan Autostart.</string>
+
+    <string name="label_battery_settings">Pengaturan baterai</string>
+
+    <string name="label_sms_miui_done">Sudah aktifin</string>
+
+    <string name="desc_dismiss_sms_permission_card">Tutup pemberitahuan izin SMS</string>
+
+    <string name="desc_dismiss_miui_setup_card">Tutup pemberitahuan Xiaomi</string>
+
+    <string name="desc_sms_detection_icon">Deteksi SMS</string>
+
+    <string name="notification_opener_1">Well well well</string>
+
+    <string name="notification_opener_2">Menarik</string>
+
+    <string name="notification_opener_3">Ahh</string>
+
+    <string name="notification_opener_4">Lihat kamu</string>
+
+    <string name="notification_opener_5">Berita hangat</string>
+
+    <string name="notification_opener_6">Peringatan</string>
+
+    <string name="notification_opener_7">Update</string>
+
+    <string name="notification_opener_8">Oh, lihat siapa</string>
+
+    <string name="notification_reaction_1">uangnya terbang 💸</string>
+
+    <string name="notification_reaction_2">dompet kena 😬</string>
+
+    <string name="notification_reaction_3">anggaran goyang 😳</string>
+
+    <string name="notification_reaction_4">eskalasi cepat 🚀</string>
+
+    <string name="notification_reaction_5">rekeningmu ngeh 👀</string>
+
+    <string name="notification_reaction_6">ada lubang di kantong?</string>
+
+    <string name="notification_guilt_1">Semoga worth it 😏</string>
+
+    <string name="notification_guilt_2">Nggak nyesel… kan? 😬</string>
+
+    <string name="notification_guilt_3">Dirimu nanti nonton 👀</string>
+
+    <string name="notification_guilt_4">Kita nggak nge-judge… banyak 😌</string>
+
+    <string name="notification_guilt_5">Ini mending penting 😄</string>
+
+    <string name="notification_guilt_6">Rekening tabunganmu nangis.</string>
+
+    <string name="notification_food_1">Makan lagi? Hormat 🍕</string>
+
+    <string name="notification_food_2">Makan kayak raja 👑</string>
+
+    <string name="notification_food_3">Rencana diet keluar chat 🍔</string>
+
+    <string name="notification_food_4">Rasa > anggaran, ya? 😏</string>
+
+    <string name="notification_food_5">Kalori nggak dihitung, sen iya.</string>
+
+    <string name="notification_shopping_1">Terapi belanja aktif 🛍️</string>
+
+    <string name="notification_shopping_2">Impuls atau rencana? 😏</string>
+
+    <string name="notification_shopping_3">Kayaknya perlu 😬</string>
+
+    <string name="notification_shopping_4">Mood belanja ON 💳</string>
+
+    <string name="notification_shopping_5">Nambah koleksi? 🛍️</string>
+
+    <string name="notification_generic_1">Pengeluaran lain dicatat 📊</string>
+
+    <string name="notification_generic_2">Lacak kayak pro 😎</string>
+
+    <string name="notification_generic_3">Uang… terpakai? 😏</string>
+
+    <string name="notification_generic_4">Dicatat 👀</string>
+
+    <string name="notification_generic_5">Tetap real 📈</string>
+
+    <string name="notification_budget_exceeded_1">Anggaranmu nelpon. Dia resign. 💸</string>
+
+    <string name="notification_budget_exceeded_2">Plafon pengeluaran? Nggak kenal. 💅</string>
+
+    <string name="notification_budget_exceeded_3">Kamu belanja kayak nemu cheat code. 🎮</string>
+
+    <string name="notification_budget_exceeded_4">Anggaran: terlewati. Sedih: segera. 📉</string>
+
+    <string name="notification_budget_exceeded_5">Tabunganmu berteriak. 😱</string>
+
+    <string name="notification_missed_entry_1">Sepi banget... kamu berhenti makan? 🍔</string>
+
+    <string name="notification_missed_entry_2">Dompetmu curiga berat. Catat sesuatu! 💸</string>
+
+    <string name="notification_missed_entry_3">Heningnya berisik. Mana transaksinya? 🕵️</string>
+
+    <string name="notification_missed_entry_4">Menang lotre? Kenapa nggak ada log hari ini? 🎰</string>
+
+    <string name="notification_missed_entry_5">Tracker-mu kesepian. Kasih data buat dikunyah. 🦴</string>
+
+    <string name="notification_morning_opener_1">Selamat pagi! ☀️</string>
+
+    <string name="notification_morning_opener_2">Bangun dan bersinar! ☕</string>
+
+    <string name="notification_morning_opener_3">Update pagi! 🌅</string>
+
+    <string name="notification_morning_opener_4">Bangun bangun! 🥐</string>
+
+    <string name="notification_evening_opener_1">Hari hampir selesai! 🌙</string>
+
+    <string name="notification_evening_opener_2">Cek malam! 🌆</string>
+
+    <string name="notification_evening_opener_3">Jam makan malam? 🥘</string>
+
+    <string name="notification_evening_opener_4">Udah tap out? 🛌</string>
+
+    <string name="notification_sarcastic_morning_1">Sudah beli kopi atau nunggu tanda? ☕</string>
+
+    <string name="notification_sarcastic_morning_2">Nyatat sarapan itu olahraga terbaik hari ini. 🥐</string>
+
+    <string name="notification_sarcastic_morning_3">Burung pagi dapat cacing, yang pintar nyatat biayanya. 🐛</string>
+
+    <string name="notification_sarcastic_morning_4">Dompetmu udah bangun dan punya pertanyaan. 💸</string>
+
+    <string name="notification_sarcastic_evening_1">Anggaranmu selamat hari ini... atau belum? 👀</string>
+
+    <string name="notification_sarcastic_evening_2">Jangan tidur bawa rahasia yang belum dicatat. Data nonton. 🕵️</string>
+
+    <string name="notification_sarcastic_evening_3">Makan malamnya enak, tapi tracking-nya bakal legendaris. 🥘</string>
+
+    <string name="notification_sarcastic_evening_4">Satu catatan kecil buatmu, lompatan besar buat tabungan. 🚀</string>
+
+    <string name="notification_morning_reminder_generic">%1$s Jangan lupa catat pengeluaran pagi!</string>
+
+    <string name="notification_evening_reminder_generic">%1$s Sempat seminit catat makan malam atau travel?</string>
+
+    <string name="notification_format_expense">%1$s 👀 %2$s terpakai di %3$s… %4$s. %5$s. %6$s</string>
+
+    <string name="notification_format_budget_exceeded">%1$s! Kamu baru lewat anggaran %2$s. %3$s</string>
+
+    <string name="date_pattern_month_year_comma">MMM, yyyy</string>
+
+    <string name="label_size_unit_b">B</string>
+
+    <string name="label_size_unit_kb">KB</string>
+
+    <string name="label_size_unit_mb">MB</string>
+
+    <string name="label_size_unit_gb">GB</string>
+
+    <string name="label_size_unit_tb">TB</string>
+
+    <string name="label_zero_size">0 B</string>
+
+    <string name="format_size_with_unit">%1$.1f %2$s</string>
+
+    <string name="title_update_required">Perlu update</string>
+
+    <string name="msg_update_required_desc">Versi baru Expense Tracker tersedia. Update ke versi terbaru buat lanjut pakai aplikasi.</string>
+
+    <string name="btn_update_now">Update sekarang</string>
+
+    <string name="title_update_available">Versi baru tersedia</string>
+
+    <string name="title_update_available_version">Versi %s tersedia</string>
+
+    <string name="msg_update_available">Versi baru Expense Tracker tersedia. Update sekarang buat fitur dan perbaikan terbaru.</string>
+
+    <string name="title_system_maintenance">Pemeliharaan sistem</string>
+
+    <string name="msg_maintenance_desc">Kita lagi pemeliharaan terjadwal buat ningkatin layanan. Segera kembali. Makasih atas kesabarannya!</string>
+
+    <string name="title_protect_your_data">Daftar / masuk</string>
+
+    <string name="msg_link_account_desc">Perjalanan keuanganmu layak disimpan. Masuk biar pencapaian dan progres nggak hilang.</string>
+
+    <string name="label_guest_user">Pengguna tamu</string>
+
+    <string name="label_pro_expiry_format">PRO (berakhir %1$s)</string>
+
+    <string name="msg_privacy_info">Kita pakai info ini buat personalisasi dasbor dan wawasan sesuai usia. Datamu 100% privat dan aman.</string>
+
+    <string name="cd_privacy_info">Lihat info privasi</string>
+
+    <string name="title_lets_get_started">Ayo mulai!</string>
+
+    <string name="desc_delete_all_data_subtitle">Aksi destruktif yang nggak bisa dibatalin</string>
+
+    <string name="label_delete_recurring">Hapus berulang</string>
+
+    <string name="label_mute_recurring_title">Bisukan notifikasi</string>
+
+    <string name="label_mute_recurring_message">Yakin bisukan notifikasi buat %s? Kamu nggak dapat pengingat tagihan buat pengeluaran berulang ini.</string>
+
+    <string name="label_mute_yes">Ya, bisukan</string>
+
+    <string name="label_yes">Ya</string>
+
+    <string name="label_no">Tidak</string>
+
+    <string name="label_dont_show_again">Jangan tampilkan dialog ini lagi</string>
+
+    <string name="label_notifications">Notifikasi</string>
+
+    <string name="label_logout">Keluar</string>
+
+    <string name="desc_logout_subtitle">Keluar dari akunmu</string>
+
+    <string name="msg_logout_confirm">Yakin keluar? Data cloud berhenti sinkron sampai kamu masuk lagi.</string>
+
+    <string name="error_no_internet">Nggak ada internet. Cek jaringan lalu coba lagi.</string>
+
+    <string name="error_no_google_accounts">Nggak ada akun Google di perangkat ini. Pakai email buat daftar.</string>
+
+    <string name="title_google_accounts_not_found">Perlu akun Google</string>
+
+    <string name="msg_google_accounts_not_found">Nggak ada akun Google terdeteksi. Tambah akun Google di pengaturan perangkat, lalu coba lagi.</string>
+
+    <string name="label_add_account">Tambah akun</string>
+
+    <string name="label_retry">Coba lagi</string>
+
+    <string name="msg_transactions_load_failed">Gagal muat transaksi.</string>
+
+    <string name="error_auth_user_not_found">Akun nggak ketemu. Daftar dulu.</string>
+
+    <string name="error_auth_wrong_password">Kata sandi salah. Coba lagi.</string>
+
+    <string name="error_auth_invalid_credentials">Email atau kata sandi tidak valid.</string>
+
+    <string name="error_auth_email_already_in_use">Email ini sudah terdaftar. Coba masuk.</string>
+
+    <string name="error_auth_user_disabled">Akun ini dinonaktifkan.</string>
+
+    <string name="error_auth_too_many_requests">Terlalu banyak percobaan. Coba lagi nanti.</string>
+
+    <string name="error_auth_weak_password">Kata sandi terlalu lemah. Pakai yang lebih kuat.</string>
+
+    <string name="error_auth_generic_fail">Autentikasi gagal. Cek detailmu.</string>
+
+    <string name="error_auth_operation_not_allowed">Cara masuk ini nggak aktif. Coba cara lain.</string>
+
+    <string name="error_auth_token_parse">Token masuk Google tidak valid. Coba lagi.</string>
+
+    <string name="error_auth_no_google_accounts">Nggak ada akun Google di perangkat ini. Tambah akun Google di pengaturan perangkat.</string>
+
+    <string name="msg_auth_reset_email_sent">Tautan reset kata sandi terkirim! Cek kotak masukmu.</string>
+
+    <string name="label_send_magic_link">Masuk dengan tautan email</string>
+
+    <string name="msg_auth_magic_link_sent">Tautan ajaib terkirim! Cek inbox (dan spam) buat masuk.</string>
+
+    <string name="msg_identity_secured_setting_up_profile">Identitas aman. Menyiapkan profilmu...</string>
+
+    <string name="msg_account_created_successfully">Akun berhasil dibuat.</string>
+
+    <string name="msg_auth_cooldown_wait">Tunggu %1$d detik sebelum minta tautan lagi.</string>
+
+    <string name="title_cloud_sync_devices">Sinkron cloud dan perangkat</string>
+
+    <string name="desc_sync_premium_subtitle">Sinkron data di 4 perangkat (Pro)</string>
+
+    <string name="desc_sync_active_subtitle">Cadangan cloud otomatis aktif</string>
+
+    <string name="desc_sync_disabled_subtitle">Cadangan cloud otomatis mati</string>
+
+    <string name="desc_connected_devices">Daftar perangkat terhubung</string>
+
+    <string name="label_active_now">Aktif sekarang</string>
+
+    <string name="label_last_active">Terakhir aktif: %1$s</string>
+
+    <string name="label_this_device">Perangkat ini</string>
+
+    <string name="btn_unlink_device">Putuskan</string>
+
+    <string name="msg_unlink_device_confirm">Yakin putuskan perangkat ini? Sinkron otomatis berhenti di perangkat itu.</string>
+
+    <string name="label_devices_used">%1$d dari %2$d perangkat terhubung</string>
+
+    <string name="title_cloud_sync">Sinkron cloud</string>
+
+    <string name="desc_cloud_sync">Jaga transaksi dan pengaturan sinkron real-time di semua perangkatmu.</string>
+
+    <string name="title_upgrade_for_sync">Upgrade buat sinkron cloud</string>
+
+    <string name="desc_upgrade_for_sync">Buka cadangan cloud otomatis dan sinkron data di 4 perangkat.</string>
+
+    <string name="title_ad_expiry_warning">Kenyamanan hampir habis</string>
+
+    <string name="msg_ad_expiry_warning">Pass tanpa iklan habis dalam %1$d menit. Tonton iklan lagi buat simpan pengaturan %2$s lagi?</string>
+
+    <string name="btn_extend_now">Perpanjang sekarang</string>
+
+    <string name="btn_maybe_later">Nanti saja</string>
+
+    <string name="label_custom_minutes">Menit kustom</string>
+
+    <string name="placeholder_enter_minutes">Masukkan menit</string>
+
+    <string name="btn_apply">Terapkan</string>
+
+    <string name="msg_preparing_pro_experience">Menyiapkan pengalaman Pro-mu…</string>
+
+    <string name="msg_wont_take_long">Nggak lama</string>
+
+    <string name="label_prev">SEBELUM</string>
+
+    <string name="label_next_caps">LANJUT</string>
+
+    <string name="label_skip">LEWATI</string>
+
+    <string name="placeholder_email">nama@contoh.com</string>
+
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="error_password_required_prefix">Wajib: </string>
+
+    <string name="error_password_min_chars">Minimal 8 karakter</string>
+
+    <string name="error_password_need_digit">Minimal 1 angka</string>
+
+    <string name="error_password_need_special">Minimal 1 karakter khusus</string>
+
+    <string name="label_forgot_password">Lupa kata sandi?</string>
+
+    <string name="label_resend_cooldown">Kirim ulang dalam %1$dd</string>
+
+    <string name="label_financial_goal_title">Apa tujuan keuangan #1 kamu?</string>
+
+    <string name="label_goal_home">Beli rumah impian</string>
+
+    <string name="label_goal_travel">Keliling dunia</string>
+
+    <string name="label_goal_debt">Bebas utang</string>
+
+    <string name="label_goal_retirement">Pensiun dini</string>
+
+    <string name="label_goal_savings">Bangun dana darurat</string>
+
+    <string name="label_goal_car">Beli mobil baru</string>
+
+    <string name="label_goal_education">Dana pendidikan</string>
+
+    <string name="label_goal_business">Mulai bisnis</string>
+
+    <string name="label_goal_invest">Kembangkan investasi</string>
+
+    <string name="label_goal_other">Lainnya (tujuan kustom)</string>
+
+    <string name="placeholder_enter_custom_goal">Tulis tujuanmu...</string>
+
+    <string name="label_financial_zen">Zen keuanganmu</string>
+
+    <string name="msg_discipline_score_title">Siapkan akun</string>
+
+    <string name="msg_discipline_score_desc">Kamu bagus!! Lengkapi profilmu.</string>
+
+    <string name="btn_reach_100">Capai 100%</string>
+
+    <string name="msg_goal_faster_with_pro">Capai tujuan %1$s 20%% lebih cepat dengan fitur Elite.</string>
+
+    <string name="title_setup_progress">Progres profil</string>
+
+    <string name="label_checklist_full_name">Nama lengkap</string>
+
+    <string name="label_checklist_phone">Nomor HP</string>
+
+    <string name="label_checklist_gender">Gender</string>
+
+    <string name="label_checklist_dob">Tanggal lahir</string>
+
+    <string name="label_checklist_email">Alamat email</string>
+
+    <string name="label_checklist_signin_to_add">Masuk buat tambah email</string>
+
+    <string name="label_checklist_email_verified">Email terverifikasi</string>
+
+    <string name="label_checklist_verify_email">Tap profil buat verifikasi</string>
+
+    <string name="btn_got_it">Mengerti</string>
+
+    <string name="title_my_goals">Tujuanku</string>
+
+    <string name="title_add_goal">Tambah tujuan tabungan</string>
+
+    <string name="title_fund_goal">Danai tujuan</string>
+
+    <string name="msg_fund_goal_caption">Masukkan berapa yang ditambah ke tujuan ini. Bisa diganti kapan saja.</string>
+
+    <string name="title_delete_goal">Hapus tujuan</string>
+
+    <string name="msg_delete_goal_confirm">Yakin hapus tujuan « %1$s »? Nggak bisa dibatalin.</string>
+
+    <string name="label_fund_amount">Jumlah ditambah</string>
+
+    <string name="label_goal_name">Nama tujuan</string>
+
+    <string name="label_target_amount">Jumlah target</string>
+
+    <string name="label_initial_saved_amount">Jumlah awal tersimpan</string>
+
+    <string name="label_goal_name_hint">cth. Mobil baru, liburan</string>
+
+    <string name="msg_no_goals">Belum ada tujuan. Tap + buat mulai nabung!</string>
+
+    <string name="cd_add_goal">Tambah tujuan</string>
+
+    <string name="cd_add_funds">Tambah dana</string>
+
+    <string name="cd_delete_goal">Hapus tujuan</string>
+
+    <string name="format_goal_progress">%1$d%% selesai</string>
+
+    <string name="format_goal_amount_status">%1$s / %2$s</string>
+
+    <string name="format_goal_target">Target: %1$s</string>
+
+    <string name="title_edit_goal">Ubah tujuan</string>
+
+    <string name="cd_edit_goal">Ubah tujuan</string>
+
+    <string name="title_active_goals">Tujuan aktif</string>
+
+    <string name="title_completed_goals">Selesai</string>
+
+    <string name="label_goal_completed">Selesai 🎉</string>
+
+    <string name="label_deadline">Tenggat</string>
+
+    <string name="label_deadline_not_set">Belum diatur</string>
+
+    <string name="label_set_deadline">Atur tenggat</string>
+
+    <string name="format_days_left">Sisa %1$d hari</string>
+
+    <string name="label_one_day_left">Sisa 1 hari</string>
+
+    <string name="label_goal_due_today">Jatuh tempo hari ini</string>
+
+    <string name="format_days_overdue">Terlambat %1$d hari</string>
+
+    <string name="label_saved_amount">Tersimpan: %1$s</string>
+
+    <string name="label_goal_icon">Ikon</string>
+
+    <string name="title_choose_icon">Pilih ikon</string>
+
+    <string name="cd_goal_icon">Ikon tujuan</string>
+
+    <string name="title_goal_reminder">Update tujuan tabungan</string>
+
+    <string name="msg_goal_reminder_due_soon">Sisa %1$d hari buat « %2$s » — kamu sudah %3$d%%!</string>
+
+    <string name="title_fund_history">Riwayat dana</string>
+
+    <string name="format_fund_entries_count">%1$d entri</string>
+
+    <string name="label_no_fund_history">Belum ada kontribusi</string>
+
+    <string name="label_funded_on">Didanai %1$s</string>
+
+    <string name="desc_toggle_fund_history">Tampilkan riwayat dana</string>
+
+    <string name="label_fund_history_inline">Riwayat dana</string>
+
+    <string name="format_fund_entries_one">1 entri</string>
+
+    <string name="msg_goal_reminder_due_soon_1">Sisa 1 hari buat « %1$s » — kamu sudah %2$d%%!</string>
+
+    <string name="msg_goal_reminder_due_today">Jatuh tempo hari ini — « %1$s »! Kamu sudah %2$d%%.</string>
+
+    <string name="msg_goal_reminder_progress">Kamu %1$d%% ke « %2$s ». Terus!</string>
+
+    <string name="title_goal_milestone">Tonggak tujuan tercapai</string>
+
+    <string name="msg_goal_milestone">Kamu %1$d%% ke « %2$s » — terus!</string>
+
+    <string name="title_goal_achieved">Tujuan tercapai</string>
+
+    <string name="msg_goal_achieved">Selamat! Kamu capai tujuan « %1$s ».</string>
+
+    <string name="title_goal_behind_schedule">Tujuan tertinggal jadwal</string>
+
+    <string name="msg_goal_behind_schedule">Kamu mungkin kelewat « %1$s » — sisa %2$d hari di laju ini.</string>
+
+    <string name="label_test_goal">Tujuan tes </string>
+
+    <string name="notification_title_goal_milestone_summary">Tonggak tujuan</string>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d tujuan capai tonggak</item>
+        <item quantity="other">%1$d tujuan capai tonggak</item>
+    </plurals>
+
+    <string name="notification_title_upcoming_bill">Transaksi mendatang</string>
+
+    <string name="notification_format_upcoming_bill_days">%1$s buat « %2$s » dipotong dalam %3$d hari.</string>
+
+    <string name="notification_format_upcoming_bill_tomorrow">%1$s buat « %2$s » dipotong besok.</string>
+
+    <string name="notification_format_upcoming_bill_due_today">%1$s buat « %2$s » jatuh tempo hari ini.</string>
+
+    <string name="notification_title_upcoming_bill_summary">Transaksi mendatang</string>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d transaksi mendatang</item>
+        <item quantity="other">%1$d transaksi mendatang</item>
+    </plurals>
+
+    <string name="title_redeem_pro_pass">Tukar Pro Pass</string>
+
+    <string name="label_redeem_pro_pass_subtitle">Masukkan kode promo atau kunci pass</string>
+
+    <string name="label_enter_pro_code">MASUKKAN KODE PRO</string>
+
+    <string name="title_unlock_pro_access">Buka akses Pro</string>
+
+    <string name="msg_unlock_pro_access_body">Punya kode promo? Masukkan di bawah buat buka fitur premium penuh.</string>
+
+    <string name="placeholder_pro_code_example">cth. PROPASS7</string>
+
+    <string name="label_activate_pro_code">Aktifkan kode Pro</string>
+
+    <string name="label_calculator_itemized">Per item</string>
+
+    <string name="label_calculator_normal">Normal</string>
+
+    <string name="label_redeem_pro_pass_subscribed_subtitle">Termasuk di langgananmu</string>
+
+    <string name="title_activate_pro_pass">Aktifkan ProPass</string>
+
+    <string name="title_pro_pass_subscribed">Kamu sudah berlangganan</string>
+
+    <string name="msg_pro_pass_subscribed">ProPass nambah waktu di atas langgananmu, jadi habis saat langganan masih aktif. Kelola langganan dari Google Play.</string>
+
+    <string name="btn_ok">OK</string>
+
+    <string name="msg_enter_pro_pass_code">Masukkan kode ProPass alfanumerik unikmu di bawah.</string>
+
+    <string name="placeholder_pro_pass_code">cth. EXPN-T0C3-HG41-NM1</string>
+
+    <string name="btn_activate_pro">Aktifkan Pro</string>
+
+    <string name="msg_pro_pass_activated">ProPass aktif! Kamu dapat %1$d hari akses premium.</string>
+
+    <string name="error_invalid_pro_pass">Kode ProPass tidak valid atau kedaluwarsa.</string>
+
+    <string name="error_redeem_not_signed_in">Masuk dengan Google atau email buat tukar kode ProPass.</string>
+
+    <string name="error_redeem_inactive">Kode ProPass ini nggak aktif lagi.</string>
+
+    <string name="error_redeem_expired">Kode ProPass ini kedaluwarsa.</string>
+
+    <string name="error_redeem_limit_reached">Kode ProPass ini sudah capai batas pemakaian.</string>
+
+    <string name="error_redeem_already_redeemed">Kamu sudah tukar kode ProPass ini.</string>
+
+    <string name="error_redeem_pass_active">Pro Pass kamu sedang aktif. Coba tukar kode baru setelah Pro Pass sekarang habis.</string>
+
+    <string name="error_redeem_subscription_active">Langgananmu sudah mencakup Pro, jadi ProPass bakal habis tanpa terpakai. Kelola dari Google Play.</string>
+
+    <string name="error_redeem_network">Gagal hubungi server. Cek koneksi lalu coba lagi.</string>
+
+    <string name="error_redeem_unknown">Gagal aktifkan kode itu. Coba lagi.</string>
+
+    <string name="label_have_a_code">Punya kode akses Pro?</string>
+
+    <string name="error_underage_restriction">Kamu harus minimal 15 tahun buat lanjut.</string>
+
+    <string name="label_parental_consent">Saya punya izin orang tua buat pakai aplikasi ini.</string>
+
+    <string name="error_parental_consent_required">Izin orang tua wajib buat pengguna di bawah 18.</string>
+
+    <string name="title_email_verification">Verifikasi emailmu</string>
+
+    <string name="label_verification_email_sent">Email verifikasi terkirim ke %1$s. Verifikasi emailmu buat lanjut (cek folder spam kalau nggak kelihatan).</string>
+
+    <string name="error_email_not_verified">Email belum terverifikasi. Cek inbox (termasuk spam) dan klik tautan verifikasi.</string>
+
+    <string name="btn_check_status">Cek status verifikasi</string>
+
+    <string name="btn_resend_email">Kirim ulang email verifikasi</string>
+
+    <string name="info_verification_email_sent_again">Email verifikasi dikirim ulang. Cek inbox dan spam.</string>
+
+    <string name="error_link_still_valid">Tautan verifikasi sekarang masih valid. Cek inbox dan spam sebelum minta yang baru.</string>
+
+    <string name="error_email_not_verified_expired_sent">Tautan verifikasi kedaluwarsa, yang baru dikirim ke emailmu. Cek inbox dan spam.</string>
+
+    <string name="label_verification_link_expired">Tautan verifikasi kedaluwarsa. Klik Kirim ulang di bawah buat minta yang baru.</string>
+
+    <string name="label_verification_link_expires_in">Tautan kedaluwarsa dalam: %1$s</string>
+
+    <string name="btn_verify_email">Verifikasi email</string>
+
+    <string name="dialog_verify_email_title">Email belum terverifikasi</string>
+
+    <string name="dialog_verify_email_pro_pass">Verifikasi emailmu buat aktifkan Pro Pass. Kita kirim tautan verifikasi.</string>
+
+    <string name="dialog_verify_email_auto_backup">Verifikasi emailmu buat nyalain cadangan otomatis. Biar datamu bisa dipulihkan di perangkat lain.</string>
+
+    <string name="dialog_verify_email_sync">Verifikasi emailmu buat nyalain sinkron antar perangkat.</string>
+
+    <string name="label_verify_now">Verifikasi sekarang</string>
+
+    <string name="label_later">Nanti</string>
+
+    <string name="toast_verification_email_sent">Email verifikasi terkirim — cek inbox</string>
+
+    <string name="msg_email_not_verified_yet">Email belum terverifikasi. Cek inbox.</string>
+
+    <string name="msg_failed_to_check_status">Gagal cek status. Coba lagi.</string>
+
+    <string name="msg_verification_email_resent">Email verifikasi dikirim ulang. Cek inbox.</string>
+
+    <string name="msg_failed_to_resend">Gagal kirim ulang. Coba lagi.</string>
+
+    <string name="msg_email_verified_success">Email berhasil diverifikasi!</string>
+
+    <string name="btn_update_email">Perbarui email</string>
+
+    <string name="label_signed_in_with_google">Masuk dengan Google</string>
+
+    <string name="title_update_email">Perbarui alamat email</string>
+
+    <string name="desc_update_email">Masukkan alamat email baru. Tautan verifikasi dikirim — email baru ganti setelah kamu verifikasi.</string>
+
+    <string name="label_current_email">Email sekarang</string>
+
+    <string name="label_new_email">Email baru</string>
+
+    <string name="placeholder_enter_new_email">Masukkan alamat email baru</string>
+
+    <string name="label_send_verification">Kirim tautan verifikasi</string>
+
+    <string name="label_verify_and_update">Verifikasi dan perbarui</string>
+
+    <string name="msg_reauth_required">Demi keamanan, masukkan kata sandi sekarang buat ganti email.</string>
+
+    <string name="toast_email_update_verification_sent">Tautan verifikasi terkirim ke email baru — cek inbox</string>
+
+    <string name="msg_email_already_in_use">Email ini sudah terkait akun lain.</string>
+
+    <string name="msg_failed_to_update_email">Gagal perbarui email. Coba lagi.</string>
+
+    <string name="msg_incorrect_password">Kata sandi salah. Coba lagi.</string>
+
+    <string name="msg_auth_failed">Autentikasi gagal. Coba lagi.</string>
+
+    <string name="title_pending_email_verification">Verifikasi email barumu</string>
+
+    <string name="msg_verification_sent_to_new_email">Tautan verifikasi terkirim ke %1$s. Klik tautan di inbox buat selesaikan ganti email.</string>
+
+    <string name="msg_current_email_unchanged">Email masuk sekarang (%1$s) tetap aktif sampai kamu verifikasi yang baru.</string>
+
+    <string name="msg_checking_verification_status">Mengecek status verifikasi…</string>
+
+    <string name="msg_email_updated_success">Email diperbarui!</string>
+
+    <string name="msg_email_updated_success_desc">Email masukmu diganti. Kamu bisa pakai email baru buat masuk.</string>
+
+    <string name="label_confirm_new_email">Konfirmasi email baru</string>
+
+    <string name="placeholder_confirm_new_email">Masukkan ulang alamat email baru</string>
+
+    <string name="error_emails_do_not_match">Email nggak cocok.</string>
+
+    <string name="msg_fill_all_fields_correctly">Isi semua kolom dengan benar.</string>
+
+    <string name="msg_enter_current_password">Masukkan kata sandi sekarang.</string>
+
+    <string name="label_send_verification_to_new_email">Kirim tautan verifikasi</string>
+
+    <string name="btn_resend_in_seconds">Kirim ulang dalam %1$dd</string>
+
+    <string name="msg_check_spam_folder">Nggak ketemu? Cek folder spam.</string>
+
+    <string name="placeholder_reenter_password_for_security">Masukkan ulang kata sandi demi keamanan</string>
+
+    <string name="desc_show_password">Tampilkan kata sandi</string>
+
+    <string name="desc_hide_password">Sembunyikan kata sandi</string>
+
+    <string name="title_force_sync">Sinkron bermasalah?</string>
+
+    <string name="desc_force_sync">Kalau perubahan nggak sinkron otomatis, kamu bisa paksa sinkron penuh.</string>
+
+    <string name="desc_last_synced_info">Terakhir sinkron adalah tanggal dan jam perangkat ini terakhir selesai sinkron cloud. Belum pernah berarti belum ada sinkron tercatat.</string>
+
+    <string name="btn_sync_now">Sinkron sekarang</string>
+
+    <string name="toast_force_sync_success">Sinkron selesai!</string>
+
+    <string name="toast_force_sync_failed">Sinkron gagal: %1$s</string>
+
+    <string name="label_last_synced">Terakhir sinkron: %1$s</string>
+
+    <string name="label_never_synced">Belum pernah sinkron</string>
+
+    <string name="title_change_password">Ganti kata sandi</string>
+
+    <string name="label_change_password_subtitle">Perbarui kata sandi akun</string>
+
+    <string name="label_current_password">Kata sandi sekarang</string>
+
+    <string name="label_new_password">Kata sandi baru</string>
+
+    <string name="label_confirm_new_password">Konfirmasi kata sandi baru</string>
+
+    <string name="placeholder_current_password">Masukkan kata sandi sekarang</string>
+
+    <string name="placeholder_new_password">Masukkan kata sandi baru</string>
+
+    <string name="placeholder_confirm_new_password">Konfirmasi kata sandi baru</string>
+
+    <string name="error_passwords_do_not_match">Kata sandi baru nggak cocok.</string>
+
+    <string name="error_password_update_failed">Gagal perbarui kata sandi. Cek kata sandi sekarang lalu coba lagi.</string>
+
+    <string name="success_password_updated">Kata sandi berhasil diperbarui!</string>
+
+    <string name="btn_change_password">Ganti kata sandi</string>
+
+    <string name="label_offline">Offline</string>
+
+    <string name="label_backup_sync_is_off">Cadangan dan sinkron MATI</string>
+
+    <string name="label_turn_on">Masuk</string>
+
+    <string name="label_sign_in_keep_data_safe">Masuk biar datamu aman.</string>
+
+    <string name="title_membership">Keanggotaanku</string>
+
+    <string name="label_membership_card_subscription">Langganan Play</string>
+
+    <string name="label_membership_card_pro_pass">Akses Pro Pass</string>
+
+    <string name="label_membership_card_free">Paket gratis</string>
+
+    <string name="label_membership_badge_free_pass">PASS GRATIS</string>
+
+    <string name="title_membership_pro_card">Expense Tracker Pro</string>
+
+    <string name="title_membership_upgrade_card">Upgrade ke Expense Tracker Pro</string>
+
+    <string name="msg_membership_upgrade_body">Buka anggaran tanpa batas, widget, transaksi berulang, analitik lanjutan, cadangan cloud, dan lainnya.</string>
+
+    <string name="label_membership_managed_by_play">Dikelola Google Play</string>
+
+    <string name="label_membership_unlocked_headline">Semua fitur premium terbuka</string>
+
+    <string name="msg_membership_unlocked_body">Tagihan dan pembatalan dikelola aman lewat Google Play.</string>
+
+    <string name="label_membership_pass_headline">Terbuka pakai Pro Pass promo.</string>
+
+    <string name="msg_membership_pass_body">Akses ini kedaluwarsa otomatis. Bukan langganan Google Play.</string>
+
+    <string name="btn_membership_buy_subscription">Beli langganan</string>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">Sisa %1$d hari</item>
+        <item quantity="other">Sisa %1$d hari</item>
+    </plurals>
+
+    <string name="desc_membership_settings">Lihat status, siklus tagihan, atau detail upgrade</string>
+
+    <string name="label_pro">Pro</string>
+
+    <string name="label_free">Gratis</string>
+
+    <string name="label_pro_active">Anggota Pro</string>
+
+    <string name="label_membership_benefits">MANFAAT KEANGGOTAAN</string>
+
+    <string name="msg_subscription_billing_issue">Gagal tarik pembayaran terakhir. Perbarui metode bayar di Google Play biar Pro tetap.</string>
+
+    <string name="msg_pro_active_no_expiry">Akses Pro kamu aktif.</string>
+
+    <string name="label_na">N/A</string>
+
+    <string name="btn_sign_in_register">Masuk / daftar</string>
+
+    <string name="date_pattern_pro_expiry">dd MMM yyyy h:mm a</string>
+
+    <string name="label_free_tier">Tingkat gratis</string>
+
+    <string name="label_pro_benefit_adfree">Nol iklan. Fokus murni</string>
+
+    <string name="label_pro_benefit_devices">Sinkron instan di 4 perangkat!</string>
+
+    <string name="label_pro_benefit_custom_card">Kartu transaksi yang bisa dikustom</string>
+
+    <string name="label_pro_benefit_advanced_features">Analitik lanjutan dan tujuan</string>
+
+    <string name="label_pro_benefit_many_more_features">Dan masih banyak… bisa dijelajah</string>
+
+    <string name="btn_restore_purchase">Pulihkan pembelian</string>
+
+    <string name="btn_manage_subscription">Kelola langganan</string>
+
+    <string name="label_cancel_subscription_anytime">Kamu bisa batalin langganan kapan saja</string>
+
+    <string name="label_cancel_subscription_where">Dari bagian Pembayaran dan langganan di Play Store</string>
+
+    <string name="label_expires_on">Kedaluwarsa %1$s</string>
+
+    <string name="label_renews_on">Diperbarui %1$s</string>
+
+    <string name="label_unlimited_offline">Mode lokal offline</string>
+
+    <string name="label_offline_warning_desc">Datamu cuma di perangkat ini. Masuk atau daftar buat cadangan aman.</string>
+
+    <string name="title_coming_soon">Segera hadir</string>
+
+    <string name="msg_billing_coming_soon">Integrasi Google Play Billing masih dikembangkan. Fitur ini di update berikutnya.</string>
+
+    <string name="title_feedback">Masukan</string>
+
+    <string name="label_send_feedback_desc">Cerita apa yang kamu suka atau yang bisa kami perbaiki.</string>
+
+    <string name="placeholder_feedback_hint">Tulis masukanmu di sini…</string>
+
+    <string name="btn_submit_feedback">Kirim masukan</string>
+
+    <string name="msg_feedback_success">Makasih atas masukannya!</string>
+
+    <string name="msg_feedback_error">Gagal kirim masukan. Coba lagi.</string>
+
+    <string name="msg_feedback_cooldown">Tunggu %1$s menit sebelum kirim masukan lagi.</string>
+
+    <string name="label_logged_in_as">Mengirim sebagai: %1$s</string>
+
+    <string name="msg_feedback_empty">Masukan nggak boleh kosong.</string>
+
+    <string name="title_view_by">Lihat menurut</string>
+
+    <string name="label_welcome_back_comma">Selamat datang kembali,</string>
+
+    <string name="msg_welcome_back_subtitle">Kamu siap langsung lanjut!</string>
+
+    <string name="label_your_goal">TUJUAN KEUANGANMU</string>
+
+    <string name="label_welcome_back_fallback">kamu</string>
+
+    <string name="label_show_more">Tampilkan lebih</string>
+
+    <string name="label_show_less">Tampilkan lebih sedikit</string>
+
+    <string name="title_upcoming_recurring">Berulang mendatang</string>
+
+    <string name="label_no_upcoming_recurring">Nggak ada transaksi berulang mendatang</string>
+
+    <string name="title_voice_add">Tambah suara</string>
+
+    <string name="desc_voice_add">Tambah transaksi dengan suara</string>
+
+    <string name="msg_voice_listening">Mendengarkan…</string>
+
+    <string name="msg_voice_processing">Memproses…</string>
+
+    <string name="msg_voice_error_empty_input">Coba bilang Belanja 50 dolar buat bahan makanan</string>
+
+    <string name="msg_voice_error_no_amount">Nggak ketemu jumlah. Coba Belanja 50 dolar buat bahan makanan</string>
+
+    <string name="label_voice_confirm">Konfirmasi</string>
+
+    <string name="label_voice_edit">Ubah</string>
+
+    <string name="label_voice_retry">Coba lagi</string>
+
+    <string name="label_voice_confidence_high">Yakin tinggi</string>
+
+    <string name="label_voice_confidence_medium">Yakin sedang</string>
+
+    <string name="label_voice_confidence_low">Yakin rendah — cek dulu</string>
+
+    <string name="label_merchant">Merchant</string>
+
+    <string name="label_confidence">Keyakinan</string>
+
+    <string name="label_voice_confidence">Keyakinan</string>
+
+    <string name="label_category">Kategori</string>
+
+    <string name="msg_voice_error_no_permission">Izin mikrofon wajib buat input suara</string>
+
+    <string name="msg_voice_error_recognizer">Pengenalan suara gagal. Coba lagi.</string>
+
+    <string name="msg_voice_error_network">Error jaringan. Cek koneksi lalu coba lagi.</string>
+
+    <string name="msg_voice_error_audio">Error rekaman audio. Coba lagi.</string>
+
+    <string name="msg_voice_error_timeout">Nggak ada suara terdeteksi. Coba lagi.</string>
+
+    <string name="widget_description">Entri transaksi suara cepat dan ringkasan belanja hari ini</string>
+
+    <string name="widget_voice_channel_name">Rekaman suara</string>
+
+    <string name="widget_voice_channel_desc">Dipakai saat rekam input suara dari widget beranda</string>
+
+    <string name="widget_notification_recording_title">Merekam…</string>
+
+    <string name="widget_notification_recording_text">Ucapkan transaksinya sekarang</string>
+
+    <string name="label_budget_categories_info">Lihat kategori anggaran</string>
+
+    <string name="title_budget_categories">Kategori anggaran</string>
+
+    <string name="label_included_categories">Kategori di anggaran ini</string>
+
+    <string name="label_select_all">Pilih semua</string>
+
+    <string name="label_select_unbudgeted">Pilih yang tersedia saja</string>
+
+    <string name="label_add">Tambah</string>
+
+    <string name="shortcut_add_expense">Tambah pengeluaran</string>
+
+    <string name="shortcut_add_expense_long">Tambah pengeluaran</string>
+
+    <string name="shortcut_add_income">Tambah pemasukan</string>
+
+    <string name="shortcut_add_income_long">Tambah pemasukan</string>
+
+    <string name="shortcut_month_summary">Terpakai bulan ini</string>
+
+    <string name="shortcut_month_summary_long">Terpakai bulan ini</string>
+
+    <string name="shortcut_speak_to_add">Bicara buat tambah</string>
+
+    <string name="shortcut_speak_to_add_long">Bicara buat tambah</string>
+
+    <string name="shortcut_copy_budget">Salin anggaran</string>
+
+    <string name="shortcut_copy_budget_long">Salin anggaran</string>
+
+    <string name="revenue_cat_api_key_placeholder">Configure actual key in localProperties.properties (revenueCatApiKey=)</string>
+
+    <string name="msg_feature_locked_pro_required">Fitur ini butuh langganan Pro</string>
+
+    <string name="msg_subscribe_to_unlock">Berlangganan buat buka fitur ini dan dukung pengembangan</string>
+
+    <string name="btn_upgrade">Upgrade ke Pro</string>
+
+    <string name="msg_paywall_subtitle">Buka semua fitur Pro dan dukung pengembangan.</string>
+
+    <string name="msg_paywall_hero_subtitle">Buka semua wawasan keuangan, parsing suara AI, dan aturan tanpa batas</string>
+
+    <string name="paywall_plan_title_annual">Paket 12 bulan</string>
+
+    <string name="paywall_plan_title_six">Paket 6 bulan</string>
+
+    <string name="paywall_plan_title_month">Paket dasar 1 bulan</string>
+
+    <string name="paywall_best_value_save">NILAI TERBAIK • HEMAT %1$d%%</string>
+
+    <string name="paywall_per_month_suffix">/ bln</string>
+
+    <string name="paywall_save_amount">Hemat %1$s</string>
+
+    <string name="paywall_base_tier">Tingkat dasar</string>
+
+    <string name="paywall_standard_recurring">Tagihan berulang standar</string>
+
+    <string name="paywall_cta_continue">Lanjut dengan %1$s · %2$s/bln</string>
+
+    <string name="paywall_cta_period_annual">12 bulan</string>
+
+    <string name="paywall_cta_period_six">6 bulan</string>
+
+    <string name="paywall_cta_period_month">1 bulan</string>
+
+    <string name="paywall_terms_of_use">Syarat penggunaan</string>
+
+    <string name="paywall_benefits_header_annual">Termasuk semua fitur khusus Pro:</string>
+
+    <string name="paywall_benefits_header_six">Manfaat Pro 6 bulan:</string>
+
+    <string name="paywall_benefits_header_month">Manfaat Pro bulanan:</string>
+
+    <string name="paywall_benefit_ad_free">Pengalaman tanpa iklan</string>
+
+    <string name="paywall_benefit_txn_details">Lihat semua detail transaksi tanpa buka mode ubah</string>
+
+    <string name="paywall_benefit_device_sync">Sinkron otomatis 4 perangkat</string>
+
+    <string name="paywall_benefit_favorites">Transaksi favorit: pakai ulang sekali tap</string>
+
+    <string name="paywall_benefit_recurring_yearly">Aturan berulang tanpa batas (ke-7+) dan frekuensi tahunan</string>
+
+    <string name="paywall_benefit_recurring_copy">Aturan berulang tanpa batas dan salin anggaran sebelumnya</string>
+
+    <string name="paywall_benefit_recurring_only">Aturan berulang tanpa batas (ke-7+)</string>
+
+    <string name="paywall_benefit_copy_budgets">Salin anggaran bulan lalu dan bulan anggaran kustom</string>
+
+    <string name="paywall_benefit_ai_backups">Parsing suara AI tanpa batas dan cadangan otomatis harian</string>
+
+    <string name="paywall_benefit_ai_backup">Parsing suara AI tanpa batas dan cadangan otomatis harian</string>
+
+    <string name="paywall_benefit_ai_daily">Parsing suara AI tanpa batas dan cadangan harian</string>
+
+    <string name="paywall_benefit_lock_fonts_tags">Kunci otomatis 20–60 mnt, font kustom, dan tag pembayaran</string>
+
+    <string name="paywall_benefit_lock_fonts">Kunci privasi otomatis (20–60 mnt) dan font kustom</string>
+
+    <string name="paywall_benefit_lock_fonts_short">Durasi kunci privasi otomatis dan font kustom</string>
+
+    <string name="paywall_benefit_insights_alerts">Wawasan keuangan, peringatan tujuan dan keamanan cloud</string>
+
+    <string name="paywall_benefit_separators">Pemisah tanggal, ringkasan pembayaran, dan ikon kustom</string>
+
+    <string name="paywall_benefit_many_more">Dan masih banyak… jelajahi</string>
+
+    <string name="paywall_processing_payment">Memproses pembayaran…</string>
+
+    <string name="paywall_please_wait">Tunggu sebentar</string>
+
+    <string name="paywall_youre_pro_now">Kamu Pro sekarang</string>
+
+    <string name="paywall_congrats_purchase">Selamat atas pembelianmu</string>
+
+    <string name="paywall_invested_in_yourself">Kamu baru investasi ke diri sendiri. Keputusan yang tepat.</string>
+
+    <string name="paywall_start_using_pro">Mulai pakai Pro</string>
+
+    <string name="paywall_payment_failed">Pembayaran gagal</string>
+
+    <string name="btn_close">Tutup</string>
+
+    <string name="label_paywall_benefits">Yang kamu dapat</string>
+
+    <string name="label_paywall_choose_plan">Pilih paketmu</string>
+
+    <string name="label_paywall_plans_unavailable">Paket nggak bisa dimuat.</string>
+
+    <string name="msg_paywall_plans_unavailable_desc">Cek koneksi lalu coba lagi.</string>
+
+    <string name="btn_paywall_retry">Coba lagi</string>
+
+    <string name="content_desc_loading_plans">Memuat paket</string>
+
+    <string name="btn_paywall_subscribe">Berlangganan</string>
+
+    <string name="msg_paywall_play_account_billing">Google Play menagih akun Google yang masuk di perangkat ini. Bukan ke email Expense Tracker kamu.</string>
+
+    <string name="desc_paywall_play_billing_info">Info tagihan langganan</string>
+
+    <string name="msg_paywall_play_billing_info">Langgananmu diperbarui otomatis sampai kamu batalin sendiri. Bisa batal kapan saja dari Google Play Store.</string>
+
+    <string name="msg_paywall_already_pro">Kamu di Pro. Makasih sudah dukung aplikasi.</string>
+
+    <string name="content_desc_paywall_plan_selected">Paket dipilih</string>
+
+    <string name="paywall_plan_weekly">1 minggu</string>
+
+    <string name="paywall_plan_monthly">1 bulan</string>
+
+    <string name="paywall_plan_two_months">2 bulan</string>
+
+    <string name="paywall_plan_three_months">3 bulan</string>
+
+    <string name="paywall_plan_six_months">6 bulan</string>
+
+    <string name="paywall_plan_twelve_months">12 bulan</string>
+
+    <string name="paywall_plan_lifetime">Seumur hidup</string>
+
+    <string name="paywall_plan_generic">Paket Pro</string>
+
+    <string name="paywall_discount_badge">DISKON %1$d%%</string>
+
+    <string name="paywall_period_week">per minggu</string>
+
+    <string name="paywall_period_month">per bulan</string>
+
+    <string name="paywall_period_months">per periode</string>
+
+    <string name="paywall_period_year">per tahun</string>
+
+    <string name="paywall_period_one_time">sekali bayar</string>
+
+    <string name="msg_paywall_purchase_success">Kamu Pro sekarang. Nikmati!</string>
+
+    <string name="title_paywall_purchase_congrats">Selamat</string>
+
+    <string name="msg_paywall_purchase_congrats">Kamu Pro. Wawasan tanpa batas, tanpa iklan, semua fitur terbuka. Nikmati upgrade-nya.</string>
+
+    <string name="msg_paywall_purchase_sign_in">Pembayaranmu berhasil. Buat pakai Pro, masuk dengan Google atau email dan kata sandi. Kalau Pro nggak nyala sendiri, buka Pengaturan, lalu Keanggotaanku, dan tap Pulihkan pembelian.</string>
+
+    <string name="content_desc_opening_play_store">Membuka Google Play</string>
+
+    <string name="msg_paywall_restore_success">Pembelianmu dipulihkan.</string>
+
+    <string name="msg_paywall_restore_nothing_found">Nggak ada pembelian sebelumnya buat akun ini.</string>
+
+    <string name="msg_paywall_payment_pending">Pembayaranmu tertunda. Pro kebuka begitu pembayaran selesai.</string>
+
+    <string name="paywall_error_network">Gagal hubungi toko. Cek koneksi lalu coba lagi.</string>
+
+    <string name="paywall_error_store_problem">Toko nggak bisa selesaikan ini. Coba lagi.</string>
+
+    <string name="paywall_error_not_allowed">Pembelian nggak diizinkan di perangkat atau akun ini.</string>
+
+    <string name="paywall_error_product_unavailable">Paket ini nggak tersedia sekarang. Coba lagi nanti.</string>
+
+    <string name="paywall_error_already_owned">Kamu sudah punya langganan ini.</string>
+
+    <string name="paywall_error_receipt_in_use">Langganan ini sudah terhubung ke akun lain. Masuk dengan akun yang beli, lalu pulihkan.</string>
+
+    <string name="paywall_error_invalid_receipt">Gagal verifikasi pembelian ini. Coba lagi.</string>
+
+    <string name="paywall_error_invalid_credentials">Toko menolak permintaan. Coba lagi nanti.</string>
+
+    <string name="paywall_error_configuration">Langganan belum disetel dengan benar. Coba lagi nanti.</string>
+
+    <string name="paywall_error_billing_not_configured">Langganan nggak tersedia di build ini.</string>
+
+    <string name="paywall_error_unknown">Ada yang salah. Coba lagi.</string>
+
+    <string name="desc_terms_conditions_requirement">Kamu harus setujui syarat ini buat lanjut pakai ExpenseTracker sebagai tamu atau akun terdaftar.</string>
+
+    <string name="label_bullet_app_usage_title">Pemakaian aplikasi</string>
+
+    <string name="label_bullet_app_usage_desc">Anggaran dan pelacakan pribadi. Tanpa redistribusi atau reverse engineering tanpa izin.</string>
+
+    <string name="label_bullet_privacy_title">Data dan privasi</string>
+
+    <string name="label_bullet_privacy_desc">Offline dulu di perangkatmu. Sinkron opsional dan dilindungi enkripsi ujung ke ujung.</string>
+
+    <string name="label_bullet_subscriptions_title">Langganan</string>
+
+    <string name="label_bullet_subscriptions_desc">Akses Pro dikelola aman lewat Google Play Billing. Diperbarui otomatis sampai dibatalin.</string>
+
+    <string name="label_bullet_cancellation_title">Pembatalan dan ekspor</string>
+
+    <string name="label_bullet_cancellation_desc">Batalin Pro kapan saja di Play Store. Ekspor atau hapus 100% datamu sesuai permintaan.</string>
+
+    <string name="label_terms_clause_1">1. Penerimaan syarat: Dengan mengakses atau memakai Aplikasi, kamu mengakui dan setuju dengan Syarat dan Ketentuan serta Kebijakan Privasi kami. Syarat ini mengikat semua pengguna (tamu atau terdaftar).</string>
+
+    <string name="label_terms_clause_2">2. Lisensi: Kami kasih lisensi terbatas, bisa dicabut, non-eksklusif buat manajemen keuangan pribadi non-komersial.</string>
+
+    <string name="label_terms_clause_3">3. Penyimpanan lokal dulu: Data keuanganmu tersimpan aman di perangkat lokal di database terenkripsi secara default.</string>
+
+    <string name="label_terms_clause_4">4. Pembelian dalam aplikasi: Langganan ditagih lewat Google Play sesuai kebijakan toko.</string>
+
+    <string name="label_terms_clause_5">5. Penafian: ExpenseTracker adalah alat organisasi dan nggak kasih nasihat keuangan bersertifikat.</string>
+
+    <string name="label_agree_terms_checkbox">Saya sudah baca dan setuju dengan Syarat dan Ketentuan</string>
+
+    <string name="label_agree_privacy_checkbox">Saya setuju dengan Kebijakan Privasi dan penanganan data</string>
+
+    <string name="cd_terms_checkbox">Kotak centang persetujuan syarat dan ketentuan</string>
+
+    <string name="cd_privacy_checkbox">Kotak centang persetujuan kebijakan privasi</string>
+
+    <string name="title_terms_required">Syarat dan ketentuan</string>
+
+    <string name="msg_agree_terms_required">Buat pakai aplikasi ini, kamu harus setujui Syarat dan Ketentuan serta Kebijakan Privasi. Centang kotaknya.</string>
+
+    <string name="title_funds">Dana</string>
+
+    <string name="title_fund_overview">Ringkasan</string>
+
+    <string name="title_what_are_funds">Apa itu dana</string>
+
+    <string name="msg_funds_what">Dana itu ember uang yang kamu sisihkan buat satu tujuan. Dialokasikan yang kamu masukin, terpakai yang kamu tarik, sisa yang masih ada.</string>
+
+    <string name="msg_funds_how">Buat dana, lalu pilih saat nambah pengeluaran. Belanja itu keluar dari ember biar kamu lihat kolamnya tanpa campur uang lain.</string>
+
+    <string name="label_funds_example">Contoh</string>
+
+    <string name="label_fund_example_name">Liburan</string>
+
+    <string name="msg_funds_example">Masukin uang ke dana Liburan. Hotel dan tiket dari dana itu nurunin Sisa. Belanjaan nggak kena kecuali kamu pilih dana di pengeluaran itu juga.</string>
+
+    <string name="desc_funds_info">Apa itu dana dan cara pakainya</string>
+
+    <string name="label_tab_funds">Dana</string>
+
+    <string name="title_create_fund">Buat dana</string>
+
+    <string name="title_edit_fund">Ubah dana</string>
+
+    <string name="label_fund_name">Nama dana</string>
+
+    <string name="label_fund_amount_field">Jumlah</string>
+
+    <string name="label_fund_start_date_value">Mulai %1$s</string>
+
+    <string name="label_fund_icon">Ikon</string>
+
+    <string name="label_fund_color">Warna</string>
+
+    <string name="label_fund_note">Catatan (opsional)</string>
+
+    <string name="label_fund_summary_allocated">Dialokasikan</string>
+
+    <string name="label_fund_summary_spent">Terpakai</string>
+
+    <string name="label_fund_summary_remaining">Sisa</string>
+
+    <string name="label_fund_empty">Belum ada dana. Buat satu buat mulai lacak kumpulan uang.</string>
+
+    <string name="label_fund_spent_of">%1$s dari %2$s terpakai</string>
+
+    <string name="label_fund_remaining_format">Sisa %1$s</string>
+
+    <string name="label_fund_status_active">Aktif</string>
+
+    <string name="label_fund_status_completed">Habis</string>
+
+    <string name="label_fund_status_archived">Diarsipkan</string>
+
+    <string name="title_fund_breakdown">Rincian belanja</string>
+
+    <string name="label_fund_no_spending">Belum ada belanja dari dana ini.</string>
+
+    <string name="label_fund_linked_transactions">Transaksi</string>
+
+    <string name="label_fund_edit">Ubah</string>
+
+    <string name="label_fund_edit_amount">Ubah jumlah</string>
+
+    <string name="label_fund_archive">Arsipkan</string>
+
+    <string name="label_fund_unarchive">Batal arsip</string>
+
+    <string name="label_fund_delete">Hapus</string>
+
+    <string name="label_fund_uncategorized">Tanpa kategori</string>
+
+    <string name="title_delete_fund">Hapus dana?</string>
+
+    <string name="msg_delete_fund_body">« %1$s » dihapus. Transaksinya tetap; cuma nggak tertaut lagi.</string>
+
+    <string name="msg_fund_edit_amount_updates_income">Ini juga perbarui transaksi pemasukan yang mendanainya.</string>
+
+    <string name="title_spend_from_fund">Dana</string>
+
+    <string name="label_fund_none">Tidak ada</string>
+
+    <string name="title_fund_overspend">Dana tidak cukup</string>
+
+    <string name="msg_fund_overspend">Pengeluaran ini lebih dari sisa %2$s di « %1$s ». Belanja tetap, ganti jumlah, atau lepas dana dari pengeluaran ini.</string>
+
+    <string name="label_spend_anyway">Belanja tetap</string>
+
+    <string name="label_edit_amount_action">Ubah jumlah</string>
+
+    <string name="label_remove_fund">Lepas dana</string>
+
+    <string name="label_funds_breakdown">Rincian dana</string>
+
+    <string name="label_all_funds_breakdown">Semua dana</string>
+
+    <string name="label_no_fund_breakdown">Nggak ada belanja dana di rentang ini.</string>
+
+    <string name="title_full_fund_breakdown">Rincian dana lengkap</string>
+
 </resources>

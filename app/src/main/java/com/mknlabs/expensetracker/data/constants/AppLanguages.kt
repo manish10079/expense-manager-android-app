@@ -20,7 +20,8 @@ val supportedAppLanguages: List<AppLanguageOption> = listOf(
     AppLanguageOption("ja", "日本語", "Japanese"),
     AppLanguageOption("ko", "한국어", "Korean"),
     AppLanguageOption("it", "Italiano", "Italian"),
-    AppLanguageOption("ru", "Русский", "Russian")
+    AppLanguageOption("ru", "Русский", "Russian"),
+    AppLanguageOption("or", "ଓଡ଼ିଆ", "Odia")
 )
 
 fun languageDisplayName(code: String): String {
