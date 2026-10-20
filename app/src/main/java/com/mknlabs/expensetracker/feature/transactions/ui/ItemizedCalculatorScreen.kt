@@ -1565,11 +1565,9 @@ private fun AddItemInputCard(
 ) {
     val dark = MaterialTheme.colorScheme.isDark
     val shape = RoundedCornerShape(16.dp)
-    // The same chrome as the Fund Goal card: the Manage Categories fill and hairline in
-    // dark, the standard card in light.
+    // Same fill as Home Spent Today: #101019 in dark, standard light card.
     val cardColors = AppCardDefaults.colors(
-        darkContainer = MaterialTheme.colorScheme.manageCategoryCard,
-        darkBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.manageCategoryCardBorder)
+        darkContainer = Color(0xFF101019)
     )
     Column(
         modifier = Modifier
