@@ -42,7 +42,8 @@ fun ReferOfferBottomSheet(
         sheetState = sheetState,
         containerColor = AppCardDefaults.colors(
             darkContainer = Color(0xFF101019)
-        ).containerColor
+        ).containerColor,
+        contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(
             modifier = Modifier
@@ -58,6 +59,7 @@ fun ReferOfferBottomSheet(
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Text(
@@ -65,6 +67,7 @@ fun ReferOfferBottomSheet(
                     if (hasReferred) R.string.msg_refer_more else R.string.msg_refer_offer
                 ),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
             Box(
