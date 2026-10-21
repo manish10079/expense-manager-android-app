@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
@@ -46,15 +45,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,7 +87,6 @@ internal fun AuthContentBody(
     val coroutineScope = rememberCoroutineScope()
     var isTermsAccepted by remember { mutableStateOf(true) }
     var showTermsRequiredDialog by remember { mutableStateOf(false) }
-    val uriHandler = LocalUriHandler.current
     val linkColor = if (dark) AuthLinkDark else AuthFocusGlow
     val muted = if (dark) AuthMutedDark else AuthMutedLight
     val fieldShape = RoundedCornerShape(16.dp)
@@ -345,37 +345,34 @@ internal fun AuthContentBody(
             val agreeBody = stringResource(R.string.msg_agree_terms_links, termsLabel, privacyLabel)
             val annotatedString = remember(agreeBody, termsLabel, privacyLabel, termsUrl, privacyUrl, linkColor) {
                 buildAnnotatedString {
-                    append(agreeBody)
-                    fun mark(tag: String, url: String, label: String) {
-                        val start = agreeBody.indexOf(label)
-                        if (start < 0) return
-                        val end = start + label.length
-                        addStringAnnotation(tag, url, start, end)
-                        addStyle(
-                            SpanStyle(color = linkColor, fontWeight = FontWeight.SemiBold),
-                            start,
-                            end
-                        )
+                    val linkStyle = TextLinkStyles(
+                        style = SpanStyle(color = linkColor, fontWeight = FontWeight.SemiBold)
+                    )
+                    val links = listOf(
+                        Triple(agreeBody.indexOf(termsLabel), termsLabel, termsUrl),
+                        Triple(agreeBody.indexOf(privacyLabel), privacyLabel, privacyUrl)
+                    ).filter { it.first >= 0 }.sortedBy { it.first }
+                    var cursor = 0
+                    for ((start, label, url) in links) {
+                        if (start < cursor) continue
+                        append(agreeBody.substring(cursor, start))
+                        withLink(LinkAnnotation.Url(url, linkStyle)) {
+                            append(label)
+                        }
+                        cursor = start + label.length
                     }
-                    mark("TERMS", termsUrl, termsLabel)
-                    mark("PRIVACY", privacyUrl, privacyLabel)
+                    if (cursor < agreeBody.length) {
+                        append(agreeBody.substring(cursor))
+                    }
                 }
             }
-            ClickableText(
+            Text(
                 text = annotatedString,
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = muted,
                     fontSize = 12.sp,
                     lineHeight = 18.sp,
                 ),
-                onClick = { offset ->
-                    annotatedString.getStringAnnotations("TERMS", offset, offset).firstOrNull()?.let {
-                        try { uriHandler.openUri(it.item) } catch (_: Exception) {}
-                    }
-                    annotatedString.getStringAnnotations("PRIVACY", offset, offset).firstOrNull()?.let {
-                        try { uriHandler.openUri(it.item) } catch (_: Exception) {}
-                    }
-                },
             )
         }
 

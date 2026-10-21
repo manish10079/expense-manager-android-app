@@ -54,12 +54,15 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalClipboardManager
+import android.content.ClipData
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,7 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -141,7 +144,8 @@ fun ReferAFriendContent(
     onDismissReferrerCelebration: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val clipboardScope = rememberCoroutineScope()
     val playUrl = stringResource(R.string.url_rate_app)
     var enterCode by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -232,7 +236,11 @@ fun ReferAFriendContent(
                         CodeCard(
                             code = state.code,
                             onCopy = {
-                                clipboard.setText(AnnotatedString(state.code))
+                                clipboardScope.launch {
+                                    clipboard.setClipEntry(
+                                        ClipEntry(ClipData.newPlainText("referral_code", state.code))
+                                    )
+                                }
                                 Toast.makeText(
                                     context,
                                     context.getString(R.string.msg_code_copied),
