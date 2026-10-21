@@ -200,9 +200,10 @@ class PreferencesViewModel @Inject constructor(
         dismissSheet()
     }
 
-    fun selectLanguage(languageCode: String) {
+    fun selectLanguage(languageCode: String, onApplied: () -> Unit = {}) {
         viewModelScope.launch {
             updateLanguage(languageCode)
+            onApplied()
         }
         dismissSheet()
     }

@@ -154,7 +154,9 @@ fun UpdateDialog(
             usePlatformDefaultWidth = false,
         ),
         modifier = Modifier.width(metrics.maxWidth),
-        containerColor = AppCardDefaults.colors().containerColor,
+        containerColor = AppCardDefaults.colors(
+            darkContainer = Color(0xFF101019)
+        ).containerColor,
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -542,7 +544,9 @@ private fun buildRemoteConfigMessage(): String = listOf(
 private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        color = AppCardDefaults.colors().containerColor,
+        color = AppCardDefaults.colors(
+            darkContainer = Color(0xFF101019)
+        ).containerColor,
         tonalElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {

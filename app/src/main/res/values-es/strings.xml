@@ -4491,6 +4491,9 @@ privado de verdad</string>
     <string name="title_terms_required">Términos y condiciones</string>
 
     <string name="msg_agree_terms_required">Para usar la app tienes que aceptar términos y privacidad. Marca la casilla.</string>
+    <string name="msg_agree_terms_links">He leído y acepto los %1$s y la %2$s.</string>
+    <string name="label_terms_and_conditions">Términos y condiciones</string>
+    <string name="label_privacy_policy">Política de privacidad</string>
 
     <string name="title_funds">Fondos</string>
 

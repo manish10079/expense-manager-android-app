@@ -4047,6 +4047,9 @@
     <string name="title_terms_required">नियम और शर्तें</string>
 
     <string name="msg_agree_terms_required">ऐप का इस्तेमाल करने के लिए, आपको नियम व शर्तों और प्राइवेसी पॉलिसी से सहमत होना होगा। कृपया चेकबॉक्स पर टिक करें।</string>
+    <string name="msg_agree_terms_links">मैंने %1$s और %2$s पढ़ लिए हैं और मैं उनसे सहमत हूँ।</string>
+    <string name="label_terms_and_conditions">नियम और शर्तें</string>
+    <string name="label_privacy_policy">गोपनीयता नीति</string>
 
     <!-- Funds (Cash Buckets) -->
     <string name="title_funds">फंड्स (Funds)</string>

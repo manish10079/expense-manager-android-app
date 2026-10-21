@@ -4427,6 +4427,9 @@
     <string name="title_terms_required">ବ୍ୟବହାର ସର୍ତ</string>
 
     <string name="msg_agree_terms_required">ଏହି ଆପ ବ୍ୟବହାର କରିବାକୁ ବ୍ୟବହାର ସର୍ତ ଓ ପ୍ରାଇଭେସି ନୀତି ମାନିବା ଦରକାର। ଚେକବକ୍ସ ଟିକ କର।</string>
+    <string name="msg_agree_terms_links">ମୁଁ %1$s ଏବଂ %2$s ପଢ଼ିଛି ଏବଂ ସହମତ।</string>
+    <string name="label_terms_and_conditions">ନିୟମ ଓ ସର୍ତ୍ତାବଳୀ</string>
+    <string name="label_privacy_policy">ଗୋପନୀୟତା ନୀତି</string>
 
     <string name="title_funds">ଫଣ୍ଡ</string>
 

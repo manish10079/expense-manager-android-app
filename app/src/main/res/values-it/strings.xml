@@ -4427,6 +4427,9 @@
     <string name="title_terms_required">Termini e condizioni</string>
 
     <string name="msg_agree_terms_required">Per usare questa app devi accettare Termini e condizioni e Privacy Policy. Spunta la casella.</string>
+    <string name="msg_agree_terms_links">Ho letto e accetto i %1$s e l\'%2$s.</string>
+    <string name="label_terms_and_conditions">Termini e condizioni</string>
+    <string name="label_privacy_policy">Informativa sulla privacy</string>
 
     <string name="title_funds">Fondi</string>
 

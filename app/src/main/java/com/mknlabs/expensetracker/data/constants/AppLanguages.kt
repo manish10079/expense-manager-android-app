@@ -11,6 +11,7 @@ data class AppLanguageOption(
 val supportedAppLanguages: List<AppLanguageOption> = listOf(
     AppLanguageOption(SYSTEM_LANGUAGE_CODE, "System", "Follow device"),
     AppLanguageOption("en", "English", "English"),
+    AppLanguageOption("or", "ଓଡ଼ିଆ", "Odia"),
     AppLanguageOption("hi", "हिन्दी", "Hindi"),
     AppLanguageOption("es", "Español", "Spanish"),
     AppLanguageOption("pt-BR", "Português (Brasil)", "Portuguese"),
@@ -20,8 +21,7 @@ val supportedAppLanguages: List<AppLanguageOption> = listOf(
     AppLanguageOption("ja", "日本語", "Japanese"),
     AppLanguageOption("ko", "한국어", "Korean"),
     AppLanguageOption("it", "Italiano", "Italian"),
-    AppLanguageOption("ru", "Русский", "Russian"),
-    AppLanguageOption("or", "ଓଡ଼ିଆ", "Odia")
+    AppLanguageOption("ru", "Русский", "Russian")
 )
 
 fun languageDisplayName(code: String): String {

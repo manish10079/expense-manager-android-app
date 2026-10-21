@@ -4456,6 +4456,9 @@ privé par nature</string>
     <string name="title_terms_required">Conditions</string>
 
     <string name="msg_agree_terms_required">Pour utiliser l’app, accepte les conditions et la confidentialité. Coche la case.</string>
+    <string name="msg_agree_terms_links">J\'ai lu et j\'accepte les %1$s et la %2$s.</string>
+    <string name="label_terms_and_conditions">Conditions générales</string>
+    <string name="label_privacy_policy">Politique de confidentialité</string>
 
     <string name="title_funds">Fonds</string>
 

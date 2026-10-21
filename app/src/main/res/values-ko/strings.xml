@@ -4460,6 +4460,9 @@
     <string name="title_terms_required">이용약관</string>
 
     <string name="msg_agree_terms_required">이 앱을 쓰려면 이용약관과 개인정보 처리방침에 동의해야 해. 체크박스를 눌러.</string>
+    <string name="msg_agree_terms_links">%1$s 및 %2$s을(를) 읽었으며 이에 동의합니다.</string>
+    <string name="label_terms_and_conditions">이용약관</string>
+    <string name="label_privacy_policy">개인정보 처리방침</string>
 
     <string name="title_funds">자금</string>
 

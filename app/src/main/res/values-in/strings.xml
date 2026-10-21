@@ -4484,6 +4484,9 @@ privat dari sifat</string>
     <string name="title_terms_required">Syarat dan ketentuan</string>
 
     <string name="msg_agree_terms_required">Buat pakai aplikasi ini, kamu harus setujui Syarat dan Ketentuan serta Kebijakan Privasi. Centang kotaknya.</string>
+    <string name="msg_agree_terms_links">Saya telah membaca dan menyetujui %1$s dan %2$s.</string>
+    <string name="label_terms_and_conditions">Syarat dan Ketentuan</string>
+    <string name="label_privacy_policy">Kebijakan Privasi</string>
 
     <string name="title_funds">Dana</string>
 

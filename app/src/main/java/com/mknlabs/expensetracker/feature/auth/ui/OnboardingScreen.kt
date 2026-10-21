@@ -113,6 +113,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.core.ui.components.AppSelectionSheet
 import com.mknlabs.expensetracker.core.ui.components.ProfileAvatar
 import com.mknlabs.expensetracker.core.ui.components.UserBadge
@@ -145,11 +146,13 @@ private data class OnboardingPage(
 fun OnboardingScreen(
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
     onSignUpSuccess: (() -> Unit)? = null,
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    preferencesViewModel: com.mknlabs.expensetracker.feature.settings.ui.PreferencesViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
     val returningUserProfile by authViewModel.returningUserProfile.collectAsStateWithLifecycle()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val preferencesUiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
 
     OnboardingScreenContent(
         currentUser = currentUser,
@@ -160,6 +163,10 @@ fun OnboardingScreen(
         onResetAuthState = { authViewModel.resetState() },
         onFetchReturningProfile = { uid -> authViewModel.fetchReturningUserProfile(uid) },
         onResetReturningProfile = { authViewModel.resetReturningUserProfile() },
+        initialLanguageCode = preferencesUiState.selectedLanguageCode,
+        onApplyLanguage = { code, onApplied ->
+            preferencesViewModel.selectLanguage(code, onApplied)
+        },
         authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccess ->
             AuthRoute(
                 viewModel = authViewModel,
@@ -175,6 +182,7 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingScreenContent(
     initialPage: Int = 0,
+    initialLanguageCode: String = com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE,
     currentUser: com.google.firebase.auth.FirebaseUser? = null,
     returningUserProfile: ReturningUserProfile? = null,
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
@@ -183,69 +191,79 @@ private fun OnboardingScreenContent(
     onResetAuthState: () -> Unit = {},
     onFetchReturningProfile: (uid: String) -> Unit = {},
     onResetReturningProfile: () -> Unit = {},
+    onApplyLanguage: (String, () -> Unit) -> Unit = { _, onApplied -> onApplied() },
     authSection: (@Composable (onAuthSuccess: () -> Unit, onGuestContinue: () -> Unit, onSignUpSuccess: () -> Unit) -> Unit)? = null
 ) {
     val context = LocalContext.current
-    val onboardingPages = remember {
+    AppLocaleHelper.appliedLanguageTags
+    val onboardingPages = run {
         listOf(
+            // Page 0: Language
             OnboardingPage(
-                title = context.getString(R.string.title_track_expensesneasily),
-                description = context.getString(R.string.desc_log_daily_spending),
-                actionLabel = context.getString(R.string.label_next),
+                title = stringResource(R.string.title_language_settings),
+                description = "",
+                actionLabel = stringResource(R.string.label_apply_language),
+                illustration = { }
+            ),
+            OnboardingPage(
+                title = stringResource(R.string.title_track_expensesneasily),
+                description = stringResource(R.string.desc_log_daily_spending),
+                actionLabel = stringResource(R.string.label_next),
                 illustration = { ExpenseCardIllustration() }
             ),
             OnboardingPage(
-                title = context.getString(R.string.title_secure_private),
-                description = context.getString(R.string.desc_financial_data_secure),
-                actionLabel = context.getString(R.string.label_next),
+                title = stringResource(R.string.title_secure_private),
+                description = stringResource(R.string.desc_financial_data_secure),
+                actionLabel = stringResource(R.string.label_next),
                 illustration = { SecureTrackerIllustration() }
             ),
             OnboardingPage(
-                title = context.getString(R.string.title_visual_analytics),
-                description = context.getString(R.string.desc_visualize_spending),
-                actionLabel = context.getString(R.string.label_next),
+                title = stringResource(R.string.title_visual_analytics),
+                description = stringResource(R.string.desc_visualize_spending),
+                actionLabel = stringResource(R.string.label_next),
                 illustration = { AnalyticsIllustration() }
             ),
             OnboardingPage(
-                title = context.getString(R.string.title_premium_by_designnprivate_by_n),
-                description = context.getString(R.string.desc_modern_finance),
-                actionLabel = context.getString(R.string.label_continue),
-                accentedText = context.getString(R.string.label_private_by_nature),
+                title = stringResource(R.string.title_premium_by_designnprivate_by_n),
+                description = stringResource(R.string.desc_modern_finance),
+                actionLabel = stringResource(R.string.label_continue),
+                accentedText = stringResource(R.string.label_private_by_nature),
                 titleFontSize = 34.sp,
                 titleLineHeight = 40.sp,
                 supportingContent = { PremiumBenefitCards() },
                 illustration = { PremiumPrivacyIllustration() }
             ),
-            // Page 4: Secure Your Account / Auth Gate
+            // Page 5: Secure Your Account / Auth Gate
             OnboardingPage(
-                title = context.getString(R.string.title_secure_your_account),
-                description = context.getString(R.string.desc_sync_and_premium_features),
-                actionLabel = context.getString(R.string.label_next),
+                title = stringResource(R.string.title_secure_your_account),
+                description = stringResource(R.string.desc_sync_and_premium_features),
+                actionLabel = stringResource(R.string.label_next),
                 titleFontSize = 34.sp,
                 titleLineHeight = 40.sp,
                 illustration = { SecureTrackerIllustration() } 
             ),
             // Page 5: Setup Profile
             OnboardingPage(
-                title = context.getString(R.string.title_lets_get_started),
-                description = context.getString(R.string.desc_tell_us_about_yourself),
-                actionLabel = context.getString(R.string.label_get_started),
+                title = stringResource(R.string.title_lets_get_started),
+                description = stringResource(R.string.desc_tell_us_about_yourself),
+                actionLabel = stringResource(R.string.label_get_started),
                 illustration = { /* No illustration for setup page */ }
             ),
             // Page 6: WelcomeBack — shown to returning users who already have a complete profile
             OnboardingPage(
                 title = "",   // Title rendered separately in WelcomeBackPage composable
                 description = "",
-                actionLabel = context.getString(R.string.label_continue),
+                actionLabel = stringResource(R.string.label_continue),
                 illustration = { }
             )
         )
     }
     var currentPage by remember { mutableIntStateOf(initialPage) }
     val page = onboardingPages[currentPage]
-    val isAuthPage = currentPage == 4
-    val isSetupPage = currentPage == 5
-    val isWelcomeBackPage = currentPage == 6
+    val isLanguagePage = currentPage == 0
+    val isAuthPage = currentPage == 5
+    val isSetupPage = currentPage == 6
+    val isWelcomeBackPage = currentPage == 7
     val scrollState = rememberScrollState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
@@ -257,6 +275,10 @@ private fun OnboardingScreenContent(
     }
 
     // Setup state
+    var selectedLanguageCode by remember { mutableStateOf(initialLanguageCode) }
+    LaunchedEffect(initialLanguageCode) {
+        selectedLanguageCode = initialLanguageCode
+    }
     var userName by remember { mutableStateOf("") }
     var userGender by remember { mutableStateOf("") }
     var isGenderPickerVisible by remember { mutableStateOf(false) }
@@ -279,11 +301,11 @@ private fun OnboardingScreenContent(
     // back to the auth page (page 4) — not only right after the sign-in tap.
     //
     LaunchedEffect(currentUser, currentPage) {
-        if (currentPage != 4) return@LaunchedEffect
+        if (currentPage != 5) return@LaunchedEffect
         val user = currentUser ?: return@LaunchedEffect
         if (user.isAnonymous) {
             // Anonymous / guest user — go straight to setup profile page
-            currentPage = 5
+            currentPage = 6
         } else {
             Log.d("Onboarding", "Existing user detected — fetching profile from Firestore.")
             onFetchReturningProfile(user.uid)
@@ -292,7 +314,7 @@ private fun OnboardingScreenContent(
 
     // Once we have the returning profile, decide where to land
     LaunchedEffect(returningUserProfile, currentPage) {
-        if (currentPage != 4) return@LaunchedEffect // only act right after auth page
+        if (currentPage != 5) return@LaunchedEffect // only act right after auth page
         val profile = returningUserProfile ?: return@LaunchedEffect
         when (resolveReturningUserStep(profile)) {
             ReturningUserStep.WELCOME_BACK -> {
@@ -300,11 +322,11 @@ private fun OnboardingScreenContent(
                 userName = profile.fullName
                 userGender = profile.gender
                 Log.d("Onboarding", "Returning user with complete profile — showing WelcomeBack.")
-                currentPage = 6
+                currentPage = 7
             }
             ReturningUserStep.SETUP_PROFILE -> {
                 Log.d("Onboarding", "Returning user — missing name/gender, going to setup page.")
-                currentPage = 5
+                currentPage = 6
             }
         }
     }
@@ -338,7 +360,7 @@ private fun OnboardingScreenContent(
     }
 
     BackHandler(enabled = currentPage > 0) {
-        if (currentPage == 6) {
+        if (currentPage == 7) {
             // Returning from WelcomeBack — reset profile fetch so we don't re-enter
             onResetReturningProfile()
         }
@@ -394,11 +416,11 @@ private fun OnboardingScreenContent(
                     .weight(1f)
                     .widthIn(max = 640.dp)
                     .fillMaxWidth()
-                    .verticalScroll(scrollState),
+                    .then(if (isLanguagePage) Modifier else Modifier.verticalScroll(scrollState)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
-                if (!isSetupPage && !isAuthPage && !isWelcomeBackPage) {
+                if (!isSetupPage && !isAuthPage && !isWelcomeBackPage && !isLanguagePage) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -436,6 +458,15 @@ private fun OnboardingScreenContent(
                             onCompleteInternal()
                         }
                     )
+                } else if (isLanguagePage) {
+                    OnboardingLanguagePage(
+                        selectedCode = selectedLanguageCode,
+                        onSelect = { selectedLanguageCode = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.ScreenPadding)
+                    )
                 } else {
                 AnimatedContent(
                     targetState = currentPage,
@@ -443,8 +474,8 @@ private fun OnboardingScreenContent(
                     modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
                 ) { pageIndex ->
                     val current = onboardingPages[pageIndex]
-                    val isAuthOnThisPageIndex = pageIndex == 4
-                    val isSetupOnThisPageIndex = pageIndex == 5
+                    val isAuthOnThisPageIndex = pageIndex == 5
+                    val isSetupOnThisPageIndex = pageIndex == 6
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -524,18 +555,18 @@ private fun OnboardingScreenContent(
                                     {
                                         Log.d("Onboarding", "Auth SUCCESS callback triggered.")
                                         if (currentUser?.isAnonymous == true) {
-                                            currentPage = 5
+                                            currentPage = 6
                                         }
                                     },
                                     {
                                         Log.d("Onboarding", "Guest continue triggered.")
-                                        currentPage = 5
+                                        currentPage = 6
                                     },
                                     {
                                         Log.d("Onboarding", "Sign up success callback triggered.")
                                         onSignUpSuccess?.invoke()
                                         if (currentUser?.isAnonymous == true) {
-                                            currentPage = 5
+                                            currentPage = 6
                                         }
                                     }
                                 )
@@ -621,13 +652,14 @@ private fun OnboardingScreenContent(
                     PrimaryOnboardingButton(
                         label = page.actionLabel,
                         enabled = true,
+                        compact = isLanguagePage,
                         onClick = {
                             when {
-                                currentPage == 6 -> { // WelcomeBack Page
+                                currentPage == 7 -> { // WelcomeBack Page
                                     onResetReturningProfile()
                                     onCompleteInternal()
                                 }
-                                currentPage == 5 -> { // Setup Page (name/gender)
+                                currentPage == 6 -> { // Setup Page (name/gender)
                                     val missingFields = mutableListOf<String>()
                                     if (userName.trim().isEmpty()) missingFields.add(nameStr)
 
@@ -639,15 +671,20 @@ private fun OnboardingScreenContent(
                                         onCompleteInternal()
                                     }
                                 }
+                                currentPage == 0 -> {
+                                    onApplyLanguage(selectedLanguageCode) {
+                                        currentPage = 1
+                                    }
+                                }
                                 else -> currentPage += 1
                             }
                         }
                     )
-                    if (currentPage < 4) {
+                    if (currentPage in 1..4) {
                         Spacer(modifier = Modifier.height(20.dp))
                         BottomControls(
                             pageCount = 4,
-                            currentPage = currentPage,
+                            currentPage = currentPage - 1,
                             showSkip = true,
                             onPreviousClick = {
                                 if (currentPage > 0) {
@@ -655,13 +692,13 @@ private fun OnboardingScreenContent(
                                 }
                             },
                             onNextClick = {
-                                if (currentPage < 3) {
+                                if (currentPage < 4) {
                                     currentPage += 1
-                                } else if (currentPage == 3) {
-                                    currentPage = 4
+                                } else {
+                                    currentPage = 5
                                 }
                             },
-                            onSkipClick = { currentPage = 4 }
+                            onSkipClick = { currentPage = 5 }
                         )
                     }
                 }
@@ -852,9 +889,9 @@ private fun BottomControls(
     onNextClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
-    val isAuthPage = currentPage == 4
-    val isSetupPage = currentPage == 5
-    val isWelcomeBackPage = currentPage == 6
+    val isAuthPage = currentPage == 5
+    val isSetupPage = currentPage == 6
+    val isWelcomeBackPage = currentPage == 7
 
     if (isAuthPage || isSetupPage || isWelcomeBackPage) {
         Spacer(modifier = Modifier.height(56.dp)) 
@@ -869,7 +906,7 @@ private fun BottomControls(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (currentPage > 0 && !isAuthPage) {
+            if (!isAuthPage) {
                 Text(
                     text = stringResource(id = R.string.label_prev),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -927,7 +964,8 @@ private fun BottomControls(
 private fun PrimaryOnboardingButton(
     label: String,
     onClick: () -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    compact: Boolean = false
 ) {
     val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -943,7 +981,12 @@ private fun PrimaryOnboardingButton(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val buttonHeight = if (isLandscape) 56.dp else 74.dp
+    val buttonHeight = when {
+        compact -> 52.dp
+        isLandscape -> 56.dp
+        else -> 74.dp
+    }
+    val buttonShape = if (compact) RoundedCornerShape(16.dp) else RoundedCornerShape(999.dp)
 
     val buttonModifier = if (enabled) {
         Modifier
@@ -952,7 +995,7 @@ private fun PrimaryOnboardingButton(
             .scale(scale)
             .shadow(
                 elevation = 16.dp,
-                shape = RoundedCornerShape(999.dp),
+                shape = buttonShape,
                 ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
                 spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
             )
@@ -968,7 +1011,7 @@ private fun PrimaryOnboardingButton(
         enabled = enabled,
         interactionSource = interactionSource,
         modifier = buttonModifier,
-        shape = RoundedCornerShape(999.dp),
+        shape = buttonShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
             disabledContainerColor = Color.Transparent,
@@ -987,7 +1030,7 @@ private fun PrimaryOnboardingButton(
                             MaterialTheme.colorScheme.surfaceVariant
                         )
                     ),
-                    shape = RoundedCornerShape(999.dp)
+                    shape = buttonShape
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -1736,7 +1779,7 @@ private fun PreviewOnboardingPage4_PremiumPrivacy_Light() {
 @Composable
 private fun PreviewOnboardingPage5_Auth_Dark() {
     ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 4)
+        OnboardingScreenContent(initialPage = 5)
     }
 }
 
@@ -1749,7 +1792,7 @@ private fun PreviewOnboardingPage5_Auth_Dark() {
 @Composable
 private fun PreviewOnboardingPage5_Auth_Light() {
     ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 4)
+        OnboardingScreenContent(initialPage = 5)
     }
 }
 
@@ -1763,7 +1806,7 @@ private fun PreviewOnboardingPage5_Auth_Light() {
 @Composable
 private fun PreviewOnboardingPage6_ProfileSetup_Dark() {
     ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 5)
+        OnboardingScreenContent(initialPage = 6)
     }
 }
 
@@ -1776,7 +1819,7 @@ private fun PreviewOnboardingPage6_ProfileSetup_Dark() {
 @Composable
 private fun PreviewOnboardingPage6_ProfileSetup_Light() {
     ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 5)
+        OnboardingScreenContent(initialPage = 6)
     }
 }
 
@@ -1791,7 +1834,7 @@ private fun PreviewOnboardingPage6_ProfileSetup_Light() {
 private fun PreviewOnboardingPage7_WelcomeBack_Dark() {
     ExpenseTrackerTheme(darkTheme = true) {
         OnboardingScreenContent(
-            initialPage = 6,
+            initialPage = 7,
             returningUserProfile = ReturningUserProfile(
                 fullName = "Alex Morgan",
                 gender = "Non-Binary"
@@ -1810,7 +1853,7 @@ private fun PreviewOnboardingPage7_WelcomeBack_Dark() {
 private fun PreviewOnboardingPage7_WelcomeBack_Light() {
     ExpenseTrackerTheme(darkTheme = false) {
         OnboardingScreenContent(
-            initialPage = 6,
+            initialPage = 7,
             returningUserProfile = ReturningUserProfile(
                 fullName = "Alex Morgan",
                 gender = "Non-Binary"

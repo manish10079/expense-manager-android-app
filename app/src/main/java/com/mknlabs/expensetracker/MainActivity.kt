@@ -67,6 +67,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.feature.auth.ui.InitTask
 import com.mknlabs.expensetracker.feature.auth.ui.SplashViewModel
 import com.mknlabs.expensetracker.feature.auth.ui.AppLockViewModel
@@ -168,6 +169,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
+            // Observe locale so strings recompose; keep Activity as LocalContext
+            // (Hilt ViewModels require it, not a createConfigurationContext wrapper).
+            AppLocaleHelper.appliedLanguageTags
             AppRoot(splashViewModel, appLockViewModel, currentIntent)
         }
 

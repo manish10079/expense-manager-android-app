@@ -4484,6 +4484,9 @@
     <string name="title_terms_required">利用規約</string>
 
     <string name="msg_agree_terms_required">このアプリを使うには利用規約とプライバシーポリシーに同意して。チェックを入れて。</string>
+    <string name="msg_agree_terms_links">%1$sおよび%2$sを読み、同意します。</string>
+    <string name="label_terms_and_conditions">利用規約</string>
+    <string name="label_privacy_policy">プライバシーポリシー</string>
 
     <string name="title_funds">資金</string>
 

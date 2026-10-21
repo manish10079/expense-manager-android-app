@@ -340,20 +340,26 @@ internal fun AuthContentBody(
             Spacer(Modifier.width(12.dp))
             val termsUrl = stringResource(R.string.url_terms_conditions)
             val privacyUrl = stringResource(R.string.url_privacy_policy)
-            val annotatedString = buildAnnotatedString {
-                append("I have read and agree to the ")
-                pushStringAnnotation("TERMS", termsUrl)
-                withStyle(SpanStyle(color = linkColor, fontWeight = FontWeight.SemiBold)) {
-                    append("Terms & Conditions")
+            val termsLabel = stringResource(R.string.label_terms_and_conditions)
+            val privacyLabel = stringResource(R.string.label_privacy_policy)
+            val agreeBody = stringResource(R.string.msg_agree_terms_links, termsLabel, privacyLabel)
+            val annotatedString = remember(agreeBody, termsLabel, privacyLabel, termsUrl, privacyUrl, linkColor) {
+                buildAnnotatedString {
+                    append(agreeBody)
+                    fun mark(tag: String, url: String, label: String) {
+                        val start = agreeBody.indexOf(label)
+                        if (start < 0) return
+                        val end = start + label.length
+                        addStringAnnotation(tag, url, start, end)
+                        addStyle(
+                            SpanStyle(color = linkColor, fontWeight = FontWeight.SemiBold),
+                            start,
+                            end
+                        )
+                    }
+                    mark("TERMS", termsUrl, termsLabel)
+                    mark("PRIVACY", privacyUrl, privacyLabel)
                 }
-                pop()
-                append(" and ")
-                pushStringAnnotation("PRIVACY", privacyUrl)
-                withStyle(SpanStyle(color = linkColor, fontWeight = FontWeight.SemiBold)) {
-                    append("Privacy Policy")
-                }
-                pop()
-                append(".")
             }
             ClickableText(
                 text = annotatedString,

@@ -4451,6 +4451,9 @@
     <string name="title_terms_required">Условия использования</string>
 
     <string name="msg_agree_terms_required">Чтобы пользоваться приложением, нужно согласиться с Условиями и Политикой конфиденциальности. Поставь галочку.</string>
+    <string name="msg_agree_terms_links">Я прочитал(а) и принимаю %1$s и %2$s.</string>
+    <string name="label_terms_and_conditions">Условия использования</string>
+    <string name="label_privacy_policy">Политика конфиденциальности</string>
 
     <string name="title_funds">Фонды</string>
 

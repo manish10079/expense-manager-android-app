@@ -1520,6 +1520,19 @@
     <string name="label_select_language">Select language</string>
     <string name="label_language_selection_desc">Choose the language used in the app. Untranslated text stays in English.</string>
     <string name="label_language_system">System default</string>
+    <string name="title_language_settings">Language Settings</string>
+    <string name="label_app_language">App Language</string>
+    <string name="desc_language_changes_ledger">Changes ledger labels &amp; transaction categories</string>
+    <string name="label_locales_count">%d Locales</string>
+    <string name="label_search_language">Search language or locale…</string>
+    <string name="label_available_dialects">Available Dialects</string>
+    <string name="label_suggested_installed">Suggested &amp; Installed</string>
+    <string name="label_languages_available">%d available</string>
+    <string name="label_apply_language">Apply Language</string>
+    <string name="label_auto">Auto</string>
+    <string name="label_no_languages_found">No Languages Found</string>
+    <string name="msg_no_languages_match">We couldn\'t find matches for \"%s\". Try another spelling.</string>
+    <string name="label_show_all_languages">Show All Languages</string>
 
     <string name="label_date_format_subtitle">How dates are shown</string>
 
@@ -4635,6 +4648,9 @@
     <string name="title_terms_required">Terms &amp; Conditions</string>
 
     <string name="msg_agree_terms_required">To use this app, you must agree to the Terms &amp; Conditions and Privacy Policy. Please tick the checkbox.</string>
+    <string name="msg_agree_terms_links">I have read and agree to the %1$s and %2$s.</string>
+    <string name="label_terms_and_conditions">Terms &amp; Conditions</string>
+    <string name="label_privacy_policy">Privacy Policy</string>
 
     <!-- Funds (Cash Buckets) -->
     <string name="title_funds">Funds</string>

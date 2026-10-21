@@ -4489,6 +4489,9 @@ privat von Haus aus</string>
     <string name="title_terms_required">Nutzungsbedingungen</string>
 
     <string name="msg_agree_terms_required">Zum Nutzen der App musst du den Bedingungen und dem Datenschutz zustimmen. Bitte das Häkchen setzen.</string>
+    <string name="msg_agree_terms_links">Ich habe die %1$s und die %2$s gelesen und stimme ihnen zu.</string>
+    <string name="label_terms_and_conditions">Allgemeine Geschäftsbedingungen</string>
+    <string name="label_privacy_policy">Datenschutzerklärung</string>
 
     <string name="title_funds">Fonds</string>
 

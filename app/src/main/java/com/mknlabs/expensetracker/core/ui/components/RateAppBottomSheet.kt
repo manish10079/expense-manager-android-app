@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -60,7 +61,13 @@ fun RateAppBottomSheet(
     var rating by ratingState
     val canSubmit = rating > 0
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = AppCardDefaults.colors(
+            darkContainer = Color(0xFF101019)
+        ).containerColor
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
