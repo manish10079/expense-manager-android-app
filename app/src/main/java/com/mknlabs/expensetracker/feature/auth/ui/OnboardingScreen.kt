@@ -79,6 +79,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
@@ -258,7 +259,7 @@ private fun OnboardingScreenContent(
             )
         )
     }
-    var currentPage by remember { mutableIntStateOf(initialPage) }
+    var currentPage by rememberSaveable { mutableIntStateOf(initialPage) }
     val page = onboardingPages[currentPage]
     val isLanguagePage = currentPage == 0
     val isAuthPage = currentPage == 5
@@ -672,9 +673,8 @@ private fun OnboardingScreenContent(
                                     }
                                 }
                                 currentPage == 0 -> {
-                                    onApplyLanguage(selectedLanguageCode) {
-                                        currentPage = 1
-                                    }
+                                    currentPage = 1
+                                    onApplyLanguage(selectedLanguageCode) {}
                                 }
                                 else -> currentPage += 1
                             }

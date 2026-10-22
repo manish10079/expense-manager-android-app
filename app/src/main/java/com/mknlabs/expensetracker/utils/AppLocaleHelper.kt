@@ -24,4 +24,12 @@ object AppLocaleHelper {
         AppCompatDelegate.setApplicationLocales(locales)
         appliedLanguageTags = locales.toLanguageTags()
     }
+
+    fun getCurrentLanguageTag(): String {
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        if (currentLocales.isEmpty) {
+            return SYSTEM_LANGUAGE_CODE
+        }
+        return currentLocales.toLanguageTags().ifBlank { SYSTEM_LANGUAGE_CODE }
+    }
 }
