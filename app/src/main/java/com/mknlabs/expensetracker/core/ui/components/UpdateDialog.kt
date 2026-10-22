@@ -49,6 +49,8 @@ import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
+import com.mknlabs.expensetracker.utils.localizedRemoteConfigText
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
@@ -234,7 +236,9 @@ private fun MessageBody(
     info: UpdateInfo,
     maxHeight: Dp
 ) {
-    val content = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) }
+    val content = localizedUpdateMessage(info).ifBlank {
+        stringResource(R.string.msg_update_available)
+    }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -286,9 +290,29 @@ private fun MessageBody(
 
 @Composable
 private fun titleText(info: UpdateInfo): String {
-    return info.updateTitle.ifBlank {
+    return localizedUpdateTitle(info).ifBlank {
         stringResource(R.string.title_update_available)
     }
+}
+
+@Composable
+private fun currentAppLanguageTag(): String {
+    AppLocaleHelper.appliedLanguageTags
+    return AppLocaleHelper.getCurrentLanguageTag()
+}
+
+@Composable
+private fun localizedUpdateTitle(info: UpdateInfo): String {
+    val lang = currentAppLanguageTag()
+    return localizedRemoteConfigText(info.updateTitle, lang, nestedField = "title")
+        .ifBlank { localizedRemoteConfigText(info.updateMessage, lang, nestedField = "title") }
+}
+
+@Composable
+private fun localizedUpdateMessage(info: UpdateInfo): String {
+    val lang = currentAppLanguageTag()
+    return localizedRemoteConfigText(info.updateMessage, lang, nestedField = "message")
+        .ifBlank { localizedRemoteConfigText(info.updateTitle, lang, nestedField = "message") }
 }
 
 // ── Previews ───────────────────────────────────────────────────────────
