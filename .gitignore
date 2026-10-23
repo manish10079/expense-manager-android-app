@@ -48,6 +48,7 @@ local.properties
 
 # Untracked project files
 .ohmyagent/
+.monkeycode/
 1]
 _*.py
 _*.json

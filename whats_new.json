@@ -1,0 +1,46 @@
+{
+  "versionCode": 280,
+  "versionName": "2.239.1",
+  "update_title": {
+    "en": "New Update Available",
+    "hi": "नया अपडेट उपलब्ध है",
+    "or": "ନୂଆ ଅପଡେଟ୍ ଉପଲବ୍ଧ ଅଛି",
+    "es": "Nueva actualización disponible",
+    "pt-BR": "Nova atualização disponível",
+    "fr": "Nouvelle mise à jour disponible",
+    "de": "Neues Update verfügbar",
+    "id": "Pembaruan baru tersedia",
+    "ja": "新しいアップデートが利用可能です",
+    "ko": "새로운 업데이트 사용 가능",
+    "it": "Nuovo aggiornamento disponibile",
+    "ru": "Доступно новое обновление"
+  },
+  "update_message": {
+    "en": "What's New 280 (2.239.1)\n• Instant language switching: Language selection in App Preferences now updates immediately across all Android versions (API 24 to 36)\n• Localized numerals: Calculator keys, display, and App Lock keypad now display native Hindi and Odia numerals\n• Smoother transitions & stability improvements throughout the app",
+    "hi": "नया क्या है 280 (2.239.1)\n• तुरंत भाषा परिवर्तन: ऐप प्राथमिकताओं में भाषा बदलना अब सभी एंड्रॉइड वर्शन (API 24 से 36) पर तुरंत और सुचारू रूप से लागू होता है\n• स्थानीय अंक: कैलकुलेटर कीज़, डिस्प्ले और ऐप लॉक कीपैड पर अब देशी हिंदी और ओड़िया अंक प्रदर्शित होते हैं\n• पूरे ऐप में सहज बदलाव और स्थिरता में सुधार",
+    "or": "ନୂଆ କଣ 280 (2.239.1)\n• ତୁରନ୍ତ ଭାଷା ପରିବର୍ତ୍ତନ: ଆପ୍ ପ୍ରାଥମିକତାରେ ଭାଷା ବଦଳାଇବା ଏବେ ସମସ୍ତ ଆଣ୍ଡ୍ରଏଡ୍ ଭର୍ସନରେ (API 24 ରୁ 36) ତୁରନ୍ତ ଲାଗୁ ହୁଏ\n• ସ୍ଥାନୀୟ ସଂଖ୍ୟା: କାଲକୁଲେଟର କୀ', ଡିସପ୍ଲେ ଏବଂ ଆପ୍ ଲକ୍ କୀପ୍ୟାଡ୍‌ରେ ଦେଶୀ ଓଡ଼ିଆ ଓ ହିନ୍ଦୀ ସଂଖ୍ୟା ପ୍ରଦର୍ଶିତ ହୁଏ\n• ସମଗ୍ର ଆପ୍‌ରେ ଉନ୍ନତ ସ୍ଥିରତା ଓ ସୁଗମ ଅନୁଭବ",
+    "es": "Novedades 280 (2.239.1)\n• Cambio de idioma instantáneo: La selección de idioma se actualiza de inmediato en todas las versiones de Android (API 24 a 36)\n• Números localizados: Teclado y pantalla de la calculadora y bloqueo de la app con números nativos en hindi y odia\n• Mayor fluidez y mejoras de estabilidad en toda la app",
+    "pt-BR": "Novidades 280 (2.239.1)\n• Troca de idioma instantânea: A troca de idioma agora é aplicada imediatamente em todas as versões do Android (API 24 a 36)\n• Numerais localizados: Teclado e tela da calculadora e tela de bloqueio com numerais nativos em hindi e odia\n• Maior estabilidade e transições mais suaves em todo o app",
+    "fr": "Nouveautés 280 (2.239.1)\n• Changement de langue instantané : Le choix de la langue s'applique immédiatement sur toutes les versions d'Android (API 24 à 36)\n• Chiffres localisés : Les touches et l'affichage de la calculatrice ainsi que le pavé numérique de verrouillage prennent en charge les chiffres natifs en hindi et odia\n• Améliorations de la fluidité et de la stabilité générale",
+    "de": "Neuigkeiten 280 (2.239.1)\n• Sofortiger Sprachwechsel: Die Sprachauswahl wird jetzt auf allen Android-Versionen (API 24 bis 36) sofort übernommen\n• Lokalisierte Ziffern: Rechnertasten, Display und App-Sperre unterstützen nun native Ziffern für Hindi und Odia\n• Verbesserte Stabilität und flüssigere Übergänge in der gesamten App",
+    "id": "Yang Baru 280 (2.239.1)\n• Pergantian bahasa instan: Pemilihan bahasa kini diterapkan seketika di seluruh versi Android (API 24 hingga 36)\n• Angka lokal: Tombol kalkulator, layar, dan keypad kunci aplikasi kini menampilkan angka asli dalam bahasa Hindi dan Odia\n• Peningkatan kelancaran transisi dan stabilitas aplikasi",
+    "ja": "新着情報 280 (2.239.1)\n• 言語の即時切り替え：設定での言語変更が、すべてのAndroidバージョン（API 24〜36）ですぐに反映されるようになりました\n• 現地数字の表示：計算機のキーと画面、およびアプリロックのキーパッドでヒンディー語とオディア語の固有数字を表示\n• アプリ全体の動作安定性とスムーズさの向上",
+    "ko": "새로운 기능 280 (2.239.1)\n• 즉각적인 언어 전환: 앱 설정에서 언어를 변경하면 모든 Android 버전(API 24~36)에서 즉시 적용됩니다\n• 현지화된 숫자 표기: 계산기 키, 디스플레이 및 앱 잠금 키패드에 힌디어 및 오디아어 고유 숫자 지원\n• 앱 전반의 성능 및 전환 안정성 개선",
+    "it": "Novità 280 (2.239.1)\n• Cambio lingua istantaneo: La selezione della lingua si aggiorna ora immediatamente su tutte le versioni di Android (API 24-36)\n• Cifre localizzate: Tasti della calcolatrice, display e tastierino di blocco ora mostrano i numeri nativi in hindi e odia\n• Miglioramenti di stabilità e fluidità generale nell'app",
+    "ru": "Что нового 280 (2.239.1)\n• Мгновенное переключение языка: Выбор языка теперь применяется сразу на всех версиях Android (API 24–36)\n• Локализованные цифры: Клавиатура и дисплей калькулятора, а также экран блокировки поддерживают родные цифры хинди и одия\n• Повышение плавности переходов и общей стабильности приложения"
+  },
+  "play_store_whats_new": {
+    "en-US": "• Instant language switching: Language selection in App Preferences now updates immediately across all Android versions (API 24 to 36)\n• Localized numerals: Calculator keys, display, and App Lock keypad now display native Hindi and Odia numerals\n• Smoother transitions & stability improvements throughout the app",
+    "hi-IN": "• तुरंत भाषा परिवर्तन: ऐप प्राथमिकताओं में भाषा बदलना अब सभी एंड्रॉइड वर्शन (API 24 से 36) पर तुरंत और सुचारू रूप से लागू होता है\n• स्थानीय अंक: कैलकुलेटर कीज़, डिस्प्ले और ऐप लॉक कीपैड पर अब देशी हिंदी और ओड़िया अंक प्रदर्शित होते हैं\n• पूरे ऐप में सहज बदलाव और स्थिरता में सुधार",
+    "or": "• ତୁରନ୍ତ ଭାଷା ପରିବର୍ତ୍ତନ: ଆପ୍ ପ୍ରାଥମିକତାରେ ଭାଷା ବଦଳାଇବା ଏବେ ସମସ୍ତ ଆଣ୍ଡ୍ରଏଡ୍ ଭର୍ସନରେ (API 24 ରୁ 36) ତୁରନ୍ତ ଲାଗୁ ହୁଏ\n• ସ୍ଥାନୀୟ ସଂଖ୍ୟା: କାଲକୁଲେଟର କୀ', ଡିସପ୍ଲେ ଏବଂ ଆପ୍ ଲକ୍ କୀପ୍ୟାଡ୍‌ରେ ଦେଶୀ ଓଡ଼ିଆ ଓ ହିନ୍ଦୀ ସଂଖ୍ୟା ପ୍ରଦର୍ଶିତ ହୁଏ\n• ସମଗ୍ର ଆପ୍‌ରେ ଉନ୍ନତ ସ୍ଥିରତା ଓ ସୁଗମ ଅନୁଭବ",
+    "es-ES": "• Cambio de idioma instantáneo: La selección de idioma se actualiza de inmediato en todas las versiones de Android (API 24 a 36)\n• Números localizados: Teclado y pantalla de la calculadora y bloqueo de la app con números nativos en hindi y odia\n• Mayor fluidez y mejoras de estabilidad en toda la app",
+    "pt-BR": "• Troca de idioma instantânea: A troca de idioma agora é aplicada imediatamente em todas as versões do Android (API 24 a 36)\n• Numerais localizados: Teclado e tela da calculadora e tela de bloqueio com numerais nativos em hindi e odia\n• Maior estabilidade e transições mais suaves em todo o app",
+    "fr-FR": "• Changement de langue instantané : Le choix de la langue s'applique immédiatement sur toutes les versions d'Android (API 24 à 36)\n• Chiffres localisés : Les touches et l'affichage de la calculatrice ainsi que le pavé numérique de verrouillage prennent en charge les chiffres natifs en hindi et odia\n• Améliorations de la fluidité et de la stabilité générale",
+    "de-DE": "• Sofortiger Sprachwechsel: Die Sprachauswahl wird jetzt auf allen Android-Versionen (API 24 bis 36) sofort übernommen\n• Lokalisierte Ziffern: Rechnertasten, Display und App-Sperre unterstützen nun native Ziffern für Hindi und Odia\n• Verbesserte Stabilität und flüssigere Übergänge in der gesamten App",
+    "id": "• Pergantian bahasa instan: Pemilihan bahasa kini diterapkan seketika di seluruh versi Android (API 24 hingga 36)\n• Angka lokal: Tombol kalkulator, layar, dan keypad kunci aplikasi kini menampilkan angka asli dalam bahasa Hindi dan Odia\n• Peningkatan kelancaran transisi dan stabilitas aplikasi",
+    "ja-JP": "• 言語の即時切り替え：設定での言語変更が、すべてのAndroidバージョン（API 24〜36）ですぐに反映されるようになりました\n• 現地数字の表示：計算機のキーと画面、およびアプリロックのキーパッドでヒンディー語とオディア語の固有数字を表示\n• アプリ全体の動作安定性とスムーズさの向上",
+    "ko-KR": "• 즉각적인 언어 전환: 앱 설정에서 언어를 변경하면 모든 Android 버전(API 24~36)에서 즉시 적용됩니다\n• 현지화된 숫자 표기: 계산기 키, 디스플레이 및 앱 잠금 키패드에 힌디어 및 오디아어 고유 숫자 지원\n• 앱 전반의 성능 및 전환 안정성 개선",
+    "it-IT": "• Cambio lingua istantaneo: La selezione della lingua si aggiorna ora immediatamente su tutte le versioni di Android (API 24-36)\n• Cifre localizzate: Tasti della calcolatrice, display e tastierino di blocco ora mostrano i numeri nativi in hindi e odia\n• Miglioramenti di stabilità e fluidità generale nell'app",
+    "ru-RU": "• Мгновенное переключение языка: Выбор языка теперь применяется сразу на всех версиях Android (API 24–36)\n• Локализованные цифры: Клавиатура и дисплей калькулятора, а также экран блокировки поддерживают родные цифры хинди и одия\n• Повышение плавности переходов и общей стабильности приложения"
+  }
+}
