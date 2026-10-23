@@ -177,7 +177,10 @@ import com.mknlabs.expensetracker.core.ui.theme.breakdownHeroFill
 import com.mknlabs.expensetracker.core.ui.theme.standardCardGradient
 
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.localizeWesternDigits
+import com.mknlabs.expensetracker.utils.usesNativeDigits
 import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.getDateTime
 
@@ -636,6 +639,9 @@ private fun CalculatorKeypad(
     hasInput: Boolean = false,
     onAction: (String) -> Unit
 ) {
+    AppLocaleHelper.appliedLanguageTags
+    val languageTag = AppLocaleHelper.getCurrentLanguageTag()
+    val useNativeDigits = usesNativeDigits(languageTag)
     val rowSpacing = if (compact) 8.dp else 12.dp
 
     Column(
@@ -707,8 +713,8 @@ private fun CalculatorKeypad(
             listOf("7", "8", "9").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
-                    label = value,
-                    icon = calculatorDigitIcon(value),
+                    label = localizeWesternDigits(value, languageTag),
+                    icon = if (useNativeDigits) null else calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
@@ -737,8 +743,8 @@ private fun CalculatorKeypad(
             listOf("4", "5", "6").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
-                    label = value,
-                    icon = calculatorDigitIcon(value),
+                    label = localizeWesternDigits(value, languageTag),
+                    icon = if (useNativeDigits) null else calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
@@ -767,8 +773,8 @@ private fun CalculatorKeypad(
             listOf("1", "2", "3").forEach { value ->
                 CalculatorKeyButton(
                     modifier = Modifier.weight(1f),
-                    label = value,
-                    icon = calculatorDigitIcon(value),
+                    label = localizeWesternDigits(value, languageTag),
+                    icon = if (useNativeDigits) null else calculatorDigitIcon(value),
                     onClick = { onAction(value) }
                 )
             }
@@ -811,8 +817,8 @@ private fun CalculatorKeypad(
             )
             CalculatorKeyButton(
                 modifier = Modifier.weight(1f),
-                label = "0",
-                icon = calculatorDigitIcon("0"),
+                label = localizeWesternDigits("0", languageTag),
+                icon = if (useNativeDigits) null else calculatorDigitIcon("0"),
                 onClick = { onAction("0") }
             )
             CalculatorKeyButton(
@@ -917,16 +923,20 @@ private fun NormalCalculatorDisplay(
         }
     }
 
+    AppLocaleHelper.appliedLanguageTags
+    val languageTag = AppLocaleHelper.getCurrentLanguageTag()
     val rawExprText = expression ?: resultValue
-    val expressionText = when {
+    val asciiExpressionText = when {
         rawExprText.isBlank() || rawExprText == "0" -> "0"
         rawExprText.startsWith("=") -> rawExprText.removePrefix("=").trim()
         else -> rawExprText
     }
+    val expressionText = localizeWesternDigits(asciiExpressionText, languageTag)
+    val localizedResult = localizeWesternDigits(resultValue, languageTag)
     val showEqualsOnResult = resultValue.isNotBlank() &&
-        expressionText != "0" &&
+        asciiExpressionText != "0" &&
         expressionText.isNotBlank()
-    val resultText = if (showEqualsOnResult) "= $resultValue" else resultValue
+    val resultText = if (showEqualsOnResult) "= $localizedResult" else localizedResult
 
     var editingAfterEquals by remember { mutableStateOf(false) }
     LaunchedEffect(isEvaluated) {

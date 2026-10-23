@@ -1,6 +1,8 @@
 package com.mknlabs.expensetracker.feature.auth.ui
 
 import androidx.activity.compose.BackHandler
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
+import com.mknlabs.expensetracker.utils.localizeWesternDigits
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -1225,8 +1227,9 @@ private fun AppLockKey(
             }
 
             else -> {
+                AppLocaleHelper.appliedLanguageTags
                 Text(
-                    text = key,
+                    text = localizeWesternDigits(key, AppLocaleHelper.getCurrentLanguageTag()),
                     color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Medium,
