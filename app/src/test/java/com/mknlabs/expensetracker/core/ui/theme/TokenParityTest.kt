@@ -25,7 +25,7 @@ class TokenParityTest {
     @Test
     fun `dark scheme surfaces and brand match the spec`() {
         // Deliberately off the original mock: the homescreen redesign's phone field.
-        assertEquals(Color(0xFF0B0C10), dark.background)      // --bg, redesigned (was #0A0A0A)
+        assertEquals(Color(0xFF090B10), dark.background)      // --bg, redesigned (was #0A0A0A, then #0B0C10)
         assertEquals(Color(0xFF18181A), dark.surface)         // trial surface (was --s1 #141418)
         assertEquals(Color(0xFF26262E), dark.surfaceVariant)  // --menu / --track
         assertEquals(Color(0xFF2A2A31), dark.outline)         // --line

@@ -26,6 +26,8 @@ import com.mknlabs.expensetracker.domain.usecase.UpdateTimeFormatUseCase
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.Currency
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
+import android.app.Activity
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mknlabs.expensetracker.utils.formatNumberValue
 import com.mknlabs.expensetracker.utils.getDateFormatPreviewLabel
@@ -200,12 +202,19 @@ class PreferencesViewModel @Inject constructor(
         dismissSheet()
     }
 
-    fun selectLanguage(languageCode: String, onApplied: () -> Unit = {}) {
-        viewModelScope.launch {
-            updateLanguage(languageCode)
-            onApplied()
-        }
+    fun selectLanguage(
+        languageCode: String,
+        activity: Activity? = null,
+        onApplied: () -> Unit = {}
+    ) {
+        val normalized = normalizeLanguageCode(languageCode)
+        AppLocaleHelper.applyLanguage(normalized, activity)
+        onApplied()
         dismissSheet()
+
+        viewModelScope.launch {
+            updateLanguage(normalized)
+        }
     }
 
     fun selectTimeFormat(timeFormat: String) {

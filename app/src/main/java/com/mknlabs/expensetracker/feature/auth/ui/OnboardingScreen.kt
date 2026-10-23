@@ -154,6 +154,8 @@ fun OnboardingScreen(
     val returningUserProfile by authViewModel.returningUserProfile.collectAsStateWithLifecycle()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val preferencesUiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? android.app.Activity
 
     OnboardingScreenContent(
         currentUser = currentUser,
@@ -166,7 +168,7 @@ fun OnboardingScreen(
         onResetReturningProfile = { authViewModel.resetReturningUserProfile() },
         initialLanguageCode = preferencesUiState.selectedLanguageCode,
         onApplyLanguage = { code, onApplied ->
-            preferencesViewModel.selectLanguage(code, onApplied)
+            preferencesViewModel.selectLanguage(code, activity, onApplied)
         },
         authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccess ->
             AuthRoute(

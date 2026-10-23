@@ -152,7 +152,7 @@ fun PreferencesScreen(
         dismissSheet = { preferencesViewModel.dismissSheet() },
         updateCurrencySearchQuery = { preferencesViewModel.updateCurrencySearchQuery(it) },
         selectThemeMode = { preferencesViewModel.selectThemeMode(it) },
-        selectLanguage = { preferencesViewModel.selectLanguage(it) },
+        selectLanguage = { preferencesViewModel.selectLanguage(it, activity) },
         selectDateFormat = { preferencesViewModel.selectDateFormat(it) },
         selectTimeFormat = { preferencesViewModel.selectTimeFormat(it) },
         selectGroupingStyle = { preferencesViewModel.selectGroupingStyle(it) },

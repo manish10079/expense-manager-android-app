@@ -49,7 +49,7 @@
             android:launchMode="singleTop"
             android:theme="@style/Theme.ExpenseTracker.Splash"
             android:windowSoftInputMode="adjustResize"
-            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode">
+            android:configChanges="density|fontScale|keyboard|keyboardHidden|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
