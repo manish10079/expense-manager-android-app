@@ -34,11 +34,25 @@ enum class AppLockFlow {
     Unlock
 }
 
+fun addTransactionExitRoute(
+    originRoute: AppRoute,
+    previousRoute: AppRoute
+): AppRoute {
+    return when {
+        originRoute != AppRoute.AddTransaction && originRoute != AppRoute.ItemizedCalculator ->
+            originRoute
+        previousRoute != AppRoute.AddTransaction && previousRoute != AppRoute.ItemizedCalculator ->
+            previousRoute
+        else -> AppRoute.Home
+    }
+}
+
 fun resolveBackNavigationRoute(
     currentRoute: AppRoute,
     profileOriginRoute: AppRoute,
     previousRoute: AppRoute,
-    paywallOriginRoute: AppRoute
+    paywallOriginRoute: AppRoute,
+    addTransactionOriginRoute: AppRoute = previousRoute
 ): AppRoute? {
     return when (currentRoute) {
         AppRoute.Analytics,
@@ -68,7 +82,7 @@ fun resolveBackNavigationRoute(
         // by its own handler or by this map.
         AppRoute.Feedback -> AppRoute.About
         AppRoute.Profile -> profileOriginRoute
-        AppRoute.AddTransaction,
+        AppRoute.AddTransaction -> addTransactionExitRoute(addTransactionOriginRoute, previousRoute)
         AppRoute.Goals -> previousRoute
         // The paywall is opened from upsells all over the app (gated actions, settings
         // rows, the transaction editor), so Back returns to whichever screen opened it.

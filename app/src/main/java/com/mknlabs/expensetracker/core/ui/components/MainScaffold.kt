@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 fun MainScaffold(
     currentRoute: AppRoute,
     previousRoute: AppRoute,
+    addTransactionOriginRoute: AppRoute = previousRoute,
     profileOriginRoute: AppRoute,
     paywallOriginRoute: AppRoute,
     isBottomBarVisible: Boolean,
@@ -202,7 +203,8 @@ fun MainScaffold(
         currentRoute = currentRoute,
         profileOriginRoute = profileOriginRoute,
         previousRoute = previousRoute,
-        paywallOriginRoute = paywallOriginRoute
+        paywallOriginRoute = paywallOriginRoute,
+        addTransactionOriginRoute = addTransactionOriginRoute
     )
     val colorScheme = MaterialTheme.colorScheme
 
@@ -232,7 +234,7 @@ fun MainScaffold(
         when {
             currentRoute == AppRoute.AddTransaction -> {
                 onBottomBarVisibilityChange(false)
-                onRouteChange(previousRoute)
+                onRouteChange(backNavigationRoute ?: AppRoute.Home)
             }
             currentRoute == AppRoute.ItemizedCalculator -> {
                 onBottomBarVisibilityChange(false)
@@ -293,6 +295,7 @@ fun MainScaffold(
             isAdsEnabled = isAdsEnabled,
             currentRoute = currentRoute,
             previousRoute = previousRoute,
+            addTransactionOriginRoute = addTransactionOriginRoute,
             profileOriginRoute = profileOriginRoute,
             paywallOriginRoute = paywallOriginRoute,
             transactions = transactions,

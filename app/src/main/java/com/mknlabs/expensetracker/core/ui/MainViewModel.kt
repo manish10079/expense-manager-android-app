@@ -50,7 +50,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import android.util.Log
 import java.util.Calendar
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -106,6 +109,7 @@ class MainViewModel @Inject constructor(
 
     private val _uiEvent = MutableSharedFlow<MainUiEvent>()
     val uiEvent: SharedFlow<MainUiEvent> = _uiEvent.asSharedFlow()
+    private val transactionSaveInFlight = AtomicBoolean(false)
 
     val currentUser = authRepository.currentUser
     
@@ -334,8 +338,15 @@ class MainViewModel @Inject constructor(
         isFavorite: Boolean,
         tagIds: List<String> = emptyList()
     ) {
+        if (!transactionSaveInFlight.compareAndSet(false, true)) return
         viewModelScope.launch {
-            val savedTransaction = transactionRepository.upsertTransaction(transaction)
+            try {
+            val toPersist = if (transaction.id.isBlank()) {
+                transaction.copy(id = UUID.randomUUID().toString())
+            } else {
+                transaction
+            }
+            val savedTransaction = transactionRepository.upsertTransaction(toPersist)
             // Tags are written after the transaction exists, because the link table keys
             // on the transaction's id — which the repository may have just minted. The
             // repository reconciles the whole set in one database transaction, so an
@@ -472,6 +483,11 @@ class MainViewModel @Inject constructor(
             // If a recurring rule was added/updated, trigger immediate processing
             if (recurringDraft != null) {
                 com.mknlabs.expensetracker.workers.RecurringTransactionWorker.enqueueImmediate(appContext)
+            }
+            } catch (t: Throwable) {
+                Log.e("MainViewModel", "saveTransaction failed", t)
+            } finally {
+                transactionSaveInFlight.set(false)
             }
         }
     }

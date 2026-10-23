@@ -64,6 +64,7 @@ fun AppNavigationHost(
     saveableStateHolder: androidx.compose.runtime.saveable.SaveableStateHolder,
     currentRoute: AppRoute,
     previousRoute: AppRoute,
+    addTransactionOriginRoute: AppRoute = previousRoute,
     profileOriginRoute: AppRoute,
     paywallOriginRoute: AppRoute,
     transactions: List<Transaction>,
@@ -721,14 +722,6 @@ fun AppNavigationHost(
                     val favorites by mainViewModel.favorites.collectAsStateWithLifecycle()
                     val favoritesContext = LocalContext.current
                     
-                    androidx.compose.runtime.LaunchedEffect(Unit) {
-                        mainViewModel.uiEvent.collect { event ->
-                            if (event is com.mknlabs.expensetracker.core.ui.MainUiEvent.TransactionOperationCompleted) {
-                                exitAddTransactionScreen(previousRoute)
-                            }
-                        }
-                    }
-                    
                     AddTransactionScreen(
                         currencyId = selectedCurrencyId,
                         dateFormatPattern = selectedDateFormatPattern,
@@ -747,12 +740,12 @@ fun AppNavigationHost(
                         autoStartVoice = addTransactionDraftAutoStartVoice,
                         onVoiceAutoStarted = onVoiceAutoStarted,
                         onBackClick = {
-                            exitAddTransactionScreen(previousRoute)
+                            exitAddTransactionScreen(addTransactionExitRoute(addTransactionOriginRoute, previousRoute))
                         },
                         onDeleteClick = {
                             val transactionToDelete = selectedTransaction
                             if (transactionToDelete == null) {
-                                exitAddTransactionScreen(previousRoute)
+                                exitAddTransactionScreen(addTransactionExitRoute(addTransactionOriginRoute, previousRoute))
                             } else {
                                 onDeleteTransaction(transactionToDelete.id)
                             }
@@ -773,6 +766,7 @@ fun AppNavigationHost(
                             ).show()
                         },
                         onSaveClick = { draftTransaction, recurringDraft, isFavorite, tagIds ->
+                            exitAddTransactionScreen(addTransactionExitRoute(addTransactionOriginRoute, previousRoute))
                             val isEdit = selectedTransaction != null
                             // Only a draft that came from the inbox carries a detection.
                             val detectionId = if (isEdit) null else smsInboxDraftDetectionId

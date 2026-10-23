@@ -120,4 +120,23 @@ class NavigationUtilsTest {
         assertFalse(isBottomTabSwitch(AppRoute.Calendar, AppRoute.Home))
         assertFalse(isBottomTabSwitch(AppRoute.AddTransaction, AppRoute.Home))
     }
+
+    @Test
+    fun addTransactionExitRoute_ignoresSelfAndCalculator() {
+        assertEquals(AppRoute.Home, addTransactionExitRoute(AppRoute.Home, AppRoute.AddTransaction))
+        assertEquals(AppRoute.Transactions, addTransactionExitRoute(AppRoute.AddTransaction, AppRoute.Transactions))
+        assertEquals(AppRoute.Home, addTransactionExitRoute(AppRoute.AddTransaction, AppRoute.ItemizedCalculator))
+    }
+
+    @Test
+    fun resolveBackNavigationRoute_usesAddTransactionOriginAfterCalculator() {
+        val backRoute = resolveBackNavigationRoute(
+            currentRoute = AppRoute.AddTransaction,
+            profileOriginRoute = AppRoute.Home,
+            previousRoute = AppRoute.AddTransaction,
+            paywallOriginRoute = AppRoute.Home,
+            addTransactionOriginRoute = AppRoute.Transactions
+        )
+        assertEquals(AppRoute.Transactions, backRoute)
+    }
 }

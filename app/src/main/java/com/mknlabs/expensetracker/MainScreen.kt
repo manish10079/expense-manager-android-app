@@ -848,6 +848,7 @@ fun MainScreen(
                     MainScaffold(
                         currentRoute = navigationState.currentRoute,
                         previousRoute = navigationState.previousRoute,
+                        addTransactionOriginRoute = navigationState.addTransactionOriginRoute,
                         profileOriginRoute = navigationState.profileOriginRoute,
                         paywallOriginRoute = navigationState.paywallOriginRoute,
                         isBottomBarVisible = navigationState.isBottomBarVisible,
