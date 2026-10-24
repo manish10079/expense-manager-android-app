@@ -161,11 +161,6 @@ class MainActivity : AppCompatActivity() {
         }
                 AppCompatDelegate.setDefaultNightMode(mode)
 
-        val syncLanguage = LocalePreferenceSync.getLanguage(this)
-        if (syncLanguage != SYSTEM_LANGUAGE_CODE) {
-            AppLocaleHelper.applyLanguage(syncLanguage, this)
-        }
-
         val splashScreen = installSplashScreen()
         
         splashScreen.setKeepOnScreenCondition {

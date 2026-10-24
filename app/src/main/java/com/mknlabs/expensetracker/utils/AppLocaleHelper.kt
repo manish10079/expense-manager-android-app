@@ -45,6 +45,9 @@ object AppLocaleHelper {
         }
 
         val targetTags = targetLocales.toLanguageTags()
+        val currentDelegateTags = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+        val localesAlreadyApplied =
+            currentDelegateTags == targetTags && appliedLanguageTags == targetTags
 
         // 3. Update JVM default locale
         val primaryLocale = if (normalized == SYSTEM_LANGUAGE_CODE) {
@@ -54,16 +57,19 @@ object AppLocaleHelper {
         }
         Locale.setDefault(primaryLocale)
 
-        // 4. Update AppCompat locales
-        AppCompatDelegate.setApplicationLocales(targetLocales)
-
-        // 5. Update observable Compose state
+        // 4-5. Skip setApplicationLocales when unchanged: on API 32 and below it
+        // recreates the Activity even for a no-op, which retriggers splash.
+        if (!localesAlreadyApplied) {
+            AppCompatDelegate.setApplicationLocales(targetLocales)
+        }
         appliedLanguageTags = targetTags
 
-        // 6. On API <= 32, recreate the activity to ensure system window & OEM resources refresh
+        // 6. On API <= 32, recreate only if the Activity config is still stale.
         val activity = context?.findFragmentActivity()
         activity?.let { act ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
+                activityNeedsLocaleRecreate(act, normalized)
+            ) {
                 act.window?.decorView?.post {
                     if (!act.isFinishing && !act.isDestroyed && !act.isChangingConfigurations) {
                         act.recreate()
@@ -71,6 +77,17 @@ object AppLocaleHelper {
                 }
             }
         }
+    }
+
+    private fun activityNeedsLocaleRecreate(
+        activity: android.app.Activity,
+        normalized: String
+    ): Boolean {
+        val current = activity.resources.configuration.locales[0] ?: return true
+        if (normalized == SYSTEM_LANGUAGE_CODE) return false
+        val currentTag = current.toLanguageTag()
+        return !currentTag.equals(normalized, ignoreCase = true) &&
+            !currentTag.startsWith("$normalized-", ignoreCase = true)
     }
 
     fun getCurrentLanguageTag(): String {
