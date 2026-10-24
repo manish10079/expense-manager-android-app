@@ -3486,7 +3486,7 @@ privat dari sifat</string>
 
     <string name="btn_update_now">Update sekarang</string>
 
-    <string name="title_update_available">Versi baru tersedia</string>
+    <string name="title_update_available">Pembaruan baru tersedia</string>
 
     <string name="title_update_available_version">Versi %s tersedia</string>
     <string name="badge_version_format">Versi %s</string>

@@ -3462,7 +3462,7 @@
 
     <string name="btn_update_now">지금 업데이트</string>
 
-    <string name="title_update_available">새 버전이 있어</string>
+    <string name="title_update_available">새로운 업데이트 사용 가능</string>
 
     <string name="title_update_available_version">버전 %s를 쓸 수 있어</string>
     <string name="badge_version_format">버전 %s</string>

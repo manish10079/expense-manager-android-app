@@ -3429,7 +3429,7 @@
 
     <string name="btn_update_now">Aggiorna ora</string>
 
-    <string name="title_update_available">C\'è una nuova versione</string>
+    <string name="title_update_available">Nuovo aggiornamento disponible</string>
 
     <string name="title_update_available_version">La versione %s è disponibile</string>
     <string name="badge_version_format">Versione %s</string>

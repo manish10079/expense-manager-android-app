@@ -3493,7 +3493,7 @@ privado de verdad</string>
 
     <string name="btn_update_now">Actualizar ahora</string>
 
-    <string name="title_update_available">Hay una versión nueva</string>
+    <string name="title_update_available">Nueva actualización disponible</string>
 
     <string name="title_update_available_version">Está disponible la versión %s</string>
     <string name="badge_version_format">Versión %s</string>

@@ -3486,7 +3486,7 @@
 
     <string name="btn_update_now">今すぐ更新</string>
 
-    <string name="title_update_available">新しいバージョンがあるよ</string>
+    <string name="title_update_available">新しいアップデートが利用可能です</string>
 
     <string name="title_update_available_version">バージョン%sが使えるよ</string>
     <string name="badge_version_format">バージョン %s</string>

@@ -234,7 +234,7 @@ private fun UpdateHeader(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = titleText(info),
+                text = stringResource(R.string.title_update_available),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -367,30 +367,15 @@ private fun MessageBody(
 }
 
 @Composable
-private fun titleText(info: UpdateInfo): String {
-    return localizedUpdateTitle(info).ifBlank {
-        stringResource(R.string.title_update_available)
-    }
-}
-
-@Composable
 private fun currentAppLanguageTag(): String {
     AppLocaleHelper.appliedLanguageTags
     return AppLocaleHelper.getCurrentLanguageTag()
 }
 
 @Composable
-private fun localizedUpdateTitle(info: UpdateInfo): String {
-    val lang = currentAppLanguageTag()
-    return localizedRemoteConfigText(info.updateTitle, lang, nestedField = "title")
-        .ifBlank { localizedRemoteConfigText(info.updateMessage, lang, nestedField = "title") }
-}
-
-@Composable
 private fun localizedUpdateMessage(info: UpdateInfo): String {
     val lang = currentAppLanguageTag()
     return localizedRemoteConfigText(info.updateMessage, lang, nestedField = "message")
-        .ifBlank { localizedRemoteConfigText(info.updateTitle, lang, nestedField = "message") }
 }
 
 private fun buildRemoteConfigMessage(): String = listOf(
@@ -610,7 +595,6 @@ private fun PreviewUpdateDialogDeviceLight() {
     RealDevicePreviewScaffold(darkTheme = false) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = false,
                 latestVersion = "2.4.0"
@@ -636,7 +620,6 @@ private fun PreviewUpdateDialogDeviceDark() {
     RealDevicePreviewScaffold(darkTheme = true) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = false,
                 latestVersion = "2.4.0"
@@ -661,7 +644,6 @@ private fun PreviewUpdateDialogForcedLight() {
     RealDevicePreviewScaffold(darkTheme = false) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = true,
                 latestVersion = "2.4.0"
@@ -687,7 +669,6 @@ private fun PreviewUpdateDialogForcedDark() {
     RealDevicePreviewScaffold(darkTheme = true) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = true,
                 latestVersion = "2.4.0"
@@ -716,7 +697,6 @@ private fun PreviewUpdateDialogLandscape() {
     ) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = false,
                 latestVersion = "2.4.0"
@@ -745,7 +725,6 @@ private fun PreviewUpdateDialogTablet() {
     ) { metrics ->
         UpdateDialogCardSurface(
             info = UpdateInfo(
-                updateTitle = "Update Available",
                 updateMessage = buildRemoteConfigMessage(),
                 forceUpdate = false,
                 latestVersion = "2.4.0"

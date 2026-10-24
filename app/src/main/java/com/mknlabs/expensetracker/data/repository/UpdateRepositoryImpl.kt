@@ -77,7 +77,6 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
     private fun refreshFromCache() {
         val info = UpdateInfo(
             forceUpdate = remoteConfig.getBoolean(KEY_FORCE_UPDATE),
-            updateTitle = remoteConfig.getString(KEY_UPDATE_TITLE),
             updateMessage = remoteConfig.getString(KEY_UPDATE_MESSAGE),
             latestVersion = remoteConfig.getString(KEY_LATEST_VERSION)
         )
@@ -96,7 +95,6 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
         const val MIN_FETCH_INTERVAL_SECONDS = 0L
 
         const val KEY_FORCE_UPDATE = "force_update"
-        const val KEY_UPDATE_TITLE = "update_title"
         const val KEY_UPDATE_MESSAGE = "update_message"
         const val KEY_LATEST_VERSION = "latest_version"
     }

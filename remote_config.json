@@ -16,11 +16,6 @@
       },
       "valueType": "BOOLEAN"
     },
-    "update_title": {
-      "defaultValue": {
-        "value": "A New Version Is Available"
-      }
-    },
     "latest_version": {
       "defaultValue": {
         "value": ""

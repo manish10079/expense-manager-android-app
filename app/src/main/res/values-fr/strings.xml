@@ -3458,7 +3458,7 @@ privé par nature</string>
 
     <string name="btn_update_now">Mettre à jour</string>
 
-    <string name="title_update_available">Nouvelle version dispo</string>
+    <string name="title_update_available">Nouvelle mise à jour disponible</string>
 
     <string name="title_update_available_version">La version %s est dispo</string>
     <string name="badge_version_format">Version %s</string>

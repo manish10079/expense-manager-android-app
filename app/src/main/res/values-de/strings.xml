@@ -3491,7 +3491,7 @@ privat von Haus aus</string>
 
     <string name="btn_update_now">Jetzt updaten</string>
 
-    <string name="title_update_available">Neue Version da</string>
+    <string name="title_update_available">Neues Update verfügbar</string>
 
     <string name="title_update_available_version">Version %s ist da</string>
     <string name="badge_version_format">Version %s</string>

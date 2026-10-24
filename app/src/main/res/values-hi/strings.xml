@@ -3163,7 +3163,7 @@
 
     <!-- In-app update notification (Firebase Remote Config) -->
 
-    <string name="title_update_available">नया वर्जन उपलब्ध है</string>
+    <string name="title_update_available">नया अपडेट उपलब्ध है</string>
 
     <string name="title_update_available_version">वर्जन %s उपलब्ध है</string>
     <string name="badge_version_format">वर्जन %s</string>

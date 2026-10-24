@@ -21,7 +21,7 @@ class UpdateCheckerTest {
 
     @Test
     fun `optional update when Play has a build`() {
-        val info = UpdateInfo(updateTitle = "A New Version Is Available")
+        val info = UpdateInfo(updateMessage = "A New Version Is Available")
         val decision = checker.evaluate(playUpdateAvailable = true, info = info)
         assertTrue(decision is UpdateDecision.UpdateAvailable)
         assertFalse((decision as UpdateDecision.UpdateAvailable).force)

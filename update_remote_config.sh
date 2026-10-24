@@ -96,11 +96,11 @@ for key in ("force_update",):
     if key in seed_params:
         params[key] = seed_params[key]
 
-# update_title / update_message are console-authoritative. They used to be force-overwritten
+# update_message is console-authoritative. It used to be force-overwritten
 # from remote_config.json on every run, which silently replaced any wording set in the
 # Firebase console with the stale seed text (fresh version + old message in the dialog).
-# Now the seed only fills them in when the live template has never defined them.
-for key in ("update_title", "update_message"):
+# Now the seed only fills it in when the live template has never defined it.
+for key in ("update_message",):
     if key in seed_params and key not in params:
         params[key] = seed_params[key]
 

@@ -3429,7 +3429,7 @@
 
     <string name="btn_update_now">ଏବେ ଅପଡେଟ କର</string>
 
-    <string name="title_update_available">ନୂଆ ଭର୍ସନ ଅଛି</string>
+    <string name="title_update_available">ନୂଆ ଅପଡେଟ୍ ଉପଲବ୍ଧ ଅଛି</string>
 
     <string name="title_update_available_version">ଭର୍ସନ %s ଅଛି</string>
     <string name="badge_version_format">ଭର୍ସନ %s</string>
