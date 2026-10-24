@@ -1,6 +1,14 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,8 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -214,20 +226,7 @@ private fun UpdateHeader(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(brush = brandGradient()),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.RocketLaunch,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBrandGradient,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+        AnimatedRocketBadge()
 
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -273,6 +272,116 @@ private fun UpdateHeader(
                 )
             }
         }
+    }
+}
+
+/**
+ * Renders the brand-gradient rocket icon badge with full-speed flight physics:
+ * - Continuous diagonal thruster surge along the 45° launch vector
+ * - High-speed engine vibration / thruster turbulence tremor
+ * - Pulsing afterburner flame glow at the rocket nozzle
+ */
+@Composable
+private fun AnimatedRocketBadge(
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "rocketFlightAnimation")
+
+    // Forward surge (power cycle along diagonal flight trajectory)
+    val surge by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rocketSurge"
+    )
+
+    // High-frequency engine rumble / thruster vibration
+    val rumble by infiniteTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 65, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rocketRumble"
+    )
+
+    // Thruster afterburner flame pulse (rapid flicker at the nozzle)
+    val afterburnerScale by infiniteTransition.animateFloat(
+        initialValue = 0.7f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 90, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "afterburnerScale"
+    )
+    val afterburnerAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.45f,
+        targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 110, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "afterburnerAlpha"
+    )
+
+    val surgeOffset = surge * 2.5f
+    val rumbleOffsetX = rumble * 0.75f
+    val rumbleOffsetY = -rumble * 0.75f
+    val totalOffsetX = surgeOffset + rumbleOffsetX
+    val totalOffsetY = -surgeOffset + rumbleOffsetY
+    val rotation = (rumble * 1.8f) + (surge * 3f)
+
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(brush = brandGradient()),
+        contentAlignment = Alignment.Center
+    ) {
+        // Thruster exhaust flame at the rocket nozzle (bottom-left)
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(
+                    x = (-6).dp + (totalOffsetX * 0.5f).dp,
+                    y = 6.dp + (totalOffsetY * 0.5f).dp
+                )
+                .size(16.dp)
+                .graphicsLayer {
+                    scaleX = afterburnerScale
+                    scaleY = afterburnerScale
+                    alpha = afterburnerAlpha
+                }
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFFFFD54F),
+                            Color(0xFFFF7043).copy(alpha = 0.6f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+
+        // Rocket launch icon with full-speed engine thrust
+        Icon(
+            imageVector = Icons.Rounded.RocketLaunch,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBrandGradient,
+            modifier = Modifier
+                .size(24.dp)
+                .graphicsLayer {
+                    translationX = totalOffsetX.dp.toPx()
+                    translationY = totalOffsetY.dp.toPx()
+                    rotationZ = rotation
+                }
+        )
     }
 }
 
