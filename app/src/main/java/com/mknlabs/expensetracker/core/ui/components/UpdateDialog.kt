@@ -276,10 +276,10 @@ private fun UpdateHeader(
 }
 
 /**
- * Renders the brand-gradient rocket icon badge with full-speed flight physics:
- * - Continuous diagonal thruster surge along the 45° launch vector
- * - High-speed engine vibration / thruster turbulence tremor
- * - Pulsing afterburner flame glow at the rocket nozzle
+ * Renders the brand-gradient rocket icon badge with vertical high-speed flight physics:
+ * - Rocket rotated -45° to fly vertically straight up
+ * - Continuous upward thruster surge and high-speed engine rumble
+ * - Pulsing radial afterburner flame jet underneath the nozzle
  */
 @Composable
 private fun AnimatedRocketBadge(
@@ -287,7 +287,7 @@ private fun AnimatedRocketBadge(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "rocketFlightAnimation")
 
-    // Forward surge (power cycle along diagonal flight trajectory)
+    // Vertical surge (power cycle surging straight upwards)
     val surge by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -311,7 +311,7 @@ private fun AnimatedRocketBadge(
 
     // Thruster afterburner flame pulse (rapid flicker at the nozzle)
     val afterburnerScale by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
+        initialValue = 0.75f,
         targetValue = 1.25f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 90, easing = FastOutLinearInEasing),
@@ -329,12 +329,12 @@ private fun AnimatedRocketBadge(
         label = "afterburnerAlpha"
     )
 
-    val surgeOffset = surge * 2.5f
+    val surgeOffsetY = -surge * 2.8f
     val rumbleOffsetX = rumble * 0.75f
-    val rumbleOffsetY = -rumble * 0.75f
-    val totalOffsetX = surgeOffset + rumbleOffsetX
-    val totalOffsetY = -surgeOffset + rumbleOffsetY
-    val rotation = (rumble * 1.8f) + (surge * 3f)
+    val rumbleOffsetY = rumble * 0.45f
+    val totalOffsetX = rumbleOffsetX
+    val totalOffsetY = surgeOffsetY + rumbleOffsetY
+    val rotation = -45f + (rumble * 1.6f)
 
     Box(
         modifier = modifier
@@ -343,25 +343,25 @@ private fun AnimatedRocketBadge(
             .background(brush = brandGradient()),
         contentAlignment = Alignment.Center
     ) {
-        // Thruster exhaust flame at the rocket nozzle (bottom-left)
+        // Thruster exhaust flame jet directly underneath the rocket nozzle
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
                 .offset(
-                    x = (-6).dp + (totalOffsetX * 0.5f).dp,
-                    y = 6.dp + (totalOffsetY * 0.5f).dp
+                    x = totalOffsetX.dp,
+                    y = 9.dp + (totalOffsetY * 0.75f).dp
                 )
                 .size(16.dp)
                 .graphicsLayer {
-                    scaleX = afterburnerScale
-                    scaleY = afterburnerScale
+                    scaleX = afterburnerScale * 0.85f
+                    scaleY = afterburnerScale * 1.25f
                     alpha = afterburnerAlpha
                 }
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
                             Color(0xFFFFD54F),
-                            Color(0xFFFF7043).copy(alpha = 0.6f),
+                            Color(0xFFFF7043).copy(alpha = 0.65f),
                             Color.Transparent
                         )
                     ),
@@ -369,7 +369,7 @@ private fun AnimatedRocketBadge(
                 )
         )
 
-        // Rocket launch icon with full-speed engine thrust
+        // Rocket launch icon pointing vertically straight UP
         Icon(
             imageVector = Icons.Rounded.RocketLaunch,
             contentDescription = null,
