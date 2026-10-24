@@ -13,9 +13,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -94,6 +96,7 @@ import kotlinx.coroutines.launch
 /** Derived dimensions that adapt to screen size and orientation. */
 private data class DialogMetrics(
     val maxWidth: Dp,
+    val subtitleMaxHeight: Dp,
     val messageMaxHeight: Dp,
     val outerPadding: Dp,
     val innerPadding: Dp,
@@ -145,6 +148,7 @@ private fun rememberDialogMetrics(): DialogMetrics {
 
         DialogMetrics(
             maxWidth = maxW,
+            subtitleMaxHeight = (msgMaxH * 0.38f).coerceIn(64.dp, 112.dp),
             messageMaxHeight = msgMaxH,
             outerPadding = outerPad,
             innerPadding = innerPad,
@@ -195,6 +199,7 @@ fun UpdateDialog(
             UpdateDialogContent(
                 info = info,
                 subtitle = subtitle,
+                subtitleMaxHeight = metrics.subtitleMaxHeight,
                 messageMaxHeight = metrics.messageMaxHeight
             )
         },
@@ -237,7 +242,12 @@ private fun UpdateHeader(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                maxLines = 1,
+                softWrap = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
             )
 
             val rawVersion = info.latestVersion.ifBlank {
@@ -465,35 +475,44 @@ private fun parseBulletPoints(content: String): List<String> {
 private fun UpdateDialogContent(
     info: UpdateInfo,
     subtitle: String,
+    subtitleMaxHeight: Dp,
     messageMaxHeight: Dp
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (subtitle.isNotBlank()) {
+            UpdateScrollCard(maxHeight = subtitleMaxHeight) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 20.sp,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
         Text(
             text = stringResource(R.string.label_whats_new).uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            modifier = Modifier.padding(bottom = 8.dp)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
         MessageBody(
             info = info,
-            subtitle = subtitle,
             maxHeight = messageMaxHeight
         )
     }
 }
 
 @Composable
-private fun MessageBody(
-    info: UpdateInfo,
-    subtitle: String,
-    maxHeight: Dp
+private fun UpdateScrollCard(
+    maxHeight: Dp,
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    val content = localizedUpdateMessage(info).ifBlank {
-        stringResource(R.string.msg_update_available)
-    }
-    val bulletPoints = remember(content) { parseBulletPoints(content) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val (cardBg, cardBorder) = updateNotesCardColors()
@@ -504,9 +523,7 @@ private fun MessageBody(
             .heightIn(max = maxHeight)
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = cardBg,
             border = BorderStroke(1.dp, cardBorder)
@@ -514,76 +531,12 @@ private fun MessageBody(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = maxHeight)
+                    .verticalScroll(scrollState)
                     .padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (subtitle.isNotBlank()) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 20.sp,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                if (bulletPoints.isEmpty()) {
-                    Text(
-                        text = content,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
-                } else {
-                    bulletPoints.forEach { point ->
-                        Row(
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "•",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.accentInk,
-                                modifier = Modifier.padding(top = 1.dp)
-                            )
-
-                            val delim = if (point.contains(":")) ":" else if (point.contains("：")) "：" else null
-                            if (delim != null) {
-                                val title = point.substringBefore(delim).trim()
-                                val desc = point.substringAfter(delim).trim()
-                                val annotated = buildAnnotatedString {
-                                    withStyle(
-                                        SpanStyle(
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    ) {
-                                        append(title)
-                                        append(": ")
-                                    }
-                                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                                        append(desc)
-                                    }
-                                }
-                                Text(
-                                    text = annotated,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    lineHeight = 18.sp
-                                )
-                            } else {
-                                Text(
-                                    text = point,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    lineHeight = 18.sp
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                content = content
+            )
         }
 
         if (scrollState.canScrollForward) {
@@ -605,6 +558,76 @@ private fun MessageBody(
                     tint = Color.Black,
                     modifier = Modifier.size(20.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageBody(
+    info: UpdateInfo,
+    maxHeight: Dp
+) {
+    val content = localizedUpdateMessage(info).ifBlank {
+        stringResource(R.string.msg_update_available)
+    }
+    val bulletPoints = remember(content) { parseBulletPoints(content) }
+
+    UpdateScrollCard(maxHeight = maxHeight) {
+        if (bulletPoints.isEmpty()) {
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 18.sp
+            )
+        } else {
+            bulletPoints.forEach { point ->
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.accentInk,
+                        modifier = Modifier.padding(top = 1.dp)
+                    )
+
+                    val delim = if (point.contains(":")) ":" else if (point.contains("：")) "：" else null
+                    if (delim != null) {
+                        val title = point.substringBefore(delim).trim()
+                        val desc = point.substringAfter(delim).trim()
+                        val annotated = buildAnnotatedString {
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            ) {
+                                append(title)
+                                append(": ")
+                            }
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                                append(desc)
+                            }
+                        }
+                        Text(
+                            text = annotated,
+                            style = MaterialTheme.typography.bodySmall,
+                            lineHeight = 18.sp
+                        )
+                    } else {
+                        Text(
+                            text = point,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
             }
         }
     }
@@ -666,6 +689,7 @@ private fun UpdateDialogCardSurface(
             UpdateDialogContent(
                 info = info,
                 subtitle = subtitle,
+                subtitleMaxHeight = metrics.subtitleMaxHeight,
                 messageMaxHeight = metrics.messageMaxHeight
             )
             Spacer(modifier = Modifier.height(24.dp))
