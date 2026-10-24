@@ -63,6 +63,14 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
+import android.content.Context
+import android.os.LocaleList
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalConfiguration
+import com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE
+import com.mknlabs.expensetracker.data.constants.normalizeLanguageCode
+import com.mknlabs.expensetracker.utils.LocalePreferenceSync
+
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -115,7 +123,34 @@ class MainActivity : AppCompatActivity() {
     // but we can use it to handle incoming intents.
     private var currentIntent by mutableStateOf<Intent?>(null)
 
+    
+    override fun attachBaseContext(newBase: Context) {
+        val languageCode = LocalePreferenceSync.getLanguage(newBase)
+        val normalized = normalizeLanguageCode(languageCode)
+        val wrapped = if (normalized == SYSTEM_LANGUAGE_CODE) {
+            newBase
+        } else {
+            AppLocaleHelper.createConfigurationContext(newBase, normalized)
+        }
+        super.attachBaseContext(wrapped)
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
+        if (overrideConfiguration != null) {
+            val languageCode = LocalePreferenceSync.getLanguage(this)
+            val normalized = normalizeLanguageCode(languageCode)
+            if (normalized != SYSTEM_LANGUAGE_CODE) {
+                val locale = java.util.Locale.forLanguageTag(normalized)
+                overrideConfiguration.setLocale(locale)
+                overrideConfiguration.setLocales(LocaleList(locale))
+                overrideConfiguration.setLayoutDirection(locale)
+            }
+        }
+        super.applyOverrideConfiguration(overrideConfiguration)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         android.util.Log.d("AUTH", "MainActivity: onCreate")
         // Task 2: Apply Theme BEFORE super.onCreate()
         val syncTheme = ThemePreferenceSync.getTheme(this)
@@ -124,7 +159,12 @@ class MainActivity : AppCompatActivity() {
             "DARK" -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        AppCompatDelegate.setDefaultNightMode(mode)
+                AppCompatDelegate.setDefaultNightMode(mode)
+
+        val syncLanguage = LocalePreferenceSync.getLanguage(this)
+        if (syncLanguage != SYSTEM_LANGUAGE_CODE) {
+            AppLocaleHelper.applyLanguage(syncLanguage, this)
+        }
 
         val splashScreen = installSplashScreen()
         
@@ -169,10 +209,17 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            // Observe locale so strings recompose; keep Activity as LocalContext
-            // (Hilt ViewModels require it, not a createConfigurationContext wrapper).
-            AppLocaleHelper.appliedLanguageTags
-            AppRoot(splashViewModel, appLockViewModel, currentIntent)
+            val currentLanguageTag = AppLocaleHelper.appliedLanguageTags
+            val activityContext = this@MainActivity
+            val localizedContext = remember(currentLanguageTag) {
+                AppLocaleHelper.createLocalizedContext(activityContext, currentLanguageTag)
+            }
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalConfiguration provides localizedContext.resources.configuration
+            ) {
+                AppRoot(splashViewModel, appLockViewModel, currentIntent)
+            }
         }
 
         // Hide the status bar in landscape (immersive), restore it in portrait.

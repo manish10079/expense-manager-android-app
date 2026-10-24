@@ -1,6 +1,6 @@
 {
-  "versionCode": 280,
-  "versionName": "2.240.6",
+  "versionCode": 281,
+  "versionName": "2.240.7",
   "update_message": {
     "en": "What's New 280 (2.239.1)\n• Instant language switching: Language selection in App Preferences now updates immediately across all Android versions (API 24 to 36)\n• Localized numerals: Calculator keys, display, and App Lock keypad now display native Hindi and Odia numerals\n• Smoother transitions & stability improvements throughout the app",
     "hi": "नया क्या है 280 (2.239.1)\n• तुरंत भाषा परिवर्तन: ऐप प्राथमिकताओं में भाषा बदलना अब सभी एंड्रॉइड वर्शन (API 24 से 36) पर तुरंत और सुचारू रूप से लागू होता है\n• स्थानीय अंक: कैलकुलेटर कीज़, डिस्प्ले और ऐप लॉक कीपैड पर अब देशी हिंदी और ओड़िया अंक प्रदर्शित होते हैं\n• पूरे ऐप में सहज बदलाव और स्थिरता में सुधार",

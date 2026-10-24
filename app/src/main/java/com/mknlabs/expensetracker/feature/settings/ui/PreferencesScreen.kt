@@ -87,6 +87,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.utils.getDateFormatPreviewLabel
 import com.mknlabs.expensetracker.utils.supportedDateFormats
 import com.mknlabs.expensetracker.utils.supportedTimeFormats
+import com.mknlabs.expensetracker.utils.findFragmentActivity
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.core.ui.components.AdContainer
@@ -110,7 +111,7 @@ fun PreferencesScreen(
 ) {
     val uiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
-    val activity = context as? android.app.Activity
+    val activity = context.findFragmentActivity()
     val scope = rememberCoroutineScope()
 
     // Font import launcher (only for Pro users)

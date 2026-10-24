@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -108,7 +110,7 @@ class ItemizedCalculatorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ItemizedCalculatorUiState())
     val uiState: StateFlow<ItemizedCalculatorUiState> = _uiState.asStateFlow()
 
-    private val normalCalculatorFormatter = DecimalFormat("#,##0.########")
+    private val normalCalculatorFormatter = DecimalFormat("#,##0.########", DecimalFormatSymbols(Locale.US))
 
     // Operator display glyphs (avoids raw Unicode literals that get mojibake'd by some editors)
     private val SYM_MULTIPLY = "\u00D7" // x

@@ -23,6 +23,18 @@ class PreferencesViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    private var originalLocale: java.util.Locale? = null
+
+    @org.junit.Before
+    fun setUp() {
+        originalLocale = java.util.Locale.getDefault()
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        originalLocale?.let { java.util.Locale.setDefault(it) }
+    }
+
     @Test
     fun `selectThemeMode updates selected theme mode and label`() {
         val fakeRepository = FakeAppPreferencesRepository()

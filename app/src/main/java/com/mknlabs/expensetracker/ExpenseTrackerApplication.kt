@@ -63,6 +63,12 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
 
         super.onCreate()
 
+        // Initialize synchronous language preference
+        val savedLanguage = com.mknlabs.expensetracker.utils.LocalePreferenceSync.getLanguage(this)
+        if (savedLanguage != com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE) {
+            com.mknlabs.expensetracker.utils.AppLocaleHelper.applyLanguage(savedLanguage, this)
+        }
+
         // Initialize Firebase App Check BEFORE any other Firebase SDK calls.
         // Debug builds use a debug token (shown in logcat) so development is
         // not blocked by integrity checks. Release builds use Play Integrity

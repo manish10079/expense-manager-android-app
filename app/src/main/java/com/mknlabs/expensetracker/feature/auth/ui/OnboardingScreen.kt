@@ -130,6 +130,7 @@ import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.utils.findFragmentActivity
 
 private data class OnboardingPage(
     val title: String,
@@ -155,7 +156,7 @@ fun OnboardingScreen(
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val preferencesUiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
-    val activity = context as? android.app.Activity
+    val activity = context.findFragmentActivity()
 
     OnboardingScreenContent(
         currentUser = currentUser,
