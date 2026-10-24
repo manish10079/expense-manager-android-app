@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +79,7 @@ private data class DialogMetrics(
     val cornerRadius: Dp,
     val iconSize: Dp,
     val buttonSpacing: Dp,
+    val buttonCornerRadius: Dp,
 )
 
 @Composable
@@ -134,6 +136,7 @@ private fun rememberDialogMetrics(): DialogMetrics {
                 else -> 32.dp
             },
             buttonSpacing = 8.dp,
+            buttonCornerRadius = 10.dp,
         )
     }
 }
@@ -183,11 +186,17 @@ fun UpdateDialog(
             }
         },
         confirmButton = {
-            UpdateNowButton(onClick = onUpdateNow)
+            UpdateNowButton(
+                onClick = onUpdateNow,
+                shape = RoundedCornerShape(metrics.buttonCornerRadius)
+            )
         },
         dismissButton = {
             if (!force) {
-                AppTextButton(onClick = onLater) {
+                AppTextButton(
+                    onClick = onLater,
+                    shape = RoundedCornerShape(metrics.buttonCornerRadius)
+                ) {
                     Text(stringResource(R.string.label_later))
                 }
             }
@@ -266,8 +275,10 @@ private fun UpdateHeader(
 }
 
 @Composable
-private fun UpdateNowButton(onClick: () -> Unit) {
-    val shape = ButtonDefaults.shape
+private fun UpdateNowButton(
+    onClick: () -> Unit,
+    shape: Shape = RoundedCornerShape(10.dp)
+) {
     Button(
         onClick = onClick,
         shape = shape,
@@ -444,12 +455,18 @@ private fun UpdateDialogCardSurface(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (!force) {
-                    AppTextButton(onClick = onLater) {
+                    AppTextButton(
+                        onClick = onLater,
+                        shape = RoundedCornerShape(metrics.buttonCornerRadius)
+                    ) {
                         Text(stringResource(R.string.label_later))
                     }
                     Spacer(modifier = Modifier.width(metrics.buttonSpacing))
                 }
-                UpdateNowButton(onClick = onUpdateNow)
+                UpdateNowButton(
+                    onClick = onUpdateNow,
+                    shape = RoundedCornerShape(metrics.buttonCornerRadius)
+                )
             }
         }
     }
