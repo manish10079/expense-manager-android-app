@@ -60,6 +60,7 @@ import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
@@ -246,15 +247,16 @@ private fun UpdateHeader(
             val cleanVersion = rawVersion.removePrefix("v").removePrefix("V")
 
             val isDark = isSystemInDarkTheme()
+            val badgeInk = MaterialTheme.colorScheme.accentInk
             val badgeBg = if (isDark) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                badgeInk.copy(alpha = 0.15f)
             } else {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                badgeInk.copy(alpha = 0.08f)
             }
             val badgeBorder = if (isDark) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                badgeInk.copy(alpha = 0.25f)
             } else {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                badgeInk.copy(alpha = 0.18f)
             }
 
             Surface(
@@ -266,7 +268,7 @@ private fun UpdateHeader(
                     text = stringResource(R.string.badge_version_format, cleanVersion),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = badgeInk,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
