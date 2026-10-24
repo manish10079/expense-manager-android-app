@@ -3470,6 +3470,10 @@
 
     <string name="msg_update_available">Expense Tracker 새 버전이 있어. 지금 업데이트해서 최신 기능을.</string>
 
+    <string name="msg_update_notes_error">업데이트 내용을 불러오지 못했어. 잠시 후 다시 시도해 줘.</string>
+    <string name="msg_update_version_unavailable">서버에서 버전을 불러오지 못했어.</string>
+    <string name="msg_update_need_internet">이 업데이트를 원활히 받으려면 인터넷을 켜 줘.</string>
+
     <string name="title_system_maintenance">시스템 점검</string>
 
     <string name="msg_maintenance_desc">서비스 향상을 위한 정기 점검 중. 곧 돌아와. 기다려줘서 고마워!</string>

@@ -34,6 +34,24 @@ WHATS_NEW_FILE = ROOT_DIR / "whats_new.json"
 SEED_FILE = ROOT_DIR / "remote_config.json"
 LIVE_FILE = ROOT_DIR / ".remote_config_live.json"
 
+# Must match supportedAppLanguages in AppLanguages.kt (not "system").
+# App lookup: normalizeLanguageCode then tag → language → "en".
+# Indonesian is "id" here ("in" is remapped in the app).
+APP_UPDATE_MESSAGE_KEYS = (
+    "en",
+    "or",
+    "hi",
+    "es",
+    "pt-BR",
+    "fr",
+    "de",
+    "id",
+    "ja",
+    "ko",
+    "it",
+    "ru",
+)
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if hasattr(sys.stderr, "reconfigure"):
@@ -75,6 +93,21 @@ def load_whats_new(version_code, version_name):
     update_message = data.get("update_message")
     if not update_message:
         sys.exit("ERROR: whats_new.json is missing 'update_message' section.")
+    if not isinstance(update_message, dict):
+        sys.exit("ERROR: update_message must be a JSON object keyed by language (en, hi, …).")
+
+    missing = [k for k in APP_UPDATE_MESSAGE_KEYS if k not in update_message]
+    extra = [k for k in update_message if k not in APP_UPDATE_MESSAGE_KEYS]
+    if missing:
+        sys.exit(f"ERROR: update_message missing app language keys: {', '.join(missing)}")
+    if extra:
+        print(f"[WARN] update_message has extra keys the app ignores: {', '.join(extra)}")
+    for key, value in update_message.items():
+        if not isinstance(value, str) or not value.strip():
+            sys.exit(
+                f"ERROR: update_message[{key}] must be a non-empty string "
+                "(flat locale map, not nested title/message)."
+            )
 
     return update_message
 

@@ -3494,6 +3494,10 @@
 
     <string name="msg_update_available">Expense Trackerの新しいバージョンがあるよ。今すぐ更新して最新機能を。</string>
 
+    <string name="msg_update_notes_error">更新内容を読み込めませんでした。しばらくしてからもう一度どうぞ。</string>
+    <string name="msg_update_version_unavailable">サーバーからバージョンを取得できませんでした。</string>
+    <string name="msg_update_need_internet">この更新をスムーズに受け取るにはインターネットをオンにしてください。</string>
+
     <string name="title_system_maintenance">システムメンテナンス</string>
 
     <string name="msg_maintenance_desc">サービス向上のための定期メンテナンス中。すぐ戻るよ。待っててくれてありがとう！</string>

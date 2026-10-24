@@ -3170,6 +3170,10 @@
 
     <string name="msg_update_available">Expense Tracker का नया वर्जन उपलब्ध है। नए फीचर्स और सुधारों का आनंद लेने के लिए अभी अपडेट करें।</string>
 
+    <string name="msg_update_notes_error">अपडेट नोट्स लोड नहीं हो सके। थोड़ी देर बाद फिर कोशिश करें।</string>
+    <string name="msg_update_version_unavailable">सर्वर से वर्जन नहीं मिल सका।</string>
+    <string name="msg_update_need_internet">यह अपडेट आसानी से पाने के लिए इंटरनेट चालू करें।</string>
+
     <string name="title_system_maintenance">सिस्टम रखरखाव</string>
 
     <string name="msg_maintenance_desc">हम सेवाओं को बेहतर बनाने के लिए इस समय रखरखाव कर रहे हैं। हम जल्द ही वापस आएंगे। आपके धैर्य के लिए धन्यवाद!</string>

@@ -86,6 +86,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.domain.models.UpdateConfigStatus
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.localizedRemoteConfigText
@@ -250,10 +251,15 @@ private fun UpdateHeader(
                     .horizontalScroll(rememberScrollState())
             )
 
-            val rawVersion = info.latestVersion.ifBlank {
-                stringResource(R.string.label_app_version).removePrefix("v").removePrefix("V")
+            val rawVersion = info.latestVersion.trim()
+            val versionLabel = if (rawVersion.isBlank()) {
+                stringResource(R.string.msg_update_version_unavailable)
+            } else {
+                stringResource(
+                    R.string.badge_version_format,
+                    rawVersion.removePrefix("v").removePrefix("V")
+                )
             }
-            val cleanVersion = rawVersion.removePrefix("v").removePrefix("V")
 
             val isDark = isSystemInDarkTheme()
             val badgeInk = MaterialTheme.colorScheme.accentInk
@@ -274,7 +280,7 @@ private fun UpdateHeader(
                 border = BorderStroke(1.dp, badgeBorder)
             ) {
                 Text(
-                    text = stringResource(R.string.badge_version_format, cleanVersion),
+                    text = versionLabel,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = badgeInk,
@@ -568,9 +574,7 @@ private fun MessageBody(
     info: UpdateInfo,
     maxHeight: Dp
 ) {
-    val content = localizedUpdateMessage(info).ifBlank {
-        stringResource(R.string.msg_update_available)
-    }
+    val content = localizedUpdateMessage(info)
     val bulletPoints = remember(content) { parseBulletPoints(content) }
 
     UpdateScrollCard(maxHeight = maxHeight) {
@@ -642,7 +646,19 @@ private fun currentAppLanguageTag(): String {
 @Composable
 private fun localizedUpdateMessage(info: UpdateInfo): String {
     val lang = currentAppLanguageTag()
-    return localizedRemoteConfigText(info.updateMessage, lang, nestedField = "message")
+    return when (info.configStatus) {
+        UpdateConfigStatus.Offline -> stringResource(R.string.msg_update_need_internet)
+        UpdateConfigStatus.Unknown, UpdateConfigStatus.Loading ->
+            stringResource(R.string.msg_update_need_internet)
+        UpdateConfigStatus.Failed, UpdateConfigStatus.Fetched ->
+            localizedRemoteConfigText(
+                raw = info.updateMessage,
+                languageTag = lang,
+                nestedField = "message",
+                fallback = stringResource(R.string.msg_update_notes_error),
+                requireLocalizedJson = true
+            )
+    }
 }
 
 private fun buildRemoteConfigMessage(): String = listOf(

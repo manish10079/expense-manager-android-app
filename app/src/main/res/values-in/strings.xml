@@ -3494,6 +3494,10 @@ privat dari sifat</string>
 
     <string name="msg_update_available">Versi baru Expense Tracker tersedia. Update sekarang buat fitur dan perbaikan terbaru.</string>
 
+    <string name="msg_update_notes_error">Catatan pembaruan gagal dimuat. Coba lagi sebentar.</string>
+    <string name="msg_update_version_unavailable">Versi tidak bisa dimuat dari server.</string>
+    <string name="msg_update_need_internet">Nyalakan internet supaya pembaruan ini berjalan lancar.</string>
+
     <string name="title_system_maintenance">Pemeliharaan sistem</string>
 
     <string name="msg_maintenance_desc">Kita lagi pemeliharaan terjadwal buat ningkatin layanan. Segera kembali. Makasih atas kesabarannya!</string>

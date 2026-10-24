@@ -9,8 +9,10 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.domain.models.UpdateConfigStatus
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.domain.repository.UpdateRepository
+import com.mknlabs.expensetracker.utils.ConnectivityHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,11 +26,13 @@ import javax.inject.Singleton
  * only supplies [UpdateInfo.forceUpdate], title, and message.
  */
 @Singleton
-class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
+class UpdateRepositoryImpl @Inject constructor(
+    private val connectivityHelper: ConnectivityHelper
+) : UpdateRepository {
 
     private val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
 
-    private val _updateInfo = MutableStateFlow(UpdateInfo())
+    private val _updateInfo = MutableStateFlow(UpdateInfo(configStatus = UpdateConfigStatus.Loading))
     override val updateInfo: StateFlow<UpdateInfo> = _updateInfo.asStateFlow()
 
     init {
@@ -37,25 +41,34 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
         )
             .continueWithTask { remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults) }
             .addOnCompleteListener {
-                refreshFromCache()
+                refreshFromCache(UpdateConfigStatus.Loading)
                 fetchAndActivate()
             }
         listenForActivatedUpdates()
     }
 
     override fun fetchAndActivate() {
+        if (!connectivityHelper.isInternetAvailable()) {
+            refreshFromCache(UpdateConfigStatus.Offline)
+            return
+        }
+        refreshFromCache(UpdateConfigStatus.Loading)
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
+                val status = when {
+                    task.isSuccessful -> UpdateConfigStatus.Fetched
+                    !connectivityHelper.isInternetAvailable() -> UpdateConfigStatus.Offline
+                    else -> UpdateConfigStatus.Failed
+                }
                 if (!task.isSuccessful) {
                     Log.e(TAG, "Remote Config fetch failed for update params", task.exception)
-                    return@addOnCompleteListener
                 }
                 if (remoteConfig.info.lastFetchStatus ==
                     FirebaseRemoteConfig.LAST_FETCH_STATUS_THROTTLED
                 ) {
                     Log.w(TAG, "Remote Config fetch throttled — serving cached update params")
                 }
-                refreshFromCache()
+                refreshFromCache(status)
             }
     }
 
@@ -64,7 +77,7 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
             override fun onUpdate(configUpdate: ConfigUpdate) {
                 Log.d(TAG, "Remote Config update for update params: ${configUpdate.updatedKeys}")
                 remoteConfig.activate().addOnCompleteListener { task ->
-                    if (task.isSuccessful) refreshFromCache()
+                    if (task.isSuccessful) refreshFromCache(UpdateConfigStatus.Fetched)
                 }
             }
 
@@ -74,16 +87,17 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
         })
     }
 
-    private fun refreshFromCache() {
+    private fun refreshFromCache(status: UpdateConfigStatus) {
         val info = UpdateInfo(
             forceUpdate = remoteConfig.getBoolean(KEY_FORCE_UPDATE),
             updateMessage = remoteConfig.getString(KEY_UPDATE_MESSAGE),
-            latestVersion = remoteConfig.getString(KEY_LATEST_VERSION)
+            latestVersion = remoteConfig.getString(KEY_LATEST_VERSION),
+            configStatus = status
         )
         if (info != _updateInfo.value) {
             Log.d(
                 TAG,
-                "Update params: force=${info.forceUpdate}, message=${info.updateMessage.length} chars"
+                "Update params: force=${info.forceUpdate}, status=$status, message=${info.updateMessage.length} chars"
             )
         }
         _updateInfo.value = info

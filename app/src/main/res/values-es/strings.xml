@@ -3501,6 +3501,10 @@ privado de verdad</string>
 
     <string name="msg_update_available">Hay una versión nueva de Expense Tracker. Actualiza para las últimas mejoras.</string>
 
+    <string name="msg_update_notes_error">No se pudieron cargar las notas de la actualización. Inténtalo de nuevo en un momento.</string>
+    <string name="msg_update_version_unavailable">No se pudo cargar la versión del servidor.</string>
+    <string name="msg_update_need_internet">Activa internet para recibir esta actualización sin problemas.</string>
+
     <string name="title_system_maintenance">Mantenimiento</string>
 
     <string name="msg_maintenance_desc">Estamos en mantenimiento programado. Volvemos en un rato. Gracias por la paciencia.</string>

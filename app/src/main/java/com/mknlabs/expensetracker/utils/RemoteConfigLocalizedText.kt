@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.utils
 
 import com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE
 import com.mknlabs.expensetracker.data.constants.normalizeLanguageCode
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -24,11 +25,15 @@ private val remoteConfigJson = Json {
 fun localizedRemoteConfigText(
     raw: String,
     languageTag: String,
-    nestedField: String? = null
+    nestedField: String? = null,
+    fallback: String = "",
+    requireLocalizedJson: Boolean = false
 ): String {
     val trimmed = raw.trim().trimStart('\uFEFF')
-    if (trimmed.isEmpty()) return ""
-    if (!trimmed.startsWith("{")) return trimmed
+    if (trimmed.isEmpty()) return fallback
+    if (!trimmed.startsWith("{")) {
+        return if (requireLocalizedJson) fallback else trimmed
+    }
     return try {
         val root = remoteConfigJson.parseToJsonElement(trimmed).jsonObject
         val byKey = indexByLanguageKey(root)
@@ -37,8 +42,16 @@ fun localizedRemoteConfigText(
             if (text.isNotBlank()) return text
         }
         extractLocalizedValue(byKey["en"] ?: root["en"], nestedField)
+            .ifBlank { fallback }
+    } catch (_: SerializationException) {
+        // RC payload is not valid JSON (truncated template, extra commas, etc.).
+        fallback
+    } catch (_: IllegalArgumentException) {
+        // JSON parsed but the root is not an object of language keys.
+        fallback
     } catch (_: Exception) {
-        trimmed
+        // Any other failure while picking a locale string.
+        fallback
     }
 }
 

@@ -2,6 +2,7 @@ package com.mknlabs.expensetracker.feature.settings.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mknlabs.expensetracker.domain.models.UpdateConfigStatus
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.domain.repository.UpdateRepository
 import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
@@ -67,6 +68,16 @@ class UpdateViewModel @Inject constructor(
     private fun onUpdateInfo(info: UpdateInfo) {
         val play = playUpdateAvailable
         if (play == null) {
+            _uiState.value = UpdateUiState.Checking
+            return
+        }
+        if (!play) {
+            _uiState.value = UpdateUiState.Hidden
+            return
+        }
+        if (info.configStatus == UpdateConfigStatus.Unknown ||
+            info.configStatus == UpdateConfigStatus.Loading
+        ) {
             _uiState.value = UpdateUiState.Checking
             return
         }

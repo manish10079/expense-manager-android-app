@@ -3455,6 +3455,10 @@
 
     <string name="msg_update_available">Доступна новая версия Expense Tracker. Обновись сейчас, чтобы получить новые функции и улучшения.</string>
 
+    <string name="msg_update_notes_error">Не удалось загрузить заметки об обновлении. Попробуй ещё раз чуть позже.</string>
+    <string name="msg_update_version_unavailable">Не удалось загрузить версию с сервера.</string>
+    <string name="msg_update_need_internet">Включи интернет, чтобы спокойно получить это обновление.</string>
+
     <string name="title_system_maintenance">Техработы</string>
 
     <string name="msg_maintenance_desc">Сейчас идут плановые работы, чтобы улучшить сервис. Скоро вернёмся. Спасибо за терпение!</string>

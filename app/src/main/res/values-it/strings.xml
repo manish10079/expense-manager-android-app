@@ -3437,6 +3437,10 @@
 
     <string name="msg_update_available">C\'è una nuova versione di Expense Tracker. Aggiorna per le ultime funzioni e miglioramenti.</string>
 
+    <string name="msg_update_notes_error">Impossibile caricare le note di aggiornamento. Riprova tra un attimo.</string>
+    <string name="msg_update_version_unavailable">Impossibile caricare la versione dal server.</string>
+    <string name="msg_update_need_internet">Attiva internet per ricevere questo aggiornamento senza intoppi.</string>
+
     <string name="title_system_maintenance">Manutenzione di sistema</string>
 
     <string name="msg_maintenance_desc">Stiamo facendo manutenzione programmata per migliorare i servizi. Torniamo a breve. Grazie per la pazienza!</string>

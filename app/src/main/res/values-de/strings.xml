@@ -3499,6 +3499,10 @@ privat von Haus aus</string>
 
     <string name="msg_update_available">Es gibt eine neue Version von Expense Tracker. Jetzt updaten für die neuesten Funktionen.</string>
 
+    <string name="msg_update_notes_error">Die Update-Hinweise konnten nicht geladen werden. Bitte gleich nochmal versuchen.</string>
+    <string name="msg_update_version_unavailable">Version konnte nicht vom Server geladen werden.</string>
+    <string name="msg_update_need_internet">Internet einschalten, um dieses Update reibungslos zu erhalten.</string>
+
     <string name="title_system_maintenance">Wartung</string>
 
     <string name="msg_maintenance_desc">Gerade geplante Wartung, damit alles besser läuft. Wir sind gleich wieder da. Danke fürs Warten!</string>

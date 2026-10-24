@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.feature.settings.ui
 
 import android.app.Activity
+import com.mknlabs.expensetracker.domain.models.UpdateConfigStatus
 import com.mknlabs.expensetracker.domain.models.UpdateInfo
 import com.mknlabs.expensetracker.domain.repository.UpdateRepository
 import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
@@ -98,7 +99,11 @@ class UpdateViewModelTest {
         override fun fetchAndActivate() = Unit
 
         fun publish(info: UpdateInfo) {
-            _updateInfo.value = info
+            _updateInfo.value = if (info.configStatus == UpdateConfigStatus.Unknown) {
+                info.copy(configStatus = UpdateConfigStatus.Fetched)
+            } else {
+                info
+            }
         }
     }
 

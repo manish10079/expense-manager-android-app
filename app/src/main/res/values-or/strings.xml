@@ -3437,6 +3437,10 @@
 
     <string name="msg_update_available">Expense Tracker ର ନୂଆ ଭର୍ସନ ଅଛି। ନୂଆ ଫିଚର ପାଇବାକୁ ଏବେ ଅପଡେଟ କର।</string>
 
+    <string name="msg_update_notes_error">ଅପଡେଟ୍ ନୋଟ୍ସ ଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ। କିଛି ସମୟ ପରେ ଆଉଥରେ ଚେଷ୍ଟା କରନ୍ତୁ।</string>
+    <string name="msg_update_version_unavailable">ସର୍ଭରରୁ ଭର୍ସନ ମିଳିଲା ନାହିଁ।</string>
+    <string name="msg_update_need_internet">ଏହି ଅପଡେଟ୍ ସହଜରେ ପାଇବାକୁ ଇଣ୍ଟରନେଟ୍ ଚାଲୁ କରନ୍ତୁ।</string>
+
     <string name="title_system_maintenance">ସିଷ୍ଟମ ରକ୍ଷଣାବେକ୍ଷଣ</string>
 
     <string name="msg_maintenance_desc">ସେବା ଉନ୍ନତ କରିବାକୁ ନିର୍ଦ୍ଧାରିତ ରକ୍ଷଣାବେକ୍ଷଣ ଚାଲିଛି। ଶୀଘ୍ର ଫେରିବୁ। ଧୈର୍ଯ୍ୟ ପାଇଁ ଧନ୍ୟବାଦ!</string>

@@ -3466,6 +3466,10 @@ privé par nature</string>
 
     <string name="msg_update_available">Une nouvelle version d’Expense Tracker est là. Mets à jour pour les dernières améliorations.</string>
 
+    <string name="msg_update_notes_error">Impossible de charger les notes de mise à jour. Réessaie dans un instant.</string>
+    <string name="msg_update_version_unavailable">Impossible de charger la version depuis le serveur.</string>
+    <string name="msg_update_need_internet">Active internet pour recevoir cette mise à jour sans accroc.</string>
+
     <string name="title_system_maintenance">Maintenance</string>
 
     <string name="msg_maintenance_desc">On est en maintenance prévue. On revient vite. Merci de patienter.</string>

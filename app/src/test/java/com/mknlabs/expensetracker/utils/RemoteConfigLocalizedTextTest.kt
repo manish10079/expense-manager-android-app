@@ -116,6 +116,33 @@ class RemoteConfigLocalizedTextTest {
         assertEquals("नया अपडेट उपलब्ध है", localizedRemoteConfigText(UPDATE_TITLE_JSON, "hi"))
         assertEquals("New Update Available", localizedRemoteConfigText(UPDATE_TITLE_JSON, "xx"))
     }
+
+    @Test
+    fun plainString_withRequireLocalizedJson_returnsFallback() {
+        val fallback = "Something went wrong loading the update notes."
+        assertEquals(
+            fallback,
+            localizedRemoteConfigText(
+                "Please update",
+                "en",
+                fallback = fallback,
+                requireLocalizedJson = true
+            )
+        )
+    }
+
+    @Test
+    fun invalidJson_returnsFallbackInsteadOfRawPayload() {
+        val fallback = "A new version of Expense Tracker is available."
+        assertEquals(
+            fallback,
+            localizedRemoteConfigText("{not-json", "en", fallback = fallback)
+        )
+        assertEquals(
+            fallback,
+            localizedRemoteConfigText("{\"en\":}", "en", fallback = fallback)
+        )
+    }
 }
 
 private const val UPDATE_TITLE_JSON = """
