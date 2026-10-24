@@ -99,6 +99,7 @@ com.mknlabs.expensetracker/
 - **Compose:** Use `stringResource(R.string.id)` for UI text in Composables.
 - **ViewModels:** ViewModels should avoid resolving strings directly. Instead, expose the `@StringRes Int` resource ID or use a UI model that holds both a raw string (for user data) and a resource ID (for system labels/fallbacks).
 - **Accessibility:** Always provide localized `contentDescription` for all icons and interactive elements.
+- **Pre-commit locale completeness:** Before every commit, compare English default resources (`app/src/main/res/values/`, including `strings.xml`, `arrays.xml`, and any other user-facing string XML) against every other locale folder that already exists in the project (`values-<lang>/`, e.g. `values-de`, `values-es`, `values-fr`, `values-hi`, `values-in`, `values-it`, `values-ja`, `values-ko`, `values-or`, `values-pt-rBR`, `values-ru`). For each new or changed English `<string>`, `<string-array>`, or `<plurals>` name, confirm the same name exists in **all** of those locales with a real translation — not leftover English, not a missing key that would silently fall back. If any locale is missing or still English, add translations in that same change **before** staging. Do not mark copy `translatable="false"` to skip this check unless the user explicitly wants English-only. When a new locale folder is added later, treat it as required for this check going forward.
 
 ### 6. Testing Requirements
 - **ViewModels:** Unit tests with mocked repositories are mandatory.
@@ -120,7 +121,7 @@ com.mknlabs.expensetracker/
     - **Other types (chore, refactor, docs, etc.):** Update the last segment of `versionName`.
 - **Commit Mandatory Line:** Every commit message must explicitly include the phrase: `Bumped version to <versionName>(<versionCode>)` — the version code goes in parentheses directly after the name, matching what `app/build.gradle.kts` declares, e.g. `Bumped version to 2.218.5(272)`.
 - **README Sync:** Whenever `versionName` is bumped in `app/build.gradle.kts`, the version references in `README.md` must be updated to match — the version badge in the header and the `| **Version** | <name> |` row in the feature table. Never leave README.md on an older version.
-- **Verification:** Before finalizing the commit, verify the updated version is reflected in both `app/build.gradle.kts` and `README.md`.
+- **Verification:** Before finalizing the commit, verify the updated version is reflected in both `app/build.gradle.kts` and `README.md`, and that English string resources added or changed in the commit are present and translated in every existing locale folder (see §5 Pre-commit locale completeness).
 - **Commit Message Generation:** Analyze changed and untracked files, and check previous commit messages to ensure the new message only covers fresh changes. Use bullet points (`-`) for descriptions; never use numbering.
 - **No AI-Attribution Footer:** Never append AI-attribution or credit lines to commit messages. In particular, never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar "Generated with ..." / "Co-Authored-By ..." signatures from any tool or model. Commit messages contain only the subject line and the change description.
 
@@ -170,7 +171,7 @@ com.mknlabs.expensetracker/
 
 # AI ASSISTANCE CONTEXT - ExpenseTracker
 - **Architecture**: Hilt DI with Clean Architecture (Data, Domain, UI)
-- **Primary Rules**: Mandatory i18n, `@HiltViewModel` injection, Repository pattern.
+- **Primary Rules**: Mandatory i18n (translate new/changed English strings into every existing locale before commit), `@HiltViewModel` injection, Repository pattern.
 - **UI**: Jetpack Compose + Material 3.
 - **Persistence**: Room (KSP) + DataStore.
 - **Guidelines**: Follow `GEMINI.md` for full technical specifications.

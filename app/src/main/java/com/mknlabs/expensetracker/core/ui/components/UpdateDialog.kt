@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.RocketLaunch
+import androidx.compose.ui.graphics.vector.ImageVector
+import java.util.Locale
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,7 +51,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,8 +61,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -181,22 +189,14 @@ fun UpdateDialog(
             UpdateHeader(info = info)
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                val subtitle = rememberSaveable { updateSubtitle.random() }
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                MessageBody(
-                    info = info,
-                    maxHeight = metrics.messageMaxHeight
-                )
-            }
+            val languageTag = currentAppLanguageTag()
+            val subtitles = stringArrayResource(R.array.update_dialog_subtitles)
+            val subtitle = remember(languageTag) { subtitles.random() }
+            UpdateDialogContent(
+                info = info,
+                subtitle = subtitle,
+                messageMaxHeight = metrics.messageMaxHeight
+            )
         },
         confirmButton = {
             UpdateNowButton(
@@ -407,11 +407,22 @@ private fun UpdateNowButton(
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = stringResource(R.string.btn_update_now),
-                color = MaterialTheme.colorScheme.onCta,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_update_now),
+                    color = MaterialTheme.colorScheme.onCta,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onCta,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
     }
 }
@@ -419,35 +430,159 @@ private fun UpdateNowButton(
 // ── Extracted content ──────────────────────────────────────────────────
 
 @Composable
+private fun updateNotesCardColors(): Pair<Color, Color> {
+    val isDark = isSystemInDarkTheme()
+    val cardBg = if (isDark) {
+        Color(0xFF1E293B).copy(alpha = 0.45f)
+    } else {
+        Color(0xFFF8FAFC)
+    }
+    val cardBorder = if (isDark) {
+        Color(0xFF334155).copy(alpha = 0.5f)
+    } else {
+        Color(0xFFE2E8F0).copy(alpha = 0.8f)
+    }
+    return cardBg to cardBorder
+}
+
+private fun parseBulletPoints(content: String): List<String> {
+    val lines = content.lines()
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+
+    val filtered = if (lines.isNotEmpty() && !lines.first().startsWith("•") && !lines.first().startsWith("-") && !lines.first().startsWith("*")) {
+        lines.drop(1)
+    } else {
+        lines
+    }
+
+    return filtered.map { line ->
+        line.removePrefix("•").removePrefix("-").removePrefix("*").trim()
+    }.filter { it.isNotBlank() }
+}
+
+@Composable
+private fun UpdateDialogContent(
+    info: UpdateInfo,
+    subtitle: String,
+    messageMaxHeight: Dp
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.label_whats_new).uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        MessageBody(
+            info = info,
+            subtitle = subtitle,
+            maxHeight = messageMaxHeight
+        )
+    }
+}
+
+@Composable
 private fun MessageBody(
     info: UpdateInfo,
+    subtitle: String,
     maxHeight: Dp
 ) {
     val content = localizedUpdateMessage(info).ifBlank {
         stringResource(R.string.msg_update_available)
     }
+    val bulletPoints = remember(content) { parseBulletPoints(content) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val (cardBg, cardBorder) = updateNotesCardColors()
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = maxHeight)
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(scrollState)
+                .verticalScroll(scrollState),
+            shape = RoundedCornerShape(16.dp),
+            color = cardBg,
+            border = BorderStroke(1.dp, cardBorder)
         ) {
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (scrollState.canScrollForward) {
-                Spacer(modifier = Modifier.height(28.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (subtitle.isNotBlank()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 20.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (bulletPoints.isEmpty()) {
+                    Text(
+                        text = content,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 18.sp
+                    )
+                } else {
+                    bulletPoints.forEach { point ->
+                        Row(
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "•",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.accentInk,
+                                modifier = Modifier.padding(top = 1.dp)
+                            )
+
+                            val delim = if (point.contains(":")) ":" else if (point.contains("：")) "：" else null
+                            if (delim != null) {
+                                val title = point.substringBefore(delim).trim()
+                                val desc = point.substringAfter(delim).trim()
+                                val annotated = buildAnnotatedString {
+                                    withStyle(
+                                        SpanStyle(
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    ) {
+                                        append(title)
+                                        append(": ")
+                                    }
+                                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                                        append(desc)
+                                    }
+                                }
+                                Text(
+                                    text = annotated,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    lineHeight = 18.sp
+                                )
+                            } else {
+                                Text(
+                                    text = point,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 18.sp
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -489,11 +624,8 @@ private fun localizedUpdateMessage(info: UpdateInfo): String {
 
 private fun buildRemoteConfigMessage(): String = listOf(
     "What's New in v2.4.0:",
-    "• Transactions now load 3x faster with Paging 3",
-    "• Smoother scrolling on the main dashboard",
-    "• New yearly spending overview chart",
-    "• Category breakdown supports custom date ranges",
-    "• Bug fixes & stability improvements across the app"
+    "• Performance Upgrade: Transactions now load 3x faster with Paging 3. Smoother scrolling on the main dashboard",
+    "• Enhanced Analytics: New yearly spending overview chart. Category breakdown supports custom date ranges"
 ).joinToString("\n")
 
 // ── Real Device Preview Infrastructure ─────────────────────────────────
@@ -509,7 +641,7 @@ private fun UpdateDialogCardSurface(
     onUpdateNow: () -> Unit,
     onLater: () -> Unit,
     metrics: DialogMetrics,
-    subtitle: String = updateSubtitle[0]
+    subtitle: String = stringArrayResource(R.array.update_dialog_subtitles).first()
 ) {
     Surface(
         modifier = Modifier
@@ -531,18 +663,10 @@ private fun UpdateDialogCardSurface(
         ) {
             UpdateHeader(info = info)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 20.sp,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            MessageBody(
+            UpdateDialogContent(
                 info = info,
-                maxHeight = metrics.messageMaxHeight
+                subtitle = subtitle,
+                messageMaxHeight = metrics.messageMaxHeight
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row(

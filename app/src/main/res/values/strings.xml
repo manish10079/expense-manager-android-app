@@ -1198,9 +1198,8 @@
     <string name="label_net_balance_cash_flow">Net Balance</string>
 
     <string name="label_track_every_move_with_confiden">Track every move with confidence.</string>
-    <!-- Rotating psychology one-liners under the home greeting. English-only by design:
-         the copy is the feature's voice, so it is not translated per locale. -->
-    <string-array name="psychology_phrases" translatable="false">
+    <!-- Rotating psychology one-liners under the home greeting. -->
+    <string-array name="psychology_phrases">
         <item>Awareness beats willpower.</item>
         <item>You can\'t change what you don\'t notice.</item>
         <item>Small amounts, repeated, become your reality.</item>
@@ -3611,7 +3610,8 @@
 
     <!-- In-app update notification (Firebase Remote Config) -->
 
-    <string name="title_update_available">New Update Available</string>
+    <string name="title_update_available">Update Available</string>
+    <string name="label_whats_new">What\'s New</string>
 
     <string name="title_update_available_version">Version %s Is Available</string>
     <string name="badge_version_format">Version %s</string>

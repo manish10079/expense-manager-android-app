@@ -1287,107 +1287,107 @@
 
     <string name="label_track_every_move_with_confiden">ପ୍ରତ୍ୟେକ ଚାଲ ବିଶ୍ୱାସରେ ଟ୍ରାକ କର।</string>
 
-    <string-array name="psychology_phrases" translatable="false">
-        <item>Awareness beats willpower.</item>
-        <item>You can\'t change what you don\'t notice.</item>
-        <item>Small amounts, repeated, become your reality.</item>
-        <item>Pause ten seconds before you spend.</item>
-        <item>Every glance here is a choice made on purpose.</item>
-        <item>Money follows attention.</item>
-        <item>Notice first, spend second.</item>
-        <item>The number you avoid is the number that grows.</item>
-        <item>What you track, you tend.</item>
-        <item>Name the feeling before the purchase.</item>
-        <item>One purchase is a mood; a pattern is a choice.</item>
-        <item>Slower hands, steadier money.</item>
-        <item>You are not your urge.</item>
-        <item>The pause is where the power is.</item>
-        <item>Progress hides in small numbers.</item>
-        <item>Comfort is not a plan.</item>
-        <item>Clarity is the antidote to financial chaos.</item>
-        <item>Your past purchases built your present baseline.</item>
-        <item>A budget is telling your money where to go instead of wondering where it went.</item>
-        <item>Impulses fade faster than receipts.</item>
-        <item>Shame stops tracking; curiosity keeps it alive.</item>
-        <item>Intentional spending beats accidental saving.</item>
-        <item>Every rupee spent is a vote for the life you want.</item>
-        <item>Delay is often the only filter you need.</item>
-        <item>Retail therapy treats the symptom, not the cause.</item>
-        <item>Notice the craving; skip the cart.</item>
-        <item>Wealth is what you keep, not what you display.</item>
-        <item>Peace of mind costs less than luxury.</item>
-        <item>Ask yourself: am I buying this or am I buying comfort?</item>
-        <item>Small leaks sink great ships.</item>
-        <item>Habits compound faster than interest.</item>
-        <item>Control your spending before your spending controls you.</item>
-        <item>Awareness transforms a habit into a choice.</item>
-        <item>Needs are quiet; wants are loud.</item>
-        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
-        <item>Watch the pennies and the pounds will take care of themselves.</item>
-        <item>Freedom is being able to say no to immediate gratification.</item>
-        <item>The best things in life don\'t require an invoice.</item>
-        <item>Boredom is an expensive emotion.</item>
-        <item>Stress spending leaves a hangover.</item>
-        <item>Your future self is watching your current cart.</item>
-        <item>Examine the urge before you enter the checkout code.</item>
-        <item>Money management is self-care.</item>
-        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
-        <item>True wealth builds silently in the background.</item>
-        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
-        <item>When you know your why, your wallet aligns.</item>
-        <item>Mindful spending brings more joy than mindless accumulation.</item>
-        <item>Pause long enough for logic to enter the room.</item>
-        <item>Every financial choice shapes tomorrow\'s reality.</item>
-        <item>The temporary high of buying fades by morning.</item>
-        <item>Track your habits and your habits will reward you.</item>
-        <item>Silence the noise of marketing with the clarity of your goals.</item>
-        <item>Choose long-term stability over short-term dopamine.</item>
-        <item>Don\'t measure wealth by things; measure it by choices.</item>
-        <item>Recognize the trigger before it triggers the transaction.</item>
-        <item>Direction matters more than speed.</item>
-        <item>Your bank account is a mirror of your priorities.</item>
-        <item>Conscious consumption is a superpower.</item>
-        <item>Sleep on major purchases; clarity comes with dawn.</item>
-        <item>Simplicity is the ultimate sophistication in finance.</item>
-        <item>Discipline is choosing between what you want now and what you want most.</item>
-        <item>A clear ledger brings a calm mind.</item>
-        <item>Every dollar saved is a worker working for your future.</item>
-        <item>Look at the data, not the desire.</item>
-        <item>Master your mindset to master your money.</item>
-        <item>Financial peace isn\'t an accident; it\'s a design.</item>
-        <item>Notice when emotions dictate your payments.</item>
-        <item>The cost of a thing is the amount of life you exchange for it.</item>
-        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
-        <item>Habitual tracking kills financial anxiety.</item>
-        <item>Let purpose guide your purchases.</item>
-        <item>A moment of reflection prevents a month of regret.</item>
-        <item>Look beyond the price tag to the long-term impact.</item>
-        <item>Your attention determines your allocation.</item>
-        <item>Financial independence begins with a single logged entry.</item>
-        <item>Step back from the sale banner; look at your goals.</item>
-        <item>Intentionality turns routine into ritual.</item>
-        <item>Unchecked subscriptions are quiet wealth thieves.</item>
-        <item>Notice the impulse, let it pass like a cloud.</item>
-        <item>Your financial story is written one entry at a time.</item>
-        <item>Align your spending with your core values.</item>
-        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
-        <item>Clarity replaces confusion with confidence.</item>
-        <item>Choose progress over perfection.</item>
-        <item>Every time you open this app, you reclaim your power.</item>
-        <item>Small disciplines repeated daily lead to great achievements.</item>
-        <item>Reflect on the root cause of the urge to splurge.</item>
-        <item>Wealth is built in the shadows of everyday choices.</item>
-        <item>Mastering money starts with managing moments.</item>
-        <item>Let your values dictate your volume.</item>
-        <item>You own your money; don\'t let your money own your mood.</item>
-        <item>A mindful habit today saves a financial headache tomorrow.</item>
-        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
-        <item>Awareness is the first step of transformation.</item>
-        <item>Let your records reflect your aspirations.</item>
-        <item>Look closely at what stays; let go of what drains.</item>
-        <item>Peace is owning fewer things that require your attention.</item>
-        <item>Your financial future is decided in moments like this.</item>
-        <item>Keep your goals in focus and your expenses in check.</item>
+    <string-array name="psychology_phrases">
+        <item>ସତର୍କତା ଇଚ୍ଛାଶକ୍ତିଠାରୁ ଶ୍ରେଷ୍ଠ।</item>
+        <item>ଯାହା ଲକ୍ଷ୍ୟ କରନ୍ତି ନାହିଁ, ତାହା ବଦଳାଇ ପାରିବେ ନାହିଁ।</item>
+        <item>ଛୋଟ ରାଶି ବାରମ୍ବାର ହୋଇ ଆପଣଙ୍କ ବାସ୍ତବ ହୁଏ।</item>
+        <item>ଖର୍ଚ୍ଚ ପୂର୍ବରୁ ଦଶ ସେକେଣ୍ଡ ରୁହନ୍ତୁ।</item>
+        <item>ଏଠାରେ ପ୍ରତ୍ୟେକ ଦୃଷ୍ଟି ଜାଣିଶୁଣି ପସନ୍ଦ।</item>
+        <item>ଟଙ୍କା ଧ୍ୟାନ ପଛେ ଯାଏ।</item>
+        <item>ପ୍ରଥମେ ଲକ୍ଷ୍ୟ କରନ୍ତୁ, ପରେ ଖର୍ଚ୍ଚ।</item>
+        <item>ଯେଉଁ ସଂଖ୍ୟାକୁ ଏଡ଼ାନ୍ତି, ସେଇଟା ବଢ଼େ।</item>
+        <item>ଯାହା ଟ୍ରାକ୍ କରନ୍ତି, ତାହା ଯତ୍ନ ପାଏ।</item>
+        <item>କିଣିବା ପୂର୍ବରୁ ଭାବନାକୁ ନାମ ଦିଅନ୍ତୁ।</item>
+        <item>ଗୋଟିଏ କିଣା ମନସ୍ଥିତି; ଧାରା ଏକ ପସନ୍ଦ।</item>
+        <item>ଧୀର ହାତ, ସ୍ଥିର ଟଙ୍କା।</item>
+        <item>ଆପଣ ଆପଣଙ୍କ ଆବେଗ ନୁହଁନ୍ତି।</item>
+        <item>ଶକ୍ତି ବିରାମରେ ଅଛି।</item>
+        <item>ଉନ୍ନତି ଛୋଟ ସଂଖ୍ୟାରେ ଲୁଚିଥାଏ।</item>
+        <item>ଆରାମ ଏକ ଯୋଜନା ନୁହେଁ।</item>
+        <item>ସ୍ପଷ୍ଟତା ଆର୍ଥିକ ବିଶୃଙ୍ଖଳାର ଔଷଧ।</item>
+        <item>ପୁରୁଣା କିଣା ଆଜିର ଆଧାର ତିଆରି କଲା।</item>
+        <item>ବଜେଟ୍ ଟଙ୍କାକୁ କେଉଁଠି ଯିବ କହେ, କେଉଁଠି ଗଲା ବୋଲି ଆଶ୍ଚର୍ଯ୍ୟ ହୁଏ ନାହିଁ।</item>
+        <item>ଆବେଗ ରସିଦଠାରୁ ଶୀଘ୍ର ମରେ।</item>
+        <item>ଲଜ୍ଜା ଟ୍ରାକିଂ ବନ୍ଦ କରେ; କୌତୂହଳ ବଞ୍ଚାଏ।</item>
+        <item>ସଚେତନ ଖର୍ଚ୍ଚ ଅଜାଣତ ସଞ୍ଚୟଠାରୁ ଭଲ।</item>
+        <item>ଖର୍ଚ୍ଚ ହୋଇଥିବା ପ୍ରତି ଟଙ୍କା ଆପଣ ଚାହୁଁଥିବା ଜୀବନ ପାଇଁ ଭୋଟ୍।</item>
+        <item>ବିଳମ୍ବ ପ୍ରାୟ ଆବଶ୍ୟକ ଏକମାତ୍ର ଫିଲ୍ଟର୍।</item>
+        <item>ସପିଂ ଥେରାପି ଲକ୍ଷଣ ଚିକିତ୍ସା କରେ, କାରଣ ନୁହେଁ।</item>
+        <item>ଲାଳସା ଦେଖନ୍ତୁ; କାର୍ଟ ଛାଡ଼ନ୍ତୁ।</item>
+        <item>ଧନ ଯାହା ରଖନ୍ତି, ଯାହା ଦେଖାନ୍ତି ନୁହେଁ।</item>
+        <item>ମନର ଶାନ୍ତି ବିଳାସଠାରୁ ସସ୍ତା।</item>
+        <item>ପଚାରନ୍ତୁ: ଏହା କିଣୁଛି ନା ସାନ୍ତ୍ୱନା?</item>
+        <item>ଛୋଟ ଲିକ୍ ବଡ଼ ଜାହାଜ ଡୁବାଏ।</item>
+        <item>ଅଭ୍ୟାସ ସୁଧଠାରୁ ଶୀଘ୍ର ବଢ଼େ।</item>
+        <item>ଖର୍ଚ୍ଚ ଆପଣକୁ ନିୟନ୍ତ୍ରଣ କରିବା ପୂର୍ବରୁ ଖର୍ଚ୍ଚକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।</item>
+        <item>ସତର୍କତା ଅଭ୍ୟାସକୁ ପସନ୍ଦରେ ବଦଳାଏ।</item>
+        <item>ଦରକାର ଶାନ୍ତ; ଇଚ୍ଛା ଉଚ୍ଚ।</item>
+        <item>ଅଦରକାରୀ କିଣିଲେ ଶୀଘ୍ର ଦରକାରୀ ବିକିବେ।</item>
+        <item>ଛୋଟ ପଇସା ଦେଖନ୍ତୁ, ବଡ଼ ରାଶି ନିଜେ ସମ୍ଭାଳିବ।</item>
+        <item>ସ୍ୱାଧୀନତା ହେଉଛି ତୁରନ୍ତ ସୁଖକୁ ନା କହିବା।</item>
+        <item>ଜୀବନର ସର୍ବୋତ୍ତମ ଜିନିଷର ବିଲ୍ ଲାଗେ ନାହିଁ।</item>
+        <item>ବିରକ୍ତି ଏକ ମହଙ୍ଗା ଭାବନା।</item>
+        <item>ଚାପରେ ଖର୍ଚ୍ଚ ପରେ କଷ୍ଟ ରହେ।</item>
+        <item>ଭବିଷ୍ୟତର ଆପଣ ବର୍ତ୍ତମାନ କାର୍ଟ ଦେଖୁଛନ୍ତି।</item>
+        <item>ପେମେଣ୍ଟ କୋଡ୍ ପୂର୍ବରୁ ଆବେଗ ଯାଞ୍ଚ କରନ୍ତୁ।</item>
+        <item>ଟଙ୍କା ପରିଚାଳନା ନିଜ ଯତ୍ନ।</item>
+        <item>ଜ୍ଞାନରେ ନିବେଶ ସର୍ବୋତ୍ତମ ସୁଧ ଦିଏ—ବାକି ଖର୍ଚ୍ଚ।</item>
+        <item>ପ୍ରକୃତ ଧନ ଚୁପ୍‌ଚାପ୍ ଗଢ଼େ।</item>
+        <item>ଯେଉଁମାନଙ୍କୁ ଭଲ ପାଆନ୍ତି ନାହିଁ ସେମାନଙ୍କୁ ପ୍ରଭାବିତ କରିବାକୁ ନଥିବା ଟଙ୍କାରେ ଅଦରକାରୀ କିଣନ୍ତୁ ନାହିଁ।</item>
+        <item>କାହିଁକି ଜାଣିଲେ ପଇସା ମିଳିଯାଏ।</item>
+        <item>ସଚେତନ ଖର୍ଚ୍ଚ ଅଚେତନ ଜମାଠାରୁ ଅଧିକ ଖୁସି ଦିଏ।</item>
+        <item>ଯୁକ୍ତି ଆସିବା ପର୍ଯ୍ୟନ୍ତ ରୁହନ୍ତୁ।</item>
+        <item>ପ୍ରତ୍ୟେକ ଆର୍ଥିକ ପସନ୍ଦ କାଲିର ବାସ୍ତବ ଗଢ଼େ।</item>
+        <item>କିଣିବାର କ୍ଷଣିକ ଉଲ୍ଲାସ ସକାଳେ ମରେ।</item>
+        <item>ଅଭ୍ୟାସ ଟ୍ରାକ୍ କରନ୍ତୁ, ଅଭ୍ୟାସ ପୁରସ୍କାର ଦେବ।</item>
+        <item>ଲକ୍ଷ୍ୟର ସ୍ପଷ୍ଟତାରେ ବିଜ୍ଞାପନ ଶବ୍ଦ ଚୁପ୍ କରନ୍ତୁ।</item>
+        <item>ଛୋଟ ଡୋପାମାଇନ୍ ବଦଳେ ଦୀର୍ଘକାଳୀନ ସ୍ଥିରତା ବାଛନ୍ତୁ।</item>
+        <item>ଜିନିଷରେ ଧନ ମାପନ୍ତୁ ନାହିଁ; ପସନ୍ଦରେ ମାପନ୍ତୁ।</item>
+        <item>କାରବାର ଆରମ୍ଭ ହେବା ପୂର୍ବରୁ ଟ୍ରିଗର୍ ଚିହ୍ନନ୍ତୁ।</item>
+        <item>ଗତିଠାରୁ ଦିଗ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ।</item>
+        <item>ଖାତା ଆପଣଙ୍କ ପ୍ରାଥମିକତାର ଦର୍ପଣ।</item>
+        <item>ସଚେତନ ବ୍ୟବହାର ଏକ ଶକ୍ତି।</item>
+        <item>ବଡ଼ କିଣାରେ ରାତି ଶୋଇବେ; ସକାଳେ ସ୍ପଷ୍ଟତା ଆସେ।</item>
+        <item>ସରଳତା ଆର୍ଥିକ ଜୀବନର ସର୍ବୋଚ୍ଚ ବୁଦ୍ଧି।</item>
+        <item>ଅନୁଶାସନ ହେଉଛି ଏବେ ଚାହିଁବା ଓ ସବୁଠାରୁ ଚାହିଁବା ମଧ୍ୟରେ ବାଛିବା।</item>
+        <item>ସଫା ହିସାବ ମନକୁ ଶାନ୍ତ କରେ।</item>
+        <item>ସଞ୍ଚିତ ପ୍ରତି ଟଙ୍କା ଭବିଷ୍ୟତ ପାଇଁ କାମ କରେ।</item>
+        <item>ଇଚ୍ଛା ନୁହେଁ, ତଥ୍ୟ ଦେଖନ୍ତୁ।</item>
+        <item>ମନକୁ ଜିଣି ଟଙ୍କା ଜିଣନ୍ତୁ।</item>
+        <item>ଆର୍ଥିକ ଶାନ୍ତି ଦୁର୍ଘଟନା ନୁହେଁ; ଏହା ଡିଜାଇନ୍।</item>
+        <item>ଭାବନା ପେମେଣ୍ଟ ନିର୍ଣ୍ଣୟ କରୁଥିବା ବେଳେ ଲକ୍ଷ୍ୟ କରନ୍ତୁ।</item>
+        <item>ଜିନିଷର ମୂଲ୍ୟ ହେଉଛି ତା’ ପାଇଁ ବଦଳାଇଥିବା ଜୀବନ।</item>
+        <item>ନିଜକୁ ବାନ୍ଧିବା ପାଇଁ ଟଙ୍କା ଗଣନ୍ତୁ ନାହିଁ; ଶକ୍ତି ପାଇଁ ଗଣନ୍ତୁ।</item>
+        <item>ନିୟମିତ ଟ୍ରାକିଂ ଆର୍ଥିକ ଚିନ୍ତା ମାରେ।</item>
+        <item>ଉଦ୍ଦେଶ୍ୟ କିଣାକୁ ପଥ ଦେଖାଉ।</item>
+        <item>କ୍ଷଣିକ ଚିନ୍ତା ଏକ ମାସର ଅନୁତାପ ରୋକେ।</item>
+        <item>ମୂଲ୍ୟ ଟ୍ୟାଗ୍ ପାରି ଦୀର୍ଘକାଳୀନ ପ୍ରଭାବ ଦେଖନ୍ତୁ।</item>
+        <item>ଧ୍ୟାନ ବଣ୍ଟନ ସ୍ଥିର କରେ।</item>
+        <item>ଆର୍ଥିକ ସ୍ୱାଧୀନତା ଗୋଟିଏ ଏଣ୍ଟ୍ରିରୁ ଆରମ୍ଭ।</item>
+        <item>ସେଲ୍ ବ୍ୟାନର୍‌ରୁ ପଛକୁ ଯାଆନ୍ତୁ; ଲକ୍ଷ୍ୟ ଦେଖନ୍ତୁ।</item>
+        <item>ଉଦ୍ଦେଶ୍ୟ ନିତିକର୍ମକୁ ରୀତି କରେ।</item>
+        <item>ଅଯାଞ୍ଚିତ ସବସ୍କ୍ରିପସନ୍ ଚୁପ୍ ଚୋର।</item>
+        <item>ଆବେଗ ଦେଖନ୍ତୁ, ମେଘ ପରି ଯିବା ଦିଅନ୍ତୁ।</item>
+        <item>ଆର୍ଥିକ କାହାଣୀ ଗୋଟିଏ ଏଣ୍ଟ୍ରିରେ ଲେଖାଯାଏ।</item>
+        <item>ଖର୍ଚ୍ଚକୁ ମୂଲ୍ୟବୋଧ ସହ ମିଳାନ୍ତୁ।</item>
+        <item>ବଜେଟ୍ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ଜିନିଷରେ ଦୋଷବୋଧ ବିନା ଖର୍ଚ୍ଚର ଅନୁମତି।</item>
+        <item>ସ୍ପଷ୍ଟତା ଦ୍ୱନ୍ଦ୍ୱକୁ ଆତ୍ମବିଶ୍ୱାସରେ ବଦଳାଏ।</item>
+        <item>ସିଦ୍ଧତା ବଦଳେ ଅଗ୍ରଗତି ବାଛନ୍ତୁ।</item>
+        <item>ଏହି ଆପ୍ ଖୋଲିବା ମାତ୍ରେ ଶକ୍ତି ଫେରେ।</item>
+        <item>ଦୈନିକ ଛୋଟ ଅନୁଶାସନ ବଡ଼ ସଫଳତା ଆଣେ।</item>
+        <item>ଅତିରିକ୍ତ ଖର୍ଚ୍ଚର ଇଚ୍ଛାର ମୂଳ ଦେଖନ୍ତୁ।</item>
+        <item>ଧନ ଦୈନନ୍ଦିନ ପସନ୍ଦର ଛାଇରେ ଗଢ଼େ।</item>
+        <item>ଟଙ୍କା ଜିଣିବା କ୍ଷଣ ପରିଚାଳନାରୁ ଆରମ୍ଭ।</item>
+        <item>ମୂଲ୍ୟବୋଧ ପରିମାଣ ସ୍ଥିର କରୁ।</item>
+        <item>ଟଙ୍କା ଆପଣଙ୍କର; ମନସ୍ଥିତିକୁ ଟଙ୍କା ଅଧୀନ କରନ୍ତୁ ନାହିଁ।</item>
+        <item>ଆଜିର ସଚେତନ ଅଭ୍ୟାସ କାଲିର ମୁଣ୍ଡବ୍ୟଥା ରୋକେ।</item>
+        <item>ଯେଉଁ ଜୀବନରୁ ଛୁଟି କିମ୍ବା ସପିଂରେ ପଳାଇବାକୁ ପଡ଼େ ନାହିଁ, ସେହି ଜୀବନ ତିଆରି କରନ୍ତୁ।</item>
+        <item>ସତର୍କତା ପରିବର୍ତ୍ତନର ପ୍ରଥମ ପାଦ।</item>
+        <item>ରେକର୍ଡ ଆକାଂକ୍ଷା ଦେଖାଉ।</item>
+        <item>ଯାହା ରହେ ତାହା ଭଲ କରି ଦେଖନ୍ତୁ; ଯାହା ଶୋଷେ ଛାଡ଼ନ୍ତୁ।</item>
+        <item>ଶାନ୍ତି ହେଉଛି ଧ୍ୟାନ ମାଗୁଥିବା କମ୍ ଜିନିଷ ରଖିବା।</item>
+        <item>ଆର୍ଥିକ ଭବିଷ୍ୟତ ଏଭଳି କ୍ଷଣରେ ସ୍ଥିର ହୁଏ।</item>
+        <item>ଲକ୍ଷ୍ୟ ଫୋକସ୍‌ରେ, ଖର୍ଚ୍ଚ ନିୟନ୍ତ୍ରଣରେ।</item>
     </string-array>
 
     <string name="label_upgrade_to_pro">Pro କୁ ଯାଅ</string>
@@ -3429,7 +3429,8 @@
 
     <string name="btn_update_now">ଏବେ ଅପଡେଟ କର</string>
 
-    <string name="title_update_available">ନୂଆ ଅପଡେଟ୍ ଉପଲବ୍ଧ ଅଛି</string>
+    <string name="title_update_available">ଅପଡେଟ୍ ଉପଲବ୍ଧ ଅଛି</string>
+    <string name="label_whats_new">ନୂଆ କଣ</string>
 
     <string name="title_update_available_version">ଭର୍ସନ %s ଅଛି</string>
     <string name="badge_version_format">ଭର୍ସନ %s</string>

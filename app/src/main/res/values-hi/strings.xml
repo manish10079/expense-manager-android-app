@@ -863,9 +863,8 @@
     <string name="label_net_balance_cash_flow">बचा हुआ बैलेंस</string>
 
     <string name="label_track_every_move_with_confiden">भरोसे के साथ हर खर्च का हिसाब रखें।</string>
-    <!-- Rotating psychology one-liners under the home greeting. English-only by design:
-         the copy is the feature's voice, so it is not translated per locale. -->
-    <string-array name="psychology_phrases" translatable="false">
+    <!-- Rotating psychology one-liners under the home greeting. -->
+    <string-array name="psychology_phrases">
         <item>सतर्क रहना इच्छाशक्ति से बेहतर है।</item>
         <item>जिस बात पर ध्यान न दें, उसे बदल नहीं सकते।</item>
         <item>छोटी-छोटी रकम, बार-बार खर्च होकर आपकी असलियत बन जाती है।</item>
@@ -3163,7 +3162,8 @@
 
     <!-- In-app update notification (Firebase Remote Config) -->
 
-    <string name="title_update_available">नया अपडेट उपलब्ध है</string>
+    <string name="title_update_available">अपडेट उपलब्ध है</string>
+    <string name="label_whats_new">नया क्या है</string>
 
     <string name="title_update_available_version">वर्जन %s उपलब्ध है</string>
     <string name="badge_version_format">वर्जन %s</string>

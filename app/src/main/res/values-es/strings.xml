@@ -1314,107 +1314,107 @@ Pruébala: %1$s</string>
 
     <string name="label_track_every_move_with_confiden">Sigue cada movimiento con calma.</string>
 
-    <string-array name="psychology_phrases" translatable="false">
-        <item>Awareness beats willpower.</item>
-        <item>You can\'t change what you don\'t notice.</item>
-        <item>Small amounts, repeated, become your reality.</item>
-        <item>Pause ten seconds before you spend.</item>
-        <item>Every glance here is a choice made on purpose.</item>
-        <item>Money follows attention.</item>
-        <item>Notice first, spend second.</item>
-        <item>The number you avoid is the number that grows.</item>
-        <item>What you track, you tend.</item>
-        <item>Name the feeling before the purchase.</item>
-        <item>One purchase is a mood; a pattern is a choice.</item>
-        <item>Slower hands, steadier money.</item>
-        <item>You are not your urge.</item>
-        <item>The pause is where the power is.</item>
-        <item>Progress hides in small numbers.</item>
-        <item>Comfort is not a plan.</item>
-        <item>Clarity is the antidote to financial chaos.</item>
-        <item>Your past purchases built your present baseline.</item>
-        <item>A budget is telling your money where to go instead of wondering where it went.</item>
-        <item>Impulses fade faster than receipts.</item>
-        <item>Shame stops tracking; curiosity keeps it alive.</item>
-        <item>Intentional spending beats accidental saving.</item>
-        <item>Every rupee spent is a vote for the life you want.</item>
-        <item>Delay is often the only filter you need.</item>
-        <item>Retail therapy treats the symptom, not the cause.</item>
-        <item>Notice the craving; skip the cart.</item>
-        <item>Wealth is what you keep, not what you display.</item>
-        <item>Peace of mind costs less than luxury.</item>
-        <item>Ask yourself: am I buying this or am I buying comfort?</item>
-        <item>Small leaks sink great ships.</item>
-        <item>Habits compound faster than interest.</item>
-        <item>Control your spending before your spending controls you.</item>
-        <item>Awareness transforms a habit into a choice.</item>
-        <item>Needs are quiet; wants are loud.</item>
-        <item>If you buy what you don\'t need, you will soon sell what you need.</item>
-        <item>Watch the pennies and the pounds will take care of themselves.</item>
-        <item>Freedom is being able to say no to immediate gratification.</item>
-        <item>The best things in life don\'t require an invoice.</item>
-        <item>Boredom is an expensive emotion.</item>
-        <item>Stress spending leaves a hangover.</item>
-        <item>Your future self is watching your current cart.</item>
-        <item>Examine the urge before you enter the checkout code.</item>
-        <item>Money management is self-care.</item>
-        <item>An investment in knowledge pays the best interest—everything else is consumption.</item>
-        <item>True wealth builds silently in the background.</item>
-        <item>Stop buying things you don\'t need with money you don\'t have to impress people you don\'t like.</item>
-        <item>When you know your why, your wallet aligns.</item>
-        <item>Mindful spending brings more joy than mindless accumulation.</item>
-        <item>Pause long enough for logic to enter the room.</item>
-        <item>Every financial choice shapes tomorrow\'s reality.</item>
-        <item>The temporary high of buying fades by morning.</item>
-        <item>Track your habits and your habits will reward you.</item>
-        <item>Silence the noise of marketing with the clarity of your goals.</item>
-        <item>Choose long-term stability over short-term dopamine.</item>
-        <item>Don\'t measure wealth by things; measure it by choices.</item>
-        <item>Recognize the trigger before it triggers the transaction.</item>
-        <item>Direction matters more than speed.</item>
-        <item>Your bank account is a mirror of your priorities.</item>
-        <item>Conscious consumption is a superpower.</item>
-        <item>Sleep on major purchases; clarity comes with dawn.</item>
-        <item>Simplicity is the ultimate sophistication in finance.</item>
-        <item>Discipline is choosing between what you want now and what you want most.</item>
-        <item>A clear ledger brings a calm mind.</item>
-        <item>Every dollar saved is a worker working for your future.</item>
-        <item>Look at the data, not the desire.</item>
-        <item>Master your mindset to master your money.</item>
-        <item>Financial peace isn\'t an accident; it\'s a design.</item>
-        <item>Notice when emotions dictate your payments.</item>
-        <item>The cost of a thing is the amount of life you exchange for it.</item>
-        <item>Don\'t count every rupee to restrict yourself; count it to empower yourself.</item>
-        <item>Habitual tracking kills financial anxiety.</item>
-        <item>Let purpose guide your purchases.</item>
-        <item>A moment of reflection prevents a month of regret.</item>
-        <item>Look beyond the price tag to the long-term impact.</item>
-        <item>Your attention determines your allocation.</item>
-        <item>Financial independence begins with a single logged entry.</item>
-        <item>Step back from the sale banner; look at your goals.</item>
-        <item>Intentionality turns routine into ritual.</item>
-        <item>Unchecked subscriptions are quiet wealth thieves.</item>
-        <item>Notice the impulse, let it pass like a cloud.</item>
-        <item>Your financial story is written one entry at a time.</item>
-        <item>Align your spending with your core values.</item>
-        <item>A budget is a permission slip to spend guilt-free on what matters.</item>
-        <item>Clarity replaces confusion with confidence.</item>
-        <item>Choose progress over perfection.</item>
-        <item>Every time you open this app, you reclaim your power.</item>
-        <item>Small disciplines repeated daily lead to great achievements.</item>
-        <item>Reflect on the root cause of the urge to splurge.</item>
-        <item>Wealth is built in the shadows of everyday choices.</item>
-        <item>Mastering money starts with managing moments.</item>
-        <item>Let your values dictate your volume.</item>
-        <item>You own your money; don\'t let your money own your mood.</item>
-        <item>A mindful habit today saves a financial headache tomorrow.</item>
-        <item>Design a lifestyle you don\'t need a vacation or a shopping spree to escape from.</item>
-        <item>Awareness is the first step of transformation.</item>
-        <item>Let your records reflect your aspirations.</item>
-        <item>Look closely at what stays; let go of what drains.</item>
-        <item>Peace is owning fewer things that require your attention.</item>
-        <item>Your financial future is decided in moments like this.</item>
-        <item>Keep your goals in focus and your expenses in check.</item>
+    <string-array name="psychology_phrases">
+        <item>La conciencia gana a la fuerza de voluntad.</item>
+        <item>No puedes cambiar lo que no notas.</item>
+        <item>Cantidades pequeñas, repetidas, se vuelven tu realidad.</item>
+        <item>Pausa diez segundos antes de gastar.</item>
+        <item>Cada mirada aquí es una elección a propósito.</item>
+        <item>El dinero sigue a la atención.</item>
+        <item>Primero nota, después gasta.</item>
+        <item>El número que evitas es el que crece.</item>
+        <item>Lo que registras, lo cuidas.</item>
+        <item>Nombra la emoción antes de comprar.</item>
+        <item>Una compra es un ánimo; un patrón es una elección.</item>
+        <item>Manos más lentas, dinero más firme.</item>
+        <item>Tú no eres tu impulso.</item>
+        <item>El poder está en la pausa.</item>
+        <item>El progreso se esconde en números pequeños.</item>
+        <item>La comodidad no es un plan.</item>
+        <item>La claridad es el antídoto del caos financiero.</item>
+        <item>Tus compras pasadas armáron tu base de hoy.</item>
+        <item>Un presupuesto le dice al dinero a dónde ir, en vez de preguntar a dónde se fue.</item>
+        <item>Los impulsos se van más rápido que los tickets.</item>
+        <item>La vergüenza corta el registro; la curiosidad lo mantiene vivo.</item>
+        <item>Gastar con intención gana a ahorrar por accidente.</item>
+        <item>Cada rupia gastada es un voto por la vida que quieres.</item>
+        <item>Aplazar suele ser el único filtro que necesitas.</item>
+        <item>La terapia de retail trata el síntoma, no la causa.</item>
+        <item>Nota el antojo; salta el carrito.</item>
+        <item>Riqueza es lo que conservas, no lo que exhibes.</item>
+        <item>La paz mental cuesta menos que el lujo.</item>
+        <item>Pregúntate: ¿compro esto o compro consuelo?</item>
+        <item>Goteras pequeñas hunden barcos grandes.</item>
+        <item>Los hábitos crecen más rápido que el interés.</item>
+        <item>Controla el gasto antes de que el gasto te controle.</item>
+        <item>La conciencia convierte un hábito en una elección.</item>
+        <item>Las necesidades son calladas; los deseos, ruidosos.</item>
+        <item>Si compras lo que no necesitas, pronto venderás lo que necesitas.</item>
+        <item>Cuida los céntimos y los euros se cuidan solos.</item>
+        <item>Libertad es poder decir no al premio inmediato.</item>
+        <item>Lo mejor de la vida no pide factura.</item>
+        <item>El aburrimiento es una emoción cara.</item>
+        <item>Gastar por estrés deja resaca.</item>
+        <item>Tu yo futuro mira tu carrito de ahora.</item>
+        <item>Examina el impulso antes del código de pago.</item>
+        <item>Gestionar el dinero es autocuidado.</item>
+        <item>Invertir en saber da el mejor interés; lo demás es consumo.</item>
+        <item>La verdadera riqueza crece en silencio.</item>
+        <item>Deja de comprar lo que no necesitas con dinero que no tienes para impresionar a quien no te cae bien.</item>
+        <item>Cuando sabes tu porqué, la cartera se alinea.</item>
+        <item>Gastar con atención da más alegría que acumular sin pensar.</item>
+        <item>Pausa hasta que entre la lógica.</item>
+        <item>Cada decisión financiera forma el mañana.</item>
+        <item>El subidón de comprar se va por la mañana.</item>
+        <item>Registra hábitos y los hábitos te premian.</item>
+        <item>Silencia el marketing con la claridad de tus metas.</item>
+        <item>Elige estabilidad larga, no dopamina corta.</item>
+        <item>No midas riqueza en cosas; mídala en elecciones.</item>
+        <item>Reconoce el disparador antes de que dispare el pago.</item>
+        <item>La dirección importa más que la velocidad.</item>
+        <item>Tu cuenta es un espejo de prioridades.</item>
+        <item>Consumir con consciencia es un superpoder.</item>
+        <item>Duerme las compras grandes; la claridad llega al amanecer.</item>
+        <item>La simplicidad es la máxima sofisticación financiera.</item>
+        <item>Disciplina es elegir entre lo que quieres ahora y lo que más quieres.</item>
+        <item>Un libro claro calma la mente.</item>
+        <item>Cada euro ahorrado trabaja para tu futuro.</item>
+        <item>Mira los datos, no el deseo.</item>
+        <item>Domina la mente para dominar el dinero.</item>
+        <item>La paz financiera no es accidente; es diseño.</item>
+        <item>Nota cuándo las emociones dictan los pagos.</item>
+        <item>El costo de algo es la vida que cambias por ello.</item>
+        <item>No cuentes cada rupia para limitarte; cuéntala para potenciarte.</item>
+        <item>Registrar por hábito mata la ansiedad financiera.</item>
+        <item>Deja que el propósito guíe las compras.</item>
+        <item>Un momento de reflexión evita un mes de arrepentimiento.</item>
+        <item>Mira más allá de la etiqueta al impacto largo.</item>
+        <item>Tu atención decide la asignación.</item>
+        <item>La independencia financiera empieza con un apunte.</item>
+        <item>Aléjate del banner de oferta; mira tus metas.</item>
+        <item>La intención convierte la rutina en rito.</item>
+        <item>Suscripciones sin revisar son ladrones silenciosos.</item>
+        <item>Nota el impulso y déjalo pasar como una nube.</item>
+        <item>Tu historia financiera se escribe apunte a apunte.</item>
+        <item>Alinea el gasto con tus valores.</item>
+        <item>Un presupuesto es permiso para gastar sin culpa en lo que importa.</item>
+        <item>La claridad cambia confusión por confianza.</item>
+        <item>Elige progreso, no perfección.</item>
+        <item>Cada vez que abres la app, recuperas poder.</item>
+        <item>Pequeñas disciplinas diarias traen grandes logros.</item>
+        <item>Mira la raíz del impulso de derrochar.</item>
+        <item>La riqueza se construye en la sombra de lo cotidiano.</item>
+        <item>Dominar el dinero empieza por dominar el momento.</item>
+        <item>Que tus valores dicten el volumen.</item>
+        <item>El dinero es tuyo; que no te posea el ánimo.</item>
+        <item>Un hábito atento hoy evita dolor de cabeza mañana.</item>
+        <item>Diseña una vida de la que no debas huir de vacaciones o de compras.</item>
+        <item>La conciencia es el primer paso del cambio.</item>
+        <item>Que tus registros reflejen tus anhelos.</item>
+        <item>Mira qué permanece; suelta lo que drena.</item>
+        <item>Paz es poseer menos cosas que pidan tu atención.</item>
+        <item>Tu futuro financiero se decide en momentos así.</item>
+        <item>Metas en foco y gastos a raya.</item>
     </string-array>
 
     <string name="label_upgrade_to_pro">Pasar a Pro</string>
@@ -3493,7 +3493,8 @@ privado de verdad</string>
 
     <string name="btn_update_now">Actualizar ahora</string>
 
-    <string name="title_update_available">Nueva actualización disponible</string>
+    <string name="title_update_available">Actualización disponible</string>
+    <string name="label_whats_new">Novedades</string>
 
     <string name="title_update_available_version">Está disponible la versión %s</string>
     <string name="badge_version_format">Versión %s</string>

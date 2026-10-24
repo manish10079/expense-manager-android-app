@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="update_dialog_subtitles">
+        <item>Schnellere App. Dein Geld verschwindet trotzdem.</item>
+        <item>Ausgaben tracken jetzt schneller — Panik kommt früher.</item>
+        <item>Sieh dein Erspartes in ultrascharfem HD verschwinden.</item>
+        <item>Jetzt schneller beim Rechnen, wie viel du nicht hättest ausgeben sollen.</item>
+        <item>Finanzielle Reue in Rekordzeit festhalten.</item>
+        <item>Mehr Tempo. Dein Portemonnaie bleibt gleich leer.</item>
+        <item>UI poliert, damit dein Konto stilvoll leerläuft.</item>
+        <item>Kürzere Ladezeiten. Mehr Realitätschecks.</item>
+        <item>Lädt schneller — dein Geld ist sowieso schon weg.</item>
+        <item>Schlechte Entscheidungen jetzt ohne Verzögerung angezeigt.</item>
+        <item>Charts aktualisiert, damit der sinkende Saldo hübsch aussieht.</item>
+        <item>Ausgaben schneller buchen. Dein Budget hatte keine Chance.</item>
+        <item>Leichter den Moment loggen, in dem deine Ersparnisse starben.</item>
+        <item>Code optimiert, damit der Geldabfluss ohne Ruckeln läuft.</item>
+        <item>Schneller, weicher — und schmerzhaft genauer.</item>
+        <item>Bessere Bildrate, während dein Geld spazieren geht.</item>
+        <item>Ich hab die App gefixt. Deine Ausgaben sind deine Sache.</item>
+        <item>Gebaut von einem Dev, der auch kein Budget hält.</item>
+        <item>App debuggt. Dein Leben extra.</item>
+        <item>Ich hab meinen Job gemacht. Jetzt Budget checken.</item>
+        <item>12 Bugs gefixt, damit du heute 12 unnötige Käufe loggen kannst.</item>
+        <item>App ist schneller. Der Rest der Magie liegt bei dir.</item>
+        <item>Jeden Pixel poliert — für die nächste Essensbestellung.</item>
+        <item>Abstürze weg. Das restliche Chaos ist deins.</item>
+        <item>Mit Sorgfalt von einem Dev, der auch Unnötiges kauft.</item>
+        <item>Datenbank optimiert. Du optimierst den Warenkorb.</item>
+        <item>Solo gebaut, damit du deine Ausgaben in Ruhe beurteilen kannst.</item>
+        <item>Lag weg. Schau der Finanzrealität ins Gesicht.</item>
+        <item>Trackt jetzt alles, was du nie kaufen wolltest.</item>
+        <item>Impulskäufe 50 % schneller loggen.</item>
+        <item>Nachteinkäufe leichter kategorisieren.</item>
+        <item>Fängt jede „es war im Angebot“-Ausrede.</item>
+        <item>Besser beim Loggen von Dingen, die du nicht brauchtest.</item>
+        <item>Schnellerer Eintrag für Retail-Therapy-Momente.</item>
+        <item>Hält mit spontanen Kassen-Entscheidungen mit.</item>
+        <item>Take-away loggen geht schneller als essen.</item>
+        <item>Tägliche Kaffee-Sucht millimetergenau.</item>
+        <item>Liefergebühren schneller eintragen.</item>
+        <item>Tempo, um den Preis der Bequemlichkeit zu loggen.</item>
+        <item>Weich beim Tracken von Dingen, die nächste Woche zurückgehen.</item>
+        <item>Schneller für „ich hab mir was verdient“-Ausgaben.</item>
+        <item>Hält mit deiner Online-Bestellhistorie mit.</item>
+        <item>Für all deine „versehentlichen“ Exzesse.</item>
+        <item>Weichere Oberfläche für Kaufreue.</item>
+        <item>Bugs weg. Geld bleibt endlich.</item>
+        <item>Läuft besser. Mathe gilt weiter.</item>
+        <item>App steht. Rechnungen auch.</item>
+        <item>Weniger Abstürze. Dieselbe harte Finanzrealität.</item>
+        <item>Weichere Updates. Kein Geld extra auf dem Konto.</item>
+        <item>Tempo oben. Budgetieren bleibt Pflicht.</item>
+        <item>Null Lag. Maximale Verantwortung.</item>
+        <item>Performance-Probleme weg. Saldo unverändert.</item>
+        <item>Weniger Laden, mehr harte Wahrheiten.</item>
+        <item>Code glänzt. Zahlen lügen nicht.</item>
+        <item>Kleine Fixes. Große Realitätschecks.</item>
+        <item>Schneller. Freies Geld erfinde ich trotzdem nicht.</item>
+        <item>Bugs gefixt. Schwerkraft und Steuern bleiben.</item>
+        <item>Tempo besser. Realität unversehrt.</item>
+        <item>Läuft weich. Kein Zauber für den Kontostand.</item>
+        <item>Schnellere Starts, null Schönfärberei.</item>
+        <item>Stabiler. Absolut transparent.</item>
+        <item>Performance fein. Fakten bleiben Fakten.</item>
+        <item>App neu. Ausgaben alt.</item>
+        <item>Weniger Ruckeln, mehr finanzielle Ehrlichkeit.</item>
+        <item>Sauberer Code. Fragwürdige Kaufgewohnheiten.</item>
+        <item>Schnelleres Tracking fragwürdiger Entscheidungen.</item>
+        <item>Weichere UI, härtere Realität.</item>
+        <item>Schnellere App, kleinerer Saldo.</item>
+        <item>Upgrade für Highspeed-Budgeting.</item>
+        <item>Weniger Warten, mehr Tracken.</item>
+        <item>Polierte UI, unpolierte Ausgaben.</item>
+        <item>Hohes Tempo, wenig Zögern.</item>
+        <item>Sofort geladen. Sofort Reue.</item>
+        <item>Sauberer Code, chaotisches Budget.</item>
+        <item>Ultraschnelles Expense-Tracking. Null Ausreden.</item>
+        <item>Schnelleres Feedback fürs Portemonnaie.</item>
+        <item>Finanzrealität mit Turboschub.</item>
+        <item>Weiche UI, strenge Zahlen.</item>
+        <item>Null Lag, volle Verantwortung.</item>
+        <item>Schnellere App, gleiche Gewohnheiten.</item>
+        <item>Optimiert für sofortige Wahrheit.</item>
+        <item>Schlanker Look, ehrliche Mathe.</item>
+        <item>Abgestimmt auf schnelle Realitätschecks.</item>
+    </string-array>
+</resources>
