@@ -8,5 +8,6 @@ package com.mknlabs.expensetracker.domain.models
 data class UpdateInfo(
     val forceUpdate: Boolean = false,
     val updateTitle: String = "",
-    val updateMessage: String = ""
+    val updateMessage: String = "",
+    val latestVersion: String = ""
 )

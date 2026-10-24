@@ -3461,6 +3461,7 @@ privé par nature</string>
     <string name="title_update_available">Nouvelle version dispo</string>
 
     <string name="title_update_available_version">La version %s est dispo</string>
+    <string name="badge_version_format">Version %s</string>
 
     <string name="msg_update_available">Une nouvelle version d’Expense Tracker est là. Mets à jour pour les dernières améliorations.</string>
 

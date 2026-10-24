@@ -3614,6 +3614,7 @@
     <string name="title_update_available">A New Version Is Available</string>
 
     <string name="title_update_available_version">Version %s Is Available</string>
+    <string name="badge_version_format">Version %s</string>
 
     <string name="msg_update_available">A new version of Expense Tracker is available. Update now to enjoy the latest features and improvements.</string>
 

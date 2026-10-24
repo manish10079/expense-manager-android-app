@@ -3432,6 +3432,7 @@
     <string name="title_update_available">C\'è una nuova versione</string>
 
     <string name="title_update_available_version">La versione %s è disponibile</string>
+    <string name="badge_version_format">Versione %s</string>
 
     <string name="msg_update_available">C\'è una nuova versione di Expense Tracker. Aggiorna per le ultime funzioni e miglioramenti.</string>
 

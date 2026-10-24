@@ -3432,6 +3432,7 @@
     <string name="title_update_available">ନୂଆ ଭର୍ସନ ଅଛି</string>
 
     <string name="title_update_available_version">ଭର୍ସନ %s ଅଛି</string>
+    <string name="badge_version_format">ଭର୍ସନ %s</string>
 
     <string name="msg_update_available">Expense Tracker ର ନୂଆ ଭର୍ସନ ଅଛି। ନୂଆ ଫିଚର ପାଇବାକୁ ଏବେ ଅପଡେଟ କର।</string>
 

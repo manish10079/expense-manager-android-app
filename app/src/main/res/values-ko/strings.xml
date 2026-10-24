@@ -3465,6 +3465,7 @@
     <string name="title_update_available">새 버전이 있어</string>
 
     <string name="title_update_available_version">버전 %s를 쓸 수 있어</string>
+    <string name="badge_version_format">버전 %s</string>
 
     <string name="msg_update_available">Expense Tracker 새 버전이 있어. 지금 업데이트해서 최신 기능을.</string>
 

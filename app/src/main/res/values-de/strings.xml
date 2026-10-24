@@ -3494,6 +3494,7 @@ privat von Haus aus</string>
     <string name="title_update_available">Neue Version da</string>
 
     <string name="title_update_available_version">Version %s ist da</string>
+    <string name="badge_version_format">Version %s</string>
 
     <string name="msg_update_available">Es gibt eine neue Version von Expense Tracker. Jetzt updaten für die neuesten Funktionen.</string>
 

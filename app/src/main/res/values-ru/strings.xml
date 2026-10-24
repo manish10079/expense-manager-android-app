@@ -3450,6 +3450,7 @@
     <string name="title_update_available">Доступна новая версия</string>
 
     <string name="title_update_available_version">Доступна версия %s</string>
+    <string name="badge_version_format">Версия %s</string>
 
     <string name="msg_update_available">Доступна новая версия Expense Tracker. Обновись сейчас, чтобы получить новые функции и улучшения.</string>
 

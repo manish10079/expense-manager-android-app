@@ -21,6 +21,12 @@
         "value": "A New Version Is Available"
       }
     },
+    "latest_version": {
+      "defaultValue": {
+        "value": ""
+      },
+      "valueType": "STRING"
+    },
     "google_sheets_feedback_url": {
       "defaultValue": {
         "value": "https://script.google.com/macros/s/AKfycbxZhIQOhMcGxG9YeZBPsDhUPpPkUPs7g0gxG9pz7PbLXY237PSxTkD7P8A1myFNyz6OIQ/exec  "

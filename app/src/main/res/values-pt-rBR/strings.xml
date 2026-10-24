@@ -3496,6 +3496,7 @@ privado de verdade</string>
     <string name="title_update_available">Tem uma versão nova</string>
 
     <string name="title_update_available_version">A versão %s está disponível</string>
+    <string name="badge_version_format">Versão %s</string>
 
     <string name="msg_update_available">Tem uma versão nova do Expense Tracker. Atualize para as últimas melhorias.</string>
 

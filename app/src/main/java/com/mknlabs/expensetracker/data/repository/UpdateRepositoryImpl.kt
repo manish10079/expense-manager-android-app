@@ -78,7 +78,8 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
         val info = UpdateInfo(
             forceUpdate = remoteConfig.getBoolean(KEY_FORCE_UPDATE),
             updateTitle = remoteConfig.getString(KEY_UPDATE_TITLE),
-            updateMessage = remoteConfig.getString(KEY_UPDATE_MESSAGE)
+            updateMessage = remoteConfig.getString(KEY_UPDATE_MESSAGE),
+            latestVersion = remoteConfig.getString(KEY_LATEST_VERSION)
         )
         if (info != _updateInfo.value) {
             Log.d(
@@ -97,5 +98,6 @@ class UpdateRepositoryImpl @Inject constructor() : UpdateRepository {
         const val KEY_FORCE_UPDATE = "force_update"
         const val KEY_UPDATE_TITLE = "update_title"
         const val KEY_UPDATE_MESSAGE = "update_message"
+        const val KEY_LATEST_VERSION = "latest_version"
     }
 }

@@ -3489,6 +3489,7 @@
     <string name="title_update_available">新しいバージョンがあるよ</string>
 
     <string name="title_update_available_version">バージョン%sが使えるよ</string>
+    <string name="badge_version_format">バージョン %s</string>
 
     <string name="msg_update_available">Expense Trackerの新しいバージョンがあるよ。今すぐ更新して最新機能を。</string>
 

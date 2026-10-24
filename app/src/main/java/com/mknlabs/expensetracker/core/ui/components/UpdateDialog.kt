@@ -1,12 +1,17 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -14,15 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material3.AlertDialog
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,40 +33,38 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.components.AppTextButton
-import com.mknlabs.expensetracker.domain.models.UpdateInfo
-import com.mknlabs.expensetracker.utils.AppLocaleHelper
-import com.mknlabs.expensetracker.utils.localizedRemoteConfigText
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
-import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.graphics.Color
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onCta
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import com.mknlabs.expensetracker.domain.models.UpdateInfo
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
+import com.mknlabs.expensetracker.utils.localizedRemoteConfigText
 import kotlinx.coroutines.launch
 
 // ── Responsive helpers ─────────────────────────────────────────────────
@@ -159,31 +160,27 @@ fun UpdateDialog(
         containerColor = AppCardDefaults.colors(
             darkContainer = Color(0xFF101019)
         ).containerColor,
+        shape = RoundedCornerShape(metrics.cornerRadius),
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.RocketLaunch,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.accentInk,
-                    modifier = Modifier.size(metrics.iconSize)
-                )
-                Text(
-                    text = titleText(info),
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            UpdateHeader(info = info)
         },
         text = {
-            MessageBody(
-                info = info,
-                maxHeight = metrics.messageMaxHeight
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val subtitle = rememberSaveable { updateSubtitle.random() }
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 20.sp,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                MessageBody(
+                    info = info,
+                    maxHeight = metrics.messageMaxHeight
+                )
+            }
         },
         confirmButton = {
             UpdateNowButton(onClick = onUpdateNow)
@@ -194,11 +191,79 @@ fun UpdateDialog(
                     Text(stringResource(R.string.label_later))
                 }
             }
-        },
-        shape = RoundedCornerShape(metrics.cornerRadius)
+        }
     )
 }
 
+@Composable
+private fun UpdateHeader(
+    info: UpdateInfo
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(brush = brandGradient()),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.RocketLaunch,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBrandGradient,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = titleText(info),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Start
+            )
+
+            val rawVersion = info.latestVersion.ifBlank {
+                stringResource(R.string.label_app_version).removePrefix("v").removePrefix("V")
+            }
+            val cleanVersion = rawVersion.removePrefix("v").removePrefix("V")
+
+            val isDark = isSystemInDarkTheme()
+            val badgeBg = if (isDark) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            } else {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+            }
+            val badgeBorder = if (isDark) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+            } else {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+            }
+
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = badgeBg,
+                border = BorderStroke(1.dp, badgeBorder)
+            ) {
+                Text(
+                    text = stringResource(R.string.badge_version_format, cleanVersion),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun UpdateNowButton(onClick: () -> Unit) {
@@ -315,277 +380,362 @@ private fun localizedUpdateMessage(info: UpdateInfo): String {
         .ifBlank { localizedRemoteConfigText(info.updateTitle, lang, nestedField = "message") }
 }
 
-// ── Previews ───────────────────────────────────────────────────────────
-
-@Preview(name = "Normal light", showBackground = true, widthDp = 360, heightDp = 740)
-@Composable
-private fun PreviewNormalLight() {
-    PreviewWithWindowInfo(
-        info = AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded),
-        darkTheme = false
-    ) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "Update Available",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Normal dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    widthDp = 360,
-    heightDp = 740
-)
-@Composable
-private fun PreviewNormalDark() {
-    PreviewWithWindowInfo(
-        info = AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded),
-        darkTheme = true
-    ) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "Update Available",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-
-@Preview(name = "Compact portrait", showBackground = true, widthDp = 360, heightDp = 740)
-@Composable
-private fun PreviewCompactPortrait() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-@Preview(name = "Compact landscape", showBackground = true, widthDp = 740, heightDp = 360)
-@Composable
-private fun PreviewCompactLandscape() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Compact)) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-@Preview(name = "Tablet (medium)", showBackground = true, widthDp = 800, heightDp = 1200)
-@Composable
-private fun PreviewTablet() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Medium, AppWindowHeight.Expanded)) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-@Preview(name = "Forced update", showBackground = true, widthDp = 360, heightDp = 740)
-@Composable
-private fun PreviewForced() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
-        PreviewDialogCard(force = true) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "Critical Security Update",
-                    updateMessage = "Critical security update \u2014 please update now:\n\n" +
-                        "\u2022 Fixed authentication token leak on background sync\n" +
-                        "\u2022 End-to-end encryption for cloud backups\n" +
-                        "\u2022 Patched biometric bypass on rooted devices\n" +
-                        "\u2022 Removed deprecated Firebase SDK calls\n" +
-                        "\u2022 Hardened PIN against brute-force attempts\n" +
-                        "\u2022 Resolved crash on Samsung Galaxy S24 during export\n" +
-                        "\u2022 Fixed duplicate notifications on Pixel 8 Pro\n" +
-                        "\u2022 Improved offline mode reliability\n" +
-                        "\u2022 Corrected currency formatting for JPY and KRW\n" +
-                        "\u2022 Fixed dark theme contrast on Settings screen",
-                    forceUpdate = true
-                )
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Compact portrait dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    widthDp = 360,
-    heightDp = 740
-)
-@Composable
-private fun PreviewCompactPortraitDark() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
-        PreviewDialogCard(force = false) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "",
-                    updateMessage = buildRemoteConfigMessage(),
-                    forceUpdate = false
-                )
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Forced update dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    widthDp = 360,
-    heightDp = 740
-)
-@Composable
-private fun PreviewForcedDark() {
-    PreviewWithWindowInfo(AppWindowInfo(AppWindowSize.Compact, AppWindowHeight.Expanded)) {
-        PreviewDialogCard(force = true) {
-            UpdateDialogContent(
-                info = UpdateInfo(
-                    updateTitle = "Critical Security Update",
-                    updateMessage = "Critical security update \u2014 please update now:\n\n" +
-                        "\u2022 Fixed authentication token leak on background sync\n" +
-                        "\u2022 End-to-end encryption for cloud backups\n" +
-                        "\u2022 Patched biometric bypass on rooted devices\n" +
-                        "\u2022 Removed deprecated Firebase SDK calls\n" +
-                        "\u2022 Hardened PIN against brute-force attempts\n" +
-                        "\u2022 Resolved crash on Samsung Galaxy S24 during export\n" +
-                        "\u2022 Fixed duplicate notifications on Pixel 8 Pro\n" +
-                        "\u2022 Improved offline mode reliability\n" +
-                        "\u2022 Corrected currency formatting for JPY and KRW\n" +
-                        "\u2022 Fixed dark theme contrast on Settings screen",
-                    forceUpdate = true
-                )
-            )
-        }
-    }
-}
-
-// ── Preview helpers ────────────────────────────────────────────────────
-
-@Composable
-private fun PreviewWithWindowInfo(
-    info: AppWindowInfo,
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    ExpenseTrackerTheme(darkTheme = darkTheme) {
-        CompositionLocalProvider(LocalAppWindowInfo provides info) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun UpdateDialogContent(info: UpdateInfo) {
-    val scrollState = rememberScrollState()
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.RocketLaunch,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.accentInk,
-            modifier = Modifier.size(32.dp)
-        )
-        Text(
-            text = titleText(info),
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.weight(1f)
-        )
-    }
-    Spacer(modifier = Modifier.height(12.dp))
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(max = 260.dp)
-            .verticalScroll(scrollState)
-    ) {
-        Text(
-            text = info.updateMessage.ifBlank { stringResource(R.string.msg_update_available) },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
 private fun buildRemoteConfigMessage(): String = listOf(
-    "Hey there! We\u2019ve been busy making your expense tracking experience even better.",
-    "",
-    "Here\u2019s what\u2019s new:",
-    "",
-    "\uD83D\uDE80 PERFORMANCE",
-    "  \u2022 Transactions now load 3x faster with Paging 3",
-    "  \u2022 Smoother scrolling on the main dashboard",
-    "",
-    "\uD83D\uDCCA ANALYTICS",
-    "  \u2022 New yearly spending overview chart",
-    "  \u2022 Category breakdown now supports custom date ranges",
-    "",
-    "\uD83D\uDD27 BUG FIXES",
-    "  \u2022 Fixed recurring transactions not firing on Mondays",
-    "  \u2022 Resolved crash when exporting CSV with 1000+ entries",
-    "  \u2022 Budget alerts now respect your notification settings",
-    "",
-    "Thanks for being a valued user! Your feedback helps us improve."
+    "What's New in v2.4.0:",
+    "• Transactions now load 3x faster with Paging 3",
+    "• Smoother scrolling on the main dashboard",
+    "• New yearly spending overview chart",
+    "• Category breakdown supports custom date ranges",
+    "• Bug fixes & stability improvements across the app"
 ).joinToString("\n")
 
+// ── Real Device Preview Infrastructure ─────────────────────────────────
+
+/**
+ * Renders the update dialog floating card with exact real-device dimensions,
+ * elevation, colors, and button layout.
+ */
 @Composable
-private fun PreviewDialogCard(force: Boolean, content: @Composable () -> Unit) {
+private fun UpdateDialogCardSurface(
+    info: UpdateInfo,
+    force: Boolean,
+    onUpdateNow: () -> Unit,
+    onLater: () -> Unit,
+    metrics: DialogMetrics,
+    subtitle: String = updateSubtitle[0]
+) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .width(metrics.maxWidth)
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(metrics.cornerRadius),
+                ambientColor = Color.Black.copy(alpha = 0.25f),
+                spotColor = Color.Black.copy(alpha = 0.35f)
+            ),
+        shape = RoundedCornerShape(metrics.cornerRadius),
         color = AppCardDefaults.colors(
             darkContainer = Color(0xFF101019)
         ).containerColor,
-        tonalElevation = 0.dp,
-        modifier = Modifier.fillMaxWidth()
+        tonalElevation = 6.dp
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            content()
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
+            UpdateHeader(info = info)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            MessageBody(
+                info = info,
+                maxHeight = metrics.messageMaxHeight
+            )
             Spacer(modifier = Modifier.height(24.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (!force) {
-                    AppTextButton(onClick = {}) {
+                    AppTextButton(onClick = onLater) {
                         Text(stringResource(R.string.label_later))
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(metrics.buttonSpacing))
                 }
-                UpdateNowButton(onClick = {})
+                UpdateNowButton(onClick = onUpdateNow)
             }
         }
+    }
+}
+
+/**
+ * Replicates the actual app screen behind the update dialog, so the preview
+ * accurately mirrors what a user sees when the dialog pops up over the app.
+ */
+@Composable
+private fun SimulatedAppBackground() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // App header bar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "October 2026",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Expense Tracker",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+        }
+
+        // Total Balance Hero Card
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Total Balance",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$4,250.00",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        Text(
+            text = "Recent Transactions",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        // Recent transactions list placeholders
+        repeat(5) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            ) {}
+        }
+    }
+}
+
+/**
+ * Device-framed canvas: app dashboard in the background, darkened by a 55% scrim overlay,
+ * with the update dialog card centered in foreground.
+ */
+@Composable
+private fun RealDevicePreviewScaffold(
+    darkTheme: Boolean,
+    windowSize: AppWindowSize = AppWindowSize.Compact,
+    windowHeight: AppWindowHeight = AppWindowHeight.Expanded,
+    content: @Composable (DialogMetrics) -> Unit
+) {
+    ExpenseTrackerTheme(darkTheme = darkTheme) {
+        val windowInfo = AppWindowInfo(windowSize, windowHeight)
+        CompositionLocalProvider(LocalAppWindowInfo provides windowInfo) {
+            val metrics = rememberDialogMetrics()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                // Themed app background
+                SimulatedAppBackground()
+
+                // Dialog Scrim (55% black opacity, exactly how AlertDialog dims background on Android)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.55f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    content(metrics)
+                }
+            }
+        }
+    }
+}
+
+// ── Device Previews ────────────────────────────────────────────────────
+
+@Preview(
+    name = "Real Device — Light Mode",
+    showBackground = true,
+    showSystemUi = true,
+    device = "id:pixel_8"
+)
+@Composable
+private fun PreviewUpdateDialogDeviceLight() {
+    RealDevicePreviewScaffold(darkTheme = false) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = false,
+                latestVersion = "2.4.0"
+            ),
+            force = false,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Faster performance. Same disappearing act for your money."
+        )
+    }
+}
+
+@Preview(
+    name = "Real Device — Dark Mode",
+    showBackground = true,
+    showSystemUi = true,
+    device = "id:pixel_8",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewUpdateDialogDeviceDark() {
+    RealDevicePreviewScaffold(darkTheme = true) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = false,
+                latestVersion = "2.4.0"
+            ),
+            force = false,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Faster performance. Same disappearing act for your money."
+        )
+    }
+}
+
+@Preview(
+    name = "Real Device — Forced Light",
+    showBackground = true,
+    showSystemUi = true,
+    device = "id:pixel_8"
+)
+@Composable
+private fun PreviewUpdateDialogForcedLight() {
+    RealDevicePreviewScaffold(darkTheme = false) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = true,
+                latestVersion = "2.4.0"
+            ),
+            force = true,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Built by one dev who also struggles to stick to a budget."
+        )
+    }
+}
+
+@Preview(
+    name = "Real Device — Forced Dark",
+    showBackground = true,
+    showSystemUi = true,
+    device = "id:pixel_8",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewUpdateDialogForcedDark() {
+    RealDevicePreviewScaffold(darkTheme = true) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = true,
+                latestVersion = "2.4.0"
+            ),
+            force = true,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Built by one dev who also struggles to stick to a budget."
+        )
+    }
+}
+
+@Preview(
+    name = "Real Device — Landscape",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=891dp,height=411dp,orientation=landscape"
+)
+@Composable
+private fun PreviewUpdateDialogLandscape() {
+    RealDevicePreviewScaffold(
+        darkTheme = false,
+        windowSize = AppWindowSize.Expanded,
+        windowHeight = AppWindowHeight.Compact
+    ) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = false,
+                latestVersion = "2.4.0"
+            ),
+            force = false,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Faster performance. Same disappearing act for your money."
+        )
+    }
+}
+
+@Preview(
+    name = "Real Device — Tablet",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=1280dp,height=800dp,dpi=240"
+)
+@Composable
+private fun PreviewUpdateDialogTablet() {
+    RealDevicePreviewScaffold(
+        darkTheme = true,
+        windowSize = AppWindowSize.Large,
+        windowHeight = AppWindowHeight.Expanded
+    ) { metrics ->
+        UpdateDialogCardSurface(
+            info = UpdateInfo(
+                updateTitle = "Update Available",
+                updateMessage = buildRemoteConfigMessage(),
+                forceUpdate = false,
+                latestVersion = "2.4.0"
+            ),
+            force = false,
+            onUpdateNow = {},
+            onLater = {},
+            metrics = metrics,
+            subtitle = "Faster performance. Same disappearing act for your money."
+        )
     }
 }

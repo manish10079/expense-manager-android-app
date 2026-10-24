@@ -21,6 +21,10 @@
         <key>update_message</key>
         <value></value>
     </entry>
+    <entry>
+        <key>latest_version</key>
+        <value></value>
+    </entry>
 
     <!-- Legacy force-update gate (full-screen, driven by SplashViewModel) -->
     <entry>

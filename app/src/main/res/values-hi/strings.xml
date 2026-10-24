@@ -3166,6 +3166,7 @@
     <string name="title_update_available">नया वर्जन उपलब्ध है</string>
 
     <string name="title_update_available_version">वर्जन %s उपलब्ध है</string>
+    <string name="badge_version_format">वर्जन %s</string>
 
     <string name="msg_update_available">Expense Tracker का नया वर्जन उपलब्ध है। नए फीचर्स और सुधारों का आनंद लेने के लिए अभी अपडेट करें।</string>
 
