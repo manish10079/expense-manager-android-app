@@ -56,6 +56,12 @@ class LocaleDigitsTest {
     }
 
     @Test
+    fun assameseUsesBengaliAssameseDigits() {
+        assertEquals("০১২", localizeWesternDigits("012", "as"))
+        assertTrue(usesNativeDigits("as"))
+    }
+
+    @Test
     fun otherLanguagesKeepWesternDigits() {
         assertEquals("123", localizeWesternDigits("123", "en"))
         assertEquals("123", localizeWesternDigits("123", "ja"))

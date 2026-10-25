@@ -20,6 +20,7 @@ fun nativeDigitsForLanguage(languageTag: String): String {
         "ta" -> TAMIL_DIGITS
         "bn" -> BENGALI_DIGITS
         "te" -> TELUGU_DIGITS
+        "as" -> BENGALI_DIGITS
         "ml" -> MALAYALAM_DIGITS
         else -> WESTERN_DIGITS
     }

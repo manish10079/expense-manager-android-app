@@ -19,6 +19,7 @@ val supportedAppLanguages: List<AppLanguageOption> = listOf(
     AppLanguageOption("mr", "मराठी", "Marathi"),
     AppLanguageOption("ml", "മലയാളം", "Malayalam"),
     AppLanguageOption("te", "తెలుగు", "Telugu"),
+    AppLanguageOption("as", "অসমীয়া", "Assamese"),
     AppLanguageOption("es", "Español", "Spanish"),
     AppLanguageOption("pt-BR", "Português (Brasil)", "Portuguese"),
     AppLanguageOption("fr", "Français", "French"),
