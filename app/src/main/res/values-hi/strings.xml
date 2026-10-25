@@ -4160,4 +4160,15 @@
     <string name="label_calculator_normal">नॉर्मल</string>
 
     <string name="label_reward_days_count">%1$d दिन</string>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d लक्ष्य ने पड़ाव पूरा किया</item>
+        <item quantity="other">%1$d लक्ष्यों ने पड़ाव पूरा किया</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d आने वाला लेन-देन</item>
+        <item quantity="other">%1$d आने वाले लेन-देन</item>
+    </plurals>
+
 </resources>

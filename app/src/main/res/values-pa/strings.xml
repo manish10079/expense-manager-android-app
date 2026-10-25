@@ -2187,4 +2187,65 @@
     <string name="label_all_funds_breakdown">ਸਾਰੇ ਫੰਡ</string>
     <string name="label_no_fund_breakdown">ਇਸ ਦਾਇਰੇ ਵਿੱਚ ਕੋਈ ਫੰਡ ਖਰਚ ਨਹੀਂ।</string>
     <string name="title_full_fund_breakdown">ਪੂਰਾ ਫੰਡ ਵੇਰਵਾ</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">ਹਰ ਰੋਜ਼ ਆਟੋ ਬੈਕਅੱਪ</item>
+        <item quantity="other">ਹਰ %1$d ਦਿਨਾਂ ਬਾਅਦ ਆਟੋ ਬੈਕਅੱਪ</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">ਖੋਜੇ ਲੈਣ-ਦੇਣ, %1$d ਅਣਪੜ੍ਹੇ</item>
+        <item quantity="other">ਖੋਜੇ ਲੈਣ-ਦੇਣ, %1$d ਅਣਪੜ੍ਹੇ</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d ਘੰਟਾ</item>
+        <item quantity="other">%1$d ਘੰਟੇ</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d ਮਿੰਟ</item>
+        <item quantity="other">%1$d ਮਿੰਟ</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 ਦਿਨ</item>
+        <item quantity="other">%1$d ਦਿਨ</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d ਦਿਨ ਬਾਕੀ</item>
+        <item quantity="other">%1$d ਦਿਨ ਬਾਕੀ</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d ਆਈਟਮ</item>
+        <item quantity="other">%1$d ਆਈਟਮਾਂ</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d ਸ਼੍ਰੇਣੀ ਬਜਟ ਦੇ ਨੇੜੇ ਜਾਂ ਉਸ ਤੋਂ ਵੱਧ ਹੈ</item>
+        <item quantity="other">%1$d ਸ਼੍ਰੇਣੀਆਂ ਬਜਟ ਦੇ ਨੇੜੇ ਜਾਂ ਉਸ ਤੋਂ ਵੱਧ ਹਨ</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d ਟੀਚਾ ਪੜਾਅ ਪੂਰਾ ਹੋਇਆ</item>
+        <item quantity="other">%1$d ਟੀਚਿਆਂ ਦੇ ਪੜਾਅ ਪੂਰੇ ਹੋਏ</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d ਆਵਰਤੀ ਲੈਣ-ਦੇਣ ਸਫਲਤਾਪੂਰਵਕ ਸ਼ਾਮਲ ਕੀਤਾ ਗਿਆ:\n%2$s</item>
+        <item quantity="other">%1$d ਆਵਰਤੀ ਲੈਣ-ਦੇਣ ਸਫਲਤਾਪੂਰਵਕ ਸ਼ਾਮਲ ਕੀਤੇ ਗਏ:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d ਆਉਣ ਵਾਲਾ ਲੈਣ-ਦੇਣ</item>
+        <item quantity="other">%1$d ਆਉਣ ਵਾਲੇ ਲੈਣ-ਦੇਣ</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d ਕਿਸ਼ਤ ਭਰੀ ਗਈ</item>
+        <item quantity="other">%1$d ਕਿਸ਼ਤਾਂ ਭਰੀਆਂ ਗਈਆਂ</item>
+    </plurals>
+
 </resources>

@@ -2169,4 +2169,65 @@
     <!-- Misc labels -->
     <string name="label_name">പേര്</string>
     <string name="placeholder_email_example">alex.j@example.com</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">എല്ലാ ദിവസവും ഓട്ടോ ബാക്കപ്പ്</item>
+        <item quantity="other">ഓരോ %1$d ദിവസവും ഓട്ടോ ബാക്കപ്പ്</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">കണ്ടെത്തിയ ഇടപാടുകൾ, %1$d വായിക്കാത്തത്</item>
+        <item quantity="other">കണ്ടെത്തിയ ഇടപാടുകൾ, %1$d വായിക്കാത്തത്</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d മണിക്കൂർ</item>
+        <item quantity="other">%1$d മണിക്കൂർ</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d മിനിറ്റ്</item>
+        <item quantity="other">%1$d മിനിറ്റ്</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 ദിവസം</item>
+        <item quantity="other">%1$d ദിവസം</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d ദിവസം ബാക്കി</item>
+        <item quantity="other">%1$d ദിവസം ബാക്കി</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d ഇനം</item>
+        <item quantity="other">%1$d ഇനങ്ങൾ</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d വിഭാഗം ബജറ്റിന് അടുത്തോ അതിന് മുകളിലോ ആണ്</item>
+        <item quantity="other">%1$d വിഭാഗങ്ങൾ ബജറ്റിന് അടുത്തോ അതിന് മുകളിലോ ആണ്</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d ലക്ഷ്യം നാഴികക്കല്ലിലെത്തി</item>
+        <item quantity="other">%1$d ലക്ഷ്യങ്ങൾ നാഴികക്കല്ലിലെത്തി</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d ആവർത്തിച്ചുള്ള ഇടപാട് വിജയകരമായി ചേർത്തു:\n%2$s</item>
+        <item quantity="other">%1$d ആവർത്തിച്ചുള്ള ഇടപാടുകൾ വിജയകരമായി ചേർത്തു:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d വരാനിരിക്കുന്ന ഇടപാട്</item>
+        <item quantity="other">%1$d വരാനിരിക്കുന്ന ഇടപാടുകൾ</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d ഗഡു അടച്ചു</item>
+        <item quantity="other">%1$d ഗഡുക്കൾ അടച്ചു</item>
+    </plurals>
+
 </resources>

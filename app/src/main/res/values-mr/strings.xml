@@ -2153,4 +2153,65 @@
     <string name="title_full_fund_breakdown">संपूर्ण फंड विभागणी</string>
     <string name="info_budget_alerts" formatted="false">एखादी श्रेणी बजेटजवळ आल्यावर सांगते: ७५%, ९०%, १००% आणि मर्यादा ओलांडल्यावर.</string>
     <string name="info_savings_goals" formatted="false">बचतीच्या ध्येयाच्या २५%, ५०%, ७५% वर प्रगतीची सूचना, ध्येय पूर्ण झाल्यावर अभिनंदन, आणि मागे पडल्यास इशारा.</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">दररोज आपोआप बॅकअप</item>
+        <item quantity="other">दर %1$d दिवसांनी आपोआप बॅकअप</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">ओळखलेले व्यवहार, %1$d न वाचलेले</item>
+        <item quantity="other">ओळखलेले व्यवहार, %1$d न वाचलेले</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d तास</item>
+        <item quantity="other">%1$d तास</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d मिनिट</item>
+        <item quantity="other">%1$d मिनिट</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 दिवस</item>
+        <item quantity="other">%1$d दिवस</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d दिवस शिल्लक</item>
+        <item quantity="other">%1$d दिवस शिल्लक</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d घटक</item>
+        <item quantity="other">%1$d घटक</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d श्रेणी बजेटजवळ किंवा त्यापुढे आहे</item>
+        <item quantity="other">%1$d श्रेणी बजेटजवळ किंवा त्यापुढे आहेत</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d ध्येयाचा टप्पा पूर्ण झाला</item>
+        <item quantity="other">%1$d ध्येयांचे टप्पे पूर्ण झाले</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d नियमित व्यवहार यशस्वीरित्या जोडला:\n%2$s</item>
+        <item quantity="other">%1$d नियमित व्यवहार यशस्वीरित्या जोडले:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d येणारा व्यवहार</item>
+        <item quantity="other">%1$d येणारे व्यवहार</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d हप्ता भरला</item>
+        <item quantity="other">%1$d हप्ते भरले</item>
+    </plurals>
+
 </resources>

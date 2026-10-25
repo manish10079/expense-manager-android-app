@@ -2141,4 +2141,65 @@
     <string name="title_full_fund_breakdown">పూర్తి నిధి విభజన</string>
     <string name="info_budget_alerts" formatted="false">వర్గం దాని బడ్జెట్‌కు దగ్గరగా వస్తున్నప్పుడు హెచ్చరిస్తుంది: 75%, 90%, 100% వద్ద మరియు దాటినప్పుడు.</string>
     <string name="info_savings_goals" formatted="false">పొదుపు లక్ష్యంలో 25%, 50%, 75% పురోగతి హెచ్చరికలు, లక్ష్యం సాధించినప్పుడు అభినందన, ఆలస్యంగా ఉన్నప్పుడు హెచ్చరిక.</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">ప్రతిరోజూ ఆటో బ్యాకప్</item>
+        <item quantity="other">ప్రతి %1$d రోజులకు ఆటో బ్యాకప్</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">గుర్తించిన లావాదేవీలు, %1$d చదవనివి</item>
+        <item quantity="other">గుర్తించిన లావాదేవీలు, %1$d చదవనివి</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d గంట</item>
+        <item quantity="other">%1$d గంటలు</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d నిమిషం</item>
+        <item quantity="other">%1$d నిమిషాలు</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 రోజు</item>
+        <item quantity="other">%1$d రోజులు</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d రోజు మిగిలింది</item>
+        <item quantity="other">%1$d రోజులు మిగిలాయి</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d అంశం</item>
+        <item quantity="other">%1$d అంశాలు</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d వర్గం బడ్జెట్కు దగ్గరగా లేదా అంతకు మించి ఉంది</item>
+        <item quantity="other">%1$d వర్గాలు బడ్జెట్కు దగ్గరగా లేదా అంతకు మించి ఉన్నాయి</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d లక్ష్యం మైలురాయి చేరింది</item>
+        <item quantity="other">%1$d లక్ష్యాలు మైలురాళ్లు చేరాయి</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d పునరావృత లావాదేవీ విజయవంతంగా జోడించబడింది:\n%2$s</item>
+        <item quantity="other">%1$d పునరావృత లావాదేవీలు విజయవంతంగా జోడించబడ్డాయి:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d రాబోయే లావాదేవీ</item>
+        <item quantity="other">%1$d రాబోయే లావాదేవీలు</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d వాయిదా చెల్లించబడింది</item>
+        <item quantity="other">%1$d వాయిదాలు చెల్లించబడ్డాయి</item>
+    </plurals>
+
 </resources>

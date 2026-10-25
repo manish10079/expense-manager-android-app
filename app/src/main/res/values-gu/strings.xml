@@ -2187,4 +2187,65 @@
     <string name="label_all_funds_breakdown">બધા ફંડ</string>
     <string name="label_no_fund_breakdown">આ શ્રેણીમાં કોઈ ફંડ ખર્ચ નથી.</string>
     <string name="title_full_fund_breakdown">પૂરું ફંડ વિભાજન</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">દરરોજ આપોઆપ બૅકઅપ</item>
+        <item quantity="other">દર %1$d દિવસે આપોઆપ બૅકઅપ</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">મળેલા વ્યવહારો, %1$d ન વાંચેલા</item>
+        <item quantity="other">મળેલા વ્યવહારો, %1$d ન વાંચેલા</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d કલાક</item>
+        <item quantity="other">%1$d કલાક</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d મિનિટ</item>
+        <item quantity="other">%1$d મિનિટ</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 દિવસ</item>
+        <item quantity="other">%1$d દિવસ</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d દિવસ બાકી</item>
+        <item quantity="other">%1$d દિવસ બાકી</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d આઇટમ</item>
+        <item quantity="other">%1$d આઇટમ</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d શ્રેણી બજેટની નજીક કે તેનાથી વધુ છે</item>
+        <item quantity="other">%1$d શ્રેણીઓ બજેટની નજીક કે તેનાથી વધુ છે</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d લક્ષ્યનો પડાવ પૂરો થયો</item>
+        <item quantity="other">%1$d લક્ષ્યોના પડાવ પૂરા થયા</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d પુનરાવર્તિત વ્યવહાર સફળતાપૂર્વક ઉમેરાયો:\n%2$s</item>
+        <item quantity="other">%1$d પુનરાવર્તિત વ્યવહાર સફળતાપૂર્વક ઉમેરાયા:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d આવનારો વ્યવહાર</item>
+        <item quantity="other">%1$d આવનારા વ્યવહારો</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d હપ્તો ભરાયો</item>
+        <item quantity="other">%1$d હપ્તા ભરાયા</item>
+    </plurals>
+
 </resources>

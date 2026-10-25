@@ -2190,6 +2190,57 @@
     <string name="label_week_short_5">ವ5</string>
     <string name="label_na">ಲಭ್ಯವಿಲ್ಲ</string>
     <string name="icon_label_tv">ಟಿವಿ</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">ಪ್ರತಿದಿನ ಸ್ವಯಂ ಬ್ಯಾಕಪ್</item>
+        <item quantity="other">ಪ್ರತಿ %1$d ದಿನಕ್ಕೊಮ್ಮೆ ಸ್ವಯಂ ಬ್ಯಾಕಪ್</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">ಕಂಡುಬಂದ ವಹಿವಾಟುಗಳು, %1$d ಓದದ</item>
+        <item quantity="other">ಕಂಡುಬಂದ ವಹಿವಾಟುಗಳು, %1$d ಓದದ</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 ದಿನ</item>
+        <item quantity="other">%1$d ದಿನಗಳು</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d ದಿನ ಉಳಿದಿದೆ</item>
+        <item quantity="other">%1$d ದಿನಗಳು ಉಳಿದಿವೆ</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d ಐಟಂ</item>
+        <item quantity="other">%1$d ಐಟಂಗಳು</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d ವರ್ಗ ಬಜೆಟ್ ಮಿತಿಯ ಹತ್ತಿರ ಅಥವಾ ಮೀರಿದೆ</item>
+        <item quantity="other">%1$d ವರ್ಗಗಳು ಬಜೆಟ್ ಮಿತಿಯ ಹತ್ತಿರ ಅಥವಾ ಮೀರಿವೆ</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d ಗುರಿ ಮೈಲಿಗಲ್ಲು ತಲುಪಿದೆ</item>
+        <item quantity="other">%1$d ಗುರಿಗಳು ಮೈಲಿಗಲ್ಲು ತಲುಪಿವೆ</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d ಪುನರಾವರ್ತಿತ ವಹಿವಾಟು ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿದೆ:\n%2$s</item>
+        <item quantity="other">%1$d ಪುನರಾವರ್ತಿತ ವಹಿವಾಟುಗಳು ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿವೆ:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d ಮುಂಬರುವ ವಹಿವಾಟು</item>
+        <item quantity="other">%1$d ಮುಂಬರುವ ವಹಿವಾಟುಗಳು</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d ಕಂತು ಪಾವತಿಯಾಗಿದೆ</item>
+        <item quantity="other">%1$d ಕಂತುಗಳು ಪಾವತಿಯಾಗಿವೆ</item>
+    </plurals>
+
 </resources>
 
 

@@ -2153,4 +2153,65 @@
     <string name="title_full_fund_breakdown">সম্পূর্ণ ফান্ড বিভাজন</string>
     <string name="info_budget_alerts" formatted="false">কোনো ক্যাটাগরি বাজেটের কাছে এলে জানায়: ৭৫%, ৯০%, ১০০%-এ এবং সীমা ছাড়ালে।</string>
     <string name="info_savings_goals" formatted="false">সঞ্চয়ের লক্ষ্যের ২৫%, ৫০%, ৭৫%-এ অগ্রগতির খবর, লক্ষ্য পূরণ হলে অভিনন্দন, আর পিছিয়ে থাকলে সতর্কবার্তা।</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">প্রতিদিন স্বয়ংক্রিয় ব্যাকআপ</item>
+        <item quantity="other">প্রতি %1$d দিনে স্বয়ংক্রিয় ব্যাকআপ</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">শনাক্ত লেনদেন, %1$d না পড়া</item>
+        <item quantity="other">শনাক্ত লেনদেন, %1$d না পড়া</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d ঘণ্টা</item>
+        <item quantity="other">%1$d ঘণ্টা</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d মিনিট</item>
+        <item quantity="other">%1$d মিনিট</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 দিন</item>
+        <item quantity="other">%1$d দিন</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d দিন বাকি</item>
+        <item quantity="other">%1$d দিন বাকি</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d আইটেম</item>
+        <item quantity="other">%1$d আইটেম</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d ক্যাটাগরি বাজেটের কাছাকাছি বা ছাড়িয়ে গেছে</item>
+        <item quantity="other">%1$d ক্যাটাগরি বাজেটের কাছাকাছি বা ছাড়িয়ে গেছে</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d লক্ষ্যের মাইলফলক পূর্ণ হয়েছে</item>
+        <item quantity="other">%1$d লক্ষ্যের মাইলফলক পূর্ণ হয়েছে</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">সফলভাবে %1$d পুনরাবৃত্ত লেনদেন যোগ করা হয়েছে:\n%2$s</item>
+        <item quantity="other">সফলভাবে %1$d পুনরাবৃত্ত লেনদেন যোগ করা হয়েছে:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d আসন্ন লেনদেন</item>
+        <item quantity="other">%1$d আসন্ন লেনদেন</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d কিস্তি পরিশোধ হয়েছে</item>
+        <item quantity="other">%1$d কিস্তি পরিশোধ হয়েছে</item>
+    </plurals>
+
 </resources>

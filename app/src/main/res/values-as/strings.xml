@@ -2131,4 +2131,65 @@
     <string name="title_membership">মোৰ সদস্যতা</string>
     <string name="paywall_per_month_suffix">/ মাহ</string>
     <string name="paywall_save_amount">%1$s সাঁচয়</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">প্ৰতিদিনে স্বয়ংক্ৰিয় বেকআপ</item>
+        <item quantity="other">প্ৰতি %1$d দিনত স্বয়ংক্ৰিয় বেকআপ</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">চিনাক্ত কৰা লেনদেন, %1$d অপঠিত</item>
+        <item quantity="other">চিনাক্ত কৰা লেনদেন, %1$d অপঠিত</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d ঘণ্টা</item>
+        <item quantity="other">%1$d ঘণ্টা</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d মিনিট</item>
+        <item quantity="other">%1$d মিনিট</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 দিন</item>
+        <item quantity="other">%1$d দিন</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d দিন বাকী</item>
+        <item quantity="other">%1$d দিন বাকী</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d বস্তু</item>
+        <item quantity="other">%1$d বস্তু</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d শ্ৰেণী বাজেটৰ ওচৰত বা সীমাৰ ওপৰত</item>
+        <item quantity="other">%1$d শ্ৰেণী বাজেটৰ ওচৰত বা সীমাৰ ওপৰত</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d লক্ষ্যৰ মাইলৰ খুঁটি পূৰ্ণ হৈছে</item>
+        <item quantity="other">%1$d লক্ষ্যৰ মাইলৰ খুঁটি পূৰ্ণ হৈছে</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">সফলতাৰে %1$d পুনৰাবৃত্তি লেনদেন যোগ কৰা হৈছে:\n%2$s</item>
+        <item quantity="other">সফলতাৰে %1$d পুনৰাবৃত্তি লেনদেন যোগ কৰা হৈছে:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d আগন্তুক লেনদেন</item>
+        <item quantity="other">%1$d আগন্তুক লেনদেন</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d কিস্তি পৰিশোধ হৈছে</item>
+        <item quantity="other">%1$d কিস্তি পৰিশোধ হৈছে</item>
+    </plurals>
+
 </resources>

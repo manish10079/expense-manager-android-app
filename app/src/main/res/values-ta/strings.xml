@@ -2142,4 +2142,65 @@
     <string name="label_all_funds_breakdown">அனைத்து நிதிகள்</string>
     <string name="label_no_fund_breakdown">இந்த வரம்பில் நிதிச் செலவு இல்லை.</string>
     <string name="title_full_fund_breakdown">முழு நிதி விவரம்</string>
+
+    <plurals name="desc_auto_backup_every_days">
+        <item quantity="one">ஒவ்வொரு நாளும் தானியங்கி காப்புப்பிரதி</item>
+        <item quantity="other">ஒவ்வொரு %1$d நாளுக்கும் தானியங்கி காப்புப்பிரதி</item>
+    </plurals>
+
+    <plurals name="desc_sms_inbox_bell_unread">
+        <item quantity="one">கண்டறியப்பட்ட பரிவர்த்தனைகள், %1$d படிக்காதது</item>
+        <item quantity="other">கண்டறியப்பட்ட பரிவர்த்தனைகள், %1$d படிக்காதது</item>
+    </plurals>
+
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d மணிநேரம்</item>
+        <item quantity="other">%1$d மணிநேரம்</item>
+    </plurals>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d நிமிடம்</item>
+        <item quantity="other">%1$d நிமிடம்</item>
+    </plurals>
+
+    <plurals name="label_days_count_formatted">
+        <item quantity="one">1 நாள்</item>
+        <item quantity="other">%1$d நாள்</item>
+    </plurals>
+
+    <plurals name="label_membership_days_remaining">
+        <item quantity="one">%1$d நாள் மீதம்</item>
+        <item quantity="other">%1$d நாள் மீதம்</item>
+    </plurals>
+
+    <plurals name="label_tab_item_count">
+        <item quantity="one">%1$d உருப்படி</item>
+        <item quantity="other">%1$d உருப்படிகள்</item>
+    </plurals>
+
+    <plurals name="notification_format_budget_summary">
+        <item quantity="one">%1$d வகை பட்ஜெட்டுக்கு அருகில் அல்லது அதற்கு மேல் உள்ளது</item>
+        <item quantity="other">%1$d வகைகள் பட்ஜெட்டுக்கு அருகில் அல்லது அதற்கு மேல் உள்ளன</item>
+    </plurals>
+
+    <plurals name="notification_format_goal_milestone_summary">
+        <item quantity="one">%1$d குறிக்கோள் மைல்கலை எட்டியது</item>
+        <item quantity="other">%1$d குறிக்கோள்கள் மைல்கற்களை எட்டின</item>
+    </plurals>
+
+    <plurals name="notification_format_recurring_updated">
+        <item quantity="one">%1$d தொடர் பரிவர்த்தனை வெற்றிகரமாகச் சேர்க்கப்பட்டது:\n%2$s</item>
+        <item quantity="other">%1$d தொடர் பரிவர்த்தனைகள் வெற்றிகரமாகச் சேர்க்கப்பட்டன:\n%2$s</item>
+    </plurals>
+
+    <plurals name="notification_format_upcoming_bill_summary">
+        <item quantity="one">%1$d வரவிருக்கும் பரிவர்த்தனை</item>
+        <item quantity="other">%1$d வரவிருக்கும் பரிவர்த்தனைகள்</item>
+    </plurals>
+
+    <plurals name="toast_installments_paid">
+        <item quantity="one">%1$d தவணை செலுத்தப்பட்டது</item>
+        <item quantity="other">%1$d தவணைகள் செலுத்தப்பட்டன</item>
+    </plurals>
+
 </resources>
