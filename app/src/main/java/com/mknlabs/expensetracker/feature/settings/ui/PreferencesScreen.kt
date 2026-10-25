@@ -37,6 +37,7 @@ import com.adamglin.phosphoricons.regular.CalendarDots
 import com.adamglin.phosphoricons.regular.Clock
 import com.adamglin.phosphoricons.regular.CurrencyInr
 import com.adamglin.phosphoricons.regular.Globe
+import com.adamglin.phosphoricons.regular.Phone
 import com.adamglin.phosphoricons.regular.DownloadSimple
 import com.adamglin.phosphoricons.regular.Lock
 import com.adamglin.phosphoricons.regular.Palette
@@ -420,11 +421,15 @@ private fun PreferencesScreenContent(
             PreferencesSheetType.Language -> {
                 val languageItems = remember(uiState.languageOptions) {
                     uiState.languageOptions.map { option ->
+                        // Each language is recognised by a letter of its own script in the
+                        // leading tile, the way the currency sheet puts a symbol there; only
+                        // the System row, which is a device choice, keeps an icon.
                         SelectionItem(
                             id = option.code,
                             title = option.nativeName,
                             subtitle = option.englishName,
-                            leadingIcon = PhosphorIcons.Regular.Globe
+                            leadingText = option.glyph,
+                            leadingIcon = if (option.glyph == null) PhosphorIcons.Regular.Phone else null
                         )
                     }
                 }
