@@ -62,6 +62,18 @@ class LocaleDigitsTest {
     }
 
     @Test
+    fun punjabiUsesGurmukhiDigits() {
+        assertEquals("੧੨੩", localizeWesternDigits("123", "pa"))
+        assertTrue(usesNativeDigits("pa"))
+    }
+
+    @Test
+    fun gujaratiUsesGujaratiDigits() {
+        assertEquals("૧૨૩", localizeWesternDigits("123", "gu"))
+        assertTrue(usesNativeDigits("gu"))
+    }
+
+    @Test
     fun otherLanguagesKeepWesternDigits() {
         assertEquals("123", localizeWesternDigits("123", "en"))
         assertEquals("123", localizeWesternDigits("123", "ja"))

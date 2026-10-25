@@ -19,4 +19,6 @@
     <locale android:name="ml" />
     <locale android:name="te" />
     <locale android:name="as" />
+    <locale android:name="pa" />
+    <locale android:name="gu" />
 </locale-config>

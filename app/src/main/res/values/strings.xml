@@ -2311,6 +2311,11 @@
 
     <string name="msg_initializing">Initializing</string>
 
+    <!-- Brand lockup on the splash overlay: intentionally English in every language. -->
+    <string name="splash_brand_name" translatable="false">Expense Tracker</string>
+
+    <string name="splash_brand_tagline" translatable="false">Budget &amp; Spend</string>
+
     <string name="label_splash_tagline">Elegance in Every Transaction</string>
 
     <string name="label_splash_footer">Handcrafted with Precision &amp; Love</string>
