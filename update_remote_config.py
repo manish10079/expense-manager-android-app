@@ -8,14 +8,16 @@ Usage:
     ./update_remote_config.sh      [--dry-run]
 
 What it does:
-  1. Reads versionCode and versionName from app/build.gradle.kts
-  2. Reads localized update_message from whats_new.json
+  1. Reads versionCode and versionName directly from app/build.gradle.kts
+  2. Reads localized update_message directly from whats_new.json
+     (strips any redundant 'What's new' header so it displays clean bullet points)
   3. Pulls the current live template (`firebase remoteconfig:get`) so other parameters
-     (like ad_pass_duration_minutes, gemini_voice_model, etc.) are never lost
+     (like ad_pass_duration_minutes, min_required_version, etc.) are never lost
   4. Updates:
        - latest_version: set to versionName from build.gradle.kts
+       - latest_version_code: set to versionCode from build.gradle.kts
        - update_message: set to localized JSON string from whats_new.json
-       - force_update: set from remote_config.json
+       - force_update: set from remote_config.json if defined
        - removes obsolete params (e.g. update_title)
   5. Deploys to Firebase via `firebase deploy --only remoteconfig` (unless --dry-run)
 """
@@ -72,42 +74,42 @@ def parse_app_version():
     return int(vc_match.group(1)), vn_match.group(1)
 
 
-def load_whats_new(version_code, version_name):
+def strip_whats_new_header(text: str) -> str:
+    """Removes any redundant 'What's New in X.X:' heading so messages start cleanly with bullet points."""
+    trimmed = text.strip()
+    if "•" in trimmed and not trimmed.startswith("•"):
+        return "•" + trimmed.split("•", 1)[1]
+    return trimmed
+
+
+def load_whats_new():
     if not WHATS_NEW_FILE.exists():
         sys.exit(f"ERROR: {WHATS_NEW_FILE} not found.")
 
     with open(WHATS_NEW_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    wn_vc = data.get("versionCode")
-    wn_vn = data.get("versionName")
+    # Support either flat locale mapping {"en": "...", ...} or nested {"update_message": {"en": "...", ...}}
+    if isinstance(data, dict) and "update_message" in data and isinstance(data["update_message"], dict):
+        raw_message = data["update_message"]
+    elif isinstance(data, dict):
+        # Filter out any metadata keys if present, keeping language keys
+        raw_message = {k: v for k, v in data.items() if k not in ("versionCode", "versionName", "play_store_whats_new")}
+    else:
+        sys.exit("ERROR: whats_new.json must be a JSON object containing language keys (en, hi, …).")
 
-    if wn_vc != version_code or wn_vn != version_name:
-        print(f"[INFO] Syncing whats_new.json version ({wn_vn}({wn_vc}) -> {version_name}({version_code}))")
-        data["versionCode"] = version_code
-        data["versionName"] = version_name
-        with open(WHATS_NEW_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-            f.write("\n")
-
-    update_message = data.get("update_message")
-    if not update_message:
-        sys.exit("ERROR: whats_new.json is missing 'update_message' section.")
-    if not isinstance(update_message, dict):
-        sys.exit("ERROR: update_message must be a JSON object keyed by language (en, hi, …).")
-
-    missing = [k for k in APP_UPDATE_MESSAGE_KEYS if k not in update_message]
-    extra = [k for k in update_message if k not in APP_UPDATE_MESSAGE_KEYS]
+    missing = [k for k in APP_UPDATE_MESSAGE_KEYS if k not in raw_message]
+    extra = [k for k in raw_message if k not in APP_UPDATE_MESSAGE_KEYS]
     if missing:
-        sys.exit(f"ERROR: update_message missing app language keys: {', '.join(missing)}")
+        sys.exit(f"ERROR: whats_new.json missing app language keys: {', '.join(missing)}")
     if extra:
-        print(f"[WARN] update_message has extra keys the app ignores: {', '.join(extra)}")
-    for key, value in update_message.items():
+        print(f"[WARN] whats_new.json has extra keys the app ignores: {', '.join(extra)}")
+
+    update_message = {}
+    for key, value in raw_message.items():
         if not isinstance(value, str) or not value.strip():
-            sys.exit(
-                f"ERROR: update_message[{key}] must be a non-empty string "
-                "(flat locale map, not nested title/message)."
-            )
+            sys.exit(f"ERROR: whats_new.json[{key}] must be a non-empty string.")
+        update_message[key] = strip_whats_new_header(value)
 
     return update_message
 
@@ -125,15 +127,12 @@ def main():
     version_code, version_name = parse_app_version()
     print(f"[INFO] Release version: {version_name} (code {version_code})")
 
-    update_message = load_whats_new(version_code, version_name)
-    langs = list(update_message.keys()) if isinstance(update_message, dict) else ["plain"]
+    update_message = load_whats_new()
+    langs = list(update_message.keys())
     print(f"[INFO] Localized languages in update_message ({len(langs)}): {', '.join(langs)}")
 
     # Format update_message for Remote Config value
-    if isinstance(update_message, dict):
-        update_message_val = json.dumps(update_message, indent=2, ensure_ascii=False)
-    else:
-        update_message_val = str(update_message)
+    update_message_val = json.dumps(update_message, indent=2, ensure_ascii=False)
 
     # Fetch live template
     print("[INFO] Fetching current live Remote Config template...")

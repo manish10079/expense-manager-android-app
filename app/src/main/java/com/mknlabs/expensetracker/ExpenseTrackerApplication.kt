@@ -59,14 +59,26 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 
+    override fun attachBaseContext(base: Context) {
+        val languageCode = com.mknlabs.expensetracker.utils.LocalePreferenceSync.getLanguage(base)
+        val normalized = com.mknlabs.expensetracker.data.constants.normalizeLanguageCode(languageCode)
+        val wrapped = if (normalized == com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE) {
+            base
+        } else {
+            com.mknlabs.expensetracker.utils.AppLocaleHelper.createConfigurationContext(base, normalized)
+        }
+        super.attachBaseContext(wrapped)
+    }
+
     override fun onCreate() {
 
         super.onCreate()
 
-        // Initialize synchronous language preference
+        // Synchronize JVM default locale on cold start for background tasks/formatters
         val savedLanguage = com.mknlabs.expensetracker.utils.LocalePreferenceSync.getLanguage(this)
-        if (savedLanguage != com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE) {
-            com.mknlabs.expensetracker.utils.AppLocaleHelper.applyLanguage(savedLanguage, this)
+        val normalized = com.mknlabs.expensetracker.data.constants.normalizeLanguageCode(savedLanguage)
+        if (normalized != com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE) {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag(normalized))
         }
 
         // Initialize Firebase App Check BEFORE any other Firebase SDK calls.

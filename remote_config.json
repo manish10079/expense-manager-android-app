@@ -1,14 +1,14 @@
 {
   "parameters": {
-    "min_required_version": {
+    "latest_version": {
       "defaultValue": {
-        "value": "225"
+        "value": "2.241.2"
       },
-      "valueType": "NUMBER"
+      "valueType": "STRING"
     },
     "update_message": {
       "defaultValue": {
-        "value": "{\n  \"en\": \"What's New in 2.241.0:\\n• Android 11 language switch: changing language no longer loops the splash overlay\\n• Home psychology phrases translated in every language\\n• Update dialog: subtitle and release notes in separate scrollable cards\\n• Long Update available titles scroll horizontally\",\n  \"hi\": \"2.241.0 में नया क्या है:\\n• Android 11 भाषा बदलाव: भाषा बदलने पर स्प्लैश बार-बार लूप नहीं होता\\n• होम पर मनोविज्ञान वाक्य अब हर भाषा में अनुवादित हैं\\n• अपडेट डायलॉग: सबटाइटल और रिलीज़ नोट्स अलग स्क्रॉल कार्ड में\\n• लंबा Update available शीर्षक क्षैतिज स्क्रॉल होता है\",\n  \"or\": \"2.241.0 ରେ ନୂଆ କଣ:\\n• Android 11 ଭାଷା ପରିବର୍ତ୍ତନ: ସ୍ପ୍ଲାସ୍ ଆଉ ଲୁପ୍ ହୁଏ ନାହିଁ\\n• ହୋମ୍ ମନୋବିଜ୍ଞାନ ବାକ୍ୟ ସବୁ ଭାଷାରେ ଅନୁବାଦିତ\\n• ଅପଡେଟ୍ ଡାଏଲଗ୍: ସବଟାଇଟଲ୍ ଓ ନୋଟ୍ସ ଅଲଗା ସ୍କ୍ରୋଲ୍ କାର୍ଡରେ\\n• ଲମ୍ବା Update available ଶୀର୍ଷକ ଭୂସମାନ୍ତର ସ୍କ୍ରୋଲ୍ ହୁଏ\",\n  \"es\": \"Novedades en 2.241.0:\\n• Cambio de idioma en Android 11: el splash ya no entra en bucle\\n• Frases de psicología de Inicio traducidas a todos los idiomas\\n• Diálogo de actualización: subtítulo y notas en tarjetas con scroll\\n• Títulos largos de Update available se desplazan en horizontal\",\n  \"pt-BR\": \"Novidades no 2.241.0:\\n• Troca de idioma no Android 11: o splash não entra mais em loop\\n• Frases de psicologia da Home traduzidas em todos os idiomas\\n• Diálogo de atualização: subtítulo e notas em cards com rolagem\\n• Títulos longos de Update available rolam na horizontal\",\n  \"fr\": \"Nouveautés de la 2.241.0 :\\n• Changement de langue Android 11 : le splash ne boucle plus\\n• Phrases psychologie de l’accueil traduites dans toutes les langues\\n• Dialogue de mise à jour : sous-titre et notes dans des cartes défilantes\\n• Les titres Update available trop longs défilent à l’horizontale\",\n  \"de\": \"Neuigkeiten in 2.241.0:\\n• Sprachwechsel unter Android 11: der Splash läuft nicht mehr im Loop\\n• Psychologie-Sätze auf Home in allen Sprachen übersetzt\\n• Update-Dialog: Untertitel und Notes in eigenen scrollbaren Karten\\n• Lange Update-available-Titel scrollen horizontal\",\n  \"id\": \"Yang Baru di 2.241.0:\\n• Ganti bahasa di Android 11: splash tidak looping lagi\\n• Frasa psikologi di Beranda diterjemahkan ke semua bahasa\\n• Dialog pembaruan: subtitle dan catatan di kartu terpisah yang bisa digulir\\n• Judul Update available yang panjang digulir mendatar\",\n  \"ja\": \"バージョン 2.241.0 の新機能:\\n• Android 11 の言語切替でスプラッシュがループしなくなりました\\n• ホームの心理フレーズを全言語に翻訳\\n• 更新ダイアログ：字幕とリリースノートを別カードでスクロール\\n• 長い Update available タイトルは横スクロール\",\n  \"ko\": \"2.241.0 새로운 기능:\\n• Android 11 언어 전환 시 스플래시가 더 이상 반복되지 않음\\n• 홈 심리 문구를 모든 언어로 번역\\n• 업데이트 대화상자: 부제와 릴리스 노트를 스크롤 카드로 분리\\n• 긴 Update available 제목은 가로로 스크롤\",\n  \"it\": \"Novità nella 2.241.0:\\n• Cambio lingua su Android 11: lo splash non entra più in loop\\n• Frasi di psicologia della Home tradotte in tutte le lingue\\n• Dialog di aggiornamento: sottotitolo e note in card scorrevoli separate\\n• Titoli Update available lunghi scorrono in orizzontale\",\n  \"ru\": \"Что нового в 2.241.0:\\n• Смена языка на Android 11: сплэш больше не зацикливается\\n• Психологические фразы на главной переведены на все языки\\n• Диалог обновления: подзаголовок и заметки в отдельных карточках со скроллом\\n• Длинный заголовок Update available прокручивается по горизонтали\"\n}"
+        "value": "{\n  \"en\": \"• Instant language switching: Language selection now updates immediately across all Android versions (API 24 to 36), including OEM devices (Samsung, Xiaomi, Oppo, Vivo)\\n• Modern update experience: Redesigned update dialog with high-speed rocket launch animations\\n• Localized numerals: Calculator keys, display, and App Lock keypad now display native Hindi and Odia numerals\\n• Smoother transitions & stability improvements throughout the app\",\n  \"hi\": \"• तुरंत भाषा परिवर्तन: भाषा बदलना अब सैमसंग और श्याओमी सहित सभी एंड्रॉइड वर्शन (API 24 से 36) पर तुरंत लागू होता है\\n• नया अपडेट डायलॉग: हाई-स्पीड रॉकेट लॉन्च एनिमेशन के साथ आधुनिक डिज़ाइन\\n• स्थानीय अंक: कैलकुलेटर कीज़, डिस्प्ले और ऐप लॉक कीपैड पर अब देशी हिंदी और ओड़िया अंक प्रदर्शित होते हैं\\n• पूरे ऐप में सहज बदलाव और स्थिरता में सुधार\",\n  \"or\": \"• ତୁରନ୍ତ ଭାଷା ପରିବର୍ତ୍ତନ: ସାମସଙ୍ଗ ଓ ଶାଓମି ସମେତ ସମସ୍ତ ଆଣ୍ଡ୍ରଏଡ୍ ଭର୍ସନରେ (API 24 ରୁ 36) ଭାଷା ପରିବର୍ତ୍ତନ ଏବେ ତୁରନ୍ତ ଲାଗୁ ହୁଏ\\n• ଆଧୁନିକ ଅପଡେଟ୍ ଡାଏଲଗ୍: ହାଇ-ସ୍ପିଡ୍ ରକେଟ୍ ଲଞ୍ଚ୍ ଆନିମେସନ୍ ସହ ନୂତନ ଅନୁଭବ\\n• ସ୍ଥାନୀୟ ସଂଖ୍ୟା: କାଲକୁଲେଟର କୀ', ଡିସପ୍ଲେ ଏବଂ ଆପ୍ ଲକ୍ କୀପ୍ୟାଡ୍‌ରେ ଦେଶୀ ଓଡ଼ିଆ ଓ ହିନ୍ଦୀ ସଂଖ୍ୟା ପ୍ରଦର୍ଶିତ ହୁଏ\\n• ସମଗ୍ର ଆପ୍‌ରେ ଉନ୍ନତ ସ୍ଥିରତା ଓ ସୁଗମ ଅନୁଭବ\",\n  \"es\": \"• Cambio de idioma instantáneo: La selección de idioma se actualiza de inmediato en todas las versiones de Android (API 24 a 36), incluidos Samsung y Xiaomi\\n• Nuevo diálogo de actualización: Diseño moderno con animaciones de lanzamiento de cohete\\n• Números localizados: Teclado y pantalla de la calculadora y bloqueo con números nativos en hindi y odia\\n• Mayor fluidez y mejoras de estabilidad en toda la app\",\n  \"pt-BR\": \"• Troca de idioma instantânea: A troca de idioma agora é aplicada imediatamente em todas as versões do Android (API 24 a 36), incluindo Samsung e Xiaomi\\n• Novo diálogo de atualização: Design moderno com animações de foguete em alta velocidade\\n• Numerais localizados: Teclado e tela da calculadora e tela de bloqueio com numerais nativos em hindi e odia\\n• Maior estabilidade e transições mais suaves em todo o app\",\n  \"fr\": \"• Changement de langue instantané : Le choix de la langue s'applique immédiatement sur toutes les versions d'Android (API 24 à 36), y compris Samsung et Xiaomi\\n• Nouvelle boîte de dialogue de mise à jour : Interface moderne avec animations de fusée à grande vitesse\\n• Chiffres localisés : Les touches et l'affichage de la calculatrice ainsi que le pavé numérique prennent en charge les chiffres natifs en hindi et odia\\n• Améliorations de la fluidité et de la stabilité générale\",\n  \"de\": \"• Sofortiger Sprachwechsel: Die Sprachauswahl wird jetzt auf allen Android-Versionen (API 24 bis 36) sofort übernommen, einschließlich Samsung und Xiaomi\\n• Neuer Update-Dialog: Modernes Design mit Hochgeschwindigkeits-Raketenanimationen\\n• Lokalisierte Ziffern: Rechnertasten, Display und App-Sperre unterstützen nun native Ziffern für Hindi und Odia\\n• Verbesserte Stabilität und flüssigere Übergänge in der gesamten App\",\n  \"id\": \"• Ganti bahasa instan: Pilihan bahasa langsung berlaku di semua versi Android (API 24 hingga 36), termasuk Samsung dan Xiaomi\\n• Dialog pembaruan baru: Tampilan modern dengan animasi peluncuran roket cepat\\n• Angka lokal: Tombol kalkulator, layar, dan keypad kunci aplikasi mendukung angka asli Hindi dan Odia\\n• Peningkatan kelancaran transisi dan stabilitas di seluruh aplikasi\",\n  \"ja\": \"• 即時言語切替: Samsung や Xiaomi を含む全 Android バージョン (API 24〜36) で言語変更が即座に反映されます\\n• 最新の更新ダイアログ: 高速ロケット発射アニメーション付きのモダンデザイン\\n• ローカライズされた数字: 電卓キー、画面、アプリロックキーパッドでヒンディー語とオディア語の固有数字をサポート\\n• アプリ全体の画面遷移の滑らかさと安定性を向上\",\n  \"ko\": \"• 즉각적인 언어 전환: Samsung 및 Xiaomi를 포함한 모든 Android 버전(API 24~36)에서 언어 변경이 즉시 적용됩니다\\n• 현대적인 업데이트 대화상자: 초고속 로켓 발사 애니메이션이 적용된 모던 디자인\\n• 현지화된 숫자: 계산기 키, 디스플레이 및 앱 잠금 키패드에서 힌디어 및 오디아어 고유 숫자를 지원\\n• 앱 전반의 전환 부드러움 및 안정성 향상\",\n  \"it\": \"• Cambio lingua istantaneo: Il cambio lingua ha effetto immediato su tutte le versioni Android (API 24-36), inclusi dispositivi Samsung e Xiaomi\\n• Nuovo dialog di aggiornamento: Design moderno con animazioni di lancio del razzo ad alta velocità\\n• Cifre localizzate: Tasti della calcolatrice, display e tastierino del blocco app supportano ora le cifre native hindi e odia\\n• Transizioni più fluide e miglioramenti della stabilità in tutta l'app\",\n  \"ru\": \"• Мгновенное переключение языка: Выбор языка применяется сразу на всех версиях Android (API 24–36), включая Samsung и Xiaomi\\n• Новый экран обновления: Современный дизайн с анимацией полета ракеты\\n• Локализованные цифры: Клавиатура и дисплей калькулятора, а также экран блокировки поддерживают родные цифры хинди и одия\\n• Повышение плавности переходов и общей стабильности приложения\"\n}"
       },
       "valueType": "STRING"
     },
@@ -35,6 +35,12 @@
       },
       "valueType": "STRING"
     },
+    "min_required_version": {
+      "defaultValue": {
+        "value": "225"
+      },
+      "valueType": "NUMBER"
+    },
     "ad_pass_duration_minutes": {
       "defaultValue": {
         "value": "30"
@@ -47,15 +53,9 @@
       },
       "valueType": "BOOLEAN"
     },
-    "latest_version": {
-      "defaultValue": {
-        "value": "2.241.0"
-      },
-      "valueType": "STRING"
-    },
     "latest_version_code": {
       "defaultValue": {
-        "value": "282"
+        "value": "283"
       },
       "valueType": "STRING"
     }

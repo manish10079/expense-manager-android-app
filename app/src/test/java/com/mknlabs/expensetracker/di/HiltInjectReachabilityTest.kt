@@ -94,7 +94,6 @@ class HiltInjectReachabilityTest {
          * Adding an entry is an explicit statement that Hilt will not validate that class.
          */
         private val KNOWN_UNREFERENCED = setOf(
-            "ConnectivityHelper (ConnectivityHelper.kt)",
             "GeminiVoiceParser (GeminiVoiceParser.kt)",
             "GetSmsInboxPageUseCase (SmsInboxReadUseCases.kt)",
             "SetActiveFontUseCase (SetActiveFontUseCase.kt)",

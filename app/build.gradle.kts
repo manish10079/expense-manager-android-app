@@ -18,11 +18,18 @@ android {
         applicationId = "com.mknlabs.expensetracker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 282
-        versionName = "2.241.1"
+        versionCode = 283
+        versionName = "2.241.2"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
 
 
     // Load signing credentials from keystore.properties (gitignored)

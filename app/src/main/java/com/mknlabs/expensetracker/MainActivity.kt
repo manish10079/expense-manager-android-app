@@ -144,6 +144,14 @@ class MainActivity : AppCompatActivity() {
                 overrideConfiguration.setLocale(locale)
                 overrideConfiguration.setLocales(LocaleList(locale))
                 overrideConfiguration.setLayoutDirection(locale)
+            } else {
+                val systemLocales = android.content.res.Resources.getSystem().configuration.locales
+                overrideConfiguration.setLocales(systemLocales)
+                if (!systemLocales.isEmpty) {
+                    val primary = systemLocales[0] ?: java.util.Locale.getDefault()
+                    overrideConfiguration.setLocale(primary)
+                    overrideConfiguration.setLayoutDirection(primary)
+                }
             }
         }
         super.applyOverrideConfiguration(overrideConfiguration)
