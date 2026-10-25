@@ -5,12 +5,27 @@ import com.mknlabs.expensetracker.data.constants.normalizeLanguageCode
 private const val WESTERN_DIGITS = "0123456789"
 private const val DEVANAGARI_DIGITS = "०१२३४५६७८९"
 private const val ODIA_DIGITS = "୦୧୨୩୪୫୬୭୮୯"
+private const val KANNADA_DIGITS = "೦೧೨೩೪೫೬೭೮೯"
+private const val TAMIL_DIGITS = "௦௧௨௩௪௫௬௭௮௯"
+private const val BENGALI_DIGITS = "০১২৩৪৫৬৭৮৯"
+private const val GURMUKHI_DIGITS = "੦੧੨੩੪੫੬੭੮੯"
+private const val GUJARATI_DIGITS = "૦૧૨૩૪૫૬૭૮૯"
+private const val TELUGU_DIGITS = "౦౧౨౩౪౫౬౭౮౯"
+private const val MALAYALAM_DIGITS = "൦൧൨൩൪൫൬൭൮൯"
 
 fun nativeDigitsForLanguage(languageTag: String): String {
     val language = normalizeLanguageCode(languageTag).substringBefore('-')
     return when (language) {
-        "hi" -> DEVANAGARI_DIGITS
+        "hi", "mr" -> DEVANAGARI_DIGITS
         "or" -> ODIA_DIGITS
+        "kn" -> KANNADA_DIGITS
+        "ta" -> TAMIL_DIGITS
+        "bn" -> BENGALI_DIGITS
+        "pa" -> GURMUKHI_DIGITS
+        "gu" -> GUJARATI_DIGITS
+        "te" -> TELUGU_DIGITS
+        "as" -> BENGALI_DIGITS
+        "ml" -> MALAYALAM_DIGITS
         else -> WESTERN_DIGITS
     }
 }

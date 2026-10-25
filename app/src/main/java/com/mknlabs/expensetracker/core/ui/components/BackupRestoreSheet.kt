@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -66,10 +65,7 @@ fun BackupRestoreSheet(
         items = selectionItems,
         selectedId = null,
         containerColor = MaterialTheme.colorScheme.profileSheet,
-        rowColors = SelectionRowColors(
-            container = MaterialTheme.colorScheme.genderRow,
-            selectedContainer = MaterialTheme.colorScheme.genderRowSelected
-        ),
+        rowColor = MaterialTheme.colorScheme.genderRow,
         onItemSelected = { onBackupSelected(it) },
         onDismiss = onDismiss,
         maxListHeight = 500.dp

@@ -939,19 +939,15 @@ val ColorScheme.profileSheet: Color
     get() = if (isDark) ProfileSheetDark else ProfileSheetLight
 
 // ── Select Gender option rows (mock-select-gender.html) ─────────────────────
-// The four rows in the gender sheet are cards of their own: #191D2C idle and #28253D when
-// chosen in dark, #F8FAFC idle and #F5F3FF when chosen in light. Only the fill is taken from
-// the mockup here — the row's edge, glow, icon box and "Selected" ink keep the app's own.
+// The four rows in the gender sheet are cards of their own: #191D2C in dark, #F8FAFC in light.
+// Only the fill is taken from the mockup here, and it is the one every row wears — the chosen
+// row is marked by the app's own 1.5dp accent edge rather than the mockup's lighter card, so a
+// pick in the sheet never reads as a different design from the pickers elsewhere.
 internal val GenderRowDark = Color(0xFF191D2C)            // mock bg-[#191D2C]
 internal val GenderRowLight = Color(0xFFF8FAFC)           // mock bg-slate-50
-internal val GenderRowSelectedDark = Color(0xFF28253D)    // mock bg-[#28253D]
-internal val GenderRowSelectedLight = Color(0xFFF5F3FF)   // mock bg-brand-50
 
 val ColorScheme.genderRow: Color
     get() = if (isDark) GenderRowDark else GenderRowLight
-
-val ColorScheme.genderRowSelected: Color
-    get() = if (isDark) GenderRowSelectedDark else GenderRowSelectedLight
 
 // ── Cloud Sync & Devices cards (cloud_sync_merged.html) ────────────────────
 // The mockup paints the sync switch, the sync action and the device roster on one Obsidian

@@ -1085,8 +1085,6 @@
 
     <string name="label_select_visual_identity">SELECT VISUAL IDENTITY</string>
 
-    <string name="label_selected">Selected</string>
-
     <string name="label_smart_ai_tip">Smart AI Tip</string>
 
     <string name="label_sort_filter">Sort &amp; Filter</string>
@@ -2310,6 +2308,11 @@
     <string name="msg_securing_data">Securing your data</string>
 
     <string name="msg_initializing">Initializing</string>
+
+    <!-- Brand lockup on the splash overlay: intentionally English in every language. -->
+    <string name="splash_brand_name" translatable="false">Expense Tracker</string>
+
+    <string name="splash_brand_tagline" translatable="false">Budget &amp; Spend</string>
 
     <string name="label_splash_tagline">Elegance in Every Transaction</string>
 

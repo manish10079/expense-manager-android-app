@@ -45,7 +45,6 @@ import com.mknlabs.expensetracker.models.SettingsItemType
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.components.*
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
@@ -474,10 +473,7 @@ private fun DataManagementContent(
             items = frequencyItems,
             selectedId = autoBackupFrequencyDays,
             containerColor = MaterialTheme.colorScheme.profileSheet,
-            rowColors = SelectionRowColors(
-                container = MaterialTheme.colorScheme.genderRow,
-                selectedContainer = MaterialTheme.colorScheme.genderRowSelected
-            ),
+            rowColor = MaterialTheme.colorScheme.genderRow,
             onItemSelected = { days ->
                 val optionId = if (days == 0) "custom" else days.toString()
                 val status = getAccessStatus(Feature.AUTO_BACKUP, optionId).value

@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,6 +96,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.scale
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.menu
@@ -1870,18 +1872,29 @@ private fun BudgetCategoryPickerRow(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val rowShape = RoundedCornerShape(24.dp)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
+            .clip(rowShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .then(
                 if (isSelected) {
-                    MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
+                    Modifier.border(
+                        width = 1.5.dp,
+                        color = MaterialTheme.colorScheme.accentInk,
+                        shape = rowShape
+                    )
                 } else {
-                    MaterialTheme.colorScheme.surfaceVariant
+                    Modifier
                 }
             )
-            .clickable(onClick = onClick)
+            .selectable(
+                selected = isSelected,
+                role = Role.RadioButton,
+                onClick = onClick
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1889,30 +1902,19 @@ private fun BudgetCategoryPickerRow(
             modifier = Modifier
                 .size(42.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    }
-                ),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = category.icon,
                 contentDescription = category.name,
-                // Unselected rows carry the category's own colour, so this picker reads as the
-                // same set of categories the rest of the app draws. Selected keeps the brand
-                // ink: the violet fill and the SELECTED label are that state's signal, and a
-                // category colour under them would look like a second, unrelated emphasis.
-                tint = if (isSelected) {
-                    MaterialTheme.colorScheme.accentInk
-                } else {
-                    MaterialTheme.colorScheme.categoryColor(
-                        categoryId = category.id,
-                        colorHex = category.colorHex
-                    )
-                },
+                // Every row carries the category's own colour, so this picker reads as the
+                // same set of categories the rest of the app draws. The chosen row is marked
+                // by its accent edge alone, not by repainting the glyph.
+                tint = MaterialTheme.colorScheme.categoryColor(
+                    categoryId = category.id,
+                    colorHex = category.colorHex
+                ),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1937,15 +1939,6 @@ private fun BudgetCategoryPickerRow(
             )
         }
 
-        if (isSelected) {
-            Text(
-                text = stringResource(id = R.string.label_selected),
-                color = MaterialTheme.colorScheme.accentInk,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                )
-            )
-        }
     }
 }
 

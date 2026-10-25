@@ -106,8 +106,9 @@ private fun SplashOverlayContent(
     val subtitleEnter = remember { Animatable(0f) }
     val taglineEnter = remember { Animatable(0f) }
     val ashT = remember { Animatable(0f) }
-    val titleText = stringResource(id = R.string.label_app_name_display)
-    val subtitleText = stringResource(id = R.string.label_budget_and_spend)
+    // The splash brand lockup stays in English in every language.
+    val titleText = stringResource(id = R.string.splash_brand_name)
+    val subtitleText = stringResource(id = R.string.splash_brand_tagline)
     val taglineText = stringResource(id = R.string.label_splash_tagline)
     var enterDone by remember { mutableStateOf(false) }
     LaunchedEffect(titleText, subtitleText, taglineText, startEntrance) {

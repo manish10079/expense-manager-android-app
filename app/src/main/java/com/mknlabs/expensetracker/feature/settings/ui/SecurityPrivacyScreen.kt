@@ -4,6 +4,7 @@ import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -60,7 +61,6 @@ import com.mknlabs.expensetracker.core.ui.components.SettingsItemCard
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
@@ -365,20 +365,18 @@ private fun AutoLockDurationPickerSheet(
         contentColor = colorScheme.onSurface,
         border = null
     )
+    // Picked the way every other selection sheet picks: the same card fill as its neighbours,
+    // with a 1.5dp accent edge standing in for the old tinted card.
     val selectedRowColors = AppCardColors(
-        containerColor = colorScheme.genderRowSelected,
+        containerColor = colorScheme.genderRow,
         contentColor = colorScheme.onSurface,
-        border = null
+        border = BorderStroke(1.5.dp, colorScheme.accentInk)
     )
     // ...and its leading boxes: a 42dp tile rounded 14dp, surfaceVariant at half strength
-    // with onSurface ink, and secondary at 18% with accent ink once chosen.
+    // with onSurface ink, whether or not the row is the chosen one.
     val idleIconTile = SettingsTilePalette(
         fill = colorScheme.surfaceVariant.copy(alpha = 0.5f),
         ink = colorScheme.onSurface
-    )
-    val selectedIconTile = SettingsTilePalette(
-        fill = colorScheme.secondary.copy(alpha = 0.18f),
-        ink = colorScheme.accentInk
     )
     val iconTileShape = RoundedCornerShape(14.dp)
 
@@ -419,13 +417,14 @@ private fun AutoLockDurationPickerSheet(
                                else stringResource(R.string.label_val_minutes_away, duration)
                     SettingsItemCard(
                         icon = PhosphorIcons.Regular.Timer,
-                        iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                        iconTile = idleIconTile,
                         iconTileShape = iconTileShape,
                         iconTileSize = 42.dp,
                         iconTileGlyphSize = 20.dp,
                         title = title,
                         type = SettingsItemType.Value,
                         isChecked = selectedDurationMinutes == duration,
+                        isSelected = selectedDurationMinutes == duration,
                         cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                         onClick = {
                             applyDuration(duration)
@@ -447,7 +446,7 @@ private fun AutoLockDurationPickerSheet(
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
                             icon = PhosphorIcons.Regular.Timer,
-                            iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                            iconTile = idleIconTile,
                             iconTileShape = iconTileShape,
                             iconTileSize = 42.dp,
                             iconTileGlyphSize = 20.dp,
@@ -456,6 +455,7 @@ private fun AutoLockDurationPickerSheet(
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isChecked = selectedDurationMinutes == duration,
+                            isSelected = selectedDurationMinutes == duration,
                             cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                             onClick = onClick
                         )
@@ -476,7 +476,7 @@ private fun AutoLockDurationPickerSheet(
                         val accessLevel = com.mknlabs.expensetracker.monetization.FeatureRegistry.getAccessLevel(com.mknlabs.expensetracker.monetization.Feature.AUTO_LOCK_SETTING, duration.toString())
                         SettingsItemCard(
                             icon = PhosphorIcons.Regular.Timer,
-                            iconTile = if (selectedDurationMinutes == duration) selectedIconTile else idleIconTile,
+                            iconTile = idleIconTile,
                             iconTileShape = iconTileShape,
                             iconTileSize = 42.dp,
                             iconTileGlyphSize = 20.dp,
@@ -485,6 +485,7 @@ private fun AutoLockDurationPickerSheet(
                             accessLevel = accessLevel,
                             isLocked = status !is AccessStatus.Granted,
                             isChecked = selectedDurationMinutes == duration,
+                            isSelected = selectedDurationMinutes == duration,
                             cardColors = if (selectedDurationMinutes == duration) selectedRowColors else rowColors,
                             onClick = onClick
                         )
