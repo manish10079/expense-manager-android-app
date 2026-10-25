@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -71,6 +72,7 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -92,7 +94,6 @@ import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTilePalette
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -886,18 +887,27 @@ private fun LargeTransactionThresholdModal(
 
             presetsMajor.forEachIndexed { index, presetMajor ->
                 val presetMinor = presetsMinor[index]
+                // Every preset keeps the same card fill; the chosen one wears a 1.5dp accent
+                // edge, the way every other picker on these screens marks a single choice.
+                val isChosen = isCustom.not() && selectedPresetMinor == presetMinor
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = isChosen,
+                            role = Role.RadioButton,
+                            onClick = {
+                                selectedPresetMinor = presetMinor
+                                isCustom = false
+                                errorMessage = null
+                            }
+                        ),
                     shape = RoundedCornerShape(16.dp),
-                    color = if (isCustom.not() && selectedPresetMinor == presetMinor) {
-                        MaterialTheme.colorScheme.genderRowSelected
+                    color = MaterialTheme.colorScheme.genderRow,
+                    border = if (isChosen) {
+                        BorderStroke(1.5.dp, MaterialTheme.colorScheme.accentInk)
                     } else {
-                        MaterialTheme.colorScheme.genderRow
-                    },
-                    onClick = {
-                        selectedPresetMinor = presetMinor
-                        isCustom = false
-                        errorMessage = null
+                        null
                     }
                 ) {
                     Text(
@@ -914,16 +924,22 @@ private fun LargeTransactionThresholdModal(
 
             // Custom row.
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = isCustom,
+                        role = Role.RadioButton,
+                        onClick = {
+                            isCustom = true
+                            errorMessage = null
+                        }
+                    ),
                 shape = RoundedCornerShape(16.dp),
-                color = if (isCustom) {
-                    MaterialTheme.colorScheme.genderRowSelected
+                color = MaterialTheme.colorScheme.genderRow,
+                border = if (isCustom) {
+                    BorderStroke(1.5.dp, MaterialTheme.colorScheme.accentInk)
                 } else {
-                    MaterialTheme.colorScheme.genderRow
-                },
-                onClick = {
-                    isCustom = true
-                    errorMessage = null
+                    null
                 }
             ) {
                 Row(

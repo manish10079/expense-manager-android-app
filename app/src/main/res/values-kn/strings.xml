@@ -622,7 +622,6 @@
     <string name="label_select_number_format">ಸಂಖ್ಯೆ ಸ್ವರೂಪ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="label_select_time_format">ಸಮಯ ಸ್ವರೂಪ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="label_select_visual_identity">ದೃಶ್ಯ ಗುರುತು ಆಯ್ಕೆಮಾಡಿ</string>
-    <string name="label_selected">ಆಯ್ಕೆಯಾಗಿದೆ</string>
     <string name="label_smart_ai_tip">ಸ್ಮಾರ್ಟ್ AI ಸಲಹೆ</string>
     <string name="label_sort_filter">ವಿಂಗಡಣೆ ಮತ್ತು ಫಿಲ್ಟರ್</string>
     <string name="label_stepanimation">StepAnimation</string>

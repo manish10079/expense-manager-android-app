@@ -587,7 +587,6 @@
     <string name="label_select_number_format">সংখ্যার ফরম্যাট বেছে নিন</string>
     <string name="label_select_time_format">সময়ের ফরম্যাট বেছে নিন</string>
     <string name="label_select_visual_identity">চেহারা বেছে নিন</string>
-    <string name="label_selected">নির্বাচিত</string>
     <string name="label_smart_ai_tip">স্মার্ট AI টিপ</string>
     <string name="label_sort_filter">সাজান ও ফিল্টার</string>
     <string name="label_system_active">সিস্টেম চালু</string>

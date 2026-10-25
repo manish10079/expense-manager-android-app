@@ -587,7 +587,6 @@
     <string name="label_select_visual_identity">रूप निवडा</string>
 
     <!-- Pro value props, cash flow & preferences -->
-    <string name="label_selected">निवडलेले</string>
     <string name="label_smart_ai_tip">स्मार्ट AI टीप</string>
     <string name="label_sort_filter">क्रमवारी आणि फिल्टर</string>
     <string name="label_system_active">सिस्टम सुरू</string>

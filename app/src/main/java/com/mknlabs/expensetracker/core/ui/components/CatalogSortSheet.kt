@@ -1,7 +1,8 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.adamglin.PhosphorIcons
@@ -37,7 +37,6 @@ import com.adamglin.phosphoricons.regular.SortDescending
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 
 enum class CatalogSort {
@@ -95,20 +94,33 @@ fun CatalogSortSheet(
 
             CatalogSort.entries.forEachIndexed { index, option ->
                 val chosen = option == selected
-                val cardColor = if (chosen) colorScheme.genderRowSelected else colorScheme.genderRow
-                val tileColor = if (chosen) {
-                    colorScheme.secondary.copy(alpha = 0.18f)
-                } else {
-                    colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                }
-                val ink = if (chosen) colorScheme.accentInk else colorScheme.onSurface
+                // Same rule as every other selection sheet: the chosen row keeps the idle fill
+                // and is marked by the accent edge alone.
+                val cardColor = colorScheme.genderRow
+                val tileColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                val ink = colorScheme.onSurface
+                val rowShape = RoundedCornerShape(24.dp)
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(rowShape)
                         .background(cardColor)
-                        .clickable {
+                        .then(
+                            if (chosen) {
+                                Modifier.border(
+                                    width = 1.5.dp,
+                                    color = colorScheme.accentInk,
+                                    shape = rowShape
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .selectable(
+                            selected = chosen,
+                            role = Role.RadioButton
+                        ) {
                             onSelect(option)
                             onDismiss()
                         }
@@ -141,13 +153,6 @@ fun CatalogSortSheet(
                         modifier = Modifier.weight(1f)
                     )
 
-                    if (chosen) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = null,
-                            tint = colorScheme.accentInk
-                        )
-                    }
                 }
 
                 if (index != CatalogSort.entries.lastIndex) {

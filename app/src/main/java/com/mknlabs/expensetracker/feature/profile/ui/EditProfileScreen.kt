@@ -59,7 +59,6 @@ import com.mknlabs.expensetracker.core.ui.theme.profileBadgeName
 import com.mknlabs.expensetracker.core.ui.theme.profileBadgePhone
 import com.mknlabs.expensetracker.core.ui.theme.profilePhotoDelete
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
-import com.mknlabs.expensetracker.core.ui.theme.genderRowSelected
 import com.mknlabs.expensetracker.core.ui.theme.profileCard
 import com.mknlabs.expensetracker.core.ui.theme.profilePhotoEdit
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
@@ -661,10 +660,7 @@ private fun ProfileScreenContent(
             containerColor = colorScheme.profileSheet,
             // ...and its four rows on the mockup's own card colours, #191D2C / #28253D in dark
             // and #F8FAFC / #F5F3FF in light, rather than the accent wash the app rows use.
-            rowColors = SelectionRowColors(
-                container = colorScheme.genderRow,
-                selectedContainer = colorScheme.genderRowSelected
-            ),
+            rowColor = colorScheme.genderRow,
             onDismiss = { isGenderPickerVisible = false },
             onItemSelected = { selectedGender ->
                 gender = selectedGender

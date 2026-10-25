@@ -584,7 +584,6 @@
     <string name="label_select_number_format">எண் வடிவத்தைத் தேர்ந்தெடு</string>
     <string name="label_select_time_format">நேர வடிவத்தைத் தேர்ந்தெடு</string>
     <string name="label_select_visual_identity">தோற்றத்தைத் தேர்ந்தெடுக்கவும்</string>
-    <string name="label_selected">தேர்ந்தெடுக்கப்பட்டது</string>
     <string name="label_smart_ai_tip">ஸ்மார்ட் AI குறிப்பு</string>
     <string name="label_sort_filter">வரிசைப்படுத்து &amp; வடிகட்டு</string>
     <string name="label_stepanimation">StepAnimation</string>

@@ -575,7 +575,6 @@
     <string name="label_select_number_format">সংখ্যা বিন্যাস বাছনি কৰক</string>
     <string name="label_select_time_format">সময় বিন্যাস বাছনি কৰক</string>
     <string name="label_select_visual_identity">দৃশ্যমান পৰিচয় বাছনি কৰক</string>
-    <string name="label_selected">বাছনি কৰা হৈছে</string>
     <string name="label_smart_ai_tip">স্মাৰ্ট AI টিপ</string>
     <string name="label_sort_filter">সজাওক আৰু ফিল্টাৰ কৰক</string>
     <string name="label_system_active">ছিষ্টেম সক্ৰিয়</string>

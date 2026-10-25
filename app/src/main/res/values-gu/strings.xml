@@ -591,7 +591,6 @@
     <string name="label_select_number_format">સંખ્યાનું ફોર્મેટ પસંદ કરો</string>
     <string name="label_select_time_format">સમયનું ફોર્મેટ પસંદ કરો</string>
     <string name="label_select_visual_identity">દૃશ્ય ઓળખ પસંદ કરો</string>
-    <string name="label_selected">પસંદ કરેલું</string>
     <string name="label_smart_ai_tip">સ્માર્ટ AI ટિપ</string>
     <string name="label_sort_filter">ક્રમ અને ફિલ્ટર</string>
     <string name="label_stepanimation">StepAnimation</string>

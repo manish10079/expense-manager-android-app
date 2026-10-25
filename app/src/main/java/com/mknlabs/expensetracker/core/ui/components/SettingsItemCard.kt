@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -65,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -100,6 +102,11 @@ fun SettingsItemCard(
     standalone: Boolean = true,
     accessLevel: AccessLevel = AccessLevel.FREE,
     isChecked: Boolean = false,
+    /**
+     * When set, the row is one option among a set and reports that state to TalkBack; null
+     * keeps a plain action row. The chosen look itself is the caller's `cardColors` edge.
+     */
+    isSelected: Boolean? = null,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     /** When set, renders an info (ⓘ) icon next to the title that triggers this callback. */
@@ -149,18 +156,34 @@ fun SettingsItemCard(
         else -> onSurfaceVariant.copy(alpha = 0.6f)
     }
 
+    val rowEnabled = (finalEnabled && type != SettingsItemType.Toggle) || isLocked
+    // A picker row hands its chosen state to `selectable`, so TalkBack announces "selected"
+    // for an accent edge it cannot see. Every other row stays a plain action.
+    val clickModifier = if (isSelected != null) {
+        Modifier.selectable(
+            selected = isSelected,
+            enabled = rowEnabled,
+            role = Role.RadioButton,
+            interactionSource = interactionSource,
+            indication = LocalIndication.current,
+            onClick = { updatedOnClick?.invoke() }
+        )
+    } else {
+        Modifier.clickable(
+            enabled = rowEnabled,
+            interactionSource = interactionSource,
+            indication = LocalIndication.current
+        ) {
+            updatedOnClick?.invoke()
+        }
+    }
+
     val itemContent = @Composable {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 72.dp)
-                .clickable(
-                    enabled = (finalEnabled && type != SettingsItemType.Toggle) || isLocked,
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current
-                ) {
-                    updatedOnClick?.invoke()
-                }
+                .then(clickModifier)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -4,11 +4,12 @@ import com.mknlabs.expensetracker.core.ui.theme.disabled
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -24,6 +25,7 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,17 +38,10 @@ import com.mknlabs.expensetracker.core.ui.theme.featureGateLock
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
- * The two fills a row in an [AppSelectionSheet] can wear: the idle card and the chosen card.
- *
- * Paired rather than passed as two loose colours, so a caller cannot hand over a chosen fill
- * and leave the idle one on the app's default, which would be two design languages in one list.
- * Aimed at the row's background only; its edge, its icon box and its "Selected" ink stay the
- * component's own.
+ * The 1.5dp accent edge a chosen row wears instead of a tinted card, the same edge every other
+ * selection sheet in the app draws, so one choice never reads as two different designs.
  */
-data class SelectionRowColors(
-    val container: Color,
-    val selectedContainer: Color
-)
+private val SelectedRowBorderWidth = 1.5.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,9 +62,10 @@ fun <T> AppSelectionSheet(
     // profile gender sheet does. Null keeps [ColorScheme.sheet], the container every other
     // selection sheet in the app is painted on.
     containerColor: Color? = null,
-    // The row cards' own fills, for a caller whose mockup draws them itself. Null keeps the
-    // accent wash / surfaceVariant pair every other selection sheet in the app is drawn with.
-    rowColors: SelectionRowColors? = null,
+    // The idle row fill, for a caller whose mockup draws its own card. Null keeps
+    // surfaceVariant. The chosen row uses this same fill plus an accent edge, so there is no
+    // second colour to hand over.
+    rowColor: Color? = null,
     footerContent: (LazyListScope.() -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
@@ -159,7 +155,7 @@ fun <T> AppSelectionSheet(
                     SelectionRow(
                         item = item,
                         isSelected = item.id == selectedId,
-                        rowColors = rowColors,
+                        rowColor = rowColor,
                         onClick = {
                             if (!isDismissing.value) {
                                 isDismissing.value = true
@@ -185,39 +181,38 @@ fun <T> AppSelectionSheet(
 private fun <T> SelectionRow(
     item: SelectionItem<T>,
     isSelected: Boolean,
-    rowColors: SelectionRowColors?,
+    rowColor: Color?,
     onClick: () -> Unit
 ) {
-    // A caller's own pair replaces both fills together; without one the row keeps the accent
-    // wash when chosen and the variant surface when idle.
-    val backgroundColor = when {
-        rowColors == null -> if (isSelected) {
-            MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f)
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        }
-        isSelected -> rowColors.selectedContainer
-        else -> rowColors.container
-    }
-
-    val boxBackgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    }
-
-    val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.accentInk
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    // Choosing a row changes its edge, never its fill: the chosen card keeps the idle fill so
+    // the list does not light up, and only the accent border marks the choice. Losing the
+    // "Selected" label means the choice must still reach TalkBack, which `selectable` carries.
+    val backgroundColor = rowColor ?: MaterialTheme.colorScheme.surfaceVariant
+    val boxBackgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val rowShape = RoundedCornerShape(24.dp)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(rowShape)
             .background(backgroundColor)
-            .clickable(onClick = onClick)
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = SelectedRowBorderWidth,
+                        color = MaterialTheme.colorScheme.accentInk,
+                        shape = rowShape
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .selectable(
+                selected = isSelected,
+                role = Role.RadioButton,
+                onClick = onClick
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -299,17 +294,8 @@ private fun <T> SelectionRow(
             }
         }
 
-        // Selection Indicator or Access Badge
-        if (isSelected) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.label_selected),
-                color = MaterialTheme.colorScheme.accentInk,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        } else if (item.isLocked) {
+        // Access badge. The chosen row's state is its border, so it adds nothing here.
+        if (!isSelected && item.isLocked) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = if (item.accessLevel == com.mknlabs.expensetracker.monetization.AccessLevel.AD_SUPPORTED)
