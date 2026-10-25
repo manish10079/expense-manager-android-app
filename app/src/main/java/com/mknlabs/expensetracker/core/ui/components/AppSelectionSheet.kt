@@ -66,6 +66,10 @@ fun <T> AppSelectionSheet(
     // surfaceVariant. The chosen row uses this same fill plus an accent edge, so there is no
     // second colour to hand over.
     rowColor: Color? = null,
+    // A long list — the language picker's 21 rows — opens as a full-height sheet so more of it is
+    // on screen at once, instead of a short sheet wrapping a list capped at [maxListHeight].
+    // The list then fills the space the header leaves and scrolls inside it.
+    fullHeight: Boolean = false,
     footerContent: (LazyListScope.() -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
@@ -84,6 +88,8 @@ fun <T> AppSelectionSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (fullHeight) Modifier.fillMaxHeight() else Modifier)
+                .then(if (fullHeight) Modifier.navigationBarsPadding() else Modifier)
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 24.dp)
         ) {
@@ -145,7 +151,13 @@ fun <T> AppSelectionSheet(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = maxListHeight),
+                    .then(
+                        if (fullHeight) {
+                            Modifier.weight(1f)
+                        } else {
+                            Modifier.heightIn(max = maxListHeight)
+                        }
+                    ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(

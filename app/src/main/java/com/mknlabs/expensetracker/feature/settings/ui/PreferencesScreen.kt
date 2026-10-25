@@ -440,6 +440,9 @@ private fun PreferencesScreenContent(
                     selectedId = uiState.selectedLanguageCode,
                     containerColor = colorScheme.profileSheet,
                     rowColor = colorScheme.genderRow,
+                    // 21 languages: open the whole sheet so the list gets the screen instead of
+                    // ending 440dp down with a flick left to scroll.
+                    fullHeight = true,
                     onItemSelected = { selectLanguage(it) },
                     onDismiss = dismissSheet
                 )
