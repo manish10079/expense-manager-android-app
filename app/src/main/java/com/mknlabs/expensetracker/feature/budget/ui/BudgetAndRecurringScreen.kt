@@ -10,6 +10,7 @@ import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -188,6 +189,7 @@ import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import com.mknlabs.expensetracker.core.ui.theme.heroBloom
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categoryTint
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.chip
 import com.mknlabs.expensetracker.core.ui.theme.chipInkOff
@@ -2409,6 +2411,10 @@ private fun RecurringExpenseCard(
         else -> MaterialTheme.colorScheme.onSurface
     }
     val chipFillAlpha = if (expense.isEnabled) 0.07f else 0.14f
+    val categoryColor = categoryTint(
+        categoryId = expense.categoryId,
+        colorHex = expense.colorHex
+    )
 
     Box(
         modifier = Modifier
@@ -2431,6 +2437,20 @@ private fun RecurringExpenseCard(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            val badgeFill = if (MaterialTheme.colorScheme.isDark) 0.10f else 0.10f
+            val badgeEdge = if (MaterialTheme.colorScheme.isDark) 0.20f else 0.28f
+            val iconTint = if (expense.isEnabled) categoryColor else categoryColor.copy(alpha = 0.45f)
+            AppIconBox(
+                icon = expense.icon,
+                contentDescription = expense.categoryLabel,
+                size = 44.dp,
+                iconSize = 20.dp,
+                tint = iconTint,
+                backgroundColor = iconTint.copy(alpha = badgeFill),
+                border = BorderStroke(1.dp, iconTint.copy(alpha = badgeEdge)),
+                shape = RoundedCornerShape(16.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -2490,7 +2510,11 @@ private fun RecurringExpenseCard(
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             RecurringMetaChip(
                 label = expense.categoryLabel,
                 accent = categoryInk
@@ -2500,11 +2524,35 @@ private fun RecurringExpenseCard(
                 accent = frequencyAccent,
                 fillAlpha = chipFillAlpha
             )
+            Spacer(modifier = Modifier.weight(1f))
             RecurringMetaChip(
                 label = stringResource(id = R.string.label_installments_formatted, expense.currentInstallment, expense.totalInstallments),
                 accent = installmentAccent,
                 fillAlpha = chipFillAlpha
             )
+        }
+
+        val totalSlots = expense.totalInstallments
+        if (totalSlots > 0) {
+            val paidSlots = (
+                if (expense.isInstallment) expense.installmentPaidCount else expense.currentInstallment
+            ).coerceIn(0, totalSlots)
+            val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.14f)
+            val paidColor = if (expense.isEnabled) categoryColor else categoryColor.copy(alpha = 0.45f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                repeat(totalSlots) { index ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (index < paidSlots) paidColor else trackColor)
+                    )
+                }
+            }
         }
 
         Row(
