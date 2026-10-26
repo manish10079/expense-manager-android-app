@@ -45,6 +45,11 @@ enum class TransactionPeriodFilter(@StringRes val labelRes: Int) {
     YEARLY(R.string.label_yearly)
 }
 
+fun transactionPeriodFilterOrDefault(name: String?): TransactionPeriodFilter {
+    return TransactionPeriodFilter.entries.firstOrNull { it.name == name }
+        ?: TransactionPeriodFilter.MONTHLY
+}
+
 @Composable
 fun TransactionPeriodNavigator(
     modifier: Modifier = Modifier,

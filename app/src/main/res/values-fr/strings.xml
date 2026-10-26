@@ -2308,6 +2308,10 @@ privé par nature</string>
 
     <string name="desc_in_the_list">Comment la liste est groupée et résumée autour des cartes.</string>
 
+    <string name="title_default_view_by">Vue par défaut</string>
+    <string name="desc_default_view_by">Choisissez comment l’écran Transactions s’ouvre : quotidienne, mensuelle, annuelle ou toutes.</string>
+
+
     <string name="label_visual_style">Style visuel</string>
 
     <string name="desc_visual_style">Icônes et libellés colorés de la carte.</string>

@@ -1052,6 +1052,10 @@
     <string name="desc_on_each_transaction_card">এই ছেটিংছে তালিকাৰ প্ৰতিটো লেনদেন কাৰ্ডত কি তথ্য দেখা যাব তাক নিয়ন্ত্ৰণ কৰে।</string>
     <string name="label_in_the_list">তালিকাত</string>
     <string name="desc_in_the_list">এই ছেটিংছে সেই কাৰ্ডবোৰৰ চাৰিওফালে লেনদেন তালিকা কেনেকৈ গোটোৱা আৰু সাৰাংশ কৰা হয় তাক নিয়ন্ত্ৰণ কৰে।</string>
+
+    <string name="title_default_view_by">ডিফ’ল্ট দৃশ্য</string>
+    <string name="desc_default_view_by">লেনদেন স্ক্ৰীন কেনেকৈ খুলিব: দৈনিক, মাহিলী, বাৰ্ষিক বা সকলো।</string>
+
     <string name="label_visual_style">দৃশ্যমান শৈলী</string>
     <string name="desc_visual_style">এই ছেটিংছে কাৰ্ডৰ দৃশ্যমান পৰিচয় নিৰ্ধাৰণ কৰা মূল আইকন আৰু ৰঙেৰে চিহ্নিত লেবেল নিয়ন্ত্ৰণ কৰে।</string>
     <string name="label_transaction_details">লেনদেনৰ বিৱৰণ</string>

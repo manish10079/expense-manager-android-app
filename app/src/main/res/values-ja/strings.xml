@@ -2304,6 +2304,10 @@
 
     <string name="desc_in_the_list">カードまわりのグループとまとめ方。</string>
 
+    <string name="title_default_view_by">デフォルト表示</string>
+    <string name="desc_default_view_by">取引画面の開き方を選択：日次、月次、年次、またはすべて。</string>
+
+
     <string name="label_visual_style">見た目</string>
 
     <string name="desc_visual_style">メインアイコンと色ラベルでカードの見た目を決める。</string>

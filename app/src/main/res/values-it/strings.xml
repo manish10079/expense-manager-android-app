@@ -2281,6 +2281,10 @@
 
     <string name="desc_in_the_list">Queste impostazioni controllano come l\'elenco è raggruppato e riassunto intorno alle schede.</string>
 
+    <string name="title_default_view_by">Vista predefinita</string>
+    <string name="desc_default_view_by">Scegli come si apre Transazioni: giornaliera, mensile, annuale o tutte.</string>
+
+
     <string name="label_visual_style">Stile visivo</string>
 
     <string name="desc_visual_style">Queste impostazioni controllano icone e etichette a colori che definiscono l\'identità visiva della scheda.</string>

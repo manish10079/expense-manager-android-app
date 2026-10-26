@@ -1054,6 +1054,10 @@
     <string name="desc_on_each_transaction_card">பட்டியலில் உள்ள ஒவ்வொரு பரிவர்த்தனை அட்டையிலும் என்ன தகவல் தெரிய வேண்டும் என்பதை இந்த அமைப்புகள் கட்டுப்படுத்துகின்றன.</string>
     <string name="label_in_the_list">பட்டியலில்</string>
     <string name="desc_in_the_list">இந்த அட்டைகளைச் சுற்றி பரிவர்த்தனைப் பட்டியல் எப்படித் தொகுக்கப்பட்டுச் சுருக்கப்பட வேண்டும் என்பதை இந்த அமைப்புகள் கட்டுப்படுத்துகின்றன.</string>
+
+    <string name="title_default_view_by">இயல்பு நோக்கு</string>
+    <string name="desc_default_view_by">பரிவர்த்தனைத் திரை எப்படித் திறக்க வேண்டும்: தினசரி, மாதாந்திரம், ஆண்டுதோறும் அல்லது அனைத்தும்.</string>
+
     <string name="label_visual_style">தோற்ற பாணி</string>
     <string name="desc_visual_style">அட்டையின் அடையாளத்தை வரையறுக்கும் முதன்மை ஐகான்களையும் நிற லேபிள்களையும் இந்த அமைப்புகள் கட்டுப்படுத்துகின்றன.</string>
     <string name="label_transaction_details">பரிவர்த்தனை விவரங்கள்</string>

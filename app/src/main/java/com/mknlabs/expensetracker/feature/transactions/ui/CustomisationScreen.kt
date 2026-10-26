@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Today
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowDown
@@ -36,7 +41,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.Alignment
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,14 +51,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.genderRow
+import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
@@ -95,9 +108,15 @@ import com.mknlabs.expensetracker.core.ui.components.SettingsGroup
 import com.mknlabs.expensetracker.core.ui.components.settingsGroupCardColors
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupDivider
 import com.mknlabs.expensetracker.core.ui.components.SettingsGroupHeader
+import com.mknlabs.expensetracker.core.ui.components.AppSelectionSheet
+import com.mknlabs.expensetracker.core.ui.components.TransactionPeriodFilter
+import com.mknlabs.expensetracker.core.ui.components.transactionPeriodFilterOrDefault
+import com.mknlabs.expensetracker.data.constants.defaultAppSettings
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 
 import com.mknlabs.expensetracker.core.ui.components.AppHeader
 import com.mknlabs.expensetracker.models.SettingsItemType
+import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -151,6 +170,11 @@ fun CustomisationScreen(
     isAdsEnabled: Boolean = false,
     isProUser: Boolean = false
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val appSettings by AppSettingsDataStore.getAppSettingsFlow(context)
+        .collectAsStateWithLifecycle(initialValue = defaultAppSettings)
+    val defaultPeriodFilter = transactionPeriodFilterOrDefault(appSettings.defaultTransactionPeriodFilter)
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
     val proTimeStatus by monetizationViewModel
         .getAccessStatus(Feature.CARD_CUSTOMIZATION, "showTransactionTime")
@@ -178,6 +202,14 @@ fun CustomisationScreen(
         isDateSeparatorsProGranted = proDateSeparatorsStatus is AccessStatus.Granted,
         isPaymentMethodProGranted = proPaymentMethodStatus is AccessStatus.Granted,
         isListSummariesProGranted = proListSummariesStatus is AccessStatus.Granted,
+        defaultPeriodFilter = defaultPeriodFilter,
+        onDefaultPeriodFilterChange = { filter ->
+            coroutineScope.launch {
+                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                    settings.copy(defaultTransactionPeriodFilter = filter.name)
+                }
+            }
+        },
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -197,6 +229,8 @@ private fun TransactionCardCustomizeContent(
     isDateSeparatorsProGranted: Boolean,
     isPaymentMethodProGranted: Boolean,
     isListSummariesProGranted: Boolean,
+    defaultPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY,
+    onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit = {},
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -396,6 +430,8 @@ private fun TransactionCardCustomizeContent(
                     TransactionCardTogglesList(
                         toggleItems = toggleItems,
                         isInPreview = isInPreview,
+                        defaultPeriodFilter = defaultPeriodFilter,
+                        onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
                         modifier = Modifier.weight(1f),
                         horizontalPadding = 0.dp
                     )
@@ -440,6 +476,8 @@ private fun TransactionCardCustomizeContent(
             TransactionCardTogglesList(
                 toggleItems = toggleItems,
                 isInPreview = isInPreview,
+                defaultPeriodFilter = defaultPeriodFilter,
+                onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -529,12 +567,29 @@ private fun TransactionCardPreviewSection(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TransactionCardTogglesList(
     toggleItems: List<TransactionCardToggleItem>,
     isInPreview: Boolean,
+    defaultPeriodFilter: TransactionPeriodFilter,
+    onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit,
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 20.dp
 ) {
+    var isDefaultViewSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val defaultViewSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val periodFilterItems = TransactionPeriodFilter.entries.map { filter ->
+        SelectionItem(
+            id = filter,
+            title = stringResource(filter.labelRes),
+            leadingIcon = when (filter) {
+                TransactionPeriodFilter.ALL -> Icons.AutoMirrored.Filled.List
+                TransactionPeriodFilter.DAILY -> Icons.Filled.Today
+                TransactionPeriodFilter.MONTHLY -> Icons.Filled.DateRange
+                TransactionPeriodFilter.YEARLY -> Icons.Filled.CalendarMonth
+            }
+        )
+    }
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding, bottom = 32.dp),
@@ -573,6 +628,20 @@ private fun TransactionCardTogglesList(
         }
         item {
             SettingsGroup(colors = settingsGroupCardColors()) {
+                SettingsItemCard(
+                    icon = Icons.Filled.DateRange,
+                    iconTile = SettingsTiles.Sky,
+                    title = stringResource(id = R.string.title_default_view_by),
+                    subtitle = stringResource(id = R.string.desc_default_view_by),
+                    valueText = stringResource(defaultPeriodFilter.labelRes),
+                    type = SettingsItemType.Value,
+                    standalone = false,
+                    onClick = { isDefaultViewSheetVisible = true }
+                )
+            }
+        }
+        item {
+            SettingsGroup(colors = settingsGroupCardColors()) {
                 val groupItems = listLevelToggleIds.mapNotNull { id ->
                     toggleItems.firstOrNull { it.optionId == id }
                 }
@@ -585,6 +654,23 @@ private fun TransactionCardTogglesList(
                 }
             }
         }
+    }
+
+    if (isDefaultViewSheetVisible) {
+        AppSelectionSheet(
+            title = stringResource(id = R.string.title_default_view_by),
+            description = stringResource(id = R.string.desc_default_view_by),
+            items = periodFilterItems,
+            selectedId = defaultPeriodFilter,
+            sheetState = defaultViewSheetState,
+            containerColor = MaterialTheme.colorScheme.profileSheet,
+            rowColor = MaterialTheme.colorScheme.genderRow,
+            onDismiss = { isDefaultViewSheetVisible = false },
+            onItemSelected = { filter ->
+                onDefaultPeriodFilterChange(filter)
+                isDefaultViewSheetVisible = false
+            }
+        )
     }
 }
 

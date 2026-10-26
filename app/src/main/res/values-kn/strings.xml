@@ -1098,6 +1098,10 @@
     <string name="desc_on_each_transaction_card">ಪಟ್ಟಿಯಲ್ಲಿನ ಪ್ರತಿ ವಹಿವಾಟು ಕಾರ್ಡ್‌ನಲ್ಲಿ ಯಾವ ಮಾಹಿತಿ ಕಾಣಬೇಕು ಎಂದು ಈ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ನಿರ್ಧರಿಸುತ್ತವೆ.</string>
     <string name="label_in_the_list">ಪಟ್ಟಿಯಲ್ಲಿ</string>
     <string name="desc_in_the_list">ಈ ಕಾರ್ಡ್‌ಗಳ ಸುತ್ತ ವಹಿವಾಟು ಪಟ್ಟಿಯನ್ನು ಹೇಗೆ ಗುಂಪು ಮತ್ತು ಸಾರಾಂಶ ಮಾಡಬೇಕು ಎಂದು ಈ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ನಿರ್ಧರಿಸುತ್ತವೆ.</string>
+
+    <string name="title_default_view_by">ಡೀಫಾಲ್ಟ್ ನೋಟ</string>
+    <string name="desc_default_view_by">ವಹಿವಾಟು ಸ್ಕ್ರೀನ್ ಹೇಗೆ ತೆರೆಯಬೇಕು: ದೈನಂದಿನ, ಮಾಸಿಕ, ವಾರ್ಷಿಕ ಅಥವಾ ಎಲ್ಲಾ.</string>
+
     <string name="label_visual_style">ನೋಟದ ಶೈಲಿ</string>
     <string name="desc_visual_style">ಕಾರ್ಡ್‌ನ ಮುಖ್ಯ ಐಕಾನ್‌ಗಳು ಮತ್ತು ಬಣ್ಣದ ಲೇಬಲ್‌ಗಳನ್ನು ಈ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ನಿರ್ಧರಿಸುತ್ತವೆ.</string>
     <string name="label_transaction_details">ವಹಿವಾಟು ವಿವರಗಳು</string>

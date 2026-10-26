@@ -2281,6 +2281,10 @@
 
     <string name="desc_in_the_list">ଏହି ସେଟିଂ କାର୍ଡ ଚାରିପଟେ ତାଲିକା କିପରି ଗୋଷ୍ଠୀ ଓ ସାରାଂଶ ହେବ ଠିକ କରେ।</string>
 
+    <string name="title_default_view_by">ଡିଫଲ୍ଟ ଭ୍ୟୁ</string>
+    <string name="desc_default_view_by">ଟ୍ରାନ୍ସଆକ୍ସନ୍ ସ୍କ୍ରିନ୍ କିପରି ଖୋଲିବ: ଦୈନିକ, ମାସିକ, ବାର୍ଷିକ କିମ୍ବା ସମସ୍ତ।</string>
+
+
     <string name="label_visual_style">ଭିଜୁଆଲ ଷ୍ଟାଇଲ</string>
 
     <string name="desc_visual_style">ଏହି ସେଟିଂ କାର୍ଡ ଦେଖା ଦେଉଥିବା ଆଇକନ ଓ ରଙ୍ଗ ଲେବଲ ଠିକ କରେ।</string>

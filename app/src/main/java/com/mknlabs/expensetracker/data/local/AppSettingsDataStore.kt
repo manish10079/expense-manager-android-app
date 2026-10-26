@@ -96,6 +96,7 @@ object AppSettingsDataStore {
         val activeCustomFontFileName = stringPreferencesKey("active_custom_font_file_name")
         val importedFontFileNames = stringPreferencesKey("imported_font_file_names")
         val monthStartDay = intPreferencesKey("month_start_day")
+        val defaultTransactionPeriodFilter = stringPreferencesKey("default_transaction_period_filter")
         val defaultsRevision = intPreferencesKey("defaults_revision")
     }
 
@@ -371,7 +372,9 @@ object AppSettingsDataStore {
                 ?.filter { it.isNotBlank() }
                 ?: defaultAppSettings.importedFontFileNames,
             monthStartDay = this[Keys.monthStartDay]
-                ?: defaultAppSettings.monthStartDay
+                ?: defaultAppSettings.monthStartDay,
+            defaultTransactionPeriodFilter = this[Keys.defaultTransactionPeriodFilter]
+                ?: defaultAppSettings.defaultTransactionPeriodFilter
         )
     }
 
@@ -446,6 +449,7 @@ object AppSettingsDataStore {
         }
         this[Keys.importedFontFileNames] = settings.importedFontFileNames.joinToString(",")
         this[Keys.monthStartDay] = settings.monthStartDay
+        this[Keys.defaultTransactionPeriodFilter] = settings.defaultTransactionPeriodFilter
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

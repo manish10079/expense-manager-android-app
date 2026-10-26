@@ -2304,6 +2304,10 @@ privat dari sifat</string>
 
     <string name="desc_in_the_list">Pengaturan ini atur pengelompokan dan ringkasan daftar di sekitar kartu.</string>
 
+    <string name="title_default_view_by">Tampilan default</string>
+    <string name="desc_default_view_by">Pilih cara layar Transaksi terbuka: harian, bulanan, tahunan, atau semua.</string>
+
+
     <string name="label_visual_style">Gaya visual</string>
 
     <string name="desc_visual_style">Pengaturan ini atur ikon utama dan label berwarna yang jadi identitas kartu.</string>

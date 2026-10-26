@@ -1084,6 +1084,10 @@
     <string name="desc_on_each_transaction_card">આ સેટિંગ નક્કી કરે છે કે સૂચિમાં દરેક વ્યવહાર કાર્ડ પર કઈ માહિતી દેખાય.</string>
     <string name="label_in_the_list">સૂચિમાં</string>
     <string name="desc_in_the_list">આ સેટિંગ નક્કી કરે છે કે વ્યવહાર સૂચિ એ કાર્ડની આસપાસ કેવી રીતે જૂથબદ્ધ અને સારાંશ થાય.</string>
+
+    <string name="title_default_view_by">ડિફૉલ્ટ વ્યૂ</string>
+    <string name="desc_default_view_by">ટ્રાન્ઝેક્શન સ્ક્રીન કેવી રીતે ખુલે: દૈનિક, માસિક, વાર્ષિક અથવા બધું.</string>
+
     <string name="label_visual_style">દૃશ્ય શૈલી</string>
     <string name="desc_visual_style">આ સેટિંગ એ મુખ્ય આઇકન અને રંગ-કોડ લેબલ નક્કી કરે છે જે કાર્ડની દૃશ્ય ઓળખ બનાવે છે.</string>
     <string name="label_transaction_details">વ્યવહારની વિગતો</string>

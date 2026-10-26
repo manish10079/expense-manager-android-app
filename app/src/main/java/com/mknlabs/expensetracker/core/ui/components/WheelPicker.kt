@@ -1,7 +1,11 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -10,15 +14,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 
 @Composable
@@ -48,34 +58,75 @@ fun <T> WheelPicker(
     val realInitialIndex = centerOffset + (initialIndex % items.size) - (visibleCount / 2)
 
     val listState = rememberLazyListState(realInitialIndex)
-    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+    val decaySpec = remember { exponentialDecay<Float>(frictionMultiplier = 0.42f) }
+    val flingBehavior = remember(itemHeightPx, decaySpec) {
+        object : FlingBehavior {
+            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                if (kotlin.math.abs(initialVelocity) > 1f) {
+                    var lastValue = 0f
+                    AnimationState(initialValue = 0f, initialVelocity = initialVelocity).animateDecay(decaySpec) {
+                        val delta = value - lastValue
+                        lastValue = value
+                        val consumed = scrollBy(delta)
+                        val blocked = kotlin.math.abs(delta) > 0.5f &&
+                            kotlin.math.abs(consumed) < kotlin.math.abs(delta) * 0.4f
+                        // Don't let the coast crawl to a stop between two rows.
+                        if (blocked || kotlin.math.abs(velocity) < 180f) {
+                            cancelAnimation()
+                        }
+                    }
+                }
+                val offset = listState.firstVisibleItemScrollOffset.toFloat()
+                val remaining = if (offset > itemHeightPx / 2f) itemHeightPx - offset else -offset
+                if (kotlin.math.abs(remaining) > 0.5f) {
+                    scrollBy(remaining)
+                }
+                return 0f
+            }
+        }
+    }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset = available
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
+        }
+    }
 
     val currentOnItemSelected by rememberUpdatedState(onItemSelected)
     var lastSelectedItem by remember { mutableStateOf<T?>(null) }
 
-    // Snap to correct position whenever initialIndex changes (e.g. re-open, tab switch)
+    fun centerItem(): T {
+        val layoutInfo = listState.layoutInfo
+        val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
+        val closest = layoutInfo.visibleItemsInfo.minByOrNull { item ->
+            kotlin.math.abs((item.offset + item.size / 2f) - viewportCenter)
+        }
+        val centerItemIndex = closest?.index ?: (listState.firstVisibleItemIndex + visibleCount / 2)
+        val safeIndex = (centerItemIndex % items.size + items.size) % items.size
+        return items[safeIndex]
+    }
+
+    // Programmatic jumps only — never interrupt a user swipe/fling.
     LaunchedEffect(initialIndex, items) {
+        if (listState.isScrollInProgress) return@LaunchedEffect
         val clampedIndex = initialIndex.coerceIn(0, items.size - 1)
-        // Center slot = FVI + visibleCount/2 → to put clampedIndex in center: FVI = clampedIndex - visibleCount/2
         val targetListIndex = centerOffset + clampedIndex - (visibleCount / 2)
         if (listState.firstVisibleItemIndex != targetListIndex || listState.firstVisibleItemScrollOffset != 0) {
             listState.scrollToItem(targetListIndex)
         }
     }
 
-    // Selected value = item whose visual center is closest to the viewport center slot
+    // Commit the value after the wheel settles so parent state does not rebuild mid-fling.
     LaunchedEffect(listState, items) {
-        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-            .map { (fvi, _) ->
-                val layoutInfo = listState.layoutInfo
-                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
-                val closest = layoutInfo.visibleItemsInfo.minByOrNull { item ->
-                    kotlin.math.abs((item.offset + item.size / 2f) - viewportCenter)
-                }
-                val centerItemIndex = closest?.index ?: (fvi + visibleCount / 2)
-                val safeIndex = (centerItemIndex % items.size + items.size) % items.size
-                items[safeIndex]
-            }
+        snapshotFlow { listState.isScrollInProgress }
+            .distinctUntilChanged()
+            .filter { scrolling -> !scrolling }
+            .map { centerItem() }
             .distinctUntilChanged()
             .collect {
                 lastSelectedItem = it
@@ -120,7 +171,10 @@ fun <T> WheelPicker(
         LazyColumn(
             state = listState,
             flingBehavior = flingBehavior,
-            modifier = Modifier.fillMaxSize()
+            overscrollEffect = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
         ) {
             items(totalItems) { index ->
                 val item = items[index % items.size]

@@ -2309,6 +2309,10 @@ privat von Haus aus</string>
 
     <string name="desc_in_the_list">Wie die Liste um die Karten herum gruppiert und summiert wird.</string>
 
+    <string name="title_default_view_by">Standardansicht</string>
+    <string name="desc_default_view_by">Legen Sie fest, wie Transaktionen öffnet: täglich, monatlich, jährlich oder alle.</string>
+
+
     <string name="label_visual_style">Aussehen</string>
 
     <string name="desc_visual_style">Symbole und farbige Labels, die die Karte prägen.</string>

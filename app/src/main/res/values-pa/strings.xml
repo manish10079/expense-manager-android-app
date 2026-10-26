@@ -1084,6 +1084,10 @@
     <string name="desc_on_each_transaction_card">ਇਹ ਸੈਟਿੰਗਾਂ ਤੈਅ ਕਰਦੀਆਂ ਹਨ ਕਿ ਸੂਚੀ ਵਿੱਚ ਹਰ ਲੈਣ-ਦੇਣ ਕਾਰਡ ਉੱਤੇ ਕਿਹੜੀ ਜਾਣਕਾਰੀ ਦਿਸੇ।</string>
     <string name="label_in_the_list">ਸੂਚੀ ਵਿੱਚ</string>
     <string name="desc_in_the_list">ਇਹ ਸੈਟਿੰਗਾਂ ਤੈਅ ਕਰਦੀਆਂ ਹਨ ਕਿ ਲੈਣ-ਦੇਣ ਸੂਚੀ ਉਹਨਾਂ ਕਾਰਡਾਂ ਦੁਆਲੇ ਕਿਵੇਂ ਗਰੁੱਪ ਤੇ ਸੰਖੇਪ ਹੋਵੇ।</string>
+
+    <string name="title_default_view_by">ਡਿਫਾਲਟ ਝਲਕ</string>
+    <string name="desc_default_view_by">ਲੈਣ-ਦੇਣ ਸਕਰੀਨ ਕਿਵੇਂ ਖੁੱਲ੍ਹੇ: ਰੋਜ਼ਾਨਾ, ਮਹੀਨਾਵਾਰ, ਸਾਲਾਨਾ ਜਾਂ ਸਭ.</string>
+
     <string name="label_visual_style">ਦਿੱਖ ਸ਼ੈਲੀ</string>
     <string name="desc_visual_style">ਇਹ ਸੈਟਿੰਗਾਂ ਉਹ ਮੁੱਖ ਆਈਕਨ ਤੇ ਰੰਗ-ਕੋਡ ਲੇਬਲ ਤੈਅ ਕਰਦੀਆਂ ਹਨ ਜੋ ਕਾਰਡ ਦੀ ਦਿੱਖ ਬਣਾਉਂਦੇ ਹਨ।</string>
     <string name="label_transaction_details">ਲੈਣ-ਦੇਣ ਦੇ ਵੇਰਵੇ</string>

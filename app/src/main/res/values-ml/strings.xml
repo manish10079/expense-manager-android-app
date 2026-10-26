@@ -1073,6 +1073,10 @@
     <string name="desc_on_each_transaction_card">പട്ടികയിലെ ഓരോ ഇടപാട് കാർഡിലും ഏത് വിവരം കാണിക്കണം എന്ന് ഈ ക്രമീകരണങ്ങൾ നിയന്ത്രിക്കുന്നു.</string>
     <string name="label_in_the_list">പട്ടികയിൽ</string>
     <string name="desc_in_the_list">ആ കാർഡുകൾക്ക് ചുറ്റും ഇടപാട് പട്ടിക എങ്ങനെ ഗ്രൂപ്പ് ചെയ്ത് സംഗ്രഹിക്കണം എന്ന് ഈ ക്രമീകരണങ്ങൾ നിയന്ത്രിക്കുന്നു.</string>
+
+    <string name="title_default_view_by">ഡിഫോൾട്ട് കാഴ്ച</string>
+    <string name="desc_default_view_by">ഇടപാട് സ്ക്രീൻ എങ്ങനെ തുറക്കണം: ദിവസേന, മാസംതോറും, വർഷംതോറും അല്ലെങ്കിൽ എല്ലാം.</string>
+
     <string name="label_visual_style">ദൃശ്യ ശൈലി</string>
     <string name="desc_visual_style">കാർഡിന്റെ ദൃശ്യ സ്വത്വം നിർണ്ണയിക്കുന്ന പ്രധാന ഐക്കണുകളും നിറം നൽകിയ ലേബലുകളും ഈ ക്രമീകരണങ്ങൾ നിയന്ത്രിക്കുന്നു.</string>
     <string name="label_transaction_details">ഇടപാട് വിശദാംശങ്ങൾ</string>

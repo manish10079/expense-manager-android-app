@@ -2295,6 +2295,10 @@
 
     <string name="desc_in_the_list">Эти настройки решают, как список группируется и суммируется вокруг карточек.</string>
 
+    <string name="title_default_view_by">Вид по умолчанию</string>
+    <string name="desc_default_view_by">Как открывать экран операций: за день, месяц, год или все.</string>
+
+
     <string name="label_visual_style">Визуальный стиль</string>
 
     <string name="desc_visual_style">Эти настройки решают иконки и цветные метки, которые задают вид карточки.</string>

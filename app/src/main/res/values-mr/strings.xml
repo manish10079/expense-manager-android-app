@@ -1061,6 +1061,10 @@
     <string name="desc_on_each_transaction_card">ही सेटिंग्ज ठरवतात की यादीतील प्रत्येक व्यवहार कार्डवर कोणती माहिती दिसेल.</string>
     <string name="label_in_the_list">यादीत</string>
     <string name="desc_in_the_list">ही सेटिंग्ज ठरवतात की कार्डांभोवतीची यादी कशी गटात आणि सारांशाने दिसेल.</string>
+
+    <string name="title_default_view_by">डिफॉल्ट दृश्य</string>
+    <string name="desc_default_view_by">व्यवहार स्क्रीन कशी उघडेल: दैनिक, मासिक, वार्षिक किंवा सर्व.</string>
+
     <string name="label_visual_style">दिसण्याची शैली</string>
     <string name="desc_visual_style">ही सेटिंग्ज कार्डची ओळख ठरवणारे मुख्य आयकॉन आणि रंगीत लेबल ठरवतात.</string>
     <string name="label_transaction_details">व्यवहाराचा तपशील</string>

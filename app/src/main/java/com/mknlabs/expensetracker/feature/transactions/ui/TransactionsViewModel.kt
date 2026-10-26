@@ -23,6 +23,8 @@ import com.mknlabs.expensetracker.core.ui.components.FILTER_DATE_LAST_30_DAYS
 import com.mknlabs.expensetracker.core.ui.components.FILTER_DATE_LAST_60_DAYS
 import com.mknlabs.expensetracker.core.ui.components.FILTER_DATE_LAST_7_DAYS
 import com.mknlabs.expensetracker.core.ui.components.TransactionPeriodFilter
+import com.mknlabs.expensetracker.core.ui.components.transactionPeriodFilterOrDefault
+import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatDate
 import com.mknlabs.expensetracker.utils.getDefaultOrder
@@ -50,6 +52,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.SharingStarted
@@ -190,6 +193,7 @@ class TransactionsViewModel @Inject constructor(
     private var appliedMaxAmount: String = ""
 
     private var selectedPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY
+    private var userOverrodePeriodFilter = false
     private var focusedPeriodTimestamp: Long = System.currentTimeMillis()
 
     private var advancedSearchGranted: Boolean = false
@@ -235,12 +239,29 @@ class TransactionsViewModel @Inject constructor(
     )
 
     init {
+        observeDefaultPeriodFilter()
         observeAdvancedSearchAccess()
         observeTags()
         publishUiState()
         pagedQuery.value = buildQuery()
         observeSummaryTotals()
         refreshNavigationFlags()
+    }
+
+    private fun observeDefaultPeriodFilter() {
+        viewModelScope.launch {
+            AppSettingsDataStore.getAppSettingsFlow(application)
+                .map { transactionPeriodFilterOrDefault(it.defaultTransactionPeriodFilter) }
+                .distinctUntilChanged()
+                .collect { filter ->
+                    if (!userOverrodePeriodFilter && selectedPeriodFilter != filter) {
+                        selectedPeriodFilter = filter
+                        focusedPeriodTimestamp = System.currentTimeMillis()
+                        clearSelection()
+                        resetAndReload()
+                    }
+                }
+        }
     }
 
     /** Keeps the filter sheet's tag picker current as tags are created, renamed or deleted. */
@@ -417,6 +438,7 @@ class TransactionsViewModel @Inject constructor(
     // ─── Period Navigation ────────────────────────────────────────────
 
     fun updatePeriodFilter(filter: TransactionPeriodFilter) {
+        userOverrodePeriodFilter = true
         selectedPeriodFilter = filter
         focusedPeriodTimestamp = System.currentTimeMillis()
         clearSelection()

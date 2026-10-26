@@ -2233,6 +2233,10 @@
 
     <string name="desc_in_the_list">These settings control how the transaction list is grouped and summarized around those cards.</string>
 
+    <string name="title_default_view_by">Default view</string>
+    <string name="desc_default_view_by">Choose how the Transactions screen opens: daily, monthly, yearly, or all.</string>
+
+
     <string name="label_visual_style">Visual Style</string>
 
     <string name="desc_visual_style">These settings control the primary icons and color-coded labels that define the card\'s visual identity.</string>

@@ -1868,6 +1868,10 @@
 
     <string name="desc_in_the_list">ये सेटिंग्स कंट्रोल करती हैं कि लेन-देन की लिस्ट कैसे बांटी जाएगी और कार्ड के आस-पास सारांश कैसे दिखेगा।</string>
 
+    <string name="title_default_view_by">डिफ़ॉल्ट व्यू</string>
+    <string name="desc_default_view_by">ट्रांज़ैक्शन स्क्रीन कैसे खुले: दैनिक, मासिक, वार्षिक या सभी।</string>
+
+
     <string name="label_visual_style">रंग-रूप (Visual Style)</string>
 
     <string name="desc_visual_style">ये सेटिंग्स मुख्य आइकन और रंग-बिरंगे लेबल तय करती हैं जो कार्ड की पहचान बनाते हैं।</string>

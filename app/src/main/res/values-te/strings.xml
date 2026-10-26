@@ -805,6 +805,10 @@
     <string name="desc_on_each_transaction_card">ఈ సెట్టింగ్‌లు జాబితాలోని ప్రతి లావాదేవీ కార్డుపై ఏ సమాచారం కనిపిస్తుందో నియంత్రిస్తాయి.</string>
     <string name="label_in_the_list">జాబితాలో</string>
     <string name="desc_in_the_list">ఈ సెట్టింగ్‌లు ఆ కార్డుల చుట్టూ లావాదేవీ జాబితా ఎలా సమూహపరచబడి, సంక్షేపించబడుతుందో నియంత్రిస్తాయి.</string>
+
+    <string name="title_default_view_by">డిఫాల్ట్ వీక్షణ</string>
+    <string name="desc_default_view_by">లావాదేవీల స్క్రీన్ ఎలా తెరవాలి: రోజువారీ, నెలవారీ, వార్షికం లేదా అన్నీ.</string>
+
     <string name="label_visual_style">దృశ్య శైలి</string>
     <string name="desc_visual_style">ఈ సెట్టింగ్‌లు కార్డు దృశ్య గుర్తింపును నిర్వచించే ప్రధాన ఐకాన్లు, రంగు-కోడెడ్ లేబుల్‌లను నియంత్రిస్తాయి.</string>
     <string name="label_transaction_details">లావాదేవీ వివరాలు</string>

@@ -2309,6 +2309,10 @@ privado de verdad</string>
 
     <string name="desc_in_the_list">Cómo se agrupa y resume la lista alrededor de las tarjetas.</string>
 
+    <string name="title_default_view_by">Vista predeterminada</string>
+    <string name="desc_default_view_by">Elige cómo se abre Transacciones: diaria, mensual, anual o todas.</string>
+
+
     <string name="label_visual_style">Estilo visual</string>
 
     <string name="desc_visual_style">Iconos y etiquetas de color de la tarjeta.</string>

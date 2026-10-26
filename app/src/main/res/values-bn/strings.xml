@@ -1061,6 +1061,10 @@
     <string name="desc_on_each_transaction_card">এই সেটিংস ঠিক করে তালিকার প্রতিটি লেনদেন কার্ডে কী তথ্য দেখাবে।</string>
     <string name="label_in_the_list">তালিকায়</string>
     <string name="desc_in_the_list">এই সেটিংস ঠিক করে কার্ডগুলোর চারপাশে তালিকা কীভাবে সাজানো ও সারাংশ দেখাবে।</string>
+
+    <string name="title_default_view_by">ডিফল্ট ভিউ</string>
+    <string name="desc_default_view_by">লেনদেন স্ক্রিন কীভাবে খুলবে: দৈনিক, মাসিক, বার্ষিক বা সব.</string>
+
     <string name="label_visual_style">দেখার ধরন</string>
     <string name="desc_visual_style">এই সেটিংস ঠিক করে কার্ডের মূল আইকন ও রঙিন লেবেল, যা কার্ডের চেহারা গড়ে তোলে।</string>
     <string name="label_transaction_details">লেনদেনের বিবরণ</string>

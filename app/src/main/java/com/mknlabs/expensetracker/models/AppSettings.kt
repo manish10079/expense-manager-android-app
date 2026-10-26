@@ -77,5 +77,6 @@ data class AppSettings(
     val activeCustomFontFileName: String? = null,
     val importedFontFileNames: List<String> = emptyList(),
     // Custom month starting day (1–28, default 1 = standard calendar month)
-    val monthStartDay: Int = 1
+    val monthStartDay: Int = 1,
+    val defaultTransactionPeriodFilter: String = "MONTHLY"
 )
