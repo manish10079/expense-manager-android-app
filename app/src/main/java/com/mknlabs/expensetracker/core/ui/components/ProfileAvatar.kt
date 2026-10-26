@@ -136,12 +136,18 @@ fun ProfileAvatar(
                         .size(size)
                         .rotate(rotation)
                 ) {
-                    drawArc(
-                        brush = circleRamp,
-                        startAngle = 0f,
-                        sweepAngle = 280f,
-                        useCenter = false,
-                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                    val stroke = 2.dp.toPx()
+                    drawCircle(
+                        brush = Brush.sweepGradient(
+                            colors = listOf(
+                                AvatarRingIndigo,
+                                AvatarRingViolet,
+                                AvatarRingFuchsia,
+                                AvatarRingIndigo
+                            )
+                        ),
+                        radius = size.toPx() / 2f - stroke / 2f,
+                        style = Stroke(width = stroke)
                     )
                 }
             } else {
