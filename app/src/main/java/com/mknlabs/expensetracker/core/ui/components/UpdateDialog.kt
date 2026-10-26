@@ -80,7 +80,10 @@ import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.theme.BackgroundLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.SurfaceLight
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
@@ -179,16 +182,14 @@ fun UpdateDialog(
     val metrics = rememberDialogMetrics()
 
     AlertDialog(
-        onDismissRequest = if (force) ({}) else onLater,
+        onDismissRequest = {},
         properties = DialogProperties(
-            dismissOnBackPress = !force,
-            dismissOnClickOutside = !force,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
             usePlatformDefaultWidth = false,
         ),
         modifier = Modifier.width(metrics.maxWidth),
-        containerColor = AppCardDefaults.colors(
-            darkContainer = Color(0xFF101019)
-        ).containerColor,
+        containerColor = updateDialogContainerColor(),
         shape = RoundedCornerShape(metrics.cornerRadius),
         title = {
             UpdateHeader(info = info)
@@ -446,12 +447,21 @@ private fun UpdateNowButton(
 // ── Extracted content ──────────────────────────────────────────────────
 
 @Composable
+private fun updateDialogContainerColor(): Color {
+    return if (MaterialTheme.colorScheme.isDark) {
+        Color(0xFF101019)
+    } else {
+        BackgroundLight
+    }
+}
+
+@Composable
 private fun updateNotesCardColors(): Pair<Color, Color> {
-    val isDark = isSystemInDarkTheme()
+    val isDark = MaterialTheme.colorScheme.isDark
     val cardBg = if (isDark) {
         Color(0xFF1E293B).copy(alpha = 0.45f)
     } else {
-        Color(0xFFF8FAFC)
+        SurfaceLight
     }
     val cardBorder = if (isDark) {
         Color(0xFF334155).copy(alpha = 0.5f)
@@ -692,9 +702,7 @@ private fun UpdateDialogCardSurface(
                 spotColor = Color.Black.copy(alpha = 0.35f)
             ),
         shape = RoundedCornerShape(metrics.cornerRadius),
-        color = AppCardDefaults.colors(
-            darkContainer = Color(0xFF101019)
-        ).containerColor,
+        color = updateDialogContainerColor(),
         tonalElevation = 6.dp
     ) {
         Column(

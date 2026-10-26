@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,8 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.menu
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
@@ -286,6 +289,8 @@ fun CashFlowStatsCard(
 
                 // Period Selector Dropdown Pill
                 Box {
+                    val density = LocalDensity.current
+                    var pillWidth by remember { mutableStateOf(0.dp) }
                     Surface(
                         shape = RoundedCornerShape(50),
                         color = if (isDark) HeroPeriodChipDark else HeroPeriodChipLight,
@@ -293,7 +298,11 @@ fun CashFlowStatsCard(
                             width = 1.dp,
                             color = if (isDark) HeroPeriodChipBorderDark else HeroPeriodChipBorderLight
                         ),
-                        modifier = Modifier.clickable { dropdownMenuExpanded = true }
+                        modifier = Modifier
+                            .onSizeChanged { size ->
+                                pillWidth = with(density) { size.width.toDp() }
+                            }
+                            .clickable { dropdownMenuExpanded = true }
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -325,6 +334,10 @@ fun CashFlowStatsCard(
                         onDismissRequest = { dropdownMenuExpanded = false },
                         offset = DpOffset(x = 0.dp, y = 8.dp),
                         modifier = Modifier
+                            .then(
+                                if (pillWidth > 0.dp) Modifier.requiredWidth(pillWidth)
+                                else Modifier
+                            )
                             .clip(RoundedCornerShape(16.dp)),
                         // The popup is a surface in its own right, and Material builds it
                         // from surface-container roles this palette never defines - which
@@ -476,16 +489,17 @@ private fun CashFlowPeriodOption(
             MaterialTheme.colorScheme.onSurface
         },
         style = MaterialTheme.typography.labelMedium.copy(
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            fontWeight = FontWeight.Medium,
+            fontSize = 13.sp
         ),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = if (isFirst) 0.dp else 4.dp,
-                bottom = if (isLast) 0.dp else 4.dp
+                start = 14.dp,
+                end = 14.dp,
+                top = if (isFirst) 8.dp else 4.dp,
+                bottom = if (isLast) 8.dp else 4.dp
             )
     )
 }
