@@ -2256,5 +2256,8 @@
     <string name="desc_ai_extract_from_text">બેંક SMS, રસીદ અથવા નોંધ પેસ્ટ કરો. અમે વ્યવહાર ભરીશું.</string>
     <string name="placeholder_ai_extract_from_text">દા.ત. ગઈકાલે સ્ટારબક્સમાં UPI થી 450</string>
     <string name="action_ai_extract">કાઢો</string>
-    <string name="desc_ai_extract_mic">નોંધ ભરવા બોલો</string>
+    <string name="desc_ai_fab_file">ફાઇલ અપલોડ</string>
+    <string name="desc_ai_fab_mic">અવાજથી ઉમેરો</string>
+    <string name="desc_ai_fab_write">ટેક્સ્ટમાંથી કાઢો</string>
+    <string name="desc_ai_fab_manual">જાતે ઉમેરો</string>
 </resources>

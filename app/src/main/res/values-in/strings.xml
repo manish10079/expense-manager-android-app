@@ -4601,5 +4601,8 @@ privat dari sifat</string>
     <string name="desc_ai_extract_from_text">Tempel SMS bank, struk, atau catatan. Kami akan mengisi transaksi.</string>
     <string name="placeholder_ai_extract_from_text">mis. Bayar 450 di Starbucks kemarin via UPI</string>
     <string name="action_ai_extract">Ekstrak</string>
-    <string name="desc_ai_extract_mic">Bicara untuk mengisi catatan</string>
+    <string name="desc_ai_fab_file">Unggah berkas</string>
+    <string name="desc_ai_fab_mic">Tambah dengan suara</string>
+    <string name="desc_ai_fab_write">Ekstrak dari teks</string>
+    <string name="desc_ai_fab_manual">Tambah manual</string>
 </resources>

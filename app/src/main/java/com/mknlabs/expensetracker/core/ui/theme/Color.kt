@@ -231,10 +231,10 @@ val HeroPillOutlineLight = Color(0x14000000)   // black 8%
 // available as such, and nothing in the app referenced the token, so both pill values are
 // retired rather than retargeted to a colour no call site was asking for.
 val NavOnDark = Color(0xFF9E84FF)     // spec --accent, dark
-val NavOffDark = TextTertiaryDark     // spec --tt (#8A8C95), dark
+val NavOffDark = Color(0xFFE4E6ED)    // unselected nav: brighter than --tt on dark
 
 val NavOnLight = Color(0xFF6A4DFF)    // spec --accent, light
-val NavOffLight = TextTertiaryLight   // spec --tt (#6B7280), light
+val NavOffLight = Color(0xFF3D4450)   // unselected nav: darker than --tt on light
 
 // ── Chip parts, retargeted from indexmockup.html to the spec ────────────────
 //

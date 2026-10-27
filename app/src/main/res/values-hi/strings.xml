@@ -4178,5 +4178,8 @@
     <string name="desc_ai_extract_from_text">बैंक SMS, रसीद या कोई नोट चिपकाएँ। हम लेनदेन भर देंगे।</string>
     <string name="placeholder_ai_extract_from_text">उदा. कल स्टारबक्स में UPI से 450 दिए</string>
     <string name="action_ai_extract">निकालें</string>
-    <string name="desc_ai_extract_mic">नोट भरने के लिए बोलें</string>
+    <string name="desc_ai_fab_file">फ़ाइल अपलोड करें</string>
+    <string name="desc_ai_fab_mic">आवाज़ से जोड़ें</string>
+    <string name="desc_ai_fab_write">टेक्स्ट से निकालें</string>
+    <string name="desc_ai_fab_manual">खुद जोड़ें</string>
 </resources>

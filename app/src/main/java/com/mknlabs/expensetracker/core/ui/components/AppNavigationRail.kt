@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -65,6 +66,11 @@ fun AppNavigationRail(
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
     onAddLongClick: () -> Unit = {},
+    speedDialExpanded: Boolean = false,
+    onSpeedDialFile: () -> Unit = {},
+    onSpeedDialMic: () -> Unit = {},
+    onSpeedDialWrite: () -> Unit = {},
+    onSpeedDialManual: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val topItems = bottomNavBarItems.take(2)
@@ -79,40 +85,67 @@ fun AppNavigationRail(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        topItems.forEach { item ->
-            RailNavItem(
-                item = item,
-                selected = currentRoute == item.route,
-                onClick = {
-                    onItemClick(item.route)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+        AnimatedVisibility(
+            visible = !speedDialExpanded,
+            enter = fadeIn(tween(180)) + scaleIn(tween(180), initialScale = 0.92f),
+            exit = fadeOut(tween(160)) + scaleOut(tween(160), targetScale = 0.92f),
+            label = "rail_top_hide_for_speed_dial"
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                topItems.forEach { item ->
+                    RailNavItem(
+                        item = item,
+                        selected = currentRoute == item.route,
+                        onClick = {
+                            onItemClick(item.route)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
 
         // Centered Add action (spacers balance the two item groups). The shared brand
         // "+" FAB, kept at the rail's narrower diameter; no halo, because the rail paints
         // behind the button and a glow this close to the destinations would wash them.
         Spacer(modifier = Modifier.weight(1f))
-        BrandAddFab(
-            onClick = onAddClick,
-            onLongClick = onAddLongClick,
-            size = 48.dp,
-            iconSize = 20.dp,
-            glow = false,
-            shadowElevation = 22.dp
-        )
+        AddFabSpeedDial(
+            expanded = speedDialExpanded,
+            onFileClick = onSpeedDialFile,
+            onMicClick = onSpeedDialMic,
+            onWriteClick = onSpeedDialWrite,
+            onManualClick = onSpeedDialManual,
+            fabSize = 48.dp
+        ) {
+            BrandAddFab(
+                onClick = onAddClick,
+                onLongClick = onAddLongClick,
+                size = 48.dp,
+                iconSize = 20.dp,
+                glow = false,
+                shadowElevation = 22.dp
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
 
-        bottomItems.forEach { item ->
-            RailNavItem(
-                item = item,
-                selected = currentRoute == item.route,
-                onClick = {
-                    onItemClick(item.route)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+        AnimatedVisibility(
+            visible = !speedDialExpanded,
+            enter = fadeIn(tween(180)) + scaleIn(tween(180), initialScale = 0.92f),
+            exit = fadeOut(tween(160)) + scaleOut(tween(160), targetScale = 0.92f),
+            label = "rail_bottom_hide_for_speed_dial"
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                bottomItems.forEach { item ->
+                    RailNavItem(
+                        item = item,
+                        selected = currentRoute == item.route,
+                        onClick = {
+                            onItemClick(item.route)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }

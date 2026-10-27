@@ -2211,5 +2211,8 @@
     <string name="desc_ai_extract_from_text">வங்கி SMS, ரசீது அல்லது குறிப்பை ஒட்டவும். பரிவர்த்தனையை நிரப்புவோம்.</string>
     <string name="placeholder_ai_extract_from_text">எ.கா. நேற்று ஸ்டார்பக்ஸில் UPI மூலம் 450</string>
     <string name="action_ai_extract">எடு</string>
-    <string name="desc_ai_extract_mic">குறிப்பை நிரப்ப பேசுங்கள்</string>
+    <string name="desc_ai_fab_file">கோப்பை பதிவேற்று</string>
+    <string name="desc_ai_fab_mic">குரலால் சேர்</string>
+    <string name="desc_ai_fab_write">உரையிலிருந்து எடு</string>
+    <string name="desc_ai_fab_manual">கைமுறையாக சேர்</string>
 </resources>

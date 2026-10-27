@@ -4568,5 +4568,8 @@
     <string name="desc_ai_extract_from_text">Вставьте SMS банка, чек или заметку — мы заполним операцию.</string>
     <string name="placeholder_ai_extract_from_text">напр. Вчера в Starbucks 450 через UPI</string>
     <string name="action_ai_extract">Извлечь</string>
-    <string name="desc_ai_extract_mic">Надиктуйте заметку</string>
+    <string name="desc_ai_fab_file">Загрузить файл</string>
+    <string name="desc_ai_fab_mic">Добавить голосом</string>
+    <string name="desc_ai_fab_write">Извлечь из текста</string>
+    <string name="desc_ai_fab_manual">Добавить вручную</string>
 </resources>

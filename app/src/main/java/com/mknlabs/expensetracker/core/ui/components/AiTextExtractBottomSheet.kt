@@ -1,15 +1,8 @@
 package com.mknlabs.expensetracker.core.ui.components
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import com.adamglin.PhosphorIcons
-import com.adamglin.phosphoricons.Bold
 import com.adamglin.phosphoricons.Regular
-import com.adamglin.phosphoricons.bold.MicrophoneStage
 import com.adamglin.phosphoricons.regular.Sparkle
 import com.adamglin.phosphoricons.regular.X
 import com.adamglin.phosphoricons.regular.XCircle
@@ -48,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -76,7 +66,6 @@ private const val ExtractTextMaxLength = 2000
 fun AiTextExtractBottomSheet(
     onDismissRequest: () -> Unit,
     onExtract: (String) -> Unit,
-    onSpeakClick: () -> Unit = {},
     initialText: String = ""
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -86,34 +75,6 @@ fun AiTextExtractBottomSheet(
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
     }
     val canExtract = fieldValue.text.isNotBlank()
-    val micPulse = rememberInfiniteTransition(label = "ai_extract_mic_pulse")
-    val micScale by micPulse.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "ai_extract_mic_scale"
-    )
-    val ringScale by micPulse.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "ai_extract_mic_ring_scale"
-    )
-    val ringAlpha by micPulse.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "ai_extract_mic_ring_alpha"
-    )
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -251,78 +212,28 @@ fun AiTextExtractBottomSheet(
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .shadow(
+                        elevation = 16.dp,
+                        shape = RoundedCornerShape(28.dp),
+                        ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
+                        spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
+                    )
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(brandGradient(alpha = if (canExtract) 1f else 0.45f))
+                    .clickable(enabled = canExtract) {
+                        onExtract(fieldValue.text.trim())
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp)
-                        .shadow(
-                            elevation = 16.dp,
-                            shape = RoundedCornerShape(28.dp),
-                            ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
-                            spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
-                        )
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(brandGradient(alpha = if (canExtract) 1f else 0.45f))
-                        .clickable(enabled = canExtract) {
-                            onExtract(fieldValue.text.trim())
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_ai_extract),
-                        color = MaterialTheme.colorScheme.onCta,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-                Box(
-                    modifier = Modifier.size(56.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .graphicsLayer {
-                                scaleX = ringScale
-                                scaleY = ringScale
-                                alpha = ringAlpha
-                            }
-                            .border(
-                                width = 2.dp,
-                                color = MaterialTheme.colorScheme.accentInk,
-                                shape = CircleShape
-                            )
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .graphicsLayer {
-                                scaleX = micScale
-                                scaleY = micScale
-                            }
-                            .shadow(
-                                elevation = 12.dp,
-                                shape = CircleShape,
-                                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.25f),
-                                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
-                            )
-                            .clip(CircleShape)
-                            .background(brandGradient())
-                            .clickable(onClick = onSpeakClick),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Bold.MicrophoneStage,
-                            contentDescription = stringResource(R.string.desc_ai_extract_mic),
-                            tint = MaterialTheme.colorScheme.onCta,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.action_ai_extract),
+                    color = MaterialTheme.colorScheme.onCta,
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }

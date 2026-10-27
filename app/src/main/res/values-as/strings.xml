@@ -2200,5 +2200,8 @@
     <string name="desc_ai_extract_from_text">বেংক SMS, ৰচিদ বা নোট পেষ্ট কৰক। আমি লেনদেন পূৰণ কৰিম।</string>
     <string name="placeholder_ai_extract_from_text">যেনে কালিষ্টাৰবাক্সত UPI ত ৪৫০</string>
     <string name="action_ai_extract">উলিয়াওক</string>
-    <string name="desc_ai_extract_mic">নোট পূৰণ কৰিবলৈ কওক</string>
+    <string name="desc_ai_fab_file">ফাইল আপল’ড</string>
+    <string name="desc_ai_fab_mic">ভইচত যোগ কৰক</string>
+    <string name="desc_ai_fab_write">লিখাৰ পৰা উলিয়াওক</string>
+    <string name="desc_ai_fab_manual">নিজে যোগ কৰক</string>
 </resources>

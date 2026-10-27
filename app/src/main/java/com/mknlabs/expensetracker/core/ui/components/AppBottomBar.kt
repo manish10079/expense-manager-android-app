@@ -7,6 +7,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -190,6 +192,11 @@ fun AppBottomBar(
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
     onAddLongClick: () -> Unit = {},
+    speedDialExpanded: Boolean = false,
+    onSpeedDialFile: () -> Unit = {},
+    onSpeedDialMic: () -> Unit = {},
+    onSpeedDialWrite: () -> Unit = {},
+    onSpeedDialManual: () -> Unit = {},
     hazeState: HazeState? = null,
     modifier: Modifier = Modifier
 ) {
@@ -206,8 +213,9 @@ fun AppBottomBar(
         showRequests++
     }
 
-    LaunchedEffect(showRequests) {
+    LaunchedEffect(showRequests, speedDialExpanded) {
         barVisible = true
+        if (speedDialExpanded) return@LaunchedEffect
         delay(IDLE_HIDE_MILLIS)
         barVisible = false
     }
@@ -226,6 +234,11 @@ fun AppBottomBar(
             showRequests++
             onAddLongClick()
         },
+        speedDialExpanded = speedDialExpanded,
+        onSpeedDialFile = onSpeedDialFile,
+        onSpeedDialMic = onSpeedDialMic,
+        onSpeedDialWrite = onSpeedDialWrite,
+        onSpeedDialManual = onSpeedDialManual,
         barVisible = barVisible,
         onRevealClick = { showRequests++ },
         hazeState = hazeState,
@@ -266,6 +279,11 @@ private fun AppBottomBarContent(
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
     onAddLongClick: () -> Unit = {},
+    speedDialExpanded: Boolean = false,
+    onSpeedDialFile: () -> Unit = {},
+    onSpeedDialMic: () -> Unit = {},
+    onSpeedDialWrite: () -> Unit = {},
+    onSpeedDialManual: () -> Unit = {},
     barVisible: Boolean,
     onRevealClick: () -> Unit,
     hazeState: HazeState? = null,
@@ -367,7 +385,8 @@ private fun AppBottomBarContent(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(
-                        top = BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset,
+                        top = BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset +
+                            if (speedDialExpanded) 108.dp else 0.dp,
                         start = Dimens.spacingCompact,
                         end = Dimens.spacingCompact,
                         bottom = Dimens.spacingCompact
@@ -379,6 +398,12 @@ private fun AppBottomBarContent(
                 // protruding half) and anchors to this wrapper's top edge, which
                 // the top padding above has already aligned to the Column's top.
                 Box(contentAlignment = Alignment.TopCenter) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = !speedDialExpanded,
+                        enter = fadeIn(tween(180)) + scaleIn(tween(180), initialScale = 0.92f),
+                        exit = fadeOut(tween(160)) + scaleOut(tween(160), targetScale = 0.92f),
+                        label = "nav_capsule_hide_for_speed_dial"
+                    ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(CapsuleWidthFraction)
@@ -439,6 +464,7 @@ private fun AppBottomBarContent(
                             )
                         }
                     }
+                    }
 
                     // Docked Add FAB — half inside the capsule, half above it. It
                     // rides the bar's show/hide animation rather than tracking the
@@ -447,16 +473,22 @@ private fun AppBottomBarContent(
                     // The offset covers the glow inset as well as the radius: what
                     // is aligned to the capsule is the glow box, and the circle sits
                     // one inset inside that box.
-                    BrandAddFab(
-                        onClick = onAddClick,
-                        onLongClick = onAddLongClick,
+                    AddFabSpeedDial(
+                        expanded = speedDialExpanded,
+                        onFileClick = onSpeedDialFile,
+                        onMicClick = onSpeedDialMic,
+                        onWriteClick = onSpeedDialWrite,
+                        onManualClick = onSpeedDialManual,
                         modifier = Modifier.offset(
                             y = -(BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset)
-                        ),
-                        // Pools the halo downward onto the frosted capsule below, which is
-                        // the one place in the app the glow is meant to light something.
-                        glowOffset = 8.dp
-                    )
+                        )
+                    ) {
+                        BrandAddFab(
+                            onClick = onAddClick,
+                            onLongClick = onAddLongClick,
+                            glowOffset = 8.dp
+                        )
+                    }
                 }
             }
         }

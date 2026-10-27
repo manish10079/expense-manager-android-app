@@ -3,6 +3,8 @@ package com.mknlabs.expensetracker.core.ui.components
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,7 +20,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -187,7 +192,8 @@ fun MainScaffold(
     onDirectSignOut: () -> Unit = {},
     onAdFreeAccessClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onPrepareForExternalActivity: () -> Unit,
+    onQuickVoiceClick: () -> Unit = {}
 ) {
     val transactionsViewModel: TransactionsViewModel = hiltViewModel()
     val transactionsUiState by transactionsViewModel.uiState.collectAsStateWithLifecycle()
@@ -214,6 +220,22 @@ fun MainScaffold(
     // reads only this value so bar flips stay scoped.
     val addFabVisibility = remember { mutableStateOf(true) }
     var showAiExtractSheet by remember { mutableStateOf(false) }
+    var addFabMenuExpanded by remember { mutableStateOf(false) }
+    val addFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        addFabMenuExpanded = false
+        if (uri != null) {
+            onBottomBarVisibilityChange(false)
+            onRouteChange(AppRoute.AddTransaction)
+        }
+    }
+
+    LaunchedEffect(addFabMenuExpanded) {
+        if (!addFabMenuExpanded) return@LaunchedEffect
+        delay(5_000)
+        addFabMenuExpanded = false
+    }
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
@@ -419,6 +441,17 @@ fun MainScaffold(
             )
         }
 
+        if (addFabMenuExpanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { addFabMenuExpanded = false }
+            )
+        }
+
         if (useNavigationRail) {
             AppNavigationRail(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -428,10 +461,29 @@ fun MainScaffold(
                     onRouteChange(route)
                 },
                 onAddClick = {
+                    if (addFabMenuExpanded) {
+                        addFabMenuExpanded = false
+                    } else {
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange(AppRoute.AddTransaction)
+                    }
+                },
+                onAddLongClick = { addFabMenuExpanded = true },
+                speedDialExpanded = addFabMenuExpanded,
+                onSpeedDialFile = { addFilePicker.launch(arrayOf("image/*", "application/pdf")) },
+                onSpeedDialMic = {
+                    addFabMenuExpanded = false
+                    onQuickVoiceClick()
+                },
+                onSpeedDialWrite = {
+                    addFabMenuExpanded = false
+                    showAiExtractSheet = true
+                },
+                onSpeedDialManual = {
+                    addFabMenuExpanded = false
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
-                },
-                onAddLongClick = { showAiExtractSheet = true }
+                }
             )
         } else if (showFixedBottomNavBar) {
             // Floating capsule bottom bar with the Add FAB docked into its centre —
@@ -450,10 +502,29 @@ fun MainScaffold(
                     onRouteChange(route)
                 },
                 onAddClick = {
+                    if (addFabMenuExpanded) {
+                        addFabMenuExpanded = false
+                    } else {
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange(AppRoute.AddTransaction)
+                    }
+                },
+                onAddLongClick = { addFabMenuExpanded = true },
+                speedDialExpanded = addFabMenuExpanded,
+                onSpeedDialFile = { addFilePicker.launch(arrayOf("image/*", "application/pdf")) },
+                onSpeedDialMic = {
+                    addFabMenuExpanded = false
+                    onQuickVoiceClick()
+                },
+                onSpeedDialWrite = {
+                    addFabMenuExpanded = false
+                    showAiExtractSheet = true
+                },
+                onSpeedDialManual = {
+                    addFabMenuExpanded = false
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
-                },
-                onAddLongClick = { showAiExtractSheet = true }
+                }
             )
         }
 

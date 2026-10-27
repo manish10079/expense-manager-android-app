@@ -4608,5 +4608,8 @@ privado de verdad</string>
     <string name="desc_ai_extract_from_text">Pega un SMS del banco, un recibo o una nota. Completaremos la transacción.</string>
     <string name="placeholder_ai_extract_from_text">p. ej. Pagué 450 en Starbucks ayer con UPI</string>
     <string name="action_ai_extract">Extraer</string>
-    <string name="desc_ai_extract_mic">Habla para rellenar la nota</string>
+    <string name="desc_ai_fab_file">Subir un archivo</string>
+    <string name="desc_ai_fab_mic">Añadir por voz</string>
+    <string name="desc_ai_fab_write">Extraer del texto</string>
+    <string name="desc_ai_fab_manual">Añadir a mano</string>
 </resources>

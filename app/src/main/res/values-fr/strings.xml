@@ -4573,5 +4573,8 @@ privé par nature</string>
     <string name="desc_ai_extract_from_text">Collez un SMS bancaire, un reçu ou une note. Nous remplirons la transaction.</string>
     <string name="placeholder_ai_extract_from_text">ex. Payé 450 chez Starbucks hier en UPI</string>
     <string name="action_ai_extract">Extraire</string>
-    <string name="desc_ai_extract_mic">Parlez pour remplir la note</string>
+    <string name="desc_ai_fab_file">Importer un fichier</string>
+    <string name="desc_ai_fab_mic">Ajouter à la voix</string>
+    <string name="desc_ai_fab_write">Extraire du texte</string>
+    <string name="desc_ai_fab_manual">Saisie manuelle</string>
 </resources>

@@ -4720,6 +4720,9 @@
     <string name="desc_ai_extract_from_text">Paste a bank SMS, receipt, or any note. We\'ll fill in the transaction for you.</string>
     <string name="placeholder_ai_extract_from_text">e.g. Paid 450 at Starbucks yesterday with UPI</string>
     <string name="action_ai_extract">Extract</string>
-    <string name="desc_ai_extract_mic">Speak to fill the note</string>
+    <string name="desc_ai_fab_file">Upload a file</string>
+    <string name="desc_ai_fab_mic">Add by voice</string>
+    <string name="desc_ai_fab_write">Extract from text</string>
+    <string name="desc_ai_fab_manual">Add manually</string>
 </resources>
 

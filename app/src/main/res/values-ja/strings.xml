@@ -4601,5 +4601,8 @@
     <string name="desc_ai_extract_from_text">銀行SMS、レシート、メモを貼り付けてください。取引を入力します。</string>
     <string name="placeholder_ai_extract_from_text">例：昨日スタバでUPIで450</string>
     <string name="action_ai_extract">抽出</string>
-    <string name="desc_ai_extract_mic">話してメモを入力</string>
+    <string name="desc_ai_fab_file">ファイルをアップロード</string>
+    <string name="desc_ai_fab_mic">音声で追加</string>
+    <string name="desc_ai_fab_write">テキストから抽出</string>
+    <string name="desc_ai_fab_manual">手動で追加</string>
 </resources>

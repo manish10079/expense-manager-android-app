@@ -2222,5 +2222,8 @@
     <string name="desc_ai_extract_from_text">बँक SMS, पावती किंवा नोट पेस्ट करा. आम्ही व्यवहार भरू.</string>
     <string name="placeholder_ai_extract_from_text">उदा. काल स्टारबक्समध्ये UPI ने ४५०</string>
     <string name="action_ai_extract">काढा</string>
-    <string name="desc_ai_extract_mic">नोट भरण्यासाठी बोला</string>
+    <string name="desc_ai_fab_file">फाईल अपलोड</string>
+    <string name="desc_ai_fab_mic">आवाजाने जोडा</string>
+    <string name="desc_ai_fab_write">मजकुरातून काढा</string>
+    <string name="desc_ai_fab_manual">स्वतः जोडा</string>
 </resources>

@@ -2256,5 +2256,8 @@
     <string name="desc_ai_extract_from_text">ਬੈਂਕ SMS, ਰਸੀਦ ਜਾਂ ਨੋਟ ਚਿਪਕਾਓ। ਅਸੀਂ ਲੈਣ-ਦੇਣ ਭਰ ਦਿਆਂਗੇ।</string>
     <string name="placeholder_ai_extract_from_text">ਜਿਵੇਂ ਕੱਲ੍ਹ ਸਟਾਰਬਕਸ ਵਿੱਚ UPI ਨਾਲ 450</string>
     <string name="action_ai_extract">ਕੱਢੋ</string>
-    <string name="desc_ai_extract_mic">ਨੋਟ ਭਰਨ ਲਈ ਬੋਲੋ</string>
+    <string name="desc_ai_fab_file">ਫਾਈਲ ਅੱਪਲੋਡ</string>
+    <string name="desc_ai_fab_mic">ਆਵਾਜ਼ ਨਾਲ ਜੋੜੋ</string>
+    <string name="desc_ai_fab_write">ਲਿਖਤ ਤੋਂ ਕੱਢੋ</string>
+    <string name="desc_ai_fab_manual">ਖੁਦ ਜੋੜੋ</string>
 </resources>

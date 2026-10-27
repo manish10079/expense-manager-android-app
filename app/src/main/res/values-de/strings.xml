@@ -4606,5 +4606,8 @@ privat von Haus aus</string>
     <string name="desc_ai_extract_from_text">Fügen Sie eine Bank-SMS, einen Beleg oder eine Notiz ein. Wir füllen die Buchung aus.</string>
     <string name="placeholder_ai_extract_from_text">z. B. Gestern 450 bei Starbucks per UPI</string>
     <string name="action_ai_extract">Übernehmen</string>
-    <string name="desc_ai_extract_mic">Sprechen, um die Notiz zu füllen</string>
+    <string name="desc_ai_fab_file">Datei hochladen</string>
+    <string name="desc_ai_fab_mic">Per Sprache hinzufügen</string>
+    <string name="desc_ai_fab_write">Aus Text übernehmen</string>
+    <string name="desc_ai_fab_manual">Manuell hinzufügen</string>
 </resources>

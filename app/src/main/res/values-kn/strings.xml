@@ -2249,7 +2249,10 @@
     <string name="desc_ai_extract_from_text">ಬ್ಯಾಂಕ್ SMS, ರಸೀದಿ ಅಥವಾ ಟಿಪ್ಪಣಿ ಅಂಟಿಸಿ. ನಾವು ವಹಿವಾಟು ಭರ್ತಿ ಮಾಡುತ್ತೇವೆ.</string>
     <string name="placeholder_ai_extract_from_text">ಉದಾ. ನಿನ್ನೆ ಸ್ಟಾರ್‌ಬಕ್ಸ್‌ನಲ್ಲಿ UPI ಯಲ್ಲಿ 450</string>
     <string name="action_ai_extract">ಹೊರತೆಗೆಯಿರಿ</string>
-    <string name="desc_ai_extract_mic">ಟಿಪ್ಪಣಿ ತುಂಬಲು ಮಾತನಾಡಿ</string>
+    <string name="desc_ai_fab_file">ಫೈಲ್ ಅಪ್‌ಲೋಡ್</string>
+    <string name="desc_ai_fab_mic">ಧ್ವನಿಯಿಂದ ಸೇರಿಸಿ</string>
+    <string name="desc_ai_fab_write">ಪಠ್ಯದಿಂದ ಹೊರತೆಗೆಯಿರಿ</string>
+    <string name="desc_ai_fab_manual">ಹಸ್ತಚಾಲಿತವಾಗಿ ಸೇರಿಸಿ</string>
 </resources>
 
 
