@@ -20,7 +20,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.isSystemInDarkTheme
+import com.mknlabs.expensetracker.core.ui.theme.isDark
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -107,7 +107,7 @@ internal fun PaywallContent(
     onPurchaseSuccessConfirmed: () -> Unit = {},
     onErrorDismissed: () -> Unit = {},
 ) {
-    val dark = isSystemInDarkTheme()
+    val dark = MaterialTheme.colorScheme.isDark
     val offers = remember(uiState.offers) { uiState.offers.sortedWith(paywallOfferOrder) }
     var selectedOfferId by rememberSaveable { mutableStateOf<String?>(null) }
     var expandedOfferId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -265,9 +265,21 @@ private fun PaywallPlanCard(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
             // The plan cards share the membership card's Obsidian fill in dark.
-            colors = AppCardDefaults.colors(
-                darkContainer = MaterialTheme.colorScheme.membershipCard
-            ),
+            colors = if (dark) {
+                AppCardDefaults.colors(
+                    darkContainer = MaterialTheme.colorScheme.membershipCard,
+                    darkBorder = if (selected) BorderStroke(2.dp, PaywallBrandStart) else null
+                )
+            } else {
+                AppCardColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF0F172A),
+                    border = BorderStroke(
+                        width = if (selected) 2.dp else 1.dp,
+                        color = if (selected) PaywallBrandStart else PaywallBorderLight
+                    )
+                )
+            },
         ) {
             Column(Modifier.fillMaxWidth()) {
             Row(
