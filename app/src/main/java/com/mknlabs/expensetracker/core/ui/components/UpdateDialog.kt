@@ -82,7 +82,7 @@ import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.theme.BackgroundLight
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.SurfaceLight
+
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.PurplePrimary
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -461,7 +461,7 @@ private fun updateNotesCardColors(): Pair<Color, Color> {
     val cardBg = if (isDark) {
         Color(0xFF1E293B).copy(alpha = 0.45f)
     } else {
-        SurfaceLight
+        Color(0xFFFAFBFD)
     }
     val cardBorder = if (isDark) {
         Color(0xFF334155).copy(alpha = 0.5f)
@@ -542,6 +542,8 @@ private fun UpdateScrollCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = cardBg,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp,
             border = BorderStroke(1.dp, cardBorder)
         ) {
             Column(
