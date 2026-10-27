@@ -2217,4 +2217,10 @@
         <item quantity="other">%1$d কিস্তি পরিশোধ হয়েছে</item>
     </plurals>
 
+
+    <string name="title_ai_extract_from_text">টেক্সট থেকে নিন</string>
+    <string name="desc_ai_extract_from_text">ব্যাংক SMS, রসিদ বা নোট পেস্ট করুন। আমরা লেনদেন পূরণ করব।</string>
+    <string name="placeholder_ai_extract_from_text">যেমন গতকাল স্টারবাক্সে UPI তে ৪৫০</string>
+    <string name="action_ai_extract">নিন</string>
+    <string name="desc_ai_extract_mic">নোট পূরণ করতে বলুন</string>
 </resources>

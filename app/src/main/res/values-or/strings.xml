@@ -4539,4 +4539,10 @@
 
     <string name="title_full_fund_breakdown">ପୂରା ଫଣ୍ଡ ବିଭାଜନ</string>
 
+
+    <string name="title_ai_extract_from_text">ଟେକ୍ସଟରୁ ବାହାର କରନ୍ତୁ</string>
+    <string name="desc_ai_extract_from_text">ବ୍ୟାଙ୍କ SMS, ରସିଦ କିମ୍ବା ନୋଟ୍ ଲଗାନ୍ତୁ। ଆମେ ଟ୍ରାନ୍ସଆକ୍ସନ୍ ପୂରଣ କରିବୁ।</string>
+    <string name="placeholder_ai_extract_from_text">ଯଥା UPI ରେ 450 ଦିଆଗଲା</string>
+    <string name="action_ai_extract">ବାହାର କରନ୍ତୁ</string>
+    <string name="desc_ai_extract_mic">ନୋଟ୍ ପୂରଣ କରିବାକୁ କୁହନ୍ତୁ</string>
 </resources>

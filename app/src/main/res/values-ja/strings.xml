@@ -4596,4 +4596,10 @@
 
     <string name="title_full_fund_breakdown">資金の全内訳</string>
 
+
+    <string name="title_ai_extract_from_text">テキストから抽出</string>
+    <string name="desc_ai_extract_from_text">銀行SMS、レシート、メモを貼り付けてください。取引を入力します。</string>
+    <string name="placeholder_ai_extract_from_text">例：昨日スタバでUPIで450</string>
+    <string name="action_ai_extract">抽出</string>
+    <string name="desc_ai_extract_mic">話してメモを入力</string>
 </resources>

@@ -2251,4 +2251,10 @@
         <item quantity="other">%1$d ਕਿਸ਼ਤਾਂ ਭਰੀਆਂ ਗਈਆਂ</item>
     </plurals>
 
+
+    <string name="title_ai_extract_from_text">ਲਿਖਤ ਤੋਂ ਕੱਢੋ</string>
+    <string name="desc_ai_extract_from_text">ਬੈਂਕ SMS, ਰਸੀਦ ਜਾਂ ਨੋਟ ਚਿਪਕਾਓ। ਅਸੀਂ ਲੈਣ-ਦੇਣ ਭਰ ਦਿਆਂਗੇ।</string>
+    <string name="placeholder_ai_extract_from_text">ਜਿਵੇਂ ਕੱਲ੍ਹ ਸਟਾਰਬਕਸ ਵਿੱਚ UPI ਨਾਲ 450</string>
+    <string name="action_ai_extract">ਕੱਢੋ</string>
+    <string name="desc_ai_extract_mic">ਨੋਟ ਭਰਨ ਲਈ ਬੋਲੋ</string>
 </resources>

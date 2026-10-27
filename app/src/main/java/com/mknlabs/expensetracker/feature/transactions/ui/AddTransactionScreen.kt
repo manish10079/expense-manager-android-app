@@ -69,7 +69,6 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Schedule
@@ -154,6 +153,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Bold
+import com.adamglin.phosphoricons.bold.MicrophoneStage
 import com.adamglin.phosphoricons.Fill
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.fill.Star
@@ -944,6 +945,16 @@ internal fun AddTransactionScreenContent(
                             }
                         }
 
+                        val actionIconRamp = brandGradient()
+                        val actionIconModifier = Modifier
+                            .size(if (compact) 20.dp else 22.dp)
+                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                            .drawWithCache {
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(brush = actionIconRamp, blendMode = BlendMode.SrcIn)
+                                }
+                            }
                         Box(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
@@ -967,10 +978,10 @@ internal fun AddTransactionScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Mic,
+                                imageVector = PhosphorIcons.Bold.MicrophoneStage,
                                 contentDescription = stringResource(R.string.desc_voice_add),
-                                tint = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                                tint = Color.White,
+                                modifier = actionIconModifier
                             )
                         }
 
@@ -1003,8 +1014,8 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = if (isFavorite) PhosphorIcons.Fill.Star else PhosphorIcons.Regular.Star,
                                 contentDescription = stringResource(R.string.desc_toggle_favorite),
-                                tint = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                                tint = Color.White,
+                                modifier = actionIconModifier
                             )
                         }
 
@@ -1034,8 +1045,8 @@ internal fun AddTransactionScreenContent(
                             Icon(
                                 imageVector = Icons.Filled.Calculate,
                                 contentDescription = stringResource(R.string.desc_open_calculator),
-                                tint = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(if (compact) 20.dp else 22.dp)
+                                tint = Color.White,
+                                modifier = actionIconModifier
                             )
                         }
                     }
@@ -2292,15 +2303,14 @@ private fun CurrencyAmountCard(
                             )
                         )
                     }
-                    // Sync text from parent while preserving the cursor position
-                    // so mid-text insertion keeps working after validation.
+                    // Sync text from parent (favorite, voice, calculator). Typing already
+                    // writes textFieldValue first, so a mismatch here is always an external
+                    // replace — put the caret after the last digit.
                     LaunchedEffect(amountText) {
                         if (textFieldValue.text != amountText) {
-                            val start = textFieldValue.selection.start.coerceAtMost(amountText.length)
-                            val end = textFieldValue.selection.end.coerceAtMost(amountText.length)
                             textFieldValue = TextFieldValue(
                                 text = amountText,
-                                selection = TextRange(start, end)
+                                selection = TextRange(amountText.length)
                             )
                         }
                     }

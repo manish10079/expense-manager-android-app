@@ -2205,4 +2205,10 @@
         <item quantity="other">%1$d వాయిదాలు చెల్లించబడ్డాయి</item>
     </plurals>
 
+
+    <string name="title_ai_extract_from_text">టెక్స్ట్ నుండి తీయండి</string>
+    <string name="desc_ai_extract_from_text">బ్యాంక్ SMS, రసీదు లేదా నోట్ పేస్ట్ చేయండి. లావాదేవీని నింపుతాము.</string>
+    <string name="placeholder_ai_extract_from_text">ఉదా. నిన్న స్టార్‌బక్స్‌లో UPIతో 450</string>
+    <string name="action_ai_extract">తీయండి</string>
+    <string name="desc_ai_extract_mic">నోట్ నింపడానికి మాట్లాడండి</string>
 </resources>

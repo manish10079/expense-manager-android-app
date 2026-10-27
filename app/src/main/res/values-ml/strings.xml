@@ -2233,4 +2233,10 @@
         <item quantity="other">%1$d ഗഡുക്കൾ അടച്ചു</item>
     </plurals>
 
+
+    <string name="title_ai_extract_from_text">ടെക്സ്റ്റിൽ നിന്ന് എടുക്കുക</string>
+    <string name="desc_ai_extract_from_text">ബാങ്ക് SMS, രസീത് അല്ലെങ്കിൽ നോട്ട് ഒട്ടിക്കുക. ഇടപാട് നിറയ്ക്കാം.</string>
+    <string name="placeholder_ai_extract_from_text">ഉദാ. ഇന്നലെ സ്റ്റാർബക്സിൽ UPIയിൽ 450</string>
+    <string name="action_ai_extract">എടുക്കുക</string>
+    <string name="desc_ai_extract_mic">നോട്ട് നിറയ്ക്കാൻ സംസാരിക്കുക</string>
 </resources>

@@ -8,7 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -17,8 +19,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,12 +32,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -132,10 +134,12 @@ object BrandAddFabDefaults {
  *   the bottom of the button, which reads as illuminating a frosted surface below it.
  * @param shadowElevation Height of the drop shadow.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrandAddFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     icon: ImageVector = Icons.Filled.Add,
     contentDescription: String? = null,
     size: Dp = BrandAddFabDefaults.Size,
@@ -149,13 +153,20 @@ fun BrandAddFab(
     glowOffset: Dp = 0.dp,
     shadowElevation: Dp = BrandAddFabDefaults.ShadowElevation
 ) {
-    val isDark = MaterialTheme.colorScheme.isDark
-    val fill = brush ?: brandGradient()
-    val glowStart = if (accentStart == Color.Unspecified) {
-        if (isDark) BrandGradientStartDark else BrandGradientStartLight
-    } else accentStart
-    val glowEnd = if (accentEnd == Color.Unspecified) {
-        if (isDark) BrandGradientCompanionDark else BrandGradientCompanionLight
+    val isDark = MaterialTheme.colorScheme.isDark
+
+    val fill = brush ?: brandGradient()
+
+    val glowStart = if (accentStart == Color.Unspecified) {
+
+        if (isDark) BrandGradientStartDark else BrandGradientStartLight
+
+    } else accentStart
+
+    val glowEnd = if (accentEnd == Color.Unspecified) {
+
+        if (isDark) BrandGradientCompanionDark else BrandGradientCompanionLight
+
     } else accentEnd
     val ink = contentColor ?: MaterialTheme.colorScheme.onBrandGradient
 
@@ -181,42 +192,31 @@ fun BrandAddFab(
             )
         }
 
-        FloatingActionButton(
-            onClick = onClick,
-            shape = shape,
-            // The fill is painted by the Box inside, so the container itself must stay
-            // unpainted — otherwise a flat purple slab would sit behind the ramp and
-            // flatten it back out.
-            containerColor = Color.Transparent,
-            contentColor = ink,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 8.dp,
-                pressedElevation = 12.dp
-            ),
+        Box(
             modifier = Modifier
                 .size(size)
-                // Brand-tinted shadow, reading the same two ends as the fill so the
-                // shadow cannot be a different purple than the button casting it.
                 .shadow(
                     elevation = shadowElevation,
                     shape = shape,
                     ambientColor = glowStart.copy(alpha = BrandAddFabDefaults.ShadowAmbientAlpha),
                     spotColor = glowEnd.copy(alpha = BrandAddFabDefaults.ShadowSpotAlpha)
                 )
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(brush = fill, shape = shape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = contentDescription
-                        ?: stringResource(R.string.desc_add_transaction),
-                    modifier = Modifier.size(iconSize)
+                .clip(shape)
+                .combinedClickable(
+                    role = Role.Button,
+                    onClick = onClick,
+                    onLongClick = onLongClick
                 )
-            }
+                .background(brush = fill, shape = shape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription
+                    ?: stringResource(R.string.desc_add_transaction),
+                modifier = Modifier.size(iconSize),
+                tint = ink
+            )
         }
     }
 }

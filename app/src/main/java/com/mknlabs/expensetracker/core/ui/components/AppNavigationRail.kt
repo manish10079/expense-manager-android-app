@@ -64,6 +64,7 @@ fun AppNavigationRail(
     currentRoute: AppRoute?,
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
+    onAddLongClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val topItems = bottomNavBarItems.take(2)
@@ -95,6 +96,7 @@ fun AppNavigationRail(
         Spacer(modifier = Modifier.weight(1f))
         BrandAddFab(
             onClick = onAddClick,
+            onLongClick = onAddLongClick,
             size = 48.dp,
             iconSize = 20.dp,
             glow = false,

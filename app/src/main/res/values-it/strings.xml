@@ -4539,4 +4539,10 @@
 
     <string name="title_full_fund_breakdown">Ripartizione fondi completa</string>
 
+
+    <string name="title_ai_extract_from_text">Estrai dal testo</string>
+    <string name="desc_ai_extract_from_text">Incolla un SMS della banca, uno scontrino o una nota. Compileremo la transazione.</string>
+    <string name="placeholder_ai_extract_from_text">es. Pagato 450 da Starbucks ieri con UPI</string>
+    <string name="action_ai_extract">Estrai</string>
+    <string name="desc_ai_extract_mic">Parla per compilare la nota</string>
 </resources>

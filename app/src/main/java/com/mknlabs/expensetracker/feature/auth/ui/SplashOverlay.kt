@@ -69,6 +69,7 @@ import kotlinx.coroutines.launch
 
 private val SplashLogoSizePortrait = 132.dp
 private val SplashLogoSizeLandscape = 72.dp
+private val SplashLogoNudgeDown = 56.dp
 
 /**
  * Underdamped spring: settles with overshoot so motion reads as mass + inertia, but at
@@ -181,6 +182,7 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
+                    nudgeDown = 12.dp,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(
@@ -208,6 +210,7 @@ private fun SplashOverlayContent(
             ) {
                 SplashLogoMark(
                     logoSize = logoSize,
+                    nudgeDown = SplashLogoNudgeDown,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(
@@ -326,11 +329,14 @@ private fun SplashAshField(
 @Composable
 private fun SplashLogoMark(
     logoSize: Dp,
+    nudgeDown: Dp = SplashLogoNudgeDown,
 ) {
     Image(
         painter = painterResource(id = R.drawable.splash_logo),
         contentDescription = null,
-        modifier = Modifier.size(logoSize)
+        modifier = Modifier
+            .offset(y = nudgeDown)
+            .size(logoSize)
     )
 }
 

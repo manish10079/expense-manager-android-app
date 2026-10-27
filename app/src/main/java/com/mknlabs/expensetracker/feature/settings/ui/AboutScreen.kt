@@ -179,15 +179,13 @@ private fun AboutScreenContent(
             Box(
                 modifier = Modifier
                     .size(110.dp)
-                    .clip(CircleShape),
+                    .clip(RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.splash_logo),
                     contentDescription = stringResource(R.string.desc_app_icon),
-                    modifier = Modifier
-                        .size(110.dp)
-                        .clip(CircleShape)
+                    modifier = Modifier.size(110.dp)
                 )
             }
 

@@ -4603,4 +4603,10 @@ privado de verdade</string>
 
     <string name="title_full_fund_breakdown">Detalhe completo dos fundos</string>
 
+
+    <string name="title_ai_extract_from_text">Extrair do texto</string>
+    <string name="desc_ai_extract_from_text">Cole um SMS do banco, um recibo ou uma nota. Vamos preencher a transação.</string>
+    <string name="placeholder_ai_extract_from_text">ex. Paguei 450 no Starbucks ontem no UPI</string>
+    <string name="action_ai_extract">Extrair</string>
+    <string name="desc_ai_extract_mic">Fale para preencher a nota</string>
 </resources>

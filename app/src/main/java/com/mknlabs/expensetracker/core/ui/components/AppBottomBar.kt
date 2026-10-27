@@ -189,6 +189,7 @@ fun AppBottomBar(
     currentRoute: AppRoute?,
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
+    onAddLongClick: () -> Unit = {},
     hazeState: HazeState? = null,
     modifier: Modifier = Modifier
 ) {
@@ -220,6 +221,10 @@ fun AppBottomBar(
         onAddClick = {
             showRequests++
             onAddClick()
+        },
+        onAddLongClick = {
+            showRequests++
+            onAddLongClick()
         },
         barVisible = barVisible,
         onRevealClick = { showRequests++ },
@@ -260,6 +265,7 @@ private fun AppBottomBarContent(
     currentRoute: AppRoute?,
     onItemClick: (AppRoute) -> Unit,
     onAddClick: () -> Unit,
+    onAddLongClick: () -> Unit = {},
     barVisible: Boolean,
     onRevealClick: () -> Unit,
     hazeState: HazeState? = null,
@@ -443,6 +449,7 @@ private fun AppBottomBarContent(
                     // one inset inside that box.
                     BrandAddFab(
                         onClick = onAddClick,
+                        onLongClick = onAddLongClick,
                         modifier = Modifier.offset(
                             y = -(BrandAddFabDefaults.Size / 2 + BrandAddFabDefaults.GlowInset)
                         ),

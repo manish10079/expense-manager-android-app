@@ -4715,5 +4715,11 @@
     <string name="label_all_funds_breakdown">All funds</string>
     <string name="label_no_fund_breakdown">No fund spending in this range.</string>
     <string name="title_full_fund_breakdown">Full fund breakdown</string>
+
+    <string name="title_ai_extract_from_text">Extract from text</string>
+    <string name="desc_ai_extract_from_text">Paste a bank SMS, receipt, or any note. We\'ll fill in the transaction for you.</string>
+    <string name="placeholder_ai_extract_from_text">e.g. Paid 450 at Starbucks yesterday with UPI</string>
+    <string name="action_ai_extract">Extract</string>
+    <string name="desc_ai_extract_mic">Speak to fill the note</string>
 </resources>
 

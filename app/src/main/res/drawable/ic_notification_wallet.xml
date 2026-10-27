@@ -1,9 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="1402"
+    android:viewportHeight="1122">
+
+    <!-- White wallet outline and upper flap; the canvas remains transparent. -->
+    <path
+        android:pathData="M302,380 L302,348 C302,270 350,211 430,211 L785,211 C814,160 862,130 927,130 C1018,130 1078,203 1078,291 C1078,326 1067,352 1049,379"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="78"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+
+    <path
+        android:pathData="M301,381 L1040,381 C1093,381 1129,416 1129,469 L1129,535 M1129,837 L1129,902 C1129,958 1091,994 1037,994 L365,994 C311,994 275,958 275,903 L275,472 C275,417 310,381 365,381"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="78"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+
+    <!-- Clasp with two transparent holes using even-odd fill. -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M10,16V8c0,-1.1 0.89,-2 2,-2h9V5c0,-1.1 -0.9,-2 -2,-2H5c-1.11,0 -2,0.9 -2,2v14c0,1.1 0.89,2 2,2h14c1.1,0 2,-0.9 2,-2v-1h-9c-1.11,0 -2,-0.9 -2,-2zM13,8c-0.55,0 -1,0.45 -1,1v6c0,0.55 0.45,1 1,1h9V8h-9zM16,13.5c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5s1.5,0.67 1.5,1.5s-0.67,1.5 -1.5,1.5z" />
+        android:fillType="evenOdd"
+        android:pathData="M876,601 L1104,601 C1130,601 1148,621 1148,648 L1148,729 C1148,756 1130,775 1104,775 L876,775 C822,775 786,741 786,691 C786,637 822,601 876,601 Z
+            M876,663 A28,28 0,1 0,876.1,663 Z
+            M1017,663 A28,28 0,1 0,1017.1,663 Z" />
 </vector>

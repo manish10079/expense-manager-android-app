@@ -36,6 +36,7 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
 import com.mknlabs.expensetracker.core.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
@@ -212,6 +213,7 @@ fun MainScaffold(
     // screens flip this from their list's scroll direction; the slot composable
     // reads only this value so bar flips stay scoped.
     val addFabVisibility = remember { mutableStateOf(true) }
+    var showAiExtractSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
@@ -428,7 +430,8 @@ fun MainScaffold(
                 onAddClick = {
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
-                }
+                },
+                onAddLongClick = { showAiExtractSheet = true }
             )
         } else if (showFixedBottomNavBar) {
             // Floating capsule bottom bar with the Add FAB docked into its centre —
@@ -447,6 +450,19 @@ fun MainScaffold(
                     onRouteChange(route)
                 },
                 onAddClick = {
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                },
+                onAddLongClick = { showAiExtractSheet = true }
+            )
+        }
+
+        if (showAiExtractSheet) {
+            AiTextExtractBottomSheet(
+                onDismissRequest = { showAiExtractSheet = false },
+                onExtract = { text ->
+                    onAddTransactionDraftNoteChange(text)
+                    showAiExtractSheet = false
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
                 }
