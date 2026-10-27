@@ -65,16 +65,18 @@ private const val ExtractTextMaxLength = 2000
 @Composable
 fun AiTextExtractBottomSheet(
     onDismissRequest: () -> Unit,
-    onExtract: (String) -> Unit,
+    onExtract: (String, com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction?) -> Unit,
     initialText: String = ""
 ) {
+    val extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    var isExtracting by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var fieldValue by remember {
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
     }
-    val canExtract = fieldValue.text.isNotBlank()
+    val canExtract = fieldValue.text.isNotBlank() && !isExtracting
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -225,15 +227,28 @@ fun AiTextExtractBottomSheet(
                     .clip(RoundedCornerShape(28.dp))
                     .background(brandGradient(alpha = if (canExtract) 1f else 0.45f))
                     .clickable(enabled = canExtract) {
-                        onExtract(fieldValue.text.trim())
+                        val text = fieldValue.text.trim()
+                        isExtracting = true
+                        extractViewModel.parse(text) { parsed ->
+                            isExtracting = false
+                            onExtract(text, parsed)
+                        }
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.action_ai_extract),
-                    color = MaterialTheme.colorScheme.onCta,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if (isExtracting) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = MaterialTheme.colorScheme.onCta,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.action_ai_extract),
+                        color = MaterialTheme.colorScheme.onCta,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             }
         }
     }

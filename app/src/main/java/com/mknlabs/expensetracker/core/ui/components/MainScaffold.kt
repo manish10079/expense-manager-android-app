@@ -42,6 +42,7 @@ import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
+import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.core.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
@@ -531,8 +532,19 @@ fun MainScaffold(
         if (showAiExtractSheet) {
             AiTextExtractBottomSheet(
                 onDismissRequest = { showAiExtractSheet = false },
-                onExtract = { text ->
-                    onAddTransactionDraftNoteChange(text)
+                onExtract = { text, parsed ->
+                    if (parsed != null) {
+                        val amount = java.math.BigDecimal
+                            .valueOf(parsed.amountMinor.toMajorUnits())
+                            .stripTrailingZeros()
+                            .toPlainString()
+                        onAddTransactionDraftAmountChange(amount)
+                        onAddTransactionDraftNoteChange(parsed.note.ifBlank { text })
+                        onAddTransactionDraftCategoryIdChange(parsed.categoryId)
+                        onAddTransactionDraftTypeIdChange(parsed.transactionTypeId)
+                    } else {
+                        onAddTransactionDraftNoteChange(text)
+                    }
                     showAiExtractSheet = false
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
