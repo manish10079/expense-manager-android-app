@@ -92,7 +92,13 @@ fun ProPassRedeemDialog(
     onDismiss: () -> Unit,
     onVerifyEmail: () -> Unit = {}
 ) {
+    val pendingPromoCode by viewModel.pendingPromoCode.collectAsStateWithLifecycle()
     var code by remember { mutableStateOf("") }
+    androidx.compose.runtime.LaunchedEffect(pendingPromoCode) {
+        if (code.isBlank() && pendingPromoCode.isNotBlank()) {
+            code = pendingPromoCode
+        }
+    }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
     val hasActiveStoreSubscription by viewModel.hasActiveStoreSubscription.collectAsStateWithLifecycle()
     val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser

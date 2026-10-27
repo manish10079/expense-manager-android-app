@@ -100,7 +100,9 @@ sealed class UpdateEmailUiState {
  */
 data class ReturningUserProfile(
     val fullName: String,
-    val gender: String
+    val gender: String,
+    val accountTier: String = "",
+    val proExpiryTimestamp: Long = 0L,
 ) {
     val hasName: Boolean get() = fullName.isNotBlank() && fullName != "Guest User"
     val hasGender: Boolean get() = gender.isNotBlank()
@@ -128,6 +130,16 @@ enum class ReturningUserStep {
  */
 fun resolveReturningUserStep(profile: ReturningUserProfile): ReturningUserStep =
     if (profile.isComplete) ReturningUserStep.WELCOME_BACK else ReturningUserStep.SETUP_PROFILE
+
+/** Promo/Pro Pass onboarding is only for signed-in users who do not already have a grant. */
+fun shouldOfferOnboardingPromo(profile: ReturningUserProfile?, now: Long): Boolean {
+    if (profile == null) return true
+    return !com.mknlabs.expensetracker.monetization.EntitlementResolver.hasActiveProPassGrant(
+        accountTier = profile.accountTier,
+        proExpiryTimestamp = profile.proExpiryTimestamp,
+        now = now,
+    )
+}
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -197,7 +209,9 @@ class AuthViewModel @Inject constructor(
                 }
                 _returningUserProfile.value = ReturningUserProfile(
                     fullName = profile?.fullName.orEmpty(),
-                    gender = profile?.gender.orEmpty()
+                    gender = profile?.gender.orEmpty(),
+                    accountTier = profile?.accountTier.orEmpty(),
+                    proExpiryTimestamp = profile?.proExpiryTimestamp ?: 0L,
                 )
             } catch (e: Exception) {
                 android.util.Log.e("AuthVM", "fetchReturningUserProfile failed", e)

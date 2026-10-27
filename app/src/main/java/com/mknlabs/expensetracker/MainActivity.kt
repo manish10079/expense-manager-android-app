@@ -98,6 +98,7 @@ import com.mknlabs.expensetracker.monetization.MonetizationViewModel
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.benchmark.BenchmarkHooks
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -189,6 +190,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         
         currentIntent = intent
+        capturePromoFromIntent(intent)
 
         // Benchmark hooks (ADS_UI_JANK_FIX_PLAN Phase 0): BuildConfig.BUILD_TYPE is a
         // compile-time constant, so R8 constant-folds this gate to false and strips the
@@ -273,6 +275,19 @@ class MainActivity : AppCompatActivity() {
         // notification tap instead of the stale creation-time intent.
         setIntent(intent)
         currentIntent = intent
+        capturePromoFromIntent(intent)
+    }
+
+    private fun capturePromoFromIntent(intent: Intent?) {
+        val uri = intent?.data ?: return
+        val code = com.mknlabs.expensetracker.monetization.PromoCodeParser.fromAppLink(
+            host = uri.host,
+            path = uri.path,
+            queryCode = uri.getQueryParameter("promo") ?: uri.getQueryParameter("code"),
+        ) ?: return
+        lifecycleScope.launch {
+            com.mknlabs.expensetracker.data.local.PromoReferralStore.savePendingCode(applicationContext, code)
+        }
     }
 
     @Composable

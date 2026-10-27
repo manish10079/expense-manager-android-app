@@ -66,6 +66,17 @@
                     android:scheme="https" />
             </intent-filter>
 
+            <!-- Promo / Pro Pass App Link: https://expense-tracker-2ea00.web.app/p/{CODE} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="expense-tracker-2ea00.web.app"
+                    android:pathPrefix="/p"
+                    android:scheme="https" />
+            </intent-filter>
+
             <!-- App Shortcuts -->
             <meta-data
                 android:name="android.app.shortcuts"

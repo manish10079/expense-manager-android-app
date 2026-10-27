@@ -139,6 +139,14 @@ class MonetizationViewModel @Inject constructor(
     private val _redemptionState = MutableStateFlow<RedemptionState>(RedemptionState.Idle)
     val redemptionState: StateFlow<RedemptionState> = _redemptionState.asStateFlow()
 
+    val pendingPromoCode: StateFlow<String> =
+        com.mknlabs.expensetracker.data.local.PromoReferralStore.pendingCode(appContext)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = "",
+            )
+
     // Cache flows to prevent recreation and flickering on recomposition
     private val accessStatusCache = mutableMapOf<String, StateFlow<AccessStatus>>()
 
@@ -151,6 +159,7 @@ class MonetizationViewModel @Inject constructor(
             when (val outcome = proPassRepository.redeemCode(code)) {
                 is RedemptionOutcome.Success -> {
                     _redemptionState.value = RedemptionState.Success(outcome.durationDays)
+                    com.mknlabs.expensetracker.data.local.PromoReferralStore.clearPendingCode(appContext)
                     // ProPass activated: push local data to Firestore and pull cloud
                     // changes so premium access and transactions are in sync immediately.
                     SyncWorker.startImmediate(appContext)

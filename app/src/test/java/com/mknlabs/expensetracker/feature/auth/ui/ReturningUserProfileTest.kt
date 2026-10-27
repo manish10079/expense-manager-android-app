@@ -58,4 +58,31 @@ class ReturningUserProfileTest {
         assertFalse(profile.isComplete)
         assertEquals(ReturningUserStep.SETUP_PROFILE, resolveReturningUserStep(profile))
     }
+
+    @Test
+    fun missingCloudProfile_offersPromo() {
+        assertTrue(shouldOfferOnboardingPromo(null, now = 1_000L))
+    }
+
+    @Test
+    fun activeProPass_skipsPromo() {
+        val profile = ReturningUserProfile(
+            fullName = "John Doe",
+            gender = "Male",
+            accountTier = "Pro_Pass",
+            proExpiryTimestamp = 2_000L,
+        )
+        assertFalse(shouldOfferOnboardingPromo(profile, now = 1_000L))
+    }
+
+    @Test
+    fun expiredProPass_offersPromo() {
+        val profile = ReturningUserProfile(
+            fullName = "John Doe",
+            gender = "Male",
+            accountTier = "Pro_Pass",
+            proExpiryTimestamp = 500L,
+        )
+        assertTrue(shouldOfferOnboardingPromo(profile, now = 1_000L))
+    }
 }

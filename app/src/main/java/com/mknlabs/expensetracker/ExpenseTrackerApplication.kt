@@ -121,6 +121,12 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // doc is deleted so no stale token lingers for the previous user.
         // Token refreshes are handled separately by onNewToken.
         applicationScope.launch {
+            runCatching {
+                com.mknlabs.expensetracker.data.repository.InstallReferrerCapture.captureIfNeeded(this@ExpenseTrackerApplication)
+            }
+        }
+
+        applicationScope.launch {
             authRepository.currentUser.collect { user ->
                     if (user != null) {
                         runCatching {

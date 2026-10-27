@@ -219,7 +219,10 @@ fun SettingsScreen(
         onSecurityPrivacyClick = onSecurityPrivacyClick,
         onMembershipClick = onMembershipClick,
         onAdFreeAccessClick = onAdFreeAccessClick,
-        onRedeemProPassClick = { showRedeemDialog = true },
+        onRedeemProPassClick = {
+            val anonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
+            if (anonymous) onLinkAccountClick() else showRedeemDialog = true
+        },
         onManageCategoryClick = onManageCategoryClick,
         onManageTagsClick = onManageTagsClick,
         onAppPreferencesClick = onPreferencesClick,
@@ -424,14 +427,20 @@ fun SettingsScreenContent(
                                     // The copy explains the greying rather than leaving the
                                     // "enter promo code" invitation on a row that no longer
                                     // responds, which would read as a bug.
-                                    subtitleRes = if (hasActiveStoreSubscription) {
-                                        R.string.label_redeem_pro_pass_subscribed_subtitle
-                                    } else {
-                                        R.string.label_redeem_pro_pass_subtitle
+                                    subtitleRes = when {
+                                        hasActiveStoreSubscription -> R.string.label_redeem_pro_pass_subscribed_subtitle
+                                        isAnonymous -> R.string.error_redeem_not_signed_in
+                                        else -> R.string.label_redeem_pro_pass_subtitle
                                     },
                                     icon = Lucide.Ticket,
                                     tile = TileIndigo,
-                                    onClick = if (hasActiveStoreSubscription) { {} } else onRedeemProPassClick,
+                                    onClick = if (hasActiveStoreSubscription) {
+                                        {}
+                                    } else if (isAnonymous) {
+                                        onLinkAccountClick
+                                    } else {
+                                        onRedeemProPassClick
+                                    },
                                     isEnabled = !hasActiveStoreSubscription
                                 )
                             )

@@ -253,11 +253,18 @@ private fun OnboardingScreenContent(
                 actionLabel = stringResource(R.string.label_get_started),
                 illustration = { /* No illustration for setup page */ }
             ),
-            // Page 6: WelcomeBack — shown to returning users who already have a complete profile
+            // Page 7: WelcomeBack — shown to returning users who already have a complete profile
             OnboardingPage(
                 title = "",   // Title rendered separately in WelcomeBackPage composable
                 description = "",
                 actionLabel = stringResource(R.string.label_continue),
+                illustration = { }
+            ),
+            // Page 8: Promo code — after Welcome Back for returning users only
+            OnboardingPage(
+                title = stringResource(R.string.title_unlock_pro_access),
+                description = stringResource(R.string.msg_unlock_pro_access_body),
+                actionLabel = stringResource(R.string.label_apply),
                 illustration = { }
             )
         )
@@ -268,6 +275,7 @@ private fun OnboardingScreenContent(
     val isAuthPage = currentPage == 5
     val isSetupPage = currentPage == 6
     val isWelcomeBackPage = currentPage == 7
+    val isPromoPage = currentPage == 8
     val scrollState = rememberScrollState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
@@ -362,8 +370,25 @@ private fun OnboardingScreenContent(
     val onCompleteInternal: () -> Unit = {
         onFinish(userName, userGender, null)
     }
+    var promoReturnPage by rememberSaveable { mutableIntStateOf(7) }
+    val finishOnboarding: () -> Unit = {
+        onResetReturningProfile()
+        onCompleteInternal()
+    }
+    val openPromoOrFinish: (Int) -> Unit = { fromPage ->
+        if (shouldOfferOnboardingPromo(returningUserProfile, System.currentTimeMillis())) {
+            promoReturnPage = fromPage
+            currentPage = 8
+        } else {
+            finishOnboarding()
+        }
+    }
 
     BackHandler(enabled = currentPage > 0) {
+        if (currentPage == 8) {
+            currentPage = promoReturnPage
+            return@BackHandler
+        }
         if (currentPage == 7) {
             // Returning from WelcomeBack — reset profile fetch so we don't re-enter
             onResetReturningProfile()
@@ -424,7 +449,7 @@ private fun OnboardingScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
-                if (!isSetupPage && !isAuthPage && !isWelcomeBackPage && !isLanguagePage) {
+                if (!isSetupPage && !isAuthPage && !isWelcomeBackPage && !isPromoPage && !isLanguagePage) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -450,17 +475,17 @@ private fun OnboardingScreenContent(
                 }
 
                 // Title & Description Section
-                if (isWelcomeBackPage) {
+                if (isPromoPage) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    OnboardingPromoPage(onFinished = finishOnboarding)
+                } else if (isWelcomeBackPage) {
                     // WelcomeBack takes over the full content area
                     WelcomeBackPage(
                         userName = userName,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        onContinue = {
-                            onResetReturningProfile()
-                            onCompleteInternal()
-                        }
+                        onContinue = { openPromoOrFinish(7) }
                     )
                 } else if (isLanguagePage) {
                     OnboardingLanguagePage(
@@ -645,7 +670,7 @@ private fun OnboardingScreenContent(
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            if (!isAuthPage && !isWelcomeBackPage) {
+            if (!isAuthPage && !isWelcomeBackPage && !isPromoPage) {
                 // Fixed Footer Area
                 Column(
                     modifier = Modifier
@@ -669,9 +694,9 @@ private fun OnboardingScreenContent(
 
                                     if (missingFields.isNotEmpty()) {
                                         toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
+                                    } else if (currentUser != null && !currentUser.isAnonymous) {
+                                        openPromoOrFinish(6)
                                     } else {
-                                        // Finish directly — the WelcomeBack page is reserved for
-                                        // returning users with a complete cloud profile.
                                         onCompleteInternal()
                                     }
                                 }
@@ -729,6 +754,17 @@ private fun OnboardingScreenContent(
             }
         )
     }
+}
+
+@Composable
+private fun OnboardingPromoPage(
+    onFinished: () -> Unit,
+) {
+    val viewModel: com.mknlabs.expensetracker.monetization.MonetizationViewModel = hiltViewModel()
+    com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog(
+        viewModel = viewModel,
+        onDismiss = onFinished,
+    )
 }
 
 @Composable
@@ -895,8 +931,9 @@ private fun BottomControls(
     val isAuthPage = currentPage == 5
     val isSetupPage = currentPage == 6
     val isWelcomeBackPage = currentPage == 7
+    val isPromoPage = currentPage == 8
 
-    if (isAuthPage || isSetupPage || isWelcomeBackPage) {
+    if (isAuthPage || isSetupPage || isWelcomeBackPage || isPromoPage) {
         Spacer(modifier = Modifier.height(56.dp)) 
         return
     }

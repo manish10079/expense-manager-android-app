@@ -20,7 +20,7 @@ import com.mknlabs.expensetracker.domain.repository.RedemptionError
  * surface; the dialog states the fact without a date rather than formatting one of its own.
  */
 @StringRes
-internal fun redemptionErrorMessageRes(error: RedemptionError): Int = when (error) {
+fun redemptionErrorMessageRes(error: RedemptionError): Int = when (error) {
     RedemptionError.NotSignedIn -> R.string.error_redeem_not_signed_in
     RedemptionError.InvalidCode -> R.string.error_invalid_pro_pass
     RedemptionError.Inactive -> R.string.error_redeem_inactive
