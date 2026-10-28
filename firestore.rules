@@ -181,6 +181,15 @@ service cloud.firestore {
     }
 
     /******************************************************************
+     * AI PARSER CONFIG
+     * Path: ai_config/{doc}  (seed: ai_config/parser)
+     * Clients must not read the system prompt. Cloud Functions use Admin SDK.
+     ******************************************************************/
+    match /ai_config/{doc} {
+      allow read, write: if false;
+    }
+
+    /******************************************************************
      * DENY EVERYTHING ELSE
      ******************************************************************/
     match /{document=**} {

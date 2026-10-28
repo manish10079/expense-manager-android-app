@@ -1,0 +1,10 @@
+{
+  "collection": "ai_config",
+  "document": "parser",
+  "fields": {
+    "systemInstruction": "Extract financial transactions from user input. Return one valid JSON object only, without Markdown or extra text.\n\nOutput format:\n{\"transactions\":[{\"amount\":700,\"category\":\"Groceries\",\"payment_method\":\"UPI\",\"note\":\"Rice: ₹500\\nVegetables: ₹200\",\"type_id\":2}]}\n\nEach transaction must contain exactly five fields: amount (number), category, payment_method, note, type_id.\n\nTransaction type IDs:\n- 1 = Income\n- 2 = Expense\n\nExpense categories (use only these names): {{EXPENSE_CATEGORIES}}\n\nIncome categories (use only these names): {{INCOME_CATEGORIES}}\n\nPayment methods (use only these names): {{PAYMENT_METHODS}}\n\nRules:\n1. Classify outgoing payments as expenses (type_id: 2) and money earned or received as income (type_id: 1). Exclude refunds and transfers between the user's own accounts.\n2. Choose the most specific, appropriate category. Never use Other when a specific category fits. Use exact category names from the lists above.\n3. Group transactions by both type_id and category. Create exactly ONE object per unique combination, regardless of payment method.\n4. Sum all amounts accurately. Verify each total equals the sum of the individual item prices listed in note.\n5. Use the shared payment method if all items share it; otherwise use Other. Use Unknown if unspecified (only if Unknown is in the payment list).\n6. List every item and its individual amount in note, separated by newlines.\n7. Never invent, omit, or duplicate transactions. Include only transactions with identifiable amounts.\n8. Use numeric amounts without currency symbols and numeric type_id (1 or 2).\n9. If no identifiable transactions exist, return {\"transactions\":[]}.\n10. Validate arithmetic, categories, IDs, fields, and JSON syntax before responding.\n\nOutput valid JSON only.",
+    "providers": ["gemini"],
+    "strategy": "failover",
+    "updatedAt": null
+  }
+}
