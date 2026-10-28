@@ -237,6 +237,7 @@ fun MainScaffold(
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
     var aiReviewSourceText by remember { mutableStateOf("") }
     var ocrPlayServicesError by remember { mutableStateOf(false) }
+    var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
     val addFilePicker = rememberLauncherForActivityResult(
@@ -248,6 +249,12 @@ fun MainScaffold(
             when (outcome) {
                 DocumentParseOutcome.PlayServicesUnavailable -> {
                     ocrPlayServicesError = true
+                }
+                DocumentParseOutcome.DailyLimit -> {
+                    aiParseErrorRes = R.string.msg_ai_daily_limit
+                }
+                DocumentParseOutcome.Failed -> {
+                    aiParseErrorRes = R.string.msg_ai_parse_failed
                 }
                 is DocumentParseOutcome.RawAdd -> {
                     aiReviewSourceText = outcome.sourceText
@@ -271,6 +278,17 @@ fun MainScaffold(
             text = { Text(stringResource(R.string.msg_ocr_play_services_required)) },
             confirmButton = {
                 TextButton(onClick = { ocrPlayServicesError = false }) {
+                    Text(stringResource(R.string.label_ok))
+                }
+            },
+        )
+    }
+    aiParseErrorRes?.let { resId ->
+        AlertDialog(
+            onDismissRequest = { aiParseErrorRes = null },
+            text = { Text(stringResource(resId)) },
+            confirmButton = {
+                TextButton(onClick = { aiParseErrorRes = null }) {
                     Text(stringResource(R.string.label_ok))
                 }
             },

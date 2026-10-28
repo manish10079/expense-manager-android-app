@@ -1,38 +1,30 @@
 /**
  * parseExpenseText — callable AI parser.
  *
- * Nested round-robin: rotate providers, then models within a provider.
- * Fail over on HTTP / timeout / invalid JSON. Skip a provider when its
- * secret is missing. All fail → unavailable.
+ * Providers: Groq then OpenRouter (live :free models from GET /api/v1/models).
+ * Rotate models; fail over on HTTP / timeout / invalid JSON.
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 
-const opencodeApiKey = defineSecret("OPENCODE_API_KEY");
-const googleAiApiKey = defineSecret("GOOGLE_AI_API_KEY");
 const groqApiKey = defineSecret("GROQ_API_KEY");
+const openrouterApiKey = defineSecret("OPENROUTER_API_KEY");
 
 const CALL_TIMEOUT_MS = 8000;
-const DEFAULT_OPENCODE_URL = "https://opencode.ai/zen/v1/chat/completions";
 const DEFAULT_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const DEFAULT_OPENCODE_MODELS = [
-  "opencode/big-pickle",
-  "opencode/deepseek-r1-free",
-  "opencode/mimo-v2.6-flash-free",
-  "opencode/minimax-m2.5-free",
-];
-const DEFAULT_GOOGLE_MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-3.8-flash",
-  "gemini-3.6-flash",
-];
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
+const OPENROUTER_FREE_CACHE_MS = 30 * 60 * 1000;
+const OPENROUTER_FREE_MAX = 8;
 const DEFAULT_GROQ_MODELS = [
   "llama-3.1-8b-instant",
+  "openai/gpt-oss-20b",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "qwen/qwen3-32b",
   "llama-3.3-70b-versatile",
-  "gemma2-9b-it",
+  "openai/gpt-oss-120b",
 ];
 
 const ALLOWED_KEYS = new Set([
@@ -57,6 +49,7 @@ const FREE_OR_GUEST_DAILY_LIMIT = 4;
 const PRO_DAILY_LIMIT = 10;
 
 let promptCache = { at: 0, instruction: "", providers: [] };
+let openrouterFreeCache = { at: 0, models: [] };
 let providerCursor = 0;
 const modelCursorByProvider = Object.create(null);
 
@@ -97,7 +90,7 @@ function isProFromUserAndRc(userData, rcData) {
   return false;
 }
 
-async function consumeDailyQuota(uid) {
+async function quotaContext(uid) {
   const [userSnap, rcSnap] = await Promise.all([
     db().collection("users").doc(uid).get(),
     db().collection("rc_customers").doc(uid).get(),
@@ -109,6 +102,21 @@ async function consumeDailyQuota(uid) {
   const limit = isPro ? PRO_DAILY_LIMIT : FREE_OR_GUEST_DAILY_LIMIT;
   const day = utcDayKey();
   const ref = db().collection("ai_usage").doc(uid).collection("days").doc(day);
+  return { ref, limit, isPro };
+}
+
+async function assertDailyQuotaAvailable(uid) {
+  const { ref, limit } = await quotaContext(uid);
+  const snap = await ref.get();
+  const count = snap.exists ? Number(snap.data().count) || 0 : 0;
+  if (count >= limit) {
+    throw new HttpsError("resource-exhausted", "daily-limit");
+  }
+}
+
+/** Count one successful parse (including empty transactions[]). Free 4 / Pro 10 UTC day. */
+async function incrementDailyQuota(uid) {
+  const { ref, limit, isPro } = await quotaContext(uid);
   await db().runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const count = snap.exists ? Number(snap.data().count) || 0 : 0;
@@ -148,53 +156,90 @@ function rotate(list, start) {
   return list.slice(i).concat(list.slice(0, i));
 }
 
-function defaultProvider(id) {
-  if (id === "google") {
-    return { id: "google", kind: "google", models: DEFAULT_GOOGLE_MODELS.slice() };
-  }
-  if (id === "groq") {
-    return {
-      id: "groq",
-      kind: "openai",
-      baseUrl: DEFAULT_GROQ_URL,
-      models: DEFAULT_GROQ_MODELS.slice(),
-    };
-  }
+function groqProvider(models) {
   return {
-    id: "opencode",
+    id: "groq",
     kind: "openai",
-    baseUrl: DEFAULT_OPENCODE_URL,
-    models: DEFAULT_OPENCODE_MODELS.slice(),
+    baseUrl: DEFAULT_GROQ_URL,
+    models: models && models.length ? models : DEFAULT_GROQ_MODELS.slice(),
   };
 }
 
 function normalizeProviders(raw) {
-  if (!Array.isArray(raw) || raw.length === 0) {
-    return [defaultProvider("opencode")];
-  }
-  const out = [];
-  for (const entry of raw) {
-    if (typeof entry === "string") {
-      out.push(defaultProvider(entry.trim().toLowerCase()));
-      continue;
+  let groq = groqProvider();
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      if (entry && typeof entry === "object" && String(entry.id || "").trim().toLowerCase() === "groq") {
+        groq = groqProvider(asStringList(entry.models, DEFAULT_GROQ_MODELS));
+      }
     }
-    if (!entry || typeof entry !== "object") continue;
-    const id = String(entry.id || "").trim().toLowerCase();
-    if (!id) continue;
-    const base = defaultProvider(id);
-    const models = asStringList(entry.models, base.models);
-    if (!models.length) continue;
-    out.push({
-      id,
-      kind: id === "google" ? "google" : "openai",
-      baseUrl:
-        typeof entry.baseUrl === "string" && entry.baseUrl.trim()
-          ? entry.baseUrl.trim()
-          : base.baseUrl,
-      models,
-    });
   }
-  return out.length ? out : [defaultProvider("opencode")];
+  return [groq, openrouterProvider([])];
+}
+
+function openrouterProvider(models) {
+  return {
+    id: "openrouter",
+    kind: "openai",
+    baseUrl: OPENROUTER_URL,
+    models: models && models.length ? models : [],
+    extraHeaders: {
+      "HTTP-Referer": "https://expensetracker.app",
+      "X-Title": "ExpenseTracker",
+    },
+  };
+}
+
+function isOpenRouterFreeChatModel(entry) {
+  const id = String(entry && entry.id ? entry.id : "");
+  if (!id) return false;
+  const lower = id.toLowerCase();
+  if (
+    lower.includes("whisper") ||
+    lower.includes("tts") ||
+    lower.includes("lyria") ||
+    lower.includes("transcribe") ||
+    lower.includes("embed") ||
+    lower.includes("safety")
+  ) {
+    return false;
+  }
+  const pricing = (entry && entry.pricing) || {};
+  const prompt = String(pricing.prompt ?? "1");
+  const completion = String(pricing.completion ?? "1");
+  const free = id.endsWith(":free") || (prompt === "0" && completion === "0");
+  if (!free) return false;
+  const params = entry.supported_parameters || [];
+  return params.includes("response_format") || params.includes("structured_outputs") || id.endsWith(":free");
+}
+
+async function loadOpenRouterFreeModels(apiKey) {
+  const now = Date.now();
+  if (openrouterFreeCache.models.length && now - openrouterFreeCache.at < OPENROUTER_FREE_CACHE_MS) {
+    return openrouterFreeCache.models;
+  }
+  const response = await fetchWithTimeout(OPENROUTER_MODELS_URL, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("OpenRouter models HTTP", response.status);
+    throw new Error("openrouter-models");
+  }
+  const rows = Array.isArray(payload.data) ? payload.data : [];
+  const ids = [];
+  for (const entry of rows) {
+    if (!isOpenRouterFreeChatModel(entry)) continue;
+    ids.push(String(entry.id));
+    if (ids.length >= OPENROUTER_FREE_MAX) break;
+  }
+  console.info("OpenRouter free models", ids);
+  openrouterFreeCache = { at: now, models: ids };
+  return ids;
 }
 
 async function loadParserConfig() {
@@ -217,7 +262,7 @@ async function loadParserConfig() {
 }
 
 function providersWithKeys(providers, keys) {
-  return providers.filter((p) => Boolean(keys[p.id]));
+  return providers.filter((p) => Boolean(keys[p.id]) && p.models && p.models.length);
 }
 
 async function fetchWithTimeout(url, options) {
@@ -230,12 +275,13 @@ async function fetchWithTimeout(url, options) {
   }
 }
 
-async function callOpenAiCompatible({ apiKey, url, model, systemInstruction, userBlock }) {
+async function callOpenAiCompatible({ apiKey, url, model, systemInstruction, userBlock, extraHeaders }) {
   const response = await fetchWithTimeout(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
+      ...(extraHeaders || {}),
     },
     body: JSON.stringify({
       model,
@@ -249,7 +295,10 @@ async function callOpenAiCompatible({ apiKey, url, model, systemInstruction, use
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("AI HTTP", response.status, model);
+    const errMsg = payload && payload.error && payload.error.message
+      ? String(payload.error.message).slice(0, 180)
+      : "";
+    console.error("AI HTTP", response.status, model, errMsg);
     throw new Error("provider-http");
   }
   const content = payload?.choices?.[0]?.message?.content;
@@ -259,50 +308,14 @@ async function callOpenAiCompatible({ apiKey, url, model, systemInstruction, use
   return content;
 }
 
-async function callGoogle({ apiKey, model, systemInstruction, userBlock }) {
-  const modelId = model.replace(/^models\//, "");
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
-  const response = await fetchWithTimeout(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
-    },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemInstruction }] },
-      contents: [{ role: "user", parts: [{ text: userBlock }] }],
-      generationConfig: {
-        temperature: 0.1,
-        responseMimeType: "application/json",
-      },
-    }),
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    console.error("Google HTTP", response.status, modelId);
-    throw new Error("provider-http");
-  }
-  const content = payload?.candidates?.[0]?.content?.parts
-    ?.map((part) => part.text)
-    .filter(Boolean)
-    .join("\n");
-  if (typeof content !== "string" || !content.trim()) {
-    throw new Error("invalid-json");
-  }
-  return content;
-}
-
 async function callProvider(provider, apiKey, model, systemInstruction, userBlock) {
-  if (provider.kind === "google") {
-    return callGoogle({ apiKey, model, systemInstruction, userBlock });
-  }
   return callOpenAiCompatible({
     apiKey,
     url: provider.baseUrl,
     model,
     systemInstruction,
     userBlock,
+    extraHeaders: provider.extraHeaders,
   });
 }
 
@@ -403,8 +416,18 @@ async function parseWithRoundRobin({
   incomeCategories,
   paymentMethods,
 }) {
+  const configured = providers.map((p) => p.id);
   const ready = providersWithKeys(providers, keys);
+  console.info("AI rr", {
+    configured,
+    hasKey: {
+      groq: Boolean(keys.groq),
+      openrouter: Boolean(keys.openrouter),
+    },
+    ready: ready.map((p) => p.id),
+  });
   if (!ready.length) {
+    console.error("AI rr no providers with keys");
     throw new HttpsError("unavailable", "unavailable");
   }
 
@@ -415,6 +438,7 @@ async function parseWithRoundRobin({
     const models = rotate(provider.models, start);
     const apiKey = keys[provider.id];
     for (const model of models) {
+      console.info("AI try", provider.id, model);
       try {
         const raw = await callProvider(
           provider,
@@ -424,18 +448,21 @@ async function parseWithRoundRobin({
           userBlock
         );
         const parsed = stripToJsonObject(raw);
-        return validateTransactions(
+        const result = validateTransactions(
           parsed,
           expenseCategories,
           incomeCategories,
           paymentMethods
         );
+        console.info("AI ok", provider.id, model, "rows", result.transactions.length);
+        return result;
       } catch (error) {
         if (error instanceof HttpsError) throw error;
         console.error("AI failover", provider.id, model, error && error.message);
       }
     }
   }
+  console.error("AI rr all failed");
   throw new HttpsError("unavailable", "unavailable");
 }
 
@@ -445,7 +472,7 @@ exports.parseExpenseText = onCall(
     timeoutSeconds: 30,
     memory: "256MB",
     enforceAppCheck: true,
-    secrets: [opencodeApiKey, googleAiApiKey, groqApiKey],
+    secrets: [groqApiKey, openrouterApiKey],
   },
   async (request) => {
     const uid = request.auth?.uid;
@@ -478,15 +505,26 @@ exports.parseExpenseText = onCall(
       FALLBACK_PAYMENT
     );
 
-    await consumeDailyQuota(uid);
-
     const keys = {
-      opencode: secretOrEmpty(opencodeApiKey),
-      google: secretOrEmpty(googleAiApiKey),
       groq: secretOrEmpty(groqApiKey),
+      openrouter: secretOrEmpty(openrouterApiKey),
     };
 
     const config = await loadParserConfig();
+    let providers = config.providers;
+    if (keys.openrouter) {
+      try {
+        const freeModels = await loadOpenRouterFreeModels(keys.openrouter);
+        providers = providers.map((p) =>
+          p.id === "openrouter" ? openrouterProvider(freeModels) : p
+        );
+      } catch (error) {
+        console.error("OpenRouter models list failed", error && error.message);
+        providers = providers.filter((p) => p.id !== "openrouter");
+      }
+    } else {
+      providers = providers.filter((p) => p.id !== "openrouter");
+    }
     const systemInstruction = injectLists(
       config.instruction,
       expenseCategories,
@@ -500,8 +538,10 @@ exports.parseExpenseText = onCall(
       text.trim(),
     ].join("\n");
 
-    return parseWithRoundRobin({
-      providers: config.providers,
+    await assertDailyQuotaAvailable(uid);
+
+    const parsed = await parseWithRoundRobin({
+      providers,
       keys,
       systemInstruction,
       userBlock,
@@ -509,5 +549,7 @@ exports.parseExpenseText = onCall(
       incomeCategories,
       paymentMethods,
     });
+    await incrementDailyQuota(uid);
+    return parsed;
   }
 );

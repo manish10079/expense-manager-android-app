@@ -91,7 +91,7 @@ class VoiceAddViewModel @Inject constructor(
 
             if (isOnline && hasRemainingAiParses) {
                 try {
-                    val ctx = userContextProvider.buildContext()
+                    val ctx = userContextProvider.getUserContext()
                     val response = aiParseApiService.parseExpenseText(
                         AiParseRequest(
                             text = text,
@@ -103,7 +103,7 @@ class VoiceAddViewModel @Inject constructor(
                         )
                     )
                     val items = mapCloudResponse(response.transactions)
-                    if (items.isNotEmpty()) aiUsageTracker.recordUsage(isPro)
+                    aiUsageTracker.recordUsage(isPro)
                     val remaining = aiUsageTracker.remainingParses(isPro).first()
                     _uiState.value = _uiState.value.copy(
                         sheetState = VoiceSheetState.RESULT,

@@ -13,6 +13,8 @@ import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.utils.toMinorUnits
+import android.util.Log
+import com.google.firebase.functions.FirebaseFunctionsException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -30,6 +32,10 @@ class AiTextExtractViewModel @Inject constructor(
     private val onDeviceTextExtractor: OnDeviceTextExtractor,
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "AiTextExtractVM"
+    }
+
     fun parseFromDocument(
         uri: android.net.Uri,
         onResult: (DocumentParseOutcome) -> Unit,
@@ -43,10 +49,15 @@ class AiTextExtractViewModel @Inject constructor(
                     if (text.isBlank()) {
                         onResult(DocumentParseOutcome.RawAdd(""))
                     } else {
-                        parse(text) { items ->
+                        parse(text) { outcome ->
                             onResult(
-                                if (items.isEmpty()) DocumentParseOutcome.RawAdd(text)
-                                else DocumentParseOutcome.Review(text, items)
+                                when (outcome) {
+                                    is TextParseOutcome.Review ->
+                                        DocumentParseOutcome.Review(text, outcome.items)
+                                    TextParseOutcome.RawAdd -> DocumentParseOutcome.RawAdd(text)
+                                    TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
+                                    TextParseOutcome.Failed -> DocumentParseOutcome.Failed
+                                }
                             )
                         }
                     }
@@ -57,18 +68,21 @@ class AiTextExtractViewModel @Inject constructor(
 
     fun parse(
         text: String,
-        onResult: (List<AiParsedReviewItem>) -> Unit,
+        onResult: (TextParseOutcome) -> Unit,
     ) {
         val trimmed = text.trim()
         if (trimmed.isEmpty()) {
-            onResult(emptyList())
+            onResult(TextParseOutcome.RawAdd)
             return
         }
         viewModelScope.launch {
-            val items = runCatching {
-                val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
-                if (!aiUsageTracker.hasRemainingParses(isPro).first()) return@runCatching emptyList()
-                val ctx = userContextProvider.buildContext()
+            val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
+            if (!aiUsageTracker.hasRemainingParses(isPro).first()) {
+                onResult(TextParseOutcome.DailyLimit)
+                return@launch
+            }
+            val outcome = runCatching {
+                val ctx = userContextProvider.getUserContext()
                 val response = aiParseApiService.parseExpenseText(
                     AiParseRequest(
                         text = trimmed,
@@ -80,10 +94,19 @@ class AiTextExtractViewModel @Inject constructor(
                     )
                 )
                 val mapped = mapResponse(response)
-                if (mapped.isNotEmpty()) aiUsageTracker.recordUsage(isPro)
-                mapped
-            }.getOrDefault(emptyList())
-            onResult(items)
+                aiUsageTracker.recordUsage(isPro)
+                if (mapped.isEmpty()) TextParseOutcome.RawAdd else TextParseOutcome.Review(mapped)
+            }.getOrElse { error ->
+                Log.e(TAG, "parseExpenseText failed", error)
+                if (error is FirebaseFunctionsException &&
+                    error.code == FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
+                ) {
+                    TextParseOutcome.DailyLimit
+                } else {
+                    TextParseOutcome.Failed
+                }
+            }
+            onResult(outcome)
         }
     }
 

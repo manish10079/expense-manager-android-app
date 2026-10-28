@@ -69,10 +69,9 @@ object AiParseContract {
         val rawList = data["transactions"] as? List<*> ?: emptyList<Any>()
         val items = rawList.mapNotNull { row ->
             val map = row as? Map<*, *> ?: return@mapNotNull null
-            extraKeys(map)?.let { return@mapNotNull null }
-            val typeId = (map["type_id"] as? Number)?.toInt() ?: return@mapNotNull null
+            val typeId = intValue(map["type_id"]) ?: return@mapNotNull null
             if (typeId != TYPE_INCOME && typeId != TYPE_EXPENSE) return@mapNotNull null
-            val amount = (map["amount"] as? Number)?.toDouble() ?: return@mapNotNull null
+            val amount = doubleValue(map["amount"]) ?: return@mapNotNull null
             val category = map["category"] as? String ?: return@mapNotNull null
             val payment = map["payment_method"] as? String ?: return@mapNotNull null
             val note = map["note"] as? String ?: return@mapNotNull null
@@ -91,5 +90,17 @@ object AiParseContract {
         val keys = row.keys.mapNotNull { it as? String }.toSet()
         val extra = keys - ALLOWED_TRANSACTION_KEYS
         return extra.takeIf { it.isNotEmpty() }
+    }
+
+    private fun intValue(value: Any?): Int? = when (value) {
+        is Number -> value.toInt()
+        is String -> value.toIntOrNull()
+        else -> null
+    }
+
+    private fun doubleValue(value: Any?): Double? = when (value) {
+        is Number -> value.toDouble()
+        is String -> value.toDoubleOrNull()
+        else -> null
     }
 }

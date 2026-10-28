@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ai.TextParseOutcome
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -70,6 +71,7 @@ fun AiTextExtractBottomSheet(
 ) {
     val extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = androidx.hilt.navigation.compose.hiltViewModel()
     var isExtracting by remember { mutableStateOf(false) }
+    var extractErrorRes by remember { mutableStateOf<Int?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -204,6 +206,14 @@ fun AiTextExtractBottomSheet(
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
+                extractErrorRes?.let { resId ->
+                    Text(
+                        text = stringResource(resId),
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
                 Text(
                     text = "${fieldValue.text.length}/$ExtractTextMaxLength",
                     modifier = Modifier.fillMaxWidth(),
@@ -229,9 +239,17 @@ fun AiTextExtractBottomSheet(
                     .clickable(enabled = canExtract) {
                         val text = fieldValue.text.trim()
                         isExtracting = true
-                        extractViewModel.parse(text) { parsed ->
+                        extractErrorRes = null
+                        extractViewModel.parse(text) { outcome ->
                             isExtracting = false
-                            onExtract(text, parsed)
+                            when (outcome) {
+                                is TextParseOutcome.Review -> onExtract(text, outcome.items)
+                                TextParseOutcome.RawAdd -> onExtract(text, emptyList())
+                                TextParseOutcome.DailyLimit ->
+                                    extractErrorRes = R.string.msg_ai_daily_limit
+                                TextParseOutcome.Failed ->
+                                    extractErrorRes = R.string.msg_ai_parse_failed
+                            }
                         }
                     },
                 contentAlignment = Alignment.Center

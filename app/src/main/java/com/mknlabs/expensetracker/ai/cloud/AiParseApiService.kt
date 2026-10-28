@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AiParseApiService @Inject constructor() {
-    private val functions: FirebaseFunctions = FirebaseFunctions.getInstance()
+    private val functions: FirebaseFunctions = FirebaseFunctions.getInstance("us-central1")
 
     suspend fun parseExpenseText(request: AiParseRequest): AiParseResponse {
         val result = functions

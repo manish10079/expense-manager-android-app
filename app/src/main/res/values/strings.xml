@@ -4414,6 +4414,10 @@
 
     <string name="msg_ocr_play_services_required">Google Play Services is required to read text from images and PDFs. Install or update it, then try again.</string>
 
+    <string name="msg_ai_daily_limit">Daily AI parse limit reached. Try again tomorrow.</string>
+    <string name="msg_ai_parse_failed">Could not parse that text. Sign in and try again, or enter the transaction manually.</string>
+
+
 
 
     <!-- Widget -->
