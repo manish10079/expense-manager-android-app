@@ -14,7 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.ai.DocumentParseOutcome
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -230,18 +236,49 @@ fun MainScaffold(
     var showAiReviewSheet by remember { mutableStateOf(false) }
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
     var aiReviewSourceText by remember { mutableStateOf("") }
+    var ocrPlayServicesError by remember { mutableStateOf(false) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
+    val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
     val addFilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         addFabMenuExpanded = false
-        if (uri != null) {
-            onBottomBarVisibilityChange(false)
-            onRouteChange(AppRoute.AddTransaction)
+        if (uri == null) return@rememberLauncherForActivityResult
+        aiExtractViewModel.parseFromDocument(uri) { outcome ->
+            when (outcome) {
+                DocumentParseOutcome.PlayServicesUnavailable -> {
+                    ocrPlayServicesError = true
+                }
+                is DocumentParseOutcome.RawAdd -> {
+                    aiReviewSourceText = outcome.sourceText
+                    onAddTransactionDraftNoteChange(outcome.sourceText)
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                }
+                is DocumentParseOutcome.Review -> {
+                    aiReviewSourceText = outcome.sourceText
+                    aiReviewItems.clear()
+                    aiReviewItems.addAll(outcome.items)
+                    showAiReviewSheet = true
+                }
+            }
         }
     }
 
+    if (ocrPlayServicesError) {
+        AlertDialog(
+            onDismissRequest = { ocrPlayServicesError = false },
+            text = { Text(stringResource(R.string.msg_ocr_play_services_required)) },
+            confirmButton = {
+                TextButton(onClick = { ocrPlayServicesError = false }) {
+                    Text(stringResource(R.string.label_ok))
+                }
+            },
+        )
+    }
+
     LaunchedEffect(addFabMenuExpanded) {
+
         if (!addFabMenuExpanded) return@LaunchedEffect
         delay(5_000)
         addFabMenuExpanded = false

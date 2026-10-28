@@ -1,11 +1,9 @@
 /**
- * parseExpenseText — callable AI parser (Phase 1).
+ * parseExpenseText — callable AI parser.
  *
- * Reads systemInstruction from Firestore ai_config/parser, injects this
- * device's category/payment lists, calls OpenCode with OPENCODE_API_KEY secret,
- * returns { transactions: [...] } with exactly five fields per item.
- *
- * Does not replace parseVoiceTransaction. Leave that export unused from the app.
+ * Nested round-robin: rotate providers, then models within a provider.
+ * Fail over on HTTP / timeout / invalid JSON. Skip a provider when its
+ * secret is missing. All fail → unavailable.
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
@@ -13,8 +11,29 @@ const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 
 const opencodeApiKey = defineSecret("OPENCODE_API_KEY");
-const OPENCODE_URL = "https://opencode.ai/zen/v1/chat/completions";
-const DEFAULT_OPENCODE_MODEL = "gpt-4o-mini";
+const googleAiApiKey = defineSecret("GOOGLE_AI_API_KEY");
+const groqApiKey = defineSecret("GROQ_API_KEY");
+
+const CALL_TIMEOUT_MS = 8000;
+const DEFAULT_OPENCODE_URL = "https://opencode.ai/zen/v1/chat/completions";
+const DEFAULT_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const DEFAULT_OPENCODE_MODELS = [
+  "opencode/big-pickle",
+  "opencode/deepseek-r1-free",
+  "opencode/mimo-v2.6-flash-free",
+  "opencode/minimax-m2.5-free",
+];
+const DEFAULT_GOOGLE_MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.8-flash",
+  "gemini-3.6-flash",
+];
+const DEFAULT_GROQ_MODELS = [
+  "llama-3.1-8b-instant",
+  "llama-3.3-70b-versatile",
+  "gemma2-9b-it",
+];
 
 const ALLOWED_KEYS = new Set([
   "amount",
@@ -36,7 +55,10 @@ const FALLBACK_PAYMENT = ["UPI", "Cash", "Bank", "Card", "Other", "Unknown"];
 const CACHE_MS = 5 * 60 * 1000;
 const FREE_OR_GUEST_DAILY_LIMIT = 4;
 const PRO_DAILY_LIMIT = 10;
-let promptCache = { at: 0, instruction: "", model: DEFAULT_OPENCODE_MODEL };
+
+let promptCache = { at: 0, instruction: "", providers: [] };
+let providerCursor = 0;
+const modelCursorByProvider = Object.create(null);
 
 function db() {
   return admin.firestore();
@@ -44,6 +66,15 @@ function db() {
 
 function utcDayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function secretOrEmpty(secretParam) {
+  try {
+    const value = secretParam.value();
+    return typeof value === "string" && value.trim() ? value.trim() : "";
+  } catch {
+    return "";
+  }
 }
 
 function isProFromUserAndRc(userData, rcData) {
@@ -97,7 +128,6 @@ async function consumeDailyQuota(uid) {
   });
 }
 
-
 function asStringList(value, fallback) {
   if (!Array.isArray(value) || value.length === 0) return fallback.slice();
   return value.map((v) => String(v).trim()).filter(Boolean);
@@ -111,6 +141,62 @@ function nameSet(list) {
   return map;
 }
 
+function rotate(list, start) {
+  const n = list.length;
+  if (n === 0) return [];
+  const i = ((start % n) + n) % n;
+  return list.slice(i).concat(list.slice(0, i));
+}
+
+function defaultProvider(id) {
+  if (id === "google") {
+    return { id: "google", kind: "google", models: DEFAULT_GOOGLE_MODELS.slice() };
+  }
+  if (id === "groq") {
+    return {
+      id: "groq",
+      kind: "openai",
+      baseUrl: DEFAULT_GROQ_URL,
+      models: DEFAULT_GROQ_MODELS.slice(),
+    };
+  }
+  return {
+    id: "opencode",
+    kind: "openai",
+    baseUrl: DEFAULT_OPENCODE_URL,
+    models: DEFAULT_OPENCODE_MODELS.slice(),
+  };
+}
+
+function normalizeProviders(raw) {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [defaultProvider("opencode")];
+  }
+  const out = [];
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      out.push(defaultProvider(entry.trim().toLowerCase()));
+      continue;
+    }
+    if (!entry || typeof entry !== "object") continue;
+    const id = String(entry.id || "").trim().toLowerCase();
+    if (!id) continue;
+    const base = defaultProvider(id);
+    const models = asStringList(entry.models, base.models);
+    if (!models.length) continue;
+    out.push({
+      id,
+      kind: id === "google" ? "google" : "openai",
+      baseUrl:
+        typeof entry.baseUrl === "string" && entry.baseUrl.trim()
+          ? entry.baseUrl.trim()
+          : base.baseUrl,
+      models,
+    });
+  }
+  return out.length ? out : [defaultProvider("opencode")];
+}
+
 async function loadParserConfig() {
   const now = Date.now();
   if (promptCache.instruction && now - promptCache.at < CACHE_MS) {
@@ -122,16 +208,30 @@ async function loadParserConfig() {
   if (typeof instruction !== "string" || !instruction.trim()) {
     throw new HttpsError("failed-precondition", "AI prompt not configured");
   }
-  const model =
-    typeof data.model === "string" && data.model.trim()
-      ? data.model.trim()
-      : DEFAULT_OPENCODE_MODEL;
-  promptCache = { at: now, instruction: instruction.trim(), model };
+  promptCache = {
+    at: now,
+    instruction: instruction.trim(),
+    providers: normalizeProviders(data.providers),
+  };
   return promptCache;
 }
 
-async function callOpenCode({ apiKey, model, systemInstruction, userBlock }) {
-  const response = await fetch(OPENCODE_URL, {
+function providersWithKeys(providers, keys) {
+  return providers.filter((p) => Boolean(keys[p.id]));
+}
+
+async function fetchWithTimeout(url, options) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CALL_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function callOpenAiCompatible({ apiKey, url, model, systemInstruction, userBlock }) {
+  const response = await fetchWithTimeout(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -149,14 +249,61 @@ async function callOpenCode({ apiKey, model, systemInstruction, userBlock }) {
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("OpenCode HTTP", response.status, payload);
-    throw new HttpsError("internal", "AI parsing failed");
+    console.error("AI HTTP", response.status, model);
+    throw new Error("provider-http");
   }
   const content = payload?.choices?.[0]?.message?.content;
   if (typeof content !== "string") {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
   return content;
+}
+
+async function callGoogle({ apiKey, model, systemInstruction, userBlock }) {
+  const modelId = model.replace(/^models\//, "");
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
+  const response = await fetchWithTimeout(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      contents: [{ role: "user", parts: [{ text: userBlock }] }],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("Google HTTP", response.status, modelId);
+    throw new Error("provider-http");
+  }
+  const content = payload?.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text)
+    .filter(Boolean)
+    .join("\n");
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error("invalid-json");
+  }
+  return content;
+}
+
+async function callProvider(provider, apiKey, model, systemInstruction, userBlock) {
+  if (provider.kind === "google") {
+    return callGoogle({ apiKey, model, systemInstruction, userBlock });
+  }
+  return callOpenAiCompatible({
+    apiKey,
+    url: provider.baseUrl,
+    model,
+    systemInstruction,
+    userBlock,
+  });
 }
 
 function injectLists(template, expense, income, payment) {
@@ -173,26 +320,26 @@ function stripToJsonObject(text) {
   const start = body.indexOf("{");
   const end = body.lastIndexOf("}");
   if (start < 0 || end <= start) {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
   try {
     return JSON.parse(body.slice(start, end + 1));
   } catch {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
 }
 
 function validateTransactions(parsed, expense, income, payment) {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
   const extraRoot = Object.keys(parsed).filter((k) => k !== "transactions");
   if (extraRoot.length) {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
   const rows = parsed.transactions;
   if (!Array.isArray(rows)) {
-    throw new HttpsError("invalid-argument", "invalid-json");
+    throw new Error("invalid-json");
   }
 
   const expenseMap = nameSet(expense);
@@ -202,25 +349,25 @@ function validateTransactions(parsed, expense, income, payment) {
 
   for (const row of rows) {
     if (!row || typeof row !== "object" || Array.isArray(row)) {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
     const keys = Object.keys(row);
     if (keys.length !== 5 || keys.some((k) => !ALLOWED_KEYS.has(k))) {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
     const amount = row.amount;
     if (typeof amount !== "number" || !Number.isFinite(amount)) {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
     const typeId = row.type_id;
     if (typeId !== 1 && typeId !== 2) {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
     if (typeof row.note !== "string") {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
     if (typeof row.category !== "string" || typeof row.payment_method !== "string") {
-      throw new HttpsError("invalid-argument", "invalid-json");
+      throw new Error("invalid-json");
     }
 
     const catKey = row.category.trim().toLowerCase();
@@ -228,11 +375,11 @@ function validateTransactions(parsed, expense, income, payment) {
     const canonicalCategory =
       typeId === 1 ? incomeMap.get(catKey) : expenseMap.get(catKey);
     if (!canonicalCategory) {
-      throw new HttpsError("invalid-argument", "unknown-category");
+      throw new Error("unknown-category");
     }
     const canonicalPayment = paymentMap.get(payKey);
     if (!canonicalPayment) {
-      throw new HttpsError("invalid-argument", "unknown-payment");
+      throw new Error("unknown-payment");
     }
 
     out.push({
@@ -247,21 +394,66 @@ function validateTransactions(parsed, expense, income, payment) {
   return { transactions: out };
 }
 
+async function parseWithRoundRobin({
+  providers,
+  keys,
+  systemInstruction,
+  userBlock,
+  expenseCategories,
+  incomeCategories,
+  paymentMethods,
+}) {
+  const ready = providersWithKeys(providers, keys);
+  if (!ready.length) {
+    throw new HttpsError("unavailable", "unavailable");
+  }
+
+  const providerOrder = rotate(ready, providerCursor++);
+  for (const provider of providerOrder) {
+    const start = modelCursorByProvider[provider.id] || 0;
+    modelCursorByProvider[provider.id] = start + 1;
+    const models = rotate(provider.models, start);
+    const apiKey = keys[provider.id];
+    for (const model of models) {
+      try {
+        const raw = await callProvider(
+          provider,
+          apiKey,
+          model,
+          systemInstruction,
+          userBlock
+        );
+        const parsed = stripToJsonObject(raw);
+        return validateTransactions(
+          parsed,
+          expenseCategories,
+          incomeCategories,
+          paymentMethods
+        );
+      } catch (error) {
+        if (error instanceof HttpsError) throw error;
+        console.error("AI failover", provider.id, model, error && error.message);
+      }
+    }
+  }
+  throw new HttpsError("unavailable", "unavailable");
+}
+
 exports.parseExpenseText = onCall(
   {
     region: "us-central1",
     timeoutSeconds: 30,
     memory: "256MB",
     enforceAppCheck: true,
-    secrets: [opencodeApiKey],
+    secrets: [opencodeApiKey, googleAiApiKey, groqApiKey],
   },
   async (request) => {
     const uid = request.auth?.uid;
     if (!uid) {
       throw new HttpsError("unauthenticated", "unauthenticated");
     }
-    const provider = request.auth.token?.firebase?.sign_in_provider;
-    if (provider === "anonymous") {
+    const signInProvider = request.auth.token?.firebase?.sign_in_provider;
+    if (signInProvider === "anonymous") {
       throw new HttpsError("unauthenticated", "unauthenticated");
     }
 
@@ -288,10 +480,11 @@ exports.parseExpenseText = onCall(
 
     await consumeDailyQuota(uid);
 
-    const apiKey = opencodeApiKey.value();
-    if (!apiKey) {
-      throw new HttpsError("failed-precondition", "AI service not configured");
-    }
+    const keys = {
+      opencode: secretOrEmpty(opencodeApiKey),
+      google: secretOrEmpty(googleAiApiKey),
+      groq: secretOrEmpty(groqApiKey),
+    };
 
     const config = await loadParserConfig();
     const systemInstruction = injectLists(
@@ -300,7 +493,6 @@ exports.parseExpenseText = onCall(
       incomeCategories,
       paymentMethods
     );
-
     const userBlock = [
       `User locale: ${locale}`,
       `User currency: ${currency}`,
@@ -308,24 +500,14 @@ exports.parseExpenseText = onCall(
       text.trim(),
     ].join("\n");
 
-    try {
-      const raw = await callOpenCode({
-        apiKey,
-        model: config.model,
-        systemInstruction,
-        userBlock,
-      });
-      const parsed = stripToJsonObject(raw);
-      return validateTransactions(
-        parsed,
-        expenseCategories,
-        incomeCategories,
-        paymentMethods
-      );
-    } catch (error) {
-      if (error instanceof HttpsError) throw error;
-      console.error("parseExpenseText model error:", error);
-      throw new HttpsError("internal", "AI parsing failed");
-    }
+    return parseWithRoundRobin({
+      providers: config.providers,
+      keys,
+      systemInstruction,
+      userBlock,
+      expenseCategories,
+      incomeCategories,
+      paymentMethods,
+    });
   }
 );

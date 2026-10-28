@@ -4412,6 +4412,8 @@
 
     <string name="msg_voice_error_timeout">No speech detected. Please try again.</string>
 
+    <string name="msg_ocr_play_services_required">Google Play Services is required to read text from images and PDFs. Install or update it, then try again.</string>
+
 
 
     <!-- Widget -->

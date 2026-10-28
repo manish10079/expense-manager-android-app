@@ -27,7 +27,33 @@ class AiTextExtractViewModel @Inject constructor(
     private val paymentMethodDao: PaymentMethodDao,
     private val aiUsageTracker: AiUsageTracker,
     private val monetizationRepository: MonetizationRepository,
+    private val onDeviceTextExtractor: OnDeviceTextExtractor,
 ) : ViewModel() {
+
+    fun parseFromDocument(
+        uri: android.net.Uri,
+        onResult: (DocumentParseOutcome) -> Unit,
+    ) {
+        viewModelScope.launch {
+            when (val ocr = onDeviceTextExtractor.extract(uri)) {
+                DocumentOcrResult.PlayServicesUnavailable ->
+                    onResult(DocumentParseOutcome.PlayServicesUnavailable)
+                is DocumentOcrResult.Text -> {
+                    val text = ocr.value
+                    if (text.isBlank()) {
+                        onResult(DocumentParseOutcome.RawAdd(""))
+                    } else {
+                        parse(text) { items ->
+                            onResult(
+                                if (items.isEmpty()) DocumentParseOutcome.RawAdd(text)
+                                else DocumentParseOutcome.Review(text, items)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     fun parse(
         text: String,
