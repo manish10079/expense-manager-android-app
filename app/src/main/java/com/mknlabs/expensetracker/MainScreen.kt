@@ -56,6 +56,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -91,7 +92,9 @@ import com.mknlabs.expensetracker.core.ui.components.AppLockOverlay
 import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.core.ui.components.MainScaffold
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
+import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.core.ui.components.adPassDurationLabel
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
@@ -225,6 +228,8 @@ fun MainScreen(
     var showPremiumSheet by remember { mutableStateOf(false) }
     var showAccountCreatedPopup by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val voiceReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
+    var voiceReviewSourceText by remember { mutableStateOf("") }
     var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
     // One-time, non-blocking notice when the device is rooted or an emulator
@@ -1553,6 +1558,23 @@ fun MainScreen(
                 com.mknlabs.expensetracker.utils.getCurrency(selectedCurrencyId).currencySymbol
             }
 
+            LaunchedEffect(voiceUiState.sheetState, voiceUiState.reviewItems) {
+                if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
+                speechRecognizer.cancel()
+                val items = voiceUiState.reviewItems
+                val transcript = voiceUiState.transcript
+                voiceViewModel.dismiss()
+                navigationState.updateShowVoiceInputSheet(false)
+                if (items.isEmpty()) {
+                    navigationState.updateAddTransactionDraftNote(transcript)
+                    navigationState.navigateTo(AppRoute.AddTransaction)
+                } else {
+                    voiceReviewSourceText = transcript
+                    voiceReviewItems.clear()
+                    voiceReviewItems.addAll(items)
+                }
+            }
+
             VoiceInputSheet(
                 sheetState = voiceUiState.sheetState,
                 transcript = voiceUiState.transcript,
@@ -1564,32 +1586,62 @@ fun MainScreen(
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)
                 },
-                onConfirm = { parsed ->
-                    val now = System.currentTimeMillis()
-                    val transaction = Transaction(
-                        id = UUID.randomUUID().toString(),
-                        note = parsed.note,
-                        createdAt = now,
-                        amountMinor = parsed.amountMinor,
-                        transactionTypeId = parsed.transactionTypeId,
-                        paymentTypeId = parsed.paymentTypeId ?: 1,
-                        categoryId = parsed.categoryId,
-                        contentHash = null,
-                        syncState = SyncState.PENDING_UPLOAD,
-                        isDeleted = false,
-                        updatedAt = now,
-                        sourceRecurringRuleId = null
-                    )
-                    // A voice entry is never a favorite template: the star lives
-                    speechRecognizer.cancel()
-                    voiceViewModel.dismiss()
-                    navigationState.updateShowVoiceInputSheet(false)
-                    showToast(context.getString(R.string.toast_sms_transaction_saved))
-                },
+                onConfirm = { },
                 onRetry = {
                     speechRecognizer.cancel()
                     voiceViewModel.resetToListening()
                 }
+            )
+        }
+
+        if (voiceReviewItems.isNotEmpty()) {
+            AiParseReviewSheet(
+                items = voiceReviewItems.toList(),
+                onDismissRequest = {
+                    voiceReviewItems.clear()
+                },
+                onAdd = { item ->
+                    val now = System.currentTimeMillis()
+                    mainViewModel.saveTransaction(
+                        Transaction(
+                            id = "",
+                            note = item.note,
+                            createdAt = now,
+                            amountMinor = item.amountMinor,
+                            transactionTypeId = item.typeId,
+                            paymentTypeId = item.paymentTypeId,
+                            categoryId = item.categoryId,
+                            contentHash = null,
+                            syncState = SyncState.PENDING_UPLOAD,
+                            isDeleted = false,
+                            updatedAt = now,
+                            sourceRecurringRuleId = null,
+                            fundId = null,
+                        ),
+                        null,
+                        null,
+                        false,
+                        emptyList(),
+                    )
+                    voiceReviewItems.removeAll { it.id == item.id }
+                },
+                onEdit = { item ->
+                    val amount = java.math.BigDecimal
+                        .valueOf(item.amount)
+                        .stripTrailingZeros()
+                        .toPlainString()
+                    navigationState.updateAddTransactionDraftAmount(amount)
+                    navigationState.updateAddTransactionDraftNote(
+                        item.note.ifBlank { voiceReviewSourceText }
+                    )
+                    if (item.categoryId > 0) {
+                        navigationState.updateAddTransactionDraftCategoryId(item.categoryId)
+                    }
+                    navigationState.updateAddTransactionDraftTypeId(item.typeId)
+                    navigationState.updateAddTransactionDraftPaymentTypeId(item.paymentTypeId)
+                    voiceReviewItems.removeAll { it.id == item.id }
+                    navigationState.navigateTo(AppRoute.AddTransaction)
+                },
             )
         }
 
