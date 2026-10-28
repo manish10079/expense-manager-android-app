@@ -65,7 +65,7 @@ private const val ExtractTextMaxLength = 2000
 @Composable
 fun AiTextExtractBottomSheet(
     onDismissRequest: () -> Unit,
-    onExtract: (String, com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction?) -> Unit,
+    onExtract: (String, List<com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem>) -> Unit,
     initialText: String = ""
 ) {
     val extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = androidx.hilt.navigation.compose.hiltViewModel()

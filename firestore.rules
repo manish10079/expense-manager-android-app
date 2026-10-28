@@ -190,6 +190,17 @@ service cloud.firestore {
     }
 
     /******************************************************************
+     * AI DAILY USAGE (server-authoritative)
+     * Path: ai_usage/{uid}/days/{yyyy-mm-dd}
+     ******************************************************************/
+    match /ai_usage/{uid} {
+      allow read, write: if false;
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    /******************************************************************
      * DENY EVERYTHING ELSE
      ******************************************************************/
     match /{document=**} {

@@ -12,7 +12,9 @@ import com.mknlabs.expensetracker.ai.aiUsageDataStore
 import com.mknlabs.expensetracker.ai.cloud.FirebaseGeminiParser
 import com.mknlabs.expensetracker.ai.offline.OfflineVoiceParser
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
+import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
+import com.mknlabs.expensetracker.models.UserTier
 import com.mknlabs.expensetracker.domain.repository.VoiceParserType
 import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,7 +57,8 @@ data class VoiceInputUiState(
 class VoiceAddViewModel @Inject constructor(
     application: Application,
     private val offlineParser: OfflineVoiceParser,
-    private val firebaseGeminiParser: FirebaseGeminiParser
+    private val firebaseGeminiParser: FirebaseGeminiParser,
+    private val monetizationRepository: MonetizationRepository,
 ) : AndroidViewModel(application) {
 
     companion object {
@@ -104,7 +107,8 @@ class VoiceAddViewModel @Inject constructor(
 
         viewModelScope.launch {
             val isOnline = isInternetAvailable()
-            val hasRemainingAiParses = aiUsageTracker.hasRemainingParses.first()
+            val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
+            val hasRemainingAiParses = aiUsageTracker.hasRemainingParses(isPro).first()
             Log.d(TAG, "onSpeechResult: isOnline=$isOnline, hasRemainingAiParses=$hasRemainingAiParses")
 
             // Decision: use Gemini AI only if online AND within daily limit
@@ -116,8 +120,8 @@ class VoiceAddViewModel @Inject constructor(
                     Log.d(TAG, "onSpeechResult: Gemini result=$geminiResult")
                     if (geminiResult is VoiceParseResult.Success) {
                         // Record usage
-                        aiUsageTracker.recordUsage()
-                        val remaining = aiUsageTracker.remainingParses.first()
+                        aiUsageTracker.recordUsage(isPro)
+                        val remaining = aiUsageTracker.remainingParses(isPro).first()
                         Log.d(TAG, "onSpeechResult: Gemini SUCCESS — amount=${geminiResult.transaction.amountMinor}, remainingAiParses=$remaining")
                         _uiState.value = _uiState.value.copy(
                             sheetState = VoiceSheetState.RESULT,
@@ -139,7 +143,7 @@ class VoiceAddViewModel @Inject constructor(
             // Fallback: use offline parser (no internet OR limit reached OR Gemini failed)
             Log.d(TAG, "onSpeechResult: running offline parser...")
             val offlineResult = offlineParser.parse(text)
-            val remaining = aiUsageTracker.remainingParses.first()
+            val remaining = aiUsageTracker.remainingParses(isPro).first()
             Log.d(TAG, "onSpeechResult: offline result=$offlineResult, remainingAiParses=$remaining")
 
             when (offlineResult) {

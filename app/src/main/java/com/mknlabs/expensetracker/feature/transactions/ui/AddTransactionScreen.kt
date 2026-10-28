@@ -320,6 +320,7 @@ fun AddTransactionScreen(
     initialNote: String? = null,
     initialCategoryId: Int? = null,
     initialTransactionTypeId: Int? = null,
+    initialPaymentTypeId: Int? = null,
     autoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     favorites: List<FavoriteTransaction> = emptyList(),
@@ -384,6 +385,7 @@ fun AddTransactionScreen(
         initialNote = initialNote,
         initialCategoryId = initialCategoryId,
         initialTransactionTypeId = initialTransactionTypeId,
+        initialPaymentTypeId = initialPaymentTypeId,
         autoStartVoice = autoStartVoice,
         favorites = favorites,
         onRemoveFavorite = onRemoveFavorite,
@@ -438,6 +440,7 @@ internal fun AddTransactionScreenContent(
     initialNote: String? = null,
     initialCategoryId: Int? = null,
     initialTransactionTypeId: Int? = null,
+    initialPaymentTypeId: Int? = null,
     autoStartVoice: Boolean = false,
     favorites: List<FavoriteTransaction> = emptyList(),
     onRemoveFavorite: (String) -> Unit = {},
@@ -514,9 +517,10 @@ internal fun AddTransactionScreenContent(
         var selectedCategoryId by rememberSaveable(existingTransaction?.id, initialCategoryId) {
             mutableIntStateOf(existingTransaction?.categoryId ?: initialCategoryId ?: 0)
         }
-        var selectedPaymentId by rememberSaveable(existingTransaction?.id) {
+        var selectedPaymentId by rememberSaveable(existingTransaction?.id, initialPaymentTypeId) {
             mutableIntStateOf(
                 existingTransaction?.paymentTypeId
+                    ?: initialPaymentTypeId
                     ?: paymentMethods.firstOrNull { it.id == DEFAULT_PAYMENT_TYPE_ID }?.id
                     ?: (paymentMethods.firstOrNull()?.id ?: 0)
             )
@@ -531,7 +535,7 @@ internal fun AddTransactionScreenContent(
             mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())
         }
 
-        var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(false) }
+        var hasManuallySelectedPayment by rememberSaveable { mutableStateOf(initialPaymentTypeId != null) }
 
         // Auto-predict payment method when note/merchant text changes
         LaunchedEffect(note) {

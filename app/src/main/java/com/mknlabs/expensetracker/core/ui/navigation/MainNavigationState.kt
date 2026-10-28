@@ -62,6 +62,9 @@ class MainNavigationState(
     var addTransactionDraftTypeId by mutableStateOf<Int?>(null)
         private set
 
+    var addTransactionDraftPaymentTypeId by mutableStateOf<Int?>(null)
+        private set
+
     var addTransactionDraftAutoStartVoice by mutableStateOf(false)
         private set
 
@@ -126,6 +129,10 @@ class MainNavigationState(
         addTransactionDraftTypeId = typeId
     }
 
+    fun updateAddTransactionDraftPaymentTypeId(paymentTypeId: Int?) {
+        addTransactionDraftPaymentTypeId = paymentTypeId
+    }
+
     fun updateAddTransactionDraftAutoStartVoice(autoStart: Boolean) {
         addTransactionDraftAutoStartVoice = autoStart
     }
@@ -144,6 +151,7 @@ class MainNavigationState(
         addTransactionDraftNote = null
         addTransactionDraftCategoryId = null
         addTransactionDraftTypeId = null
+        addTransactionDraftPaymentTypeId = null
         addTransactionDraftAutoStartVoice = false
         addTransactionSourceDetectionId = null
         showVoiceInputSheet = false

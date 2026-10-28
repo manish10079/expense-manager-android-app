@@ -23,6 +23,9 @@ const admin = require("firebase-admin");
 const { parseVoiceTransaction } = require("./parseVoiceTransaction");
 exports.parseVoiceTransaction = parseVoiceTransaction;
 
+const { parseExpenseText } = require("./parseExpenseText");
+exports.parseExpenseText = parseExpenseText;
+
 admin.initializeApp();
 
 const db = admin.firestore();

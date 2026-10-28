@@ -22,54 +22,50 @@ val Context.aiUsageDataStore: DataStore<Preferences> by preferencesDataStore(
 annotation class AiUsageDataStore
 
 /**
- * Tracks daily AI voice parse usage for rate limiting.
+ * Tracks daily AI parse usage for rate limiting.
  *
- * Free tier: 10 parses/day (configurable via [dailyLimit]).
- * Pro tier: unlimited (check [UserTier] before calling [recordUsage]).
+ * Guest and free: [FREE_OR_GUEST_DAILY_LIMIT] parses/day.
+ * Pro: [PRO_DAILY_LIMIT] parses/day.
  *
  * Resets count automatically at midnight (local timezone).
- * Stored in DataStore — no Room migration needed.
  */
 @Singleton
 class AiUsageTracker @Inject constructor(
     @AiUsageDataStore private val dataStore: DataStore<Preferences>
 ) {
-    /** Default daily limit for free users. */
-    val dailyLimit: Int = DEFAULT_DAILY_LIMIT
-
-    /** Current parse count for today. */
     val todayCount: Flow<Int> = dataStore.data.map { prefs ->
         val countDate = prefs[KEY_COUNT_DATE] ?: 0L
         if (isToday(countDate)) {
             prefs[KEY_COUNT] ?: 0
         } else {
-            0 // New day, count resets
+            0
         }
     }
 
-    /** Whether the user has remaining parses today. */
-    val hasRemainingParses: Flow<Boolean> = todayCount.map { it < dailyLimit }
+    fun dailyLimit(isPro: Boolean): Int =
+        if (isPro) PRO_DAILY_LIMIT else FREE_OR_GUEST_DAILY_LIMIT
 
-    /** Remaining parses today. */
-    val remainingParses: Flow<Int> = todayCount.map { count ->
-        (dailyLimit - count).coerceAtLeast(0)
-    }
+    fun hasRemainingParses(isPro: Boolean): Flow<Boolean> =
+        todayCount.map { it < dailyLimit(isPro) }
+
+    fun remainingParses(isPro: Boolean): Flow<Int> =
+        todayCount.map { count -> (dailyLimit(isPro) - count).coerceAtLeast(0) }
 
     /**
      * Records a successful AI parse. Returns true if within limit, false if limit reached.
-     * The caller should check [hasRemainingParses] BEFORE calling this.
      */
-    suspend fun recordUsage(): Boolean {
+    suspend fun recordUsage(isPro: Boolean): Boolean {
+        val limit = dailyLimit(isPro)
         var withinLimit = false
         dataStore.edit { prefs ->
             val countDate = prefs[KEY_COUNT_DATE] ?: 0L
             val currentCount = if (isToday(countDate)) {
                 prefs[KEY_COUNT] ?: 0
             } else {
-                0 // New day
+                0
             }
 
-            if (currentCount < dailyLimit) {
+            if (currentCount < limit) {
                 prefs[KEY_COUNT] = currentCount + 1
                 prefs[KEY_COUNT_DATE] = System.currentTimeMillis()
                 withinLimit = true
@@ -80,9 +76,6 @@ class AiUsageTracker @Inject constructor(
         return withinLimit
     }
 
-    /**
-     * Resets the daily counter (e.g., for testing or manual reset).
-     */
     suspend fun reset() {
         dataStore.edit { prefs ->
             prefs[KEY_COUNT] = 0
@@ -97,9 +90,10 @@ class AiUsageTracker @Inject constructor(
         return timestamp >= todayStart
     }
 
-    private companion object {
-        const val DEFAULT_DAILY_LIMIT = 10
-        val KEY_COUNT = intPreferencesKey("ai_parse_count")
-        val KEY_COUNT_DATE = longPreferencesKey("ai_parse_count_date")
+    companion object {
+        const val FREE_OR_GUEST_DAILY_LIMIT = 4
+        const val PRO_DAILY_LIMIT = 10
+        private val KEY_COUNT = intPreferencesKey("ai_parse_count")
+        private val KEY_COUNT_DATE = longPreferencesKey("ai_parse_count_date")
     }
 }

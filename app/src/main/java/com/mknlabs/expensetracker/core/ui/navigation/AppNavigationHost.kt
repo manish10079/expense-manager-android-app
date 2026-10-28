@@ -75,6 +75,7 @@ fun AppNavigationHost(
     addTransactionDraftNote: String?,
     addTransactionDraftCategoryId: Int? = null,
     addTransactionDraftTypeId: Int? = null,
+    addTransactionDraftPaymentTypeId: Int? = null,
     addTransactionDraftAutoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     /**
@@ -737,6 +738,7 @@ fun AppNavigationHost(
                         initialNote = addTransactionDraftNote,
                         initialCategoryId = addTransactionDraftCategoryId,
                         initialTransactionTypeId = addTransactionDraftTypeId,
+                        initialPaymentTypeId = addTransactionDraftPaymentTypeId,
                         autoStartVoice = addTransactionDraftAutoStartVoice,
                         onVoiceAutoStarted = onVoiceAutoStarted,
                         onBackClick = {

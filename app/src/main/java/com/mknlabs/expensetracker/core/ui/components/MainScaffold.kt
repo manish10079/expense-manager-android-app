@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,8 +42,11 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
-import com.mknlabs.expensetracker.utils.toMajorUnits
+import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
+import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.utils.toMinorUnits
 import com.mknlabs.expensetracker.core.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
 import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
@@ -74,6 +78,7 @@ fun MainScaffold(
     addTransactionDraftNote: String?,
     addTransactionDraftCategoryId: Int? = null,
     addTransactionDraftTypeId: Int? = null,
+    addTransactionDraftPaymentTypeId: Int? = null,
     addTransactionDraftAutoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     /** Detected-SMS notification focus: inbox row to open, and whether Edit was used. */
@@ -137,6 +142,7 @@ fun MainScaffold(
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onAddTransactionDraftCategoryIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
+    onAddTransactionDraftPaymentTypeIdChange: (Int?) -> Unit = {},
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
@@ -221,6 +227,9 @@ fun MainScaffold(
     // reads only this value so bar flips stay scoped.
     val addFabVisibility = remember { mutableStateOf(true) }
     var showAiExtractSheet by remember { mutableStateOf(false) }
+    var showAiReviewSheet by remember { mutableStateOf(false) }
+    val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
+    var aiReviewSourceText by remember { mutableStateOf("") }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
     val addFilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -246,6 +255,7 @@ fun MainScaffold(
             onAddTransactionDraftNoteChange(null)
             onAddTransactionDraftCategoryIdChange(null)
             onAddTransactionDraftTypeIdChange(null)
+            onAddTransactionDraftPaymentTypeIdChange(null)
             // The draft is gone, so no detection is being reviewed any more. Leaving that
             // link behind would attach it to whatever gets saved next.
             onSmsInboxDraftConsumed()
@@ -331,6 +341,7 @@ fun MainScaffold(
             addTransactionDraftNote = addTransactionDraftNote,
             addTransactionDraftCategoryId = addTransactionDraftCategoryId,
             addTransactionDraftTypeId = addTransactionDraftTypeId,
+            addTransactionDraftPaymentTypeId = addTransactionDraftPaymentTypeId,
             addTransactionDraftAutoStartVoice = addTransactionDraftAutoStartVoice,
             onVoiceAutoStarted = onVoiceAutoStarted,
             smsInboxFocusId = smsInboxFocusId,
@@ -532,23 +543,75 @@ fun MainScaffold(
         if (showAiExtractSheet) {
             AiTextExtractBottomSheet(
                 onDismissRequest = { showAiExtractSheet = false },
-                onExtract = { text, parsed ->
-                    if (parsed != null) {
-                        val amount = java.math.BigDecimal
-                            .valueOf(parsed.amountMinor.toMajorUnits())
-                            .stripTrailingZeros()
-                            .toPlainString()
-                        onAddTransactionDraftAmountChange(amount)
-                        onAddTransactionDraftNoteChange(parsed.note.ifBlank { text })
-                        onAddTransactionDraftCategoryIdChange(parsed.categoryId)
-                        onAddTransactionDraftTypeIdChange(parsed.transactionTypeId)
-                    } else {
-                        onAddTransactionDraftNoteChange(text)
-                    }
+                onExtract = { text, items ->
                     showAiExtractSheet = false
+                    aiReviewSourceText = text
+                    if (items.isEmpty()) {
+                        onAddTransactionDraftNoteChange(text)
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange(AppRoute.AddTransaction)
+                    } else {
+                        aiReviewItems.clear()
+                        aiReviewItems.addAll(items)
+                        showAiReviewSheet = true
+                    }
+                }
+            )
+        }
+        if (showAiReviewSheet && aiReviewItems.isNotEmpty()) {
+            AiParseReviewSheet(
+                items = aiReviewItems.toList(),
+                onDismissRequest = {
+                    showAiReviewSheet = false
+                    aiReviewItems.clear()
+                },
+                onAdd = { item ->
+                    val now = System.currentTimeMillis()
+                    onSaveTransaction(
+                        Transaction(
+                            id = "",
+                            note = item.note,
+                            createdAt = now,
+                            amountMinor = item.amountMinor,
+                            transactionTypeId = item.typeId,
+                            paymentTypeId = item.paymentTypeId,
+                            categoryId = item.categoryId,
+                            contentHash = null,
+                            syncState = SyncState.PENDING_UPLOAD,
+                            isDeleted = false,
+                            updatedAt = now,
+                            sourceRecurringRuleId = null,
+                            fundId = null,
+                        ),
+                        null,
+                        null,
+                        false,
+                        emptyList(),
+                    )
+                    aiReviewItems.removeAll { it.id == item.id }
+                    if (aiReviewItems.isEmpty()) {
+                        showAiReviewSheet = false
+                    }
+                },
+                onEdit = { item ->
+                    val amount = java.math.BigDecimal
+                        .valueOf(item.amount)
+                        .stripTrailingZeros()
+                        .toPlainString()
+                    onAddTransactionDraftAmountChange(amount)
+                    onAddTransactionDraftNoteChange(item.note.ifBlank { aiReviewSourceText })
+                    if (item.categoryId > 0) {
+                        onAddTransactionDraftCategoryIdChange(item.categoryId)
+                    }
+                    onAddTransactionDraftTypeIdChange(item.typeId)
+                    onAddTransactionDraftPaymentTypeIdChange(item.paymentTypeId)
+                    aiReviewItems.removeAll { it.id == item.id }
+                    if (aiReviewItems.isEmpty()) {
+                        showAiReviewSheet = false
+                    }
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
-                }
+                },
             )
         }
     }
