@@ -240,6 +240,7 @@ fun MainScaffold(
     var showAiReviewSheet by remember { mutableStateOf(false) }
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
     var aiReviewSourceText by remember { mutableStateOf("") }
+    var pendingOcrFingerprint by remember { mutableStateOf("") }
     var ocrPlayServicesError by remember { mutableStateOf(false) }
     var documentParseBusy by remember { mutableStateOf(false) }
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
@@ -263,13 +264,18 @@ fun MainScaffold(
                 DocumentParseOutcome.Failed -> {
                     aiParseErrorRes = R.string.msg_ai_parse_failed
                 }
+                DocumentParseOutcome.Duplicate -> {
+                    aiParseErrorRes = R.string.msg_ai_receipt_already_added
+                }
                 is DocumentParseOutcome.RawAdd -> {
+                    pendingOcrFingerprint = outcome.fingerprint
                     aiReviewSourceText = outcome.sourceText
                     onAddTransactionDraftNoteChange(outcome.sourceText)
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
                 }
                 is DocumentParseOutcome.Review -> {
+                    pendingOcrFingerprint = outcome.fingerprint
                     aiReviewSourceText = outcome.sourceText
                     aiReviewItems.clear()
                     aiReviewItems.addAll(outcome.items)
@@ -646,6 +652,7 @@ fun MainScaffold(
                     aiReviewItems.clear()
                 },
                 onAdd = { item ->
+                    aiExtractViewModel.rememberOcrSaved(pendingOcrFingerprint)
                     val now = System.currentTimeMillis()
                     onSaveTransaction(
                         Transaction(

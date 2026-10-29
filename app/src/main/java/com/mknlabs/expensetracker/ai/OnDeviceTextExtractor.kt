@@ -12,7 +12,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.mlkit.vision.common.InputImage
 import android.util.Log
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -25,8 +25,8 @@ import kotlin.math.max
 class OnDeviceTextExtractor @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    private val latinRecognizer by lazy {
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private val devanagariRecognizer by lazy {
+        TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
     }
 
     fun isPlayServicesAvailable(): Boolean {
@@ -91,20 +91,20 @@ class OnDeviceTextExtractor @Inject constructor(
     }
 
     private suspend fun recognizePrepared(source: Bitmap): String {
-        val grey = OcrBitmapPreprocessor.toBt709Greyscale(source)
+        val grey = OcrBitmapPreprocessor.prepare(source)
         try {
             val immutable = if (grey.isMutable) {
                 grey.copy(Bitmap.Config.ARGB_8888, false) ?: grey
             } else {
                 grey
             }
-            val text = latinRecognizer
+            val text = devanagariRecognizer
                 .process(InputImage.fromBitmap(immutable, 0))
                 .await()
                 .text
                 .trim()
             if (immutable !== grey && !immutable.isRecycled) immutable.recycle()
-            Log.i(TAG, "OCR latin:\n$text")
+            Log.i(TAG, "RAW OCR:\n$text")
             return text
         } finally {
             if (grey !== source && !grey.isRecycled) grey.recycle()

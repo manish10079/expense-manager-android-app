@@ -31,6 +31,7 @@ class AiTextExtractViewModel @Inject constructor(
     private val aiUsageTracker: AiUsageTracker,
     private val monetizationRepository: MonetizationRepository,
     private val onDeviceTextExtractor: OnDeviceTextExtractor,
+    private val ocrReceiptDeduper: OcrReceiptDeduper,
 ) : ViewModel() {
 
     companion object {
@@ -51,18 +52,27 @@ class AiTextExtractViewModel @Inject constructor(
                     if (text.isBlank()) {
                         onResult(DocumentParseOutcome.RawAdd(""))
                     } else {
-                        parse(text) { outcome ->
-                            onResult(
-                                when (outcome) {
-                                    is TextParseOutcome.Review ->
-                                        DocumentParseOutcome.Review(text, outcome.items)
-                                    TextParseOutcome.RawAdd -> DocumentParseOutcome.RawAdd(text)
-                                    TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
-                                    TextParseOutcome.Failed ->
-                                        if (text.isNotBlank()) DocumentParseOutcome.RawAdd(text)
-                                        else DocumentParseOutcome.Failed
-                                }
-                            )
+                        val fingerprint = OcrReceiptFingerprint.of(text)
+                        if (ocrReceiptDeduper.wasSavedRecently(fingerprint)) {
+                            onResult(DocumentParseOutcome.Duplicate)
+                        } else {
+                            parse(text) { outcome ->
+                                onResult(
+                                    when (outcome) {
+                                        is TextParseOutcome.Review ->
+                                            DocumentParseOutcome.Review(text, outcome.items, fingerprint)
+                                        TextParseOutcome.RawAdd ->
+                                            DocumentParseOutcome.RawAdd(text, fingerprint)
+                                        TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
+                                        TextParseOutcome.Failed ->
+                                            if (text.isNotBlank()) {
+                                                DocumentParseOutcome.RawAdd(text, fingerprint)
+                                            } else {
+                                                DocumentParseOutcome.Failed
+                                            }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -114,6 +124,13 @@ class AiTextExtractViewModel @Inject constructor(
                 }
             }
             onResult(outcome)
+        }
+    }
+
+    fun rememberOcrSaved(fingerprint: String) {
+        if (fingerprint.isBlank()) return
+        viewModelScope.launch {
+            ocrReceiptDeduper.rememberSaved(fingerprint)
         }
     }
 

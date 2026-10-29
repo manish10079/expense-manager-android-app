@@ -75,7 +75,7 @@ fun AiTextExtractBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    var fieldValue by remember {
+    var fieldValue by remember(initialText) {
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
     }
     val canExtract = fieldValue.text.isNotBlank() && !isExtracting

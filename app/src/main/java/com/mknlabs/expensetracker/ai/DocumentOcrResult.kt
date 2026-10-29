@@ -9,9 +9,11 @@ sealed class DocumentParseOutcome {
     data class Review(
         val sourceText: String,
         val items: List<com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem>,
+        val fingerprint: String = "",
     ) : DocumentParseOutcome()
 
-    data class RawAdd(val sourceText: String) : DocumentParseOutcome()
+    data class RawAdd(val sourceText: String, val fingerprint: String = "") : DocumentParseOutcome()
+    data object Duplicate : DocumentParseOutcome()
     data object PlayServicesUnavailable : DocumentParseOutcome()
     data object DailyLimit : DocumentParseOutcome()
     data object Failed : DocumentParseOutcome()

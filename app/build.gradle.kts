@@ -263,7 +263,6 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.play.services.ads)
-    implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.play.services.mlkit.text.recognition.devanagari)
     implementation(libs.user.messaging.platform)
     implementation(libs.rootbeer.lib)
