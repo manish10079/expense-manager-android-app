@@ -525,12 +525,14 @@ exports.parseExpenseText = onCall(
     } else {
       providers = providers.filter((p) => p.id !== "openrouter");
     }
-    const systemInstruction = injectLists(
-      config.instruction,
-      expenseCategories,
-      incomeCategories,
-      paymentMethods
-    );
+    const systemInstruction =
+      injectLists(
+        config.instruction,
+        expenseCategories,
+        incomeCategories,
+        paymentMethods
+      ) +
+      "\n11. Input may be typed text or OCR from a store receipt, bank SMS/statement, UPI app screenshot, or PDF. OCR is noisy: broken lines, extra spaces, headers/footers, GSTIN, and currency signs (especially ₹) misread as digits. Recover merchant and true amounts; ignore boilerplate that is not a transaction.";
     const userBlock = [
       `User locale: ${locale}`,
       `User currency: ${currency}`,
@@ -538,7 +540,10 @@ exports.parseExpenseText = onCall(
       text.trim(),
     ].join("\n");
 
-    await assertDailyQuotaAvailable(uid);
+    const skipQuota = request.data?.skipQuota === true;
+    if (!skipQuota) {
+      await assertDailyQuotaAvailable(uid);
+    }
 
     const parsed = await parseWithRoundRobin({
       providers,
@@ -549,7 +554,9 @@ exports.parseExpenseText = onCall(
       incomeCategories,
       paymentMethods,
     });
-    await incrementDailyQuota(uid);
+    if (!skipQuota) {
+      await incrementDailyQuota(uid);
+    }
     return parsed;
   }
 );

@@ -12,6 +12,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
 import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.models.UserTier
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import android.util.Log
 import com.google.firebase.functions.FirebaseFunctionsException
@@ -46,6 +47,7 @@ class AiTextExtractViewModel @Inject constructor(
                     onResult(DocumentParseOutcome.PlayServicesUnavailable)
                 is DocumentOcrResult.Text -> {
                     val text = ocr.value
+                    Log.i(TAG, "OCR sending to AI:\n$text")
                     if (text.isBlank()) {
                         onResult(DocumentParseOutcome.RawAdd(""))
                     } else {
@@ -56,7 +58,9 @@ class AiTextExtractViewModel @Inject constructor(
                                         DocumentParseOutcome.Review(text, outcome.items)
                                     TextParseOutcome.RawAdd -> DocumentParseOutcome.RawAdd(text)
                                     TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
-                                    TextParseOutcome.Failed -> DocumentParseOutcome.Failed
+                                    TextParseOutcome.Failed ->
+                                        if (text.isNotBlank()) DocumentParseOutcome.RawAdd(text)
+                                        else DocumentParseOutcome.Failed
                                 }
                             )
                         }
@@ -77,7 +81,7 @@ class AiTextExtractViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
-            if (!aiUsageTracker.hasRemainingParses(isPro).first()) {
+            if (!BuildConfig.DEBUG && !aiUsageTracker.hasRemainingParses(isPro).first()) {
                 onResult(TextParseOutcome.DailyLimit)
                 return@launch
             }
@@ -91,10 +95,13 @@ class AiTextExtractViewModel @Inject constructor(
                         expenseCategories = ctx.allExpenseCategories,
                         incomeCategories = ctx.allIncomeCategories,
                         paymentMethods = ctx.allPaymentMethods,
+                        skipQuota = BuildConfig.DEBUG,
                     )
                 )
                 val mapped = mapResponse(response)
-                aiUsageTracker.recordUsage(isPro)
+                if (!BuildConfig.DEBUG) {
+                    aiUsageTracker.recordUsage(isPro)
+                }
                 if (mapped.isEmpty()) TextParseOutcome.RawAdd else TextParseOutcome.Review(mapped)
             }.getOrElse { error ->
                 Log.e(TAG, "parseExpenseText failed", error)

@@ -167,6 +167,11 @@ com.mknlabs.expensetracker/
 - No untested code or business logic in the UI layer.
 - No `hiltViewModel()`, `viewModel()`, or state collection (`collectAsState`/`collectAsStateWithLifecycle`) inside previewable UI/Content composables.
 - No creating new screens, ViewModels, or feature modules in legacy top-level `ui/screens/` or `ui/viewmodels/` directories. All new components MUST be placed in feature-first packages (`feature/<feature-name>/ui/`).
+
+## AI extract (`parseExpenseText`)
+- Cloud callable: Groq then OpenRouter live `:free` models. Keys in Secret Manager only.
+- Debug builds skip daily quota (`BuildConfig.DEBUG` → `skipQuota: true`). Release still enforces free 4 / Pro 10 UTC.
+- Image/PDF: BT.709 greyscale → Latin ML Kit OCR → same parser. Logcat: `OnDeviceTextExtractor` / `AiTextExtractVM`.
 - No AI-attribution text, banners, or signatures anywhere in the code base (source files, comments, strings, README, docs, config). Never add `Generated with Codebuff 🤖`, `Co-Authored-By: Codebuff <noreply@codebuff.com>`, or similar credit lines from any tool or model.
 
 ---

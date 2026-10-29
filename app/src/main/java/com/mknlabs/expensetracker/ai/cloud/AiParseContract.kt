@@ -11,15 +11,17 @@ data class AiParseRequest(
     val expenseCategories: List<String>,
     val incomeCategories: List<String>,
     val paymentMethods: List<String>,
+    val skipQuota: Boolean = false,
 ) {
-    fun toCallableMap(): Map<String, Any> = mapOf(
-        "text" to text,
-        "locale" to locale,
-        "currency" to currency,
-        "expenseCategories" to expenseCategories,
-        "incomeCategories" to incomeCategories,
-        "paymentMethods" to paymentMethods,
-    )
+    fun toCallableMap(): Map<String, Any> = buildMap {
+        put("text", text)
+        put("locale", locale)
+        put("currency", currency)
+        put("expenseCategories", expenseCategories)
+        put("incomeCategories", incomeCategories)
+        put("paymentMethods", paymentMethods)
+        if (skipQuota) put("skipQuota", true)
+    }
 }
 
 data class AiParsedTransaction(

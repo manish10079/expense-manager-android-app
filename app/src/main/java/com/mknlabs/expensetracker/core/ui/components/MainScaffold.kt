@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +37,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
@@ -237,6 +241,7 @@ fun MainScaffold(
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
     var aiReviewSourceText by remember { mutableStateOf("") }
     var ocrPlayServicesError by remember { mutableStateOf(false) }
+    var documentParseBusy by remember { mutableStateOf(false) }
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
@@ -245,7 +250,9 @@ fun MainScaffold(
     ) { uri ->
         addFabMenuExpanded = false
         if (uri == null) return@rememberLauncherForActivityResult
+        documentParseBusy = true
         aiExtractViewModel.parseFromDocument(uri) { outcome ->
+            documentParseBusy = false
             when (outcome) {
                 DocumentParseOutcome.PlayServicesUnavailable -> {
                     ocrPlayServicesError = true
@@ -272,6 +279,24 @@ fun MainScaffold(
         }
     }
 
+    if (documentParseBusy) {
+        AlertDialog(
+            onDismissRequest = {},
+            icon = {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    strokeWidth = 3.dp,
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.msg_ai_extracting_document),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {},
+        )
+    }
     if (ocrPlayServicesError) {
         AlertDialog(
             onDismissRequest = { ocrPlayServicesError = false },

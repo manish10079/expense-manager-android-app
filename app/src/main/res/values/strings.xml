@@ -4416,6 +4416,7 @@
 
     <string name="msg_ai_daily_limit">Daily AI parse limit reached. Try again tomorrow.</string>
     <string name="msg_ai_parse_failed">Could not parse that text. Sign in and try again, or enter the transaction manually.</string>
+    <string name="msg_ai_extracting_document">Reading your file…</string>
 
 
 

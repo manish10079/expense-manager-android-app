@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.AiUsageTracker
 import com.mknlabs.expensetracker.ai.aiUsageDataStore
@@ -87,7 +88,8 @@ class VoiceAddViewModel @Inject constructor(
         viewModelScope.launch {
             val isOnline = isInternetAvailable()
             val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
-            val hasRemainingAiParses = aiUsageTracker.hasRemainingParses(isPro).first()
+            val hasRemainingAiParses =
+                BuildConfig.DEBUG || aiUsageTracker.hasRemainingParses(isPro).first()
 
             if (isOnline && hasRemainingAiParses) {
                 try {
@@ -100,10 +102,13 @@ class VoiceAddViewModel @Inject constructor(
                             expenseCategories = ctx.allExpenseCategories,
                             incomeCategories = ctx.allIncomeCategories,
                             paymentMethods = ctx.allPaymentMethods,
+                            skipQuota = BuildConfig.DEBUG,
                         )
                     )
                     val items = mapCloudResponse(response.transactions)
-                    aiUsageTracker.recordUsage(isPro)
+                    if (!BuildConfig.DEBUG) {
+                        aiUsageTracker.recordUsage(isPro)
+                    }
                     val remaining = aiUsageTracker.remainingParses(isPro).first()
                     _uiState.value = _uiState.value.copy(
                         sheetState = VoiceSheetState.RESULT,
