@@ -118,6 +118,8 @@ fun MainScaffold(
     selectedTimeFormat: String,
     isAppLockEnabled: Boolean,
     isLockOverlayActive: Boolean = false,
+    incomingShare: com.mknlabs.expensetracker.ai.IncomingShare? = null,
+    onIncomingShareConsumed: () -> Unit = {},
     hasAppLockPin: Boolean,
     isBiometricEnabled: Boolean,
     isScrambledPinKeypadEnabled: Boolean,
@@ -246,42 +248,88 @@ fun MainScaffold(
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
+    fun applyIncomingDocumentOutcome(outcome: DocumentParseOutcome) {
+        documentParseBusy = false
+        when (outcome) {
+            DocumentParseOutcome.PlayServicesUnavailable -> {
+                ocrPlayServicesError = true
+            }
+            DocumentParseOutcome.DailyLimit -> {
+                aiParseErrorRes = R.string.msg_ai_daily_limit
+            }
+            DocumentParseOutcome.Failed -> {
+                aiParseErrorRes = R.string.msg_ai_parse_failed
+            }
+            DocumentParseOutcome.Duplicate -> {
+                aiParseErrorRes = R.string.msg_ai_receipt_already_added
+            }
+            is DocumentParseOutcome.RawAdd -> {
+                pendingOcrFingerprint = outcome.fingerprint
+                aiReviewSourceText = outcome.sourceText
+                onAddTransactionDraftNoteChange(outcome.sourceText)
+                onBottomBarVisibilityChange(false)
+                onRouteChange(AppRoute.AddTransaction)
+            }
+            is DocumentParseOutcome.Review -> {
+                pendingOcrFingerprint = outcome.fingerprint
+                aiReviewSourceText = outcome.sourceText
+                aiReviewItems.clear()
+                aiReviewItems.addAll(outcome.items)
+                showAiReviewSheet = true
+            }
+        }
+    }
+
     val addFilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         addFabMenuExpanded = false
         if (uri == null) return@rememberLauncherForActivityResult
         documentParseBusy = true
-        aiExtractViewModel.parseFromDocument(uri) { outcome ->
+        aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(incomingShare, isLockOverlayActive) {
+        val share = incomingShare ?: return@LaunchedEffect
+        if (isLockOverlayActive) return@LaunchedEffect
+        val uri = share.documentUri
+        if (uri != null) {
+            documentParseBusy = true
+            aiExtractViewModel.parseFromDocument(uri) { outcome ->
+                applyIncomingDocumentOutcome(outcome)
+                onIncomingShareConsumed()
+            }
+            return@LaunchedEffect
+        }
+        val text = share.text?.trim().orEmpty()
+        if (text.isEmpty()) {
+            onIncomingShareConsumed()
+            return@LaunchedEffect
+        }
+        documentParseBusy = true
+        aiExtractViewModel.parse(text) { outcome ->
             documentParseBusy = false
             when (outcome) {
-                DocumentParseOutcome.PlayServicesUnavailable -> {
-                    ocrPlayServicesError = true
-                }
-                DocumentParseOutcome.DailyLimit -> {
-                    aiParseErrorRes = R.string.msg_ai_daily_limit
-                }
-                DocumentParseOutcome.Failed -> {
-                    aiParseErrorRes = R.string.msg_ai_parse_failed
-                }
-                DocumentParseOutcome.Duplicate -> {
-                    aiParseErrorRes = R.string.msg_ai_receipt_already_added
-                }
-                is DocumentParseOutcome.RawAdd -> {
-                    pendingOcrFingerprint = outcome.fingerprint
-                    aiReviewSourceText = outcome.sourceText
-                    onAddTransactionDraftNoteChange(outcome.sourceText)
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange(AppRoute.AddTransaction)
-                }
-                is DocumentParseOutcome.Review -> {
-                    pendingOcrFingerprint = outcome.fingerprint
-                    aiReviewSourceText = outcome.sourceText
+                is com.mknlabs.expensetracker.ai.TextParseOutcome.Review -> {
+                    aiReviewSourceText = text
                     aiReviewItems.clear()
                     aiReviewItems.addAll(outcome.items)
                     showAiReviewSheet = true
                 }
+                com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd -> {
+                    aiReviewSourceText = text
+                    onAddTransactionDraftNoteChange(text)
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                }
+                com.mknlabs.expensetracker.ai.TextParseOutcome.DailyLimit -> {
+                    aiParseErrorRes = R.string.msg_ai_daily_limit
+                }
+                com.mknlabs.expensetracker.ai.TextParseOutcome.Failed -> {
+                    aiParseErrorRes = R.string.msg_ai_parse_failed
+                }
             }
+            onIncomingShareConsumed()
         }
     }
 

@@ -1,7 +1,8 @@
 /**
  * parseExpenseText — callable AI parser.
  *
- * Providers: Groq then OpenRouter (live :free models from GET /api/v1/models).
+ * Providers: Groq, OpenRouter (live :free models), Xkiro (GET /v1/models).
+ * ENABLED_PROVIDERS: groq, openrouter, xkiro, apinex. Rotate each request.
  * Rotate models; fail over on HTTP / timeout / invalid JSON.
  */
 
@@ -11,13 +12,36 @@ const admin = require("firebase-admin");
 
 const groqApiKey = defineSecret("GROQ_API_KEY");
 const openrouterApiKey = defineSecret("OPENROUTER_API_KEY");
+const xkiroApiKey = defineSecret("XKIRO_API_KEY");
+const apinexApiKey = defineSecret("APINEX_API_KEY");
+
+const ENABLED_PROVIDERS = ["groq", "openrouter", "xkiro", "apinex"];
 
 const CALL_TIMEOUT_MS = 8000;
 const DEFAULT_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODELS_URL = "https://api.groq.com/openai/v1/models";
+const GROQ_CACHE_MS = 30 * 60 * 1000;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 const OPENROUTER_FREE_CACHE_MS = 30 * 60 * 1000;
 const OPENROUTER_FREE_MAX = 8;
+const XKIRO_URL = "https://api.xkiro.com/v1/chat/completions";
+const XKIRO_CACHE_MS = 30 * 60 * 1000;
+const APINEX_URL = "https://api.apinex.bond/v1/chat/completions";
+const APINEX_MODELS_URL = "https://api.apinex.bond/v1/models";
+const APINEX_CACHE_MS = 30 * 60 * 1000;
+const DEFAULT_XKIRO_FREE_MODELS = [
+  "mistralai/mistral-large-2512",
+  "mistralai/mistral-medium-3.5",
+  "mistralai/mistral-small-2603",
+  "mistralai/ministral-14b",
+  "qwen/qwen3.8-max:free",
+  "qwen/qwen3.8-omni-flash:free",
+  "qwen/qwen3.7-flash:free",
+  "stealth/big-pickle",
+  "cohere/command-a",
+  "sensenova/sensenova-6.8-flash-lite",
+];
 const DEFAULT_GROQ_MODELS = [
   "llama-3.1-8b-instant",
   "openai/gpt-oss-20b",
@@ -49,7 +73,10 @@ const FREE_OR_GUEST_DAILY_LIMIT = 4;
 const PRO_DAILY_LIMIT = 10;
 
 let promptCache = { at: 0, instruction: "", providers: [] };
+let groqModelCache = { at: 0, models: [] };
 let openrouterFreeCache = { at: 0, models: [] };
+let xkiroModelCache = { at: 0, models: [] };
+let apinexModelCache = { at: 0, models: [] };
 let providerCursor = 0;
 const modelCursorByProvider = Object.create(null);
 
@@ -174,7 +201,25 @@ function normalizeProviders(raw) {
       }
     }
   }
-  return [groq, openrouterProvider([])];
+  return [groq, openrouterProvider([]), xkiroProvider([]), apinexProvider([])];
+}
+
+function apinexProvider(models) {
+  return {
+    id: "apinex",
+    kind: "openai",
+    baseUrl: APINEX_URL,
+    models: models && models.length ? models : [],
+  };
+}
+
+function xkiroProvider(models) {
+  return {
+    id: "xkiro",
+    kind: "openai",
+    baseUrl: XKIRO_URL,
+    models: models && models.length ? models : [],
+  };
 }
 
 function openrouterProvider(models) {
@@ -239,6 +284,80 @@ async function loadOpenRouterFreeModels(apiKey) {
   }
   console.info("OpenRouter free models", ids);
   openrouterFreeCache = { at: now, models: ids };
+  return ids;
+}
+
+async function loadGroqModels(apiKey) {
+  const now = Date.now();
+  if (groqModelCache.models.length && now - groqModelCache.at < GROQ_CACHE_MS) {
+    console.info("Groq models (cache)", groqModelCache.models);
+    return groqModelCache.models;
+  }
+  const response = await fetchWithTimeout(GROQ_MODELS_URL, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("Groq models HTTP", response.status, payload);
+    throw new Error("groq-models");
+  }
+  const rows = Array.isArray(payload.data) ? payload.data : [];
+  const summary = rows.map((entry) => ({
+    id: entry && entry.id,
+    owned_by: entry && entry.owned_by,
+    active: entry && entry.active,
+    context_window: entry && entry.context_window,
+  }));
+  console.info("Groq models count", rows.length);
+  console.info("Groq models meta", summary);
+  const ids = rows
+    .map((entry) => String(entry && entry.id ? entry.id : "").trim())
+    .filter(Boolean);
+  console.info("Groq models", ids);
+  groqModelCache = { at: now, models: ids };
+  return ids;
+}
+
+async function loadXkiroModels() {
+  const now = Date.now();
+  if (xkiroModelCache.models.length && now - xkiroModelCache.at < XKIRO_CACHE_MS) {
+    return xkiroModelCache.models;
+  }
+  const ids = DEFAULT_XKIRO_FREE_MODELS.slice();
+  console.info("Xkiro models", ids);
+  xkiroModelCache = { at: now, models: ids };
+  return ids;
+}
+
+async function loadApinexModels(apiKey) {
+  const now = Date.now();
+  if (apinexModelCache.models.length && now - apinexModelCache.at < APINEX_CACHE_MS) {
+    console.info("Apinex models (cache)", apinexModelCache.models);
+    return apinexModelCache.models;
+  }
+  const response = await fetchWithTimeout(APINEX_MODELS_URL, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("Apinex models HTTP", response.status, payload);
+    throw new Error("apinex-models");
+  }
+  const rows = Array.isArray(payload.data) ? payload.data : [];
+  const ids = rows
+    .map((entry) => String(entry && entry.id ? entry.id : "").trim())
+    .filter((id) => id.toLowerCase().startsWith("free/"));
+  console.info("Apinex models count", ids.length);
+  console.info("Apinex models", ids);
+  apinexModelCache = { at: now, models: ids };
   return ids;
 }
 
@@ -423,6 +542,8 @@ async function parseWithRoundRobin({
     hasKey: {
       groq: Boolean(keys.groq),
       openrouter: Boolean(keys.openrouter),
+      xkiro: Boolean(keys.xkiro),
+      apinex: Boolean(keys.apinex),
     },
     ready: ready.map((p) => p.id),
   });
@@ -472,7 +593,7 @@ exports.parseExpenseText = onCall(
     timeoutSeconds: 30,
     memory: "256MB",
     enforceAppCheck: true,
-    secrets: [groqApiKey, openrouterApiKey],
+    secrets: [groqApiKey, openrouterApiKey, xkiroApiKey, apinexApiKey],
   },
   async (request) => {
     const uid = request.auth?.uid;
@@ -508,11 +629,28 @@ exports.parseExpenseText = onCall(
     const keys = {
       groq: secretOrEmpty(groqApiKey),
       openrouter: secretOrEmpty(openrouterApiKey),
+      xkiro: secretOrEmpty(xkiroApiKey),
+      apinex: secretOrEmpty(apinexApiKey),
     };
 
     const config = await loadParserConfig();
     let providers = config.providers;
-    if (keys.openrouter) {
+    const providerEnabled = (id) =>
+      !ENABLED_PROVIDERS.length || ENABLED_PROVIDERS.includes(id);
+    if (keys.groq && providerEnabled("groq")) {
+      try {
+        const groqModels = await loadGroqModels(keys.groq);
+        providers = providers.map((p) =>
+          p.id === "groq" ? groqProvider(groqModels) : p
+        );
+      } catch (error) {
+        console.error("Groq models list failed", error && error.message);
+        providers = providers.filter((p) => p.id !== "groq");
+      }
+    } else {
+      providers = providers.filter((p) => p.id !== "groq");
+    }
+    if (keys.openrouter && providerEnabled("openrouter")) {
       try {
         const freeModels = await loadOpenRouterFreeModels(keys.openrouter);
         providers = providers.map((p) =>
@@ -524,6 +662,32 @@ exports.parseExpenseText = onCall(
       }
     } else {
       providers = providers.filter((p) => p.id !== "openrouter");
+    }
+    if (keys.xkiro && providerEnabled("xkiro")) {
+      try {
+        const xkiroModels = await loadXkiroModels(keys.xkiro);
+        providers = providers.map((p) =>
+          p.id === "xkiro" ? xkiroProvider(xkiroModels) : p
+        );
+      } catch (error) {
+        console.error("Xkiro models list failed", error && error.message);
+        providers = providers.filter((p) => p.id !== "xkiro");
+      }
+    } else {
+      providers = providers.filter((p) => p.id !== "xkiro");
+    }
+    if (keys.apinex && providerEnabled("apinex")) {
+      try {
+        const apinexModels = await loadApinexModels(keys.apinex);
+        providers = providers.map((p) =>
+          p.id === "apinex" ? apinexProvider(apinexModels) : p
+        );
+      } catch (error) {
+        console.error("Apinex models list failed", error && error.message);
+        providers = providers.filter((p) => p.id !== "apinex");
+      }
+    } else {
+      providers = providers.filter((p) => p.id !== "apinex");
     }
     const systemInstruction =
       injectLists(
@@ -543,6 +707,10 @@ exports.parseExpenseText = onCall(
     const skipQuota = request.data?.skipQuota === true;
     if (!skipQuota) {
       await assertDailyQuotaAvailable(uid);
+    }
+
+    if (ENABLED_PROVIDERS.length) {
+      providers = providers.filter((p) => ENABLED_PROVIDERS.includes(p.id));
     }
 
     const parsed = await parseWithRoundRobin({

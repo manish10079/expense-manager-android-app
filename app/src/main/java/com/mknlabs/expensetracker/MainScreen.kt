@@ -201,7 +201,9 @@ fun MainScreen(
     // True while the cold-start / auto-lock overlay (hosted by MainActivity) is
     // active. While set, MainScreen suppresses its root-level bottom sheets and
     // dialogs so no window can ever be created on top of the lock.
-    isAppLockActive: Boolean = false
+    isAppLockActive: Boolean = false,
+    incomingShare: com.mknlabs.expensetracker.ai.IncomingShare? = null,
+    onIncomingShareConsumed: () -> Unit = {},
 ) {
     val rawContext = LocalContext.current
     val context = rawContext.applicationContext
@@ -910,6 +912,8 @@ fun MainScreen(
                         selectedTimeFormat = selectedTimeFormat,
                         isAppLockEnabled = isAppLockEnabled,
                         isLockOverlayActive = isAppLockActive || appLockFlow != null,
+                        incomingShare = incomingShare,
+                        onIncomingShareConsumed = onIncomingShareConsumed,
                         hasAppLockPin = hasAppLockPin,
                         isBiometricEnabled = isBiometricEnabled,
                         isScrambledPinKeypadEnabled = isScrambledPinKeypadEnabled,

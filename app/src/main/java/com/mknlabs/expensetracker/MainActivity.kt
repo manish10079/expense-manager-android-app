@@ -55,6 +55,7 @@ import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
 import com.mknlabs.expensetracker.utils.PlayStoreLink
 import com.mknlabs.expensetracker.utils.RateAppPrompt
 import android.net.Uri
+import com.mknlabs.expensetracker.ai.toIncomingShare
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
@@ -123,6 +124,7 @@ class MainActivity : AppCompatActivity() {
     // AuthViewModel is provided at the Composable level to avoid activity scope leaks,
     // but we can use it to handle incoming intents.
     private var currentIntent by mutableStateOf<Intent?>(null)
+    private var pendingShare by mutableStateOf<com.mknlabs.expensetracker.ai.IncomingShare?>(null)
 
     
     override fun attachBaseContext(newBase: Context) {
@@ -190,6 +192,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         
         currentIntent = intent
+        intent?.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        pendingShare = intent.toIncomingShare() ?: pendingShare
         capturePromoFromIntent(intent)
 
         // Benchmark hooks (ADS_UI_JANK_FIX_PLAN Phase 0): BuildConfig.BUILD_TYPE is a
@@ -275,6 +279,8 @@ class MainActivity : AppCompatActivity() {
         // notification tap instead of the stale creation-time intent.
         setIntent(intent)
         currentIntent = intent
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        pendingShare = intent.toIncomingShare() ?: pendingShare
         capturePromoFromIntent(intent)
     }
 
@@ -507,7 +513,9 @@ class MainActivity : AppCompatActivity() {
                                 // Suppress MainScreen's root-level bottom sheets/dialogs while
                                 // the cold-start/auto-lock overlay is active: any dialog window
                                 // created AFTER the lock's own window would cover the lock.
-                                isAppLockActive = appLockState !is AppLockState.Unlocked
+                                isAppLockActive = appLockState !is AppLockState.Unlocked,
+                                incomingShare = pendingShare,
+                                onIncomingShareConsumed = { pendingShare = null },
                             )
 
                             // Layer 2: App Lock Overlay
