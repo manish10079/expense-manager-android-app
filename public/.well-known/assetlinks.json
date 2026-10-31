@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mknlabs.expensetracker",
+      "sha256_cert_fingerprints": [
+        "C0:AD:0C:02:CB:84:4E:87:03:52:01:1D:54:97:AD:2B:B1:D2:DC:D5:74:78:E8:80:0A:E1:B3:9D:BA:66:39:53",
+        "92:58:8F:1D:D4:EC:83:AE:A7:45:7C:C6:7F:9B:E2:A3:A5:E0:3D:AC:A0:8B:66:6C:F2:05:0F:6C:24:7A:6D:F4",
+        "6D:38:A0:BE:A7:4C:F7:D8:93:2A:84:A1:D1:46:BB:4F:09:D6:9C:14:42:C5:10:B2:E6:97:02:B6:48:80:6A:66"
+      ]
+    }
+  }
+]

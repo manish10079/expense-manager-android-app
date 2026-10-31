@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Expense Tracker</title>
+  <meta name="robots" content="noindex">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      text-align: center;
+      padding: 24px;
+    }
+    a { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <p>Opening Expense Tracker…<br>
+    <a id="store" href="https://play.google.com/store/apps/details?id=com.mknlabs.expensetracker">Get it on Google Play</a>
+  </p>
+  <script>
+    (function () {
+      var parts = location.pathname.split("/").filter(Boolean);
+      var code = parts.length >= 2 && parts[0] === "p" ? parts[1] : "";
+      var pkg = "com.mknlabs.expensetracker";
+      var host = "expense-tracker-2ea00.web.app";
+      var path = code ? "/p/" + encodeURIComponent(code) : "/p";
+      var referrer = "utm_source=firebase" + (code ? "&utm_content=" + encodeURIComponent(code) : "");
+      var play = "https://play.google.com/store/apps/details?id=" + pkg + "&referrer=" + encodeURIComponent(referrer);
+      document.getElementById("store").href = play;
+      var intent = "intent://" + host + path +
+        "#Intent;scheme=https;package=" + pkg +
+        ";S.browser_fallback_url=" + encodeURIComponent(play) + ";end";
+      window.location.replace(intent);
+    })();
+  </script>
+</body>
+</html>

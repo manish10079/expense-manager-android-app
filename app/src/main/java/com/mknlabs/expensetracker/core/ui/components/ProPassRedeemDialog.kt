@@ -94,9 +94,11 @@ fun ProPassRedeemDialog(
 ) {
     val pendingPromoCode by viewModel.pendingPromoCode.collectAsStateWithLifecycle()
     var code by remember { mutableStateOf("") }
+    var appliedPendingCode by remember { mutableStateOf("") }
     androidx.compose.runtime.LaunchedEffect(pendingPromoCode) {
-        if (code.isBlank() && pendingPromoCode.isNotBlank()) {
+        if (pendingPromoCode.isNotBlank() && pendingPromoCode != appliedPendingCode) {
             code = pendingPromoCode
+            appliedPendingCode = pendingPromoCode
         }
     }
     val state by viewModel.redemptionState.collectAsStateWithLifecycle()
