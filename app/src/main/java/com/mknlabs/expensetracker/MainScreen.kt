@@ -868,6 +868,7 @@ fun MainScreen(
                         addTransactionDraftCategoryId = navigationState.addTransactionDraftCategoryId,
                         addTransactionDraftTypeId = navigationState.addTransactionDraftTypeId,
                         addTransactionDraftPaymentTypeId = navigationState.addTransactionDraftPaymentTypeId,
+                        addTransactionDraftCreatedAt = navigationState.addTransactionDraftCreatedAt,
                         addTransactionDraftAutoStartVoice = navigationState.addTransactionDraftAutoStartVoice,
                         onVoiceAutoStarted = { navigationState.updateAddTransactionDraftAutoStartVoice(false) },
                         smsInboxFocusId = smsInboxFocusId,
@@ -948,6 +949,7 @@ fun MainScreen(
                         onAddTransactionDraftCategoryIdChange = navigationState::updateAddTransactionDraftCategoryId,
                         onAddTransactionDraftTypeIdChange = navigationState::updateAddTransactionDraftTypeId,
                         onAddTransactionDraftPaymentTypeIdChange = navigationState::updateAddTransactionDraftPaymentTypeId,
+                        onAddTransactionDraftCreatedAtChange = navigationState::updateAddTransactionDraftCreatedAt,
                         onSaveTransaction = mainViewModel::saveTransaction,
                         onDeleteTransaction = { id ->
                             mainViewModel.deleteTransaction(id)

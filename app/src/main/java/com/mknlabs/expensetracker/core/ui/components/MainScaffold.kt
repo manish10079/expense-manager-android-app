@@ -89,6 +89,7 @@ fun MainScaffold(
     addTransactionDraftCategoryId: Int? = null,
     addTransactionDraftTypeId: Int? = null,
     addTransactionDraftPaymentTypeId: Int? = null,
+    addTransactionDraftCreatedAt: Long? = null,
     addTransactionDraftAutoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     /** Detected-SMS notification focus: inbox row to open, and whether Edit was used. */
@@ -155,6 +156,7 @@ fun MainScaffold(
     onAddTransactionDraftCategoryIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftPaymentTypeIdChange: (Int?) -> Unit = {},
+    onAddTransactionDraftCreatedAtChange: (Long?) -> Unit = {},
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
@@ -267,6 +269,7 @@ fun MainScaffold(
                 pendingOcrFingerprint = outcome.fingerprint
                 aiReviewSourceText = outcome.sourceText
                 onAddTransactionDraftNoteChange(outcome.sourceText)
+                onAddTransactionDraftCreatedAtChange(null)
                 onBottomBarVisibilityChange(false)
                 onRouteChange(AppRoute.AddTransaction)
             }
@@ -390,6 +393,7 @@ fun MainScaffold(
             onAddTransactionDraftCategoryIdChange(null)
             onAddTransactionDraftTypeIdChange(null)
             onAddTransactionDraftPaymentTypeIdChange(null)
+            onAddTransactionDraftCreatedAtChange(null)
             // The draft is gone, so no detection is being reviewed any more. Leaving that
             // link behind would attach it to whatever gets saved next.
             onSmsInboxDraftConsumed()
@@ -476,6 +480,7 @@ fun MainScaffold(
             addTransactionDraftCategoryId = addTransactionDraftCategoryId,
             addTransactionDraftTypeId = addTransactionDraftTypeId,
             addTransactionDraftPaymentTypeId = addTransactionDraftPaymentTypeId,
+            addTransactionDraftCreatedAt = addTransactionDraftCreatedAt,
             addTransactionDraftAutoStartVoice = addTransactionDraftAutoStartVoice,
             onVoiceAutoStarted = onVoiceAutoStarted,
             smsInboxFocusId = smsInboxFocusId,
@@ -701,12 +706,13 @@ fun MainScaffold(
                 },
                 onAdd = { item ->
                     aiExtractViewModel.rememberOcrSaved(pendingOcrFingerprint)
+                    val occurredAt = item.createdAt ?: System.currentTimeMillis()
                     val now = System.currentTimeMillis()
                     onSaveTransaction(
                         Transaction(
                             id = "",
                             note = item.note,
-                            createdAt = now,
+                            createdAt = occurredAt,
                             amountMinor = item.amountMinor,
                             transactionTypeId = item.typeId,
                             paymentTypeId = item.paymentTypeId,
@@ -740,6 +746,7 @@ fun MainScaffold(
                     }
                     onAddTransactionDraftTypeIdChange(item.typeId)
                     onAddTransactionDraftPaymentTypeIdChange(item.paymentTypeId)
+                    onAddTransactionDraftCreatedAtChange(item.createdAt)
                     aiReviewItems.removeAll { it.id == item.id }
                     if (aiReviewItems.isEmpty()) {
                         showAiReviewSheet = false

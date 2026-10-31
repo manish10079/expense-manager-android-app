@@ -57,6 +57,7 @@ const ALLOWED_KEYS = new Set([
   "payment_method",
   "note",
   "type_id",
+  "created_at",
 ]);
 
 const FALLBACK_EXPENSE = [
@@ -461,6 +462,18 @@ function stripToJsonObject(text) {
   }
 }
 
+function parseCreatedAt(value) {
+  if (value === null) return null;
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error("invalid-json");
+  }
+  const ms = Math.trunc(value);
+  if (ms < 1 || ms > 4102444800000) {
+    throw new Error("invalid-json");
+  }
+  return ms;
+}
+
 function validateTransactions(parsed, expense, income, payment) {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("invalid-json");
@@ -484,7 +497,10 @@ function validateTransactions(parsed, expense, income, payment) {
       throw new Error("invalid-json");
     }
     const keys = Object.keys(row);
-    if (keys.length !== 5 || keys.some((k) => !ALLOWED_KEYS.has(k))) {
+    if (
+      (keys.length !== 5 && keys.length !== 6) ||
+      keys.some((k) => !ALLOWED_KEYS.has(k))
+    ) {
       throw new Error("invalid-json");
     }
     const amount = row.amount;
@@ -513,6 +529,9 @@ function validateTransactions(parsed, expense, income, payment) {
     if (!canonicalPayment) {
       throw new Error("unknown-payment");
     }
+    const createdAt = Object.prototype.hasOwnProperty.call(row, "created_at")
+      ? parseCreatedAt(row.created_at)
+      : null;
 
     out.push({
       amount,
@@ -520,6 +539,7 @@ function validateTransactions(parsed, expense, income, payment) {
       payment_method: canonicalPayment,
       note: row.note,
       type_id: typeId,
+      created_at: createdAt,
     });
   }
 
@@ -696,7 +716,8 @@ exports.parseExpenseText = onCall(
         incomeCategories,
         paymentMethods
       ) +
-      "\n11. Input may be typed text or OCR from a store receipt, bank SMS/statement, UPI app screenshot, or PDF. OCR is noisy: broken lines, extra spaces, headers/footers, GSTIN, and currency signs (especially ₹) misread as digits. Recover merchant and true amounts; ignore boilerplate that is not a transaction.";
+      "\n11. Input may be typed text or OCR from a store receipt, bank SMS/statement, UPI app screenshot, or PDF. OCR is noisy: broken lines, extra spaces, headers/footers, GSTIN, and currency signs (especially ₹) misread as digits. Recover merchant and true amounts; ignore boilerplate that is not a transaction." +
+      "\n12. Each transaction must include created_at: UTC epoch milliseconds for a date/time found in the input, or null if none. Never invent the current time.";
     const userBlock = [
       `User locale: ${locale}`,
       `User currency: ${currency}`,

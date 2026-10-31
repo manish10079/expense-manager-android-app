@@ -10,4 +10,6 @@ data class AiParsedReviewItem(
     val paymentTypeId: Int,
     val note: String,
     val typeId: Int,
+    /** Epoch millis for [com.mknlabs.expensetracker.models.Transaction.createdAt]; null if unknown. */
+    val createdAt: Long? = null,
 )

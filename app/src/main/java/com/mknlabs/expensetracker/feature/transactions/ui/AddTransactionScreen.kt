@@ -321,6 +321,7 @@ fun AddTransactionScreen(
     initialCategoryId: Int? = null,
     initialTransactionTypeId: Int? = null,
     initialPaymentTypeId: Int? = null,
+    initialCreatedAt: Long? = null,
     autoStartVoice: Boolean = false,
     onVoiceAutoStarted: () -> Unit = {},
     favorites: List<FavoriteTransaction> = emptyList(),
@@ -386,6 +387,7 @@ fun AddTransactionScreen(
         initialCategoryId = initialCategoryId,
         initialTransactionTypeId = initialTransactionTypeId,
         initialPaymentTypeId = initialPaymentTypeId,
+        initialCreatedAt = initialCreatedAt,
         autoStartVoice = autoStartVoice,
         favorites = favorites,
         onRemoveFavorite = onRemoveFavorite,
@@ -441,6 +443,7 @@ internal fun AddTransactionScreenContent(
     initialCategoryId: Int? = null,
     initialTransactionTypeId: Int? = null,
     initialPaymentTypeId: Int? = null,
+    initialCreatedAt: Long? = null,
     autoStartVoice: Boolean = false,
     favorites: List<FavoriteTransaction> = emptyList(),
     onRemoveFavorite: (String) -> Unit = {},
@@ -528,8 +531,8 @@ internal fun AddTransactionScreenContent(
         var amountInput by rememberSaveable(existingTransaction?.id, initialAmountInput) {
             mutableStateOf(existingTransaction?.amount?.let(::formatEditableAmount).orEmpty().ifBlank { initialAmountInput ?: "0" })
         }
-        var selectedDateMillis by rememberSaveable(existingTransaction?.id) {
-            mutableLongStateOf(existingTransaction?.createdAt ?: System.currentTimeMillis())
+        var selectedDateMillis by rememberSaveable(existingTransaction?.id, initialCreatedAt) {
+            mutableLongStateOf(existingTransaction?.createdAt ?: initialCreatedAt ?: System.currentTimeMillis())
         }
         var note by rememberSaveable(existingTransaction?.id, initialNote) {
             mutableStateOf(existingTransaction?.note ?: initialNote.orEmpty())

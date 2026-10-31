@@ -157,6 +157,7 @@ class AiTextExtractViewModel @Inject constructor(
                 paymentTypeId = payment?.id ?: defaultPaymentId,
                 note = row.note,
                 typeId = row.typeId,
+                createdAt = row.createdAt,
             )
         }
     }

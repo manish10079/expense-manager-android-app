@@ -30,6 +30,7 @@ data class AiParsedTransaction(
     val paymentMethod: String,
     val note: String,
     val typeId: Int,
+    val createdAt: Long? = null,
 )
 
 data class AiParseResponse(
@@ -51,6 +52,7 @@ object AiParseContract {
         "payment_method",
         "note",
         "type_id",
+        "created_at",
     )
 
     val FALLBACK_EXPENSE_CATEGORIES = listOf(
@@ -77,12 +79,14 @@ object AiParseContract {
             val category = map["category"] as? String ?: return@mapNotNull null
             val payment = map["payment_method"] as? String ?: return@mapNotNull null
             val note = map["note"] as? String ?: return@mapNotNull null
+            val createdAt = epochMillisOrNull(map["created_at"])
             AiParsedTransaction(
                 amount = amount,
                 category = category,
                 paymentMethod = payment,
                 note = note,
                 typeId = typeId,
+                createdAt = createdAt,
             )
         }
         return AiParseResponse(transactions = items)
@@ -104,5 +108,15 @@ object AiParseContract {
         is Number -> value.toDouble()
         is String -> value.toDoubleOrNull()
         else -> null
+    }
+
+    private fun epochMillisOrNull(value: Any?): Long? {
+        if (value == null) return null
+        val ms = when (value) {
+            is Number -> value.toLong()
+            is String -> value.toLongOrNull()
+            else -> return null
+        }
+        return ms.takeIf { it in 1L..4_102_444_800_000L }
     }
 }

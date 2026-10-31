@@ -65,6 +65,9 @@ class MainNavigationState(
     var addTransactionDraftPaymentTypeId by mutableStateOf<Int?>(null)
         private set
 
+    var addTransactionDraftCreatedAt by mutableStateOf<Long?>(null)
+        private set
+
     var addTransactionDraftAutoStartVoice by mutableStateOf(false)
         private set
 
@@ -133,6 +136,10 @@ class MainNavigationState(
         addTransactionDraftPaymentTypeId = paymentTypeId
     }
 
+    fun updateAddTransactionDraftCreatedAt(createdAt: Long?) {
+        addTransactionDraftCreatedAt = createdAt
+    }
+
     fun updateAddTransactionDraftAutoStartVoice(autoStart: Boolean) {
         addTransactionDraftAutoStartVoice = autoStart
     }
@@ -152,6 +159,7 @@ class MainNavigationState(
         addTransactionDraftCategoryId = null
         addTransactionDraftTypeId = null
         addTransactionDraftPaymentTypeId = null
+        addTransactionDraftCreatedAt = null
         addTransactionDraftAutoStartVoice = false
         addTransactionSourceDetectionId = null
         showVoiceInputSheet = false
@@ -180,7 +188,8 @@ class MainNavigationState(
         selected: Transaction?,
         draftAmount: String?,
         draftNote: String?,
-        sourceDetectionId: String?
+        sourceDetectionId: String?,
+        draftCreatedAt: Long? = null
     ) {
         previousRoute = previous
         profileOriginRoute = profileOrigin
@@ -190,6 +199,7 @@ class MainNavigationState(
         selectedTransaction = selected
         addTransactionDraftAmount = draftAmount
         addTransactionDraftNote = draftNote
+        addTransactionDraftCreatedAt = draftCreatedAt
         addTransactionSourceDetectionId = sourceDetectionId
     }
 }
@@ -228,6 +238,7 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
             },
             "addTransactionDraftAmount" to value.addTransactionDraftAmount,
             "addTransactionDraftNote" to value.addTransactionDraftNote,
+            "addTransactionDraftCreatedAt" to value.addTransactionDraftCreatedAt,
             "addTransactionSourceDetectionId" to value.addTransactionSourceDetectionId
         )
     }
@@ -265,7 +276,8 @@ private object MainNavigationStateSaver : Saver<MainNavigationState, Map<String,
             selected = selected,
             draftAmount = value["addTransactionDraftAmount"] as? String,
             draftNote = value["addTransactionDraftNote"] as? String,
-            sourceDetectionId = value["addTransactionSourceDetectionId"] as? String
+            sourceDetectionId = value["addTransactionSourceDetectionId"] as? String,
+            draftCreatedAt = value["addTransactionDraftCreatedAt"] as? Long
         )
         return state
     }
