@@ -71,7 +71,7 @@ fun AiParseReviewSheet(
 }
 
 @Composable
-private fun AiParseReviewCard(
+internal fun AiParseReviewCard(
     item: AiParsedReviewItem,
     onAdd: () -> Unit,
     onEdit: () -> Unit,
