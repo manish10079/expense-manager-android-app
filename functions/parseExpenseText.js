@@ -58,6 +58,7 @@ const ALLOWED_KEYS = new Set([
   "note",
   "type_id",
   "created_at",
+  "time_format",
 ]);
 
 const FALLBACK_EXPENSE = [
@@ -462,16 +463,26 @@ function stripToJsonObject(text) {
   }
 }
 
+const CREATED_AT_PATTERN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+
 function parseCreatedAt(value) {
   if (value === null) return null;
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== "string" || !CREATED_AT_PATTERN.test(value.trim())) {
     throw new Error("invalid-json");
   }
-  const ms = Math.trunc(value);
-  if (ms < 1 || ms > 4102444800000) {
+  return value.trim();
+}
+
+function parseTimeFormat(value, createdAt) {
+  if (createdAt === null) {
+    if (value === null || value === undefined) return null;
     throw new Error("invalid-json");
   }
-  return ms;
+  const n = typeof value === "string" ? Number(value) : value;
+  if (n !== 12 && n !== 24) {
+    throw new Error("invalid-json");
+  }
+  return n;
 }
 
 function validateTransactions(parsed, expense, income, payment) {
@@ -498,7 +509,7 @@ function validateTransactions(parsed, expense, income, payment) {
     }
     const keys = Object.keys(row);
     if (
-      (keys.length !== 5 && keys.length !== 6) ||
+      (keys.length !== 5 && keys.length !== 6 && keys.length !== 7) ||
       keys.some((k) => !ALLOWED_KEYS.has(k))
     ) {
       throw new Error("invalid-json");
@@ -532,6 +543,11 @@ function validateTransactions(parsed, expense, income, payment) {
     const createdAt = Object.prototype.hasOwnProperty.call(row, "created_at")
       ? parseCreatedAt(row.created_at)
       : null;
+    const timeFormat = Object.prototype.hasOwnProperty.call(row, "time_format")
+      ? parseTimeFormat(row.time_format, createdAt)
+      : createdAt === null
+        ? null
+        : 24;
 
     out.push({
       amount,
@@ -540,6 +556,7 @@ function validateTransactions(parsed, expense, income, payment) {
       note: row.note,
       type_id: typeId,
       created_at: createdAt,
+      time_format: timeFormat,
     });
   }
 
@@ -717,7 +734,7 @@ exports.parseExpenseText = onCall(
         paymentMethods
       ) +
       "\n11. Input may be typed text or OCR from a store receipt, bank SMS/statement, UPI app screenshot, or PDF. OCR is noisy: broken lines, extra spaces, headers/footers, GSTIN, and currency signs (especially ₹) misread as digits. Recover merchant and true amounts; ignore boilerplate that is not a transaction." +
-      "\n12. Each transaction must include created_at: UTC epoch milliseconds for a date/time found in the input, or null if none. Never invent the current time.";
+      "\n12. created_at is yyyy-MM-dd HH:mm or null. time_format is 12 or 24, or null when created_at is null. If the source time has AM/PM, time_format=12 and write HH as 00-23 after applying AM/PM. If no AM/PM, time_format=24. Date only: keep the date and use the current time for HH:mm with time_format=24. No date: created_at and time_format null. Never invent a date.";
     const userBlock = [
       `User locale: ${locale}`,
       `User currency: ${currency}`,

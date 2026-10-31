@@ -53,6 +53,7 @@ object AiParseContract {
         "note",
         "type_id",
         "created_at",
+        "time_format",
     )
 
     val FALLBACK_EXPENSE_CATEGORIES = listOf(
@@ -79,7 +80,7 @@ object AiParseContract {
             val category = map["category"] as? String ?: return@mapNotNull null
             val payment = map["payment_method"] as? String ?: return@mapNotNull null
             val note = map["note"] as? String ?: return@mapNotNull null
-            val createdAt = epochMillisOrNull(map["created_at"])
+            val createdAt = createdAtToEpochMillis(map["created_at"], map["time_format"])
             AiParsedTransaction(
                 amount = amount,
                 category = category,
@@ -110,13 +111,31 @@ object AiParseContract {
         else -> null
     }
 
-    private fun epochMillisOrNull(value: Any?): Long? {
-        if (value == null) return null
-        val ms = when (value) {
-            is Number -> value.toLong()
-            is String -> value.toLongOrNull()
-            else -> return null
+    fun createdAtToEpochMillis(createdAt: Any?, timeFormat: Any?): Long? {
+        if (createdAt == null) return null
+        if (createdAt is Number) {
+            return createdAt.toLong().takeIf { it in 1L..4_102_444_800_000L }
         }
-        return ms.takeIf { it in 1L..4_102_444_800_000L }
+        val raw = (createdAt as? String)?.trim() ?: return null
+        val match = CREATED_AT_REGEX.matchEntire(raw) ?: return null
+        val year = match.groupValues[1].toInt()
+        val month = match.groupValues[2].toInt()
+        val day = match.groupValues[3].toInt()
+        val hour = match.groupValues[4].toInt()
+        val minute = match.groupValues[5].toInt()
+        if (intValue(timeFormat) != 12 && intValue(timeFormat) != 24 && timeFormat != null) {
+            return null
+        }
+        if (year !in 1970..2100 || month !in 1..12 || day !in 1..31) return null
+        if (hour !in 0..23 || minute !in 0..59) return null
+        val cal = java.util.Calendar.getInstance()
+        cal.isLenient = false
+        return runCatching {
+            cal.set(year, month - 1, day, hour, minute, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            cal.timeInMillis
+        }.getOrNull()
     }
+
+    private val CREATED_AT_REGEX = Regex("""(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})""")
 }
