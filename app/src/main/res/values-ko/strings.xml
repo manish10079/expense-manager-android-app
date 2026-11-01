@@ -4595,4 +4595,12 @@
     <string name="label_file_size_bytes">%d B</string>
     <string name="label_file_size_kb">%.1f KB</string>
     <string name="label_file_size_mb">%.1f MB</string>
+
+    <string name="label_ai_batch_transactions">Batch Transactions</string>
+    <string name="label_ai_items_extracted">%d items extracted</string>
+    <string name="label_ai_batch_badge">Batch #%d</string>
+    <string name="label_ai_edit_details">Edit Details</string>
+    <string name="label_ai_save_details">Save Details</string>
+    <string name="label_ai_transaction_saved">Transaction Saved</string>
+    <string name="msg_ai_added_to_budget">Successfully added to budget</string>
 </resources>

@@ -36,7 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
-import com.mknlabs.expensetracker.core.ui.components.AiParseReviewCard
+import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import dagger.hilt.android.AndroidEntryPoint
@@ -89,7 +89,6 @@ private fun ShareCaptureDialog(
     var retryTick by remember { mutableStateOf(0) }
     val items = remember { mutableStateListOf<AiParsedReviewItem>() }
     var fingerprint by remember { mutableStateOf("") }
-    var editing by remember { mutableStateOf<AiParsedReviewItem?>(null) }
 
     LaunchedEffect(share, retryTick) {
         if (share == null) {
@@ -150,6 +149,29 @@ private fun ShareCaptureDialog(
         return@ShareCaptureDialog
     }
 
+    if (errorRes == null && items.isNotEmpty()) {
+        AiParseReviewSheet(
+            items = items.toList(),
+            onDismissRequest = onDismiss,
+            onAdd = { item ->
+                onSave(item, fingerprint) {
+                    items.removeAll { it.id == item.id }
+                    if (items.isEmpty()) onDismiss()
+                }
+            },
+            onEdit = { updated ->
+                val index = items.indexOfFirst { it.id == updated.id }
+                if (index >= 0) items[index] = updated
+            },
+            onRetry = {
+                scanStatusRes = null
+                loading = true
+                retryTick++
+            },
+        )
+        return@ShareCaptureDialog
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -169,87 +191,13 @@ private fun ShareCaptureDialog(
                     text = stringResource(R.string.label_sms_inbox_edit_title),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 )
-                when {
-                    errorRes != null -> {
-                        Text(text = stringResource(errorRes!!))
-                        TextButton(onClick = onDismiss) {
-                            Text(stringResource(R.string.label_cancel))
-                        }
-                    }
-                    else -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            items(items, key = { it.id }) { item ->
-                                AiParseReviewCard(
-                                    item = item,
-                                    onAdd = {
-                                        onSave(item, fingerprint) {
-                                            items.removeAll { it.id == item.id }
-                                            if (items.isEmpty()) onDismiss()
-                                        }
-                                    },
-                                    onEdit = { editing = item },
-                                )
-                            }
-                        }
-                        TextButton(onClick = onDismiss) {
-                            Text(stringResource(R.string.label_cancel))
-                        }
+                if (errorRes != null) {
+                    Text(text = stringResource(errorRes!!))
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.label_cancel))
                     }
                 }
             }
         }
-    }
-
-    val editItem = editing
-    if (editItem != null) {
-        var amount by remember(editItem.id) {
-            mutableStateOf(BigDecimal.valueOf(editItem.amount).stripTrailingZeros().toPlainString())
-        }
-        var note by remember(editItem.id) { mutableStateOf(editItem.note) }
-        AlertDialog(
-            onDismissRequest = { editing = null },
-            title = { Text(stringResource(R.string.label_edit)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = amount,
-                        onValueChange = { amount = it },
-                        label = { Text(stringResource(R.string.label_amount)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                    )
-                    OutlinedTextField(
-                        value = note,
-                        onValueChange = { note = it },
-                        label = { Text(stringResource(R.string.label_note)) },
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val parsed = amount.toDoubleOrNull() ?: return@TextButton
-                        val updated = editItem.copy(
-                            amount = parsed,
-                            amountMinor = parsed.toMinorUnits(),
-                            note = note,
-                        )
-                        val index = items.indexOfFirst { it.id == editItem.id }
-                        if (index >= 0) items[index] = updated
-                        editing = null
-                    },
-                ) {
-                    Text(stringResource(R.string.label_done))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { editing = null }) {
-                    Text(stringResource(R.string.label_cancel))
-                }
-            },
-        )
     }
 }

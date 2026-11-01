@@ -291,8 +291,6 @@ fun MainScaffold(
             }
             is DocumentParseOutcome.Review -> {
                 documentParseBusy = false
-                documentParseUri = null
-                documentParseText = null
                 scanStatusRes = null
                 pendingOcrFingerprint = outcome.fingerprint
                 aiReviewSourceText = outcome.sourceText
@@ -801,25 +799,34 @@ fun MainScaffold(
                         showAiReviewSheet = false
                     }
                 },
-                onEdit = { item ->
-                    val amount = java.math.BigDecimal
-                        .valueOf(item.amount)
-                        .stripTrailingZeros()
-                        .toPlainString()
-                    onAddTransactionDraftAmountChange(amount)
-                    onAddTransactionDraftNoteChange(item.note.ifBlank { aiReviewSourceText })
-                    if (item.categoryId > 0) {
-                        onAddTransactionDraftCategoryIdChange(item.categoryId)
+                onEdit = { updated ->
+                    val index = aiReviewItems.indexOfFirst { it.id == updated.id }
+                    if (index >= 0) aiReviewItems[index] = updated
+                },
+                onRetry = {
+                    showAiReviewSheet = false
+                    scanStatusRes = null
+                    documentParseBusy = true
+                    val uri = documentParseUri
+                    val text = documentParseText
+                    if (uri != null) {
+                        aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
+                    } else if (!text.isNullOrBlank()) {
+                        aiExtractViewModel.parse(text) { outcome ->
+                            applyIncomingDocumentOutcome(
+                                when (outcome) {
+                                    is com.mknlabs.expensetracker.ai.TextParseOutcome.Review ->
+                                        DocumentParseOutcome.Review(text, outcome.items)
+                                    is com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd ->
+                                        DocumentParseOutcome.RawAdd(text, reason = outcome.reason)
+                                    com.mknlabs.expensetracker.ai.TextParseOutcome.DailyLimit ->
+                                        DocumentParseOutcome.DailyLimit
+                                    com.mknlabs.expensetracker.ai.TextParseOutcome.Failed ->
+                                        DocumentParseOutcome.Failed
+                                },
+                            )
+                        }
                     }
-                    onAddTransactionDraftTypeIdChange(item.typeId)
-                    onAddTransactionDraftPaymentTypeIdChange(item.paymentTypeId)
-                    onAddTransactionDraftCreatedAtChange(item.createdAt)
-                    aiReviewItems.removeAll { it.id == item.id }
-                    if (aiReviewItems.isEmpty()) {
-                        showAiReviewSheet = false
-                    }
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange(AppRoute.AddTransaction)
                 },
             )
         }
