@@ -4572,4 +4572,18 @@
     <string name="desc_ai_fab_mic">Добавить голосом</string>
     <string name="desc_ai_fab_write">Извлечь из текста</string>
     <string name="desc_ai_fab_manual">Добавить вручную</string>
+
+    <string name="label_ai_scanning_document">Сканирование документа</string>
+    <string name="label_ai_scanning_image">Сканирование изображения</string>
+    <string name="msg_ai_scan_ocr_blank">Не удалось извлечь текст из этого изображения/PDF. Добавлено как пустая запись для ручной проверки.</string>
+    <string name="msg_ai_scan_ocr_whitespace">Документ кажется пустым. Добавлено как пустая запись для ручного редактирования.</string>
+    <string name="msg_ai_scan_no_transactions">Транзакции не найдены. Извлечённый текст сохранён как заметка для ручного ввода.</string>
+    <string name="msg_ai_scan_parse_failed">Авторазбор не удался из-за ошибки сети или сервиса. Сохранено как сырая запись с вашим текстом для ручного ввода.</string>
+    <string name="msg_ai_scan_shared_text">В отправленном тексте нет данных транзакции. Сохранено как сырая запись.</string>
+    <string name="label_ai_scan_shared_source">Отправленный текст</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

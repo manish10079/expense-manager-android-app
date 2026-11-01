@@ -4548,4 +4548,18 @@
     <string name="desc_ai_fab_mic">ଭଏସ୍ ରେ ଯୋଡନ୍ତୁ</string>
     <string name="desc_ai_fab_write">ଟେକ୍ସଟରୁ ବାହାର କରନ୍ତୁ</string>
     <string name="desc_ai_fab_manual">ନିଜେ ଯୋଡନ୍ତୁ</string>
+
+    <string name="label_ai_scanning_document">ଡକ୍ୟୁମେଣ୍ଟ ସ୍କାନ ହେଉଛି</string>
+    <string name="label_ai_scanning_image">ପ୍ରତିଛବି ସ୍କାନ ହେଉଛି</string>
+    <string name="msg_ai_scan_ocr_blank">No text could be extracted from this image/PDF. Added as a blank entry for manual review.</string>
+    <string name="msg_ai_scan_ocr_whitespace">The document appears to be empty. Added as a blank entry for manual editing.</string>
+    <string name="msg_ai_scan_no_transactions">No transactions could be detected. Saved with the extracted text as a note for manual entry.</string>
+    <string name="msg_ai_scan_parse_failed">Automatic parsing failed due to a network or service error. Saved as a raw entry with your text so you can enter it manually.</string>
+    <string name="msg_ai_scan_shared_text">No transaction details found in the shared text. Saved as a raw entry.</string>
+    <string name="label_ai_scan_shared_source">ସେଆର କରାଯାଇଥିବା ପାଠ୍ୟ</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

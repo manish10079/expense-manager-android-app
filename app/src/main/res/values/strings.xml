@@ -4417,6 +4417,19 @@
     <string name="msg_ai_daily_limit">Daily AI parse limit reached. Try again tomorrow.</string>
     <string name="msg_ai_parse_failed">Could not parse that text. Sign in and try again, or enter the transaction manually.</string>
     <string name="msg_ai_extracting_document">Reading your file…</string>
+    <string name="label_ai_scanning_document">Scanning Document</string>
+    <string name="label_ai_scanning_image">Scanning Image</string>
+    <string name="msg_ai_scan_ocr_blank">No text could be extracted from this image/PDF. Added as a blank entry for manual review.</string>
+    <string name="msg_ai_scan_ocr_whitespace">The document appears to be empty. Added as a blank entry for manual editing.</string>
+    <string name="msg_ai_scan_no_transactions">No transactions could be detected. Saved with the extracted text as a note for manual entry.</string>
+    <string name="msg_ai_scan_parse_failed">Automatic parsing failed due to a network or service error. Saved as a raw entry with your text so you can enter it manually.</string>
+    <string name="msg_ai_scan_shared_text">No transaction details found in the shared text. Saved as a raw entry.</string>
+    <string name="label_ai_scan_shared_source">Shared text</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
     <string name="msg_ai_receipt_already_added">This receipt was already added recently.</string>
 
 

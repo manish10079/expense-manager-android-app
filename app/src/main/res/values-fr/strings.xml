@@ -4577,4 +4577,18 @@ privé par nature</string>
     <string name="desc_ai_fab_mic">Ajouter à la voix</string>
     <string name="desc_ai_fab_write">Extraire du texte</string>
     <string name="desc_ai_fab_manual">Saisie manuelle</string>
+
+    <string name="label_ai_scanning_document">Analyse du document</string>
+    <string name="label_ai_scanning_image">Analyse de l\'image</string>
+    <string name="msg_ai_scan_ocr_blank">Aucun texte n\'a pu être extrait de cette image/PDF. Ajouté comme entrée vide pour vérification manuelle.</string>
+    <string name="msg_ai_scan_ocr_whitespace">Le document semble vide. Ajouté comme entrée vide pour saisie manuelle.</string>
+    <string name="msg_ai_scan_no_transactions">Aucune transaction détectée. Le texte extrait a été enregistré comme note pour saisie manuelle.</string>
+    <string name="msg_ai_scan_parse_failed">L\'analyse automatique a échoué (réseau ou service). Enregistré comme entrée brute avec votre texte pour saisie manuelle.</string>
+    <string name="msg_ai_scan_shared_text">Aucun détail de transaction dans le texte partagé. Enregistré comme entrée brute.</string>
+    <string name="label_ai_scan_shared_source">Texte partagé</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

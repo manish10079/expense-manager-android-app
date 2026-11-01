@@ -4548,4 +4548,18 @@
     <string name="desc_ai_fab_mic">Aggiungi con la voce</string>
     <string name="desc_ai_fab_write">Estrai dal testo</string>
     <string name="desc_ai_fab_manual">Aggiungi manualmente</string>
+
+    <string name="label_ai_scanning_document">Scansione documento</string>
+    <string name="label_ai_scanning_image">Scansione immagine</string>
+    <string name="msg_ai_scan_ocr_blank">Impossibile estrarre testo da questa immagine/PDF. Aggiunto come voce vuota per revisione manuale.</string>
+    <string name="msg_ai_scan_ocr_whitespace">Il documento sembra vuoto. Aggiunto come voce vuota da modificare a mano.</string>
+    <string name="msg_ai_scan_no_transactions">Nessuna transazione rilevata. Il testo estratto è stato salvato come nota per l\'inserimento manuale.</string>
+    <string name="msg_ai_scan_parse_failed">Analisi automatica non riuscita per un errore di rete o del servizio. Salvato come voce grezza con il tuo testo per l\'inserimento manuale.</string>
+    <string name="msg_ai_scan_shared_text">Nessun dettaglio di transazione nel testo condiviso. Salvato come voce grezza.</string>
+    <string name="label_ai_scan_shared_source">Testo condiviso</string>
+    <string name="label_ai_scan_fallback_pdf">documento.pdf</string>
+    <string name="label_ai_scan_fallback_image">immagine.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

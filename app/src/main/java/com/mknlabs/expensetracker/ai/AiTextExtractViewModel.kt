@@ -49,8 +49,20 @@ class AiTextExtractViewModel @Inject constructor(
                 is DocumentOcrResult.Text -> {
                     val text = ocr.value
                     Log.i(TAG, "OCR sending to AI:\n$text")
-                    if (text.isBlank()) {
-                        onResult(DocumentParseOutcome.RawAdd(""))
+                    if (text.isEmpty()) {
+                        onResult(
+                            DocumentParseOutcome.RawAdd(
+                                sourceText = "",
+                                reason = AiRawAddReason.OcrBlank,
+                            ),
+                        )
+                    } else if (text.isBlank()) {
+                        onResult(
+                            DocumentParseOutcome.RawAdd(
+                                sourceText = "",
+                                reason = AiRawAddReason.OcrWhitespace,
+                            ),
+                        )
                     } else {
                         val fingerprint = OcrReceiptFingerprint.of(text)
                         if (ocrReceiptDeduper.wasSavedRecently(fingerprint)) {
@@ -61,12 +73,16 @@ class AiTextExtractViewModel @Inject constructor(
                                     when (outcome) {
                                         is TextParseOutcome.Review ->
                                             DocumentParseOutcome.Review(text, outcome.items, fingerprint)
-                                        TextParseOutcome.RawAdd ->
-                                            DocumentParseOutcome.RawAdd(text, fingerprint)
+                                        is TextParseOutcome.RawAdd ->
+                                            DocumentParseOutcome.RawAdd(text, fingerprint, outcome.reason)
                                         TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
                                         TextParseOutcome.Failed ->
                                             if (text.isNotBlank()) {
-                                                DocumentParseOutcome.RawAdd(text, fingerprint)
+                                                DocumentParseOutcome.RawAdd(
+                                                    text,
+                                                    fingerprint,
+                                                    AiRawAddReason.ParseFailedWithText,
+                                                )
                                             } else {
                                                 DocumentParseOutcome.Failed
                                             }
@@ -86,7 +102,7 @@ class AiTextExtractViewModel @Inject constructor(
     ) {
         val trimmed = text.trim()
         if (trimmed.isEmpty()) {
-            onResult(TextParseOutcome.RawAdd)
+            onResult(TextParseOutcome.RawAdd(AiRawAddReason.SharedText))
             return
         }
         viewModelScope.launch {
@@ -112,7 +128,11 @@ class AiTextExtractViewModel @Inject constructor(
                 if (!BuildConfig.DEBUG) {
                     aiUsageTracker.recordUsage(isPro)
                 }
-                if (mapped.isEmpty()) TextParseOutcome.RawAdd else TextParseOutcome.Review(mapped)
+                if (mapped.isEmpty()) {
+                    TextParseOutcome.RawAdd(AiRawAddReason.NoTransactions)
+                } else {
+                    TextParseOutcome.Review(mapped)
+                }
             }.getOrElse { error ->
                 Log.e(TAG, "parseExpenseText failed", error)
                 if (error is FirebaseFunctionsException &&

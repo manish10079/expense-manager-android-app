@@ -4182,4 +4182,18 @@
     <string name="desc_ai_fab_mic">आवाज़ से जोड़ें</string>
     <string name="desc_ai_fab_write">टेक्स्ट से निकालें</string>
     <string name="desc_ai_fab_manual">खुद जोड़ें</string>
+
+    <string name="label_ai_scanning_document">दस्तावेज़ स्कैन हो रहा है</string>
+    <string name="label_ai_scanning_image">छवि स्कैन हो रही है</string>
+    <string name="msg_ai_scan_ocr_blank">इस छवि/PDF से कोई टेक्स्ट नहीं निकाला जा सका। मैन्युअल समीक्षा के लिए खाली प्रविष्टि जोड़ी गई।</string>
+    <string name="msg_ai_scan_ocr_whitespace">दस्तावेज़ खाली लगता है। मैन्युअल संपादन के लिए खाली प्रविष्टि जोड़ी गई।</string>
+    <string name="msg_ai_scan_no_transactions">कोई लेन-देन नहीं मिला। निकाला गया टेक्स्ट नोट के रूप में सहेजा गया, ताकि आप मैन्युअल दर्ज करें।</string>
+    <string name="msg_ai_scan_parse_failed">नेटवर्क या सेवा त्रुटि के कारण स्वचालित पार्स विफल रहा। आपके टेक्स्ट के साथ कच्ची प्रविष्टि सहेजी गई, ताकि आप मैन्युअल दर्ज करें।</string>
+    <string name="msg_ai_scan_shared_text">साझा टेक्स्ट में लेन-देन विवरण नहीं मिला। कच्ची प्रविष्टि के रूप में सहेजा गया।</string>
+    <string name="label_ai_scan_shared_source">साझा टेक्स्ट</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -87,11 +85,13 @@ private fun ShareCaptureDialog(
 ) {
     var loading by remember { mutableStateOf(true) }
     var errorRes by remember { mutableStateOf<Int?>(null) }
+    var scanStatusRes by remember { mutableStateOf<Int?>(null) }
+    var retryTick by remember { mutableStateOf(0) }
     val items = remember { mutableStateListOf<AiParsedReviewItem>() }
     var fingerprint by remember { mutableStateOf("") }
     var editing by remember { mutableStateOf<AiParsedReviewItem?>(null) }
 
-    LaunchedEffect(share) {
+    LaunchedEffect(share, retryTick) {
         if (share == null) {
             errorRes = R.string.msg_ai_parse_failed
             loading = false
@@ -107,7 +107,9 @@ private fun ShareCaptureDialog(
                     -> errorRes = R.string.msg_ai_parse_failed
                     DocumentParseOutcome.DailyLimit -> errorRes = R.string.msg_ai_daily_limit
                     DocumentParseOutcome.Duplicate -> errorRes = R.string.msg_ai_receipt_already_added
-                    is DocumentParseOutcome.RawAdd -> errorRes = R.string.msg_ai_parse_failed
+                    is DocumentParseOutcome.RawAdd -> {
+                        scanStatusRes = outcome.reason.messageRes()
+                    }
                     is DocumentParseOutcome.Review -> {
                         fingerprint = outcome.fingerprint
                         items.clear()
@@ -122,7 +124,9 @@ private fun ShareCaptureDialog(
                 when (outcome) {
                     TextParseOutcome.Failed -> errorRes = R.string.msg_ai_parse_failed
                     TextParseOutcome.DailyLimit -> errorRes = R.string.msg_ai_daily_limit
-                    TextParseOutcome.RawAdd -> errorRes = R.string.msg_ai_parse_failed
+                    is TextParseOutcome.RawAdd -> {
+                        scanStatusRes = outcome.reason.messageRes()
+                    }
                     is TextParseOutcome.Review -> {
                         items.clear()
                         items.addAll(outcome.items)
@@ -130,6 +134,20 @@ private fun ShareCaptureDialog(
                 }
             }
         }
+    }
+
+    if (loading || scanStatusRes != null) {
+        com.mknlabs.expensetracker.core.ui.components.ReceiptScanningDialog(
+            uri = share?.documentUri,
+            statusMessageRes = scanStatusRes,
+            onRetry = {
+                scanStatusRes = null
+                loading = true
+                retryTick++
+            },
+            onCancel = onDismiss,
+        )
+        return@ShareCaptureDialog
     }
 
     Dialog(
@@ -152,20 +170,6 @@ private fun ShareCaptureDialog(
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 )
                 when {
-                    loading -> Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                            Text(
-                                text = stringResource(R.string.msg_ai_extracting_document),
-                                modifier = Modifier.padding(top = 12.dp),
-                            )
-                        }
-                    }
                     errorRes != null -> {
                         Text(text = stringResource(errorRes!!))
                         TextButton(onClick = onDismiss) {

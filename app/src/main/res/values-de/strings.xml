@@ -4610,4 +4610,18 @@ privat von Haus aus</string>
     <string name="desc_ai_fab_mic">Per Sprache hinzufügen</string>
     <string name="desc_ai_fab_write">Aus Text übernehmen</string>
     <string name="desc_ai_fab_manual">Manuell hinzufügen</string>
+
+    <string name="label_ai_scanning_document">Dokument wird gescannt</string>
+    <string name="label_ai_scanning_image">Bild wird gescannt</string>
+    <string name="msg_ai_scan_ocr_blank">Aus diesem Bild/PDF konnte kein Text gelesen werden. Als leerer Eintrag zur manuellen Prüfung hinzugefügt.</string>
+    <string name="msg_ai_scan_ocr_whitespace">Das Dokument scheint leer zu sein. Als leerer Eintrag zur manuellen Bearbeitung hinzugefügt.</string>
+    <string name="msg_ai_scan_no_transactions">Keine Buchungen erkannt. Der gelesene Text wurde als Notiz für die manuelle Eingabe gespeichert.</string>
+    <string name="msg_ai_scan_parse_failed">Automatische Auswertung wegen Netzwerk- oder Dienstfehler fehlgeschlagen. Als Roh-Eintrag mit deinem Text gespeichert, damit du ihn manuell eingeben kannst.</string>
+    <string name="msg_ai_scan_shared_text">Im geteilten Text keine Buchungsdaten gefunden. Als Roh-Eintrag gespeichert.</string>
+    <string name="label_ai_scan_shared_source">Geteilter Text</string>
+    <string name="label_ai_scan_fallback_pdf">dokument.pdf</string>
+    <string name="label_ai_scan_fallback_image">bild.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

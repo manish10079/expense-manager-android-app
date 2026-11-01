@@ -17,13 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.DocumentParseOutcome
+import com.mknlabs.expensetracker.ai.messageRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -247,33 +247,53 @@ fun MainScaffold(
     var pendingOcrFingerprint by remember { mutableStateOf("") }
     var ocrPlayServicesError by remember { mutableStateOf(false) }
     var documentParseBusy by remember { mutableStateOf(false) }
+    var documentParseUri by remember { mutableStateOf<Uri?>(null) }
+    var documentParseText by remember { mutableStateOf<String?>(null) }
+    var scanStatusRes by remember { mutableStateOf<Int?>(null) }
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
     fun applyIncomingDocumentOutcome(outcome: DocumentParseOutcome) {
-        documentParseBusy = false
         when (outcome) {
             DocumentParseOutcome.PlayServicesUnavailable -> {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
                 ocrPlayServicesError = true
             }
             DocumentParseOutcome.DailyLimit -> {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
                 aiParseErrorRes = R.string.msg_ai_daily_limit
             }
             DocumentParseOutcome.Failed -> {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
                 aiParseErrorRes = R.string.msg_ai_parse_failed
             }
             DocumentParseOutcome.Duplicate -> {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
                 aiParseErrorRes = R.string.msg_ai_receipt_already_added
             }
             is DocumentParseOutcome.RawAdd -> {
                 pendingOcrFingerprint = outcome.fingerprint
                 aiReviewSourceText = outcome.sourceText
-                onAddTransactionDraftNoteChange(outcome.sourceText)
-                onAddTransactionDraftCreatedAtChange(null)
-                onBottomBarVisibilityChange(false)
-                onRouteChange(AppRoute.AddTransaction)
+                scanStatusRes = outcome.reason.messageRes()
+                documentParseBusy = true
             }
             is DocumentParseOutcome.Review -> {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
                 pendingOcrFingerprint = outcome.fingerprint
                 aiReviewSourceText = outcome.sourceText
                 aiReviewItems.clear()
@@ -289,6 +309,9 @@ fun MainScaffold(
         addFabMenuExpanded = false
         if (uri == null) return@rememberLauncherForActivityResult
         documentParseBusy = true
+        documentParseUri = uri
+        documentParseText = null
+        scanStatusRes = null
         aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
     }
 
@@ -298,6 +321,9 @@ fun MainScaffold(
         val uri = share.documentUri
         if (uri != null) {
             documentParseBusy = true
+            documentParseUri = uri
+            documentParseText = null
+            scanStatusRes = null
             aiExtractViewModel.parseFromDocument(uri) { outcome ->
                 applyIncomingDocumentOutcome(outcome)
                 onIncomingShareConsumed()
@@ -310,25 +336,35 @@ fun MainScaffold(
             return@LaunchedEffect
         }
         documentParseBusy = true
+        documentParseUri = null
+        documentParseText = text
+        scanStatusRes = null
         aiExtractViewModel.parse(text) { outcome ->
-            documentParseBusy = false
             when (outcome) {
                 is com.mknlabs.expensetracker.ai.TextParseOutcome.Review -> {
+                    documentParseBusy = false
+                    documentParseText = null
+                    scanStatusRes = null
                     aiReviewSourceText = text
                     aiReviewItems.clear()
                     aiReviewItems.addAll(outcome.items)
                     showAiReviewSheet = true
                 }
-                com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd -> {
+                is com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd -> {
                     aiReviewSourceText = text
-                    onAddTransactionDraftNoteChange(text)
-                    onBottomBarVisibilityChange(false)
-                    onRouteChange(AppRoute.AddTransaction)
+                    scanStatusRes = com.mknlabs.expensetracker.ai.AiRawAddReason.SharedText.messageRes()
+                    documentParseBusy = true
                 }
                 com.mknlabs.expensetracker.ai.TextParseOutcome.DailyLimit -> {
+                    documentParseBusy = false
+                    documentParseText = null
+                    scanStatusRes = null
                     aiParseErrorRes = R.string.msg_ai_daily_limit
                 }
                 com.mknlabs.expensetracker.ai.TextParseOutcome.Failed -> {
+                    documentParseBusy = false
+                    documentParseText = null
+                    scanStatusRes = null
                     aiParseErrorRes = R.string.msg_ai_parse_failed
                 }
             }
@@ -337,21 +373,52 @@ fun MainScaffold(
     }
 
     if (documentParseBusy) {
-        AlertDialog(
-            onDismissRequest = {},
-            icon = {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(32.dp),
-                    strokeWidth = 3.dp,
-                )
+        ReceiptScanningDialog(
+            uri = documentParseUri,
+            statusMessageRes = scanStatusRes,
+            onRetry = {
+                scanStatusRes = null
+                val uri = documentParseUri
+                val text = documentParseText
+                if (uri != null) {
+                    aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
+                } else if (!text.isNullOrBlank()) {
+                    aiExtractViewModel.parse(text) { outcome ->
+                        when (outcome) {
+                            is com.mknlabs.expensetracker.ai.TextParseOutcome.Review -> {
+                                documentParseBusy = false
+                                documentParseText = null
+                                scanStatusRes = null
+                                aiReviewSourceText = text
+                                aiReviewItems.clear()
+                                aiReviewItems.addAll(outcome.items)
+                                showAiReviewSheet = true
+                            }
+                            is com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd -> {
+                                scanStatusRes = com.mknlabs.expensetracker.ai.AiRawAddReason.SharedText.messageRes()
+                            }
+                            com.mknlabs.expensetracker.ai.TextParseOutcome.DailyLimit -> {
+                                documentParseBusy = false
+                                documentParseText = null
+                                scanStatusRes = null
+                                aiParseErrorRes = R.string.msg_ai_daily_limit
+                            }
+                            com.mknlabs.expensetracker.ai.TextParseOutcome.Failed -> {
+                                documentParseBusy = false
+                                documentParseText = null
+                                scanStatusRes = null
+                                aiParseErrorRes = R.string.msg_ai_parse_failed
+                            }
+                        }
+                    }
+                }
             },
-            text = {
-                Text(
-                    text = stringResource(R.string.msg_ai_extracting_document),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            onCancel = {
+                documentParseBusy = false
+                documentParseUri = null
+                documentParseText = null
+                scanStatusRes = null
             },
-            confirmButton = {},
         )
     }
     if (ocrPlayServicesError) {

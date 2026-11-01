@@ -244,7 +244,7 @@ fun AiTextExtractBottomSheet(
                             isExtracting = false
                             when (outcome) {
                                 is TextParseOutcome.Review -> onExtract(text, outcome.items)
-                                TextParseOutcome.RawAdd -> onExtract(text, emptyList())
+                                is TextParseOutcome.RawAdd -> onExtract(text, emptyList())
                                 TextParseOutcome.DailyLimit ->
                                     extractErrorRes = R.string.msg_ai_daily_limit
                                 TextParseOutcome.Failed ->

@@ -4605,4 +4605,18 @@
     <string name="desc_ai_fab_mic">音声で追加</string>
     <string name="desc_ai_fab_write">テキストから抽出</string>
     <string name="desc_ai_fab_manual">手動で追加</string>
+
+    <string name="label_ai_scanning_document">文書をスキャン中</string>
+    <string name="label_ai_scanning_image">画像をスキャン中</string>
+    <string name="msg_ai_scan_ocr_blank">この画像/PDFからテキストを抽出できませんでした。手動確認用の空のエントリとして追加しました。</string>
+    <string name="msg_ai_scan_ocr_whitespace">文書が空のようです。手動編集用の空のエントリとして追加しました。</string>
+    <string name="msg_ai_scan_no_transactions">取引を検出できませんでした。抽出したテキストをメモとして保存しました。手動で入力してください。</string>
+    <string name="msg_ai_scan_parse_failed">ネットワークまたはサービスのエラーで自動解析に失敗しました。テキスト付きの未処理エントリとして保存したので、手動で入力できます。</string>
+    <string name="msg_ai_scan_shared_text">共有テキストに取引の詳細が見つかりませんでした。未処理エントリとして保存しました。</string>
+    <string name="label_ai_scan_shared_source">共有テキスト</string>
+    <string name="label_ai_scan_fallback_pdf">document.pdf</string>
+    <string name="label_ai_scan_fallback_image">image.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

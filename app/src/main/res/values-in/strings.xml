@@ -4605,4 +4605,18 @@ privat dari sifat</string>
     <string name="desc_ai_fab_mic">Tambah dengan suara</string>
     <string name="desc_ai_fab_write">Ekstrak dari teks</string>
     <string name="desc_ai_fab_manual">Tambah manual</string>
+
+    <string name="label_ai_scanning_document">Memindai dokumen</string>
+    <string name="label_ai_scanning_image">Memindai gambar</string>
+    <string name="msg_ai_scan_ocr_blank">Tidak ada teks yang bisa diambil dari gambar/PDF ini. Ditambahkan sebagai entri kosong untuk ditinjau manual.</string>
+    <string name="msg_ai_scan_ocr_whitespace">Dokumen tampak kosong. Ditambahkan sebagai entri kosong untuk diedit manual.</string>
+    <string name="msg_ai_scan_no_transactions">Tidak ada transaksi terdeteksi. Teks yang diekstrak disimpan sebagai catatan untuk entri manual.</string>
+    <string name="msg_ai_scan_parse_failed">Penguraian otomatis gagal karena kesalahan jaringan atau layanan. Disimpan sebagai entri mentah dengan teks Anda agar bisa diisi manual.</string>
+    <string name="msg_ai_scan_shared_text">Tidak ada detail transaksi dalam teks yang dibagikan. Disimpan sebagai entri mentah.</string>
+    <string name="label_ai_scan_shared_source">Teks bersama</string>
+    <string name="label_ai_scan_fallback_pdf">dokumen.pdf</string>
+    <string name="label_ai_scan_fallback_image">gambar.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>

@@ -4612,4 +4612,18 @@ privado de verdad</string>
     <string name="desc_ai_fab_mic">Añadir por voz</string>
     <string name="desc_ai_fab_write">Extraer del texto</string>
     <string name="desc_ai_fab_manual">Añadir a mano</string>
+
+    <string name="label_ai_scanning_document">Escaneando documento</string>
+    <string name="label_ai_scanning_image">Escaneando imagen</string>
+    <string name="msg_ai_scan_ocr_blank">No se pudo extraer texto de esta imagen/PDF. Se añadió como entrada en blanco para revisión manual.</string>
+    <string name="msg_ai_scan_ocr_whitespace">El documento parece estar vacío. Se añadió como entrada en blanco para editarlo a mano.</string>
+    <string name="msg_ai_scan_no_transactions">No se detectaron transacciones. Se guardó el texto extraído como nota para entrada manual.</string>
+    <string name="msg_ai_scan_parse_failed">Falló el análisis automático por un error de red o del servicio. Se guardó como entrada sin procesar con tu texto para que la introduzcas a mano.</string>
+    <string name="msg_ai_scan_shared_text">No se encontraron datos de transacción en el texto compartido. Se guardó como entrada sin procesar.</string>
+    <string name="label_ai_scan_shared_source">Texto compartido</string>
+    <string name="label_ai_scan_fallback_pdf">documento.pdf</string>
+    <string name="label_ai_scan_fallback_image">imagen.jpg</string>
+    <string name="label_file_size_bytes">%d B</string>
+    <string name="label_file_size_kb">%.1f KB</string>
+    <string name="label_file_size_mb">%.1f MB</string>
 </resources>
