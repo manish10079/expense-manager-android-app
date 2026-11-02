@@ -108,7 +108,8 @@
     <string name="title_add_transaction">વ્યવહાર ઉમેરો</string>
     <string name="title_edit_transaction">વ્યવહાર સંપાદિત કરો</string>
     <string name="label_add_note">નોંધ ઉમેરો</string>
-    <string name="label_no_note">કોઈ નોંધ નથી</string>
+    <string name="label_no_note">પૈસાએ વાત કરી. તમે નહીં.</string>
+    <string name="label_no_tags">કોઈ ટૅગ નથી. પૂરું રહસ્ય.</string>
     <string name="desc_view_full_note">પૂરી નોંધ જુઓ</string>
     <string name="desc_hide_full_note">પૂરી નોંધ છુપાવો</string>
     <string name="label_off">બંધ</string>
@@ -2180,7 +2181,7 @@
     <string name="msg_delete_fund_body">\"%1$s\" દૂર થશે. તેના વ્યવહાર રહેશે; તેઓ ફક્ત તેની સાથે જોડાયેલા રહેવાનું બંધ કરશે.</string>
     <string name="msg_fund_edit_amount_updates_income">આ તે આવક વ્યવહાર પણ અપડેટ કરે છે જે તેને ભરે છે.</string>
     <string name="title_spend_from_fund">ફંડ</string>
-    <string name="label_fund_none">કોઈ નહીં</string>
+    <string name="label_fund_none">કોઈ ફંડ નથી. એકલું ઊડે છે.</string>
     <string name="title_fund_overspend">પૂરતું ફંડ નથી</string>
     <string name="msg_fund_overspend">આ ખર્ચ \"%1$s\" માં બાકી %2$s કરતાં વધુ છે. તો પણ ખર્ચો, રકમ બદલો, કે આ ખર્ચમાંથી ફંડ દૂર કરો.</string>
     <string name="label_spend_anyway">તો પણ ખર્ચો</string>
@@ -2315,4 +2316,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ફાઇલ</string>
+    <string name="desc_attach_file">PDF / છબી ફાઇલો શેર કરો</string>
+    <string name="label_gallery">ગેલેરી</string>
+    <string name="label_all_media">બધું મીડિયા</string>
+    <string name="label_camera">કૅમેરા</string>
+    <string name="label_send">મોકલો</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ફોટો પસંદ</item>
+        <item quantity="other">%d ફોટા પસંદ</item>
+    </plurals>
 </resources>

@@ -120,7 +120,8 @@
     <string name="title_add_transaction">ವಹಿವಾಟು ಸೇರಿಸಿ</string>
     <string name="title_edit_transaction">ವಹಿವಾಟು ಸಂಪಾದಿಸಿ</string>
     <string name="label_add_note">ಟಿಪ್ಪಣಿ ಸೇರಿಸಿ</string>
-    <string name="label_no_note">ಟಿಪ್ಪಣಿ ಇಲ್ಲ</string>
+    <string name="label_no_note">ಹಣ ಮಾತಾಡಿತು. ನೀವು ಅಲ್ಲ.</string>
+    <string name="label_no_tags">ಟ್ಯಾಗ್ ಇಲ್ಲ. ಪೂರ್ಣ ರಹಸ್ಯ.</string>
     <string name="desc_view_full_note">ಪೂರ್ಣ ಟಿಪ್ಪಣಿ ನೋಡಿ</string>
     <string name="desc_hide_full_note">ಪೂರ್ಣ ಟಿಪ್ಪಣಿ ಮರೆಮಾಡಿ</string>
     <string name="label_off">ಆಫ್</string>
@@ -2169,7 +2170,7 @@
     <string name="msg_delete_fund_body">%1$s ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ. ಅದರ ವಹಿವಾಟುಗಳು ಉಳಿಯುತ್ತವೆ; ಅವು ಅದಕ್ಕೆ ಜೋಡಣೆಯಾಗುವುದಿಲ್ಲ ಅಷ್ಟೇ.</string>
     <string name="msg_fund_edit_amount_updates_income">ಇದು ಅದಕ್ಕೆ ಹಣ ನೀಡುವ ಆದಾಯ ವಹಿವಾಟನ್ನೂ ನವೀಕರಿಸುತ್ತದೆ.</string>
     <string name="title_spend_from_fund">ನಿಧಿ</string>
-    <string name="label_fund_none">ಯಾವುದೂ ಇಲ್ಲ</string>
+    <string name="label_fund_none">ಫಂಡ್ ಇಲ್ಲ. ಒಂಟಿಯಾಗಿ ಹಾರುತ್ತಿದೆ.</string>
     <string name="title_fund_overspend">ನಿಧಿಯಲ್ಲಿ ಸಾಕಷ್ಟು ಹಣ ಇಲ್ಲ</string>
     <string name="msg_fund_overspend">ಈ ಖರ್ಚು %1$s ನಿಧಿಯಲ್ಲಿ ಉಳಿದ %2$s ಗಿಂತ ಹೆಚ್ಚು. ಹಾಗೆಯೇ ಖರ್ಚು ಮಾಡಿ, ಮೊತ್ತ ಬದಲಿಸಿ, ಅಥವಾ ಈ ಖರ್ಚಿನಿಂದ ನಿಧಿ ತೆಗೆಯಿರಿ.</string>
     <string name="label_spend_anyway">ಹಾಗೆಯೇ ಖರ್ಚು ಮಾಡಿ</string>
@@ -2308,6 +2309,16 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ಫೈಲ್</string>
+    <string name="desc_attach_file">PDF / ಚಿತ್ರ ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿ</string>
+    <string name="label_gallery">ಗ್ಯಾಲರಿ</string>
+    <string name="label_all_media">ಎಲ್ಲಾ ಮಾಧ್ಯಮ</string>
+    <string name="label_camera">ಕ್ಯಾಮೆರಾ</string>
+    <string name="label_send">ಕಳುಹಿಸಿ</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ಫೋಟೋ ಆಯ್ಕೆ</item>
+        <item quantity="other">%d ಫೋಟೋಗಳು ಆಯ್ಕೆ</item>
+    </plurals>
 </resources>
 
 

@@ -217,7 +217,8 @@
 
     <string name="label_add_note">メモを追加</string>
 
-    <string name="label_no_note">メモなし</string>
+    <string name="label_no_note">お金は語った。あなたは黙った。</string>
+    <string name="label_no_tags">タグゼロ。謎だらけ。</string>
 
     <string name="desc_view_full_note">メモ全文を見る</string>
 
@@ -4576,7 +4577,7 @@
 
     <string name="title_spend_from_fund">資金</string>
 
-    <string name="label_fund_none">なし</string>
+    <string name="label_fund_none">ファンドなし。独り旅。</string>
 
     <string name="title_fund_overspend">資金が足りない</string>
 
@@ -4660,4 +4661,14 @@
     <string name="msg_ai_chat_no_transactions">テキストから取引が見つかりませんでした。</string>
     <string name="msg_ai_chat_daily_limit">1日の取引上限に達しました。明日もう一度お試しください。</string>
     <string name="msg_ai_chat_generic_error">現在取引を取得できません。しばらくしてからお試しください。</string>
+    <string name="label_attach_file">ファイル</string>
+    <string name="desc_attach_file">PDF / 画像ファイルを共有</string>
+    <string name="label_gallery">ギャラリー</string>
+    <string name="label_all_media">すべてのメディア</string>
+    <string name="label_camera">カメラ</string>
+    <string name="label_send">送信</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d枚の写真を選択</item>
+        <item quantity="other">%d枚の写真を選択</item>
+    </plurals>
 </resources>

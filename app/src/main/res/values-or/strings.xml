@@ -217,7 +217,8 @@
 
     <string name="label_add_note">ନୋଟ ଯୋଡ</string>
 
-    <string name="label_no_note">ନୋଟ ନାହିଁ</string>
+    <string name="label_no_note">पैसे ने बात की। आपने नहीं।</string>
+    <string name="label_no_tags">कोई टैग नहीं। पूरा रहस्य।</string>
 
     <string name="desc_view_full_note">ପୂରା ନୋଟ ଦେଖାଅ</string>
 
@@ -4519,7 +4520,7 @@
 
     <string name="title_spend_from_fund">ଫଣ୍ଡ</string>
 
-    <string name="label_fund_none">କିଛି ନୁହେଁ</string>
+    <string name="label_fund_none">कोई फंड नहीं। अकेले उड़ रहा है।</string>
 
     <string name="title_fund_overspend">ଫଣ୍ଡ ଯଥେଷ୍ଟ ନାହିଁ</string>
 
@@ -4603,4 +4604,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">फ़ाइल</string>
+    <string name="desc_attach_file">PDF / छवि फ़ाइलें साझा करें</string>
+    <string name="label_gallery">गैलरी</string>
+    <string name="label_all_media">सभी मीडिया</string>
+    <string name="label_camera">कैमरा</string>
+    <string name="label_send">भेजें</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d फ़ोटो चुनी गई</item>
+        <item quantity="other">%d फ़ोटो चुनी गईं</item>
+    </plurals>
 </resources>

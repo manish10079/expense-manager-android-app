@@ -221,36 +221,41 @@ private fun ModernConfirmationDialogCard(
                         modifier = Modifier.size(22.dp)
                     )
                 }
-                Column {
-                    Text(
-                        text = title,
-                        color = titleColor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = (-0.2).sp
-                    )
-                    if (!subtitle.isNullOrBlank()) {
-                        Text(
-                            text = subtitle,
-                            color = MaterialTheme.colorScheme.accentInk,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                if (title.isNotBlank() || !subtitle.isNullOrBlank()) {
+                    Column {
+                        if (title.isNotBlank()) {
+                            Text(
+                                text = title,
+                                color = titleColor,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = (-0.2).sp
+                            )
+                        }
+                        if (!subtitle.isNullOrBlank()) {
+                            Text(
+                                text = subtitle,
+                                color = MaterialTheme.colorScheme.accentInk,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = text,
-                color = bodyColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 22.sp
-            )
+            if (text.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = text,
+                    color = bodyColor,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 22.sp
+                )
+            }
             if (extraContent != null) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (text.isNotEmpty()) 16.dp else 16.dp))
                 CompositionLocalProvider(LocalContentColor provides bodyColor) {
                     extraContent()
                 }

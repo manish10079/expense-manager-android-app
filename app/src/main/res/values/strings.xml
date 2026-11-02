@@ -244,7 +244,8 @@
 
     <string name="label_add_note">Add note</string>
 
-    <string name="label_no_note">No Notes</string>
+    <string name="label_no_note">The money spoke. You didn\'t.</string>
+    <string name="label_no_tags">Zero tags. Maximum mystery.</string>
 
     <string name="desc_view_full_note">View full note</string>
 
@@ -4733,7 +4734,7 @@
     <string name="msg_delete_fund_body">&quot;%1$s&quot; will be removed. Its transactions are kept; they just stop being linked to it.</string>
     <string name="msg_fund_edit_amount_updates_income">This also updates the income transaction that funds it.</string>
     <string name="title_spend_from_fund">Fund</string>
-    <string name="label_fund_none">None</string>
+    <string name="label_fund_none">No fund. This one is flying solo.</string>
     <string name="title_fund_overspend">Insufficient Fund</string>
     <string name="msg_fund_overspend">This expense is more than the %2$s left in \u201c%1$s\u201d. Spend it anyway, change the amount, or take the fund off this expense.</string>
     <string name="label_spend_anyway">Spend anyway</string>
@@ -4785,5 +4786,15 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">File</string>
+    <string name="desc_attach_file">Share PDF / image files</string>
+    <string name="label_gallery">Gallery</string>
+    <string name="label_all_media">All Media</string>
+    <string name="label_camera">Camera</string>
+    <string name="label_send">Send</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d photo selected</item>
+        <item quantity="other">%d photos selected</item>
+    </plurals>
 </resources>
 

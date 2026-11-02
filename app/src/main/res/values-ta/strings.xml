@@ -109,7 +109,8 @@
     <string name="title_add_transaction">பரிவர்த்தனை சேர்</string>
     <string name="title_edit_transaction">பரிவர்த்தனை திருத்து</string>
     <string name="label_add_note">குறிப்பு சேர்</string>
-    <string name="label_no_note">குறிப்பு இல்லை</string>
+    <string name="label_no_note">பணம் பேசியது. நீங்கள் இல்லை.</string>
+    <string name="label_no_tags">டேக் இல்லை. முழு மர்மம்.</string>
     <string name="desc_view_full_note">முழுக் குறிப்பைப் பார்</string>
     <string name="desc_hide_full_note">முழுக் குறிப்பை மறை</string>
     <string name="label_off">நிறுத்தம்</string>
@@ -2135,7 +2136,7 @@
     <string name="msg_delete_fund_body">"%1$s" நீக்கப்படும். அதன் பரிவர்த்தனைகள் இருக்கும்; அவை அதனுடன் இணைக்கப்படாமல் போகும்.</string>
     <string name="msg_fund_edit_amount_updates_income">இது அதற்கு நிதியளிக்கும் வருமானப் பரிவர்த்தனையையும் புதுப்பிக்கும்.</string>
     <string name="title_spend_from_fund">நிதி</string>
-    <string name="label_fund_none">எதுவும் இல்லை</string>
+    <string name="label_fund_none">நிதி இல்லை. தனியாக பறக்கிறது.</string>
     <string name="title_fund_overspend">போதுமான நிதி இல்லை</string>
     <string name="msg_fund_overspend">இந்தச் செலவு “%1$s” இல் மீதமுள்ள %2$s ஐ விட அதிகம். இருந்தாலும் செலவழிக்கவா, தொகையை மாற்றவா, அல்லது இந்தச் செலவிலிருந்து நிதியை நீக்கவா?</string>
     <string name="label_spend_anyway">இருந்தாலும் செலவழி</string>
@@ -2270,4 +2271,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">கோப்பு</string>
+    <string name="desc_attach_file">PDF / படக் கோப்புகளைப் பகிர்</string>
+    <string name="label_gallery">கேலரி</string>
+    <string name="label_all_media">அனைத்து ஊடகமும்</string>
+    <string name="label_camera">கேமரா</string>
+    <string name="label_send">அனுப்பு</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d புகைப்படம் தேர்ந்தெடுக்கப்பட்டது</item>
+        <item quantity="other">%d புகைப்படங்கள் தேர்ந்தெடுக்கப்பட்டன</item>
+    </plurals>
 </resources>

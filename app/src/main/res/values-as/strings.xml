@@ -108,7 +108,8 @@
     <string name="title_add_transaction">লেনদেন যোগ কৰক</string>
     <string name="title_edit_transaction">লেনদেন সম্পাদনা কৰক</string>
     <string name="label_add_note">টোকা যোগ কৰক</string>
-    <string name="label_no_note">টোকা নাই</string>
+    <string name="label_no_note">টকাই কথা কৈছে। আপুনি নহয়।</string>
+    <string name="label_no_tags">টেগ নাই। সম্পূৰ্ণ ৰহস্য।</string>
     <string name="desc_view_full_note">সম্পূৰ্ণ টোকা চাওক</string>
     <string name="desc_hide_full_note">সম্পূৰ্ণ টোকা লুকুৱাওক</string>
     <string name="label_off">বন্ধ</string>
@@ -2108,7 +2109,7 @@
     <string name="msg_delete_fund_body">"%1$s" আঁতৰোৱা হ\'ব। ইয়াৰ লেনদেনবোৰ থাকি যাব; সেয়া কেৱল ইয়াৰ সৈতে সংযুক্ত হোৱাটো বন্ধ হ\'ব।</string>
     <string name="msg_fund_edit_amount_updates_income">ই তাৰ পুঁজি যোগান ধৰা আয় লেনদেনো আপডেট কৰে।</string>
     <string name="title_spend_from_fund">পুঁজি</string>
-    <string name="label_fund_none">কোনো নাই</string>
+    <string name="label_fund_none">ফান্ড নাই। একা উৰিছে।</string>
     <string name="title_fund_overspend">পুঁজি পৰ্যাপ্ত নহয়</string>
     <string name="msg_fund_overspend">এই খৰচ “%1$s”-ত বাকী থকা %2$s তকৈ বেছি। তেনে হলেও খৰচ কৰক, পৰিমাণ সলনি কৰক, বা এই খৰচৰ পৰা পুঁজি আঁতৰাওক।</string>
     <string name="label_spend_anyway">তেনে হলেও খৰচ কৰক</string>
@@ -2259,4 +2260,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ফাইল</string>
+    <string name="desc_attach_file">PDF / ছবি ফাইল শ্বেয়াৰ কৰক</string>
+    <string name="label_gallery">গেলাৰী</string>
+    <string name="label_all_media">সকলো মিডিয়া</string>
+    <string name="label_camera">কেমেৰা</string>
+    <string name="label_send">পঠিয়াওক</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ফটো বাছনি</item>
+        <item quantity="other">%d ফটো বাছনি</item>
+    </plurals>
 </resources>

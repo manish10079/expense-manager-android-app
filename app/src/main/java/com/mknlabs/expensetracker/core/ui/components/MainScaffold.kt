@@ -1,6 +1,8 @@
 package com.mknlabs.expensetracker.core.ui.components
 
 import android.net.Uri
+import java.io.File
+import androidx.core.content.FileProvider
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
@@ -54,6 +57,7 @@ import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
 import com.mknlabs.expensetracker.core.ui.components.AddQuickFloatingArc
 import com.mknlabs.expensetracker.core.ui.components.AddUnifiedSmartSheet
+import com.mknlabs.expensetracker.core.ui.components.ReceiptAttachmentSheet
 import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
@@ -255,6 +259,7 @@ fun MainScaffold(
     var scanStatusRes by remember { mutableStateOf<Int?>(null) }
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
+    var showReceiptAttachSheet by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
     fun applyIncomingDocumentOutcome(outcome: DocumentParseOutcome) {
         when (outcome) {
@@ -304,16 +309,30 @@ fun MainScaffold(
         }
     }
 
-    val addFilePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
+    val context = LocalContext.current
+    fun startDocumentParse(uri: Uri) {
+        showReceiptAttachSheet = false
         addFabMenuExpanded = false
-        if (uri == null) return@rememberLauncherForActivityResult
         documentParseBusy = true
         documentParseUri = uri
         documentParseText = null
         scanStatusRes = null
         aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
+    }
+    val addFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        startDocumentParse(uri)
+    }
+    var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { saved ->
+        val uri = pendingCameraUri
+        pendingCameraUri = null
+        if (!saved || uri == null) return@rememberLauncherForActivityResult
+        startDocumentParse(uri)
     }
 
     androidx.compose.runtime.LaunchedEffect(incomingShare, isLockOverlayActive) {
@@ -738,7 +757,7 @@ fun MainScaffold(
                 },
                 onScan = {
                     addFabMenuExpanded = false
-                    addFilePicker.launch(arrayOf("image/*", "application/pdf"))
+                    showReceiptAttachSheet = true
                 },
                 onChatParsed = { text, items ->
                     aiReviewSourceText = text
@@ -766,7 +785,7 @@ fun MainScaffold(
                 },
                 onScan = {
                     addFabMenuExpanded = false
-                    addFilePicker.launch(arrayOf("image/*", "application/pdf"))
+                    showReceiptAttachSheet = true
                 },
                 onChat = {
                     addFabMenuExpanded = false
@@ -779,6 +798,35 @@ fun MainScaffold(
                 },
             )
         }
+
+        ReceiptAttachmentSheet(
+            visible = showReceiptAttachSheet,
+            onDismiss = { showReceiptAttachSheet = false },
+            onPickFile = {
+                addFilePicker.launch(
+                    arrayOf(
+                        "application/pdf",
+                        "image/*",
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp",
+                        "image/heic",
+                        "image/heif",
+                        "image/gif",
+                    ),
+                )
+            },
+            onCapturePhoto = {
+                val photo = File(context.cacheDir, "receipt_capture_${System.currentTimeMillis()}.jpg")
+                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", photo)
+                pendingCameraUri = uri
+                takePictureLauncher.launch(uri)
+            },
+            onSendUris = { uris ->
+                val first = uris.firstOrNull() ?: return@ReceiptAttachmentSheet
+                startDocumentParse(first)
+            },
+        )
 
         if (showAiExtractSheet) {
             AiTextExtractBottomSheet(

@@ -109,7 +109,8 @@
     <string name="title_add_transaction">व्यवहार जोडा</string>
     <string name="title_edit_transaction">व्यवहार संपादित करा</string>
     <string name="label_add_note">नोंद जोडा</string>
-    <string name="label_no_note">नोंद नाही</string>
+    <string name="label_no_note">पैशाने बोलले. तुम्ही नाही.</string>
+    <string name="label_no_tags">टॅग नाहीत. पूर्ण गूढ.</string>
     <string name="desc_view_full_note">पूर्ण नोंद पाहा</string>
     <string name="desc_hide_full_note">पूर्ण नोंद लपवा</string>
     <string name="label_off">बंद</string>
@@ -2144,7 +2145,7 @@
     <string name="msg_delete_fund_body">"%1$s" जाईल. त्याचे व्यवहार राहतील; फक्त त्यांचे त्याच्याशी जोडणे तुटेल.</string>
     <string name="msg_fund_edit_amount_updates_income">यामुळे ज्या उत्पन्नाच्या व्यवहारातून पैसे आले तोही बदलेल.</string>
     <string name="title_spend_from_fund">फंड</string>
-    <string name="label_fund_none">काहीही नाही</string>
+    <string name="label_fund_none">फंड नाही. एकटे उडत आहे.</string>
     <string name="title_fund_overspend">पुरेसा फंड नाही</string>
     <string name="msg_fund_overspend">हा खर्च “%1$s” मध्ये शिल्लक असलेल्या %2$s पेक्षा जास्त आहे. तरीही खर्च करायचा, रक्कम बदलायची, की या खर्चातून फंड काढायचा?</string>
     <string name="label_spend_anyway">तरीही खर्च करा</string>
@@ -2281,4 +2282,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">फाईल</string>
+    <string name="desc_attach_file">PDF / प्रतिमा फाईल्स शेअर करा</string>
+    <string name="label_gallery">गॅलरी</string>
+    <string name="label_all_media">सर्व मीडिया</string>
+    <string name="label_camera">कॅमेरा</string>
+    <string name="label_send">पाठवा</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d फोटो निवडला</item>
+        <item quantity="other">%d फोटो निवडले</item>
+    </plurals>
 </resources>

@@ -109,7 +109,8 @@
     <string name="title_add_transaction">লেনদেন যোগ করুন</string>
     <string name="title_edit_transaction">লেনদেন সম্পাদনা করুন</string>
     <string name="label_add_note">নোট যোগ করুন</string>
-    <string name="label_no_note">কোনো নোট নেই</string>
+    <string name="label_no_note">টাকাই কথা বলেছে। আপনি নন।</string>
+    <string name="label_no_tags">কোনো ট্যাগ নেই। পুরো রহস্য।</string>
     <string name="desc_view_full_note">পুরো নোট দেখুন</string>
     <string name="desc_hide_full_note">পুরো নোট লুকান</string>
     <string name="label_off">বন্ধ</string>
@@ -2142,7 +2143,7 @@
     <string name="msg_delete_fund_body">"%1$s" সরে যাবে। এর লেনদেনগুলো থেকে যাবে; শুধু সেগুলোর সাথে ফান্ডের যোগাযোগ থাকবে না।</string>
     <string name="msg_fund_edit_amount_updates_income">এতে যে আয়ের লেনদেন থেকে টাকা এসেছিল সেটিও আপডেট হবে।</string>
     <string name="title_spend_from_fund">ফান্ড</string>
-    <string name="label_fund_none">কোনোটিই না</string>
+    <string name="label_fund_none">কোনো ফান্ড নেই। একা উড়ছে।</string>
     <string name="title_fund_overspend">পর্যাপ্ত ফান্ড নেই</string>
     <string name="msg_fund_overspend">এই খরচ “%1$s”-এ বাকি থাকা %2$s-এর চেয়ে বেশি। তবু খরচ করবেন, পরিমাণ বদলাবেন, নাকি এই খরচ থেকে ফান্ড সরাবেন?</string>
     <string name="label_spend_anyway">তবু খরচ করুন</string>
@@ -2281,4 +2282,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ফাইল</string>
+    <string name="desc_attach_file">PDF / ছবি ফাইল শেয়ার করুন</string>
+    <string name="label_gallery">গ্যালারি</string>
+    <string name="label_all_media">সব মিডিয়া</string>
+    <string name="label_camera">ক্যামেরা</string>
+    <string name="label_send">পাঠান</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%dটি ছবি নির্বাচিত</item>
+        <item quantity="other">%dটি ছবি নির্বাচিত</item>
+    </plurals>
 </resources>

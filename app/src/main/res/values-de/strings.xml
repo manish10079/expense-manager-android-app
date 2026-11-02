@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Notiz hinzufügen</string>
 
-    <string name="label_no_note">Keine Notizen</string>
+    <string name="label_no_note">Das Geld hat gesprochen. Du nicht.</string>
+    <string name="label_no_tags">Keine Tags. Maximale Geheimniskrämerei.</string>
 
     <string name="desc_view_full_note">Ganze Notiz zeigen</string>
 
@@ -4581,7 +4582,7 @@ privat von Haus aus</string>
 
     <string name="title_spend_from_fund">Fonds</string>
 
-    <string name="label_fund_none">Keiner</string>
+    <string name="label_fund_none">Kein Fonds. Fliegt solo.</string>
 
     <string name="title_fund_overspend">Zu wenig im Fonds</string>
 
@@ -4665,4 +4666,14 @@ privat von Haus aus</string>
     <string name="msg_ai_chat_no_transactions">Im Text wurden keine Buchungen gefunden.</string>
     <string name="msg_ai_chat_daily_limit">Tageslimit für Buchungen erreicht. Bitte versuchen Sie es morgen erneut.</string>
     <string name="msg_ai_chat_generic_error">Buchungen können gerade nicht geladen werden. Bitte versuchen Sie es später erneut.</string>
+    <string name="label_attach_file">Datei</string>
+    <string name="desc_attach_file">PDF- / Bilddateien teilen</string>
+    <string name="label_gallery">Galerie</string>
+    <string name="label_all_media">Alle Medien</string>
+    <string name="label_camera">Kamera</string>
+    <string name="label_send">Senden</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d Foto ausgewählt</item>
+        <item quantity="other">%d Fotos ausgewählt</item>
+    </plurals>
 </resources>

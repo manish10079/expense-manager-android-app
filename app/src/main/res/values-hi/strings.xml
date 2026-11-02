@@ -108,7 +108,8 @@
     <string name="title_add_transaction">लेनदेन जोड़ें</string>
     <string name="title_edit_transaction">लेनदेन संपादित करें</string>
     <string name="label_add_note">नोट जोड़ें</string>
-    <string name="label_no_note">कोई नोट नहीं</string>
+    <string name="label_no_note">पैसे ने बात की। आपने नहीं।</string>
+    <string name="label_no_tags">कोई टैग नहीं। पूरा रहस्य।</string>
     <string name="desc_view_full_note">पूरा नोट देखें</string>
     <string name="desc_hide_full_note">पूरा नोट छिपाएँ</string>
     <string name="label_off">बंद</string>
@@ -4123,7 +4124,7 @@
 
     <string name="title_spend_from_fund">फंड</string>
 
-    <string name="label_fund_none">कोई नहीं</string>
+    <string name="label_fund_none">कोई फंड नहीं। अकेले उड़ रहा है।</string>
 
     <string name="title_fund_overspend">फंड में पैसे कम हैं</string>
 
@@ -4237,4 +4238,14 @@
     <string name="msg_ai_chat_no_transactions">टेक्स्ट से कोई लेन-देन नहीं मिला।</string>
     <string name="msg_ai_chat_daily_limit">दैनिक लेन-देन सीमा पूरी हो गई। कृपया कल फिर कोशिश करें।</string>
     <string name="msg_ai_chat_generic_error">अभी लेन-देन नहीं लाए जा सके। कृपया बाद में कोशिश करें।</string>
+    <string name="label_attach_file">फ़ाइल</string>
+    <string name="desc_attach_file">PDF / छवि फ़ाइलें साझा करें</string>
+    <string name="label_gallery">गैलरी</string>
+    <string name="label_all_media">सभी मीडिया</string>
+    <string name="label_camera">कैमरा</string>
+    <string name="label_send">भेजें</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d फ़ोटो चुनी गई</item>
+        <item quantity="other">%d फ़ोटो चुनी गईं</item>
+    </plurals>
 </resources>

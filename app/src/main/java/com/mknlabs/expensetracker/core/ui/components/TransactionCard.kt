@@ -621,14 +621,24 @@ private fun TransactionDetailsDialog(
     )
     ModernConfirmationDialog(
         onDismissRequest = onDismiss,
-        title = stringResource(R.string.label_note_colon),
-        text = if (note.isBlank()) stringResource(R.string.label_no_note) else note,
+        title = "",
+        text = "",
         confirmButtonText = stringResource(R.string.label_close),
         onConfirm = onDismiss,
         headerIcon = Icons.Outlined.Info,
         showDismissButton = false,
         extraContent = {
             Column {
+                Text(
+                    text = stringResource(R.string.label_note_colon),
+                    style = sectionStyle
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (note.isBlank()) stringResource(R.string.label_no_note) else note,
+                    style = if (note.isBlank()) bodyStyle.copy(fontStyle = FontStyle.Italic) else bodyStyle
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.label_fund_colon),
                     style = sectionStyle
@@ -640,22 +650,25 @@ private fun TransactionDetailsDialog(
                     style = if (hasFund) bodyStyle else bodyStyle.copy(fontStyle = FontStyle.Italic)
                 )
 
-                if (tags.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.label_tags_colon),
+                    style = sectionStyle
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                val hasTags = tags.isNotEmpty()
+                val tagLine = if (hasTags) {
                     val pattern = stringResource(R.string.label_tag_prefixed)
-                    val tagLine = tags.joinToString(" ") { tag ->
+                    tags.joinToString(" ") { tag ->
                         pattern.format(tag.removePrefix("#"))
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.label_tags_colon),
-                        style = sectionStyle
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = tagLine,
-                        style = bodyStyle
-                    )
+                } else {
+                    stringResource(R.string.label_no_tags)
                 }
+                Text(
+                    text = tagLine,
+                    style = if (hasTags) bodyStyle else bodyStyle.copy(fontStyle = FontStyle.Italic)
+                )
             }
         }
     )

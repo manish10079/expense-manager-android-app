@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Добавить заметку</string>
 
-    <string name="label_no_note">Нет заметки</string>
+    <string name="label_no_note">Деньги всё сказали. Вы — нет.</string>
+    <string name="label_no_tags">Ноль тегов. Максимум тайны.</string>
 
     <string name="desc_view_full_note">Показать всю заметку</string>
 
@@ -4543,7 +4544,7 @@
 
     <string name="title_spend_from_fund">Фонд</string>
 
-    <string name="label_fund_none">Нет</string>
+    <string name="label_fund_none">Без фонда. Летит соло.</string>
 
     <string name="title_fund_overspend">Недостаточно в фонде</string>
 
@@ -4627,4 +4628,14 @@
     <string name="msg_ai_chat_no_transactions">В тексте не найдено операций.</string>
     <string name="msg_ai_chat_daily_limit">Дневной лимит операций исчерпан. Попробуйте снова завтра.</string>
     <string name="msg_ai_chat_generic_error">Сейчас не удалось получить операции. Попробуйте позже.</string>
+    <string name="label_attach_file">Файл</string>
+    <string name="desc_attach_file">Поделиться PDF / изображениями</string>
+    <string name="label_gallery">Галерея</string>
+    <string name="label_all_media">Все медиа</string>
+    <string name="label_camera">Камера</string>
+    <string name="label_send">Отправить</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">Выбрано фото: %d</item>
+        <item quantity="other">Выбрано фото: %d</item>
+    </plurals>
 </resources>

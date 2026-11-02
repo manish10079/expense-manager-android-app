@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Tambah catatan</string>
 
-    <string name="label_no_note">Tanpa catatan</string>
+    <string name="label_no_note">Uangnya yang bicara. Bukan kamu.</string>
+    <string name="label_no_tags">Nol tag. Misteri maksimal.</string>
 
     <string name="desc_view_full_note">Lihat catatan lengkap</string>
 
@@ -4576,7 +4577,7 @@ privat dari sifat</string>
 
     <string name="title_spend_from_fund">Dana</string>
 
-    <string name="label_fund_none">Tidak ada</string>
+    <string name="label_fund_none">Tanpa dana. Terbang sendiri.</string>
 
     <string name="title_fund_overspend">Dana tidak cukup</string>
 
@@ -4660,4 +4661,14 @@ privat dari sifat</string>
     <string name="msg_ai_chat_no_transactions">Tidak ada transaksi ditemukan dari teks.</string>
     <string name="msg_ai_chat_daily_limit">Batas transaksi harian tercapai. Coba lagi besok.</string>
     <string name="msg_ai_chat_generic_error">Tidak dapat mengambil transaksi saat ini. Coba lagi nanti.</string>
+    <string name="label_attach_file">File</string>
+    <string name="desc_attach_file">Bagikan file PDF / gambar</string>
+    <string name="label_gallery">Galeri</string>
+    <string name="label_all_media">Semua media</string>
+    <string name="label_camera">Kamera</string>
+    <string name="label_send">Kirim</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d foto dipilih</item>
+        <item quantity="other">%d foto dipilih</item>
+    </plurals>
 </resources>

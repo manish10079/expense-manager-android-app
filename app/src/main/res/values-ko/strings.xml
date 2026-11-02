@@ -217,7 +217,8 @@
 
     <string name="label_add_note">메모 추가</string>
 
-    <string name="label_no_note">메모 없음</string>
+    <string name="label_no_note">돈은 말했죠. 당신은 안 했죠.</string>
+    <string name="label_no_tags">태그 제로. 미스터리 만점.</string>
 
     <string name="desc_view_full_note">전체 메모 보기</string>
 
@@ -4552,7 +4553,7 @@
 
     <string name="title_spend_from_fund">자금</string>
 
-    <string name="label_fund_none">없음</string>
+    <string name="label_fund_none">펀드 없음. 혼자 날아갑니다.</string>
 
     <string name="title_fund_overspend">자금 부족</string>
 
@@ -4636,4 +4637,14 @@
     <string name="msg_ai_chat_no_transactions">텍스트에서 거래를 찾지 못했습니다.</string>
     <string name="msg_ai_chat_daily_limit">일일 거래 한도에 도달했습니다. 내일 다시 시도하세요.</string>
     <string name="msg_ai_chat_generic_error">지금은 거래를 가져올 수 없습니다. 나중에 다시 시도하세요.</string>
+    <string name="label_attach_file">파일</string>
+    <string name="desc_attach_file">PDF / 이미지 파일 공유</string>
+    <string name="label_gallery">갤러리</string>
+    <string name="label_all_media">모든 미디어</string>
+    <string name="label_camera">카메라</string>
+    <string name="label_send">보내기</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">사진 %d장 선택됨</item>
+        <item quantity="other">사진 %d장 선택됨</item>
+    </plurals>
 </resources>

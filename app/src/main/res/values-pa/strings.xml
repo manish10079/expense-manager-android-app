@@ -108,7 +108,8 @@
     <string name="title_add_transaction">ਲੈਣ-ਦੇਣ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="title_edit_transaction">ਲੈਣ-ਦੇਣ ਸੋਧੋ</string>
     <string name="label_add_note">ਨੋਟ ਸ਼ਾਮਲ ਕਰੋ</string>
-    <string name="label_no_note">ਕੋਈ ਨੋਟ ਨਹੀਂ</string>
+    <string name="label_no_note">ਪੈਸੇ ਨੇ ਗੱਲ ਕੀਤੀ। ਤੁਸੀਂ ਨਹੀਂ।</string>
+    <string name="label_no_tags">ਕੋਈ ਟੈਗ ਨਹੀਂ। ਪੂਰਾ ਰਾਜ਼।</string>
     <string name="desc_view_full_note">ਪੂਰਾ ਨੋਟ ਵੇਖੋ</string>
     <string name="desc_hide_full_note">ਪੂਰਾ ਨੋਟ ਲੁਕਾਓ</string>
     <string name="label_off">ਬੰਦ</string>
@@ -2180,7 +2181,7 @@
     <string name="msg_delete_fund_body">&quot;%1$s&quot; ਹਟਾ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਇਸ ਦੇ ਲੈਣ-ਦੇਣ ਬਚੇ ਰਹਿਣਗੇ; ਉਹ ਬੱਸ ਇਸ ਨਾਲ ਜੁੜੇ ਰਹਿਣਾ ਬੰਦ ਕਰ ਦੇਣਗੇ।</string>
     <string name="msg_fund_edit_amount_updates_income">ਇਹ ਉਸ ਆਮਦਨ ਲੈਣ-ਦੇਣ ਨੂੰ ਵੀ ਅੱਪਡੇਟ ਕਰਦਾ ਹੈ ਜੋ ਇਸਨੂੰ ਭਰਦਾ ਹੈ।</string>
     <string name="title_spend_from_fund">ਫੰਡ</string>
-    <string name="label_fund_none">ਕੋਈ ਨਹੀਂ</string>
+    <string name="label_fund_none">ਕੋਈ ਫੰਡ ਨਹੀਂ। ਇਕੱਲਾ ਉੱਡ ਰਿਹਾ ਹੈ।</string>
     <string name="title_fund_overspend">ਫੰਡ ਘੱਟ ਹੈ</string>
     <string name="msg_fund_overspend">ਇਹ ਖਰਚ “%1$s” ਵਿੱਚ ਬਾਕੀ %2$s ਤੋਂ ਵੱਧ ਹੈ। ਫਿਰ ਵੀ ਖਰਚੋ, ਰਕਮ ਬਦਲੋ, ਜਾਂ ਇਸ ਖਰਚ ਤੋਂ ਫੰਡ ਹਟਾਓ।</string>
     <string name="label_spend_anyway">ਫਿਰ ਵੀ ਖਰਚੋ</string>
@@ -2315,4 +2316,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ਫਾਈਲ</string>
+    <string name="desc_attach_file">PDF / ਚਿੱਤਰ ਫਾਈਲਾਂ ਸਾਂਝੀਆਂ ਕਰੋ</string>
+    <string name="label_gallery">ਗੈਲਰੀ</string>
+    <string name="label_all_media">ਸਾਰਾ ਮੀਡੀਆ</string>
+    <string name="label_camera">ਕੈਮਰਾ</string>
+    <string name="label_send">ਭੇਜੋ</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ਫੋਟੋ ਚੁਣੀ</item>
+        <item quantity="other">%d ਫੋਟੋਆਂ ਚੁਣੀਆਂ</item>
+    </plurals>
 </resources>

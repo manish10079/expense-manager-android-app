@@ -112,7 +112,8 @@
     <string name="title_add_transaction">ഇടപാട് ചേർക്കുക</string>
     <string name="title_edit_transaction">ഇടപാട് തിരുത്തുക</string>
     <string name="label_add_note">കുറിപ്പ് ചേർക്കുക</string>
-    <string name="label_no_note">കുറിപ്പുകളില്ല</string>
+    <string name="label_no_note">പണമാണ് സംസാരിച്ചത്. നിങ്ങളല്ല.</string>
+    <string name="label_no_tags">ടാഗില്ല. പൂർണ്ണ രഹസ്യം.</string>
     <string name="desc_view_full_note">മുഴുവൻ കുറിപ്പ് കാണുക</string>
     <string name="desc_hide_full_note">മുഴുവൻ കുറിപ്പ് മറയ്ക്കുക</string>
     <string name="label_off">ഓഫ്</string>
@@ -2154,7 +2155,7 @@
     <string name="msg_delete_fund_body">"%1$s" നീക്കും. അതിന്റെ ഇടപാടുകൾ നിലനിർത്തും; അവ അതുമായി ബന്ധിപ്പിക്കുന്നത് മാത്രം നിർത്തും.</string>
     <string name="msg_fund_edit_amount_updates_income">ഇത് ഫണ്ട് നൽകുന്ന വരുമാന ഇടപാടും അപ്‌ഡേറ്റ് ചെയ്യും.</string>
     <string name="title_spend_from_fund">ഫണ്ട്</string>
-    <string name="label_fund_none">ഒന്നുമില്ല</string>
+    <string name="label_fund_none">ഫണ്ടില്ല. ഒറ്റയ്ക്ക് പറക്കുന്നു.</string>
     <string name="title_fund_overspend">ഫണ്ട് അപര്യാപ്തം</string>
     <string name="msg_fund_overspend">ഈ ചെലവ് "%1$s"-ൽ ബാക്കിയുള്ള %2$s-നേക്കാൾ കൂടുതലാണ്. എന്നിട്ടും ചെലവാക്കണോ, തുക മാറ്റണോ, അല്ലെങ്കിൽ ഈ ചെലവിൽ നിന്ന് ഫണ്ട് നീക്കണോ?</string>
     <string name="label_spend_anyway">എന്നിട്ടും ചെലവാക്കുക</string>
@@ -2297,4 +2298,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ഫയൽ</string>
+    <string name="desc_attach_file">PDF / ഇമേജ് ഫയലുകൾ പങ്കിടുക</string>
+    <string name="label_gallery">ഗാലറി</string>
+    <string name="label_all_media">എല്ലാ മീഡിയയും</string>
+    <string name="label_camera">ക്യാമറ</string>
+    <string name="label_send">അയയ്ക്കുക</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ഫോട്ടോ തിരഞ്ഞെടുത്തു</item>
+        <item quantity="other">%d ഫോട്ടോകൾ തിരഞ്ഞെടുത്തു</item>
+    </plurals>
 </resources>

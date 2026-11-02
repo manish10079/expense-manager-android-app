@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Adicionar nota</string>
 
-    <string name="label_no_note">Sem notas</string>
+    <string name="label_no_note">O dinheiro falou. Você não.</string>
+    <string name="label_no_tags">Zero tags. Mistério máximo.</string>
 
     <string name="desc_view_full_note">Ver nota completa</string>
 
@@ -4583,7 +4584,7 @@ privado de verdade</string>
 
     <string name="title_spend_from_fund">Fundo</string>
 
-    <string name="label_fund_none">Nenhum</string>
+    <string name="label_fund_none">Sem fundo. Voando solo.</string>
 
     <string name="title_fund_overspend">Fundo insuficiente</string>
 
@@ -4667,4 +4668,14 @@ privado de verdade</string>
     <string name="msg_ai_chat_no_transactions">Nenhuma transação encontrada no texto.</string>
     <string name="msg_ai_chat_daily_limit">Limite diário de transações atingido. Tente novamente amanhã.</string>
     <string name="msg_ai_chat_generic_error">Não foi possível buscar as transações agora. Tente novamente mais tarde.</string>
+    <string name="label_attach_file">Arquivo</string>
+    <string name="desc_attach_file">Compartilhar PDF / imagens</string>
+    <string name="label_gallery">Galeria</string>
+    <string name="label_all_media">Todas as mídias</string>
+    <string name="label_camera">Câmera</string>
+    <string name="label_send">Enviar</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d foto selecionada</item>
+        <item quantity="other">%d fotos selecionadas</item>
+    </plurals>
 </resources>

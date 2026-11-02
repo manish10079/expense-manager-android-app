@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Aggiungi nota</string>
 
-    <string name="label_no_note">Nessuna nota</string>
+    <string name="label_no_note">Ha parlato il denaro. Non tu.</string>
+    <string name="label_no_tags">Zero tag. Mistero massimo.</string>
 
     <string name="desc_view_full_note">Mostra nota intera</string>
 
@@ -4519,7 +4520,7 @@
 
     <string name="title_spend_from_fund">Fondo</string>
 
-    <string name="label_fund_none">Nessuno</string>
+    <string name="label_fund_none">Nessun fondo. Vola da solo.</string>
 
     <string name="title_fund_overspend">Fondo insufficiente</string>
 
@@ -4603,4 +4604,14 @@
     <string name="msg_ai_chat_no_transactions">Nessuna transazione trovata nel testo.</string>
     <string name="msg_ai_chat_daily_limit">Limite giornaliero di transazioni raggiunto. Riprova domani.</string>
     <string name="msg_ai_chat_generic_error">Impossibile recuperare le transazioni ora. Riprova più tardi.</string>
+    <string name="label_attach_file">File</string>
+    <string name="desc_attach_file">Condividi PDF / immagini</string>
+    <string name="label_gallery">Galleria</string>
+    <string name="label_all_media">Tutti i media</string>
+    <string name="label_camera">Fotocamera</string>
+    <string name="label_send">Invia</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d foto selezionata</item>
+        <item quantity="other">%d foto selezionate</item>
+    </plurals>
 </resources>

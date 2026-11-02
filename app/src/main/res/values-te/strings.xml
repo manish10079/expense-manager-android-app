@@ -112,7 +112,8 @@
     <string name="title_add_transaction">లావాదేవీ జోడించండి</string>
     <string name="title_edit_transaction">లావాదేవీ సవరించండి</string>
     <string name="label_add_note">నోట్ జోడించండి</string>
-    <string name="label_no_note">నోట్లు లేవు</string>
+    <string name="label_no_note">డబ్బు మాట్లాడింది. మీరు కాదు.</string>
+    <string name="label_no_tags">ట్యాగ్‌లు లేవు. పూర్తి రహస్యం.</string>
     <string name="desc_view_full_note">పూర్తి నోట్ చూడండి</string>
     <string name="desc_hide_full_note">పూర్తి నోట్ దాచండి</string>
     <string name="label_off">ఆఫ్</string>
@@ -2132,7 +2133,7 @@
     <string name="msg_delete_fund_body">"%1$s" తొలగించబడుతుంది. దాని లావాదేవీలు ఉంచబడతాయి; అవి దానికి లింక్ కావడం మాత్రమే ఆగిపోతుంది.</string>
     <string name="msg_fund_edit_amount_updates_income">ఇది దానికి నిధి ఇచ్చే ఆదాయ లావాదేవీని కూడా అప్‌డేట్ చేస్తుంది.</string>
     <string name="title_spend_from_fund">నిధి</string>
-    <string name="label_fund_none">ఏదీ లేదు</string>
+    <string name="label_fund_none">ఫండ్ లేదు. ఒంటరిగా ఎగురుతోంది.</string>
     <string name="title_fund_overspend">నిధి సరిపోదు</string>
     <string name="msg_fund_overspend">ఈ ఖర్చు “%1$s”లో మిగిలిన %2$s కంటే ఎక్కువ. అయినా ఖర్చు చేయండి, మొత్తం మార్చండి, లేదా ఈ ఖర్చు నుండి నిధిని తీసివేయండి.</string>
     <string name="label_spend_anyway">అయినా ఖర్చు చేయి</string>
@@ -2269,4 +2270,14 @@
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
+    <string name="label_attach_file">ఫైల్</string>
+    <string name="desc_attach_file">PDF / చిత్ర ఫైళ్లను షేర్ చేయండి</string>
+    <string name="label_gallery">గ్యాలరీ</string>
+    <string name="label_all_media">అన్ని మీడియా</string>
+    <string name="label_camera">కెమెరా</string>
+    <string name="label_send">పంపు</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d ఫోటో ఎంచుకున్నారు</item>
+        <item quantity="other">%d ఫోటోలు ఎంచుకున్నారు</item>
+    </plurals>
 </resources>

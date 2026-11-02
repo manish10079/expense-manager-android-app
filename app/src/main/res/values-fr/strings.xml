@@ -217,7 +217,8 @@
 
     <string name="label_add_note">Ajouter une note</string>
 
-    <string name="label_no_note">Pas de note</string>
+    <string name="label_no_note">L’argent a parlé. Pas vous.</string>
+    <string name="label_no_tags">Zéro tag. Mystère maximal.</string>
 
     <string name="desc_view_full_note">Voir la note complète</string>
 
@@ -4548,7 +4549,7 @@ privé par nature</string>
 
     <string name="title_spend_from_fund">Fonds</string>
 
-    <string name="label_fund_none">Aucun</string>
+    <string name="label_fund_none">Aucun fonds. En solo.</string>
 
     <string name="title_fund_overspend">Fonds insuffisant</string>
 
@@ -4632,4 +4633,14 @@ privé par nature</string>
     <string name="msg_ai_chat_no_transactions">Aucune opération trouvée dans le texte.</string>
     <string name="msg_ai_chat_daily_limit">Limite quotidienne d’opérations atteinte. Réessayez demain.</string>
     <string name="msg_ai_chat_generic_error">Impossible de récupérer les opérations pour le moment. Réessayez plus tard.</string>
+    <string name="label_attach_file">Fichier</string>
+    <string name="desc_attach_file">Partager des PDF / images</string>
+    <string name="label_gallery">Galerie</string>
+    <string name="label_all_media">Tous les médias</string>
+    <string name="label_camera">Appareil photo</string>
+    <string name="label_send">Envoyer</string>
+    <plurals name="label_photos_selected">
+        <item quantity="one">%d photo sélectionnée</item>
+        <item quantity="other">%d photos sélectionnées</item>
+    </plurals>
 </resources>
