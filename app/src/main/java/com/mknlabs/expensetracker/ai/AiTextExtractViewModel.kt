@@ -121,7 +121,6 @@ class AiTextExtractViewModel @Inject constructor(
                         expenseCategories = ctx.allExpenseCategories,
                         incomeCategories = ctx.allIncomeCategories,
                         paymentMethods = ctx.allPaymentMethods,
-                        skipQuota = BuildConfig.DEBUG,
                     )
                 )
                 val mapped = mapResponse(response)

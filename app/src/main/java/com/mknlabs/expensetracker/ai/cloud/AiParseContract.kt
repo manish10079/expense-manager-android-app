@@ -11,7 +11,6 @@ data class AiParseRequest(
     val expenseCategories: List<String>,
     val incomeCategories: List<String>,
     val paymentMethods: List<String>,
-    val skipQuota: Boolean = false,
 ) {
     fun toCallableMap(): Map<String, Any> = buildMap {
         put("text", text)
@@ -20,7 +19,6 @@ data class AiParseRequest(
         put("expenseCategories", expenseCategories)
         put("incomeCategories", incomeCategories)
         put("paymentMethods", paymentMethods)
-        if (skipQuota) put("skipQuota", true)
     }
 }
 

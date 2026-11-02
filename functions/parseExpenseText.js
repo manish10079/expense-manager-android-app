@@ -726,15 +726,12 @@ exports.parseExpenseText = onCall(
     } else {
       providers = providers.filter((p) => p.id !== "apinex");
     }
-    const systemInstruction =
-      injectLists(
-        config.instruction,
-        expenseCategories,
-        incomeCategories,
-        paymentMethods
-      ) +
-      "\n11. Input may be typed text or OCR from a store receipt, bank SMS/statement, UPI app screenshot, or PDF. OCR is noisy: broken lines, extra spaces, headers/footers, GSTIN, and currency signs (especially ₹) misread as digits. Recover merchant and true amounts; ignore boilerplate that is not a transaction." +
-      "\n12. created_at is yyyy-MM-dd HH:mm or null. time_format is 12 or 24, or null when created_at is null. If the source time has AM/PM, time_format=12 and write HH as 00-23 after applying AM/PM. If no AM/PM, time_format=24. Date only: keep the date and use the current time for HH:mm with time_format=24. No date: created_at and time_format null. Never invent a date.";
+    const systemInstruction = injectLists(
+      config.instruction,
+      expenseCategories,
+      incomeCategories,
+      paymentMethods
+    );
     const userBlock = [
       `User locale: ${locale}`,
       `User currency: ${currency}`,
@@ -742,10 +739,7 @@ exports.parseExpenseText = onCall(
       text.trim(),
     ].join("\n");
 
-    const skipQuota = request.data?.skipQuota === true;
-    if (!skipQuota) {
-      await assertDailyQuotaAvailable(uid);
-    }
+    await assertDailyQuotaAvailable(uid);
 
     if (ENABLED_PROVIDERS.length) {
       providers = providers.filter((p) => ENABLED_PROVIDERS.includes(p.id));
@@ -760,9 +754,7 @@ exports.parseExpenseText = onCall(
       incomeCategories,
       paymentMethods,
     });
-    if (!skipQuota) {
-      await incrementDailyQuota(uid);
-    }
+    await incrementDailyQuota(uid);
     return parsed;
   }
 );

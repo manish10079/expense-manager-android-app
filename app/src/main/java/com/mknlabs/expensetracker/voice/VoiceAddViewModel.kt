@@ -102,7 +102,6 @@ class VoiceAddViewModel @Inject constructor(
                             expenseCategories = ctx.allExpenseCategories,
                             incomeCategories = ctx.allIncomeCategories,
                             paymentMethods = ctx.allPaymentMethods,
-                            skipQuota = BuildConfig.DEBUG,
                         )
                     )
                     val items = mapCloudResponse(response.transactions)
