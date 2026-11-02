@@ -1596,7 +1596,8 @@ fun MainScreen(
                 onRetry = {
                     speechRecognizer.cancel()
                     voiceViewModel.resetToListening()
-                }
+                },
+                onDone = { speechRecognizer.stopListening() },
             )
         }
 

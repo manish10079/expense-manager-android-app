@@ -4603,4 +4603,37 @@
     <string name="label_ai_save_details">Save Details</string>
     <string name="label_ai_transaction_saved">Transaction Saved</string>
     <string name="msg_ai_added_to_budget">Successfully added to budget</string>
+
+    <string name="label_add_button_style">추가 버튼</string>
+    <string name="desc_add_button_style">+ 버튼이 여는 방식을 선택하세요</string>
+    <string name="label_add_ui_pattern">거래 추가 레이아웃</string>
+    <string name="desc_add_ui_pattern">통합 스마트 시트 또는 플로팅 아크</string>
+    <string name="label_add_ui_unified">통합 스마트 시트</string>
+    <string name="label_add_ui_arc">빠른 플로팅 아크</string>
+    <string name="label_add_transaction">거래 추가</string>
+    <string name="label_use_classic_form">기본 양식 사용</string>
+    <string name="hint_ai_chat_spend">예: 공항 우버에 18달러 썼어…</string>
+    <string name="label_voice_mic">음성 마이크</string>
+    <string name="desc_voice_mic">말하면 자동 기록</string>
+    <string name="label_scan_receipt">영수증 스캔</string>
+    <string name="desc_scan_receipt">이미지 또는 PDF</string>
+    <string name="label_speak_transaction">거래 말하기</string>
+    <string name="desc_speak_transaction">\"점심에 20달러 썼어\"</string>
+    <string name="label_scan_receipt_pdf">영수증 / PDF 스캔</string>
+    <string name="desc_scan_receipt_pdf">AI로 세부정보 추출</string>
+    <string name="label_quick_chat_note">빠른 채팅 메모</string>
+    <string name="desc_quick_chat_note">일상 언어로 입력</string>
+    <string name="label_manual_entry">직접 입력</string>
+    <string name="desc_manual_entry">표준 양식</string>
+    <string name="label_parsing_ai_input">텍스트 분석 중</string>
+    <string name="msg_extracting_merchant">AI는 실수할 수 있습니다</string>
+
+
+    <string name="label_listening_to_voice">Listening to your voice...</string>
+    <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
+
+
+    <string name="msg_ai_chat_no_transactions">텍스트에서 거래를 찾지 못했습니다.</string>
+    <string name="msg_ai_chat_daily_limit">일일 거래 한도에 도달했습니다. 내일 다시 시도하세요.</string>
+    <string name="msg_ai_chat_generic_error">지금은 거래를 가져올 수 없습니다. 나중에 다시 시도하세요.</string>
 </resources>

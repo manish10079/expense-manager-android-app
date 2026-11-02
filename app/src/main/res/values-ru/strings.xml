@@ -4594,4 +4594,37 @@
     <string name="label_ai_save_details">Save Details</string>
     <string name="label_ai_transaction_saved">Transaction Saved</string>
     <string name="msg_ai_added_to_budget">Successfully added to budget</string>
+
+    <string name="label_add_button_style">Кнопка «Добавить»</string>
+    <string name="desc_add_button_style">Как кнопка + открывает действия</string>
+    <string name="label_add_ui_pattern">Макет добавления</string>
+    <string name="desc_add_ui_pattern">Единый умный лист или плавающая дуга</string>
+    <string name="label_add_ui_unified">Единый умный лист</string>
+    <string name="label_add_ui_arc">Быстрая плавающая дуга</string>
+    <string name="label_add_transaction">Добавить операцию</string>
+    <string name="label_use_classic_form">Классическая форма</string>
+    <string name="hint_ai_chat_spend">напр. Потратил 18 $ на Uber в аэропорт…</string>
+    <string name="label_voice_mic">Микрофон</string>
+    <string name="desc_voice_mic">Скажите — запись сохранится</string>
+    <string name="label_scan_receipt">Сканировать чек</string>
+    <string name="desc_scan_receipt">Изображение или PDF</string>
+    <string name="label_speak_transaction">Продиктовать операцию</string>
+    <string name="desc_speak_transaction">«Потратил 20 $ на обед»</string>
+    <string name="label_scan_receipt_pdf">Сканировать чек / PDF</string>
+    <string name="desc_scan_receipt_pdf">Извлечь данные с ИИ</string>
+    <string name="label_quick_chat_note">Быстрая заметка</string>
+    <string name="desc_quick_chat_note">Напишите своими словами</string>
+    <string name="label_manual_entry">Ручной ввод</string>
+    <string name="desc_manual_entry">Обычная форма</string>
+    <string name="label_parsing_ai_input">Разбор текста</string>
+    <string name="msg_extracting_merchant">ИИ может ошибаться</string>
+
+
+    <string name="label_listening_to_voice">Listening to your voice...</string>
+    <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
+
+
+    <string name="msg_ai_chat_no_transactions">В тексте не найдено операций.</string>
+    <string name="msg_ai_chat_daily_limit">Дневной лимит операций исчерпан. Попробуйте снова завтра.</string>
+    <string name="msg_ai_chat_generic_error">Сейчас не удалось получить операции. Попробуйте позже.</string>
 </resources>

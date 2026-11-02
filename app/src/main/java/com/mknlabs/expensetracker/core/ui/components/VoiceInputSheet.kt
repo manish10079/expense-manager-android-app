@@ -4,9 +4,10 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -47,12 +48,15 @@ import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.components.AppTextButton
 import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
@@ -93,6 +97,7 @@ fun VoiceInputSheet(
     onDismissRequest: () -> Unit,
     onConfirm: (ParsedVoiceTransaction) -> Unit,
     onRetry: () -> Unit,
+    onDone: () -> Unit = onDismissRequest,
     modifier: Modifier = Modifier
 ) {
     val sheetBodyState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -117,33 +122,13 @@ fun VoiceInputSheet(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.title_voice_add),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.accentInk
-                    )
-                )
-
-                IconButton(onClick = onDismissRequest) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.desc_close),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            // Content based on state
             when (sheetState) {
-                VoiceSheetState.LISTENING -> ListeningContent(transcript)
-                VoiceSheetState.PROCESSING -> ProcessingContent()
+                VoiceSheetState.LISTENING, VoiceSheetState.PROCESSING -> ListeningContent(
+                    transcript = transcript,
+                    isProcessing = sheetState == VoiceSheetState.PROCESSING,
+                    onCancel = onDismissRequest,
+                    onDone = onDone,
+                )
                 VoiceSheetState.RESULT -> ResultContent(
                     transaction = parsedTransaction,
                     currencySymbol = currencySymbol,
@@ -160,102 +145,167 @@ fun VoiceInputSheet(
 }
 
 @Composable
-private fun ListeningContent(transcript: String) {
-    val infiniteTransition = rememberInfiniteTransition(label = "mic_pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.2f,
+private fun ListeningContent(
+    transcript: String,
+    isProcessing: Boolean,
+    onCancel: () -> Unit,
+    onDone: () -> Unit,
+) {
+    val dark = MaterialTheme.colorScheme.isDark
+    val pulse = rememberInfiniteTransition(label = "voice-listen")
+    val ring1 by pulse.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.35f,
         animationSpec = infiniteRepeatable(
-            animation = tween(800),
-            repeatMode = RepeatMode.Reverse
+            animation = tween(2400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
         ),
-        label = "mic_pulse_scale"
+        label = "ring1",
     )
-
+    val ring2 by pulse.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.35f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2400, delayMillis = 600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "ring2",
+    )
+    val blob by pulse.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(8000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "blob",
+    )
+    val barDelays = intArrayOf(100, 300, 200, 500, 400)
     Column(
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Pulsing mic icon
+        Text(
+            text = stringResource(
+                if (isProcessing) R.string.msg_voice_processing else R.string.label_listening_to_voice
+            ),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = if (transcript.isNotBlank()) {
+                "\"$transcript\""
+            } else {
+                stringResource(R.string.hint_voice_listen_example)
+            },
+            modifier = Modifier.padding(top = 4.dp).height(20.dp),
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
         Box(
             modifier = Modifier
-                .size(80.dp)
-                .scale(pulseScale)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.accentSoft),
-            contentAlignment = Alignment.Center
+                .padding(vertical = 24.dp)
+                .size(144.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                imageVector = Icons.Default.Mic,
-                contentDescription = stringResource(R.string.desc_voice_add),
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(40.dp)
-            )
-        }
-
-        Text(
-            text = stringResource(R.string.msg_voice_listening),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.accentInk
-            )
-        )
-
-        // Live transcript
-        if (transcript.isNotBlank()) {
-            Text(
-                text = "\"$transcript\"",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(12.dp)
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .graphicsLayer { scaleX = blob; scaleY = blob }
+                    .background(
+                        Brush.radialGradient(
+                            listOf(
+                                Color(0xFF818CF8).copy(alpha = if (dark) 0.35f else 0.22f),
+                                Color.Transparent,
+                            )
+                        ),
+                        CircleShape,
                     )
-                    .padding(16.dp)
             )
-        } else {
-            Text(
-                text = stringResource(R.string.desc_voice_add),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .graphicsLayer {
+                        scaleX = ring1
+                        scaleY = ring1
+                        alpha = 0.25f + (1.35f - ring1) * 0.7f
+                    }
+                    .border(1.dp, Color(0xFF818CF8).copy(alpha = 0.4f), CircleShape)
+                    .background(Color(0xFF6366F1).copy(alpha = 0.10f), CircleShape)
             )
+            Box(
+                Modifier
+                    .size(128.dp)
+                    .graphicsLayer {
+                        scaleX = ring2
+                        scaleY = ring2
+                        alpha = 0.25f + (1.35f - ring2) * 0.7f
+                    }
+                    .border(1.dp, Color(0xFFC084FC).copy(alpha = 0.5f), CircleShape)
+                    .background(Color(0xFFA855F7).copy(alpha = 0.10f), CircleShape)
+            )
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(Brush.linearGradient(listOf(Color(0xFF4F46E5), Color(0xFF7C3AED)))),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    barDelays.forEach { delay ->
+                        val h by pulse.animateFloat(
+                            initialValue = 12f,
+                            targetValue = 48f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(600, delayMillis = delay, easing = FastOutSlowInEasing),
+                                repeatMode = RepeatMode.Reverse,
+                            ),
+                            label = "bar-$delay",
+                        )
+                        Box(
+                            Modifier
+                                .width(6.dp)
+                                .height(h.dp)
+                                .clip(RoundedCornerShape(99.dp))
+                                .background(Color.White),
+                        )
+                    }
+                }
+            }
         }
-    }
-}
-
-@Composable
-private fun ProcessingContent() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.accentSoft),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .border(
+                    width = 0.dp,
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(0.dp),
+                ),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(
-                imageVector = Icons.Default.Mic,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.accentInk,
-                modifier = Modifier.size(40.dp)
-            )
+            androidx.compose.material3.OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f).height(44.dp),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Text(stringResource(R.string.label_cancel), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            }
+            Button(
+                onClick = onDone,
+                modifier = Modifier.weight(1f).height(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5)),
+            ) {
+                Text(stringResource(R.string.label_done), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+            }
         }
-
-        Text(
-            text = stringResource(R.string.msg_voice_processing),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.accentInk
-            )
-        )
     }
 }
 
@@ -482,7 +532,12 @@ private fun VoiceInputSheetListeningPreview() {
                 .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
-            ListeningContent(transcript = "Spent 50 dollars on food")
+            ListeningContent(
+                transcript = "Spent 50 dollars on food",
+                isProcessing = false,
+                onCancel = {},
+                onDone = {},
+            )
         }
     }
 }

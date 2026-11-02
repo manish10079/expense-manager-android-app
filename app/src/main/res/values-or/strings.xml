@@ -4570,4 +4570,37 @@
     <string name="label_ai_save_details">Save Details</string>
     <string name="label_ai_transaction_saved">Transaction Saved</string>
     <string name="msg_ai_added_to_budget">Successfully added to budget</string>
+
+    <string name="label_add_button_style">जोड़ें बटन</string>
+    <string name="desc_add_button_style">+ बटन कैसे क्रियाएँ खोले, चुनें</string>
+    <string name="label_add_ui_pattern">लेन-देन जोड़ने का लेआउट</string>
+    <string name="desc_add_ui_pattern">एकीकृत स्मार्ट शीट या त्वरित फ्लोटिंग आर्क</string>
+    <string name="label_add_ui_unified">एकीकृत स्मार्ट शीट</string>
+    <string name="label_add_ui_arc">त्वरित फ्लोटिंग आर्क</string>
+    <string name="label_add_transaction">लेन-देन जोड़ें</string>
+    <string name="label_use_classic_form">क्लासिक फ़ॉर्म इस्तेमाल करें</string>
+    <string name="hint_ai_chat_spend">जैसे एयरपोर्ट तक उबर पर $18 खर्च…</string>
+    <string name="label_voice_mic">वॉइस माइक</string>
+    <string name="desc_voice_mic">बोलें, अपने आप दर्ज हो</string>
+    <string name="label_scan_receipt">रसीद स्कैन करें</string>
+    <string name="desc_scan_receipt">छवि या PDF</string>
+    <string name="label_speak_transaction">लेन-देन बोलें</string>
+    <string name="desc_speak_transaction">\"लंच पर $20 खर्च\"</string>
+    <string name="label_scan_receipt_pdf">रसीद / PDF स्कैन करें</string>
+    <string name="desc_scan_receipt_pdf">AI से विवरण निकालें</string>
+    <string name="label_quick_chat_note">त्वरित चैट नोट</string>
+    <string name="desc_quick_chat_note">सामान्य भाषा में लिखें</string>
+    <string name="label_manual_entry">मैन्युअल प्रविष्टि</string>
+    <string name="desc_manual_entry">सामान्य फ़ॉर्म</string>
+    <string name="label_parsing_ai_input">टेक्स्ट पढ़ा जा रहा है</string>
+    <string name="msg_extracting_merchant">AI गलती कर सकता है</string>
+
+
+    <string name="label_listening_to_voice">Listening to your voice...</string>
+    <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
+
+
+    <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
+    <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
+    <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
 </resources>

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Today
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
@@ -79,6 +80,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
 import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.transactionList
+import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -210,6 +212,14 @@ fun CustomisationScreen(
                 }
             }
         },
+        addUiPattern = appSettings.addTransactionUiPattern,
+        onAddUiPatternChange = { pattern ->
+            coroutineScope.launch {
+                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                    settings.copy(addTransactionUiPattern = pattern)
+                }
+            }
+        },
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -231,6 +241,8 @@ private fun TransactionCardCustomizeContent(
     isListSummariesProGranted: Boolean,
     defaultPeriodFilter: TransactionPeriodFilter = TransactionPeriodFilter.MONTHLY,
     onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit = {},
+    addUiPattern: AddTransactionUiPattern = AddTransactionUiPattern.UNIFIED_SMART_SHEET,
+    onAddUiPatternChange: (AddTransactionUiPattern) -> Unit = {},
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -432,6 +444,8 @@ private fun TransactionCardCustomizeContent(
                         isInPreview = isInPreview,
                         defaultPeriodFilter = defaultPeriodFilter,
                         onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
+                        addUiPattern = addUiPattern,
+                        onAddUiPatternChange = onAddUiPatternChange,
                         modifier = Modifier.weight(1f),
                         horizontalPadding = 0.dp
                     )
@@ -478,6 +492,8 @@ private fun TransactionCardCustomizeContent(
                 isInPreview = isInPreview,
                 defaultPeriodFilter = defaultPeriodFilter,
                 onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
+                addUiPattern = addUiPattern,
+                onAddUiPatternChange = onAddUiPatternChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -573,11 +589,15 @@ private fun TransactionCardTogglesList(
     isInPreview: Boolean,
     defaultPeriodFilter: TransactionPeriodFilter,
     onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit,
+    addUiPattern: AddTransactionUiPattern,
+    onAddUiPatternChange: (AddTransactionUiPattern) -> Unit,
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 20.dp
 ) {
     var isDefaultViewSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isAddUiSheetVisible by rememberSaveable { mutableStateOf(false) }
     val defaultViewSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val addUiSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val periodFilterItems = TransactionPeriodFilter.entries.map { filter ->
         SelectionItem(
             id = filter,
@@ -595,6 +615,32 @@ private fun TransactionCardTogglesList(
         contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        item {
+            SettingsGroupHeader(
+                title = stringResource(id = R.string.label_add_button_style),
+                subtitle = stringResource(id = R.string.desc_add_button_style)
+            )
+        }
+        item {
+            SettingsGroup(colors = settingsGroupCardColors()) {
+                SettingsItemCard(
+                    icon = Icons.Filled.Add,
+                    iconTile = SettingsTiles.Indigo,
+                    title = stringResource(id = R.string.label_add_ui_pattern),
+                    subtitle = stringResource(id = R.string.desc_add_ui_pattern),
+                    valueText = stringResource(
+                        if (addUiPattern == AddTransactionUiPattern.QUICK_FLOATING_ARC)
+                            R.string.label_add_ui_arc
+                        else
+                            R.string.label_add_ui_unified
+                    ),
+                    type = SettingsItemType.Value,
+                    standalone = false,
+                    onClick = { isAddUiSheetVisible = true }
+                )
+            }
+        }
+
         // Group 1: what every transaction card displays, ordered to mirror the card's own
         // anatomy -- icon, category, payment method, then the date and time stamps.
         item {
@@ -654,6 +700,34 @@ private fun TransactionCardTogglesList(
                 }
             }
         }
+    }
+
+    if (isAddUiSheetVisible) {
+        AppSelectionSheet(
+            title = stringResource(id = R.string.label_add_ui_pattern),
+            description = stringResource(id = R.string.desc_add_ui_pattern),
+            items = listOf(
+                SelectionItem(
+                    id = AddTransactionUiPattern.UNIFIED_SMART_SHEET,
+                    title = stringResource(R.string.label_add_ui_unified),
+                    leadingIcon = Icons.Filled.Add,
+                ),
+                SelectionItem(
+                    id = AddTransactionUiPattern.QUICK_FLOATING_ARC,
+                    title = stringResource(R.string.label_add_ui_arc),
+                    leadingIcon = Icons.Filled.Add,
+                ),
+            ),
+            selectedId = addUiPattern,
+            sheetState = addUiSheetState,
+            containerColor = MaterialTheme.colorScheme.profileSheet,
+            rowColor = MaterialTheme.colorScheme.genderRow,
+            onDismiss = { isAddUiSheetVisible = false },
+            onItemSelected = { pattern ->
+                onAddUiPatternChange(pattern)
+                isAddUiSheetVisible = false
+            }
+        )
     }
 
     if (isDefaultViewSheetVisible) {

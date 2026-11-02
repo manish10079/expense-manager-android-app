@@ -78,5 +78,6 @@ data class AppSettings(
     val importedFontFileNames: List<String> = emptyList(),
     // Custom month starting day (1–28, default 1 = standard calendar month)
     val monthStartDay: Int = 1,
-    val defaultTransactionPeriodFilter: String = "MONTHLY"
+    val defaultTransactionPeriodFilter: String = "MONTHLY",
+    val addTransactionUiPattern: AddTransactionUiPattern = AddTransactionUiPattern.UNIFIED_SMART_SHEET,
 )

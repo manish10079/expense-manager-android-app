@@ -4752,5 +4752,38 @@
     <string name="desc_ai_fab_mic">Add by voice</string>
     <string name="desc_ai_fab_write">Extract from text</string>
     <string name="desc_ai_fab_manual">Add manually</string>
+
+    <string name="label_add_button_style">Add button</string>
+    <string name="desc_add_button_style">Choose how the + button opens add actions</string>
+    <string name="label_add_ui_pattern">Add transaction layout</string>
+    <string name="desc_add_ui_pattern">Unified Smart Sheet or Quick Floating Arc</string>
+    <string name="label_add_ui_unified">Unified Smart Sheet</string>
+    <string name="label_add_ui_arc">Quick Floating Arc</string>
+    <string name="label_add_transaction">Add Transaction</string>
+    <string name="label_use_classic_form">Use Classic Form</string>
+    <string name="hint_ai_chat_spend">e.g. Spent $18 for Uber to airport...</string>
+    <string name="label_voice_mic">Voice Mic</string>
+    <string name="desc_voice_mic">Speak and auto-log</string>
+    <string name="label_scan_receipt">Scan Receipt</string>
+    <string name="desc_scan_receipt">Image or PDF OCR</string>
+    <string name="label_speak_transaction">Speak Transaction</string>
+    <string name="desc_speak_transaction">Spent $20 for lunch</string>
+    <string name="label_scan_receipt_pdf">Scan Receipt / PDF</string>
+    <string name="desc_scan_receipt_pdf">Auto-extract details with AI</string>
+    <string name="label_quick_chat_note">Quick Chat Note</string>
+    <string name="desc_quick_chat_note">Type in plain English</string>
+    <string name="label_manual_entry">Manual Entry</string>
+    <string name="desc_manual_entry">Standard form input</string>
+    <string name="label_parsing_ai_input">Parsing text</string>
+    <string name="msg_extracting_merchant">AI can make mistake</string>
+
+
+    <string name="label_listening_to_voice">Listening to your voice...</string>
+    <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
+
+
+    <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
+    <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
+    <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
 </resources>
 

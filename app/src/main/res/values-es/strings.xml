@@ -4634,4 +4634,37 @@ privado de verdad</string>
     <string name="label_ai_save_details">Save Details</string>
     <string name="label_ai_transaction_saved">Transaction Saved</string>
     <string name="msg_ai_added_to_budget">Successfully added to budget</string>
+
+    <string name="label_add_button_style">Botón añadir</string>
+    <string name="desc_add_button_style">Elige cómo el botón + abre las acciones</string>
+    <string name="label_add_ui_pattern">Diseño para añadir</string>
+    <string name="desc_add_ui_pattern">Hoja inteligente unificada o arco flotante</string>
+    <string name="label_add_ui_unified">Hoja inteligente unificada</string>
+    <string name="label_add_ui_arc">Arco flotante rápido</string>
+    <string name="label_add_transaction">Añadir transacción</string>
+    <string name="label_use_classic_form">Usar formulario clásico</string>
+    <string name="hint_ai_chat_spend">p. ej. Gasté 18 $ en Uber al aeropuerto…</string>
+    <string name="label_voice_mic">Micrófono</string>
+    <string name="desc_voice_mic">Habla y se registra solo</string>
+    <string name="label_scan_receipt">Escanear recibo</string>
+    <string name="desc_scan_receipt">Imagen o PDF</string>
+    <string name="label_speak_transaction">Dictar transacción</string>
+    <string name="desc_speak_transaction">«Gasté 20 $ en el almuerzo»</string>
+    <string name="label_scan_receipt_pdf">Escanear recibo / PDF</string>
+    <string name="desc_scan_receipt_pdf">Extrae los datos con IA</string>
+    <string name="label_quick_chat_note">Nota rápida</string>
+    <string name="desc_quick_chat_note">Escribe en lenguaje natural</string>
+    <string name="label_manual_entry">Entrada manual</string>
+    <string name="desc_manual_entry">Formulario estándar</string>
+    <string name="label_parsing_ai_input">Analizando texto</string>
+    <string name="msg_extracting_merchant">La IA puede equivocarse</string>
+
+
+    <string name="label_listening_to_voice">Listening to your voice...</string>
+    <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
+
+
+    <string name="msg_ai_chat_no_transactions">No se encontraron transacciones en el texto.</string>
+    <string name="msg_ai_chat_daily_limit">Se alcanzó el límite diario de transacciones. Inténtalo de nuevo mañana.</string>
+    <string name="msg_ai_chat_generic_error">No se pueden obtener las transacciones ahora. Inténtalo más tarde.</string>
 </resources>

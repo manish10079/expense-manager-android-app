@@ -52,7 +52,10 @@ import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
 import com.mknlabs.expensetracker.models.UserProfile
+import com.mknlabs.expensetracker.core.ui.components.AddQuickFloatingArc
+import com.mknlabs.expensetracker.core.ui.components.AddUnifiedSmartSheet
 import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
+import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.models.SyncState
@@ -442,10 +445,11 @@ fun MainScaffold(
         )
     }
 
-    LaunchedEffect(addFabMenuExpanded) {
-
+    val addUiPattern = appSettings.addTransactionUiPattern
+    LaunchedEffect(addFabMenuExpanded, addUiPattern) {
         if (!addFabMenuExpanded) return@LaunchedEffect
-        delay(5_000)
+        if (addUiPattern != AddTransactionUiPattern.QUICK_FLOATING_ARC) return@LaunchedEffect
+        delay(8_000)
         addFabMenuExpanded = false
     }
 
@@ -657,17 +661,6 @@ fun MainScaffold(
             )
         }
 
-        if (addFabMenuExpanded) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { addFabMenuExpanded = false }
-            )
-        }
-
         if (useNavigationRail) {
             AppNavigationRail(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -676,16 +669,9 @@ fun MainScaffold(
                     onBottomBarVisibilityChange(false)
                     onRouteChange(route)
                 },
-                onAddClick = {
-                    if (addFabMenuExpanded) {
-                        addFabMenuExpanded = false
-                    } else {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange(AppRoute.AddTransaction)
-                    }
-                },
+                onAddClick = { addFabMenuExpanded = !addFabMenuExpanded },
                 onAddLongClick = { addFabMenuExpanded = true },
-                speedDialExpanded = addFabMenuExpanded,
+                speedDialExpanded = false,
                 onSpeedDialFile = { addFilePicker.launch(arrayOf("image/*", "application/pdf")) },
                 onSpeedDialMic = {
                     addFabMenuExpanded = false
@@ -717,16 +703,9 @@ fun MainScaffold(
                     onBottomBarVisibilityChange(false)
                     onRouteChange(route)
                 },
-                onAddClick = {
-                    if (addFabMenuExpanded) {
-                        addFabMenuExpanded = false
-                    } else {
-                        onBottomBarVisibilityChange(false)
-                        onRouteChange(AppRoute.AddTransaction)
-                    }
-                },
+                onAddClick = { addFabMenuExpanded = !addFabMenuExpanded },
                 onAddLongClick = { addFabMenuExpanded = true },
-                speedDialExpanded = addFabMenuExpanded,
+                speedDialExpanded = false,
                 onSpeedDialFile = { addFilePicker.launch(arrayOf("image/*", "application/pdf")) },
                 onSpeedDialMic = {
                     addFabMenuExpanded = false
@@ -741,6 +720,63 @@ fun MainScaffold(
                     onBottomBarVisibilityChange(false)
                     onRouteChange(AppRoute.AddTransaction)
                 }
+            )
+        }
+
+        if (addUiPattern == AddTransactionUiPattern.UNIFIED_SMART_SHEET) {
+            AddUnifiedSmartSheet(
+                visible = addFabMenuExpanded,
+                onDismiss = { addFabMenuExpanded = false },
+                onClassicForm = {
+                    addFabMenuExpanded = false
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                },
+                onVoice = {
+                    addFabMenuExpanded = false
+                    onQuickVoiceClick()
+                },
+                onScan = {
+                    addFabMenuExpanded = false
+                    addFilePicker.launch(arrayOf("image/*", "application/pdf"))
+                },
+                onChatParsed = { text, items ->
+                    aiReviewSourceText = text
+                    if (items.isEmpty()) {
+                        addFabMenuExpanded = false
+                        onAddTransactionDraftNoteChange(text)
+                        onBottomBarVisibilityChange(false)
+                        onRouteChange(AppRoute.AddTransaction)
+                    } else {
+                        aiReviewItems.clear()
+                        aiReviewItems.addAll(items)
+                        showAiReviewSheet = true
+                        addFabMenuExpanded = false
+                    }
+                },
+                extractViewModel = aiExtractViewModel,
+            )
+        } else {
+            AddQuickFloatingArc(
+                visible = addFabMenuExpanded,
+                onDismiss = { addFabMenuExpanded = false },
+                onVoice = {
+                    addFabMenuExpanded = false
+                    onQuickVoiceClick()
+                },
+                onScan = {
+                    addFabMenuExpanded = false
+                    addFilePicker.launch(arrayOf("image/*", "application/pdf"))
+                },
+                onChat = {
+                    addFabMenuExpanded = false
+                    showAiExtractSheet = true
+                },
+                onManual = {
+                    addFabMenuExpanded = false
+                    onBottomBarVisibilityChange(false)
+                    onRouteChange(AppRoute.AddTransaction)
+                },
             )
         }
 
