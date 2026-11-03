@@ -1,5 +1,12 @@
 package com.mknlabs.expensetracker.feature.auth.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,6 +39,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,32 +66,48 @@ import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
 @Composable
 internal fun BoxScope.ExpenseCardIllustration() {
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 10.dp, end = 10.dp),
-        size = 110.dp,
-        icon = Icons.Filled.CurrencyBitcoin,
-        iconTint = MaterialTheme.colorScheme.secondary
+    val appear = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        appear.animateTo(1f, tween(450, easing = FastOutSlowInEasing))
+    }
+    val infinite = rememberInfiniteTransition(label = "expense_illust")
+    val cardBob by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            tween(3600, easing = FastOutSlowInEasing),
+            RepeatMode.Reverse,
+        ),
+        label = "card_bob",
     )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterStart)
-            .padding(top = 124.dp),
-        size = 110.dp,
-        icon = Icons.Filled.Money,
-        iconTint = MaterialTheme.colorScheme.tertiary
+    val bitcoinBob by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            tween(4000, easing = FastOutSlowInEasing),
+            RepeatMode.Reverse,
+        ),
+        label = "btc_bob",
     )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterEnd)
-            .padding(top = 140.dp, end = 8.dp),
-        size = 100.dp,
-        icon = Icons.Filled.Savings,
-        iconTint = MaterialTheme.colorScheme.onSurface
+    val moneyBob by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            tween(3200, easing = FastOutSlowInEasing),
+            RepeatMode.Reverse,
+        ),
+        label = "money_bob",
     )
+    val savingsBob by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            tween(3800, easing = FastOutSlowInEasing),
+            RepeatMode.Reverse,
+        ),
+        label = "savings_bob",
+    )
+    val enter = appear.value
 
     Box(
         modifier = Modifier
@@ -89,7 +116,11 @@ internal fun BoxScope.ExpenseCardIllustration() {
             .fillMaxWidth(0.72f)
             .height(230.dp)
             .graphicsLayer {
-                rotationZ = -4f
+                rotationZ = -6f + 4f * cardBob
+                translationY = -8f + 16f * cardBob
+                scaleX = 0.92f + 0.08f * enter
+                scaleY = 0.92f + 0.08f * enter
+                alpha = enter
             }
             .clip(RoundedCornerShape(38.dp))
             .background(
@@ -111,6 +142,12 @@ internal fun BoxScope.ExpenseCardIllustration() {
             modifier = Modifier
                 .padding(top = 18.dp)
                 .size(38.dp)
+                .graphicsLayer {
+                    val chip = (enter * 1.15f).coerceIn(0f, 1f)
+                    scaleX = 0.6f + 0.4f * chip
+                    scaleY = 0.6f + 0.4f * chip
+                    alpha = chip
+                }
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
@@ -128,7 +165,7 @@ internal fun BoxScope.ExpenseCardIllustration() {
         ) {
             Box(
                 modifier = Modifier
-                    .width(82.dp)
+                    .width((82f * enter).dp)
                     .height(7.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f))
@@ -147,6 +184,58 @@ internal fun BoxScope.ExpenseCardIllustration() {
             )
         }
     }
+
+    FloatingCircle(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = 10.dp, end = 10.dp)
+            .graphicsLayer {
+                val t = bitcoinBob
+                translationX = 36f * (1f - enter)
+                translationY = -16f * (1f - enter) + (-8f + 16f * t)
+                rotationZ = -8f + 16f * t
+                scaleX = 0.96f + 0.08f * t
+                scaleY = 0.96f + 0.08f * t
+                alpha = enter
+            },
+        size = 110.dp,
+        icon = Icons.Filled.CurrencyBitcoin,
+        iconTint = MaterialTheme.colorScheme.secondary
+    )
+
+    FloatingCircle(
+        modifier = Modifier
+            .align(Alignment.CenterStart)
+            .padding(top = 124.dp)
+            .graphicsLayer {
+                val t = moneyBob
+                translationX = -40f * (1f - enter)
+                translationY = -8f + 16f * t
+                scaleX = 0.96f + 0.08f * t
+                scaleY = 0.96f + 0.08f * t
+                alpha = enter
+            },
+        size = 110.dp,
+        icon = Icons.Filled.Money,
+        iconTint = MaterialTheme.colorScheme.tertiary
+    )
+
+    FloatingCircle(
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .padding(top = 140.dp, end = 8.dp)
+            .graphicsLayer {
+                val t = savingsBob
+                translationX = 28f * (1f - enter)
+                translationY = -8f + 16f * t
+                scaleX = 0.96f + 0.08f * t
+                scaleY = 0.96f + 0.08f * t
+                alpha = enter
+            },
+        size = 100.dp,
+        icon = Icons.Filled.Savings,
+        iconTint = MaterialTheme.colorScheme.onSurface
+    )
 }
 
 @Composable
@@ -154,7 +243,7 @@ internal fun BoxScope.SecureTrackerIllustration() {
     FloatingCircle(
         modifier = Modifier
             .align(Alignment.CenterStart)
-            .padding(top = 110.dp, start = 10.dp),
+            .padding(top = 134.dp, start = 10.dp),
         size = 74.dp,
         icon = Icons.Filled.Key,
         iconTint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -163,7 +252,7 @@ internal fun BoxScope.SecureTrackerIllustration() {
     FloatingCircle(
         modifier = Modifier
             .align(Alignment.TopEnd)
-            .padding(top = 52.dp, end = 54.dp),
+            .padding(top = 76.dp, end = 54.dp),
         size = 84.dp,
         icon = Icons.Filled.Security,
         iconTint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -172,6 +261,7 @@ internal fun BoxScope.SecureTrackerIllustration() {
     Box(
         modifier = Modifier
             .align(Alignment.Center)
+            .offset(y = 24.dp)
             .fillMaxWidth(0.82f)
             .height(270.dp)
             .clip(RoundedCornerShape(42.dp))
@@ -213,46 +303,18 @@ internal fun BoxScope.SecureTrackerIllustration() {
             }
         }
 
-        Column(
+        Text(
+            text = stringResource(id = R.string.label_encrypted_mode),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.2.sp,
+                fontSize = 15.sp
+            ),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 34.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(id = R.string.label_encrypted_mode),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.2.sp,
-                    fontSize = 15.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = stringResource(id = R.string.label_system_active),
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                )
-            }
-        }
+                .padding(bottom = 34.dp)
+        )
     }
 }
 
