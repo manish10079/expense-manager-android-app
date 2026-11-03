@@ -1,76 +1,29 @@
 package com.mknlabs.expensetracker.feature.auth.ui
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.CurrencyBitcoin
-import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material.icons.filled.Key
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Money
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SsidChart
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.rounded.Female
-import androidx.compose.material.icons.rounded.Male
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Transgender
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.ui.platform.LocalUriHandler
-import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
-import com.mknlabs.expensetracker.core.ui.theme.disabled
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,70 +31,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
-import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.core.ui.components.AppSelectionSheet
-import com.mknlabs.expensetracker.core.ui.components.ProfileAvatar
-import com.mknlabs.expensetracker.core.ui.components.UserBadge
-import com.mknlabs.expensetracker.core.ui.components.UserBadgeType
-import com.mknlabs.expensetracker.core.ui.components.input.InputFieldCard
-import com.mknlabs.expensetracker.core.ui.components.input.InputType
 import com.mknlabs.expensetracker.core.ui.models.SelectionItem
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
-import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.core.ui.theme.brandGradient
-import com.mknlabs.expensetracker.core.ui.theme.onCta
-import com.mknlabs.expensetracker.core.ui.theme.surfaceGradient
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import com.mknlabs.expensetracker.utils.formatDate
+import com.mknlabs.expensetracker.core.ui.theme.appScreenBackground
+import com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE
+import com.mknlabs.expensetracker.feature.settings.ui.PreferencesViewModel
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.findFragmentActivity
-
-private data class OnboardingPage(
-    val title: String,
-    val description: String,
-    val actionLabel: String,
-    val accentedText: String? = null,
-    val titleFontSize: TextUnit = 42.sp,
-    val titleLineHeight: TextUnit = 48.sp,
-    val supportingContent: (@Composable () -> Unit)? = null,
-    val illustration: @Composable (BoxScope.() -> Unit)
-)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -149,13 +66,12 @@ fun OnboardingScreen(
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
     onSignUpSuccess: (() -> Unit)? = null,
     authViewModel: AuthViewModel = hiltViewModel(),
-    preferencesViewModel: com.mknlabs.expensetracker.feature.settings.ui.PreferencesViewModel = hiltViewModel()
+    preferencesViewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
     val returningUserProfile by authViewModel.returningUserProfile.collectAsStateWithLifecycle()
-    val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val preferencesUiState by preferencesViewModel.uiState.collectAsStateWithLifecycle()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val activity = context.findFragmentActivity()
 
     OnboardingScreenContent(
@@ -171,12 +87,12 @@ fun OnboardingScreen(
         onApplyLanguage = { code, onApplied ->
             preferencesViewModel.selectLanguage(code, activity, onApplied)
         },
-        authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccess ->
+        authSection = { onAuthSuccess, onGuestContinue, onSignUpSuccessInner ->
             AuthRoute(
                 viewModel = authViewModel,
                 onAuthSuccess = onAuthSuccess,
                 onGuestContinue = onGuestContinue,
-                onSignUpSuccess = onSignUpSuccess
+                onSignUpSuccess = onSignUpSuccessInner
             )
         }
     )
@@ -184,9 +100,9 @@ fun OnboardingScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun OnboardingScreenContent(
+internal fun OnboardingScreenContent(
     initialPage: Int = 0,
-    initialLanguageCode: String = com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE,
+    initialLanguageCode: String = SYSTEM_LANGUAGE_CODE,
     currentUser: com.google.firebase.auth.FirebaseUser? = null,
     returningUserProfile: ReturningUserProfile? = null,
     onFinish: (name: String, gender: String, dobMillis: Long?) -> Unit = { _, _, _ -> },
@@ -200,93 +116,21 @@ private fun OnboardingScreenContent(
 ) {
     val context = LocalContext.current
     AppLocaleHelper.appliedLanguageTags
-    val onboardingPages = run {
-        listOf(
-            // Page 0: Language
-            OnboardingPage(
-                title = stringResource(R.string.title_language_settings),
-                description = "",
-                actionLabel = stringResource(R.string.label_apply_language),
-                illustration = { }
-            ),
-            OnboardingPage(
-                title = stringResource(R.string.title_track_expensesneasily),
-                description = stringResource(R.string.desc_log_daily_spending),
-                actionLabel = stringResource(R.string.label_next),
-                illustration = { ExpenseCardIllustration() }
-            ),
-            OnboardingPage(
-                title = stringResource(R.string.title_secure_private),
-                description = stringResource(R.string.desc_financial_data_secure),
-                actionLabel = stringResource(R.string.label_next),
-                illustration = { SecureTrackerIllustration() }
-            ),
-            OnboardingPage(
-                title = stringResource(R.string.title_visual_analytics),
-                description = stringResource(R.string.desc_visualize_spending),
-                actionLabel = stringResource(R.string.label_next),
-                illustration = { AnalyticsIllustration() }
-            ),
-            OnboardingPage(
-                title = stringResource(R.string.title_premium_by_designnprivate_by_n),
-                description = stringResource(R.string.desc_modern_finance),
-                actionLabel = stringResource(R.string.label_continue),
-                accentedText = stringResource(R.string.label_private_by_nature),
-                titleFontSize = 34.sp,
-                titleLineHeight = 40.sp,
-                supportingContent = { PremiumBenefitCards() },
-                illustration = { PremiumPrivacyIllustration() }
-            ),
-            // Page 5: Secure Your Account / Auth Gate
-            OnboardingPage(
-                title = stringResource(R.string.title_secure_your_account),
-                description = stringResource(R.string.desc_sync_and_premium_features),
-                actionLabel = stringResource(R.string.label_next),
-                titleFontSize = 34.sp,
-                titleLineHeight = 40.sp,
-                illustration = { SecureTrackerIllustration() } 
-            ),
-            // Page 5: Setup Profile
-            OnboardingPage(
-                title = stringResource(R.string.title_lets_get_started),
-                description = stringResource(R.string.desc_tell_us_about_yourself),
-                actionLabel = stringResource(R.string.label_get_started),
-                illustration = { /* No illustration for setup page */ }
-            ),
-            // Page 7: WelcomeBack — shown to returning users who already have a complete profile
-            OnboardingPage(
-                title = "",   // Title rendered separately in WelcomeBackPage composable
-                description = "",
-                actionLabel = stringResource(R.string.label_continue),
-                illustration = { }
-            ),
-            // Page 8: Promo code — after Welcome Back for returning users only
-            OnboardingPage(
-                title = stringResource(R.string.title_unlock_pro_access),
-                description = stringResource(R.string.msg_unlock_pro_access_body),
-                actionLabel = stringResource(R.string.label_apply),
-                illustration = { }
-            )
-        )
-    }
+    val onboardingPages = rememberOnboardingPages()
     var currentPage by rememberSaveable { mutableIntStateOf(initialPage) }
     val page = onboardingPages[currentPage]
-    val isLanguagePage = currentPage == 0
-    val isAuthPage = currentPage == 5
-    val isSetupPage = currentPage == 6
-    val isWelcomeBackPage = currentPage == 7
-    val isPromoPage = currentPage == 8
+    val isLanguagePage = currentPage == PAGE_LANGUAGE
+    val isAuthPage = currentPage == PAGE_AUTH
+    val isSetupPage = currentPage == PAGE_SETUP
+    val isWelcomeBackPage = currentPage == PAGE_WELCOME_BACK
+    val isPromoPage = currentPage == PAGE_PROMO
     val scrollState = rememberScrollState()
-    val isKeyboardVisible = WindowInsets.isImeVisible
+    WindowInsets.isImeVisible
 
-    val coroutineScope = rememberCoroutineScope()
-
-    // Reset scroll position on page change
     LaunchedEffect(currentPage) {
         scrollState.scrollTo(0)
     }
 
-    // Setup state
     var selectedLanguageCode by remember { mutableStateOf(initialLanguageCode) }
     LaunchedEffect(initialLanguageCode) {
         selectedLanguageCode = initialLanguageCode
@@ -296,9 +140,8 @@ private fun OnboardingScreenContent(
     var isGenderPickerVisible by remember { mutableStateOf(false) }
     val genderPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val nameFocusRequester = remember { FocusRequester() }
-    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val focusManager = LocalFocusManager.current
 
-    // Auto-fill name if user logged in via social provider
     LaunchedEffect(currentUser) {
         currentUser?.let { user ->
             if (!user.isAnonymous && userName.isEmpty()) {
@@ -307,38 +150,30 @@ private fun OnboardingScreenContent(
         }
     }
 
-    // Smart routing after auth: fetch the existing Firestore profile and skip any
-    // setup steps the returning user has already completed. Keyed on currentPage
-    // too so the routing also applies when the user is already signed in and walks
-    // back to the auth page (page 4) — not only right after the sign-in tap.
-    //
     LaunchedEffect(currentUser, currentPage) {
-        if (currentPage != 5) return@LaunchedEffect
+        if (currentPage != PAGE_AUTH) return@LaunchedEffect
         val user = currentUser ?: return@LaunchedEffect
         if (user.isAnonymous) {
-            // Anonymous / guest user — go straight to setup profile page
-            currentPage = 6
+            currentPage = PAGE_SETUP
         } else {
             Log.d("Onboarding", "Existing user detected — fetching profile from Firestore.")
             onFetchReturningProfile(user.uid)
         }
     }
 
-    // Once we have the returning profile, decide where to land
     LaunchedEffect(returningUserProfile, currentPage) {
-        if (currentPage != 5) return@LaunchedEffect // only act right after auth page
+        if (currentPage != PAGE_AUTH) return@LaunchedEffect
         val profile = returningUserProfile ?: return@LaunchedEffect
         when (resolveReturningUserStep(profile)) {
             ReturningUserStep.WELCOME_BACK -> {
-                // Pre-fill local state from existing data so onFinish has correct values
                 userName = profile.fullName
                 userGender = profile.gender
                 Log.d("Onboarding", "Returning user with complete profile — showing WelcomeBack.")
-                currentPage = 7
+                currentPage = PAGE_WELCOME_BACK
             }
             ReturningUserStep.SETUP_PROFILE -> {
                 Log.d("Onboarding", "Returning user — missing name/gender, going to setup page.")
-                currentPage = 6
+                currentPage = PAGE_SETUP
             }
         }
     }
@@ -370,7 +205,7 @@ private fun OnboardingScreenContent(
     val onCompleteInternal: () -> Unit = {
         onFinish(userName, userGender, null)
     }
-    var promoReturnPage by rememberSaveable { mutableIntStateOf(7) }
+    var promoReturnPage by rememberSaveable { mutableIntStateOf(PAGE_WELCOME_BACK) }
     val finishOnboarding: () -> Unit = {
         onResetReturningProfile()
         onCompleteInternal()
@@ -378,19 +213,18 @@ private fun OnboardingScreenContent(
     val openPromoOrFinish: (Int) -> Unit = { fromPage ->
         if (shouldOfferOnboardingPromo(returningUserProfile, System.currentTimeMillis())) {
             promoReturnPage = fromPage
-            currentPage = 8
+            currentPage = PAGE_PROMO
         } else {
             finishOnboarding()
         }
     }
 
     BackHandler(enabled = currentPage > 0) {
-        if (currentPage == 8) {
+        if (currentPage == PAGE_PROMO) {
             currentPage = promoReturnPage
             return@BackHandler
         }
-        if (currentPage == 7) {
-            // Returning from WelcomeBack — reset profile fetch so we don't re-enter
+        if (currentPage == PAGE_WELCOME_BACK) {
             onResetReturningProfile()
         }
         onCancelGuestSignIn()
@@ -415,12 +249,7 @@ private fun OnboardingScreenContent(
         else -> 1f
     }
 
-    LaunchedEffect(currentPage) {
-        scrollState.scrollTo(0)
-    }
-
     val nameStr = stringResource(id = R.string.label_name_capitalized)
-    val genderStr = stringResource(id = R.string.label_gender_capitalized)
     val msgProvide = stringResource(id = R.string.msg_please_provide_your_val, "%s")
 
     Box(
@@ -446,7 +275,6 @@ private fun OnboardingScreenContent(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Main Content Area (Weight 1 pushes footer down, max width keeps it centered on tablets)
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -455,7 +283,6 @@ private fun OnboardingScreenContent(
                     .then(if (isLanguagePage || isWelcomeBackPage) Modifier else Modifier.verticalScroll(scrollState)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Illustration Section
                 if (!isSetupPage && !isAuthPage && !isWelcomeBackPage && !isPromoPage && !isLanguagePage) {
                     Box(
                         modifier = Modifier
@@ -481,19 +308,17 @@ private fun OnboardingScreenContent(
                     Spacer(modifier = Modifier.height(if (isLandscape) 16.dp else 48.dp))
                 }
 
-                // Title & Description Section
                 if (isPromoPage) {
                     Spacer(modifier = Modifier.weight(1f))
                     OnboardingPromoPage(onFinished = finishOnboarding)
                 } else if (isWelcomeBackPage) {
-                    // WelcomeBack takes over the full content area
                     WelcomeBackPage(
                         userName = userName,
                         userEmail = currentUser?.email.orEmpty(),
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        onContinue = { openPromoOrFinish(7) }
+                        onContinue = { openPromoOrFinish(PAGE_WELCOME_BACK) }
                     )
                 } else if (isLanguagePage) {
                     OnboardingLanguagePage(
@@ -505,36 +330,52 @@ private fun OnboardingScreenContent(
                             .padding(horizontal = Dimens.ScreenPadding)
                     )
                 } else {
-                AnimatedContent(
-                    targetState = currentPage,
-                    label = "onboarding_copy",
-                    modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
-                ) { pageIndex ->
-                    val current = onboardingPages[pageIndex]
-                    val isAuthOnThisPageIndex = pageIndex == 5
-                    val isSetupOnThisPageIndex = pageIndex == 6
+                    AnimatedContent(
+                        targetState = currentPage,
+                        label = "onboarding_copy",
+                        modifier = Modifier.padding(horizontal = Dimens.ScreenPadding)
+                    ) { pageIndex ->
+                        val current = onboardingPages[pageIndex]
+                        val isAuthOnThisPageIndex = pageIndex == PAGE_AUTH
+                        val isSetupOnThisPageIndex = pageIndex == PAGE_SETUP
 
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (isSetupOnThisPageIndex) {
-                            val isAnonymous = currentUser?.isAnonymous ?: true
-                            
-                            if (isAnonymous) {
-                                UserBadge(
-                                    label = stringResource(R.string.label_guest_user),
-                                    type = UserBadgeType.GUEST,
-                                    modifier = Modifier.padding(bottom = 12.dp)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (isSetupOnThisPageIndex) {
+                                OnboardingSetupPage(
+                                    title = current.title,
+                                    titleFontSize = current.titleFontSize,
+                                    titleLineHeight = current.titleLineHeight,
+                                    isAnonymous = currentUser?.isAnonymous ?: true,
+                                    userName = userName,
+                                    onUserNameChange = { userName = it },
+                                    userGender = userGender,
+                                    maleLabel = maleLabel,
+                                    femaleLabel = femaleLabel,
+                                    nonBinaryLabel = nonBinaryLabel,
+                                    preferNotToSayLabel = preferNotToSayLabel,
+                                    nameFocusRequester = nameFocusRequester,
+                                    onPrivacyInfoClick = {
+                                        toastMessage = context.getString(R.string.msg_privacy_info)
+                                    },
+                                    onGenderClick = { isGenderPickerVisible = true }
                                 )
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
+                            } else {
                                 Text(
-                                    text = current.title,
+                                    text = buildAnnotatedString {
+                                        if (current.accentedText.isNullOrEmpty() || !current.title.contains(current.accentedText)) {
+                                            append(current.title)
+                                        } else {
+                                            val accentStart = current.title.indexOf(current.accentedText)
+                                            append(current.title.substring(0, accentStart))
+                                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                                                append(current.accentedText)
+                                            }
+                                            append(current.title.substring(accentStart + current.accentedText.length))
+                                        }
+                                    },
                                     color = MaterialTheme.colorScheme.onBackground,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.headlineLarge.copy(
@@ -543,137 +384,59 @@ private fun OnboardingScreenContent(
                                         lineHeight = current.titleLineHeight
                                     )
                                 )
-                                
-                                Spacer(Modifier.width(8.dp))
-                                
-                                IconButton(
-                                    onClick = { toastMessage = context.getString(R.string.msg_privacy_info) },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = stringResource(R.string.cd_privacy_info),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(20.dp)
+
+                                Spacer(modifier = Modifier.height(if (isAuthOnThisPageIndex) 16.dp else 32.dp))
+                            }
+
+                            if (isAuthOnThisPageIndex) {
+                                if (authSection != null) {
+                                    authSection(
+                                        {
+                                            Log.d("Onboarding", "Auth SUCCESS callback triggered.")
+                                            if (currentUser?.isAnonymous == true) {
+                                                currentPage = PAGE_SETUP
+                                            }
+                                        },
+                                        {
+                                            Log.d("Onboarding", "Guest continue triggered.")
+                                            currentPage = PAGE_SETUP
+                                        },
+                                        {
+                                            Log.d("Onboarding", "Sign up success callback triggered.")
+                                            onSignUpSuccess?.invoke()
+                                            if (currentUser?.isAnonymous == true) {
+                                                currentPage = PAGE_SETUP
+                                            }
+                                        }
+                                    )
+                                } else {
+                                    Text(
+                                        text = stringResource(id = R.string.msg_auth_content_preview_placeholder),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(16.dp)
                                     )
                                 }
-                            }
-
-                            Spacer(modifier = Modifier.height(32.dp))
-                        } else {
-                            Text(
-                                text = buildAnnotatedString {
-                                    if (current.accentedText.isNullOrEmpty() || !current.title.contains(current.accentedText)) {
-                                        append(current.title)
-                                    } else {
-                                        val accentStart = current.title.indexOf(current.accentedText)
-                                        append(current.title.substring(0, accentStart))
-                                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
-                                             append(current.accentedText)
-                                        }
-                                        append(current.title.substring(accentStart + current.accentedText.length))
-                                    }
-                                },
-                                color = MaterialTheme.colorScheme.onBackground,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.headlineLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = current.titleFontSize,
-                                    lineHeight = current.titleLineHeight
-                                )
-                            )
-
-                            Spacer(modifier = Modifier.height(if (isAuthOnThisPageIndex) 16.dp else 32.dp))
-                        }
-
-                        if (isAuthOnThisPageIndex) {
-                            if (authSection != null) {
-                                authSection(
-                                    {
-                                        Log.d("Onboarding", "Auth SUCCESS callback triggered.")
-                                        if (currentUser?.isAnonymous == true) {
-                                            currentPage = 6
-                                        }
-                                    },
-                                    {
-                                        Log.d("Onboarding", "Guest continue triggered.")
-                                        currentPage = 6
-                                    },
-                                    {
-                                        Log.d("Onboarding", "Sign up success callback triggered.")
-                                        onSignUpSuccess?.invoke()
-                                        if (currentUser?.isAnonymous == true) {
-                                            currentPage = 6
-                                        }
-                                    }
-                                )
-                            } else {
+                            } else if (!isSetupOnThisPageIndex) {
                                 Text(
-                                    text = stringResource(id = R.string.msg_auth_content_preview_placeholder),
+                                    text = current.description,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        } else if (isSetupOnThisPageIndex) {
-                            // Auto-focus the name field when the setup page first appears
-                            LaunchedEffect(Unit) {
-                                nameFocusRequester.requestFocus()
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                InputFieldCard(
-                                    title = stringResource(id = R.string.label_full_name),
-                                    value = userName,
-                                    onValueChange = { userName = it },
-                                    inputType = InputType.Text,
-                                    leadingIcon = Icons.Rounded.Person,
-                                    placeholder = stringResource(id = R.string.placeholder_enter_name),
-                                    modifier = Modifier.focusRequester(nameFocusRequester)
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontSize = 15.sp,
+                                        lineHeight = 27.sp
+                                    ),
+                                    modifier = Modifier.fillMaxWidth(0.88f)
                                 )
 
-                                InputFieldCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    title = stringResource(id = R.string.label_gender),
-                                    value = userGender,
-                                    onValueChange = {},
-                                    inputType = InputType.Date,
-                                    leadingIcon = genderToIcon(userGender, maleLabel, femaleLabel, nonBinaryLabel, preferNotToSayLabel),
-                                    placeholder = stringResource(id = R.string.label_select_gender),
-                                    onClick = { isGenderPickerVisible = true },
-                                    trailingContent = {
-                                        Icon(
-                                            imageVector = Icons.Filled.KeyboardArrowDown,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                )
-                            }
-                        } else {
-                            Text(
-                                text = current.description,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontSize = 15.sp,
-                                    lineHeight = 27.sp
-                                ),
-                                modifier = Modifier.fillMaxWidth(0.88f)
-                            )
-
-                            current.supportingContent?.let { content ->
-                                Spacer(modifier = Modifier.height(28.dp))
-                                content()
+                                current.supportingContent?.let { content ->
+                                    Spacer(modifier = Modifier.height(28.dp))
+                                    content()
+                                }
                             }
                         }
                     }
-                } // end AnimatedContent
-                } // end if(isWelcomeBackPage) else
+                }
 
                 if (!isWelcomeBackPage) {
                     Spacer(modifier = Modifier.height(32.dp))
@@ -681,7 +444,6 @@ private fun OnboardingScreenContent(
             }
 
             if (!isAuthPage && !isWelcomeBackPage && !isPromoPage) {
-                // Fixed Footer Area
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -694,31 +456,31 @@ private fun OnboardingScreenContent(
                         compact = isLanguagePage,
                         onClick = {
                             when {
-                                currentPage == 7 -> { // WelcomeBack Page
+                                currentPage == PAGE_WELCOME_BACK -> {
                                     onResetReturningProfile()
                                     onCompleteInternal()
                                 }
-                                currentPage == 6 -> { // Setup Page (name/gender)
+                                currentPage == PAGE_SETUP -> {
                                     val missingFields = mutableListOf<String>()
                                     if (userName.trim().isEmpty()) missingFields.add(nameStr)
 
                                     if (missingFields.isNotEmpty()) {
                                         toastMessage = msgProvide.replace("%s", missingFields.joinToString(", "))
                                     } else if (currentUser != null && !currentUser.isAnonymous) {
-                                        openPromoOrFinish(6)
+                                        openPromoOrFinish(PAGE_SETUP)
                                     } else {
                                         onCompleteInternal()
                                     }
                                 }
-                                currentPage == 0 -> {
-                                    currentPage = 1
+                                currentPage == PAGE_LANGUAGE -> {
+                                    currentPage = PAGE_TRACK
                                     onApplyLanguage(selectedLanguageCode) {}
                                 }
                                 else -> currentPage += 1
                             }
                         }
                     )
-                    if (currentPage in 1..4) {
+                    if (currentPage in MARKETING_FIRST..MARKETING_LAST) {
                         Spacer(modifier = Modifier.height(20.dp))
                         BottomControls(
                             pageCount = 4,
@@ -730,13 +492,13 @@ private fun OnboardingScreenContent(
                                 }
                             },
                             onNextClick = {
-                                if (currentPage < 4) {
+                                if (currentPage < MARKETING_LAST) {
                                     currentPage += 1
                                 } else {
-                                    currentPage = 5
+                                    currentPage = PAGE_AUTH
                                 }
                             },
-                            onSkipClick = { currentPage = 5 }
+                            onSkipClick = { currentPage = PAGE_AUTH }
                         )
                     }
                 }
@@ -753,1029 +515,13 @@ private fun OnboardingScreenContent(
             sheetState = genderPickerSheetState,
             onDismiss = {
                 isGenderPickerVisible = false
-                // Clear focus so the keyboard doesn't reappear after the sheet closes
                 focusManager.clearFocus()
             },
             onItemSelected = { selectedGender ->
                 userGender = selectedGender
                 isGenderPickerVisible = false
-                // Clear focus so the keyboard doesn't reappear after selection
                 focusManager.clearFocus()
             }
-        )
-    }
-}
-
-@Composable
-private fun OnboardingPromoPage(
-    onFinished: () -> Unit,
-) {
-    val viewModel: com.mknlabs.expensetracker.monetization.MonetizationViewModel = hiltViewModel()
-    com.mknlabs.expensetracker.core.ui.components.ProPassRedeemDialog(
-        viewModel = viewModel,
-        onDismiss = onFinished,
-    )
-}
-
-@Composable
-private fun BoxScope.AmbientBackdrop() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxSize()
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.accentInk.copy(alpha = 0.18f),
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
-                        MaterialTheme.colorScheme.background
-                    ),
-                    center = Offset(0.5f, 0.38f),
-                    radius = 1200f
-                )
-            )
-    )
-}
-
-@Composable
-private fun BottomControls(
-    pageCount: Int,
-    currentPage: Int,
-    showSkip: Boolean = true,
-    onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit,
-    onSkipClick: () -> Unit
-) {
-    val isAuthPage = currentPage == 5
-    val isSetupPage = currentPage == 6
-    val isWelcomeBackPage = currentPage == 7
-    val isPromoPage = currentPage == 8
-
-    if (isAuthPage || isSetupPage || isWelcomeBackPage || isPromoPage) {
-        Spacer(modifier = Modifier.height(56.dp)) 
-        return
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (!isAuthPage) {
-                Text(
-                    text = stringResource(id = R.string.label_prev),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp,
-                        fontSize = 11.sp
-                    ),
-                    modifier = Modifier
-                        .clickable(onClick = onPreviousClick)
-                        .padding(vertical = 12.dp, horizontal = 8.dp)
-                )
-            }
-        }
-
-        PageIndicator(
-            pageCount = pageCount,
-            currentPage = currentPage,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            if (showSkip) {
-                Text(
-                    text = stringResource(id = R.string.label_skip),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp,
-                        fontSize = 11.sp
-                    ),
-                    modifier = Modifier
-                        .clickable(onClick = onSkipClick)
-                        .padding(vertical = 12.dp, horizontal = 8.dp)
-                )
-            } else {
-                Text(
-                    text = stringResource(id = R.string.label_next_caps),
-                    color = MaterialTheme.colorScheme.accentInk,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp,
-                        fontSize = 14.sp
-                    ),
-                    modifier = Modifier
-                        .clickable(onClick = onNextClick)
-                        .padding(vertical = 12.dp, horizontal = 8.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PrimaryOnboardingButton(
-    label: String,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-    compact: Boolean = false
-) {
-    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled) 0.96f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "onboarding_button_scale"
-    )
-
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val buttonHeight = when {
-        compact -> 52.dp
-        isLandscape -> 56.dp
-        else -> 74.dp
-    }
-    val buttonShape = RoundedCornerShape(16.dp)
-
-    val buttonModifier = if (enabled) {
-        Modifier
-            .fillMaxWidth()
-            .height(buttonHeight)
-            .scale(scale)
-            .shadow(
-                elevation = 16.dp,
-                shape = buttonShape,
-                ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.34f),
-                spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.28f)
-            )
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .height(buttonHeight)
-            .scale(scale)
-    }
-
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        interactionSource = interactionSource,
-        modifier = buttonModifier,
-        shape = buttonShape,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onCta,
-            disabledContentColor = MaterialTheme.colorScheme.disabled
-        ),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = if (enabled) brandGradient() else Brush.linearGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ),
-                    shape = buttonShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                color = if (enabled) MaterialTheme.colorScheme.onCta else MaterialTheme.colorScheme.disabled,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.4.sp,
-                    fontSize = 18.sp
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun PageIndicator(
-    pageCount: Int,
-    currentPage: Int,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        repeat(pageCount) { index ->
-            val selected = index == currentPage
-            val dotScale by animateFloatAsState(
-                targetValue = if (selected) 1.2f else 0.85f,
-                animationSpec = tween(220),
-                label = "onboarding_dot_scale"
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .scale(dotScale)
-                    .clip(CircleShape)
-                    .background(
-                        if (selected) MaterialTheme.colorScheme.accentInk else MaterialTheme.colorScheme.outline
-                    )
-                    .alpha(if (selected) 1f else 0.7f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.ExpenseCardIllustration() {
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 10.dp, end = 10.dp),
-        size = 110.dp,
-        icon = Icons.Filled.CurrencyBitcoin,
-        iconTint = MaterialTheme.colorScheme.secondary
-    )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterStart)
-            .padding(top = 124.dp),
-        size = 110.dp,
-        icon = Icons.Filled.Money,
-        iconTint = MaterialTheme.colorScheme.tertiary
-    )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterEnd)
-            .padding(top = 140.dp, end = 8.dp),
-        size = 100.dp,
-        icon = Icons.Filled.Savings,
-        iconTint = MaterialTheme.colorScheme.onSurface
-    )
-
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .padding(top = 8.dp)
-            .fillMaxWidth(0.72f)
-            .height(230.dp)
-            .graphicsLayer {
-                rotationZ = -4f
-            }
-            .clip(RoundedCornerShape(38.dp))
-            .background(
-                brush = surfaceGradient()
-            )
-            .padding(24.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.label_expense_tracker_caps),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp
-            ),
-            modifier = Modifier.align(Alignment.TopEnd)
-        )
-
-        Box(
-            modifier = Modifier
-                .padding(top = 18.dp)
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Analytics,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier.align(Alignment.BottomStart)
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(82.dp)
-                    .height(7.dp)
-                    .clip(RoundedCornerShape(999.dp))
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f))
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(id = R.string.label_secure_logging),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    letterSpacing = 2.2.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.SecureTrackerIllustration() {
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterStart)
-            .padding(top = 110.dp, start = 10.dp),
-        size = 74.dp,
-        icon = Icons.Filled.Key,
-        iconTint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-    )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 52.dp, end = 54.dp),
-        size = 84.dp,
-        icon = Icons.Filled.Security,
-        iconTint = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxWidth(0.82f)
-            .height(270.dp)
-            .clip(RoundedCornerShape(42.dp))
-            .background(
-                brush = surfaceGradient()
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(152.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(82.dp)
-                    .clip(CircleShape)
-                    .background(
-                        brush = brandGradient()
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Fingerprint,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onCta,
-                    modifier = Modifier.size(42.dp)
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 34.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(id = R.string.label_encrypted_mode),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.2.sp,
-                    fontSize = 15.sp
-                )
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = stringResource(id = R.string.label_system_active),
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.AnalyticsIllustration() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.TopStart)
-            .padding(start = 12.dp, top = 36.dp)
-            .size(90.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0f))
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .borderGlowCircle(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =  0.65f), 0.08f)
-        )
-    }
-
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxWidth(0.82f)
-            .height(300.dp)
-            .clip(RoundedCornerShape(40.dp))
-            .background(
-                brush = surfaceGradient()
-            )
-            .padding(24.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.label_growth_index),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.titleMedium.copy(
-                letterSpacing = 1.4.sp,
-                fontSize = 13.sp
-            )
-        )
-
-        Text(
-            text = stringResource(id = R.string.label_248),
-            color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 26.sp
-            ),
-            modifier = Modifier.padding(top = 34.dp)
-        )
-
-        Icon(
-            imageVector = Icons.Filled.SsidChart,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(28.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            listOf(88.dp, 144.dp, 64.dp, 122.dp).forEachIndexed { index, height ->
-                val isActive = index == 1
-                Box(
-                    modifier = Modifier
-                        .width(54.dp)
-                        .height(height)
-                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 18.dp, bottomEnd = 18.dp))
-                        .background(
-                            if (isActive) {
-                                brandGradient()
-                            } else {
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.surfaceVariant,
-                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                    )
-                                )
-                            }
-                        )
-                )
-            }
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .padding(end = 18.dp, bottom = 22.dp)
-            .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 18.dp, vertical = 16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Analytics,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column {
-                Text(
-                    text = stringResource(id = R.string.label_accuracy),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        letterSpacing = 1.8.sp,
-                        fontSize = 11.sp
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = stringResource(id = R.string.label_high_fidelity),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.PremiumPrivacyIllustration() {
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 44.dp, end = 34.dp),
-        size = 76.dp,
-        icon = Icons.Filled.Lock,
-        iconTint = MaterialTheme.colorScheme.secondary
-    )
-
-    FloatingCircle(
-        modifier = Modifier
-            .align(Alignment.CenterStart)
-            .padding(start = 24.dp, top = 86.dp),
-        size = 84.dp,
-        icon = Icons.Filled.Savings,
-        iconTint = MaterialTheme.colorScheme.tertiary
-    )
-
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxWidth(0.64f)
-            .height(250.dp)
-            .clip(RoundedCornerShape(42.dp))
-            .background(
-                brush = surfaceGradient()
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(118.dp)
-                .shadow(
-                    elevation = 28.dp,
-                    shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.26f),
-                    spotColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)
-                )
-                .clip(CircleShape)
-                .background(brush = brandGradient()),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Security,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onCta,
-                modifier = Modifier.size(64.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun PremiumBenefitCards() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        BenefitCard(
-            modifier = Modifier.weight(1f),
-            icon = Icons.Filled.CloudOff,
-            iconTint = MaterialTheme.colorScheme.secondary,
-            title = stringResource(id = R.string.label_architecture),
-            value = stringResource(id = R.string.label_100_offline)
-        )
-
-        BenefitCard(
-            modifier = Modifier.weight(1f),
-            icon = Icons.Filled.CheckCircle,
-            iconTint = MaterialTheme.colorScheme.tertiary,
-            title = stringResource(id = R.string.label_access),
-            value = stringResource(id = R.string.label_full_control)
-        )
-    }
-}
-
-@Composable
-private fun BenefitCard(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    iconTint: Color,
-    title: String,
-    value: String
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 18.dp, vertical = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = iconTint,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    letterSpacing = 1.sp,
-                    fontSize = 10.sp
-                )
-            )
-        }
-
-        Text(
-            text = value,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                lineHeight = 16.sp
-            ),
-            textAlign = TextAlign.Start,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-private fun FloatingCircle(
-    modifier: Modifier,
-    size: androidx.compose.ui.unit.Dp,
-    icon: ImageVector,
-    iconTint: Color
-) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.92f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(size * 0.34f)
-        )
-    }
-}
-
-@Composable
-private fun Modifier.borderGlowCircle(
-    color: Color,
-    alpha: Float
-): Modifier = this.then(
-    Modifier
-        .rotate(0f)
-        .background(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    color.copy(alpha = alpha),
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                )
-            ),
-            shape = CircleShape
-        )
-)
-
-@Composable
-private fun BoxScope.GoalIllustration() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .size(240.dp)
-            .clip(CircleShape)
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Savings,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(100.dp)
-        )
-    }
-}
-
-@Composable
-private fun BoxScope.SetupIllustration() {
-    Box(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .size(240.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        ProfileAvatar()
-    }
-}
-
-private fun genderToIcon(gender: String, male: String, female: String, nonBinary: String, preferNotToSay: String): ImageVector {
-    return when (gender) {
-        male -> Icons.Rounded.Male
-        female -> Icons.Rounded.Female
-        nonBinary -> Icons.Rounded.Transgender
-        preferNotToSay -> Icons.Rounded.Person
-        else -> Icons.Rounded.Transgender
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// COMPOSE PREVIEWS — ALL ONBOARDING SCREENS (DARK, LIGHT, LANDSCAPE, TABLET)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// ── Screen 1: Track Expenses Easily ──────────────────────────────────────────
-@Preview(
-    name = "1. Track Expenses - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage1_TrackExpenses_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 0)
-    }
-}
-
-@Preview(
-    name = "1. Track Expenses - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage1_TrackExpenses_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 0)
-    }
-}
-
-// ── Screen 2: Secure & Private ───────────────────────────────────────────────
-@Preview(
-    name = "2. Secure & Private - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage2_SecurePrivate_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 1)
-    }
-}
-
-@Preview(
-    name = "2. Secure & Private - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage2_SecurePrivate_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 1)
-    }
-}
-
-// ── Screen 3: Visual Analytics ───────────────────────────────────────────────
-@Preview(
-    name = "3. Visual Analytics - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage3_VisualAnalytics_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 2)
-    }
-}
-
-@Preview(
-    name = "3. Visual Analytics - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage3_VisualAnalytics_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 2)
-    }
-}
-
-// ── Screen 4: Premium by Design, Private by Nature ───────────────────────────
-@Preview(
-    name = "4. Premium & Privacy - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage4_PremiumPrivacy_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 3)
-    }
-}
-
-@Preview(
-    name = "4. Premium & Privacy - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage4_PremiumPrivacy_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 3)
-    }
-}
-
-// ── Screen 5: Secure Your Account / Auth Gate ────────────────────────────────
-@Preview(
-    name = "5. Auth Gate - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage5_Auth_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 5)
-    }
-}
-
-@Preview(
-    name = "5. Auth Gate - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage5_Auth_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 5)
-    }
-}
-
-// ── Screen 6: Profile Setup ──────────────────────────────────────────────────
-@Preview(
-    name = "6. Profile Setup - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage6_ProfileSetup_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(initialPage = 6)
-    }
-}
-
-@Preview(
-    name = "6. Profile Setup - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage6_ProfileSetup_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(initialPage = 6)
-    }
-}
-
-// ── Screen 7: Welcome Back (Returning Cloud User) ────────────────────────────
-@Preview(
-    name = "7. Welcome Back - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage7_WelcomeBack_Dark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        OnboardingScreenContent(
-            initialPage = 7,
-            returningUserProfile = ReturningUserProfile(
-                fullName = "Alex Morgan",
-                gender = "Non-Binary"
-            )
-        )
-    }
-}
-
-@Preview(
-    name = "7. Welcome Back - Light",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun PreviewOnboardingPage7_WelcomeBack_Light() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        OnboardingScreenContent(
-            initialPage = 7,
-            returningUserProfile = ReturningUserProfile(
-                fullName = "Alex Morgan",
-                gender = "Non-Binary"
-            )
         )
     }
 }
