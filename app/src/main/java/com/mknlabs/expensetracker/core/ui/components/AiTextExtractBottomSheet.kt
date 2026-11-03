@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Info
 import com.adamglin.phosphoricons.regular.Sparkle
 import com.adamglin.phosphoricons.regular.X
 import com.adamglin.phosphoricons.regular.XCircle
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.TextParseOutcome
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.isDark
@@ -206,7 +208,7 @@ fun AiTextExtractBottomSheet(
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
-                extractErrorRes?.let { resId ->
+                extractErrorRes?.takeUnless { it == R.string.msg_ai_daily_limit }?.let { resId ->
                     Text(
                         text = stringResource(resId),
                         modifier = Modifier.fillMaxWidth(),
@@ -269,5 +271,16 @@ fun AiTextExtractBottomSheet(
                 }
             }
         }
+    }
+    if (extractErrorRes == R.string.msg_ai_daily_limit) {
+        ModernConfirmationDialog(
+            onDismissRequest = { extractErrorRes = null },
+            title = stringResource(R.string.title_ai_daily_limit),
+            text = stringResource(R.string.msg_ai_daily_limit),
+            confirmButtonText = stringResource(R.string.label_close),
+            onConfirm = { extractErrorRes = null },
+            headerIcon = PhosphorIcons.Regular.Info,
+            showDismissButton = false,
+        )
     }
 }

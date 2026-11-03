@@ -75,12 +75,12 @@ import com.adamglin.phosphoricons.regular.Check
 import com.adamglin.phosphoricons.regular.File
 import com.adamglin.phosphoricons.regular.PaperPlaneTilt
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
-import com.mknlabs.expensetracker.core.ui.theme.sheet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -94,8 +94,8 @@ fun ReceiptAttachmentSheet(
 ) {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.isDark
-    val sheetColor = if (dark) scheme.profileSheet else scheme.sheet
-    val itemBg = if (dark) scheme.genderRow else Color(0xFFF1F5F9)
+    val sheetColor = scheme.profileSheet
+    val itemBg = scheme.genderRow
     val subtext = if (dark) Color(0xFF7F91A4) else scheme.onSurfaceVariant
     val context = LocalContext.current
     val permissions = remember {
@@ -262,7 +262,7 @@ fun ReceiptAttachmentSheet(
                                             permissionLauncher.launch(permissions)
                                         }
                                     },
-                                    color = scheme.cta,
+                                    color = scheme.accentInk,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 12.sp,
                                 )
@@ -287,13 +287,13 @@ fun ReceiptAttachmentSheet(
                                     Modifier
                                         .size(40.dp)
                                         .clip(CircleShape)
-                                        .background(scheme.cta.copy(alpha = 0.2f)),
+                                        .background(scheme.accentInk.copy(alpha = 0.2f)),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Icon(
                                         PhosphorIcons.Regular.Camera,
                                         contentDescription = null,
-                                        tint = scheme.cta,
+                                        tint = scheme.accentInk,
                                         modifier = Modifier.size(20.dp),
                                     )
                                 }

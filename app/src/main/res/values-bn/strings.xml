@@ -2267,9 +2267,9 @@
     <string name="label_add_transaction">লেনদেন যোগ করুন</string>
     <string name="label_use_classic_form">ক্লাসিক ফর্ম ব্যবহার করুন</string>
     <string name="hint_ai_chat_spend">যেমন বিমানবন্দরে উবারে $১৮ খরচ…</string>
-    <string name="label_voice_mic">ভয়েস মাইক</string>
+    <string name="label_voice_mic">মাইক</string>
     <string name="desc_voice_mic">বলুন, স্বয়ংক্রিয়ভাবে যোগ হবে</string>
-    <string name="label_scan_receipt">রসিদ স্ক্যান</string>
+    <string name="label_scan_receipt">স্ক্যান</string>
     <string name="desc_scan_receipt">ছবি বা PDF</string>
     <string name="label_speak_transaction">লেনদেন বলুন</string>
     <string name="desc_speak_transaction">\"লাঞ্চে $২০ খরচ\"</string>
@@ -2300,4 +2300,5 @@
         <item quantity="one">%dটি ছবি নির্বাচিত</item>
         <item quantity="other">%dটি ছবি নির্বাচিত</item>
     </plurals>
+    <string name="title_ai_daily_limit">দৈনিক AI পার্স সীমা</string>
 </resources>

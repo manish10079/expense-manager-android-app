@@ -4423,6 +4423,7 @@
 
     <string name="msg_ocr_play_services_required">Google Play Services is required to read text from images and PDFs. Install or update it, then try again.</string>
 
+    <string name="title_ai_daily_limit">Daily AI parse limit</string>
     <string name="msg_ai_daily_limit">Daily AI parse limit reached. Try again tomorrow.</string>
     <string name="msg_ai_parse_failed">Could not parse that text. Sign in and try again, or enter the transaction manually.</string>
     <string name="msg_ai_extracting_document">Reading your file…</string>
@@ -4771,9 +4772,9 @@
     <string name="label_add_transaction">Add Transaction</string>
     <string name="label_use_classic_form">Use Classic Form</string>
     <string name="hint_ai_chat_spend">e.g. Spent $18 for Uber to airport...</string>
-    <string name="label_voice_mic">Voice Mic</string>
+    <string name="label_voice_mic">Mic</string>
     <string name="desc_voice_mic">Speak and auto-log</string>
-    <string name="label_scan_receipt">Scan Receipt</string>
+    <string name="label_scan_receipt">Scan</string>
     <string name="desc_scan_receipt">Image or PDF OCR</string>
     <string name="label_speak_transaction">Speak Transaction</string>
     <string name="desc_speak_transaction">Spent $20 for lunch</string>

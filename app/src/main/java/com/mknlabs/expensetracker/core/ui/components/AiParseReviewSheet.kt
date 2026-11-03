@@ -1,11 +1,5 @@
 package com.mknlabs.expensetracker.core.ui.components
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,14 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,13 +34,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -56,21 +48,33 @@ import androidx.compose.ui.window.DialogProperties
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Clock
-import com.composables.icons.lucide.CreditCard
+import com.composables.icons.lucide.FileText
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.Pencil
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.RotateCw
+import com.composables.icons.lucide.ArrowDown
+import com.composables.icons.lucide.ArrowUp
 import com.composables.icons.lucide.ShoppingBag
-import com.composables.icons.lucide.Tag
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.cloud.AiParseContract
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.cta
+import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.expense
 import com.mknlabs.expensetracker.core.ui.theme.income
 import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.onCta
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.data.constants.categoryMap
+import com.mknlabs.expensetracker.data.constants.paymentTypeMap
+import com.mknlabs.expensetracker.models.CurrencyPosition
+import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.formatNumberValue
+import com.mknlabs.expensetracker.utils.getCategoryIcon
+import com.mknlabs.expensetracker.utils.getCurrency
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import java.math.BigDecimal
 import java.text.DateFormat
@@ -97,22 +101,22 @@ private val DarkMuted = Color(0xFFA1A1AA)
 private val DarkFaint = Color(0xFF71717A)
 private val DarkPanel = Color(0xE618181B)
 private val DarkRow = Color(0xFF27272A)
+private val ReviewCardCorner = 12.dp
 
 @Composable
 fun AiParseReviewSheet(
     items: List<AiParsedReviewItem>,
     onDismissRequest: () -> Unit,
     onAdd: (AiParsedReviewItem) -> Unit,
-    onEdit: (AiParsedReviewItem) -> Unit,
     onRetry: (() -> Unit)? = null,
     sourceLabel: String? = null,
+    currencyId: Int = DEFAULT_CURRENCY_ID,
 ) {
     if (items.isEmpty()) return
     val dark = MaterialTheme.colorScheme.isDark
     var selectedId by remember(items.map { it.id }) {
         mutableStateOf(if (items.size == 1) items.first().id else null)
     }
-    var editing by remember { mutableStateOf(false) }
     var savedItem by remember { mutableStateOf<AiParsedReviewItem?>(null) }
     val selected = items.firstOrNull { it.id == selectedId }
 
@@ -133,25 +137,16 @@ fun AiParseReviewSheet(
                 selected == null -> BatchTransactionList(
                     items = items,
                     dark = dark,
+                    currencyId = currencyId,
                     onSelect = { selectedId = it.id },
-                )
-                editing -> ParsedEditOverlay(
-                    item = selected,
-                    dark = dark,
-                    onCancel = { editing = false },
-                    onSave = { updated ->
-                        onEdit(updated)
-                        editing = false
-                    },
                 )
                 else -> ParsedDetailCard(
                     item = selected,
                     dark = dark,
-                    sourceLabel = sourceLabel,
+                    currencyId = currencyId,
                     showBackToList = items.size > 1,
                     onBackToList = { selectedId = null },
                     onRetry = onRetry,
-                    onEdit = { editing = true },
                     onAdd = {
                         savedItem = selected
                     },
@@ -164,6 +159,7 @@ fun AiParseReviewSheet(
     if (confirmation != null) {
         TransactionSavedDialog(
             item = confirmation,
+            currencyId = currencyId,
             onFinished = {
                 onAdd(confirmation)
                 savedItem = null
@@ -178,6 +174,7 @@ fun AiParseReviewSheet(
 private fun BatchTransactionList(
     items: List<AiParsedReviewItem>,
     dark: Boolean,
+    currencyId: Int,
     onSelect: (AiParsedReviewItem) -> Unit,
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -230,7 +227,7 @@ private fun BatchTransactionList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEach { item ->
-                BatchRow(item = item, dark = dark, onClick = { onSelect(item) })
+                BatchRow(item = item, dark = dark, currencyId = currencyId, onClick = { onSelect(item) })
             }
         }
     }
@@ -240,10 +237,11 @@ private fun BatchTransactionList(
 private fun BatchRow(
     item: AiParsedReviewItem,
     dark: Boolean,
+    currencyId: Int,
     onClick: () -> Unit,
 ) {
     val expense = item.typeId != AiParseContract.TYPE_INCOME
-    val amount = formatReviewAmount(item.amount)
+    val amount = formatReviewAmount(item.amount, currencyId)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -339,173 +337,153 @@ private fun BatchRow(
 private fun ParsedDetailCard(
     item: AiParsedReviewItem,
     dark: Boolean,
-    sourceLabel: String?,
+    currencyId: Int,
     showBackToList: Boolean,
     onBackToList: () -> Unit,
     onRetry: (() -> Unit)?,
-    onEdit: () -> Unit,
     onAdd: () -> Unit,
 ) {
-    val expense = item.typeId != AiParseContract.TYPE_INCOME
-    val pulse = rememberInfiniteTransition(label = "badge")
-    val badgeScale by pulse.animateFloat(
-        1f,
-        0.98f,
-        infiniteRepeatable(tween(1500, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "badge-scale",
-    )
-    Column(modifier = Modifier.padding(20.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(if (dark) DarkRow else Color(0xFFE2E8F0)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        Lucide.ShoppingBag,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (dark) DarkMuted else Color(0xFF334155),
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = merchantOf(item),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (dark) DarkTitle else LightTitle,
-                        ),
-                    )
-                    if (!sourceLabel.isNullOrBlank()) {
-                        Text(
-                            text = sourceLabel,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontSize = 11.sp,
-                                color = if (dark) DarkFaint else LightFaint,
-                            ),
-                        )
-                    }
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .scale(badgeScale)
-                    .clip(RoundedCornerShape(50))
-                    .background(
-                        MaterialTheme.colorScheme.let {
-                            if (expense) it.expense.copy(alpha = if (dark) 0.12f else 0.08f)
-                            else it.income.copy(alpha = if (dark) 0.12f else 0.08f)
-                        },
-                    )
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.let {
-                            if (expense) it.expense.copy(alpha = 0.25f) else it.income.copy(alpha = 0.25f)
-                        },
-                        RoundedCornerShape(50),
-                    )
-                    .padding(horizontal = 8.dp, vertical = 3.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (expense) MaterialTheme.colorScheme.expense
-                            else MaterialTheme.colorScheme.income,
-                        ),
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = stringResource(
-                        if (expense) R.string.label_expense_title else R.string.label_income_title,
-                    ),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (expense) MaterialTheme.colorScheme.expense
-                        else MaterialTheme.colorScheme.income,
-                    ),
-                )
-            }
-        }
-
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (dark) DarkPanel else Color(0xD9FFFFFF))
-                .border(1.dp, if (dark) DarkBorder else LightBorder, RoundedCornerShape(12.dp))
-                .padding(vertical = 10.dp),
+                .clip(RoundedCornerShape(ReviewCardCorner))
+                .background(
+                    Brush.linearGradient(
+                        colors = if (dark) {
+                            listOf(Color(0xFF4F46E5), Color(0xFF4338CA), Color(0xFF5B21B6))
+                        } else {
+                            listOf(Color(0xFF6366F1), Color(0xFF4F46E5), Color(0xFF6D28D9))
+                        },
+                    ),
+                )
+                .padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(R.string.label_total_amount),
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
+                    fontSize = 16.56.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp,
-                    color = if (dark) DarkFaint else LightFaint,
+                    color = Color(0xFFC7D2FE),
                 ),
             )
-            Text(
-                text = formatReviewAmount(item.amount),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = if (dark) DarkTitle else Color(0xFF0F172A),
-                ),
+            val currency = getCurrency(currencyId)
+            val amountNumber = formatNumberValue(kotlin.math.abs(item.amount))
+            val amountFigureStyle = MaterialTheme.typography.headlineSmall.copy(
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.38f,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
             )
+            val amountSymbolStyle = amountFigureStyle.copy(
+                fontSize = amountFigureStyle.fontSize * 0.55f,
+                color = Color(0xFFC7D2FE),
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (currency.position == CurrencyPosition.PREFIX) {
+                    Text(text = currency.currencySymbol, style = amountSymbolStyle)
+                }
+                Text(text = amountNumber, style = amountFigureStyle)
+                if (currency.position == CurrencyPosition.POSTFIX) {
+                    Text(text = currency.currencySymbol, style = amountSymbolStyle)
+                }
+            }
         }
 
         Spacer(Modifier.height(8.dp))
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (dark) DarkPanel else LightPanel)
-                .border(1.dp, if (dark) DarkBorder else LightBorder, RoundedCornerShape(12.dp))
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             MetaRow(
                 dark = dark,
-                icon = Lucide.Tag,
-                label = stringResource(R.string.label_category),
-                value = item.categoryName.ifBlank { "—" },
-                pill = true,
+                icon = if (item.typeId == AiParseContract.TYPE_INCOME) Lucide.ArrowUp else Lucide.ArrowDown,
+                iconTint = if (item.typeId == AiParseContract.TYPE_INCOME) {
+                    MaterialTheme.colorScheme.income
+                } else {
+                    MaterialTheme.colorScheme.expense
+                },
+                label = stringResource(R.string.label_category_type_section),
+                value = stringResource(
+                    if (item.typeId == AiParseContract.TYPE_INCOME) {
+                        R.string.label_income_title
+                    } else {
+                        R.string.label_expense_title
+                    },
+                ),
+                valueColor = if (item.typeId == AiParseContract.TYPE_INCOME) {
+                    MaterialTheme.colorScheme.income
+                } else {
+                    MaterialTheme.colorScheme.expense
+                },
             )
             MetaRow(
                 dark = dark,
-                icon = Lucide.CreditCard,
+                icon = reviewCategoryIcon(item),
+                iconTint = MaterialTheme.colorScheme.categoryColor(reviewCategoryId(item)),
+                label = stringResource(R.string.label_category),
+                value = item.categoryName.ifBlank { "—" },
+            )
+            MetaRow(
+                dark = dark,
+                icon = reviewPaymentIcon(item),
+                iconTint = MaterialTheme.colorScheme.paymentColor(reviewPaymentId(item)),
                 label = stringResource(R.string.label_payment_mode),
                 value = item.paymentName.ifBlank { "—" },
                 showDot = true,
             )
-            MetaRow(
-                dark = dark,
-                icon = Lucide.Calendar,
-                label = stringResource(R.string.label_date),
-                value = formatReviewDate(item.createdAt),
-            )
-            MetaRow(
-                dark = dark,
-                icon = Lucide.Clock,
-                label = stringResource(R.string.label_time),
-                value = formatReviewTime(item.createdAt),
-                showDivider = false,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                MetaStackCard(
+                    dark = dark,
+                    icon = Lucide.Calendar,
+                    iconTint = MaterialTheme.colorScheme.accentInk,
+                    label = stringResource(R.string.label_date),
+                    value = formatReviewDate(item.createdAt),
+                    modifier = Modifier.weight(1f),
+                )
+                MetaStackCard(
+                    dark = dark,
+                    icon = Lucide.Clock,
+                    iconTint = MaterialTheme.colorScheme.accentInk,
+                    label = stringResource(R.string.label_time),
+                    value = formatReviewTime(item.createdAt),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+        Column(
+            modifier = reviewMetaCardModifier(dark, Modifier.fillMaxWidth()),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Lucide.FileText,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.accentInk,
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.label_note),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.38f,
+                        color = if (dark) DarkMuted else LightMuted,
+                    ),
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = item.note.ifBlank { "—" },
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize * 1.38f,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (dark) DarkTitle else LightTitle,
+                ),
             )
         }
 
@@ -531,18 +509,11 @@ private fun ParsedDetailCard(
                     onClick = onRetry,
                 )
             }
-            ReviewGhostButton(
-                text = stringResource(R.string.label_edit),
-                dark = dark,
-                modifier = Modifier.weight(1f),
-                icon = { Icon(Lucide.Pencil, null, Modifier.size(12.dp)) },
-                onClick = onEdit,
-            )
             Button(
                 onClick = onAdd,
                 enabled = item.categoryId > 0,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(ReviewCardCorner),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onCta,
@@ -551,9 +522,9 @@ private fun ParsedDetailCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(ReviewCardCorner))
                         .background(BrandGradient)
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 16.dp)
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -563,7 +534,7 @@ private fun ParsedDetailCard(
                         Text(
                             stringResource(R.string.label_add_action),
                             color = Color.White,
-                            fontSize = 12.sp,
+                            fontSize = 16.56.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
@@ -581,22 +552,34 @@ private fun ReviewGhostButton(
     icon: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
 ) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, if (dark) DarkBorder else Color(0xCCCBD5E1)),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = if (dark) DarkMuted else Color(0xFF334155),
-        ),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp, horizontal = 6.dp),
+    Box(
+        modifier = reviewMetaCardModifier(dark, modifier).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        if (icon != null) {
-            icon()
-            Spacer(Modifier.width(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                icon()
+                Spacer(Modifier.width(4.dp))
+            }
+            Text(
+                text,
+                fontSize = 15.18.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                color = if (dark) DarkMuted else Color(0xFF334155),
+            )
         }
-        Text(text, fontSize = 11.sp, fontWeight = FontWeight.Medium, maxLines = 1)
     }
+}
+
+@Composable
+private fun reviewMetaCardModifier(dark: Boolean, modifier: Modifier = Modifier): Modifier {
+    val shape = RoundedCornerShape(ReviewCardCorner)
+    return modifier
+        .clip(shape)
+        .background(if (dark) Color(0x661E293B) else Color(0xFFF8FAFC))
+        .border(1.dp, if (dark) Color(0xCC1E293B) else Color(0xFFF1F5F9), shape)
+        .padding(horizontal = 14.dp, vertical = 18.dp)
 }
 
 @Composable
@@ -607,9 +590,10 @@ private fun MetaRow(
     value: String,
     pill: Boolean = false,
     showDot: Boolean = false,
-    showDivider: Boolean = true,
+    iconTint: Color? = null,
+    valueColor: Color? = null,
 ) {
-    Column {
+    Column(modifier = reviewMetaCardModifier(dark, Modifier.fillMaxWidth())) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -620,12 +604,13 @@ private fun MetaRow(
                     icon,
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
-                    tint = if (dark) DarkFaint else LightFaint,
+                    tint = iconTint ?: if (dark) DarkFaint else LightFaint,
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     label,
                     style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.38f,
                         color = if (dark) DarkMuted else LightMuted,
                     ),
                 )
@@ -651,110 +636,60 @@ private fun MetaRow(
                         Modifier
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize * 1.38f,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (dark) DarkTitle else LightTitle,
+                        color = valueColor ?: if (dark) DarkTitle else LightTitle,
                     ),
                 )
             }
-        }
-        if (showDivider) {
-            Spacer(Modifier.height(6.dp))
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(if (dark) DarkBorder else Color(0xFFF1F5F9)),
-            )
         }
     }
 }
 
 @Composable
-private fun ParsedEditOverlay(
-    item: AiParsedReviewItem,
+private fun MetaStackCard(
     dark: Boolean,
-    onCancel: () -> Unit,
-    onSave: (AiParsedReviewItem) -> Unit,
+    icon: ImageVector,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    iconTint: Color? = null,
 ) {
-    var merchant by remember(item.id) { mutableStateOf(merchantOf(item)) }
-    var amount by remember(item.id) {
-        mutableStateOf(BigDecimal.valueOf(item.amount).stripTrailingZeros().toPlainString())
-    }
-    var category by remember(item.id) { mutableStateOf(item.categoryName) }
-    var payment by remember(item.id) { mutableStateOf(item.paymentName) }
-    Column(modifier = Modifier.padding(20.dp)) {
+    Column(modifier = reviewMetaCardModifier(dark, modifier)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = iconTint ?: if (dark) DarkFaint else LightFaint,
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.38f,
+                    color = if (dark) DarkMuted else LightMuted,
+                ),
+            )
+        }
+        Spacer(Modifier.height(6.dp))
         Text(
-            text = stringResource(R.string.label_ai_edit_details),
-            style = MaterialTheme.typography.titleSmall.copy(
+            text = value,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = MaterialTheme.typography.labelMedium.fontSize * 1.38f,
                 fontWeight = FontWeight.SemiBold,
-                color = if (dark) Color(0xFF818CF8) else Color(0xFF4F46E5),
+                color = if (dark) DarkTitle else LightTitle,
             ),
         )
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = merchant,
-            onValueChange = { merchant = it },
-            label = { Text(stringResource(R.string.label_merchant)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = amount,
-            onValueChange = { amount = it },
-            label = { Text(stringResource(R.string.label_amount)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = category,
-            onValueChange = { category = it },
-            label = { Text(stringResource(R.string.label_category)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = payment,
-            onValueChange = { payment = it },
-            label = { Text(stringResource(R.string.label_payment_mode)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text(stringResource(R.string.label_cancel))
-            }
-            Button(
-                onClick = {
-                    val parsed = amount.toDoubleOrNull() ?: return@Button
-                    onSave(
-                        item.copy(
-                            amount = parsed,
-                            amountMinor = parsed.toMinorUnits(),
-                            note = merchant,
-                            categoryName = category,
-                            paymentName = payment,
-                        ),
-                    )
-                },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.cta),
-            ) {
-                Text(stringResource(R.string.label_ai_save_details), color = MaterialTheme.colorScheme.onCta)
-            }
-        }
     }
 }
 
 @Composable
 private fun TransactionSavedDialog(
     item: AiParsedReviewItem,
+    currencyId: Int,
     onFinished: () -> Unit,
 ) {
     LaunchedEffect(item.id) {
@@ -797,7 +732,7 @@ private fun TransactionSavedDialog(
                     modifier = Modifier.padding(top = 4.dp),
                 )
                 Text(
-                    formatReviewAmount(item.amount),
+                    formatReviewAmount(item.amount, currencyId),
                     color = Emerald,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -823,11 +758,31 @@ private fun TransactionSavedDialog(
     }
 }
 
+private fun reviewPaymentId(item: AiParsedReviewItem): Int {
+    if (item.paymentTypeId > 0) return item.paymentTypeId
+    val name = item.paymentName.trim()
+    if (name.isEmpty()) return 0
+    return paymentTypeMap.values.firstOrNull { it.name.equals(name, ignoreCase = true) }?.id ?: 0
+}
+
+private fun reviewPaymentIcon(item: AiParsedReviewItem): ImageVector =
+    paymentTypeMap[reviewPaymentId(item)]?.icon ?: getCategoryIcon(0)
+
+private fun reviewCategoryId(item: AiParsedReviewItem): Int {
+    if (item.categoryId > 0) return item.categoryId
+    val name = item.categoryName.trim()
+    if (name.isEmpty()) return 0
+    return categoryMap.values.firstOrNull { it.name.equals(name, ignoreCase = true) }?.id ?: 0
+}
+
+private fun reviewCategoryIcon(item: AiParsedReviewItem): ImageVector =
+    getCategoryIcon(reviewCategoryId(item))
+
 private fun merchantOf(item: AiParsedReviewItem): String =
     item.note.ifBlank { item.categoryName }.ifBlank { "—" }
 
-private fun formatReviewAmount(amount: Double): String =
-    BigDecimal.valueOf(amount).stripTrailingZeros().toPlainString()
+private fun formatReviewAmount(amount: Double, currencyId: Int): String =
+    formatCurrencyValue(amount = amount, currencyId = currencyId)
 
 private fun formatReviewDate(createdAt: Long?): String {
     if (createdAt == null) return "—"
@@ -837,4 +792,122 @@ private fun formatReviewDate(createdAt: Long?): String {
 private fun formatReviewTime(createdAt: Long?): String {
     if (createdAt == null) return "—"
     return DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(createdAt))
+}
+
+private fun previewReviewItem(
+    id: String = "preview-1",
+    note: String = "Coffee",
+    amount: Double = 249.5,
+    categoryName: String = "Food",
+): AiParsedReviewItem = AiParsedReviewItem(
+    id = id,
+    amount = amount,
+    amountMinor = 24950,
+    categoryName = categoryName,
+    categoryId = 1,
+    paymentName = "UPI",
+    paymentTypeId = 1,
+    note = note,
+    typeId = AiParseContract.TYPE_EXPENSE,
+    createdAt = 1_704_067_200_000L,
+)
+
+@Preview(name = "Parsed card - Light", showBackground = true)
+@Composable
+private fun PreviewParsedDetailCardLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = LightCanvas,
+            border = BorderStroke(1.dp, LightBorder),
+        ) {
+            ParsedDetailCard(
+                item = previewReviewItem(),
+                dark = false,
+                currencyId = DEFAULT_CURRENCY_ID,
+                showBackToList = false,
+                onBackToList = {},
+                onRetry = {},
+                onAdd = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Parsed card - Dark", showBackground = true, backgroundColor = 0xFF09090B)
+@Composable
+private fun PreviewParsedDetailCardDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = DarkCanvas,
+            border = BorderStroke(1.dp, DarkBorder),
+        ) {
+            ParsedDetailCard(
+                item = previewReviewItem(),
+                dark = true,
+                currencyId = DEFAULT_CURRENCY_ID,
+                showBackToList = false,
+                onBackToList = {},
+                onRetry = {},
+                onAdd = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Batch list - Light", showBackground = true)
+@Composable
+private fun PreviewBatchTransactionListLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = LightCanvas,
+            border = BorderStroke(1.dp, LightBorder),
+        ) {
+            BatchTransactionList(
+                items = listOf(
+                    previewReviewItem(),
+                    previewReviewItem(id = "preview-2", note = "Metro", amount = 40.0, categoryName = "Transport"),
+                ),
+                dark = false,
+                currencyId = DEFAULT_CURRENCY_ID,
+                onSelect = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Batch list - Dark", showBackground = true, backgroundColor = 0xFF09090B)
+@Composable
+private fun PreviewBatchTransactionListDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = DarkCanvas,
+            border = BorderStroke(1.dp, DarkBorder),
+        ) {
+            BatchTransactionList(
+                items = listOf(
+                    previewReviewItem(),
+                    previewReviewItem(id = "preview-2", note = "Metro", amount = 40.0, categoryName = "Transport"),
+                ),
+                dark = true,
+                currencyId = DEFAULT_CURRENCY_ID,
+                onSelect = {},
+            )
+        }
+    }
 }

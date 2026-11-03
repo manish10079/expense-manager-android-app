@@ -2294,9 +2294,9 @@
     <string name="label_add_transaction">ವಹಿವಾಟು ಸೇರಿಸಿ</string>
     <string name="label_use_classic_form">ಕ್ಲಾಸಿಕ್ ಫಾರ್ಮ್ ಬಳಸಿ</string>
     <string name="hint_ai_chat_spend">ಉದಾ. ವಿಮಾನ ನಿಲ್ದಾಣಕ್ಕೆ ಉಬರ್‌ಗೆ $18 ಖರ್ಚು…</string>
-    <string name="label_voice_mic">ಧ್ವನಿ ಮೈಕ್</string>
+    <string name="label_voice_mic">ಮೈಕ್</string>
     <string name="desc_voice_mic">ಮಾತನಾಡಿ, ಸ್ವಯಂ ದಾಖಲೆ</string>
-    <string name="label_scan_receipt">ರಸೀದಿ ಸ್ಕ್ಯಾನ್</string>
+    <string name="label_scan_receipt">ಸ್ಕ್ಯಾನ್</string>
     <string name="desc_scan_receipt">ಚಿತ್ರ ಅಥವಾ PDF</string>
     <string name="label_speak_transaction">ವಹಿವಾಟು ಹೇಳಿ</string>
     <string name="desc_speak_transaction">\"ಊಟಕ್ಕೆ $20 ಖರ್ಚು\"</string>
@@ -2327,6 +2327,7 @@
         <item quantity="one">%d ಫೋಟೋ ಆಯ್ಕೆ</item>
         <item quantity="other">%d ಫೋಟೋಗಳು ಆಯ್ಕೆ</item>
     </plurals>
+    <string name="title_ai_daily_limit">ದೈನಂದಿನ AI ಪಾರ್ಸ್ ಮಿತಿ</string>
 </resources>
 
 

@@ -4619,7 +4619,7 @@ privé par nature</string>
     <string name="hint_ai_chat_spend">ex. 18 $ pour un Uber à l’aéroport…</string>
     <string name="label_voice_mic">Micro</string>
     <string name="desc_voice_mic">Parlez, l’app enregistre</string>
-    <string name="label_scan_receipt">Scanner un reçu</string>
+    <string name="label_scan_receipt">Scanner</string>
     <string name="desc_scan_receipt">Image ou PDF</string>
     <string name="label_speak_transaction">Dicter l’opération</string>
     <string name="desc_speak_transaction">« 20 $ pour le déjeuner »</string>
@@ -4652,4 +4652,5 @@ privé par nature</string>
     </plurals>
     <string name="desc_language_changes_ledger">La langue sélectionnée sera utilisée dans toute l\'application.</string>
     <string name="label_pick_from_languages">Choisis parmi %d langues</string>
+    <string name="title_ai_daily_limit">Limite quotidienne d\'analyse IA</string>
 </resources>

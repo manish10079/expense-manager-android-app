@@ -4621,9 +4621,9 @@
     <string name="label_add_transaction">거래 추가</string>
     <string name="label_use_classic_form">기본 양식 사용</string>
     <string name="hint_ai_chat_spend">예: 공항 우버에 18달러 썼어…</string>
-    <string name="label_voice_mic">음성 마이크</string>
+    <string name="label_voice_mic">마이크</string>
     <string name="desc_voice_mic">말하면 자동 기록</string>
-    <string name="label_scan_receipt">영수증 스캔</string>
+    <string name="label_scan_receipt">스캔</string>
     <string name="desc_scan_receipt">이미지 또는 PDF</string>
     <string name="label_speak_transaction">거래 말하기</string>
     <string name="desc_speak_transaction">\"점심에 20달러 썼어\"</string>
@@ -4656,4 +4656,5 @@
     </plurals>
     <string name="desc_language_changes_ledger">선택한 언어가 앱 전체에 사용됩니다.</string>
     <string name="label_pick_from_languages">%d개 언어 중에서 선택</string>
+    <string name="title_ai_daily_limit">일일 AI 분석 한도</string>
 </resources>

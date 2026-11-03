@@ -4222,9 +4222,9 @@
     <string name="label_add_transaction">लेन-देन जोड़ें</string>
     <string name="label_use_classic_form">क्लासिक फ़ॉर्म इस्तेमाल करें</string>
     <string name="hint_ai_chat_spend">जैसे एयरपोर्ट तक उबर पर $18 खर्च…</string>
-    <string name="label_voice_mic">वॉइस माइक</string>
+    <string name="label_voice_mic">माइक</string>
     <string name="desc_voice_mic">बोलें, अपने आप दर्ज हो</string>
-    <string name="label_scan_receipt">रसीद स्कैन करें</string>
+    <string name="label_scan_receipt">स्कैन</string>
     <string name="desc_scan_receipt">छवि या PDF</string>
     <string name="label_speak_transaction">लेन-देन बोलें</string>
     <string name="desc_speak_transaction">\"लंच पर $20 खर्च\"</string>
@@ -4257,4 +4257,5 @@
     </plurals>
     <string name="desc_language_changes_ledger">चुनी गई भाषा पूरे ऐप में इस्तेमाल होगी।</string>
     <string name="label_pick_from_languages">%d भाषाओं में से चुनें</string>
+    <string name="title_ai_daily_limit">दैनिक AI पार्स सीमा</string>
 </resources>

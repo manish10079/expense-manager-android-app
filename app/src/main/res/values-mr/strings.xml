@@ -2267,9 +2267,9 @@
     <string name="label_add_transaction">व्यवहार जोडा</string>
     <string name="label_use_classic_form">क्लासिक फॉर्म वापरा</string>
     <string name="hint_ai_chat_spend">उदा. विमानतळापर्यंत उबरवर $18 खर्च…</string>
-    <string name="label_voice_mic">व्हॉइस माइक</string>
+    <string name="label_voice_mic">माइक</string>
     <string name="desc_voice_mic">बोला आणि आपोआप नोंद व्हा</string>
-    <string name="label_scan_receipt">पावती स्कॅन करा</string>
+    <string name="label_scan_receipt">स्कॅन</string>
     <string name="desc_scan_receipt">प्रतिमा किंवा PDF</string>
     <string name="label_speak_transaction">व्यवहार बोला</string>
     <string name="desc_speak_transaction">\"जेवणावर $20 खर्च\"</string>
@@ -2300,4 +2300,5 @@
         <item quantity="one">%d फोटो निवडला</item>
         <item quantity="other">%d फोटो निवडले</item>
     </plurals>
+    <string name="title_ai_daily_limit">दैनिक AI पार्स मर्यादा</string>
 </resources>

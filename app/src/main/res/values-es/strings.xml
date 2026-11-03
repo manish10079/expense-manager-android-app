@@ -4654,7 +4654,7 @@ privado de verdad</string>
     <string name="hint_ai_chat_spend">p. ej. Gasté 18 $ en Uber al aeropuerto…</string>
     <string name="label_voice_mic">Micrófono</string>
     <string name="desc_voice_mic">Habla y se registra solo</string>
-    <string name="label_scan_receipt">Escanear recibo</string>
+    <string name="label_scan_receipt">Escanear</string>
     <string name="desc_scan_receipt">Imagen o PDF</string>
     <string name="label_speak_transaction">Dictar transacción</string>
     <string name="desc_speak_transaction">«Gasté 20 $ en el almuerzo»</string>
@@ -4687,4 +4687,5 @@ privado de verdad</string>
     </plurals>
     <string name="desc_language_changes_ledger">El idioma seleccionado se usará en toda la app.</string>
     <string name="label_pick_from_languages">Elige entre %d idiomas</string>
+    <string name="title_ai_daily_limit">Límite diario de análisis de IA</string>
 </resources>

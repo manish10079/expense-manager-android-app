@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,6 +62,7 @@ import com.mknlabs.expensetracker.core.ui.components.AddQuickFloatingArc
 import com.mknlabs.expensetracker.core.ui.components.AddUnifiedSmartSheet
 import com.mknlabs.expensetracker.core.ui.components.ReceiptAttachmentSheet
 import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
@@ -453,14 +457,25 @@ fun MainScaffold(
         )
     }
     aiParseErrorRes?.let { resId ->
-        AlertDialog(
-            onDismissRequest = { aiParseErrorRes = null },
-            text = { Text(stringResource(resId)) },
-            confirmButton = {
-                TextButton(onClick = { aiParseErrorRes = null }) {
-                    Text(stringResource(R.string.label_ok))
-                }
+        val dismiss = { aiParseErrorRes = null }
+        ModernConfirmationDialog(
+            onDismissRequest = dismiss,
+            title = stringResource(
+                if (resId == R.string.msg_ai_daily_limit) {
+                    R.string.title_ai_daily_limit
+                } else {
+                    resId
+                },
+            ),
+            text = if (resId == R.string.msg_ai_daily_limit) {
+                stringResource(resId)
+            } else {
+                "\u00A0"
             },
+            confirmButtonText = stringResource(R.string.label_close),
+            onConfirm = dismiss,
+            headerIcon = PhosphorIcons.Regular.Info,
+            showDismissButton = false,
         )
     }
 
@@ -849,6 +864,7 @@ fun MainScaffold(
         if (showAiReviewSheet && aiReviewItems.isNotEmpty()) {
             AiParseReviewSheet(
                 items = aiReviewItems.toList(),
+                currencyId = selectedCurrencyId,
                 onDismissRequest = {
                     showAiReviewSheet = false
                     aiReviewItems.clear()
@@ -883,19 +899,15 @@ fun MainScaffold(
                         showAiReviewSheet = false
                     }
                 },
-                onEdit = { updated ->
-                    val index = aiReviewItems.indexOfFirst { it.id == updated.id }
-                    if (index >= 0) aiReviewItems[index] = updated
-                },
                 onRetry = {
-                    showAiReviewSheet = false
-                    scanStatusRes = null
-                    documentParseBusy = true
                     val uri = documentParseUri
-                    val text = documentParseText
+                    val text = documentParseText?.takeIf { it.isNotBlank() } ?: aiReviewSourceText
                     if (uri != null) {
+                        showAiReviewSheet = false
+                        scanStatusRes = null
+                        documentParseBusy = true
                         aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
-                    } else if (!text.isNullOrBlank()) {
+                    } else if (text.isNotBlank()) {
                         aiExtractViewModel.parse(text) { outcome ->
                             applyIncomingDocumentOutcome(
                                 when (outcome) {

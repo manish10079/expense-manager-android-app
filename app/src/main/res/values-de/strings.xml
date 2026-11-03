@@ -4650,9 +4650,9 @@ privat von Haus aus</string>
     <string name="label_add_transaction">Buchung hinzufügen</string>
     <string name="label_use_classic_form">Klassisches Formular</string>
     <string name="hint_ai_chat_spend">z. B. 18 € für Uber zum Flughafen…</string>
-    <string name="label_voice_mic">Sprache</string>
+    <string name="label_voice_mic">Mikro</string>
     <string name="desc_voice_mic">Sprechen und automatisch erfassen</string>
-    <string name="label_scan_receipt">Beleg scannen</string>
+    <string name="label_scan_receipt">Scan</string>
     <string name="desc_scan_receipt">Bild oder PDF</string>
     <string name="label_speak_transaction">Buchung sprechen</string>
     <string name="desc_speak_transaction">„20 $ fürs Mittagessen“</string>
@@ -4685,4 +4685,5 @@ privat von Haus aus</string>
     </plurals>
     <string name="desc_language_changes_ledger">Die gewählte Sprache wird in der ganzen App verwendet.</string>
     <string name="label_pick_from_languages">Wähle aus %d Sprachen</string>
+    <string name="title_ai_daily_limit">Tägliches KI-Parse-Limit</string>
 </resources>

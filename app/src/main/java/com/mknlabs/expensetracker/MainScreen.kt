@@ -1608,6 +1608,7 @@ fun MainScreen(
         if (voiceReviewItems.isNotEmpty()) {
             AiParseReviewSheet(
                 items = voiceReviewItems.toList(),
+                currencyId = selectedCurrencyId,
                 onDismissRequest = {
                     voiceReviewItems.clear()
                 },
@@ -1636,23 +1637,7 @@ fun MainScreen(
                     )
                     voiceReviewItems.removeAll { it.id == item.id }
                 },
-                onEdit = { item ->
-                    val amount = java.math.BigDecimal
-                        .valueOf(item.amount)
-                        .stripTrailingZeros()
-                        .toPlainString()
-                    navigationState.updateAddTransactionDraftAmount(amount)
-                    navigationState.updateAddTransactionDraftNote(
-                        item.note.ifBlank { voiceReviewSourceText }
-                    )
-                    if (item.categoryId > 0) {
-                        navigationState.updateAddTransactionDraftCategoryId(item.categoryId)
-                    }
-                    navigationState.updateAddTransactionDraftTypeId(item.typeId)
-                    navigationState.updateAddTransactionDraftPaymentTypeId(item.paymentTypeId)
-                    voiceReviewItems.removeAll { it.id == item.id }
-                    navigationState.navigateTo(AppRoute.AddTransaction)
-                },
+
             )
         }
 

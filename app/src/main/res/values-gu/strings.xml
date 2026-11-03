@@ -2301,9 +2301,9 @@
     <string name="label_add_transaction">વ્યવહાર ઉમેરો</string>
     <string name="label_use_classic_form">ક્લાસિક ફોર્મ વાપરો</string>
     <string name="hint_ai_chat_spend">જેમ કે એરપોર્ટ સુધી ઉબર પર $18 ખર્ચ…</string>
-    <string name="label_voice_mic">વૉઇસ માઇક</string>
+    <string name="label_voice_mic">માઇક</string>
     <string name="desc_voice_mic">બોલો અને આપમેળે નોંધાય</string>
-    <string name="label_scan_receipt">રસીદ સ્કેન કરો</string>
+    <string name="label_scan_receipt">સ્કેન</string>
     <string name="desc_scan_receipt">છબી અથવા PDF</string>
     <string name="label_speak_transaction">વ્યવહાર બોલો</string>
     <string name="desc_speak_transaction">\"લંચ પર $20 ખર્ચ\"</string>
@@ -2334,4 +2334,5 @@
         <item quantity="one">%d ફોટો પસંદ</item>
         <item quantity="other">%d ફોટા પસંદ</item>
     </plurals>
+    <string name="title_ai_daily_limit">દૈનિક AI પાર્સ મર્યાદા</string>
 </resources>

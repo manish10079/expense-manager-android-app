@@ -159,10 +159,6 @@ private fun ShareCaptureDialog(
                     if (items.isEmpty()) onDismiss()
                 }
             },
-            onEdit = { updated ->
-                val index = items.indexOfFirst { it.id == updated.id }
-                if (index >= 0) items[index] = updated
-            },
             onRetry = {
                 scanStatusRes = null
                 loading = true

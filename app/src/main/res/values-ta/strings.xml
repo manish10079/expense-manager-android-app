@@ -2256,9 +2256,9 @@
     <string name="label_add_transaction">பரிவர்த்தனை சேர்</string>
     <string name="label_use_classic_form">பழைய படிவத்தைப் பயன்படுத்து</string>
     <string name="hint_ai_chat_spend">எ.கா. விமான நிலைய உபருக்கு $18 செலவு…</string>
-    <string name="label_voice_mic">குரல் மைக்</string>
+    <string name="label_voice_mic">மைக்</string>
     <string name="desc_voice_mic">பேசி தானாக பதிவுசெய்</string>
-    <string name="label_scan_receipt">ரசீதை ஸ்கேன் செய்</string>
+    <string name="label_scan_receipt">ஸ்கேன்</string>
     <string name="desc_scan_receipt">படம் அல்லது PDF</string>
     <string name="label_speak_transaction">பரிவர்த்தனையைச் சொல்</string>
     <string name="desc_speak_transaction">\"மதிய உணவுக்கு $20 செலவு\"</string>
@@ -2289,4 +2289,5 @@
         <item quantity="one">%d புகைப்படம் தேர்ந்தெடுக்கப்பட்டது</item>
         <item quantity="other">%d புகைப்படங்கள் தேர்ந்தெடுக்கப்பட்டன</item>
     </plurals>
+    <string name="title_ai_daily_limit">தினசரி AI பாகுபடுத்தல் வரம்பு</string>
 </resources>

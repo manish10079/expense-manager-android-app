@@ -4647,7 +4647,7 @@ privat dari sifat</string>
     <string name="hint_ai_chat_spend">mis. Habis $18 untuk Uber ke bandara…</string>
     <string name="label_voice_mic">Mikrofon</string>
     <string name="desc_voice_mic">Ucapkan lalu tercatat otomatis</string>
-    <string name="label_scan_receipt">Pindai struk</string>
+    <string name="label_scan_receipt">Pindai</string>
     <string name="desc_scan_receipt">Gambar atau PDF</string>
     <string name="label_speak_transaction">Ucapkan transaksi</string>
     <string name="desc_speak_transaction">\"Habis $20 untuk makan siang\"</string>
@@ -4680,4 +4680,5 @@ privat dari sifat</string>
     </plurals>
     <string name="desc_language_changes_ledger">Bahasa yang dipilih akan dipakai di seluruh aplikasi.</string>
     <string name="label_pick_from_languages">Pilih dari %d bahasa</string>
+    <string name="title_ai_daily_limit">Batas parse AI harian</string>
 </resources>

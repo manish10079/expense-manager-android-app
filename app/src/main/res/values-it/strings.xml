@@ -4590,7 +4590,7 @@
     <string name="hint_ai_chat_spend">es. Spesi 18 $ per Uber in aeroporto…</string>
     <string name="label_voice_mic">Microfono</string>
     <string name="desc_voice_mic">Parla e registra in automatico</string>
-    <string name="label_scan_receipt">Scansiona scontrino</string>
+    <string name="label_scan_receipt">Scansione</string>
     <string name="desc_scan_receipt">Immagine o PDF</string>
     <string name="label_speak_transaction">Detta transazione</string>
     <string name="desc_speak_transaction">«Spesi 20 $ per il pranzo»</string>
@@ -4623,4 +4623,5 @@
     </plurals>
     <string name="desc_language_changes_ledger">La lingua selezionata verrà usata in tutta l\'app.</string>
     <string name="label_pick_from_languages">Scegli tra %d lingue</string>
+    <string name="title_ai_daily_limit">Limite giornaliero di analisi IA</string>
 </resources>

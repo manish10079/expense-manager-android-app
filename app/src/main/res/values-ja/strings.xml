@@ -4645,9 +4645,9 @@
     <string name="label_add_transaction">取引を追加</string>
     <string name="label_use_classic_form">従来のフォームを使う</string>
     <string name="hint_ai_chat_spend">例: 空港までのUberに18ドル使った…</string>
-    <string name="label_voice_mic">音声入力</string>
+    <string name="label_voice_mic">マイク</string>
     <string name="desc_voice_mic">話して自動記録</string>
-    <string name="label_scan_receipt">レシートをスキャン</string>
+    <string name="label_scan_receipt">スキャン</string>
     <string name="desc_scan_receipt">画像またはPDF</string>
     <string name="label_speak_transaction">取引を話す</string>
     <string name="desc_speak_transaction">「ランチに20ドル使った」</string>
@@ -4680,4 +4680,5 @@
     </plurals>
     <string name="desc_language_changes_ledger">選択した言語がアプリ全体で使われます。</string>
     <string name="label_pick_from_languages">%d言語から選ぶ</string>
+    <string name="title_ai_daily_limit">1日のAI解析上限</string>
 </resources>

@@ -4614,7 +4614,7 @@
     <string name="hint_ai_chat_spend">напр. Потратил 18 $ на Uber в аэропорт…</string>
     <string name="label_voice_mic">Микрофон</string>
     <string name="desc_voice_mic">Скажите — запись сохранится</string>
-    <string name="label_scan_receipt">Сканировать чек</string>
+    <string name="label_scan_receipt">Скан</string>
     <string name="desc_scan_receipt">Изображение или PDF</string>
     <string name="label_speak_transaction">Продиктовать операцию</string>
     <string name="desc_speak_transaction">«Потратил 20 $ на обед»</string>
@@ -4647,4 +4647,5 @@
     </plurals>
     <string name="desc_language_changes_ledger">Выбранный язык будет использоваться во всём приложении.</string>
     <string name="label_pick_from_languages">Выберите из %d языков</string>
+    <string name="title_ai_daily_limit">Дневной лимит ИИ-разбора</string>
 </resources>

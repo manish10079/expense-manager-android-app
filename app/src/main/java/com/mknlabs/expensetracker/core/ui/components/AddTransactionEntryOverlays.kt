@@ -69,13 +69,16 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Camera
 import com.adamglin.phosphoricons.regular.ChatCircle
 import com.adamglin.phosphoricons.regular.Microphone
+import com.adamglin.phosphoricons.regular.Info
 import com.adamglin.phosphoricons.regular.PencilSimple
 import com.composables.icons.lucide.ArrowRight
 import com.composables.icons.lucide.Lucide
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.TextParseOutcome
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
+import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
@@ -234,7 +237,11 @@ fun AddUnifiedSmartSheet(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(scheme.cta)
+                            .background(
+                                brandGradient(
+                                    alpha = if (chat.isNotBlank() && !parsing) 1f else 0.45f,
+                                ),
+                            )
                             .clickable(enabled = chat.isNotBlank() && !parsing) {
                                 submitChat(
                                     chat,
@@ -254,7 +261,7 @@ fun AddUnifiedSmartSheet(
                         )
                     }
                 }
-                if (parsing || parseErrorRes != null) {
+                if (parsing || (parseErrorRes != null && parseErrorRes != R.string.msg_ai_chat_daily_limit)) {
                     Row(
                         modifier = Modifier
                             .padding(top = 12.dp)
@@ -330,6 +337,17 @@ fun AddUnifiedSmartSheet(
                 }
             }
         }
+    }
+    if (parseErrorRes == R.string.msg_ai_chat_daily_limit) {
+        ModernConfirmationDialog(
+            onDismissRequest = { parseErrorRes = null },
+            title = stringResource(R.string.title_ai_daily_limit),
+            text = stringResource(R.string.msg_ai_daily_limit),
+            confirmButtonText = stringResource(R.string.label_close),
+            onConfirm = { parseErrorRes = null },
+            headerIcon = PhosphorIcons.Regular.Info,
+            showDismissButton = false,
+        )
     }
 }
 
