@@ -47,13 +47,11 @@ import com.mknlabs.expensetracker.sms.SmsNotificationManager.toParsedSms
 import com.mknlabs.expensetracker.feature.auth.ui.SplashOverlay
 import com.mknlabs.expensetracker.feature.settings.ui.MaintenanceScreen
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateRequiredScreen
-import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.UpdateDialog
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateViewModel
 import com.mknlabs.expensetracker.feature.settings.ui.UpdateUiState
 import com.mknlabs.expensetracker.domain.update.PlayAppUpdateGateway
 import com.mknlabs.expensetracker.utils.PlayStoreLink
-import com.mknlabs.expensetracker.utils.RateAppPrompt
 import android.net.Uri
 import com.mknlabs.expensetracker.ai.toIncomingShare
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
@@ -304,19 +302,12 @@ class MainActivity : AppCompatActivity() {
     ) {
         val isReady by splashViewModel.isReady.collectAsStateWithLifecycle()
         var splashGone by remember { mutableStateOf(false) }
-        var rateSheetDismissed by rememberSaveable { mutableStateOf(false) }
         val isUpdateRequired by splashViewModel.isUpdateRequired.collectAsStateWithLifecycle()
         val isUnderMaintenance by splashViewModel.isUnderMaintenance.collectAsStateWithLifecycle()
         val appLockState by appLockViewModel.state.collectAsStateWithLifecycle()
         val recoveryPerformed by appLockViewModel.recoveryPerformed.collectAsStateWithLifecycle()
         val context = LocalContext.current
-        val rateScope = rememberCoroutineScope()
         LaunchedEffect(Unit) { RateAppPromptStore.ensureFirstOpen(context) }
-        val ratePrompt by RateAppPromptStore.flow(context).collectAsStateWithLifecycle(
-            initialValue = com.mknlabs.expensetracker.data.local.RateAppPromptState()
-        )
-        val transactionCount by transactionDao.observeActiveTransactionCount()
-            .collectAsStateWithLifecycle(initialValue = 0)
         val activity = context.findFragmentActivity()
         
         // Pass a dummy AuthViewModel if needed for logic, but we get the real one in MainScreen
@@ -452,7 +443,8 @@ class MainActivity : AppCompatActivity() {
         ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
             CompositionLocalProvider(
                 LocalAppWindowInfo provides rememberAppWindowInfo(),
-                LocalFontScaleInfo provides rememberFontScaleInfo()
+                LocalFontScaleInfo provides rememberFontScaleInfo(),
+                com.mknlabs.expensetracker.core.ui.components.LocalSplashGone provides splashGone,
             ) {
             Box(modifier = Modifier
                 .fillMaxSize()
@@ -640,32 +632,6 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
 
-                val showRateSheet = splashGone &&
-                    isReady &&
-                    !isUnderMaintenance &&
-                    !isUpdateRequired &&
-                    updateAvailable == null &&
-                    appLockState is AppLockState.Unlocked &&
-                    !rateSheetDismissed &&
-                    RateAppPrompt.shouldShow(
-                        transactionCount = transactionCount,
-                        firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
-                        nowMillis = System.currentTimeMillis(),
-                        completed = ratePrompt.completed,
-                        dismissCount = ratePrompt.dismissCount,
-                        lastDismissAtMillis = ratePrompt.lastDismissAtMillis
-                    )
-                if (showRateSheet) {
-                    RateAppBottomSheet(
-                        onDismiss = {
-                            rateSheetDismissed = true
-                            rateScope.launch { RateAppPromptStore.markDismissed(context) }
-                        },
-                        onRated = {
-                            rateScope.launch { RateAppPromptStore.markCompleted(context) }
-                        }
-                    )
-                }
             }
             }
         }

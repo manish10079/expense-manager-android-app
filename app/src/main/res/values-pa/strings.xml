@@ -751,11 +751,12 @@
     <string name="label_language_system">ਸਿਸਟਮ ਡਿਫ਼ਾਲਟ</string>
     <string name="title_language_settings">ਭਾਸ਼ਾ ਸੈਟਿੰਗਾਂ</string>
     <string name="label_app_language">ਐਪ ਭਾਸ਼ਾ</string>
-    <string name="desc_language_changes_ledger">ਲੇਜਰ ਲੇਬਲ ਤੇ ਲੈਣ-ਦੇਣ ਸ਼੍ਰੇਣੀਆਂ ਬਦਲਦਾ ਹੈ</string>
+    <string name="desc_language_changes_ledger">ਚੁਣੀ ਗਈ ਭਾਸ਼ਾ ਪੂਰੀ ਐਪ ਵਿੱਚ ਵਰਤੀ ਜਾਵੇਗੀ।</string>
     <string name="label_locales_count">%d ਭਾਸ਼ਾਵਾਂ</string>
     <string name="label_search_language">ਭਾਸ਼ਾ ਜਾਂ ਲੋਕੇਲ ਖੋਜੋ…</string>
     <string name="label_available_dialects">ਉਪਲਬਧ ਬੋਲੀਆਂ</string>
     <string name="label_suggested_installed">ਸੁਝਾਏ ਤੇ ਇੰਸਟਾਲ</string>
+        <string name="label_pick_from_languages">%d ਭਾਸ਼ਾਵਾਂ ਵਿੱਚੋਂ ਚੁਣੋ</string>
     <string name="label_languages_available">%d ਉਪਲਬਧ</string>
     <string name="label_apply_language">ਭਾਸ਼ਾ ਲਾਗੂ ਕਰੋ</string>
     <string name="label_auto">ਆਪਣੇ ਆਪ</string>
@@ -1557,6 +1558,11 @@
     <string name="title_sms_detection">SMS ਖੋਜ</string>
     <string name="msg_sms_permission_needed">SMS ਖੋਜ ਲਈ SMS ਦੀ ਆਗਿਆ ਲੋੜੀਂਦੀ ਹੈ। ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ ਤੇ ਬੈਂਕ ਲੈਣ-ਦੇਣ ਸੁਨੇਹੇ ਆਪਣੇ ਆਪ ਖੋਜਣ ਲਈ ਆਗਿਆ ਦਿਓ।</string>
     <string name="label_open_app_settings">ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ</string>
+    <string name="title_missing_permissions">ਕੁਝ ਇਜਾਜ਼ਤਾਂ ਨਹੀਂ ਹਨ</string>
+    <string name="msg_missing_permissions_intro">ਇਨ੍ਹਾਂ ਤੋਂ ਬਿਨਾਂ ਕੁਝ ਫੀਚਰ ਬੰਦ ਰਹਿਣਗੇ ਜਦ ਤੱਕ ਤੁਸੀਂ ਸਿਸਟਮ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੰਦੇ।</string>
+    <string name="msg_missing_permission_notifications">ਸੂਚਨਾਵਾਂ — ਰਿਮਾਈਂਡਰ, ਬਜਟ, ਬਿੱਲ ਅਤੇ SMS ਅਲਰਟ ਨਹੀਂ ਦਿਖਣਗੇ।</string>
+    <string name="msg_missing_permission_sms">SMS — ਬੈਂਕ ਸੁਨੇਹੇ ਆਪਣੇ ਆਪ ਨਹੀਂ ਲੱਭ ਸਕਦੇ।</string>
+    <string name="label_open_app_permissions">ਐਪ ਇਜਾਜ਼ਤਾਂ ਖੋਲ੍ਹੋ</string>
     <string name="title_sms_miui_setup">Xiaomi ਡਿਵਾਈਸ ਸੈੱਟਅੱਪ</string>
     <string name="msg_sms_miui_setup_autostart">Xiaomi ਪਿਛੋਕੜ ਵਿੱਚ SMS ਖੋਜ ਰੋਕ ਸਕਦਾ ਹੈ। ਇਸ ਐਪ ਲਈ ਆਟੋਸਟਾਰਟ ਚਾਲੂ ਕਰੋ ਤੇ ਬੈਟਰੀ \"ਕੋਈ ਪਾਬੰਦੀ ਨਹੀਂ\" ਉੱਤੇ ਸੈੱਟ ਕਰੋ।</string>
     <string name="msg_sms_miui_setup_autostart_unknown">ਅਸੀਂ ਆਟੋਸਟਾਰਟ ਆਪਣੇ ਆਪ ਜਾਂਚ ਨਹੀਂ ਸਕੇ। ਐਪ ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ ਤੇ ਇਸ ਐਪ ਲਈ ਆਟੋਸਟਾਰਟ ਚਾਲੂ ਕਰੋ।</string>
@@ -1977,7 +1983,9 @@
     <string name="msg_feedback_empty">ਫੀਡਬੈਕ ਖਾਲੀ ਨਹੀਂ ਹੋ ਸਕਦਾ।</string>
     <string name="title_view_by">ਇਸ ਅਨੁਸਾਰ ਵੇਖੋ</string>
     <string name="label_welcome_back_comma">ਮੁੜ ਸਵਾਗਤ,</string>
-    <string name="msg_welcome_back_subtitle">ਤੁਸੀਂ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਤਿਆਰ ਹੋ!</string>
+    <string name="msg_welcome_back_subtitle">ਤੁਹਾਡਾ ਵਰਕਸਪੇਸ ਤਿਆਰ ਹੈ — ਜਿੱਥੇ ਛੱਡਿਆ ਸੀ ਉੱਥੋਂ ਜਾਰੀ ਰੱਖੋ।</string>
+    <string name="label_signed_in_as">%1$s ਵਜੋਂ ਸਾਈਨ ਇਨ</string>
+    <string name="label_hi_sticker">ਹਾਏ</string>
     <string name="label_your_goal">ਤੁਹਾਡਾ ਵਿੱਤੀ ਟੀਚਾ</string>
     <string name="label_welcome_back_fallback">ਦੋਸਤ</string>
     <string name="label_show_more">ਹੋਰ ਦਿਖਾਓ</string>

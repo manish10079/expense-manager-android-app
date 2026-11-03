@@ -3263,6 +3263,11 @@
     <string name="msg_sms_permission_needed">SMS ଡିଟେକସନକୁ SMS ପରମିସନ ଦରକାର। ବ୍ୟାଙ୍କ ମେସେଜ ଅଟୋ ଧରିବାକୁ ସେଟିଂ ଖୋଲି ଅନୁମତି ଦିଅ।</string>
 
     <string name="label_open_app_settings">ସେଟିଂ ଖୋଲ</string>
+    <string name="title_missing_permissions">କିଛି ଅନୁମତି ନାହିଁ</string>
+    <string name="msg_missing_permissions_intro">ଏହା ବିନା କିଛି ସୁବିଧା ବନ୍ଦ ରହିବ ଯେପର୍ଯ୍ୟନ୍ତ ଆପଣ ସିଷ୍ଟମ୍ ସେଟିଂରେ ଅନୁମତି ନ ଦିଅନ୍ତି।</string>
+    <string name="msg_missing_permission_notifications">ବିଜ୍ଞପ୍ତି — ରିମାଇଣ୍ଡର, ବଜେଟ୍, ବିଲ୍ ଏବଂ SMS ଆଲର୍ଟ ଦେଖାଯିବ ନାହିଁ।</string>
+    <string name="msg_missing_permission_sms">SMS — ବ୍ୟାଙ୍କ ସନ୍ଦେଶ ସ୍ୱୟଂଚାଳିତ ଭାବେ ଚିହ୍ନଟ ହୋଇପାରିବ ନାହିଁ।</string>
+    <string name="label_open_app_permissions">ଆପ୍ ଅନୁମତି ଖୋଲନ୍ତୁ</string>
 
     <string name="title_sms_miui_setup">Xiaomi ଡିଭାଇସ ସେଟଅପ</string>
 
@@ -4115,7 +4120,9 @@
 
     <string name="label_welcome_back_comma">ଫେରି ଆସିବାକୁ ସ୍ୱାଗତ,</string>
 
-    <string name="msg_welcome_back_subtitle">ତୁମେ ପୁଣି ଝାମ୍ପ ଦେବାକୁ ପ୍ରସ୍ତୁତ!</string>
+    <string name="msg_welcome_back_subtitle">ଆପଣଙ୍କ ୱର୍କସ୍ପେସ ପ୍ରସ୍ତୁତ — ଛାଡ଼ିଥିବା ସ୍ଥାନରୁ ଜାରି ରଖନ୍ତୁ।</string>
+    <string name="label_signed_in_as">%1$s ଭାବରେ ସାଇନ୍ ଇନ୍</string>
+    <string name="label_hi_sticker">ହାଇ</string>
 
     <string name="label_your_goal">ତୁମ ଫାଇନାନ୍ସ ଲକ୍ଷ୍ୟ</string>
 
@@ -4614,4 +4621,6 @@
         <item quantity="one">%d फ़ोटो चुनी गई</item>
         <item quantity="other">%d फ़ोटो चुनी गईं</item>
     </plurals>
+    <string name="desc_language_changes_ledger">ବଛା ଯାଇଥିବା ଭାଷା ସମଗ୍ର ଆପ୍‌ରେ ବ୍ୟବହୃତ ହେବ।</string>
+    <string name="label_pick_from_languages">%d ଟି ଭାଷାରୁ ବାଛନ୍ତୁ</string>
 </resources>

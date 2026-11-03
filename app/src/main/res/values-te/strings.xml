@@ -1032,6 +1032,11 @@
     <string name="title_sms_detection">SMS గుర్తింపు</string>
     <string name="msg_sms_permission_needed">SMS గుర్తింపుకు SMS అనుమతి అవసరం. బ్యాంకు లావాదేవీ సందేశాలను స్వయంచాలకంగా గుర్తించడానికి సెట్టింగ్‌లు తెరిచి అనుమతి ఇవ్వండి.</string>
     <string name="label_open_app_settings">సెట్టింగ్‌లు తెరవండి</string>
+    <string name="title_missing_permissions">కొన్ని అనుమతులు లేవు</string>
+    <string name="msg_missing_permissions_intro">సిస్టమ్ సెట్టింగ్స్‌లో అనుమతించే వరకు కొన్ని ఫీచర్లు ఆఫ్‌గా ఉంటాయి.</string>
+    <string name="msg_missing_permission_notifications">నోటిఫికేషన్లు — రిమైండర్లు, బడ్జెట్, బిల్లులు మరియు SMS అలర్ట్‌లు కనిపించవు.</string>
+    <string name="msg_missing_permission_sms">SMS — బ్యాంక్ సందేశాలను ఆటోమేటిక్‌గా గుర్తించలేం.</string>
+    <string name="label_open_app_permissions">యాప్ అనుమతులు తెరవండి</string>
     <string name="title_sms_miui_setup">Xiaomi పరికర సెటప్</string>
     <string name="msg_sms_miui_setup_autostart">Xiaomi నేపథ్యంలో SMS గుర్తింపును బ్లాక్ చేయవచ్చు. ఈ యాప్‌కు ఆటోస్టార్ట్ ఆన్ చేసి, బ్యాటరీని “పరిమితులు లేవు”కు పెట్టండి.</string>
     <string name="msg_sms_miui_setup_autostart_unknown">ఆటోస్టార్ట్‌ను స్వయంచాలకంగా నిర్ధారించలేకపోయాం. యాప్ సెట్టింగ్‌లు తెరిచి ఈ యాప్‌కు ఆటోస్టార్ట్ ఆన్ చేయండి.</string>
@@ -1443,11 +1448,12 @@
     <string name="label_language_system">సిస్టమ్ డిఫాల్ట్</string>
     <string name="title_language_settings">భాషా సెట్టింగ్‌లు</string>
     <string name="label_app_language">యాప్ భాష</string>
-    <string name="desc_language_changes_ledger">లెడ్జర్ లేబుల్‌లు &amp; లావాదేవీ వర్గాలను మారుస్తుంది</string>
+    <string name="desc_language_changes_ledger">ఎంచుకున్న భాష యాప్ అంతటా ఉపయోగిస్తారు.</string>
     <string name="label_locales_count">%d లొకేల్‌లు</string>
     <string name="label_search_language">భాష లేదా లొకేల్ వెతకండి…</string>
     <string name="label_available_dialects">అందుబాటులో ఉన్న మాండలికాలు</string>
     <string name="label_suggested_installed">సూచించినవి &amp; ఇన్‌స్టాల్ చేసినవి</string>
+        <string name="label_pick_from_languages">%d భాషల నుంచి ఎంచుకోండి</string>
     <string name="label_languages_available">%d అందుబాటులో</string>
     <string name="label_apply_language">భాష వర్తించండి</string>
     <string name="label_auto">ఆటో</string>
@@ -2049,7 +2055,9 @@
     <string name="msg_feedback_empty">అభిప్రాయం ఖాళీగా ఉండకూడదు.</string>
     <string name="title_view_by">దీని ప్రకారం చూడండి</string>
     <string name="label_welcome_back_comma">తిరిగి స్వాగతం,</string>
-    <string name="msg_welcome_back_subtitle">మీరు తిరిగి ప్రారంభించడానికి సిద్ధంగా ఉన్నారు!</string>
+    <string name="msg_welcome_back_subtitle">మీ వర్క్‌స్పేస్ సిద్ధం — ఆపిన చోటు నుంచి కొనసాగించండి.</string>
+    <string name="label_signed_in_as">%1$sగా సైన్ ఇన్ అయ్యారు</string>
+    <string name="label_hi_sticker">హాయ్</string>
     <string name="label_your_goal">మీ ఆర్థిక లక్ష్యం</string>
     <string name="label_welcome_back_fallback">మిత్రమా</string>
     <string name="label_show_more">ఎక్కువ చూపించు</string>

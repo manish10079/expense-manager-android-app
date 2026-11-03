@@ -3281,6 +3281,11 @@
     <string name="msg_sms_permission_needed">Для обнаружения SMS нужно разрешение. Открой настройки и разреши автоматически находить банковские сообщения.</string>
 
     <string name="label_open_app_settings">Открыть настройки</string>
+    <string name="title_missing_permissions">Не хватает разрешений</string>
+    <string name="msg_missing_permissions_intro">Без них часть функций будет выключена, пока вы не разрешите их в настройках.</string>
+    <string name="msg_missing_permission_notifications">Уведомления — напоминания, бюджеты, счета и SMS-оповещения не появятся.</string>
+    <string name="msg_missing_permission_sms">SMS — банковские сообщения нельзя определять автоматически.</string>
+    <string name="label_open_app_permissions">Открыть разрешения</string>
 
     <string name="title_sms_miui_setup">Настройка устройства Xiaomi</string>
 
@@ -4139,7 +4144,9 @@
 
     <string name="label_welcome_back_comma">С возвращением,</string>
 
-    <string name="msg_welcome_back_subtitle">Можно сразу продолжить!</string>
+    <string name="msg_welcome_back_subtitle">Рабочее пространство готово — продолжите с того места, где остановились.</string>
+    <string name="label_signed_in_as">Вход выполнен как %1$s</string>
+    <string name="label_hi_sticker">Привет</string>
 
     <string name="label_your_goal">ТВОЯ ФИНАНСОВАЯ ЦЕЛЬ</string>
 
@@ -4638,4 +4645,6 @@
         <item quantity="one">Выбрано фото: %d</item>
         <item quantity="other">Выбрано фото: %d</item>
     </plurals>
+    <string name="desc_language_changes_ledger">Выбранный язык будет использоваться во всём приложении.</string>
+    <string name="label_pick_from_languages">Выберите из %d языков</string>
 </resources>

@@ -735,11 +735,12 @@
     <string name="label_language_system">সিস্টেম ডিফল্ট</string>
     <string name="title_language_settings">ভাষার সেটিংস</string>
     <string name="label_app_language">অ্যাপের ভাষা</string>
-    <string name="desc_language_changes_ledger">খতিয়ানের লেবেল ও লেনদেনের ক্যাটাগরি বদলে যাবে</string>
+    <string name="desc_language_changes_ledger">নির্বাচিত ভাষা পুরো অ্যাপে ব্যবহার হবে।</string>
     <string name="label_locales_count">%d ভাষা</string>
     <string name="label_search_language">ভাষা বা লোকেল খুঁজুন…</string>
     <string name="label_available_dialects">যে রূপগুলো পাওয়া যায়</string>
     <string name="label_suggested_installed">প্রস্তাবিত ও ইনস্টল করা</string>
+        <string name="label_pick_from_languages">%dটি ভাষা থেকে বেছে নিন</string>
     <string name="label_languages_available">%d পাওয়া যায়</string>
     <string name="label_apply_language">ভাষা প্রয়োগ করুন</string>
     <string name="label_auto">স্বয়ংক্রিয়</string>
@@ -1519,6 +1520,11 @@
     <string name="title_sms_detection">এসএমএস শনাক্তকরণ</string>
     <string name="msg_sms_permission_needed">এসএমএস শনাক্তকরণের জন্য এসএমএস অনুমতি দরকার। সেটিংস খুলে অনুমতি দিন, তাহলে ব্যাঙ্ক লেনদেনের বার্তা নিজেই শনাক্ত হবে।</string>
     <string name="label_open_app_settings">সেটিংস খুলুন</string>
+    <string name="title_missing_permissions">কয়েকটি অনুমতি নেই</string>
+    <string name="msg_missing_permissions_intro">এগুলো ছাড়া কিছু ফিচার বন্ধ থাকবে যতক্ষণ না আপনি সিস্টেম সেটিংসে অনুমতি দেন।</string>
+    <string name="msg_missing_permission_notifications">বিজ্ঞপ্তি — রিমাইন্ডার, বাজেট, বিল ও SMS অ্যালার্ট দেখা যাবে না।</string>
+    <string name="msg_missing_permission_sms">SMS — ব্যাংকের মেসেজ স্বয়ংক্রিয়ভাবে শনাক্ত করা যায় না।</string>
+    <string name="label_open_app_permissions">অ্যাপ অনুমতি খুলুন</string>
     <string name="title_sms_miui_setup">শাওমি ডিভাইসের সেটআপ</string>
     <string name="msg_sms_miui_setup_autostart">শাওমি পেছনে এসএমএস শনাক্তকরণ আটকে দিতে পারে। এই অ্যাপের অটোস্টার্ট চালু করুন এবং ব্যাটারি "কোনো সীমা নেই" করুন।</string>
     <string name="msg_sms_miui_setup_autostart_unknown">অটোস্টার্ট নিজে থেকে যাচাই করা যায়নি। অ্যাপের সেটিংস খুলে এই অ্যাপের অটোস্টার্ট চালু করুন।</string>
@@ -1936,7 +1942,9 @@
     <string name="msg_feedback_empty">মতামত খালি রাখা যাবে না।</string>
     <string name="title_view_by">দেখার ধরন</string>
     <string name="label_welcome_back_comma">ফিরে আসায় স্বাগতম,</string>
-    <string name="msg_welcome_back_subtitle">আপনি আবার শুরু করতে তৈরি!</string>
+    <string name="msg_welcome_back_subtitle">আপনার ওয়ার্কস্পেস প্রস্তুত — যেখানে ছেড়েছিলেন সেখান থেকে শুরু করুন।</string>
+    <string name="label_signed_in_as">%1$s হিসেবে সাইন ইন</string>
+    <string name="label_hi_sticker">হাই</string>
     <string name="label_your_goal">আপনার আর্থিক লক্ষ্য</string>
     <string name="label_welcome_back_fallback">বন্ধু</string>
     <string name="label_show_more">আরও দেখান</string>

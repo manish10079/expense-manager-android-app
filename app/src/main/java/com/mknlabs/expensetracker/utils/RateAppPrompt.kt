@@ -1,14 +1,13 @@
 package com.mknlabs.expensetracker.utils
 
 /**
- * Auto Play-store rating sheet: first ask after 7 days **or** 10 transactions
- * (whichever comes first); if skipped, one more ask after 14 days; never after
- * they open Play or two skips.
+ * Auto Play-store rating sheet: never before 7 days of use. After that, a
+ * session coin-flip ([SoftPromptSession]) decides whether this launch offers it.
+ * If skipped, one more ask after 14 days; never after Play submit or two skips.
  */
 object RateAppPrompt {
 
     const val MIN_USAGE_DAYS = 7
-    const val MIN_TRANSACTIONS = 10
     const val RETRY_AFTER_DAYS = 14
     const val MAX_AUTO_PROMPTS = 2
 
@@ -29,11 +28,15 @@ object RateAppPrompt {
         } else {
             0L
         }
-        val enoughUse = transactionCount >= MIN_TRANSACTIONS || daysUsed >= MIN_USAGE_DAYS
-        if (!enoughUse) return false
+        if (daysUsed < MIN_USAGE_DAYS) return false
         if (dismissCount == 0) return true
         if (lastDismissAtMillis <= 0L) return false
         val daysSinceDismiss = (nowMillis - lastDismissAtMillis) / DAY_MS
         return daysSinceDismiss >= RETRY_AFTER_DAYS
     }
+}
+
+/** ~40% of launches after the 7-day gate, so share/rate are not every open. */
+object SoftPromptSession {
+    val offerThisLaunch: Boolean = kotlin.random.Random.nextFloat() < 0.4f
 }

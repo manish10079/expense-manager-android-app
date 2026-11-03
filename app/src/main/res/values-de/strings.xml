@@ -3325,6 +3325,11 @@ privat von Haus aus</string>
     <string name="msg_sms_permission_needed">Für die SMS-Erkennung braucht\'s die SMS-Berechtigung. Öffne die Einstellungen und erlaube sie, damit Bank-Nachrichten automatisch erkannt werden.</string>
 
     <string name="label_open_app_settings">Einstellungen öffnen</string>
+    <string name="title_missing_permissions">Einige Berechtigungen fehlen</string>
+    <string name="msg_missing_permissions_intro">Ohne diese bleiben Funktionen aus, bis du sie in den Systemeinstellungen erlaubst.</string>
+    <string name="msg_missing_permission_notifications">Benachrichtigungen — Erinnerungen, Budgets, Rechnungen und SMS-Hinweise erscheinen nicht.</string>
+    <string name="msg_missing_permission_sms">SMS — Banknachrichten können nicht automatisch erkannt werden.</string>
+    <string name="label_open_app_permissions">App-Berechtigungen öffnen</string>
 
     <string name="title_sms_miui_setup">Xiaomi-Setup</string>
 
@@ -4177,7 +4182,9 @@ privat von Haus aus</string>
 
     <string name="label_welcome_back_comma">Willkommen zurück,</string>
 
-    <string name="msg_welcome_back_subtitle">Du kannst direkt weitermachen!</string>
+    <string name="msg_welcome_back_subtitle">Dein Bereich ist bereit — mach dort weiter, wo du aufgehört hast.</string>
+    <string name="label_signed_in_as">Angemeldet als %1$s</string>
+    <string name="label_hi_sticker">Hi</string>
 
     <string name="label_your_goal">DEIN GELDZIEL</string>
 
@@ -4676,4 +4683,6 @@ privat von Haus aus</string>
         <item quantity="one">%d Foto ausgewählt</item>
         <item quantity="other">%d Fotos ausgewählt</item>
     </plurals>
+    <string name="desc_language_changes_ledger">Die gewählte Sprache wird in der ganzen App verwendet.</string>
+    <string name="label_pick_from_languages">Wähle aus %d Sprachen</string>
 </resources>

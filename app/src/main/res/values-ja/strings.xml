@@ -3320,6 +3320,11 @@
     <string name="msg_sms_permission_needed">SMS検出にはSMS権限が必要。設定を開いて許可すると、銀行メッセージを自動検出するよ。</string>
 
     <string name="label_open_app_settings">設定を開く</string>
+    <string name="title_missing_permissions">許可されていない権限があります</string>
+    <string name="msg_missing_permissions_intro">許可するまで、一部の機能はオフのままです。</string>
+    <string name="msg_missing_permission_notifications">通知 — リマインダー、予算、請求、SMS のアラートが表示されません。</string>
+    <string name="msg_missing_permission_sms">SMS — 銀行メッセージを自動検出できません。</string>
+    <string name="label_open_app_permissions">アプリの権限を開く</string>
 
     <string name="title_sms_miui_setup">Xiaomi端末の設定</string>
 
@@ -4172,7 +4177,9 @@
 
     <string name="label_welcome_back_comma">おかえり、</string>
 
-    <string name="msg_welcome_back_subtitle">すぐ再開できるよ！</string>
+    <string name="msg_welcome_back_subtitle">ワークスペースの準備ができました。続きから再開できます。</string>
+    <string name="label_signed_in_as">%1$s としてサインイン中</string>
+    <string name="label_hi_sticker">Hi</string>
 
     <string name="label_your_goal">家計の目標</string>
 
@@ -4671,4 +4678,6 @@
         <item quantity="one">%d枚の写真を選択</item>
         <item quantity="other">%d枚の写真を選択</item>
     </plurals>
+    <string name="desc_language_changes_ledger">選択した言語がアプリ全体で使われます。</string>
+    <string name="label_pick_from_languages">%d言語から選ぶ</string>
 </resources>

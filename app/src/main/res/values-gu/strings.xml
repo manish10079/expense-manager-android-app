@@ -751,11 +751,12 @@
     <string name="label_language_system">સિસ્ટમ ડિફૉલ્ટ</string>
     <string name="title_language_settings">ભાષા સેટિંગ</string>
     <string name="label_app_language">એપની ભાષા</string>
-    <string name="desc_language_changes_ledger">લેજર લેબલ અને વ્યવહાર શ્રેણીઓ બદલે છે</string>
+    <string name="desc_language_changes_ledger">પસંદ કરેલી ભાષા આખી એપમાં વપરાશે.</string>
     <string name="label_locales_count">%d ભાષાઓ</string>
     <string name="label_search_language">ભાષા કે લોકેલ શોધો…</string>
     <string name="label_available_dialects">ઉપલબ્ધ બોલીઓ</string>
     <string name="label_suggested_installed">સૂચવેલી અને ઇન્સ્ટોલ થયેલી</string>
+        <string name="label_pick_from_languages">%d ભાષામાંથી પસંદ કરો</string>
     <string name="label_languages_available">%d ઉપલબ્ધ</string>
     <string name="label_apply_language">ભાષા લાગુ કરો</string>
     <string name="label_auto">ઑટો</string>
@@ -1557,6 +1558,11 @@
     <string name="title_sms_detection">SMS શોધ</string>
     <string name="msg_sms_permission_needed">SMS શોધ માટે SMS પરવાનગી જરૂરી છે. સેટિંગ ખોલો અને બેંક વ્યવહારના સંદેશા આપોઆપ શોધવા પરવાનગી આપો.</string>
     <string name="label_open_app_settings">સેટિંગ ખોલો</string>
+    <string name="title_missing_permissions">થોડી પરવાનગીઓ ખૂટે છે</string>
+    <string name="msg_missing_permissions_intro">આ વગર કેટલીક સુવિધાઓ બંધ રહેશે જ્યાં સુધી તમે સિસ્ટમ સેટિંગ્સમાં પરવાનગી ન આપો.</string>
+    <string name="msg_missing_permission_notifications">નોટિફિકેશન — રિમાઇન્ડર, બજેટ, બિલ અને SMS અલર્ટ દેખાશે નહીં.</string>
+    <string name="msg_missing_permission_sms">SMS — બેંકના સંદેશા આપમેળે શોધી શકાતા નથી.</string>
+    <string name="label_open_app_permissions">એપ પરવાનગીઓ ખોલો</string>
     <string name="title_sms_miui_setup">Xiaomi ઉપકરણ સેટઅપ</string>
     <string name="msg_sms_miui_setup_autostart">Xiaomi બેકગ્રાઉન્ડમાં SMS શોધ અટકાવી શકે છે. આ એપ માટે ઑટોસ્ટાર્ટ ચાલુ કરો અને બૅટરી “કોઈ પ્રતિબંધ નથી” પર સેટ કરો.</string>
     <string name="msg_sms_miui_setup_autostart_unknown">અમે ઑટોસ્ટાર્ટ આપોઆપ ચકાસી શક્યા નથી. એપ સેટિંગ ખોલો અને આ એપ માટે ઑટોસ્ટાર્ટ ચાલુ કરો.</string>
@@ -1977,7 +1983,9 @@
     <string name="msg_feedback_empty">પ્રતિસાદ ખાલી ન હોઈ શકે.</string>
     <string name="title_view_by">આ પ્રમાણે જુઓ</string>
     <string name="label_welcome_back_comma">પાછા સ્વાગત છે,</string>
-    <string name="msg_welcome_back_subtitle">તમે ફરી શરૂ કરવા તૈયાર છો!</string>
+    <string name="msg_welcome_back_subtitle">તમારું વર્કસ્પેસ તૈયાર છે — જ્યાં છોડ્યું હતું ત્યાંથી ચાલુ કરો.</string>
+    <string name="label_signed_in_as">%1$s તરીકે સાઇન ઇન</string>
+    <string name="label_hi_sticker">હાય</string>
     <string name="label_your_goal">તમારું નાણાકીય લક્ષ્ય</string>
     <string name="label_welcome_back_fallback">મિત્ર</string>
     <string name="label_show_more">વધુ બતાવો</string>

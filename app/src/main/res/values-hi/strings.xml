@@ -2976,6 +2976,11 @@
     <string name="msg_sms_permission_needed">SMS से पहचान के लिए अनुमति की ज़रूरत है। ऑटोमैटिक पहचान के लिए सेटिंग्स खोलकर अनुमति दें।</string>
 
     <string name="label_open_app_settings">सेटिंग्स खोलें</string>
+    <string name="title_missing_permissions">कुछ अनुमतियाँ नहीं दी गई हैं</string>
+    <string name="msg_missing_permissions_intro">इनके बिना कुछ सुविधाएँ बंद रहेंगी जब तक आप सिस्टम सेटिंग्स में अनुमति न दें।</string>
+    <string name="msg_missing_permission_notifications">सूचनाएँ — रिमाइंडर, बजट, बिल और SMS अलर्ट नहीं दिखेंगे।</string>
+    <string name="msg_missing_permission_sms">SMS — बैंक संदेश अपने आप नहीं पहचाने जा सकते।</string>
+    <string name="label_open_app_permissions">ऐप अनुमतियाँ खोलें</string>
 
     <string name="title_sms_miui_setup">Xiaomi / Poco डिवाइस सेटअप</string>
 
@@ -3720,7 +3725,9 @@
 
     <string name="label_welcome_back_comma">वापसी पर स्वागत है,</string>
 
-    <string name="msg_welcome_back_subtitle">आप काम शुरू करने के लिए बिल्कुल तैयार हैं!</string>
+    <string name="msg_welcome_back_subtitle">आपका वर्कस्पेस तैयार है — जहाँ छोड़ा था वहीं से जारी रखें।</string>
+    <string name="label_signed_in_as">%1$s के रूप में साइन इन</string>
+    <string name="label_hi_sticker">हाय</string>
 
     <string name="label_your_goal">आपका आर्थिक लक्ष्य</string>
 
@@ -4248,4 +4255,6 @@
         <item quantity="one">%d फ़ोटो चुनी गई</item>
         <item quantity="other">%d फ़ोटो चुनी गईं</item>
     </plurals>
+    <string name="desc_language_changes_ledger">चुनी गई भाषा पूरे ऐप में इस्तेमाल होगी।</string>
+    <string name="label_pick_from_languages">%d भाषाओं में से चुनें</string>
 </resources>

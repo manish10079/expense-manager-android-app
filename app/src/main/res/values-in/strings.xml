@@ -3320,6 +3320,11 @@ privat dari sifat</string>
     <string name="msg_sms_permission_needed">Deteksi SMS butuh izin SMS. Buka pengaturan dan izinkan buat deteksi pesan bank otomatis.</string>
 
     <string name="label_open_app_settings">Buka pengaturan</string>
+    <string name="title_missing_permissions">Beberapa izin belum diberikan</string>
+    <string name="msg_missing_permissions_intro">Tanpa ini, beberapa fitur tetap mati sampai Anda izinkan di pengaturan sistem.</string>
+    <string name="msg_missing_permission_notifications">Notifikasi — pengingat, anggaran, tagihan, dan peringatan SMS tidak muncul.</string>
+    <string name="msg_missing_permission_sms">SMS — pesan bank tidak bisa dideteksi otomatis.</string>
+    <string name="label_open_app_permissions">Buka izin aplikasi</string>
 
     <string name="title_sms_miui_setup">Pengaturan perangkat Xiaomi</string>
 
@@ -4172,7 +4177,9 @@ privat dari sifat</string>
 
     <string name="label_welcome_back_comma">Selamat datang kembali,</string>
 
-    <string name="msg_welcome_back_subtitle">Kamu siap langsung lanjut!</string>
+    <string name="msg_welcome_back_subtitle">Ruang kerjamu siap — lanjutkan dari terakhir kali.</string>
+    <string name="label_signed_in_as">Masuk sebagai %1$s</string>
+    <string name="label_hi_sticker">Hai</string>
 
     <string name="label_your_goal">TUJUAN KEUANGANMU</string>
 
@@ -4671,4 +4678,6 @@ privat dari sifat</string>
         <item quantity="one">%d foto dipilih</item>
         <item quantity="other">%d foto dipilih</item>
     </plurals>
+    <string name="desc_language_changes_ledger">Bahasa yang dipilih akan dipakai di seluruh aplikasi.</string>
+    <string name="label_pick_from_languages">Pilih dari %d bahasa</string>
 </resources>

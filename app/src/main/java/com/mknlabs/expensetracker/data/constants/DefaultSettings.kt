@@ -23,7 +23,7 @@ val DEFAULT_SORT_ORDER: SortType = getDefaultOrder(DEFAULT_SORT_BY)
 const val DEFAULT_TRANSACTION_TYPE_ID = 2
 const val DEFAULT_TRANSACTION_TYPE_FILTER_ID = 2
 const val DEFAULT_PAYMENT_TYPE_ID = 1
-const val DEFAULT_LANGUAGE_CODE = "en"
+const val DEFAULT_LANGUAGE_CODE = SYSTEM_LANGUAGE_CODE
 const val DEFAULT_NOTIFICATIONS_ENABLED = true
 // All notification toggles default ON for every tier (free + pro) so users opt OUT,
 // not in. The per-user saved choice still wins once a user touches a toggle.
@@ -61,7 +61,7 @@ const val DEFAULT_SMART_SMS_PROMPTED = false
 const val DEFAULT_SMS_PERMISSION_CARD_DISMISSED = false
 const val DEFAULT_SMS_MIUI_SETUP_ACKNOWLEDGED = false
 const val DEFAULT_DEVICE_INTEGRITY_NOTICE_ACKNOWLEDGED = false
-val DEFAULT_THEME_MODE = AppThemeMode.DARK
+val DEFAULT_THEME_MODE = AppThemeMode.SYSTEM
 const val DEFAULT_TRANSACTION_CARD_SHOW_INCOME_EXPENSE_LABELS = false
 // The date is the useful half of a transaction timestamp, so it ships on; the clock ships
 // off to keep the card's second row quiet. Both are one tap away in the card

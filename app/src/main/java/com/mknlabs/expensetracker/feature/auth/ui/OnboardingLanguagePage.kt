@@ -76,11 +76,6 @@ fun OnboardingLanguagePage(
             }
         }
     }
-    val selectedLabel = supportedAppLanguages
-        .firstOrNull { it.code == selectedCode }
-        ?.nativeName
-        ?: stringResource(R.string.label_language_system)
-
     val banner = if (dark) Color(0xFF1A1B21) else Color.White
     val searchFill = if (dark) Color(0xFF1E1F25) else Color.White
     val rowIdle = if (dark) Color(0xFF1A1B21) else Color.White
@@ -91,7 +86,6 @@ fun OnboardingLanguagePage(
     val ink = MaterialTheme.colorScheme.accentInk
     Column(modifier = modifier.fillMaxSize()) {
         LanguageOverviewBanner(
-            localeCount = supportedAppLanguages.size,
             container = banner,
             ink = ink
         )
@@ -103,47 +97,20 @@ fun OnboardingLanguagePage(
             outlined = !dark
         )
         Spacer(Modifier.height(12.dp))
-        Row(
+        Text(
+            text = stringResource(
+                R.string.label_pick_from_languages,
+                supportedAppLanguages.size
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.8.sp
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (dark) {
-                    stringResource(R.string.label_available_dialects)
-                } else {
-                    stringResource(R.string.label_suggested_installed)
-                },
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.8.sp
-                )
-            )
-            if (dark) {
-                Text(
-                    text = selectedLabel,
-                    color = ink,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium)
-                )
-            } else {
-                Text(
-                    text = stringResource(
-                        R.string.label_languages_available,
-                        supportedAppLanguages.size
-                    ),
-                    color = ink,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(ink.copy(alpha = 0.12f))
-                        .border(1.dp, ink.copy(alpha = 0.28f), RoundedCornerShape(50))
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
-                )
-            }
-        }
+        )
         Spacer(Modifier.height(8.dp))
         LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
             if (filtered.isEmpty()) {
@@ -172,7 +139,6 @@ fun OnboardingLanguagePage(
 
 @Composable
 private fun LanguageOverviewBanner(
-    localeCount: Int,
     container: Color,
     ink: Color
 ) {
@@ -184,20 +150,12 @@ private fun LanguageOverviewBanner(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFF282A2F)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = PhosphorIcons.Regular.Globe,
-                contentDescription = null,
-                tint = ink,
-                modifier = Modifier.size(22.dp)
-            )
-        }
+        Icon(
+            imageVector = PhosphorIcons.Regular.Globe,
+            contentDescription = null,
+            tint = ink,
+            modifier = Modifier.size(22.dp)
+        )
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -213,18 +171,6 @@ private fun LanguageOverviewBanner(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Text(
-            text = stringResource(R.string.label_locales_count, localeCount),
-            color = ink,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.6.sp
-            ),
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(Color(0xFF33353A))
-                .padding(horizontal = 8.dp, vertical = 2.dp)
-        )
     }
 }
 

@@ -727,11 +727,12 @@
     <string name="label_language_system">ছিষ্টেম পূৰ্বনিৰ্ধাৰিত</string>
     <string name="title_language_settings">ভাষা ছেটিংছ</string>
     <string name="label_app_language">এপৰ ভাষা</string>
-    <string name="desc_language_changes_ledger">লেজাৰ লেবেল আৰু লেনদেন শ্ৰেণী সলনি কৰে</string>
+    <string name="desc_language_changes_ledger">বাছনি কৰা ভাষা গোটেই এপটোত ব্যৱহাৰ হ\'ব।</string>
     <string name="label_locales_count">%d টা ল\'কেল</string>
     <string name="label_search_language">ভাষা বা ল\'কেল সন্ধান কৰক…</string>
     <string name="label_available_dialects">উপলব্ধ উপভাষা</string>
     <string name="label_suggested_installed">পৰামৰ্শিত আৰু ইনষ্টল কৰা</string>
+        <string name="label_pick_from_languages">%d টা ভাষাৰ পৰা বাছক</string>
     <string name="label_languages_available">%d উপলব্ধ</string>
     <string name="label_apply_language">ভাষা প্ৰয়োগ কৰক</string>
     <string name="label_auto">স্বয়ং</string>
@@ -1505,6 +1506,11 @@
     <string name="title_sms_detection">SMS চিনাক্তকৰণ</string>
     <string name="msg_sms_permission_needed">SMS চিনাক্তকৰণৰ বাবে SMS অনুমতি প্ৰয়োজন। ছেটিংছ খুলি বেংক লেনদেনৰ বাৰ্তা স্বয়ংক্ৰিয়ভাৱে চিনাক্ত কৰিবলৈ অনুমতি দিয়ক।</string>
     <string name="label_open_app_settings">ছেটিংছ খোলক</string>
+    <string name="title_missing_permissions">কিছু অনুমতি নাই</string>
+    <string name="msg_missing_permissions_intro">এইবোৰ নহ’লে কিছু সুবিধা বন্ধ থাকিব যেতিয়ালৈকে আপুনি ছিষ্টেম ছেটিংছত অনুমতি নিদিয়ে।</string>
+    <string name="msg_missing_permission_notifications">জাননী — ৰিমাইণ্ডাৰ, বাজেট, বিল আৰু SMS এলাৰ্ট দেখা নাযাব।</string>
+    <string name="msg_missing_permission_sms">SMS — বেংকৰ বাৰ্তা স্বয়ংক্ৰিয়ভাৱে চিনাক্ত কৰিব নোৱাৰি।</string>
+    <string name="label_open_app_permissions">এপৰ অনুমতি খোলক</string>
     <string name="title_sms_miui_setup">Xiaomi ডিভাইচ ছেটআপ</string>
     <string name="msg_sms_miui_setup_autostart">Xiaomi এ পটভূমিত SMS চিনাক্তকৰণ ব্লক কৰিব পাৰে। এই এপৰ বাবে অট\'ষ্টাৰ্ট সক্ৰিয় কৰি বেটাৰীক “কোনো নিষেধাজ্ঞা নাই”-লৈ ছেট কৰক।</string>
     <string name="msg_sms_miui_setup_autostart_unknown">আমি অট\'ষ্টাৰ্ট স্বয়ংক্ৰিয়ভাৱে পৰীক্ষা কৰিব পৰা নগ\'ল। এপ ছেটিংছ খুলি এই এপৰ বাবে অট\'ষ্টাৰ্ট সক্ৰিয় কৰক।</string>
@@ -1908,7 +1914,9 @@
     <string name="msg_feedback_empty">মতামত খালী হ\'ব নোৱাৰে।</string>
     <string name="title_view_by">এইয়াৰ ভিত্তিত চাওক</string>
     <string name="label_welcome_back_comma">পুনৰ স্বাগতম,</string>
-    <string name="msg_welcome_back_subtitle">আপুনি পুনৰ আৰম্ভ কৰিবলৈ সাজু!</string>
+    <string name="msg_welcome_back_subtitle">আপোনাৰ ৱৰ্কস্পেচ সাজু — য’ত এৰিছিল তাতেই আৰম্ভ কৰক।</string>
+    <string name="label_signed_in_as">%1$s হিচাপে ছাইন ইন</string>
+    <string name="label_hi_sticker">হাই</string>
     <string name="label_your_goal">আপোনাৰ বিত্তীয় লক্ষ্য</string>
     <string name="label_welcome_back_fallback">বন্ধু</string>
     <string name="label_show_more">অধিক দেখুৱাওক</string>

@@ -3263,6 +3263,11 @@
     <string name="msg_sms_permission_needed">Il rilevamento SMS serve il permesso SMS. Apri le impostazioni e consenti per rilevare i messaggi bancari in automatico.</string>
 
     <string name="label_open_app_settings">Apri impostazioni</string>
+    <string name="title_missing_permissions">Mancano alcune autorizzazioni</string>
+    <string name="msg_missing_permissions_intro">Senza queste, alcune funzioni restano disattive finché non le consenti nelle impostazioni.</string>
+    <string name="msg_missing_permission_notifications">Notifiche — promemoria, budget, bollette e avvisi SMS non compariranno.</string>
+    <string name="msg_missing_permission_sms">SMS — i messaggi della banca non possono essere rilevati automaticamente.</string>
+    <string name="label_open_app_permissions">Apri autorizzazioni app</string>
 
     <string name="title_sms_miui_setup">Setup dispositivo Xiaomi</string>
 
@@ -4115,7 +4120,9 @@
 
     <string name="label_welcome_back_comma">Bentornato,</string>
 
-    <string name="msg_welcome_back_subtitle">Sei pronto a ripartire subito!</string>
+    <string name="msg_welcome_back_subtitle">Il tuo spazio è pronto — riprendi da dove avevi lasciato.</string>
+    <string name="label_signed_in_as">Accesso come %1$s</string>
+    <string name="label_hi_sticker">Ciao</string>
 
     <string name="label_your_goal">IL TUO OBIETTIVO FINANZIARIO</string>
 
@@ -4614,4 +4621,6 @@
         <item quantity="one">%d foto selezionata</item>
         <item quantity="other">%d foto selezionate</item>
     </plurals>
+    <string name="desc_language_changes_ledger">La lingua selezionata verrà usata in tutta l\'app.</string>
+    <string name="label_pick_from_languages">Scegli tra %d lingue</string>
 </resources>

@@ -433,10 +433,17 @@ private fun OnboardingScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .imePadding()
-                .padding(top = if (isLandscape) 8.dp else Dimens.HeaderSpacing, bottom = if (isLandscape) 8.dp else 16.dp),
+                .then(
+                    if (isWelcomeBackPage) Modifier
+                    else Modifier
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                        .imePadding()
+                        .padding(
+                            top = if (isLandscape) 8.dp else Dimens.HeaderSpacing,
+                            bottom = if (isLandscape) 8.dp else 16.dp,
+                        )
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Main Content Area (Weight 1 pushes footer down, max width keeps it centered on tablets)
@@ -445,7 +452,7 @@ private fun OnboardingScreenContent(
                     .weight(1f)
                     .widthIn(max = 640.dp)
                     .fillMaxWidth()
-                    .then(if (isLanguagePage) Modifier else Modifier.verticalScroll(scrollState)),
+                    .then(if (isLanguagePage || isWelcomeBackPage) Modifier else Modifier.verticalScroll(scrollState)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Illustration Section
@@ -470,7 +477,7 @@ private fun OnboardingScreenContent(
                             }
                         }
                     }
-                } else {
+                } else if (!isWelcomeBackPage) {
                     Spacer(modifier = Modifier.height(if (isLandscape) 16.dp else 48.dp))
                 }
 
@@ -482,6 +489,7 @@ private fun OnboardingScreenContent(
                     // WelcomeBack takes over the full content area
                     WelcomeBackPage(
                         userName = userName,
+                        userEmail = currentUser?.email.orEmpty(),
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
@@ -666,8 +674,10 @@ private fun OnboardingScreenContent(
                     }
                 } // end AnimatedContent
                 } // end if(isWelcomeBackPage) else
-                
-                Spacer(modifier = Modifier.height(32.dp))
+
+                if (!isWelcomeBackPage) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
 
             if (!isAuthPage && !isWelcomeBackPage && !isPromoPage) {
@@ -765,138 +775,6 @@ private fun OnboardingPromoPage(
         viewModel = viewModel,
         onDismiss = onFinished,
     )
-}
-
-@Composable
-private fun WelcomeBackPage(
-    userName: String,
-    modifier: Modifier = Modifier,
-    onContinue: (() -> Unit)? = null
-) {
-    val firstName = userName.trim().substringBefore(" ").ifBlank {
-        userName.ifBlank { stringResource(R.string.label_welcome_back_fallback) }
-    }
-
-    // Staggered entrance animations
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
-
-    val waveAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(600, easing = FastOutSlowInEasing),
-        label = "wave_alpha"
-    )
-    val greetingOffset by animateDpAsState(
-        targetValue = if (visible) 0.dp else 24.dp,
-        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
-        label = "greeting_offset"
-    )
-    val greetingAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
-        label = "greeting_alpha"
-    )
-    val subAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 300, easing = FastOutSlowInEasing),
-        label = "sub_alpha"
-    )
-    val subOffset by animateDpAsState(
-        targetValue = if (visible) 0.dp else 20.dp,
-        animationSpec = tween(700, delayMillis = 300, easing = FastOutSlowInEasing),
-        label = "sub_offset"
-    )
-    val buttonAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 500, easing = FastOutSlowInEasing),
-        label = "button_alpha"
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = Dimens.ScreenPadding)
-            .statusBarsPadding()
-            .navigationBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Wave emoji
-        Text(
-            text = "\uD83D\uDC4B",
-            fontSize = 56.sp,
-            modifier = Modifier.graphicsLayer(alpha = waveAlpha)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // "Welcome back," line
-        Text(
-            text = stringResource(R.string.label_welcome_back_comma),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp
-            ),
-            modifier = Modifier.graphicsLayer(
-                alpha = greetingAlpha,
-                translationY = greetingOffset.value
-            )
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // User's first name, large and bold with gradient
-        Text(
-            text = firstName,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.displaySmall.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 40.sp,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.accentInk,
-                        MaterialTheme.colorScheme.secondary
-                    )
-                )
-            ),
-            modifier = Modifier.graphicsLayer(
-                alpha = greetingAlpha,
-                translationY = greetingOffset.value
-            )
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Sub-message
-        Text(
-            text = stringResource(R.string.msg_welcome_back_subtitle),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = 15.sp,
-                lineHeight = 26.sp
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .graphicsLayer(
-                    alpha = subAlpha,
-                    translationY = subOffset.value
-                )
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        if (onContinue != null) {
-            Box(modifier = Modifier.graphicsLayer(alpha = buttonAlpha)) {
-                PrimaryOnboardingButton(
-                    label = stringResource(R.string.label_continue),
-                    onClick = onContinue
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -1026,7 +904,7 @@ private fun PrimaryOnboardingButton(
         isLandscape -> 56.dp
         else -> 74.dp
     }
-    val buttonShape = if (compact) RoundedCornerShape(16.dp) else RoundedCornerShape(999.dp)
+    val buttonShape = RoundedCornerShape(16.dp)
 
     val buttonModifier = if (enabled) {
         Modifier

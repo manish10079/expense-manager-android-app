@@ -3296,6 +3296,11 @@
     <string name="msg_sms_permission_needed">SMS 감지에는 SMS 권한이 필요해. 설정을 열고 허용하면 은행 메시지를 자동 감지해.</string>
 
     <string name="label_open_app_settings">설정 열기</string>
+    <string name="title_missing_permissions">허용되지 않은 권한이 있어요</string>
+    <string name="msg_missing_permissions_intro">시스템 설정에서 허용하기 전까지 일부 기능이 꺼져 있습니다.</string>
+    <string name="msg_missing_permission_notifications">알림 — 리마인더, 예산, 청구, SMS 알림이 표시되지 않습니다.</string>
+    <string name="msg_missing_permission_sms">SMS — 은행 문자를 자동으로 감지할 수 없습니다.</string>
+    <string name="label_open_app_permissions">앱 권한 열기</string>
 
     <string name="title_sms_miui_setup">Xiaomi 기기 설정</string>
 
@@ -4148,7 +4153,9 @@
 
     <string name="label_welcome_back_comma">다시 왔어,</string>
 
-    <string name="msg_welcome_back_subtitle">바로 이어서 할 수 있어!</string>
+    <string name="msg_welcome_back_subtitle">작업 공간이 준비됐어요. 이어서 진행하세요.</string>
+    <string name="label_signed_in_as">%1$s(으)로 로그인됨</string>
+    <string name="label_hi_sticker">안녕</string>
 
     <string name="label_your_goal">재정 목표</string>
 
@@ -4647,4 +4654,6 @@
         <item quantity="one">사진 %d장 선택됨</item>
         <item quantity="other">사진 %d장 선택됨</item>
     </plurals>
+    <string name="desc_language_changes_ledger">선택한 언어가 앱 전체에 사용됩니다.</string>
+    <string name="label_pick_from_languages">%d개 언어 중에서 선택</string>
 </resources>

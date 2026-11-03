@@ -29,6 +29,9 @@ const val SectionEnterStaggerMs = 90
 
 val LocalLockOverlayActive = compositionLocalOf { false }
 
+/** False while the cold-start splash still covers Home. */
+val LocalSplashGone = compositionLocalOf { true }
+
 /**
  * Section-wise fade-in alphas, one per screen section: the sections start in order but
  * overlap, so a screen's whole entrance costs [SectionEnterDurationMs] plus one

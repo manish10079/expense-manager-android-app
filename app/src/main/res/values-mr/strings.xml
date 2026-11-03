@@ -735,11 +735,12 @@
     <string name="label_language_system">सिस्टम डीफॉल्ट</string>
     <string name="title_language_settings">भाषा सेटिंग्ज</string>
     <string name="label_app_language">अ‍ॅपची भाषा</string>
-    <string name="desc_language_changes_ledger">खतावणीची लेबल आणि व्यवहाराच्या श्रेणी बदलतील</string>
+    <string name="desc_language_changes_ledger">निवडलेली भाषा संपूर्ण अॅपमध्ये वापरली जाईल.</string>
     <string name="label_locales_count">%d भाषा</string>
     <string name="label_search_language">भाषा किंवा लोकेल शोधा…</string>
     <string name="label_available_dialects">उपलब्ध बोली</string>
     <string name="label_suggested_installed">सुचवलेली आणि इन्स्टॉल केलेली</string>
+        <string name="label_pick_from_languages">%d भाषांमधून निवडा</string>
     <string name="label_languages_available">%d उपलब्ध</string>
     <string name="label_apply_language">भाषा लावा</string>
     <string name="label_auto">आपोआप</string>
@@ -1519,6 +1520,11 @@
     <string name="title_sms_detection">एसएमएस ओळख</string>
     <string name="msg_sms_permission_needed">एसएमएस ओळखीसाठी एसएमएस परवानगी आवश्यक आहे. सेटिंग्ज उघडून परवानगी द्या, म्हणजे बँक व्यवहाराचे संदेश आपोआप ओळखले जातील.</string>
     <string name="label_open_app_settings">सेटिंग्ज उघडा</string>
+    <string name="title_missing_permissions">काही परवानग्या नाहीत</string>
+    <string name="msg_missing_permissions_intro">याशिवाय काही वैशिष्ट्ये बंद राहतील जोपर्यंत तुम्ही सिस्टम सेटिंग्जमध्ये परवानगी देत नाही.</string>
+    <string name="msg_missing_permission_notifications">सूचना — रिमाइंडर, बजेट, बिल आणि SMS अलर्ट दिसणार नाहीत.</string>
+    <string name="msg_missing_permission_sms">SMS — बँक संदेश आपोआप ओळखता येत नाहीत.</string>
+    <string name="label_open_app_permissions">अॅप परवानग्या उघडा</string>
     <string name="title_sms_miui_setup">शाओमी डिव्हाइस सेटअप</string>
     <string name="msg_sms_miui_setup_autostart">शाओमी पार्श्वभूमीत एसएमएस ओळख रोखू शकते. या अ‍ॅपसाठी ऑटोस्टार्ट सुरू करा आणि बॅटरी "कोणतेही बंधन नाही" ठेवा.</string>
     <string name="msg_sms_miui_setup_autostart_unknown">ऑटोस्टार्ट स्वतः तपासता आले नाही. अ‍ॅपची सेटिंग्ज उघडून या अ‍ॅपसाठी ऑटोस्टार्ट सुरू करा.</string>
@@ -1938,7 +1944,9 @@
     <string name="msg_feedback_empty">अभिप्राय रिकामा ठेवता येत नाही.</string>
     <string name="title_view_by">दिसण्याचा क्रम</string>
     <string name="label_welcome_back_comma">पुन्हा स्वागत आहे,</string>
-    <string name="msg_welcome_back_subtitle">तुम्ही पुन्हा सुरू करायला तयार आहात!</string>
+    <string name="msg_welcome_back_subtitle">तुमचे वर्कस्पेस तयार आहे — जिथे सोडले होते तिथून पुढे चला.</string>
+    <string name="label_signed_in_as">%1$s म्हणून साइन इन</string>
+    <string name="label_hi_sticker">हाय</string>
     <string name="label_your_goal">तुमचे आर्थिक ध्येय</string>
     <string name="label_welcome_back_fallback">मित्रा</string>
     <string name="label_show_more">अधिक दाखवा</string>

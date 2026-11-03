@@ -109,6 +109,7 @@ import com.mknlabs.expensetracker.feature.auth.ui.OnboardingScreen
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsChangeRoute
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.core.ui.HomeFirstRunPromptGate
 import com.mknlabs.expensetracker.core.ui.MainViewModel
 import com.mknlabs.expensetracker.voice.VoiceAddViewModel
 import com.mknlabs.expensetracker.monetization.MonetizationViewModel
@@ -717,15 +718,15 @@ fun MainScreen(
                 )
             }
 
-            LaunchedEffect(Unit) {
-                // Skip detection entirely once acknowledged or in benchmark builds
-                // (baseline-profile capture runs on an emulator — the notice would
-                // otherwise pollute the profile).
+            val homePermissionsDone by HomeFirstRunPromptGate.permissionsComplete.collectAsStateWithLifecycle()
+            LaunchedEffect(homePermissionsDone, appSettings.deviceIntegrityNoticeAcknowledged) {
                 if (appSettings.deviceIntegrityNoticeAcknowledged ||
                     BuildConfig.BUILD_TYPE == "benchmark"
                 ) {
+                    HomeFirstRunPromptGate.markIntegrityComplete()
                     return@LaunchedEffect
                 }
+                if (!homePermissionsDone) return@LaunchedEffect
                 val isRooted = withContext(Dispatchers.IO) {
                     DeviceIntegrityUtils.isRooted(context)
                 }
@@ -738,6 +739,8 @@ fun MainScreen(
                     )
                 ) {
                     showDeviceIntegrityNotice = true
+                } else {
+                    HomeFirstRunPromptGate.markIntegrityComplete()
                 }
             }
 
@@ -1336,6 +1339,7 @@ fun MainScreen(
         if (showDeviceIntegrityNotice && isUiInteractive) {
             val acknowledgeIntegrityNotice: () -> Unit = {
                 showDeviceIntegrityNotice = false
+                HomeFirstRunPromptGate.markIntegrityComplete()
                 coroutineScope.launch {
                     AppSettingsDataStore.updateAppSettings(context) { settings ->
                         settings.copy(deviceIntegrityNoticeAcknowledged = true)

@@ -81,10 +81,15 @@ import com.mknlabs.expensetracker.models.defaultUserProfile
 import com.mknlabs.expensetracker.models.hasPhoneNumber
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.components.*
+import com.mknlabs.expensetracker.core.ui.HomeFirstRunPromptGate
+import com.mknlabs.expensetracker.core.ui.components.LocalSplashGone
+import com.mknlabs.expensetracker.core.ui.components.MissingPermissionsBottomSheet
+import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.ReferOfferBottomSheet
 import com.mknlabs.expensetracker.data.local.ReferPromptStore
 import com.mknlabs.expensetracker.data.local.RateAppPromptStore
 import com.mknlabs.expensetracker.utils.RateAppPrompt
+import com.mknlabs.expensetracker.utils.LaunchSheetPick
 import kotlinx.coroutines.launch
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
@@ -99,6 +104,10 @@ import com.mknlabs.expensetracker.utils.UiText
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsSetupUiState
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsSetupViewModel
 import com.mknlabs.expensetracker.utils.DeviceVendorUtils
+import com.mknlabs.expensetracker.utils.findFragmentActivity
+import com.mknlabs.expensetracker.utils.PermissionNudge
+import com.mknlabs.expensetracker.data.local.PermissionNudgeState
+import com.mknlabs.expensetracker.data.local.PermissionNudgeStore
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -198,31 +207,62 @@ fun HomeScreen(
     // Flips to true once the notification permission dialog (if any) is resolved,
     // so the SMS prompt never stacks on top of it — it fires right after instead.
     var notificationPromptResolved by remember { mutableStateOf(false) }
+    var osPermissionCycleFinished by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { _ ->
-        // Notification dialog dismissed (Allow / Deny / back) — it is now safe to
-        // show the SMS prompt (the SMS LaunchedEffect waits on this flag).
         notificationPromptResolved = true
     }
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        // Benchmark builds must never pop the runtime permission dialog — it would
-        // cover the UI under test (the Macrobenchmark "See All" journeys depend on
-        // an unobstructed Home screen). BuildConfig.BUILD_TYPE is a compile-time
-        // constant, so R8 folds this gate away in release/debug.
+    val permissionNudge by PermissionNudgeStore.flow(context).collectAsStateWithLifecycle(
+        PermissionNudgeState()
+    )
+    val permissionActivity = context.findFragmentActivity()
+    val splashGone = LocalSplashGone.current
+    val homeVisibleForPrompts = splashGone && !isLockOverlayActive
+    var homeReadyForPermissionUi by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(homeVisibleForPrompts) {
+        if (!homeVisibleForPrompts) {
+            homeReadyForPermissionUi = false
+            osPermissionCycleFinished = false
+            return@LaunchedEffect
+        }
+        delay(400)
+        homeReadyForPermissionUi = true
+    }
+
+    androidx.compose.runtime.LaunchedEffect(
+        homeReadyForPermissionUi,
+        permissionNudge.notificationAskCount,
+        permissionNudge.notificationLastAskAtMillis,
+    ) {
+        if (!homeReadyForPermissionUi) return@LaunchedEffect
         val isBenchmarkBuild = BuildConfig.BUILD_TYPE == "benchmark"
         val notificationGranted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isBenchmarkBuild && !notificationGranted) {
-            // Show the notification prompt FIRST; the SMS prompt waits for its
-            // dismissal (see permissionLauncher callback above).
+        val canAskNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !isBenchmarkBuild
+        val rationale = permissionActivity?.let {
+            androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+                it,
+                Manifest.permission.POST_NOTIFICATIONS,
+            )
+        } ?: true
+        val ask = canAskNotifications && PermissionNudge.shouldAsk(
+            granted = notificationGranted,
+            askCount = permissionNudge.notificationAskCount,
+            lastAskAtMillis = permissionNudge.notificationLastAskAtMillis,
+            nowMillis = System.currentTimeMillis(),
+            intervalDays = 0,
+            canShowRationale = rationale,
+        )
+        if (ask) {
+            osPermissionCycleFinished = false
+            PermissionNudgeStore.markNotificationAsked(context)
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            // Notification already granted, or no prompt on this API level / in
-            // benchmark builds — nothing to wait for, so the SMS prompt may fire.
             notificationPromptResolved = true
         }
     }
@@ -235,7 +275,11 @@ fun HomeScreen(
     // (no prompt needed); on API 34+ a denial is permanently blocked by the OS.
     val smsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { _ -> smsPermissionCheckTrigger++ }
+    ) { _ ->
+        smsPermissionCheckTrigger++
+        osPermissionCycleFinished = true
+        HomeFirstRunPromptGate.markPermissionsComplete()
+    }
 
     // Smart SMS setup cards (permission resilience + MIUI guidance): re-evaluated
     // whenever the permission state changes (bump the trigger) or app settings
@@ -245,14 +289,36 @@ fun HomeScreen(
     val smsSetupUiState by smsSetupViewModel.uiState.collectAsStateWithLifecycle()
     val smsSetupScope = rememberCoroutineScope()
 
-    androidx.compose.runtime.LaunchedEffect(appSettings?.smartSmsPrompted, notificationPromptResolved) {
+    androidx.compose.runtime.LaunchedEffect(
+        homeReadyForPermissionUi,
+        appSettings?.smartSmsPrompted,
+        notificationPromptResolved,
+        permissionNudge.smsAskCount,
+        permissionNudge.smsLastAskAtMillis,
+    ) {
+        if (!homeReadyForPermissionUi) return@LaunchedEffect
+        val smsGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.RECEIVE_SMS
+        ) == PackageManager.PERMISSION_GRANTED
+        val smsRationale = permissionActivity?.let {
+            androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+                it,
+                Manifest.permission.RECEIVE_SMS,
+            )
+        } ?: true
         val shouldPrompt = notificationPromptResolved &&
             appSettings != null &&
-            !appSettings.smartSmsPrompted &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) !=
-            PackageManager.PERMISSION_GRANTED
+            PermissionNudge.shouldAsk(
+                granted = smsGranted,
+                askCount = permissionNudge.smsAskCount,
+                lastAskAtMillis = permissionNudge.smsLastAskAtMillis,
+                nowMillis = System.currentTimeMillis(),
+                intervalDays = 0,
+                canShowRationale = smsRationale,
+            )
         if (shouldPrompt) {
+            osPermissionCycleFinished = false
             // Small delay so the SMS dialog never races the notification dialog's
             // dismiss animation (some OEMs swallow a request launched too early).
             // NOTE: must come BEFORE persisting the flag — once smartSmsPrompted
@@ -264,9 +330,11 @@ fun HomeScreen(
             com.mknlabs.expensetracker.data.local.AppSettingsDataStore.updateAppSettings(context) {
                 it.copy(smartSmsPrompted = true)
             }
-            // No suspension point between the persist and the launch, so the launch
-            // runs synchronously before any recomposition can cancel this effect.
+            PermissionNudgeStore.markSmsAsked(context)
             smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
+        } else if (notificationPromptResolved && appSettings != null) {
+            osPermissionCycleFinished = true
+            HomeFirstRunPromptGate.markPermissionsComplete()
         }
     }
 
@@ -281,7 +349,7 @@ fun HomeScreen(
                 context, Manifest.permission.RECEIVE_SMS
             ) == PackageManager.PERMISSION_GRANTED,
             smsPromptAlreadyShown = appSettings?.smartSmsPrompted ?: false,
-            smsPermissionCardDismissed = appSettings?.smsPermissionCardDismissed ?: false,
+            smsPermissionCardDismissed = true,
             smsMiuiSetupAcknowledged = appSettings?.smsMiuiSetupAcknowledged ?: false,
             isBenchmarkBuild = BuildConfig.BUILD_TYPE == "benchmark"
         )
@@ -347,6 +415,15 @@ fun HomeScreen(
     }
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
+    val missingNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+        PackageManager.PERMISSION_GRANTED
+    val missingSms = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+        ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) !=
+        PackageManager.PERMISSION_GRANTED
+    var permissionCardDismissedThisLaunch by remember { mutableStateOf(false) }
+    val permissionCardScope = rememberCoroutineScope()
+
     HomeScreenContent(
         userProfile = userProfile,
         uiState = uiState,
@@ -376,28 +453,125 @@ fun HomeScreen(
         com.mknlabs.expensetracker.data.local.RateAppPromptState()
     )
     var referDismissed by remember { mutableStateOf(false) }
+    var rateDismissed by remember { mutableStateOf(false) }
     val referScope = rememberCoroutineScope()
-    val rateDue = RateAppPrompt.shouldShow(
-        transactionCount = transactionCount,
-        firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
-        nowMillis = System.currentTimeMillis(),
-        completed = ratePrompt.completed,
-        dismissCount = ratePrompt.dismissCount,
-        lastDismissAtMillis = ratePrompt.lastDismissAtMillis
-    )
-    val showRefer = !isLockOverlayActive && !referDismissed && !rateDue &&
-        ReferPromptStore.shouldShow(referPrompt.lastShownAtMillis)
+    val permissionsDone by HomeFirstRunPromptGate.permissionsComplete.collectAsStateWithLifecycle()
+    val integrityDone by HomeFirstRunPromptGate.integrityComplete.collectAsStateWithLifecycle()
+    val notifRationale = permissionActivity?.let {
+        androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+            it,
+            Manifest.permission.POST_NOTIFICATIONS,
+        )
+    } ?: true
+    val smsRationaleForSheet = permissionActivity?.let {
+        androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+            it,
+            Manifest.permission.RECEIVE_SMS,
+        )
+    } ?: true
+    val permissionDue = BuildConfig.BUILD_TYPE != "benchmark" &&
+        !permissionCardDismissedThisLaunch &&
+        osPermissionCycleFinished &&
+        homeReadyForPermissionUi &&
+        !isLockOverlayActive &&
+        PermissionNudge.shouldShowSettingsCard(
+            missingNotifications = missingNotifications,
+            missingSms = missingSms,
+            notificationAskCount = permissionNudge.notificationAskCount,
+            smsAskCount = permissionNudge.smsAskCount,
+            lastOsAskAtMillis = maxOf(
+                permissionNudge.notificationLastAskAtMillis,
+                permissionNudge.smsLastAskAtMillis,
+            ),
+            lastCardAtMillis = permissionNudge.lastCardAtMillis,
+            nextIntervalDays = permissionNudge.nextCardIntervalDays.let {
+                if (it > 0) it else 7
+            },
+            nowMillis = System.currentTimeMillis(),
+            notificationOsFinished = permissionNudge.notificationAskCount >= PermissionNudge.MAX_ASKS ||
+                (permissionNudge.notificationAskCount >= 1 && !notifRationale),
+            smsOsFinished = permissionNudge.smsAskCount >= PermissionNudge.MAX_ASKS ||
+                (permissionNudge.smsAskCount >= 1 && !smsRationaleForSheet),
+        )
+    val referDue = !isLockOverlayActive && !referDismissed &&
+        permissionsDone && integrityDone &&
+        ReferPromptStore.shouldShow(
+            lastShownAtMillis = referPrompt.lastShownAtMillis,
+            firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
+        )
+    val rateDue = !isLockOverlayActive && !rateDismissed &&
+        permissionsDone && integrityDone &&
+        RateAppPrompt.shouldShow(
+            transactionCount = transactionCount,
+            firstOpenAtMillis = ratePrompt.firstOpenAtMillis,
+            nowMillis = System.currentTimeMillis(),
+            completed = ratePrompt.completed,
+            dismissCount = ratePrompt.dismissCount,
+            lastDismissAtMillis = ratePrompt.lastDismissAtMillis,
+        )
+    var pickedSheet by remember { mutableStateOf<LaunchSheetPick.Kind?>(null) }
+    var sheetPickFrozen by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(
+        osPermissionCycleFinished,
+        homeReadyForPermissionUi,
+        integrityDone,
+        permissionDue,
+        referDue,
+        rateDue,
+        ratePrompt.firstOpenAtMillis,
+    ) {
+        if (!osPermissionCycleFinished || !homeReadyForPermissionUi || !integrityDone) return@LaunchedEffect
+        if (ratePrompt.firstOpenAtMillis <= 0L) return@LaunchedEffect
+        if (sheetPickFrozen) return@LaunchedEffect
+        pickedSheet = LaunchSheetPick.resolve(permissionDue, referDue, rateDue)
+        sheetPickFrozen = true
+    }
+    val showPermissionSheet = pickedSheet == LaunchSheetPick.Kind.Permission && permissionDue
+    val showRefer = pickedSheet == LaunchSheetPick.Kind.Refer && referDue
+    val showRateSheet = pickedSheet == LaunchSheetPick.Kind.Rate && rateDue
+    androidx.compose.runtime.LaunchedEffect(showRefer) {
+        HomeFirstRunPromptGate.setShareSheetVisible(showRefer)
+    }
+    if (showPermissionSheet) {
+        MissingPermissionsBottomSheet(
+            missingNotifications = missingNotifications,
+            missingSms = missingSms,
+            onOpenSettings = {
+                permissionCardDismissedThisLaunch = true
+                permissionCardScope.launch { PermissionNudgeStore.markCardShown(context) }
+                openAppDetailsSettings()
+            },
+            onDismiss = {
+                permissionCardDismissedThisLaunch = true
+                permissionCardScope.launch { PermissionNudgeStore.markCardShown(context) }
+            },
+        )
+    }
     if (showRefer) {
         ReferOfferBottomSheet(
             hasReferred = referPrompt.successCount > 0,
             onRefer = {
                 referDismissed = true
+                HomeFirstRunPromptGate.setShareSheetVisible(false)
                 referScope.launch { ReferPromptStore.markShown(context) }
                 onReferOfferClick()
             },
             onDismiss = {
                 referDismissed = true
+                HomeFirstRunPromptGate.setShareSheetVisible(false)
                 referScope.launch { ReferPromptStore.markShown(context) }
+            }
+        )
+    }
+    if (showRateSheet) {
+        RateAppBottomSheet(
+            onDismiss = {
+                rateDismissed = true
+                referScope.launch { RateAppPromptStore.markDismissed(context) }
+            },
+            onRated = {
+                rateDismissed = true
+                referScope.launch { RateAppPromptStore.markCompleted(context) }
             }
         )
     }
@@ -419,6 +593,11 @@ private fun HomeScreenContent(
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
     smsSetupUiState: SmsSetupUiState = SmsSetupUiState(),
+    showMissingPermissionsCard: Boolean = false,
+    missingNotifications: Boolean = false,
+    missingSms: Boolean = false,
+    onMissingPermissionsOpenSettings: () -> Unit = {},
+    onMissingPermissionsDismiss: () -> Unit = {},
     onSmsPermissionCardOpenSettings: () -> Unit = {},
     onSmsPermissionCardDismiss: () -> Unit = {},
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
@@ -497,7 +676,12 @@ private fun HomeScreenContent(
                             onGoalsClick = onGoalsClick,
                             onToggleBalanceVisibility = onToggleBalanceVisibility,
                             smsSetupUiState = smsSetupUiState,
-                            onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+                            showMissingPermissionsCard = showMissingPermissionsCard,
+            missingNotifications = missingNotifications,
+            missingSms = missingSms,
+            onMissingPermissionsOpenSettings = onMissingPermissionsOpenSettings,
+            onMissingPermissionsDismiss = onMissingPermissionsDismiss,
+            onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
                             onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
                             onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                             onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
@@ -543,7 +727,12 @@ private fun HomeScreenContent(
                     onGoalsClick = onGoalsClick,
                     onToggleBalanceVisibility = onToggleBalanceVisibility,
                     smsSetupUiState = smsSetupUiState,
-                    onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
+                    showMissingPermissionsCard = showMissingPermissionsCard,
+            missingNotifications = missingNotifications,
+            missingSms = missingSms,
+            onMissingPermissionsOpenSettings = onMissingPermissionsOpenSettings,
+            onMissingPermissionsDismiss = onMissingPermissionsDismiss,
+            onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
                     onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
                     onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
                     onMiuiSetupCardBatterySettings = onMiuiSetupCardBatterySettings,
@@ -591,6 +780,11 @@ private fun HomeTopSection(
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
     smsSetupUiState: SmsSetupUiState = SmsSetupUiState(),
+    showMissingPermissionsCard: Boolean = false,
+    missingNotifications: Boolean = false,
+    missingSms: Boolean = false,
+    onMissingPermissionsOpenSettings: () -> Unit = {},
+    onMissingPermissionsDismiss: () -> Unit = {},
     onSmsPermissionCardOpenSettings: () -> Unit = {},
     onSmsPermissionCardDismiss: () -> Unit = {},
     onMiuiSetupCardOpenAppSettings: () -> Unit = {},
@@ -629,6 +823,11 @@ private fun HomeTopSection(
         onGoalsClick = onGoalsClick,
         onToggleBalanceVisibility = onToggleBalanceVisibility,
         smsSetupUiState = smsSetupUiState,
+        showMissingPermissionsCard = showMissingPermissionsCard,
+        missingNotifications = missingNotifications,
+        missingSms = missingSms,
+        onMissingPermissionsOpenSettings = onMissingPermissionsOpenSettings,
+        onMissingPermissionsDismiss = onMissingPermissionsDismiss,
         onSmsPermissionCardOpenSettings = onSmsPermissionCardOpenSettings,
         onSmsPermissionCardDismiss = onSmsPermissionCardDismiss,
         onMiuiSetupCardOpenAppSettings = onMiuiSetupCardOpenAppSettings,
@@ -905,6 +1104,11 @@ private fun HomeStatsSection(
     onGoalsClick: () -> Unit,
     onToggleBalanceVisibility: () -> Unit,
     smsSetupUiState: SmsSetupUiState,
+    showMissingPermissionsCard: Boolean = false,
+    missingNotifications: Boolean = false,
+    missingSms: Boolean = false,
+    onMissingPermissionsOpenSettings: () -> Unit = {},
+    onMissingPermissionsDismiss: () -> Unit = {},
     onSmsPermissionCardOpenSettings: () -> Unit,
     onSmsPermissionCardDismiss: () -> Unit,
     onMiuiSetupCardOpenAppSettings: () -> Unit,
@@ -924,6 +1128,7 @@ private fun HomeStatsSection(
     // Whether this section opens with a card above the stats. The spacer below uses it
     // to avoid adding a gap that is only needed when something is actually there.
     val hasSetupCard = appSettings != null ||
+        showMissingPermissionsCard ||
         smsSetupUiState.showSmsPermissionCard ||
         smsSetupUiState.showMiuiSetupCard
 
@@ -943,6 +1148,16 @@ private fun HomeStatsSection(
             },
             onActionClick = onProfileClick,
             onVerifyEmail = onProfileClick
+        )
+    }
+
+    if (showMissingPermissionsCard) {
+        Spacer(modifier = Modifier.height(10.dp))
+        MissingPermissionsCard(
+            missingNotifications = missingNotifications,
+            missingSms = missingSms,
+            onOpenSettings = onMissingPermissionsOpenSettings,
+            onDismiss = onMissingPermissionsDismiss,
         )
     }
 

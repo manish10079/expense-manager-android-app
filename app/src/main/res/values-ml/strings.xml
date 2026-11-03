@@ -742,11 +742,12 @@
     <string name="label_language_system">സിസ്റ്റം സ്വതവേ</string>
     <string name="title_language_settings">ഭാഷാ ക്രമീകരണങ്ങൾ</string>
     <string name="label_app_language">ആപ്പ് ഭാഷ</string>
-    <string name="desc_language_changes_ledger">ലെഡ്ജർ ലേബലുകളും ഇടപാട് വിഭാഗങ്ങളും മാറും</string>
+    <string name="desc_language_changes_ledger">തിരഞ്ഞെടുത്ത ഭാഷ ആപ്പ് മുഴുവനും ഉപയോഗിക്കും.</string>
     <string name="label_locales_count">%d ലൊക്കേലുകൾ</string>
     <string name="label_search_language">ഭാഷ അല്ലെങ്കിൽ ലൊക്കേൽ തിരയുക…</string>
     <string name="label_available_dialects">ലഭ്യമായ ഭാഷാഭേദങ്ങൾ</string>
     <string name="label_suggested_installed">നിർദ്ദേശിച്ചതും ഇൻസ്റ്റാൾ ചെയ്തതും</string>
+        <string name="label_pick_from_languages">%d ഭാഷകളിൽ നിന്ന് തിരഞ്ഞെടുക്കുക</string>
     <string name="label_languages_available">%d ലഭ്യം</string>
 
     <!-- Theme, fonts, currency, auth screens -->
@@ -1532,6 +1533,11 @@
     <string name="title_sms_detection">SMS കണ്ടെത്തൽ</string>
     <string name="msg_sms_permission_needed">SMS കണ്ടെത്തലിന് SMS അനുമതി ആവശ്യമാണ്. ക്രമീകരണങ്ങൾ തുറന്ന് ബാങ്ക് ഇടപാട് സന്ദേശങ്ങൾ സ്വയം കണ്ടെത്താൻ അനുവദിക്കുക.</string>
     <string name="label_open_app_settings">ക്രമീകരണങ്ങൾ തുറക്കുക</string>
+    <string name="title_missing_permissions">ചില അനുമതികൾ ഇല്ല</string>
+    <string name="msg_missing_permissions_intro">സിസ്റ്റം സെറ്റിംഗ്സിൽ അനുവദിക്കുന്നത് വരെ ചില ഫീച്ചറുകൾ ഓഫായിരിക്കും.</string>
+    <string name="msg_missing_permission_notifications">അറിയിപ്പുകൾ — ഓർമ്മപ്പെടുത്തലുകൾ, ബജറ്റ്, ബില്ലുകൾ, SMS അലേർട്ടുകൾ കാണില്ല.</string>
+    <string name="msg_missing_permission_sms">SMS — ബാങ്ക് സന്ദേശങ്ങൾ യാന്ത്രികമായി കണ്ടെത്താനാകില്ല.</string>
+    <string name="label_open_app_permissions">ആപ്പ് അനുമതികൾ തുറക്കുക</string>
     <string name="title_sms_miui_setup">Xiaomi ഉപകരണ സെറ്റപ്പ്</string>
     <string name="msg_sms_miui_setup_autostart">Xiaomi പിന്നണിയിൽ SMS കണ്ടെത്തൽ തടയാം. ഈ ആപ്പിന് ഓട്ടോസ്റ്റാർട്ട് സജീവമാക്കി ബാറ്ററി "നിയന്ത്രണങ്ങളില്ല" എന്നതിൽ സെറ്റ് ചെയ്യുക.</string>
     <string name="msg_sms_miui_setup_autostart_unknown">ഓട്ടോസ്റ്റാർട്ട് സ്വയം പരിശോധിക്കാനായില്ല. ആപ്പ് ക്രമീകരണങ്ങൾ തുറന്ന് ഈ ആപ്പിന് ഓട്ടോസ്റ്റാർട്ട് സജീവമാക്കുക.</string>
@@ -1950,7 +1956,9 @@
     <string name="msg_feedback_empty">ഫീഡ്ബാക്ക് ശൂന്യമാകരുത്.</string>
     <string name="title_view_by">കാണിക്കേണ്ടത്</string>
     <string name="label_welcome_back_comma">വീണ്ടും സ്വാഗതം,</string>
-    <string name="msg_welcome_back_subtitle">തുടരാൻ നിങ്ങൾ തയ്യാറാണ്!</string>
+    <string name="msg_welcome_back_subtitle">നിങ്ങളുടെ വർക്ക്‌സ്പേസ് തയ്യാറാണ് — നിർത്തിയിടത്തുനിന്ന് തുടരുക.</string>
+    <string name="label_signed_in_as">%1$s ആയി സൈൻ ഇൻ ചെയ്തു</string>
+    <string name="label_hi_sticker">ഹായ്</string>
     <string name="label_your_goal">നിങ്ങളുടെ സാമ്പത്തിക ലക്ഷ്യം</string>
     <string name="label_welcome_back_fallback">സുഹൃത്തേ</string>
     <string name="label_show_more">കൂടുതൽ കാണിക്കുക</string>

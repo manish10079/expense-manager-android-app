@@ -32,7 +32,13 @@ object ReferPromptStore {
             )
         }
 
-    fun shouldShow(lastShownAtMillis: Long, nowMillis: Long = System.currentTimeMillis()): Boolean {
+    fun shouldShow(
+        lastShownAtMillis: Long,
+        nowMillis: Long = System.currentTimeMillis(),
+        firstOpenAtMillis: Long = 0L,
+    ): Boolean {
+        if (firstOpenAtMillis <= 0L) return false
+        if (nowMillis - firstOpenAtMillis < INTERVAL_MS) return false
         if (lastShownAtMillis <= 0L) return true
         return nowMillis - lastShownAtMillis >= INTERVAL_MS
     }

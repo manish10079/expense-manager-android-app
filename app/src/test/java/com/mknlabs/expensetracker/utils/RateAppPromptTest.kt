@@ -26,16 +26,17 @@ class RateAppPromptTest {
     )
 
     @Test
-    fun `shows on seven days or ten transactions whichever first`() {
+    fun `never before seven days even with many transactions`() {
         assertFalse(show(tx = 9, firstOpen = now - 6 * day))
+        assertFalse(show(tx = 50, firstOpen = now))
         assertTrue(show(tx = 0, firstOpen = now - 7 * day))
-        assertTrue(show(tx = 10, firstOpen = now))
     }
 
     @Test
     fun `second ask waits fourteen days after dismiss`() {
         assertFalse(
             show(
+                firstOpen = now - 7 * day,
                 tx = 10,
                 dismissCount = 1,
                 lastDismiss = now - 13 * day,
@@ -44,6 +45,7 @@ class RateAppPromptTest {
         )
         assertTrue(
             show(
+                firstOpen = now - 7 * day,
                 tx = 10,
                 dismissCount = 1,
                 lastDismiss = now - 14 * day,

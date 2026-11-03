@@ -3327,6 +3327,11 @@ privado de verdad</string>
     <string name="msg_sms_permission_needed">Hace falta permiso de SMS. Ábrelo en ajustes para detectar mensajes del banco.</string>
 
     <string name="label_open_app_settings">Abrir ajustes</string>
+    <string name="title_missing_permissions">Faltan algunos permisos</string>
+    <string name="msg_missing_permissions_intro">Sin ellos, algunas funciones siguen desactivadas hasta que las permitas en Ajustes.</string>
+    <string name="msg_missing_permission_notifications">Notificaciones — no verás recordatorios, presupuestos, facturas ni avisos de SMS.</string>
+    <string name="msg_missing_permission_sms">SMS — no se pueden detectar mensajes del banco automáticamente.</string>
+    <string name="label_open_app_permissions">Abrir permisos de la app</string>
 
     <string name="title_sms_miui_setup">Ajuste en Xiaomi</string>
 
@@ -4179,7 +4184,9 @@ privado de verdad</string>
 
     <string name="label_welcome_back_comma">Hola de nuevo,</string>
 
-    <string name="msg_welcome_back_subtitle">¡Listo para seguir!</string>
+    <string name="msg_welcome_back_subtitle">Tu espacio está listo — continúa donde lo dejaste.</string>
+    <string name="label_signed_in_as">Sesión iniciada como %1$s</string>
+    <string name="label_hi_sticker">Hola</string>
 
     <string name="label_your_goal">TU META CON EL DINERO</string>
 
@@ -4678,4 +4685,6 @@ privado de verdad</string>
         <item quantity="one">%d foto seleccionada</item>
         <item quantity="other">%d fotos seleccionadas</item>
     </plurals>
+    <string name="desc_language_changes_ledger">El idioma seleccionado se usará en toda la app.</string>
+    <string name="label_pick_from_languages">Elige entre %d idiomas</string>
 </resources>
