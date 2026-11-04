@@ -216,7 +216,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val currentLanguageTag = AppLocaleHelper.appliedLanguageTags
+            val currentLanguageTag = AppLocaleHelper.appliedLanguageTags.ifBlank {
+                LocalePreferenceSync.getLanguage(this@MainActivity)
+            }
             val activityContext = this@MainActivity
             val localizedContext = remember(currentLanguageTag) {
                 AppLocaleHelper.createLocalizedContext(activityContext, currentLanguageTag)

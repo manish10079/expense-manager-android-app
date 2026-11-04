@@ -36,6 +36,12 @@ object AppLocaleHelper {
      *    deterministic refresh across all Android versions (API 24 to 36) including OEM ROMs that
      *    suppress system-driven recreations.
      */
+    fun wrapForAppLanguage(context: Context): Context {
+        val normalized = normalizeLanguageCode(LocalePreferenceSync.getLanguage(context))
+        if (normalized == SYSTEM_LANGUAGE_CODE) return context
+        return createConfigurationContext(context, normalized)
+    }
+
     fun applyLanguage(languageCode: String, context: Context? = null) {
         val normalized = normalizeLanguageCode(languageCode)
 
@@ -231,9 +237,14 @@ object AppLocaleHelper {
         }
 
         override fun createConfigurationContext(overrideConfiguration: Configuration): Context {
-            val merged = Configuration(localizedConfig).apply {
-                setTo(overrideConfiguration)
+            if (localizedConfig.locales.isEmpty) {
+                return LocalizedContext(baseContext, overrideConfiguration)
             }
+            val locale = localizedConfig.locales[0]
+            val merged = Configuration(overrideConfiguration)
+            merged.setLocale(locale)
+            merged.setLocales(localizedConfig.locales)
+            merged.setLayoutDirection(locale)
             return LocalizedContext(baseContext, merged)
         }
     }

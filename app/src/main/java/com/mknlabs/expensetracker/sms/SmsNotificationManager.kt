@@ -17,6 +17,7 @@ import com.mknlabs.expensetracker.data.constants.categoryMap
 import com.mknlabs.expensetracker.notifications.NotificationHelper
 import com.mknlabs.expensetracker.utils.defaultAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import java.util.concurrent.atomic.AtomicInteger
 import androidx.core.app.RemoteInput
@@ -131,6 +132,7 @@ object SmsNotificationManager {
         detectionId: String,
         notificationId: Int
     ) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         // The id is resolved by the caller — from the SMS timestamp, so it stays stable
         // across process restarts and a second detection never replaces the first in
         // the shade — and handed in rather than recomputed here: the same value rides
@@ -313,6 +315,7 @@ object SmsNotificationManager {
      * or dismissed; cancels itself when the last child is gone.
      */
     fun refreshGroupSummary(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val nm = NotificationManagerCompat.from(context)
         val children = runCatching {
             nm.activeNotifications.filter { child ->
@@ -448,6 +451,7 @@ object SmsNotificationManager {
      * immediate cancel already succeeded this is effectively a no-op.
      */
     fun forceDismiss(context: Context, notificationId: Int) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val appContext = context.applicationContext
         val nm = NotificationManagerCompat.from(context)
         // Leave the SMS group: a grouped reset kept the collapsible shade entry

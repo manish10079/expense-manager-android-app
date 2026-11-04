@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.MainActivity
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 
 object NotificationHelper {
 
@@ -119,6 +120,7 @@ object NotificationHelper {
     private const val BUDGET_NOTIFICATION_ID_BASE = 100
 
     fun createNotificationChannels(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -260,6 +262,7 @@ object NotificationHelper {
      * current settings apply to everyone (one-time per update).
      */
     fun resetChannelsIfVersionChanged(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val prefs = context.getSharedPreferences(CHANNEL_PREFS_NAME, Context.MODE_PRIVATE)
         val lastVersion = prefs.getInt(KEY_LAST_CHANNEL_RESET_VERSION, -1)
@@ -285,6 +288,7 @@ object NotificationHelper {
     }
 
     fun showReminderNotification(context: Context, message: String, userName: String? = null) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -330,6 +334,7 @@ object NotificationHelper {
      * Budget screen.
      */
     fun showBudgetAlert(context: Context, message: String, categoryId: Int, tier: BudgetAlertTier) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val notificationId = budgetAlertIdFor(categoryId, tier)
 
         // Spec importance tiers: only Budget Exceeded is High (heads-up on its
@@ -495,6 +500,7 @@ object NotificationHelper {
     private const val REQUEST_CODE_RECURRING_BILL_SUMMARY = 19
 
     fun showMissedEntryNotification(context: Context, message: String) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -523,6 +529,7 @@ object NotificationHelper {
     }
 
     fun showGoalReminderNotification(context: Context, message: String) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -551,6 +558,7 @@ object NotificationHelper {
     }
 
     fun showGenericNotification(context: Context, title: String, message: String, notificationId: Int = 4) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             // singleTop + SINGLE_TOP: reuse the existing MainActivity via onNewIntent
             // when the app is alive in the background, instead of CLEAR_TASK which
@@ -585,6 +593,7 @@ object NotificationHelper {
      * transactions replace each other rather than stacking.
      */
     fun showLargeTransactionNotification(context: Context, categoryName: String, amountText: String, thresholdText: String) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
@@ -621,6 +630,7 @@ object NotificationHelper {
      * dedicated Weekly Reports channel; tapping opens the Analytics screen.
      */
     fun showWeeklySummaryNotification(context: Context, message: String) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_ANALYTICS)
@@ -651,6 +661,7 @@ object NotificationHelper {
      * different goals stack; tapping opens the Goals screen.
      */
     fun showGoalMilestoneNotification(context: Context, title: String, message: String, goalId: String) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val notificationId = GOAL_MILESTONE_ID_BASE + (goalId.hashCode() and 0x00FFFFFF)
 
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -784,6 +795,7 @@ object NotificationHelper {
      * in the shade, mirroring the budget-tier pattern).
      */
     fun showUpcomingBillNotification(context: Context, message: String, ruleId: String, windowDays: Int) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val windowOffset = when (windowDays) {
             7 -> 0
             3 -> 1
@@ -958,6 +970,7 @@ object NotificationHelper {
         )
 
     fun showAutoBackupFailedNotification(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
@@ -981,6 +994,7 @@ object NotificationHelper {
     }
 
     fun showSyncInProgressNotification(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_NAV_DESTINATION, DESTINATION_HOME)
@@ -1017,6 +1031,7 @@ object NotificationHelper {
     }
 
     fun showSyncFailedNotification(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         cancelSyncInProgressNotification(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -1041,6 +1056,7 @@ object NotificationHelper {
     }
 
     fun showSyncPendingNotification(context: Context) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         cancelSyncInProgressNotification(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -1072,6 +1088,7 @@ object NotificationHelper {
      * FCM channel so a misconfigured payload still surfaces.
      */
     fun showFcmNotification(context: Context, type: String?, title: String?, body: String?) {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         if (title.isNullOrBlank() && body.isNullOrBlank()) return
 
         val fcmType = when (type) {

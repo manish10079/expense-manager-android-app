@@ -10,6 +10,7 @@ import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.models.Goal
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.daysUntilTimestamp
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -43,6 +44,9 @@ class GoalReminderWorker @AssistedInject constructor(
     private val tracker by lazy {
         applicationContext.getSharedPreferences(TRACKER_PREFS_NAME, Context.MODE_PRIVATE)
     }
+
+    private val strings: Context
+        get() = AppLocaleHelper.wrapForAppLanguage(applicationContext)
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
@@ -97,11 +101,11 @@ class GoalReminderWorker @AssistedInject constructor(
         } else {
             R.string.title_goal_milestone to R.string.msg_goal_milestone
         }
-        val title = applicationContext.getString(titleRes)
+        val title = strings.getString(titleRes)
         val message = if (achieved) {
-            applicationContext.getString(messageRes, goal.name)
+            strings.getString(messageRes, goal.name)
         } else {
-            applicationContext.getString(messageRes, band, goal.name)
+            strings.getString(messageRes, band, goal.name)
         }
 
         NotificationHelper.showGoalMilestoneNotification(applicationContext, title, message, goal.id)
@@ -127,8 +131,8 @@ class GoalReminderWorker @AssistedInject constructor(
         val wasNotified = tracker.getBoolean(key, false)
         if (behind && !wasNotified) {
             val daysLeft = daysUntilTimestamp(deadline, now)
-            val title = applicationContext.getString(R.string.title_goal_behind_schedule)
-            val message = applicationContext.getString(R.string.msg_goal_behind_schedule, goal.name, daysLeft)
+            val title = strings.getString(R.string.title_goal_behind_schedule)
+            val message = strings.getString(R.string.msg_goal_behind_schedule, goal.name, daysLeft)
             NotificationHelper.showGoalMilestoneNotification(applicationContext, title, message, goal.id)
             tracker.edit().putBoolean(key, true).apply()
         } else if (!behind && wasNotified) {
@@ -167,19 +171,19 @@ class GoalReminderWorker @AssistedInject constructor(
         val message = if (dueSoon != null) {
             val daysLeft = daysUntilTimestamp(dueSoon.deadlineAt!!, now)
             when {
-                daysLeft <= 0 -> applicationContext.getString(
+                daysLeft <= 0 -> strings.getString(
                     R.string.msg_goal_reminder_due_today,
                     target.name,
                     progressPct
                 )
 
-                daysLeft == 1L -> applicationContext.getString(
+                daysLeft == 1L -> strings.getString(
                     R.string.msg_goal_reminder_due_soon_1,
                     target.name,
                     progressPct
                 )
 
-                else -> applicationContext.getString(
+                else -> strings.getString(
                     R.string.msg_goal_reminder_due_soon,
                     daysLeft,
                     target.name,
@@ -187,7 +191,7 @@ class GoalReminderWorker @AssistedInject constructor(
                 )
             }
         } else {
-            applicationContext.getString(
+            strings.getString(
                 R.string.msg_goal_reminder_progress,
                 progressPct,
                 target.name

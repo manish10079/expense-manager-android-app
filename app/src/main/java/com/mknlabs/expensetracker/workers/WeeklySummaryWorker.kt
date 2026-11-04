@@ -10,6 +10,7 @@ import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
 import com.mknlabs.expensetracker.utils.toMajorUnits
@@ -36,6 +37,9 @@ class WeeklySummaryWorker @AssistedInject constructor(
     private val categoryDao: CategoryDao,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private val strings: Context
+        get() = AppLocaleHelper.wrapForAppLanguage(applicationContext)
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
@@ -74,18 +78,18 @@ class WeeklySummaryWorker @AssistedInject constructor(
             }
 
             val baseMessage = when {
-                prevWeek.expenseMinor <= 0 || thisWeek.expenseMinor == prevWeek.expenseMinor -> applicationContext.getString(
+                prevWeek.expenseMinor <= 0 || thisWeek.expenseMinor == prevWeek.expenseMinor -> strings.getString(
                     R.string.notification_format_weekly_summary_flat,
                     expenseText
                 )
 
-                thisWeek.expenseMinor > prevWeek.expenseMinor -> applicationContext.getString(
+                thisWeek.expenseMinor > prevWeek.expenseMinor -> strings.getString(
                     R.string.notification_format_weekly_summary_up,
                     expenseText,
                     deltaPct
                 )
 
-                else -> applicationContext.getString(
+                else -> strings.getString(
                     R.string.notification_format_weekly_summary_down,
                     expenseText,
                     kotlin.math.abs(deltaPct)
@@ -97,7 +101,7 @@ class WeeklySummaryWorker @AssistedInject constructor(
                 ?.takeIf { it.isNotBlank() }
 
             val message = if (topCategoryName != null) {
-                baseMessage + " " + applicationContext.getString(
+                baseMessage + " " + strings.getString(
                     R.string.notification_format_weekly_summary_top_category,
                     topCategoryName
                 )

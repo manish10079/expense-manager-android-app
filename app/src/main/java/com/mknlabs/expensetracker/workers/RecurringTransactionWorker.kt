@@ -19,6 +19,7 @@ import com.mknlabs.expensetracker.models.InstallmentOccurrenceStatus
 import com.mknlabs.expensetracker.models.RecurringFrequency
 import com.mknlabs.expensetracker.models.RecurringTransactionRule
 import com.mknlabs.expensetracker.notifications.NotificationHelper
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.utils.RecurringScheduleCalculator
 import com.mknlabs.expensetracker.utils.formatCurrencyValue
 import com.mknlabs.expensetracker.utils.toAmountFormatPreferences
@@ -41,6 +42,9 @@ class RecurringTransactionWorker @AssistedInject constructor(
     private val recurringRuleRepository: RecurringRuleRepository,
     private val appPreferencesRepository: AppPreferencesRepository
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private val strings: Context
+        get() = AppLocaleHelper.wrapForAppLanguage(appContext)
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         Log.d("RecurringWorker", "doWork: Started processing recurring transactions")
@@ -105,8 +109,8 @@ class RecurringTransactionWorker @AssistedInject constructor(
                 }
                 NotificationHelper.showGenericNotification(
                     context = appContext,
-                    title = appContext.getString(com.mknlabs.expensetracker.R.string.notification_title_recurring_updated),
-                    message = appContext.resources.getQuantityString(
+                    title = strings.getString(com.mknlabs.expensetracker.R.string.notification_title_recurring_updated),
+                    message = strings.resources.getQuantityString(
                         com.mknlabs.expensetracker.R.plurals.notification_format_recurring_updated,
                         transactionsAddedCount,
                         transactionsAddedCount,
@@ -185,19 +189,19 @@ class RecurringTransactionWorker @AssistedInject constructor(
         // falls back to a larger trigger window.
         val daysLeft = ceil(remainingMillis.toDouble() / TimeUnit.DAYS.toMillis(1)).toLong()
         val message = when {
-            daysLeft <= 0 -> appContext.getString(
+            daysLeft <= 0 -> strings.getString(
                 R.string.notification_format_upcoming_bill_due_today,
                 amountStr,
                 originalTransaction.note
             )
 
-            daysLeft == 1L -> appContext.getString(
+            daysLeft == 1L -> strings.getString(
                 R.string.notification_format_upcoming_bill_tomorrow,
                 amountStr,
                 originalTransaction.note
             )
 
-            else -> appContext.getString(
+            else -> strings.getString(
                 R.string.notification_format_upcoming_bill_days,
                 amountStr,
                 originalTransaction.note,

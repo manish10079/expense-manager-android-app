@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import com.mknlabs.expensetracker.MainActivity
 import com.mknlabs.expensetracker.R
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.widget.constants.WidgetConstants
 import com.mknlabs.expensetracker.widget.di.WidgetEntryPoint
 import com.mknlabs.expensetracker.widget.model.WidgetState
@@ -124,6 +125,9 @@ internal class VoiceCaptureService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    private val strings: Context
+        get() = AppLocaleHelper.wrapForAppLanguage(this)
+
     private suspend fun updateWidget() {
         val entryPoint = WidgetEntryPoint.get(this)
         entryPoint.widgetUpdater().refreshAll(this)
@@ -132,10 +136,10 @@ internal class VoiceCaptureService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             WidgetConstants.VOICE_CHANNEL_ID,
-            getString(R.string.widget_voice_channel_name),
+            strings.getString(R.string.widget_voice_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = getString(R.string.widget_voice_channel_desc)
+            description = strings.getString(R.string.widget_voice_channel_desc)
             setShowBadge(false)
         }
         val manager = getSystemService(NotificationManager::class.java)
@@ -153,8 +157,8 @@ internal class VoiceCaptureService : Service() {
 
         return Notification.Builder(this, WidgetConstants.VOICE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(getString(R.string.widget_notification_recording_title))
-            .setContentText(getString(R.string.widget_notification_recording_text))
+            .setContentTitle(strings.getString(R.string.widget_notification_recording_title))
+            .setContentText(strings.getString(R.string.widget_notification_recording_text))
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()

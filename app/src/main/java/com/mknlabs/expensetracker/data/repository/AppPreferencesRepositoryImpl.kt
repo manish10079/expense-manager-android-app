@@ -53,7 +53,10 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         AppSettingsDataStore.updateAppSettings(context) { settings ->
             settings.copy(languageCode = normalized)
         }
-        AppLocaleHelper.applyLanguage(normalized)
+        AppLocaleHelper.applyLanguage(normalized, context)
+        com.mknlabs.expensetracker.notifications.NotificationHelper.createNotificationChannels(
+            AppLocaleHelper.wrapForAppLanguage(context)
+        )
     }
 
     override suspend fun updateCurrencyGroupingStyle(groupingStyle: CurrencyGroupingStyle) {

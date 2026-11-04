@@ -1,6 +1,7 @@
 package com.mknlabs.expensetracker.notifications
 
 import android.content.Context
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import com.mknlabs.expensetracker.R
 import java.util.Calendar
 
@@ -91,6 +92,7 @@ object DynamicNotificationEngine {
         formattedAmount: String,
         category: String
     ): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val opener = context.getString(sarcasticOpeners.random())
         val reaction = context.getString(moneyReactions.random())
         val guilt = context.getString(guiltLines.random())
@@ -115,6 +117,7 @@ object DynamicNotificationEngine {
     }
 
     fun generateReminderMessage(context: Context, isZomatoStyle: Boolean): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val isMorning = hour < 14
 
@@ -137,6 +140,7 @@ object DynamicNotificationEngine {
     }
 
     fun generateBudgetExceededMessage(context: Context, category: String): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val opener = context.getString(sarcasticOpeners.random())
         val core = context.getString(budgetExceededLines.random())
         return context.getString(R.string.notification_format_budget_exceeded, opener, category, core)
@@ -148,6 +152,7 @@ object DynamicNotificationEngine {
         percentUsed: Int,
         remainingAmount: String
     ): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val reaction = context.getString(budgetApproachingLines.random())
         return context.getString(
             R.string.notification_format_budget_approaching,
@@ -159,15 +164,18 @@ object DynamicNotificationEngine {
     }
 
     fun generateBudgetReachedMessage(context: Context, category: String, limit: String): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         return context.getString(R.string.notification_format_budget_reached, limit, category)
     }
 
     fun generateBudgetOverspentMessage(context: Context, category: String, overAmount: String): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         val guilt = context.getString(budgetOverspentLines.random())
         return context.getString(R.string.notification_format_budget_overspent, overAmount, category, guilt)
     }
 
     fun generateMissedEntryMessage(context: Context): String {
+        val context = AppLocaleHelper.wrapForAppLanguage(context)
         return context.getString(missedEntryLines.random())
     }
 }

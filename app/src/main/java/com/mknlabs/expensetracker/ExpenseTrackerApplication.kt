@@ -77,9 +77,7 @@ class ExpenseTrackerApplication : Application(), Configuration.Provider {
         // Synchronize JVM default locale on cold start for background tasks/formatters
         val savedLanguage = com.mknlabs.expensetracker.utils.LocalePreferenceSync.getLanguage(this)
         val normalized = com.mknlabs.expensetracker.data.constants.normalizeLanguageCode(savedLanguage)
-        if (normalized != com.mknlabs.expensetracker.data.constants.SYSTEM_LANGUAGE_CODE) {
-            java.util.Locale.setDefault(java.util.Locale.forLanguageTag(normalized))
-        }
+        com.mknlabs.expensetracker.utils.AppLocaleHelper.applyLanguage(normalized, this)
 
         // Initialize Firebase App Check BEFORE any other Firebase SDK calls.
         // Debug builds use a debug token (shown in logcat) so development is

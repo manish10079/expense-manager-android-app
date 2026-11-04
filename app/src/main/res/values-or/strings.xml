@@ -11,7 +11,7 @@
 
     <string name="label_already_tracked_in">%1$s ରେ ଆଗରୁ ଅଛି</string>
 
-    <string name="tip_duplicate_budget_tracking">ନୋଟ: ବଛା ବର୍ଗ ଅନ୍ୟ ସକ୍ରିୟ ବଜେଟରେ ଅଛି। ଖର୍ଚ୍ଚ ଦୁଇ ଲିମିଟରେ ଯିବ।</string>
+    
 
     <string name="label_select_categories">ବର୍ଗ ବାଛ</string>
 
@@ -27,31 +27,31 @@
 
     <string name="label_sponsored_content">ସ୍ପନ୍ସର କଣ୍ଟେଣ୍ଟ</string>
 
-    <string name="desc_sponsored_content">ଏହି ସୁପାରିଶ ସର୍ଭିସ ଦେଖ।</string>
+    
 
     <string name="btn_learn_more">ଅଧିକ ଜାଣ</string>
 
-    <string name="msg_a_security_update_is_required">ବାୟୋମେଟ୍ରିକ ବ୍ୟବହାର କରିବା ଆଗରୁ ସୁରକ୍ଷା ଅପଡେଟ ଦରକାର।</string>
+    
 
-    <string name="msg_choose_one_security_question_f">PIN ଫେରାଇବା ପାଇଁ ଗୋଟେ ସୁରକ୍ଷା ପ୍ରଶ୍ନ ବାଛ।</string>
+    
 
-    <string name="msg_enter_an_answer_for_your_secur">ତୁମ ସୁରକ୍ଷା ପ୍ରଶ୍ନର ଉତ୍ତର ଲେଖ।</string>
+    
 
-    <string name="msg_enter_your_answer_to_disable_a">ଆପ ଲକ ବନ୍ଦ କରିବାକୁ ଉତ୍ତର ଲେଖ।</string>
+    
 
-    <string name="msg_incorrect_answer_try_again">ଭୁଲ ଉତ୍ତର। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_recovery_question_is_not_confi">ଏହି ଲକ ପାଇଁ ସୁରକ୍ଷା ପ୍ରଶ୍ନ ସେଟ ହୋଇନି।</string>
+    
 
-    <string name="msg_repeat_the_same_4_digits_to_fi">ସେଟଅପ ସରିବାକୁ ସେହି 4 ଅଙ୍କ ଆଉଥରେ ଦିଅ।</string>
+    
 
-    <string name="msg_set_up_fingerprint_or_face_unl">ପ୍ରଥମେ ଫୋନ ସେଟିଂରେ ଆଙ୍ଗୁଠି କିମ୍ବା ମୁହଁ ଅନଲକ ସେଟ କର।</string>
+    
 
-    <string name="msg_this_device_does_not_support_b">ଏହି ଡିଭାଇସ ବାୟୋମେଟ୍ରିକ ସପୋର୍ଟ କରେ ନାହିଁ।</string>
+    
 
-    <string name="toast_database_backup_saved">ଡାଟାବେସ ବ୍ୟାକଅପ ସେଭ ହେଲା।</string>
+    
 
-    <string name="toast_database_restored_reloading_ap">ଡାଟାବେସ ଫେରିଲା। ଆପ ରିଲୋଡ ହେଉଛି।</string>
+    
 
     <string name="desc_show_balance">ବାଲାନ୍ସ ଦେଖାଅ</string>
 
@@ -69,27 +69,27 @@
 
     <string name="label_unlock_pro_features">ଫାଇନାନ୍ସିଆଲ ଜେନ ଅନଲକ କର</string>
 
-    <string name="label_watch_a_short_video_to_unlock">%2$s ପାଇଁ %1$s ଖୋଲିବାକୁ ଏକ ଛୋଟ କାହାଣୀ ଦେଖ।</string>
+    
 
     <string name="label_watch_ad_unlock">ବିଜ୍ଞାପନ ଦେଖି ଖୋଲ</string>
 
-    <string name="msg_biometric_authentication_is_no">ବାୟୋମେଟ୍ରିକ ଏବେ ଉପଲବ୍ଧ ନାହିଁ।</string>
+    
 
-    <string name="msg_biometric_hardware_is_currentl">ବାୟୋମେଟ୍ରିକ ହାର୍ଡୱେୟାର ଏବେ ଉପଲବ୍ଧ ନାହିଁ।</string>
+    
 
-    <string name="msg_enter_the_same_pin_once_more_t">ନିଶ୍ଚିତ କରିବାକୁ ସେହି PIN ଆଉଥରେ ଦିଅ।</string>
+    
 
-    <string name="msg_error_unable_to_start_biometric_auth">ଏହି ଡିଭାଇସରେ ବାୟୋମେଟ୍ରିକ ଆରମ୍ଭ ହେଲା ନାହିଁ।</string>
+    
 
-    <string name="msg_incorrect_pin_try_again">ଭୁଲ PIN। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="title_device_integrity_notice">ସୁରକ୍ଷା ଚେତାବନୀ</string>
 
-    <string name="msg_device_integrity_notice">ଡିଭାଇସରେ root କିମ୍ବା ଏମୁଲେଟର ଲାଗୁଛି। ଆପ ଲକ ଓ ଅନ୍ୟ ସୁରକ୍ଷା କମ କାମ କରିପାରେ।</string>
+    
 
-    <string name="msg_pin_locked_out">ବହୁତ ଚେଷ୍ଟା। %1$d ସେକେଣ୍ଡ ପରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_pins_did_not_match_start_again">PIN ମିଶିଲା ନାହିଁ। ଆଉଥରେ ଆରମ୍ଭ କର।</string>
+    
 
     <string name="title_app_lock">ଆପ ଲକ</string>
 
@@ -113,21 +113,21 @@
 
     <string name="label_security_question">ସୁରକ୍ଷା ପ୍ରଶ୍ନ</string>
 
-    <string name="msg_answer_saved_security_question">ଲକ ବନ୍ଦ କରିବାକୁ ସେଭ ହୋଇଥିବା ପ୍ରଶ୍ନର ଉତ୍ତର ଦିଅ।</string>
+    
 
-    <string name="msg_select_your_security_question">ସେଭ ହୋଇଥିବା ପ୍ରଶ୍ନ ବାଛି ଉତ୍ତର ଲେଖ।</string>
+    
 
-    <string name="msg_select_a_security_question">ସେଭ ହୋଇଥିବା ସୁରକ୍ଷା ପ୍ରଶ୍ନ ବାଛ।</string>
+    
 
-    <string name="msg_biometric_or_pin_to_continue">ଆଗକୁ ଯିବାକୁ ବାୟୋମେଟ୍ରିକ କିମ୍ବା PIN ବ୍ୟବହାର କର।</string>
+    
 
-    <string name="msg_enter_pin_to_continue">ଆଗକୁ ଯିବାକୁ PIN ଦିଅ।</string>
+    
 
-    <string name="msg_choose_question_remember">ପାଞ୍ଚଟି ପ୍ରଶ୍ନରୁ ଗୋଟେ ବାଛ ଓ ମନେ ରଖିବା ଉତ୍ତର ଦିଅ।</string>
+    
 
     <string name="label_disable_app_lock">ଆପ ଲକ ବନ୍ଦ କର</string>
 
-    <string name="msg_no_recovery_question_saved">ଏହି ଲକ ପାଇଁ କୌଣସି ପ୍ରଶ୍ନ ସେଭ ନାହିଁ।</string>
+    
 
     <string name="placeholder_type_recovery_answer">ରିକଭରି ଉତ୍ତର ଲେଖ</string>
 
@@ -159,15 +159,15 @@
 
     <string name="placeholder_payment_example">ଯଥା ଡିଜିଟାଲ ୱାଲେଟ</string>
 
-    <string name="msg_name_already_exists">ଏହି ନାମ %1$s ରେ ଆଗରୁ ଅଛି।</string>
+    
 
-    <string name="msg_choose_icons_info">50ଟି ଆଇକନରୁ ବାଛ।</string>
+    
 
     <string name="placeholder_search_icons">ଆଇକନ ଖୋଜ (ଯଥା \'ଖାଦ୍ୟ\')…</string>
 
     <string name="label_color_section">ରଙ୍ଗ</string>
 
-    <string name="msg_choose_color_info">ଇଚ୍ଛାଧୀନ। ନ ବାଛିଲେ ଆପ ନିଜେ ବାଛିବ।</string>
+    
 
     <string name="desc_color_default">ଡିଫଲ୍ଟ ରଙ୍ଗ</string>
 
@@ -175,7 +175,7 @@
 
     <string name="desc_color_swatch_selected">ରଙ୍ଗ %1$s, ବଛା</string>
 
-    <string name="msg_change_color_hint">ନୂଆ ରଙ୍ଗ ବାଛ କିମ୍ବା ଆପ ଦେଇଥିବା ରଙ୍ଗ ରଖ।</string>
+    
 
     <string name="desc_change_color">ରଙ୍ଗ ବଦଳାଅ</string>
 
@@ -189,7 +189,7 @@
 
     <string name="label_expense_category_item">ଖର୍ଚ୍ଚ ବର୍ଗ</string>
 
-    <string name="msg_item_added_under">ଏହି ନୂଆ ଆଇଟମ %1$s ତଳେ ଯୋଡିବ।</string>
+    
 
     <string name="title_auto_lock_duration">ଅଟୋ ଲକ</string>
 
@@ -197,19 +197,19 @@
 
     <string name="title_block_screenshots">ସ୍କ୍ରିନସଟ ବ୍ଲକ କର</string>
 
-    <string name="title_lock_as_soon_as_the_app_moves">ଆପ ବ୍ୟାକଗ୍ରାଉଣ୍ଡକୁ ଗଲେ ଲକ କର।</string>
+    
 
-    <string name="title_require_the_pin_again_after_va">ଆପ ବାହାରେ %1$s ମିନିଟ ପରେ ଆଉଥରେ PIN ମାଗ।</string>
+    
 
     <string name="title_unlock_expense_tracker">Expense Tracker ଅନଲକ କର</string>
 
-    <string name="title_verify_biometric_to_enable_bio">ବାୟୋମେଟ୍ରିକ ଲକ ଚାଲୁ କରିବାକୁ ବାୟୋମେଟ୍ରିକ ଯାଞ୍ଚ କର।</string>
+    
 
-    <string name="title_verify_your_biometric_to_conti">ଆଗକୁ ଯିବାକୁ ବାୟୋମେଟ୍ରିକ ଯାଞ୍ଚ କର।</string>
+    
 
-    <string name="toast_biometric_authentication_is_un">ଏହି ସ୍କ୍ରିନରେ ବାୟୋମେଟ୍ରିକ ଉପଲବ୍ଧ ନାହିଁ।</string>
+    
 
-    <string name="toast_biometric_initialization_faile">ବାୟୋମେଟ୍ରିକ ଆରମ୍ଭ ହେଲା ନାହିଁ।</string>
+    
 
     <string name="title_add_transaction">ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡ</string>
 
@@ -217,8 +217,8 @@
 
     <string name="label_add_note">ନୋଟ ଯୋଡ</string>
 
-    <string name="label_no_note">पैसे ने बात की। आपने नहीं।</string>
-    <string name="label_no_tags">कोई टैग नहीं। पूरा रहस्य।</string>
+    
+    
 
     <string name="desc_view_full_note">ପୂରା ନୋଟ ଦେଖାଅ</string>
 
@@ -246,17 +246,17 @@
 
     <string name="placeholder_search_favorites">ଟେମ୍ପଲେଟ ଖୋଜ...</string>
 
-    <string name="msg_no_favorites_yet">ଏବେ ପସନ୍ଦ ଟ୍ରାନ୍ଜାକ୍ସନ ନାହିଁ।</string>
+    
 
-    <string name="msg_no_favorites_hint">ବାରମ୍ବାର ଟ୍ରାନ୍ଜାକ୍ସନକୁ ପସନ୍ଦ କର, ଗୋଟେ ଟ୍ୟାପରେ ଯୋଡିବାକୁ।</string>
+    
 
     <string name="label_copy">କପି</string>
 
-    <string name="msg_favorite_added">ଟ୍ରାନ୍ଜାକ୍ସନ ପସନ୍ଦରେ ଯୋଡିଲା।</string>
+    
 
-    <string name="msg_favorite_copied">ପସନ୍ଦ ଟ୍ରାନ୍ଜାକ୍ସନ କପି ହେଲା।</string>
+    
 
-    <string name="msg_favorite_removed">ପସନ୍ଦରୁ କାଢିଲା।</string>
+    
 
     <string name="desc_toggle_favorite">ଏହି ଟ୍ରାନ୍ଜାକ୍ସନ ପାଇଁ ପସନ୍ଦ ଚାଲୁ/ବନ୍ଦ</string>
 
@@ -274,7 +274,7 @@
 
     <string name="desc_close">ବନ୍ଦ କର</string>
 
-    <string name="label_recurring_track">ଏହି ଖର୍ଚ୍ଚ ଆଗକୁ ଅଟୋ ଟ୍ରାକ କରିବାକୁ ଚାଲୁ କର।</string>
+    
 
     <string name="desc_add_category">ବର୍ଗ ଯୋଡ</string>
 
@@ -308,17 +308,17 @@
 
     <string name="label_amount_keypad">ରାଶି କିପ୍ୟାଡ</string>
 
-    <string name="label_breakdown_of_expenses_based_on">ୱାଲେଟ କିମ୍ବା ପେମେଣ୍ଟ ଉପାୟ ଅନୁସାରେ ଖର୍ଚ୍ଚ ବିଭାଜନ।</string>
+    
 
-    <string name="label_budgets_are_no_longer_preloade">ବଜେଟ ଆଗୁଆ ଲୋଡ ହୁଏ ନାହିଁ। ଏହି ମାସ ଟ୍ରାକ କରିବାକୁ ବର୍ଗ ଲିମିଟ ଯୋଡ।</string>
+    
 
     <string name="label_category_name_label">ବର୍ଗ ନାମ</string>
 
     <string name="label_category_type_label">ବର୍ଗ ପ୍ରକାର</string>
 
-    <string name="label_choose_from_all_expense_catego">ସବୁ ଖର୍ଚ୍ଚ ବର୍ଗରୁ ବାଛ — ତିଆରି ଓ ତୁମର।</string>
+    
 
-    <string name="label_choose_how_many_decimal_places">ରାଶିରେ କେତେ ଦଶମିକ ସ୍ଥାନ ଦେଖାଇବ।</string>
+    
 
     <string name="label_delete_all_transactions">ସବୁ ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ କରିବେ?</string>
 
@@ -338,7 +338,7 @@
 
     <string name="label_expense_title">ଖର୍ଚ୍ଚ</string>
 
-    <string name="label_how_many_times_this_recurring">ଏହି ଟ୍ରାନ୍ଜାକ୍ସନ କେତେଥର ପୁନରାବୃତ୍ତ ହେବ।</string>
+    
 
     <string name="label_income">ଆୟ</string>
 
@@ -346,25 +346,25 @@
 
     <string name="label_monthly_budget">ମାସିକ ବଜେଟ</string>
 
-    <string name="label_no_category_spending_found_in">ଏହି ରେଞ୍ଜରେ ବର୍ଗ ଖର୍ଚ୍ଚ ନାହିଁ।</string>
+    
 
-    <string name="label_no_spending_data_found">ଖର୍ଚ୍ଚ ଡାଟା ନାହିଁ।</string>
+    
 
-    <string name="label_no_spending_transactions_in_th">ବଛା ରେଞ୍ଜରେ ଖର୍ଚ୍ଚ ଟ୍ରାନ୍ଜାକ୍ସନ ନାହିଁ।</string>
+    
 
     <string name="label_no_transactions_found">ଟ୍ରାନ୍ଜାକ୍ସନ ମିଳିଲା ନାହିଁ</string>
 
-    <string name="label_ranked_by_spending_for_the_sel">ବଛା ଆନାଲିଟିକ୍ସ ରେଞ୍ଜର ଖର୍ଚ୍ଚ ଅନୁସାରେ ସଜା।</string>
+    
 
     <string name="label_recurring_transaction">ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <string name="label_remove_the_budget_for_val_this">%1$s ପାଇଁ ବଜେଟ କାଢିବେ? କେବଳ ଲିମିଟ ଯିବ, ଟ୍ରାନ୍ଜାକ୍ସନ ନୁହେଁ।</string>
+    
 
     <string name="label_remove_val_from_recurring_trac">%1$s କୁ ପୁନରାବୃତ୍ତରୁ କାଢିବେ?</string>
 
     <string name="label_select_category">ବର୍ଗ ବାଛ</string>
 
-    <string name="label_shape_how_your_transactions_ar">ଟ୍ରାନ୍ଜାକ୍ସନ କିପରି ସଜା ଓ ଦେଖାଯିବ ତାହା ଠିକ କର।</string>
+    
 
     <string name="label_spending_by_payment_mode">ପେମେଣ୍ଟ ଉପାୟ ଅନୁସାରେ ଖର୍ଚ୍ଚ</string>
 
@@ -372,15 +372,15 @@
 
     <string name="label_delete_account_and_data">ଆକାଉଣ୍ଟ ଓ ସବୁ ଡାଟା ଡିଲିଟ କର</string>
 
-    <string name="desc_delete_data_warning">ଏହା ସବୁ ଖର୍ଚ୍ଚ ଓ ବଜେଟ ସବୁଦିନ ପାଇଁ ଡିଲିଟ କରିବ। ଆକାଉଣ୍ଟରେ ଥିଲେ କ୍ଲାଉଡ ବ୍ୟାକଅପ ମଧ୍ୟ ଯିବ। ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
-    <string name="desc_delete_data_guest_warning">ଏହା କେବଳ ଏହି ଡିଭାଇସର ଡାଟା ସଫା କରେ। କ୍ଲାଉଡ ଆକାଉଣ୍ଟ ନାହିଁ।\n\nଏହି ଫୋନର ସବୁ ଯିବ: ଟ୍ରାନ୍ଜାକ୍ସନ, ବଜେଟ, ଫଣ୍ଡ, ଲକ୍ଷ୍ୟ, ବର୍ଗ, ଟ୍ୟାଗ, ବ୍ୟାକଅପ ଓ ସେଟିଂ।\n\nଫେରାଇ ହେବ ନାହିଁ। କପି ଦରକାର ହେଲେ ଆଗୁଆ ବ୍ୟାକଅପ ଏକ୍ସପୋର୍ଟ କର।</string>
+    
 
-    <string name="desc_delete_data_signed_out_warning">ଲଗଆଉଟ ଆକାଉଣ୍ଟ ଡିଲିଟ କରେ ନାହିଁ। ଏହା କେବଳ ଏହି ଡିଭାଇସର ଡାଟା ସଫା କରେ। କ୍ଲାଉଡ ଆକାଉଣ୍ଟ ରହିବ ଯାଏ ତୁମେ ଲଗଇନ କରି ଆକାଉଣ୍ଟ ଓ ସବୁ ଡାଟା ଡିଲିଟ ବାଛ କିମ୍ବା ଆମକୁ ଲେଖ।\n\nଏହି ଫୋନର ସବୁ ଯିବ: ଟ୍ରାନ୍ଜାକ୍ସନ, ବଜେଟ, ଫଣ୍ଡ, ଲକ୍ଷ୍ୟ, ବର୍ଗ, ଟ୍ୟାଗ, ବ୍ୟାକଅପ ଓ ସେଟିଂ।\n\nଫେରାଇ ହେବ ନାହିଁ। କପି ଦରକାର ହେଲେ ଆଗୁଆ ବ୍ୟାକଅପ ଏକ୍ସପୋର୍ଟ କର।</string>
+    
 
-    <string name="desc_delete_account_and_data_warning">ଏହା ଆକାଉଣ୍ଟ ଓ ସବୁ ସମ୍ପର୍କିତ ଡାଟା ସବୁଦିନ ପାଇଁ ଡିଲିଟ କରିବ। ଫେରାଇ ହେବ ନାହିଁ।\n\nଆମେ କରିବୁ:\n• ଲଗଇନ ଆକାଉଣ୍ଟ ଡିଲିଟ\n• ସବୁ ସିଙ୍କ କ୍ଲାଉଡ ଡାଟା ଡିଲିଟ (ଟ୍ରାନ୍ଜାକ୍ସନ, ବଜେଟ, ବର୍ଗ, ପୁନରାବୃତ୍ତ, ଲକ୍ଷ୍ୟ, ପେମେଣ୍ଟ ଉପାୟ, ପ୍ରୋଫାଇଲ, ଡିଭାଇସ, ଫଟୋ)\n• ଏହି ଡିଭାଇସର ସବୁ ଡାଟା ସଫା\n\nଅନ୍ୟ ଡିଭାଇସ ଏହି ଆକାଉଣ୍ଟ ବ୍ୟବହାର କରିପାରିବ ନାହିଁ। କପି ଦରକାର ହେଲେ ଆଗୁଆ JSON କିମ୍ବା ଡାଟାବେସ ଏକ୍ସପୋର୍ଟ କର।</string>
+    
 
-    <string name="label_this_removes_only_transactions">ଏହା ସବୁ ଡାଟା ସବୁଦିନ ପାଇଁ ଡିଲିଟ କରିବ। ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="title_spent">ଖର୍ଚ୍ଚ</string>
 
@@ -420,7 +420,7 @@
 
     <string name="label_transactions">ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <string name="label_your_highest_expenses_in_the_s">ବଛା ଅବଧିରେ ତୁମର ସବୁଠୁ ବଡ ଖର୍ଚ୍ଚ।</string>
+    
 
     <string name="title_amount">ରାଶି</string>
 
@@ -450,7 +450,7 @@
 
     <string name="title_incomeexpense_labels">ଆୟ/ଖର୍ଚ୍ଚ ଲେବଲ</string>
 
-    <string name="title_larger_amounts_take_priority_i">ବଡ ରାଶି ତାଲିକାରେ ଉପରେ।</string>
+    
 
     <string name="title_manage_category">ବର୍ଗ ମ୍ୟାନେଜ କର</string>
 
@@ -474,9 +474,9 @@
 
     <string name="title_what_are_categories">ବର୍ଗ କଣ</string>
 
-    <string name="msg_categories_what">ବର୍ଗ ଆୟ ଓ ଖର୍ଚ୍ଚକୁ ଗୋଷ୍ଠୀ କରେ। ପେମେଣ୍ଟ ଉପାୟ ହେଉଛି ଟଙ୍କା କିପରି ଚାଲିଲା, ଯଥା ନଗଦ କିମ୍ବା କାର୍ଡ।</string>
+    
 
-    <string name="msg_categories_where">ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡିବାବେଳେ ଗୋଟେ ବାଛ। ନାମ ଓ ରଙ୍ଗ ଏଠି ସେଟ କର।</string>
+    
 
     <string name="label_categories_example">ଉଦାହରଣ</string>
 
@@ -484,9 +484,9 @@
 
     <string name="title_what_are_tags">ଟ୍ୟାଗ କଣ</string>
 
-    <string name="msg_tags_what">ଟ୍ୟାଗ ହେଉଛି ବର୍ଗ ଛଡା ଟ୍ରାନ୍ଜାକ୍ସନର ଅତିରିକ୍ତ ଲେବଲ। ଖାଦ୍ୟ, ସପିଂ ଓ ଘର ଅଲଗା ବର୍ଗ ରହିବ, କିନ୍ତୁ ଏକାଠି ହୋଇପାରିବ।</string>
+    
 
-    <string name="msg_tags_where">ଯାତ୍ରାରେ ପ୍ରତ୍ୟେକ ଖର୍ଚ୍ଚରେ ଗୋଟେ ଟ୍ୟାଗ ଯୋଡ। ଟ୍ରାନ୍ଜାକ୍ସନରେ ଖୋଜ କିମ୍ବା ଟ୍ୟାଗ ବିଭାଜନ ପାଇଁ ଆନାଲିଟିକ୍ସ ଖୋଲ।</string>
+    
 
     <string name="label_tags_example">ଉଦାହରଣ</string>
 
@@ -504,11 +504,11 @@
 
     <string name="label_sort_za">କ୍ଷ → ଅ</string>
 
-    <string name="msg_no_tags_yet">ଏବେ ଟ୍ୟାଗ ନାହିଁ। + ଦବାଇ ଗୋଟେ ତିଆରି କର।</string>
+    
 
     <string name="title_new_tag">ନୂଆ ଟ୍ୟାଗ</string>
 
-    <string name="msg_tag_name_caption">ପରେ ଖୋଜିବାକୁ ଟ୍ୟାଗକୁ ଛୋଟ ନାମ ଦିଅ।</string>
+    
 
     <string name="title_rename_tag">ଟ୍ୟାଗ ନାମ ବଦଳାଅ</string>
 
@@ -526,7 +526,7 @@
 
     <string name="desc_merge_tag">%1$s ମିଶା</string>
 
-    <string name="msg_delete_tag_confirm">«%1$s» ଡିଲିଟ କରିବେ? ସବୁ ଟ୍ରାନ୍ଜାକ୍ସନରୁ କାଢିବ, ଟ୍ରାନ୍ଜାକ୍ସନ ରହିବ।</string>
+    
 
     <string name="msg_tag_transaction_count">%1$d ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
@@ -534,7 +534,7 @@
 
     <string name="msg_tag_color_hint">ଏହି ଟ୍ୟାଗ ପାଇଁ ରଙ୍ଗ ବାଛ</string>
 
-    <string name="msg_merge_pick_target">«%1$s» ମିଶାଉଛି — ଯେଉଁ ଟ୍ୟାଗରେ ମିଶାଇବ ତାହା ଟ୍ୟାପ କର।</string>
+    
 
     <string name="label_merge_tags">ମିଶା</string>
 
@@ -546,13 +546,13 @@
 
     <string name="title_merge_tags">ଟ୍ୟାଗ ମିଶା</string>
 
-    <string name="msg_merge_choose_target">ରଖିବା ଟ୍ୟାଗ ବାଛ। ବାକି ସେଥିରେ ମିଶିବ।</string>
+    
 
     <string name="label_merge_selected">%1$d ମିଶା</string>
 
     <string name="label_delete_selected">%1$d ଡିଲିଟ</string>
 
-    <string name="msg_delete_tags_confirm">%1$d ଟ୍ୟାଗ ଡିଲିଟ କରିବେ? ସବୁ ଟ୍ରାନ୍ଜାକ୍ସନରୁ କାଢିବ, ଟ୍ରାନ୍ଜାକ୍ସନ ରହିବ।</string>
+    
 
     <string name="title_tags">ଟ୍ୟାଗ</string>
 
@@ -600,9 +600,9 @@
 
     <string name="title_visual_category_indicators">ବର୍ଗର ଭିଜୁଆଲ ସଙ୍କେତ</string>
 
-    <string name="toast_all_transactions_deleted">ସବୁ ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ ହେଲା।</string>
+    
 
-    <string name="toast_unable_to_delete_transactions">ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="desc_profile_photo">ପ୍ରୋଫାଇଲ ଫଟୋ</string>
 
@@ -664,7 +664,7 @@
 
     <string name="label_ad_free_active">ବିଜ୍ଞାପନ-ମୁକ୍ତ ଆକ୍ସେସ ସକ୍ରିୟ</string>
 
-    <string name="msg_ad_free_duration_remaining">ତୁମେ Pro ଫିଚର ଓ ବିଜ୍ଞାପନ-ମୁକ୍ତ UI ବ୍ୟବହାର କରୁଛ।</string>
+    
 
     <string name="label_active_caps">ସକ୍ରିୟ</string>
 
@@ -698,13 +698,13 @@
 
     <string name="label_refer_a_friend_subtitle">ବ୍ୟକ୍ତିଗତ ଆମନ୍ତ୍ରଣ ପଠା</string>
 
-    <string name="msg_refer_a_friend">ମୁଁ ଖର୍ଚ୍ଚ ଟ୍ରାକ କରିବାକୁ %1$s ବ୍ୟବହାର କରେ। ଚେଷ୍ଟା କର:\n%2$s</string>
+    
 
-    <string name="msg_refer_register_for_code">ତୁମ ରେଫରାଲ କୋଡ ପାଇବାକୁ Google କିମ୍ବା email/ପାସୱାର୍ଡରେ ରେଜିଷ୍ଟର କର।</string>
+    
 
     <string name="btn_register_for_referral">କୋଡ ପାଇଁ ରେଜିଷ୍ଟର କର</string>
 
-    <string name="msg_refer_how_it_works">କୋଡ ଶେୟାର କର। ବନ୍ଧୁ ଲଗଇନ କରି କୋଡ ଦେଇ ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡିଲେ ତୁମେ ଦୁହେଁ 4 ଦିନ Pro ପାଇପାର। ମାସକୁ ସର୍ବାଧିକ 4 ପୁରସ୍କାର।</string>
+    
 
     <string name="label_refer_rewards_this_month">ଏହି ମାସର ପୁରସ୍କାର: %1$d ରୁ %2$d</string>
 
@@ -736,11 +736,11 @@
 
     <string name="title_refer_offer">Pro ମାଗଣା</string>
 
-    <string name="msg_refer_offer">ବନ୍ଧୁମାନଙ୍କୁ ଆମନ୍ତ୍ରଣ କର। ପ୍ରତ୍ୟେକ ସଫଳ ରେଫରାଲରେ 4 ଦିନ Pro Pass, ମାସକୁ 4 ଯାଏ।</string>
+    
 
     <string name="title_refer_more">ଆଉ ବନ୍ଧୁଙ୍କୁ ଆମନ୍ତ୍ରଣ କର</string>
 
-    <string name="msg_refer_more">ଅଧିକ ମାଗଣା Pro ପାଇବାକୁ ଆଉ ବନ୍ଧୁଙ୍କୁ ଆମନ୍ତ୍ରଣ କର।</string>
+    
 
     <string name="btn_refer_now">ବନ୍ଧୁକୁ ଆମନ୍ତ୍ରଣ କର</string>
 
@@ -752,7 +752,7 @@
 
     <string name="title_referral_rules">ରେଫରାଲ ନିୟମ</string>
 
-    <string name="msg_referral_rules">ପ୍ରତ୍ୟେକ ବୈଧ ରେଫରାଲରେ 4 ଦିନ Pro ପାଅ।\nବନ୍ଧୁ ରେଜିଷ୍ଟର ପରେ ଅତି କମରେ 1 ଟ୍ରାନ୍ଜାକ୍ସନ କରିବା ଦରକାର।\nକ୍ୟାଲେଣ୍ଡର ମାସରେ ସର୍ବାଧିକ 4 ପୁରସ୍କାର (16 ଦିନ)।\nପ୍ରତି ମାସ 1 ତାରିଖରେ ପୁରସ୍କାର ରିସେଟ ହୁଏ।</string>
+    
 
     <string name="tab_refer_friends">ବନ୍ଧୁଙ୍କୁ ଆମନ୍ତ୍ରଣ</string>
 
@@ -806,9 +806,9 @@
 
     <string name="msg_invite_more_friends">ମାସର ପୁରସ୍କାର ଭରିବାକୁ ଆଉ ବନ୍ଧୁଙ୍କୁ ଆମନ୍ତ୍ରଣ କର!</string>
 
-    <string name="msg_you_unlocked_welcome_pro">ବନ୍ଧୁର କୋଡରେ ତୁମେ 4 ଦିନ Pro ଖୋଲିଲ।</string>
+    
 
-    <string name="msg_add_expense_to_complete_invite">ବନ୍ଧୁ ପାଇଁ ଆମନ୍ତ୍ରଣ ସାରିବାକୁ ଖର୍ଚ୍ଚ ଯୋଡ।</string>
+    
 
     <string name="label_signed_up_on">ରେଜିଷ୍ଟର %1$s</string>
 
@@ -832,7 +832,7 @@
 
     <string name="title_you_unlocked_7_days">Pro ରେ ଆସ:\nପରବର୍ତ୍ତୀ 4 ଦିନ ଖୋଲିଲା</string>
 
-    <string name="msg_referral_code_applied_pro">ରେଫରାଲ କୋଡ ଲାଗୁ ହେଲା। 4 ଦିନ ପାଇଁ ସବୁ Pro ଫିଚର ଖୋଲିଲା।</string>
+    
 
     <string name="label_pro_ai_tools">ପୂରା Pro — ବିଜ୍ଞାପନ ନାହିଁ</string>
 
@@ -876,9 +876,9 @@
 
     <string name="label_share_app_subtitle">Play Store ଲିଙ୍କ ପଠା</string>
 
-    <string name="msg_share_app_chat">ହାଏ! ମୁଁ ଖର୍ଚ୍ଚ ଓ ବଜେଟ ଟ୍ରାକ କରିବାକୁ Expense Tracker Budget &amp; Spend ବ୍ୟବହାର କରେ। ବହୁତ ସୁବିଧା! ଦେଖ:\n\n%1$s</string>
+    
 
-    <string name="msg_share_app_features">ଟଙ୍କା ମ୍ୟାନେଜ କରିବା ସହଜ! ବଜେଟ, ଦୈନିକ ଖର୍ଚ୍ଚ ଓ ଲକ୍ଷ୍ୟ ପାଇଁ ମୁଁ Expense Tracker Budget &amp; Spend ବ୍ୟବହାର କରେ।\n\nଚେଷ୍ଟା କର: %1$s</string>
+    
 
     <string name="msg_share_app_punchy">ଟଙ୍କା ନିୟନ୍ତ୍ରଣକୁ ନିଅ! Expense Tracker Budget &amp; Spend ସହିତ ଖର୍ଚ୍ଚ ଟ୍ରାକ କରି ସ୍ମାର୍ଟ ବଜେଟ ରଖ: %1$s</string>
 
@@ -894,39 +894,39 @@
 
     <string name="label_add_note_optional">ନୋଟ ଯୋଡ… (ଇଚ୍ଛାଧୀନ)</string>
 
-    <string name="toast_authentication_failed">ପ୍ରମାଣୀକରଣ ବିଫଳ।</string>
+    
 
-    <string name="error_auth_cloned_or_unauthorized">Google ଲଗଇନ ବିଫଳ। କ୍ଲୋନ କିମ୍ବା parallel space ବ୍ୟବହାର କରୁଥିଲେ ମୂଳ ଆପ ଖୋଲ।</string>
+    
 
-    <string name="error_enter_email">ତୁମ email ଲେଖ।</string>
+    
 
-    <string name="toast_legacy_import_failed_check_the">legacy ଇମ୍ପୋର୍ଟ ବିଫଳ। ବ୍ୟାକଅପ ଫାଇଲ ଯାଞ୍ଚ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_database_backup_save_failed">ଡାଟାବେସ ବ୍ୟାକଅପ ସେଭ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_database_restore_failed">ଡାଟାବେସ ବ୍ୟାକଅପ ଫେରାଇ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_json_exported">JSON ଏକ୍ସପୋର୍ଟ: %1$d ଟ୍ରାନ୍ଜାକ୍ସନ, %2$d ବଜେଟ, %3$d ଲକ୍ଷ୍ୟ।</string>
+    
 
-    <string name="toast_json_export_failed">JSON ଏକ୍ସପୋର୍ଟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_json_import_failed">JSON ଇମ୍ପୋର୍ଟ ହେଲା ନାହିଁ। ଫାଇଲ ଯାଞ୍ଚ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_json_import_message">%1$d txn, %2$d ବଜେଟ, %3$d ନିୟମ, %4$d ଲକ୍ଷ୍ୟ ଇମ୍ପୋର୍ଟ। %5$d txn ଡୁପ୍ଲିକେଟ ବାଦ।</string>
+    
 
-    <string name="toast_legacy_imported">%1$d legacy ଟ୍ରାନ୍ଜାକ୍ସନ ଇମ୍ପୋର୍ଟ। %2$d ଥିବା ବାଦ।</string>
+    
 
-    <string name="toast_delete_transactions_failed">ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="toast_pro_billing_coming_soon">Pro ବିଲିଂ ଶୀଘ୍ର!</string>
 
-    <string name="toast_unable_to_export_json_please_t">JSON ଏକ୍ସପୋର୍ଟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_unable_to_import_json_check_th">JSON ଇମ୍ପୋର୍ଟ ହେଲା ନାହିଁ। ଫାଇଲ ଯାଞ୍ଚ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_unable_to_restore_the_database">ଡାଟାବେସ ବ୍ୟାକଅପ ଫେରାଇ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="toast_unable_to_save_the_database_ba">ଡାଟାବେସ ବ୍ୟାକଅପ ସେଭ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="dialog_alerts_reminders">ଆଲର୍ଟ ଓ ରିମାଇଣ୍ଡର</string>
 
@@ -1042,7 +1042,7 @@
 
     <string name="label_apply_to_note">ନୋଟରେ ଲାଗୁ କର</string>
 
-    <string name="label_are_you_sure_you_want_to_delet">%1$s ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ କରିବେ? ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="label_breakdown">ବିଭାଜନ</string>
 
@@ -1054,15 +1054,15 @@
 
     <string name="label_cash_flow_ratio">କ୍ୟାସ ଫ୍ଲୋ ଅନୁପାତ</string>
 
-    <string name="label_choose_from_50_icons_color_sty">50ଟି ଆଇକନରୁ ବାଛ। ରଙ୍ଗ ଅଟୋ ରହିବ।</string>
+    
 
     <string name="label_choose_month">ମାସ ବାଛ</string>
 
-    <string name="label_choose_the_date_style_you_want">ଆପ ସାରା ଦେଖିବା ତାରିଖ ଷ୍ଟାଇଲ ବାଛ।</string>
+    
 
-    <string name="label_choose_the_gender_label_that_b">ତୁମ ପ୍ରୋଫାଇଲ ପାଇଁ ଲିଙ୍ଗ ଲେବଲ ବାଛ।</string>
+    
 
-    <string name="label_choose_whether_time_is_shown_i">ସମୟ 12 ଘଣ୍ଟା ନା 24 ଘଣ୍ଟାରେ ଦେଖାଯିବ ବାଛ।</string>
+    
 
     <string name="label_choose_year">ବର୍ଷ ବାଛ</string>
 
@@ -1074,11 +1074,11 @@
 
     <string name="label_date">ତାରିଖ</string>
 
-    <string name="desc_miss_entry_reminder">2 ଦିନ ଟ୍ରାନ୍ଜାକ୍ସନ ଭୁଲିଲେ ନୋଟିଫିକେସନ ପାଅ।</string>
+    
 
     <string name="label_date_of_birth">ଜନ୍ମ ତାରିଖ</string>
 
-    <string name="label_default_is_off_turn_it_on_to_t">ଡିଫଲ୍ଟ ବନ୍ଦ। ବଜେଟ ଓ ପୁନରାବୃତ୍ତରେ ଏହି ଖର୍ଚ୍ଚ ଟ୍ରାକ କରିବାକୁ ଚାଲୁ କର।</string>
+    
 
     <string name="label_delete">ଡିଲିଟ</string>
 
@@ -1138,9 +1138,9 @@
 
     <string name="label_new_item">ନୂଆ ଆଇଟମ</string>
 
-    <string name="label_no_countries_matched_your_sear">ସର୍ଚ ସହିତ କୌଣସି ଦେଶ ମିଳିଲା ନାହିଁ।</string>
+    
 
-    <string name="label_no_payment_data_found_in_this">ଏହି ରେଞ୍ଜରେ ପେମେଣ୍ଟ ଡାଟା ନାହିଁ।</string>
+    
 
     <string name="label_not_now">ଏବେ ନୁହେଁ</string>
 
@@ -1150,9 +1150,9 @@
 
     <string name="label_phone_number">ଫୋନ ନମ୍ବର</string>
 
-    <string name="label_pick_a_preset_in_5minute_steps">60 ଯାଏ 5 ମିନିଟ ଷ୍ଟେପରେ ପ୍ରିସେଟ ବାଛ କିମ୍ବା ମିନିଟରେ ନିଜ ମୂଲ୍ୟ ଲେଖ।</string>
+    
 
-    <string name="label_pick_a_preset_or_enter_a_custo">ପ୍ରିସେଟ ବାଛ କିମ୍ବା 1 ରୁ 30 ଦିନ ମଧ୍ୟରେ ମୂଲ୍ୟ ଲେଖ।</string>
+    
 
     <string name="label_premium_member">PRO ସଦସ୍ୟ</string>
 
@@ -1174,7 +1174,7 @@
 
     <string name="label_save_changes">ପରିବର୍ତ୍ତନ ସେଭ କର</string>
 
-    <string name="label_search_by_country_and_pick_the">ଦେଶ ଅନୁସାରେ ଖୋଜି ଆପ ସାରା ମୁଦ୍ରା ବାଛ।</string>
+    
 
     <string name="label_search_country">ଦେଶ ଖୋଜ</string>
 
@@ -1202,61 +1202,61 @@
 
     <string name="label_system_active">ସିଷ୍ଟମ ସକ୍ରିୟ</string>
 
-    <string name="pro_slogan_1">ଟଙ୍କା ନିଜେ ଗଣା ହେଉ।</string>
+    
 
-    <string name="pro_subheadline_1">ଭଡା, ବିଲ ଓ ସବସ୍କ୍ରିପସନ ହାତରେ ଲେଖିବା ଛାଡ। ଅଟୋ ପୁନରାବୃତ୍ତ ଓ ତୁରନ୍ତ କ୍ଲାଉଡ ସିଙ୍କ ରୁଟିନ କରିବ।</string>
+    
 
     <string name="pro_cta_1">ସେଭିଂ ଅଟୋପାଇଲଟ ଖୋଲ</string>
 
-    <string name="pro_slogan_2">ଥରେ ଲେଖ। ସବୁଠି ସିଙ୍କ। କୌଣସି କଷ୍ଟ ନାହିଁ।</string>
+    
 
-    <string name="pro_subheadline_2">ଫୋନ, ଟ୍ୟାବଲେଟ ଓ ପାର୍ଟନର ଡିଭାଇସରେ ୱାଲେଟ ଓ ଆକାଉଣ୍ଟ ରିଅଲ ଟାଇମରେ ସିଙ୍କ ରଖ, ହାତ ବିନା।</string>
+    
 
     <string name="pro_cta_2">ହାତରେ କାମ ଛାଡ</string>
 
-    <string name="pro_slogan_3">ଶୂନ୍ୟ ହାତର କାମ। 100% ଫାଇନାନ୍ସ ନିୟନ୍ତ୍ରଣ।</string>
+    
 
-    <string name="pro_subheadline_3">ଦୈନିକ ହିସାବକୁ ରୁଟିନରୁ ବ୍ୟାକଗ୍ରାଉଣ୍ଡ କାମ କର। ମାସିକ ବିଲ ଅଟୋ କରି ଚୁପଚାପ ହିସାବ ରଖ।</string>
+    
 
     <string name="pro_cta_3">ସେଭିଂ ଅଟୋପାଇଲଟ ଖୋଲ</string>
 
-    <string name="pro_slogan_4">ଖର୍ଚ୍ଚ କରିବା ଆଗରୁ ଦେଖ ଟଙ୍କା କେଉଁଠି ଯାଉଛି।</string>
+    
 
-    <string name="pro_subheadline_4">ଷ୍ଟାଟିକ ଇତିହାସ ଛାଡି ବର୍ଗ ପୂର୍ବାନୁମାନ ଓ ଟ୍ରେଣ୍ଡ ଖୋଲ, ଆଜି ହିଁ ଆସନ୍ତା ମାସର ବାଲାନ୍ସ ଦେଖ।</string>
+    
 
     <string name="pro_cta_4">ସବୁଦିନ ପାଇଁ ସ୍ପଷ୍ଟତାକୁ ଯାଅ</string>
 
-    <string name="pro_slogan_5">ଅନୁମାନ ଛାଡ। ପୁଞ୍ଜି ବଢାଇବା ଆରମ୍ଭ କର।</string>
+    
 
-    <string name="pro_subheadline_5">ଅନ୍ଧ ସ୍ଥାନ କାଢ। Pro ଆନାଲିଟିକ୍ସ ଦେଖାଇବ କେଉଁଠି ଅଧିକ ଦେଉଛ ଓ ସେହି ଲିକକୁ ସେଭିଂକୁ ଘୁଞ୍ଚାଇବ।</string>
+    
 
     <string name="pro_cta_5">ପୁଞ୍ଜି ନିୟନ୍ତ୍ରଣକୁ ନିଅ</string>
 
-    <string name="pro_slogan_6">ସ୍ମାର୍ଟ ପୂର୍ବାନୁମାନ ସହିତ କ୍ୟାସ ଫ୍ଲୋ ଆୟତ୍ତ କର।</string>
+    
 
-    <string name="pro_subheadline_6">ମାସିକ ବଜେଟରୁ ଅନୁମାନ କାଢ। ତୁମ ଅଭ୍ୟାସ ଅନୁସାରେ ଅଟୋ ପୂର୍ବାନୁମାନ ପାଇଁ ମଜବୁତ ପ୍ଲାନ।</string>
+    
 
     <string name="pro_cta_6">ସବୁଦିନ ପାଇଁ ସ୍ପଷ୍ଟତାକୁ ଯାଅ</string>
 
-    <string name="pro_slogan_7">ତୁମ ଫାଇନାନ୍ସ ଇତିହାସ — ସବୁଦିନ ସୁରକ୍ଷିତ।</string>
+    
 
-    <string name="pro_subheadline_7">ହରା, ଭାଙ୍ଗିଲା କିମ୍ବା ନୂଆ ଫୋନ ବର୍ଷର ଅଭ୍ୟାସ ମେଣ୍ଟିବା ଉଚିତ ନୁହେଁ। Google Drive ଚୁପ ଅଟୋବ୍ୟାକଅପ ଓ 1 ଟ୍ୟାପ ରିଷ୍ଟୋରରେ ଡାଟା ରକ୍ଷା କର।</string>
+    
 
     <string name="pro_cta_7">ସବୁଦିନ ପାଇଁ ସ୍ପଷ୍ଟତାକୁ ଯାଅ</string>
 
-    <string name="pro_slogan_8">କ୍ରାସରୁ ରକ୍ଷା। ଫୋନରୁ। ଷ୍ଟ୍ରେସରୁ।</string>
+    
 
-    <string name="pro_subheadline_8">ନିଶ୍ଚିନ୍ତରେ ଶୋ: ଟ୍ରାନ୍ଜାକ୍ସନ ଇତିହାସ ଓ ବଜେଟ ଏନକ୍ରିପ୍ଟ, ସିଙ୍କ ଓ କ୍ଲାଉଡରେ ନିଜେ ବ୍ୟାକଅପ।</string>
+    
 
     <string name="pro_cta_8">ଡାଟା ଏବେ ରକ୍ଷା କର</string>
 
-    <string name="label_take_control_of_your_wealth_wi">ଆମର ସବୁଠୁ ଶକ୍ତିଶାଳୀ ଟୁଲ ସହିତ ପୁଞ୍ଜି ନିୟନ୍ତ୍ରଣକୁ ନିଅ।</string>
+    
 
-    <string name="label_this_name_already_exists_in_va">ଏହି ନାମ %1$s ରେ ଆଗରୁ ଅଛି।</string>
+    
 
-    <string name="label_this_new_item_will_be_added_un">ଏହି ନୂଆ ଆଇଟମ %1$s ତଳେ ଯୋଡିବ।</string>
+    
 
-    <string name="label_this_will_overwrite_your_curre">ଏହା ବର୍ତ୍ତମାନ ଡାଟାବେସକୁ ବଛା .db ବ୍ୟାକଅପରେ ଓଭରରାଇଟ କରିବ। ଛାଡିଥିବା ରେକର୍ଡ ମିଶିବ ନାହିଁ। ଥିବା ଡାଟା ବଦଳିବ।</string>
+    
 
     <string name="label_today">ଆଜି</string>
 
@@ -1284,7 +1284,7 @@
 
     <string name="label_net_balance_cash_flow">ନେଟ ବାଲାନ୍ସ</string>
 
-    <string name="label_track_every_move_with_confiden">ପ୍ରତ୍ୟେକ ଚାଲ ବିଶ୍ୱାସରେ ଟ୍ରାକ କର।</string>
+    
 
     <string-array name="psychology_phrases">
         <item>ସତର୍କତା ଇଚ୍ଛାଶକ୍ତିଠାରୁ ଶ୍ରେଷ୍ଠ।</item>
@@ -1433,7 +1433,7 @@
 
     <string name="title_auto_backup">ଅଟୋବ୍ୟାକଅପ</string>
 
-    <string name="title_automated_backup_every_val_day">ପ୍ରତି %1$s ଦିନରେ ଅଟୋବ୍ୟାକଅପ।</string>
+    
 
     <string name="title_avg_daily">ଦୈନିକ ହାରାହାରି</string>
 
@@ -1445,7 +1445,7 @@
 
     <string name="title_calendar">କ୍ୟାଲେଣ୍ଡର</string>
 
-    <string name="title_choose_the_main_attribute_used">ତାଲିକା ସର୍ଟ ପାଇଁ ମୁଖ୍ୟ ଗୁଣ ବାଛ।</string>
+    
 
     <string name="title_confirm_identity">ପରିଚୟ ନିଶ୍ଚିତ କର</string>
 
@@ -1473,7 +1473,7 @@
 
     <string name="title_filters">ଫିଲ୍ଟର</string>
 
-    <string name="title_finetune_how_results_are_ranke">ବଛା ସର୍ଟ ଭିତରେ ଫଳାଫଳ କିପରି ର୍ୟାଙ୍କ ହେବ ସେଟ କର।</string>
+    
 
     <string name="title_follow_us">ଫଲୋ କର</string>
 
@@ -1551,7 +1551,7 @@
 
     <string name="title_sort_by">ସର୍ଟ କର</string>
 
-    <string name="title_stack_multiple_filters_to_narr">ତାଲିକା ସଂକୁଚିତ କରିବାକୁ ଫିଲ୍ଟର ମିଶା।</string>
+    
 
     <string name="title_support">ସପୋର୍ଟ</string>
 
@@ -1565,7 +1565,7 @@
 
     <string name="label_other_installment">ଅନ୍ୟ</string>
 
-    <string name="msg_installment_info">ବର୍ତ୍ତମାନ ଟ୍ରାନ୍ଜାକ୍ସନ ପେମେଣ୍ଟ #1। ପର ରେକର୍ଡ ନିଜେ ଆସିବ।</string>
+    
 
     <string name="label_update_action">ଅପଡେଟ</string>
 
@@ -1595,7 +1595,7 @@
 
     <string name="label_val_minutes_away">%1$d ମିନିଟ ଦୂରେ ଥିଲେ ଲକ କର</string>
 
-    <string name="label_auto_lock_desc">ଆପ କେବେ ନିଜେ ଲକ ହେବ ବାଛ।</string>
+    
 
     <string name="label_primary_currency">ଆପର ମୁଖ୍ୟ ମୁଦ୍ରା</string>
 
@@ -1607,7 +1607,7 @@
 
     <string name="label_select_language">ଭାଷା ବାଛ</string>
 
-    <string name="label_language_selection_desc">ଆପ ଭାଷା ବାଛ। ଅନୁବାଦ ନଥିବା ଟେକ୍ସଟ ଇଂରାଜୀରେ ରହିବ।</string>
+    
 
     <string name="label_language_system">ସିଷ୍ଟମ ଡିଫଲ୍ଟ</string>
 
@@ -1619,9 +1619,9 @@
 
     <string name="label_decimal_places_subtitle">ରାଶି ସଠିକତା</string>
 
-    <string name="label_theme_selection_desc">ଆପ ଡିଭାଇସ ଅନୁସରଣ କରିବ ନା ଫିକ୍ସଡ ଥିମ ରଖିବ ବାଛ।</string>
+    
 
-    <string name="label_number_format_desc">ଆପ ସାରା ବଡ ରାଶି କିପରି ଗୋଷ୍ଠୀ ହେବ ବାଛ।</string>
+    
 
     <string name="label_select_theme">ଥିମ ବାଛ</string>
 
@@ -1653,15 +1653,15 @@
 
     <string name="label_pro_required">Pro ଦରକାର</string>
 
-    <string name="msg_system_font_ad_desc">ସିଷ୍ଟମ ଫଣ୍ଟ ମାଗଣା ଖୋଲିବାକୁ ଏକ ଛୋଟ ବିଜ୍ଞାପନ ଦେଖ।</string>
+    
 
-    <string name="msg_custom_font_pro_desc">ନିଜ ଫଣ୍ଟ Pro ଫିଚର। ଖୋଲିବାକୁ Pro କୁ ଯାଅ।</string>
+    
 
     <string name="label_import_font">ଫଣ୍ଟ ଇମ୍ପୋର୍ଟ</string>
 
     <string name="label_font_count">%1$d/%2$d ନିଜ ଫଣ୍ଟ</string>
 
-    <string name="label_max_fonts_reached">ସର୍ବାଧିକ %1$d। ନୂଆ ଯୋଡିବାକୁ ଗୋଟେ ଡିଲିଟ କର।</string>
+    
 
     <string name="label_no_custom_fonts">ଏବେ ନିଜ ଫଣ୍ଟ ନାହିଁ</string>
 
@@ -1671,7 +1671,7 @@
 
     <string name="msg_import_font_error">ଫଣ୍ଟ ଇମ୍ପୋର୍ଟ ହେଲା ନାହିଁ</string>
 
-    <string name="msg_font_too_large">ଫଣ୍ଟ ଫାଇଲ ବହୁତ ବଡ। ଛୋଟ ବାଛ।</string>
+    
 
     <string name="msg_invalid_font">ଭୁଲ ଫଣ୍ଟ ଫାଇଲ</string>
 
@@ -1695,7 +1695,7 @@
 
     <string name="msg_delete_font_title">ଫଣ୍ଟ ଡିଲିଟ କରିବେ?</string>
 
-    <string name="msg_delete_font_desc">%1$s ନିଜ ଫଣ୍ଟରୁ ଡିଲିଟ ହେବ।</string>
+    
 
     <string name="label_select">ବାଛ</string>
 
@@ -1709,7 +1709,7 @@
 
     <string name="desc_app_icon">ଆପ ଆଇକନ</string>
 
-    <string name="label_about_app_desc">ସୌନ୍ଦର୍ଯ୍ୟ ସହିତ ଦୈନିକ ଟ୍ରାନ୍ଜାକ୍ସନ ରଖିବାକୁ ଏକ ସରଳ ଆପ। ଯେଉଁମାନେ ଫାଇନାନ୍ସିଆଲ ସ୍ପଷ୍ଟତା ଓ ପ୍ରିମିୟମ UI ଚାହାନ୍ତି। ପ୍ରତ୍ୟେକ ଡାଟା ପଏଣ୍ଟ ଏକ ଏଲିଟ ଏଡିଟୋରିଆଲ vault ର ଅଂଶ।</string>
+    
 
     <string name="title_yearly_analytics">ବାର୍ଷିକ ଆନାଲିଟିକ୍ସ</string>
 
@@ -1737,7 +1737,7 @@
 
     <string name="label_val_transactions">%1$s ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <string name="label_no_transactions_found_in_this">ଏହି ରେଞ୍ଜରେ ଟ୍ରାନ୍ଜାକ୍ସନ ନାହିଁ।</string>
+    
 
     <string name="label_top_val">ଟପ: %1$s</string>
 
@@ -1759,15 +1759,15 @@
 
     <string name="format_ellipsis">%1$s…</string>
 
-    <string name="desc_log_daily_spending">ସୁବିଧା କିପ୍ୟାଡ ଓ ସ୍ମାର୍ଟ ବର୍ଗ ରେଟିଂ ସହିତ ସେକେଣ୍ଡରେ ଦୈନିକ ଖର୍ଚ୍ଚ ଲେଖ।</string>
+    
 
     <string name="label_next">ପର</string>
 
-    <string name="desc_financial_data_secure">ଫାଇନାନ୍ସ ଡାଟା ଲୋକାଲରେ ରହେ ଓ ବାୟୋମେଟ୍ରିକରେ ସୁରକ୍ଷିତ।</string>
+    
 
-    <string name="desc_visualize_spending">ଇଣ୍ଟରାକ୍ଟିଭ ଗ୍ରାଫ ଓ ଡିଟେଲ ବିଭାଜନରେ ଖର୍ଚ୍ଚ ଅଭ୍ୟାସ ଦେଖ।</string>
+    
 
-    <string name="desc_modern_finance">ହାତରେ ଆଧୁନିକ ବ୍ୟକ୍ତିଗତ ଫାଇନାନ୍ସ। ଡିଫଲ୍ଟରେ offline-first: ଡାଟା ଡିଭାଇସ ଛାଡେ ନାହିଁ।</string>
+    
 
     <string name="label_continue">ଆଗକୁ</string>
 
@@ -1775,13 +1775,13 @@
 
     <string name="title_secure_your_account">ଆକାଉଣ୍ଟ ସୁରକ୍ଷିତ କର</string>
 
-    <string name="desc_sync_and_premium_features">ଡିଭାଇସ ମଧ୍ୟରେ ସିଙ୍କ ଓ ପ୍ରିମିୟମ ଫିଚର ସୁରକ୍ଷିତ ବ୍ୟବହାର ପାଇଁ ଲଗଇନ କର।</string>
+    
 
     <string name="auth_welcome">ସ୍ୱାଗତ</string>
 
-    <string name="auth_signup_subtitle">ଆକାଉଣ୍ଟ ତିଆରି କରି ଆରମ୍ଭ କରିବାକୁ ତଳେ ରେଜିଷ୍ଟର କର।</string>
+    
 
-    <string name="auth_signin_subtitle">ସେଭ ହୋଇଥିବା ସେଟିଂ ଓ ଆକାଉଣ୍ଟ ପାଇବାକୁ ଲଗଇନ କର।</string>
+    
 
     <string name="auth_forgot">ପାସୱାର୍ଡ ଭୁଲିଗଲ</string>
 
@@ -1825,7 +1825,7 @@
 
     <string name="label_continue_as_guest">ଅତିଥି ଭାବେ ଆଗକୁ</string>
 
-    <string name="desc_tell_us_about_yourself">ଅଭିଜ୍ଞତା ବ୍ୟକ୍ତିଗତ କରିବାକୁ ନିଜ ବିଷୟରେ କିଛି କୁହ।</string>
+    
 
     <string name="label_get_started">ଆରମ୍ଭ କର</string>
 
@@ -1875,11 +1875,11 @@
 
     <string name="content_desc_cursor_right">କର୍ସର ଡାହାଣ</string>
 
-    <string name="msg_history_long_press_hint">ଅନ୍ୟ ଅପସନ ପାଇଁ କାର୍ଡରେ ଲମ୍ବା ଦବା।</string>
+    
 
     <string name="msg_calculator_history_empty">ଏବେ ହିସାବ ନାହିଁ</string>
 
-    <string name="msg_clear_history_confirm">ସବୁ କ୍ୟାଲକୁଲେଟର ଇତିହାସ ସଫା କରିବେ? ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="label_clear_history">ଇତିହାସ ସଫା କର</string>
 
@@ -1887,7 +1887,7 @@
 
     <string name="title_quick_action">ଦ୍ରୁତ କାମ</string>
 
-    <string name="msg_history_quick_action_caption">ଏହି ହିସାବ ସହିତ କଣ କରିବ ବାଛ। ଯେକୌଣସି ସମୟରେ ବଦଳାଇପାରିବ।</string>
+    
 
     <string name="label_copy_expression">ଏକ୍ସପ୍ରେସନ କପି କର</string>
 
@@ -1921,7 +1921,7 @@
 
     <string name="label_automated_sync">କ୍ଲାଉଡ ଓ ଅଟୋମେସନ</string>
 
-    <string name="desc_automated_sync">ହାତର କାମ ବିନା ଡାଟା କିପରି ଅଟୋ ସୁରକ୍ଷିତ ହେବ ମ୍ୟାନେଜ କର।</string>
+    
 
     <string name="desc_auto_backup_subtitle">ଅଟୋମେଟିକ ଲୋକାଲ ବ୍ୟାକଅପ</string>
 
@@ -1942,7 +1942,7 @@
 
     <string name="label_data_transfer">ଫାଇଲ ଟ୍ରାନ୍ସଫର</string>
 
-    <string name="desc_data_transfer">ଡିଭାଇସ ମଧ୍ୟରେ ଡାଟା ଘୁଞ୍ଚାଇବା କିମ୍ବା ଫିଜିକାଲ ଫାଇଲ ରଖିବାକୁ ହାତ ଟୁଲ।</string>
+    
 
     <string name="label_export_data_json">ଡାଟା ଏକ୍ସପୋର୍ଟ (JSON)</string>
 
@@ -1972,7 +1972,7 @@
 
     <string name="label_utilities_and_stats">ଷ୍ଟୋରେଜ ଓ ରକ୍ଷଣାବେକ୍ଷଣ</string>
 
-    <string name="desc_utilities_and_stats">ଡାଟାବେସ ସ୍ୱାସ୍ଥ୍ୟ ଟୁଲ ଓ ରିସେଟ କାମ।</string>
+    
 
     <string name="desc_transaction_count_subtitle">ଡାଟାବେସରେ ମୋଟ ରେକର୍ଡ</string>
 
@@ -1981,13 +1981,13 @@
         <item quantity="other">ପ୍ରତି %1$d ଦିନରେ ଅଟୋବ୍ୟାକଅପ</item>
     </plurals>
 
-    <string name="desc_choose_backup_frequency">ଆପ କେତେ ଥର ଅଟୋବ୍ୟାକଅପ କରିବ ବାଛ।</string>
+    
 
-    <string name="msg_no_category_budget_data">ଏହି ମାସ ପାଇଁ ଏବେ ବର୍ଗ ବଜେଟ ଡାଟା ନାହିଁ।</string>
+    
 
     <string name="label_history_locked">ଇତିହାସ ଲକ</string>
 
-    <string name="msg_no_recurring_items">ଏବେ ପୁନରାବୃତ୍ତ ଆଇଟମ ନାହିଁ।</string>
+    
 
     <string name="label_tab_budgets">ବଜେଟ</string>
 
@@ -2026,9 +2026,9 @@
 
     <string name="label_sms_inbox_expense_amount">%1$s ଖର୍ଚ୍ଚ</string>
 
-    <string name="label_sms_inbox_card_hint">ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡ ଖୋଲିବାକୁ କାର୍ଡ ଟ୍ୟାପ କର, ଦରକାର ହେଲେ ସୁଧାର, ତାପରେ ଯୋଡ ଦବା।</string>
+    
 
-    <string name="label_sms_inbox_swipe_hint">ଗୋଟେ ଡିଟେକସନ ଡିଲିଟ କରିବାକୁ ବାମ/ଡାହାଣ ସ୍ୱାଇପ କର।</string>
+    
 
     <string name="label_sms_inbox_category">ସୁପାରିଶ ବର୍ଗ: %1$s</string>
 
@@ -2046,13 +2046,13 @@
 
     <string name="label_sms_inbox_empty_filtered_title">ଏଠି ଖାଲି</string>
 
-    <string name="label_sms_inbox_empty_body">ପେମେଣ୍ଟ ଲାଗୁଥିବା ବ୍ୟାଙ୍କ ମେସେଜ ଏଠି ଆସେ — ନୋଟିଫିକେସନ ବନ୍ଦ କଲେ ମଧ୍ୟ।</string>
+    
 
     <string name="label_sms_inbox_delete_title">ଡିଟେକସନ ଡିଲିଟ କରିବେ?</string>
 
     <string name="label_sms_inbox_delete_subtitle">ଇନବକ୍ସର ଅଫେରାଇ ହେଉନଥିବା କାମ</string>
 
-    <string name="label_sms_inbox_delete_body">ଇନବକ୍ସରୁ ସେଭ ମେସେଜ କାଢେ। ଆଗରୁ ଯୋଡା ଟ୍ରାନ୍ଜାକ୍ସନ ରହେ।</string>
+    
 
     <string name="label_sms_inbox_edit_title">ଯୋଡିବା ଆଗରୁ ସଂପାଦନ କର</string>
 
@@ -2151,7 +2151,7 @@
 
     <string name="label_emi_first_due">ପ୍ରଥମ କିସ୍ତି ତାରିଖ</string>
 
-    <string name="msg_convert_to_regular_info">ପ୍ଲାନ ସର୍ତ ରହିବ — ଫେରିଲେ ସେହି କିସ୍ତି ଓ ପେମେଣ୍ଟ ଇତିହାସ ଫେରିବ।</string>
+    
 
     <string name="label_emi_paid_progress">%2$d ରୁ %1$d ଦିଆଗଲା</string>
 
@@ -2190,7 +2190,7 @@
 
     <string name="label_emi_plan_section">EMI / ଋଣ ପ୍ଲାନ</string>
 
-    <string name="desc_emi_plan_toggle">ଏହି ପୁନରାବୃତ୍ତକୁ ଫିକ୍ସଡ କିସ୍ତି ଋଣ ଭାବେ ଟ୍ରାକ କର।</string>
+    
 
     <string name="desc_emi_total_amount">ତୁମେ ଦେଉଥିବା ମୋଟ ରାଶି (ମୂଳ + ସୁଧ)</string>
 
@@ -2200,7 +2200,7 @@
 
     <string name="label_emi_frequency_format">EMI · %1$s</string>
 
-    <string name="msg_emi_create_info">ଏହି ଟ୍ରାନ୍ଜାକ୍ସନ ପେମେଣ୍ଟ #1। ପ୍ଲାନର ବାକି %1$d — ପୁନରାବୃତ୍ତ ତାଲିକାରୁ ଦିଅ, ଛାଡ କିମ୍ବା ବନ୍ଦ କର।</string>
+    
 
     <string name="label_save_changes_caps">ପରିବର୍ତ୍ତନ ସେଭ କର</string>
 
@@ -2226,19 +2226,19 @@
 
     <string name="action_create_budget">ବଜେଟ ତିଆରି କର</string>
 
-    <string name="msg_copy_previous_budgets_context">%2$s କୁ କପି କରିବାକୁ %1$s ର ବଜେଟ ବାଛ।</string>
+    
 
-    <string name="empty_copy_previous_month_title">ଗତ ମାସର ବଜେଟ ମିଳିଲା ନାହିଁ।</string>
+    
 
-    <string name="msg_copy_previous_month_empty">ଗତ ମାସରେ ବଜେଟ ନଥିଲା, କପି କରିବାକୁ କିଛି ନାହିଁ।</string>
+    
 
-    <string name="msg_copy_all_budgets_success">ଗତ ମାସର ସବୁ ବଜେଟ କପି ହେଲା।</string>
+    
 
-    <string name="msg_copy_selected_budgets_success">ବଛା ବଜେଟ କପି ହେଲା।</string>
+    
 
     <string name="title_copy_budgets_confirmation">ବଜେଟ ଆଗରୁ ଅଛି</string>
 
-    <string name="msg_copy_budgets_confirmation">%1$s ରେ ଆଗରୁ ବଜେଟ ଅଛି। ଗତ ମାସ କପି ଡୁପ୍ଲିକେଟ ତିଆରି କରିପାରେ। ଆଗକୁ?</string>
+    
 
     <string name="label_calendar_year_view">କ୍ୟାଲେଣ୍ଡର ବର୍ଷ ଭ୍ୟୁ</string>
 
@@ -2270,39 +2270,38 @@
 
     <string name="desc_display_wallet_or_card">ୱାଲେଟ କିମ୍ବା କାର୍ଡ ଦେଖାଅ</string>
 
-    <string name="desc_group_transactions_by_day">ଦିନ ହେଡର ତଳେ ଟ୍ରାନ୍ଜାକ୍ସନ ଗୋଷ୍ଠୀ କର (ଯଥା «ଆଜି», «ଗତକାଲି»)।</string>
+    
 
     <string name="title_transaction_card_settings">ଦେଖା</string>
 
     <string name="label_on_each_transaction_card">ପ୍ରତ୍ୟେକ ଟ୍ରାନ୍ଜାକ୍ସନ କାର୍ଡରେ</string>
 
-    <string name="desc_on_each_transaction_card">ଏହି ସେଟିଂ ତାଲିକାର ପ୍ରତ୍ୟେକ କାର୍ଡରେ କଣ ଦେଖାଯିବ ଠିକ କରେ।</string>
+    
 
     <string name="label_in_the_list">ତାଲିକାରେ</string>
 
-    <string name="desc_in_the_list">ଏହି ସେଟିଂ କାର୍ଡ ଚାରିପଟେ ତାଲିକା କିପରି ଗୋଷ୍ଠୀ ଓ ସାରାଂଶ ହେବ ଠିକ କରେ।</string>
+    
 
     <string name="title_default_view_by">ଡିଫଲ୍ଟ ଭ୍ୟୁ</string>
-    <string name="desc_default_view_by">ଟ୍ରାନ୍ସଆକ୍ସନ୍ ସ୍କ୍ରିନ୍ କିପରି ଖୋଲିବ: ଦୈନିକ, ମାସିକ, ବାର୍ଷିକ କିମ୍ବା ସମସ୍ତ।</string>
-
+    
 
     <string name="label_visual_style">ଭିଜୁଆଲ ଷ୍ଟାଇଲ</string>
 
-    <string name="desc_visual_style">ଏହି ସେଟିଂ କାର୍ଡ ଦେଖା ଦେଉଥିବା ଆଇକନ ଓ ରଙ୍ଗ ଲେବଲ ଠିକ କରେ।</string>
+    
 
     <string name="label_transaction_details">ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଟେଲ</string>
 
-    <string name="desc_transaction_details">କାର୍ଡରେ କେଉଁ ଡାଟା ଦେଖାଯିବ ଏହି ସେଟିଂ ଠିକ କରେ।</string>
+    
 
     <string name="label_time_and_organization">ସମୟ ଓ ସଂଗଠନ</string>
 
-    <string name="desc_time_and_organization">ସମୟ କିପରି ଦେଖାଯିବ ଓ ଟ୍ରାନ୍ଜାକ୍ସନ କିପରି ଗୋଷ୍ଠୀ ହେବ ଏହି ସେଟିଂ ଠିକ କରେ।</string>
+    
 
     <string name="label_preview">ପ୍ରିଭ୍ୟୁ</string>
 
     <string name="placeholder_select_gender">ଲିଙ୍ଗ ବାଛ</string>
 
-    <string name="msg_unable_to_load_photo">ଏହି ଛବି ଲୋଡ ହେଲା ନାହିଁ। ଅନ୍ୟ ଫଟୋ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="title_edit_profile">ପ୍ରୋଫାଇଲ ସଂପାଦନ କର</string>
 
@@ -2324,7 +2323,7 @@
 
     <string name="content_desc_open_gender_options">ଲିଙ୍ଗ ଅପସନ ଖୋଲ</string>
 
-    <string name="desc_choose_gender_label">ତୁମକୁ ମିଳୁଥିବା ଲିଙ୍ଗ ଲେବଲ ବାଛ।</string>
+    
 
     <string name="content_desc_add_photo">ଫଟୋ ଯୋଡ</string>
 
@@ -2336,17 +2335,17 @@
 
     <string name="placeholder_search_country">ଦେଶ ଖୋଜ…</string>
 
-    <string name="desc_daily_reminder">ଦିନର ଟ୍ରାନ୍ଜାକ୍ସନ ଲଗ କରିବାକୁ ରିମାଇଣ୍ଡର ପାଅ।</string>
+    
 
     <string name="title_budget_limit_alerts">ବଜେଟ ଲିମିଟ ଆଲର୍ଟ</string>
 
-    <string name="desc_budget_limit_alerts">ମାସିକ ବଜେଟ ଅତିକ୍ରମ କଲେ ନୋଟିଫିକେସନ ପାଅ।</string>
+    
 
-    <string name="desc_missed_entry_reminder">2 ଦିନ ଟ୍ରାନ୍ଜାକ୍ସନ ଭୁଲିଲେ ନୋଟିଫିକେସନ ପାଅ।</string>
+    
 
     <string name="title_goal_reminders">ଲକ୍ଷ୍ୟ ରିମାଇଣ୍ଡର</string>
 
-    <string name="desc_goal_reminders">ସେଭିଂ ଲକ୍ଷ୍ୟ ପାଇଁ ସାପ୍ତାହିକ ପିଙ୍କ।</string>
+    
 
     <string name="msg_preparing_dashboard">ଡ୍ୟାସବୋର୍ଡ ତିଆରି ହେଉଛି</string>
 
@@ -2386,15 +2385,15 @@
 
     <string name="label_yearly">ବାର୍ଷିକ</string>
 
-    <string name="label_no_results_found">କିଛି ମିଳିଲା ନାହିଁ।</string>
+    
 
-    <string name="label_select_a_backup_file">ଡାଟା ଫେରାଇବାକୁ ବ୍ୟାକଅପ ଫାଇଲ ବାଛ। ବର୍ତ୍ତମାନ ଡାଟା ଓଭରରାଇଟ ହେବ।</string>
+    
 
     <string name="label_select_file_manually">ଫାଇଲ ହାତରେ ବାଛ...</string>
 
     <string name="label_encrypted">ଏନକ୍ରିପ୍ଟ</string>
 
-    <string name="toast_backup_restore_key_mismatch">ଏହି ବ୍ୟାକଅପ ଅନ୍ୟ ଡିଭାଇସରେ ତିଆରି, ଏଠି ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="label_advanced_analytics_trends">ଆଡଭାନ୍ସ ଆନାଲିଟିକ୍ସ ସହିତ ପୂରା ଫାଇନାନ୍ସ ସ୍ପଷ୍ଟତା</string>
 
@@ -2416,23 +2415,23 @@
 
     <string name="label_income_categories">ଆୟ ବର୍ଗ</string>
 
-    <string name="label_no_categories_available">ବଛା ପ୍ରକାର ପାଇଁ ବର୍ଗ ନାହିଁ।</string>
+    
 
     <string name="label_min">ମିନି</string>
 
     <string name="label_max">ମ୍ୟାକ୍ସ</string>
 
-    <string name="desc_newest_order">ସବୁଠୁ ନୂଆ ଟ୍ରାନ୍ଜାକ୍ସନ ଉପରେ।</string>
+    
 
-    <string name="desc_oldest_order">ପୁରୁଣା ପ୍ରଥମେ।</string>
+    
 
-    <string name="desc_highest_order">ବଡ ରାଶି ତାଲିକାରେ ଉପରେ।</string>
+    
 
-    <string name="desc_lowest_order">ଛୋଟ ରାଶି ବଡ ଆଗରେ।</string>
+    
 
-    <string name="desc_income_first_order">ଆୟ ଖର୍ଚ୍ଚ ଆଗରେ ଗୋଷ୍ଠୀ ହୁଏ।</string>
+    
 
-    <string name="desc_expense_first_order">ଖର୍ଚ୍ଚ ଆୟ ଆଗରେ ଦେଖାଯାଏ।</string>
+    
 
     <string name="label_search_dots">ଖୋଜ…</string>
 
@@ -2460,11 +2459,11 @@
 
     <string name="label_filters">ଫିଲ୍ଟର</string>
 
-    <string name="desc_order_subtitle">ବଛା ସର୍ଟ ଭିତରେ ଫଳାଫଳ କିପରି ର୍ୟାଙ୍କ ହେବ ସେଟ କର।</string>
+    
 
-    <string name="desc_filters_subtitle">ତାଲିକା ସଂକୁଚିତ କରିବାକୁ ଫିଲ୍ଟର ମିଶା।</string>
+    
 
-    <string name="desc_sort_subtitle">ତାଲିକା ସର୍ଟ ପାଇଁ ମୁଖ୍ୟ ଗୁଣ ବାଛ।</string>
+    
 
     <string name="title_transaction_type_caps">ଟ୍ରାନ୍ଜାକ୍ସନ ପ୍ରକାର</string>
 
@@ -2486,17 +2485,17 @@
 
     <string name="label_categories">ବର୍ଗ</string>
 
-    <string name="desc_no_categories">ବଛା ପ୍ରକାର ପାଇଁ ବର୍ଗ ନାହିଁ।</string>
+    
 
-    <string name="label_sort_filter_subtitle">ଟ୍ରାନ୍ଜାକ୍ସନ କିପରି ସଜା ଓ ଦେଖାଯିବ ଠିକ କର।</string>
+    
 
     <string name="label_search_placeholder">ନୋଟ କିମ୍ବା ରାଶି…</string>
 
     <string name="label_search_by_category_wallet">ବର୍ଗ, ୱାଲେଟ ଓ ଟ୍ୟାଗରେ ଖୋଜ</string>
 
-    <string name="msg_delete_transactions_confirm">%1$d ଟ୍ରାନ୍ଜାକ୍ସନ ଡିଲିଟ କରିବେ? ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
-    <string name="msg_delete_category_confirm">«%1$s» ଡିଲିଟ କରିବେ? ଥିବା ଟ୍ରାନ୍ଜାକ୍ସନ ଏହା ବ୍ୟବହାର କରିପାରେ। ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="label_delete_confirm">ଡିଲିଟ</string>
 
@@ -2514,9 +2513,9 @@
 
     <string name="title_cannot_duplicate_recurring">ଡୁପ୍ଲିକେଟ ନିୟମ ମିଳିଲା</string>
 
-    <string name="msg_duplicate_recurring_rule">%1$s ପାଇଁ %2$s/%3$s ରେ ଆଗରୁ ପୁନରାବୃତ୍ତ ନିୟମ ଅଛି। ଆଉ ଗୋଟେ ତିଆରି କରିବେ?</string>
+    
 
-    <string name="msg_cannot_duplicate_recurring">ଏହା ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ (ମୂଳ କିମ୍ବା ଅଟୋ), ତେଣୁ ଡୁପ୍ଲିକେଟ କରିହେବ ନାହିଁ।</string>
+    
 
     <string name="label_week">ସପ୍ତାହ</string>
 
@@ -2536,13 +2535,13 @@
 
     <string name="label_spending">ଖର୍ଚ୍ଚ</string>
 
-    <string name="msg_unlock_insights_hint">ବ୍ୟକ୍ତିଗତ ଇନସାଇଟ ଖୋଲିବାକୁ ଅନ୍ୟ ରେଞ୍ଜ ବାଛ କିମ୍ବା ଅଧିକ ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡ।</string>
+    
 
     <string name="label_up">ଉପର</string>
 
     <string name="label_down">ତଳ</string>
 
-    <string name="msg_spending_trend">ଏହି ଅବଧିରେ ଖର୍ଚ୍ଚ ଟ୍ରେଣ୍ଡ %1$s %2$s। %3$s ଦେଖିଲେ ପର ଚକ୍ରରେ ପ୍ରାୟ %4$s ସେଭ କରିପାରିବ।</string>
+    
 
     <string name="msg_choose_range_dates">ଆରମ୍ଭ ଓ ଶେଷ ତାରିଖ ବାଛ</string>
 
@@ -2568,7 +2567,7 @@
 
     <string name="label_to">ଯାଏ</string>
 
-    <string name="error_invalid_date_month">ବଛା ମାସ ପାଇଁ ଭୁଲ ତାରିଖ।</string>
+    
 
     <string name="format_date_short">dd MMM</string>
 
@@ -2580,7 +2579,7 @@
 
     <string name="title_monthly_summary">ମାସିକ ସାରାଂଶ</string>
 
-    <string name="label_spending_by_payment_mode_breakdown">ୱାଲେଟ କିମ୍ବା ପେମେଣ୍ଟ ଉପାୟ ଅନୁସାରେ ଖର୍ଚ୍ଚ ବିଭାଜନ।</string>
+    
 
     <string-array name="days_of_week_short">
         <item>ରବି</item>
@@ -2918,13 +2917,13 @@
 
     <string name="label_budget_status_label">ଅଧିକ ଖର୍ଚ୍ଚ</string>
 
-    <string name="msg_no_budgets_locked">%1$s ପାଇଁ ବଜେଟ ନଥିଲା। ଇତିହାସ ଏବେ ଲକ।</string>
+    
 
-    <string name="msg_no_budgets_limit_reached">%1$s ପାଇଁ ଆଉ ବଜେଟ ଯୋଡିହେବ ନାହିଁ (ସଂପାଦନ ଲିମିଟ)।</string>
+    
 
-    <string name="msg_no_budgets_start_tracking">%1$s ପାଇଁ ଏବେ ବଜେଟ ନାହିଁ। ଏହି ମାସ ଟ୍ରାକ କରିବାକୁ ନୂଆ ବଜେଟ ଯୋଡ ଦବା।</string>
+    
 
-    <string name="msg_no_recurring_start_tracking">ଏବେ ପୁନରାବୃତ୍ତ ଖର୍ଚ୍ଚ ନାହିଁ। ପୁନରାବୃତ୍ତ ଯୋଡ ଦବାଇ ଥିବା ଖର୍ଚ୍ଚ ଟ୍ରାନ୍ଜାକ୍ସନ ବାଛ।</string>
+    
 
     <string name="format_limit_amount">ଲିମିଟ %1$s</string>
 
@@ -2948,7 +2947,7 @@
 
     <string name="label_income_with_val">ଆୟ %1$s</string>
 
-    <string name="msg_no_calendar_entries">%1$s ପାଇଁ କୌଣସି ଏଣ୍ଟ୍ରି ନାହିଁ।</string>
+    
 
     <string name="month_jan_short">ଜାନୁ</string>
 
@@ -3014,51 +3013,51 @@
 
     <string name="label_custom_payment_method">ନିଜ ପେମେଣ୍ଟ ଉପାୟ</string>
 
-    <string name="notification_format_budget_approaching">%1$s! ତୁମେ %3$s ବଜେଟର %2$s ବ୍ୟବହାର କଲ। %4$s ବାକି।</string>
+    
 
-    <string name="notification_format_budget_reached">ବଜେଟ: ତୁମେ %2$s ପାଇଁ %1$s ଲିମିଟରେ ପହଞ୍ଚିଲ।</string>
+    
 
-    <string name="notification_format_budget_overspent">ଆଲର୍ଟ: ତୁମେ %2$s ବଜେଟରୁ %1$s ଅଧିକ। %3$s</string>
+    
 
     <string name="notification_budget_approaching_1">ଧୀର ହେବା ସମୟ? 🛑</string>
 
-    <string name="notification_budget_approaching_2">ଭବିଷ୍ୟତର ତୁମେ ଏବେ ରୋକିଲେ ଧନ୍ୟବାଦ ଦେବ। 😇</string>
+    
 
-    <string name="notification_budget_approaching_3">ୱାଲେଟ ହାଲୁକା ହେଉଛି। 💸</string>
+    
 
-    <string name="notification_budget_overspent_1">ବଜେଟ ପଛ ଆଇନାରେ। 🏎️</string>
+    
 
-    <string name="notification_budget_overspent_2">ଆମେ ଅଜଣା ଜାଗାରେ। 🗺️</string>
+    
 
     <string name="notification_budget_overspent_3">ଲିମିଟ କେବଳ ସୁପାରିଶ ଥିଲା, ନା? 🙃</string>
 
     <string name="notification_channel_reminders">ଦୈନିକ ରିମାଇଣ୍ଡର</string>
 
-    <string name="notification_channel_reminders_desc">ଖର୍ଚ୍ଚ ଲଗ କରିବାକୁ ସମୟ ସମୟରେ ରିମାଇଣ୍ଡର।</string>
+    
 
     <string name="notification_channel_budget">ବଜେଟ ଆଲର୍ଟ</string>
 
-    <string name="notification_channel_budget_desc">ମାସିକ ବଜେଟ ପାଖାପାଖି କିମ୍ବା ପହଞ୍ଚିଲେ ଚେତାବନୀ।</string>
+    
 
     <string name="notification_channel_budget_exceeded">ବଜେଟ ଅତିକ୍ରମ</string>
 
-    <string name="notification_channel_budget_exceeded_desc">ମାସିକ ବଜେଟ ଅତିକ୍ରମ କଲେ ଆଲର୍ଟ।</string>
+    
 
     <string name="notification_channel_cloud_security">କ୍ଲାଉଡ ଓ ସୁରକ୍ଷା</string>
 
-    <string name="notification_channel_cloud_security_desc">ଆକାଉଣ୍ଟ ଓ କ୍ଲାଉଡ ସିଙ୍କ ପାଇଁ ସୁରକ୍ଷା ଆଲର୍ଟ।</string>
+    
 
     <string name="notification_channel_sync_status">ସିଙ୍କ ସ୍ଥିତି</string>
 
-    <string name="notification_channel_sync_status_desc">ବ୍ୟାକଗ୍ରାଉଣ୍ଡରେ ଡାଟା ସିଙ୍କ ହେଉଥିବାବେଳେ ଚୁପ ଅପଡେଟ।</string>
+    
 
     <string name="notification_channel_financial_insights">ଫାଇନାନ୍ସ ଇନସାଇଟ</string>
 
-    <string name="notification_channel_financial_insights_desc">ଖର୍ଚ୍ଚ ପାଇଁ ବ୍ୟକ୍ତିଗତ ଇନସାଇଟ ଓ ପୂର୍ବାନୁମାନ।</string>
+    
 
     <string name="notification_channel_recurring">ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <string name="notification_channel_recurring_desc">ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ ଅଟୋ ଯୋଡିଲେ ନୋଟିଫିକେସନ।</string>
+    
 
     <string name="notification_title_budget_alert">ବଜେଟ ଆଲର୍ଟ!</string>
 
@@ -3071,10 +3070,7 @@
         <item quantity="other">%1$d ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ ଯୋଡିଲା</item>
     </plurals>
 
-    <plurals name="notification_format_budget_summary">
-        <item quantity="one">%1$d ବଜେଟ ଲିମିଟରେ ପହଞ୍ଚିଲା।</item>
-        <item quantity="other">%1$d ବଜେଟ ଲିମିଟରେ ପହଞ୍ଚିଲା।</item>
-    </plurals>
+    
 
     <string name="title_reminder_times">ରିମାଇଣ୍ଡର ସମୟ</string>
 
@@ -3104,11 +3100,11 @@
 
     <string name="notification_channel_goal_reminders">ସେଭିଂ ଲକ୍ଷ୍ୟ ରିମାଇଣ୍ଡର</string>
 
-    <string name="notification_channel_goal_reminders_desc">ସେଭିଂ ଲକ୍ଷ୍ୟ ପାଇଁ ସାପ୍ତାହିକ ପିଙ୍କ।</string>
+    
 
     <string name="notification_permission_banner_title">ନୋଟିଫିକେସନ ବ୍ଲକ</string>
 
-    <string name="notification_permission_banner_desc">ରିମାଇଣ୍ଡର ଓ ଆଲର୍ଟ ପାଇବାକୁ ନୋଟିଫିକେସନ ଅନୁମତି ଦିଅ।</string>
+    
 
     <string name="btn_allow_notifications">ଅନୁମତି ଦିଅ</string>
 
@@ -3116,75 +3112,75 @@
 
     <string name="notification_channel_sms_import">ସ୍ମାର୍ଟ SMS ଇମ୍ପୋର୍ଟ</string>
 
-    <string name="notification_channel_sms_import_desc">ସେଭ କରିବାକୁ ପ୍ରସ୍ତୁତ ମିଳିଥିବା ବ୍ୟାଙ୍କ ଟ୍ରାନ୍ଜାକ୍ସନ SMS।</string>
+    
 
     <string name="notification_channel_weekly_reports">ସାପ୍ତାହିକ ରିପୋର୍ଟ</string>
 
-    <string name="notification_channel_weekly_reports_desc">ସପ୍ତାହର ଖର୍ଚ୍ଚର ରବିବାର ସାରାଂଶ।</string>
+    
 
     <string name="notification_title_large_transaction">ବଡ ଟ୍ରାନ୍ଜାକ୍ସନ ମିଳିଲା</string>
 
-    <string name="notification_format_large_transaction">ତୁମେ %2$s ରେ %1$s ଖର୍ଚ୍ଚ ଲଗ କଲ — ତୁମ %3$s ବଡ-ଖର୍ଚ୍ଚ ଥ୍ରେସହୋଲ୍ଡରୁ ଉପରେ।</string>
+    
 
     <string name="notification_title_weekly_summary">ସାପ୍ତାହିକ ଖର୍ଚ୍ଚ ସାରାଂଶ</string>
 
-    <string name="notification_format_weekly_summary_up">ଏହି ସପ୍ତାହ ତୁମେ %1$s ଖର୍ଚ୍ଚ କଲ — ଗତ ସପ୍ତାହଠାରୁ %2$d%% ଅଧିକ।</string>
+    
 
-    <string name="notification_format_weekly_summary_down">ଏହି ସପ୍ତାହ ତୁମେ %1$s ଖର୍ଚ୍ଚ କଲ — ଗତ ସପ୍ତାହଠାରୁ %2$d%% କମ।</string>
+    
 
-    <string name="notification_format_weekly_summary_flat">ଏହି ସପ୍ତାହ ତୁମେ %1$s ଖର୍ଚ୍ଚ କଲ — ଗତ ସପ୍ତାହ ପରି।</string>
+    
 
-    <string name="notification_format_weekly_summary_top_category">ଟପ ବର୍ଗ: %1$s।</string>
+    
 
     <string name="notification_title_auto_backup_failed">ଅଟୋବ୍ୟାକଅପ ହେଲା ନାହିଁ</string>
 
-    <string name="notification_desc_auto_backup_failed">ଅଟୋ ଲୋକାଲ ଡାଟାବେସ ବ୍ୟାକଅପ ତିଆରି ହେଲା ନାହିଁ। ଷ୍ଟୋରେଜ ଚେକ କରିବାକୁ ଟ୍ୟାପ କର।</string>
+    
 
     <string name="notification_title_syncing_in_progress">କ୍ଲାଉଡ ଡାଟା ସିଙ୍କ ହେଉଛି…</string>
 
-    <string name="notification_desc_syncing_in_progress">ଡିଭାଇସ ମଧ୍ୟରେ ଟ୍ରାନ୍ଜାକ୍ସନ ଓ ପ୍ରୋଫାଇଲ ଅପଡେଟ ହେଉଛି।</string>
+    
 
     <string name="notification_title_sync_failed">କ୍ଲାଉଡ ସିଙ୍କ ହେଲା ନାହିଁ</string>
 
-    <string name="notification_desc_sync_failed">କ୍ଲାଉଡ ସିଙ୍କ ସମ୍ପୂର୍ଣ୍ଣ ହେଲା ନାହିଁ। ଆମେ ଅଟୋ ଚେଷ୍ଟା କରିବୁ।</string>
+    
 
     <string name="notification_title_sync_pending">କ୍ଲାଉଡ ସିଙ୍କ ଅପେକ୍ଷାରେ</string>
 
-    <string name="notification_desc_sync_pending">ପରିବର୍ତ୍ତନ ସିଙ୍କ ଅପେକ୍ଷାରେ। ସିଙ୍କ ସାରିବାକୁ ନେଟୱର୍କ ଯୋଡ।</string>
+    
 
     <string name="title_expense_reminders">ଖର୍ଚ୍ଚ ରିମାଇଣ୍ଡର</string>
 
-    <string name="desc_expense_reminders">ଖର୍ଚ୍ଚ ଲଗ କରିବାକୁ ଦୈନିକ ରିମାଇଣ୍ଡର।</string>
+    
 
     <string name="title_large_transaction_alerts">ବଡ ଟ୍ରାନ୍ଜାକ୍ସନ ଆଲର୍ଟ</string>
 
-    <string name="desc_large_transaction_alerts">ଗୋଟେ ଖର୍ଚ୍ଚ ଥ୍ରେସହୋଲ୍ଡ ଅତିକ୍ରମ କଲେ ଆଲର୍ଟ।</string>
+    
 
     <string name="title_large_transaction_threshold">ବଡ ଖର୍ଚ୍ଚ ଥ୍ରେସହୋଲ୍ଡ</string>
 
-    <string name="desc_large_transaction_threshold">କେବେ ଗୋଟେ ଖର୍ଚ୍ଚ ବଡ ଗଣିବ ବାଛ।</string>
+    
 
     <string name="placeholder_custom_threshold">ରାଶି ଲେଖ</string>
 
-    <string name="error_invalid_threshold">ଶୂନ୍ୟରୁ ବଡ ସଠିକ ରାଶି ଲେଖ।</string>
+    
 
     <string name="title_weekly_summary">ସାପ୍ତାହିକ ସାରାଂଶ</string>
 
-    <string name="desc_weekly_summary">ସପ୍ତାହର ଖର୍ଚ୍ଚର ରବିବାର ସାରାଂଶ।</string>
+    
 
     <string name="title_weekly_summary_time">ସାରାଂଶ ସମୟ</string>
 
-    <string name="desc_weekly_summary_time">ପ୍ରତି ରବିବାର ଏହି ସମୟରେ ପଠାଯାଏ।</string>
+    
 
     <string name="notification_weekly_time_format">ପ୍ରତି ରବିବାର %1$s ରେ</string>
 
     <string name="title_financial_insights">ଫାଇନାନ୍ସ ଇନସାଇଟ</string>
 
-    <string name="desc_financial_insights">ସ୍ମାର୍ଟ ଖର୍ଚ୍ଚ ଟ୍ରେଣ୍ଡ ଓ ପୂର୍ବାନୁମାନ।</string>
+    
 
     <string name="title_recurring_alerts">ପୁନରାବୃତ୍ତ ଆଲର୍ଟ</string>
 
-    <string name="desc_recurring_alerts">ପୁନରାବୃତ୍ତ ବିଲ ଓ ପେମେଣ୍ଟ ପାଇଁ ରିମାଇଣ୍ଡର।</string>
+    
 
     <string name="desc_recurring_rule_ladder">ନିୟମ 1–3 ମାଗଣା · 4–6 ବିଜ୍ଞାପନ ଦେଖ · 7+ Pro କୁ ଯାଅ</string>
 
@@ -3196,25 +3192,25 @@
 
     <string name="title_cloud_security_alerts">କ୍ଲାଉଡ ଓ ସୁରକ୍ଷା ଆଲର୍ଟ</string>
 
-    <string name="desc_cloud_security_alerts">ସିଙ୍କ, ବ୍ୟାକଅପ ଓ ଆକାଉଣ୍ଟ ସୁରକ୍ଷା ବିଷୟରେ ଆଲର୍ଟ।</string>
+    
 
     <string name="desc_info">ସୂଚନା</string>
 
-    <string name="info_expense_reminders">ଖର୍ଚ୍ଚ ଲଗ କରିବାକୁ ଦୈନିକ ରିମାଇଣ୍ଡର ଓ ସେହି ଦିନ କିଛି ଲଗ ନକଲେ ପିଙ୍କ ଅନ୍ତର୍ଭୁକ୍ତ। ତଳେ ୱିଣ୍ଡୋ ବାଛିପାରିବ।</string>
+    
 
     <string name="info_budget_alerts" formatted="false">ବର୍ଗ ବଜେଟ ପାଖାପାଖି ହେଲେ ଚେତାବନୀ: 75%, 90%, 100% ଓ ଅତିକ୍ରମରେ।</string>
 
-    <string name="info_large_transaction">ବଛା ଥ୍ରେସହୋଲ୍ଡଠାରୁ ବଡ ଗୋଟେ ଖର୍ଚ୍ଚ ଲଗ କଲେ ତୁରନ୍ତ ଜଣାଏ।</string>
+    
 
-    <string name="info_weekly_summary">ଗତ 7 ଦିନର ଖର୍ଚ୍ଚର ରବିବାର ସାରାଂଶ, ଆଗ ସପ୍ତାହ ସହିତ ତୁଳନା।</string>
+    
 
-    <string name="info_financial_insights">ଆସୁଥିବା ସ୍ମାର୍ଟ ଇନସାଇଟ: ଖର୍ଚ୍ଚ ଟ୍ରେଣ୍ଡ, ସ୍ପାଇକ, ପୂର୍ବାନୁମାନ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରସ୍ତାବ।</string>
+    
 
     <string name="info_savings_goals" formatted="false">ସେଭିଂ ଲକ୍ଷ୍ୟର 25%, 50% ଓ 75% ରେ ପ୍ରଗତି ଆଲର୍ଟ, ପୂରଣରେ ଉତ୍ସବ ଓ ପଛରେ ଥିଲେ ଚେତାବନୀ।</string>
 
-    <string name="info_recurring_alerts">ପୁନରାବୃତ୍ତ ବିଲ ଓ ପେମେଣ୍ଟ 7 ଦିନ, 3 ଦିନ ଓ 1 ଦିନ ଆଗରୁ ଓ ଦେୟ ଦିନରେ ରିମାଇଣ୍ଡ କରେ। ପ୍ରତ୍ୟେକ ନିୟମ ଅଲଗା ମ୍ୟୁଟ କରିହେବ।</string>
+    
 
-    <string name="info_cloud_security">କ୍ଲାଉଡ ସିଙ୍କ କିମ୍ବା ବ୍ୟାକଅପ ଫେଲ ହେଲେ ଓ ନୂଆ ଡିଭାଇସରୁ ଆକାଉଣ୍ଟ ଖୋଲିଲେ କିମ୍ବା ବଦଳିଲେ ଆଲର୍ଟ।</string>
+    
 
     <string name="notification_title_sms_import">💳 ଟ୍ରାନ୍ଜାକ୍ସନ ମିଳିଲା</string>
 
@@ -3256,24 +3252,24 @@
 
     <string name="toast_sms_transaction_saved">ଟ୍ରାନ୍ଜାକ୍ସନ ସେଭ ହେଲା</string>
 
-    <string name="msg_sms_save_failed">ଟ୍ରାନ୍ଜାକ୍ସନ ସେଭ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="title_sms_detection">SMS ଡିଟେକସନ</string>
 
-    <string name="msg_sms_permission_needed">SMS ଡିଟେକସନକୁ SMS ପରମିସନ ଦରକାର। ବ୍ୟାଙ୍କ ମେସେଜ ଅଟୋ ଧରିବାକୁ ସେଟିଂ ଖୋଲି ଅନୁମତି ଦିଅ।</string>
+    
 
     <string name="label_open_app_settings">ସେଟିଂ ଖୋଲ</string>
     <string name="title_missing_permissions">କିଛି ଅନୁମତି ନାହିଁ</string>
-    <string name="msg_missing_permissions_intro">ଏହା ବିନା କିଛି ସୁବିଧା ବନ୍ଦ ରହିବ ଯେପର୍ଯ୍ୟନ୍ତ ଆପଣ ସିଷ୍ଟମ୍ ସେଟିଂରେ ଅନୁମତି ନ ଦିଅନ୍ତି।</string>
-    <string name="msg_missing_permission_notifications">ବିଜ୍ଞପ୍ତି — ରିମାଇଣ୍ଡର, ବଜେଟ୍, ବିଲ୍ ଏବଂ SMS ଆଲର୍ଟ ଦେଖାଯିବ ନାହିଁ।</string>
-    <string name="msg_missing_permission_sms">SMS — ବ୍ୟାଙ୍କ ସନ୍ଦେଶ ସ୍ୱୟଂଚାଳିତ ଭାବେ ଚିହ୍ନଟ ହୋଇପାରିବ ନାହିଁ।</string>
+    
+    
+    
     <string name="label_open_app_permissions">ଆପ୍ ଅନୁମତି ଖୋଲନ୍ତୁ</string>
 
     <string name="title_sms_miui_setup">Xiaomi ଡିଭାଇସ ସେଟଅପ</string>
 
-    <string name="msg_sms_miui_setup_autostart">Xiaomi ବ୍ୟାକଗ୍ରାଉଣ୍ଡରେ SMS ଡିଟେକସନ ବନ୍ଦ କରିପାରେ। ଏହି ଆପ ପାଇଁ Autostart ଅନ କର ଓ ବ୍ୟାଟେରୀ «ପ୍ରତିବନ୍ଧ ନାହିଁ» କର।</string>
+    
 
-    <string name="msg_sms_miui_setup_autostart_unknown">Autostart ଅଟୋ ଚେକ ହେଲା ନାହିଁ। ଆପ ସେଟିଂ ଖୋଲି ଏହି ଆପ ପାଇଁ Autostart ଅନ କର।</string>
+    
 
     <string name="label_battery_settings">ବ୍ୟାଟେରୀ ସେଟିଂ</string>
 
@@ -3323,7 +3319,7 @@
 
     <string name="notification_guilt_5">ଏହା ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ହେବା ଦରକାର 😄</string>
 
-    <string name="notification_guilt_6">ସେଭିଂ ଆକାଉଣ୍ଟ କାନ୍ଦୁଛି।</string>
+    
 
     <string name="notification_food_1">ଆଉ ଖାଦ୍ୟ? ସମ୍ମାନ 🍕</string>
 
@@ -3333,7 +3329,7 @@
 
     <string name="notification_food_4">ସ୍ୱାଦ > ବଜେଟ, ନା? 😏</string>
 
-    <string name="notification_food_5">କ୍ୟାଲୋରି ଗଣାଯାଏ ନାହିଁ, ପଇସା ଗଣାଯାଏ।</string>
+    
 
     <string name="notification_shopping_1">ରିଟେଲ ଥେରାପି ଅନ 🛍️</string>
 
@@ -3355,25 +3351,25 @@
 
     <string name="notification_generic_5">ସତରେ ରହୁଛ 📈</string>
 
-    <string name="notification_budget_exceeded_1">ବଜେଟ ଫୋନ କଲା। ଏହା ଇସ୍ତଫା ଦେଉଛି। 💸</string>
+    
 
-    <string name="notification_budget_exceeded_2">ଖର୍ଚ୍ଚ ଲିମିଟ? କେବେ ଶୁଣିନି। 💅</string>
+    
 
-    <string name="notification_budget_exceeded_3">ଚିଟ କୋଡ ପାଇଲା ପରି ଖର୍ଚ୍ଚ କରୁଛ। 🎮</string>
+    
 
-    <string name="notification_budget_exceeded_4">ବଜେଟ: ଅତିକ୍ରମ। ଦୁଃଖ: ନିକଟ। 📉</string>
+    
 
-    <string name="notification_budget_exceeded_5">ସେଭିଂ ଚିତ୍କାର କରୁଛି। 😱</string>
+    
 
     <string name="notification_missed_entry_1">ଏଠି ବହୁତ ଚୁପ… ଖାଇବା ବନ୍ଦ କଲ? 🍔</string>
 
-    <string name="notification_missed_entry_2">ୱାଲେଟ ସନ୍ଦେହଜନକ ଭାରି ଲାଗୁଛି। କିଛି ଲଗ କର! 💸</string>
+    
 
-    <string name="notification_missed_entry_3">ଚୁପ କାନ ଫାଟାଉଛି। ଟ୍ରାନ୍ଜାକ୍ସନ କେଉଁଠି? 🕵️</string>
+    
 
     <string name="notification_missed_entry_4">ଲଟାରି ଜିତିଲ? ଆଜି ଲଗ କାହିଁକି ନାହିଁ? 🎰</string>
 
-    <string name="notification_missed_entry_5">ଟ୍ରାକର ଏକା। କିଛି ଡାଟା ଦିଅ। 🦴</string>
+    
 
     <string name="notification_morning_opener_1">ସୁପ୍ରଭାତ! ☀️</string>
 
@@ -3393,27 +3389,27 @@
 
     <string name="notification_sarcastic_morning_1">କଫି କିଣିଲ ନା ସଙ୍କେତ ଅପେକ୍ଷାରେ? ☕</string>
 
-    <string name="notification_sarcastic_morning_2">ନାସ୍ତା ଟ୍ରାକ କରିବା ଆଜିର ସର୍ବୋତ୍ତମ ବ୍ୟାୟାମ। 🥐</string>
+    
 
-    <string name="notification_sarcastic_morning_3">ସକାଳ ପକ୍ଷୀ କୀଟ ଧରେ, ବୁଦ୍ଧିମାନ ପକ୍ଷୀ ଖର୍ଚ୍ଚ ଲଗ କରେ। 🐛</string>
+    
 
-    <string name="notification_sarcastic_morning_4">ୱାଲେଟ ଜାଗିଛି ଓ ପ୍ରଶ୍ନ ଅଛି। 💸</string>
+    
 
     <string name="notification_sarcastic_evening_1">ବଜେଟ ଦିନ ବଞ୍ଚିଲା… କି ନା? 👀</string>
 
-    <string name="notification_sarcastic_evening_2">ଅଲଗ ରହସ୍ୟ ନେଇ ଶୋଇବ ନାହିଁ। ଡାଟା ଦେଖୁଛି। 🕵️</string>
+    
 
-    <string name="notification_sarcastic_evening_3">ରାତି ଖାଦ୍ୟ ଭଲ ଥିଲା, ଟ୍ରାକିଂ କିମ୍ବଦନ୍ତୀ ହେବ। 🥘</string>
+    
 
-    <string name="notification_sarcastic_evening_4">ତୁମ ପାଇଁ ଛୋଟ ଲଗ, ସେଭିଂ ପାଇଁ ବଡ ଡେଇଁ। 🚀</string>
+    
 
     <string name="notification_morning_reminder_generic">%1$s ସକାଳ ଖର୍ଚ୍ଚ ଲଗ କରିବା ଭୁଲିବ ନାହିଁ!</string>
 
     <string name="notification_evening_reminder_generic">%1$s ରାତି ଖାଦ୍ୟ କିମ୍ବା ଯାତାୟାତ ଲଗ କରିବାକୁ ଏକ ମିନିଟ?</string>
 
-    <string name="notification_format_expense">%1$s 👀 %3$s ରେ %2$s ଖର୍ଚ୍ଚ… %4$s। %5$s। %6$s</string>
+    
 
-    <string name="notification_format_budget_exceeded">%1$s! ତୁମେ %2$s ବଜେଟ ଅତିକ୍ରମ କଲ। %3$s</string>
+    
 
     <string name="date_pattern_month_year_comma">MMM, yyyy</string>
 
@@ -3433,7 +3429,7 @@
 
     <string name="title_update_required">ଅପଡେଟ ଦରକାର</string>
 
-    <string name="msg_update_required_desc">Expense Tracker ର ନୂଆ ଭର୍ସନ ଅଛି। ଆପ ଚାଲୁ ରଖିବାକୁ ନୂଆ ଭର୍ସନକୁ ଅପଡେଟ କର।</string>
+    
 
     <string name="btn_update_now">ଏବେ ଅପଡେଟ କର</string>
 
@@ -3443,25 +3439,25 @@
     <string name="title_update_available_version">ଭର୍ସନ %s ଅଛି</string>
     <string name="badge_version_format">ଭର୍ସନ %s</string>
 
-    <string name="msg_update_available">Expense Tracker ର ନୂଆ ଭର୍ସନ ଅଛି। ନୂଆ ଫିଚର ପାଇବାକୁ ଏବେ ଅପଡେଟ କର।</string>
+    
 
-    <string name="msg_update_notes_error">ଅପଡେଟ୍ ନୋଟ୍ସ ଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ। କିଛି ସମୟ ପରେ ଆଉଥରେ ଚେଷ୍ଟା କରନ୍ତୁ।</string>
-    <string name="msg_update_version_unavailable">ସର୍ଭରରୁ ଭର୍ସନ ମିଳିଲା ନାହିଁ।</string>
-    <string name="msg_update_need_internet">ଏହି ଅପଡେଟ୍ ସହଜରେ ପାଇବାକୁ ଇଣ୍ଟରନେଟ୍ ଚାଲୁ କରନ୍ତୁ।</string>
+    
+    
+    
 
     <string name="title_system_maintenance">ସିଷ୍ଟମ ରକ୍ଷଣାବେକ୍ଷଣ</string>
 
-    <string name="msg_maintenance_desc">ସେବା ଉନ୍ନତ କରିବାକୁ ନିର୍ଦ୍ଧାରିତ ରକ୍ଷଣାବେକ୍ଷଣ ଚାଲିଛି। ଶୀଘ୍ର ଫେରିବୁ। ଧୈର୍ଯ୍ୟ ପାଇଁ ଧନ୍ୟବାଦ!</string>
+    
 
     <string name="title_protect_your_data">ରେଜିଷ୍ଟର / ଲଗଇନ</string>
 
-    <string name="msg_link_account_desc">ତୁମ ଫାଇନାନ୍ସ ଯାତ୍ରା ରଖିବା ଯୋଗ୍ୟ। ପ୍ରଗତି ନହରାଇବାକୁ ଲଗଇନ କର।</string>
+    
 
     <string name="label_guest_user">ଅତିଥି</string>
 
     <string name="label_pro_expiry_format">PRO (%1$s ରେ ସରେ)</string>
 
-    <string name="msg_privacy_info">ଡ୍ୟାସବୋର୍ଡ ବ୍ୟକ୍ତିଗତ କରିବା ଓ ବୟସ ଅନୁସାରେ ଇନସାଇଟ ଦେବାକୁ ଏହି ସୂଚନା ବ୍ୟବହାର କରୁ। ଡାଟା 100% ପ୍ରାଇଭେଟ ଓ ସୁରକ୍ଷିତ।</string>
+    
 
     <string name="cd_privacy_info">ପ୍ରାଇଭେସି ସୂଚନା ଦେଖ</string>
 
@@ -3473,7 +3469,7 @@
 
     <string name="label_mute_recurring_title">ନୋଟିଫିକେସନ ମ୍ୟୁଟ କର</string>
 
-    <string name="label_mute_recurring_message">%s ପାଇଁ ନୋଟିଫିକେସନ ମ୍ୟୁଟ କରିବେ? ଏହି ପୁନରାବୃତ୍ତ ଖର୍ଚ୍ଚର ବିଲ ରିମାଇଣ୍ଡର ଆଉ ଆସିବ ନାହିଁ।</string>
+    
 
     <string name="label_mute_yes">ହଁ, ମ୍ୟୁଟ କର</string>
 
@@ -3489,55 +3485,55 @@
 
     <string name="desc_logout_subtitle">ଆକାଉଣ୍ଟରୁ ସାଇନ ଆଉଟ କର</string>
 
-    <string name="msg_logout_confirm">ସାଇନ ଆଉଟ କରିବେ? ଫେରି ଲଗଇନ ନକଲେ କ୍ଲାଉଡ ଡାଟା ସିଙ୍କ ବନ୍ଦ ରହିବ।</string>
+    
 
-    <string name="error_no_internet">ଇଣ୍ଟରନେଟ ନାହିଁ। ନେଟୱର୍କ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_no_google_accounts">ଏହି ଡିଭାଇସରେ Google ଆକାଉଣ୍ଟ ନାହିଁ। ରେଜିଷ୍ଟର ପାଇଁ email ବ୍ୟବହାର କର।</string>
+    
 
     <string name="title_google_accounts_not_found">Google ଆକାଉଣ୍ଟ ଦରକାର</string>
 
-    <string name="msg_google_accounts_not_found">Google ଆକାଉଣ୍ଟ ମିଳିଲା ନାହିଁ। ଡିଭାଇସ ସେଟିଂରେ ଯୋଡି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="label_add_account">ଆକାଉଣ୍ଟ ଯୋଡ</string>
 
     <string name="label_retry">ଆଉଥରେ</string>
 
-    <string name="msg_transactions_load_failed">ଟ୍ରାନ୍ଜାକ୍ସନ ଲୋଡ ହେଲା ନାହିଁ।</string>
+    
 
-    <string name="error_auth_user_not_found">ଆକାଉଣ୍ଟ ମିଳିଲା ନାହିଁ। ପ୍ରଥମେ ରେଜିଷ୍ଟର କର।</string>
+    
 
-    <string name="error_auth_wrong_password">ଭୁଲ ପାସୱାର୍ଡ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_auth_invalid_credentials">ଭୁଲ email କିମ୍ବା ପାସୱାର୍ଡ।</string>
+    
 
-    <string name="error_auth_email_already_in_use">ଏହି email ଆଗରୁ ରେଜିଷ୍ଟର। ଲଗଇନ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_auth_user_disabled">ଏହି ଆକାଉଣ୍ଟ ବନ୍ଦ ଅଛି।</string>
+    
 
-    <string name="error_auth_too_many_requests">ବହୁତ ଚେଷ୍ଟା। ପରେ ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_auth_weak_password">ପାସୱାର୍ଡ ବହୁତ ଦୁର୍ବଳ। ଶକ୍ତ ବ୍ୟବହାର କର।</string>
+    
 
-    <string name="error_auth_generic_fail">ପ୍ରମାଣୀକରଣ ହେଲା ନାହିଁ। ଡିଟେଲ ଚେକ କର।</string>
+    
 
-    <string name="error_auth_operation_not_allowed">ଏହି ଲଗଇନ ଉପାୟ ଅନ ନାହିଁ। ଅନ୍ୟ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_auth_token_parse">Google ଲଗଇନ ଟୋକନ ଭୁଲ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_auth_no_google_accounts">ଏହି ଡିଭାଇସରେ Google ଆକାଉଣ୍ଟ ନାହିଁ। ଡିଭାଇସ ସେଟିଂରେ ଯୋଡ।</string>
+    
 
-    <string name="msg_auth_reset_email_sent">ପାସୱାର୍ଡ ରିସେଟ ଲିଙ୍କ ପଠାଗଲା! ଇନବକ୍ସ ଚେକ କର।</string>
+    
 
     <string name="label_send_magic_link">Email ଲିଙ୍କରେ ଲଗଇନ</string>
 
-    <string name="msg_auth_magic_link_sent">ମ୍ୟାଜିକ ଲିଙ୍କ ପଠାଗଲା! ଲଗଇନ ପାଇଁ ଇନବକ୍ସ (ଓ ସ୍ପାମ) ଚେକ କର।</string>
+    
 
-    <string name="msg_identity_secured_setting_up_profile">ପରିଚୟ ସୁରକ୍ଷିତ। ପ୍ରୋଫାଇଲ ସେଟ ହେଉଛି...</string>
+    
 
-    <string name="msg_account_created_successfully">ଆକାଉଣ୍ଟ ସଫଳରେ ତିଆରି ହେଲା।</string>
+    
 
-    <string name="msg_auth_cooldown_wait">ଆଉ ଲିଙ୍କ ମାଗିବା ଆଗରେ %1$d ସେକେଣ୍ଡ ଅପେକ୍ଷା କର।</string>
+    
 
     <string name="title_cloud_sync_devices">କ୍ଲାଉଡ ସିଙ୍କ ଓ ଡିଭାଇସ</string>
 
@@ -3557,21 +3553,21 @@
 
     <string name="btn_unlink_device">ଅନଲିଙ୍କ</string>
 
-    <string name="msg_unlink_device_confirm">ଏହି ଡିଭାଇସ ଅନଲିଙ୍କ କରିବେ? ସେଠି ଅଟୋ ସିଙ୍କ ବନ୍ଦ ହେବ।</string>
+    
 
     <string name="label_devices_used">%2$d ରୁ %1$d ଡିଭାଇସ ଯୋଡା</string>
 
     <string name="title_cloud_sync">କ୍ଲାଉଡ ସିଙ୍କ</string>
 
-    <string name="desc_cloud_sync">ସବୁ ଡିଭାଇସରେ ଟ୍ରାନ୍ଜାକ୍ସନ ଓ ସେଟିଂ ରିଅଲ-ଟାଇମରେ ସିଙ୍କ ରଖ।</string>
+    
 
     <string name="title_upgrade_for_sync">କ୍ଲାଉଡ ସିଙ୍କ ପାଇଁ ଅପଗ୍ରେଡ</string>
 
-    <string name="desc_upgrade_for_sync">ଅଟୋ କ୍ଲାଉଡ ବ୍ୟାକଅପ ଖୋଲ ଓ 4 ଡିଭାଇସରେ ସିଙ୍କ କର।</string>
+    
 
     <string name="title_ad_expiry_warning">ସୁବିଧା ଶୀଘ୍ର ସରିବ</string>
 
-    <string name="msg_ad_expiry_warning">ବିଜ୍ଞାପନ-ମୁକ୍ତ ପାସ %1$d ମିନିଟରେ ସରିବ। ଆଉ %2$s ପାଇଁ ସେଟିଂ ରଖିବାକୁ ଆଉ ଗୋଟେ ବିଜ୍ଞାପନ ଦେଖିବେ?</string>
+    
 
     <string name="btn_extend_now">ଏବେ ବଢାଅ</string>
 
@@ -3637,11 +3633,11 @@
 
     <string name="msg_discipline_score_title">ଆକାଉଣ୍ଟ ସେଟଅପ</string>
 
-    <string name="msg_discipline_score_desc">ଭଲ କରୁଛ!! ପ୍ରୋଫାଇଲ ସମ୍ପୂର୍ଣ୍ଣ କର।</string>
+    
 
     <string name="btn_reach_100">100% ପହଞ୍ଚ</string>
 
-    <string name="msg_goal_faster_with_pro">Elite ଫିଚର ସହିତ %1$s ଲକ୍ଷ୍ୟ 20%% ଶୀଘ୍ର ପହଞ୍ଚ।</string>
+    
 
     <string name="title_setup_progress">ପ୍ରୋଫାଇଲ ପ୍ରଗତି</string>
 
@@ -3669,11 +3665,11 @@
 
     <string name="title_fund_goal">ଲକ୍ଷ୍ୟରେ ଫଣ୍ଡ ଯୋଡ</string>
 
-    <string name="msg_fund_goal_caption">ଏହି ଲକ୍ଷ୍ୟରେ କେତେ ଯୋଡିବ ଲେଖ। ଯେକୌଣସି ସମୟରେ ବଦଳାଇପାରିବ।</string>
+    
 
     <string name="title_delete_goal">ଲକ୍ଷ୍ୟ ଡିଲିଟ କର</string>
 
-    <string name="msg_delete_goal_confirm">«%1$s» ଲକ୍ଷ୍ୟ ଡିଲିଟ କରିବେ? ଫେରାଇ ହେବ ନାହିଁ।</string>
+    
 
     <string name="label_fund_amount">ଯୋଡିବା ରାଶି</string>
 
@@ -3685,7 +3681,7 @@
 
     <string name="label_goal_name_hint">ଯଥା ନୂଆ ଗାଡ଼ି, ଛୁଟି</string>
 
-    <string name="msg_no_goals">ଏବେ ଲକ୍ଷ୍ୟ ନାହିଁ। ସେଭ ଆରମ୍ଭ କରିବାକୁ + ଦବା।</string>
+    
 
     <string name="cd_add_goal">ଲକ୍ଷ୍ୟ ଯୋଡ</string>
 
@@ -3751,9 +3747,9 @@
 
     <string name="msg_goal_reminder_due_soon_1">«%1$s» ପାଇଁ କେବଳ 1 ଦିନ ବାକି — ତୁମେ %2$d%% ପହଞ୍ଚିଛ!</string>
 
-    <string name="msg_goal_reminder_due_today">ଆଜି ଦେୟ — «%1$s»! ତୁମେ %2$d%% ପହଞ୍ଚିଛ।</string>
+    
 
-    <string name="msg_goal_reminder_progress">«%2$s» ପାଇଁ ତୁମେ %1$d%%। ଚାଲୁ ରଖ!</string>
+    
 
     <string name="title_goal_milestone">ଲକ୍ଷ୍ୟ ମାଇଲଷ୍ଟୋନ</string>
 
@@ -3761,35 +3757,29 @@
 
     <string name="title_goal_achieved">ଲକ୍ଷ୍ୟ ପୂରଣ</string>
 
-    <string name="msg_goal_achieved">ଅଭିନନ୍ଦନ! ତୁମେ «%1$s» ଲକ୍ଷ୍ୟ ପହଞ୍ଚିଲ।</string>
+    
 
     <string name="title_goal_behind_schedule">ଲକ୍ଷ୍ୟ ପଛରେ</string>
 
-    <string name="msg_goal_behind_schedule">«%1$s» ମିସ ହୋଇପାରେ — ଏହି ଗତିରେ %2$d ଦିନ ବାକି।</string>
+    
 
     <string name="label_test_goal">ଟେଷ୍ଟ ଲକ୍ଷ୍ୟ </string>
 
     <string name="notification_title_goal_milestone_summary">ଲକ୍ଷ୍ୟ ମାଇଲଷ୍ଟୋନ</string>
 
-    <plurals name="notification_format_goal_milestone_summary">
-        <item quantity="one">%1$d ଲକ୍ଷ୍ୟ ମାଇଲଷ୍ଟୋନରେ ପହଞ୍ଚିଲା।</item>
-        <item quantity="other">%1$d ଲକ୍ଷ୍ୟ ମାଇଲଷ୍ଟୋନରେ ପହଞ୍ଚିଲା।</item>
-    </plurals>
+    
 
     <string name="notification_title_upcoming_bill">ଆସୁଥିବା ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <string name="notification_format_upcoming_bill_days">«%2$s» ପାଇଁ %1$s %3$d ଦିନରେ କାଢାଯିବ।</string>
+    
 
-    <string name="notification_format_upcoming_bill_tomorrow">«%2$s» ପାଇଁ %1$s ଆସନ୍ତାକାଲି କାଢାଯିବ।</string>
+    
 
-    <string name="notification_format_upcoming_bill_due_today">«%2$s» ପାଇଁ %1$s ଆଜି ଦେୟ।</string>
+    
 
     <string name="notification_title_upcoming_bill_summary">ଆସୁଥିବା ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
-    <plurals name="notification_format_upcoming_bill_summary">
-        <item quantity="one">%1$d ଆସୁଥିବା ଟ୍ରାନ୍ଜାକ୍ସନ।</item>
-        <item quantity="other">%1$d ଆସୁଥିବା ଟ୍ରାନ୍ଜାକ୍ସନ।</item>
-    </plurals>
+    
 
     <string name="title_redeem_pro_pass">Pro Pass ରିଡିମ କର</string>
 
@@ -3799,7 +3789,7 @@
 
     <string name="title_unlock_pro_access">Pro ଆକ୍ସେସ ଖୋଲ</string>
 
-    <string name="msg_unlock_pro_access_body">ପ୍ରୋମୋ କୋଡ ଅଛି? ପୂରା ପ୍ରିମିୟମ ଖୋଲିବାକୁ ତଳେ ଲେଖ।</string>
+    
 
     <string name="placeholder_pro_code_example">ଯଥା PROPASS7</string>
 
@@ -3815,63 +3805,63 @@
 
     <string name="title_pro_pass_subscribed">ଆଗରୁ ସବସ୍କ୍ରିପସନ ଅଛି</string>
 
-    <string name="msg_pro_pass_subscribed">ProPass ସବସ୍କ୍ରିପସନ ଉପରେ ସମୟ ଯୋଡେ, ତେଣୁ ସବସ୍କ୍ରିପସନ ଚାଲିଥିବାବେଳେ ସରିଯାଏ। Google Play ରୁ ସବସ୍କ୍ରିପସନ ମ୍ୟାନେଜ କର।</string>
+    
 
     <string name="btn_ok">OK</string>
 
-    <string name="msg_enter_pro_pass_code">ତଳେ ତୁମ ଅନନ୍ୟ ଆଲଫାନ୍ୟୁମେରିକ ProPass କୋଡ ଲେଖ।</string>
+    
 
     <string name="placeholder_pro_pass_code">ଯଥା EXPN-T0C3-HG41-NM1</string>
 
     <string name="btn_activate_pro">Pro ସକ୍ରିୟ କର</string>
 
-    <string name="msg_pro_pass_activated">ProPass ସକ୍ରିୟ! ତୁମେ ଏବେ %1$d ଦିନ ପ୍ରିମିୟମ ଆକ୍ସେସ ପାଇଲ।</string>
+    
 
-    <string name="error_invalid_pro_pass">ଭୁଲ କିମ୍ବା ସରିଯାଇଥିବା ProPass କୋଡ।</string>
+    
 
-    <string name="error_redeem_not_signed_in">ProPass କୋଡ ରିଡିମ କରିବାକୁ Google କିମ୍ବା Email ରେ ଲଗଇନ କର।</string>
+    
 
-    <string name="error_redeem_inactive">ଏହି ProPass କୋଡ ଆଉ ସକ୍ରିୟ ନାହିଁ।</string>
+    
 
-    <string name="error_redeem_expired">ଏହି ProPass କୋଡର ସମୟ ସରିଲା।</string>
+    
 
-    <string name="error_redeem_limit_reached">ଏହି ProPass କୋଡର ବ୍ୟବହାର ଲିମିଟ ପହଞ୍ଚିଲା।</string>
+    
 
-    <string name="error_redeem_already_redeemed">ତୁମେ ଏହି ProPass କୋଡ ଆଗରୁ ରିଡିମ କରିଛ।</string>
+    
 
-    <string name="error_redeem_pass_active">Pro Pass ଏବେ ସକ୍ରିୟ। ବର୍ତ୍ତମାନ ପାସ ସରିବା ପରେ ନୂଆ କୋଡ ରିଡିମ କର।</string>
+    
 
-    <string name="error_redeem_subscription_active">ସବସ୍କ୍ରିପସନ ଆଗରୁ Pro କଭର କରେ, ତେଣୁ ProPass ବ୍ୟବହାର ନହୋଇ ସରିବ। Google Play ରୁ ମ୍ୟାନେଜ କର।</string>
+    
 
-    <string name="error_redeem_network">ସର୍ଭର ପହଞ୍ଚିଲା ନାହିଁ। କନେକ୍ସନ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="error_redeem_unknown">କୋଡ ସକ୍ରିୟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="label_have_a_code">Pro ଆକ୍ସେସ କୋଡ ଅଛି?</string>
 
-    <string name="error_underage_restriction">ଆଗକୁ ଯିବାକୁ ଅତି କମରେ 15 ବର୍ଷ ହେବା ଦରକାର।</string>
+    
 
-    <string name="label_parental_consent">ଏହି ଆପ ବ୍ୟବହାର ପାଇଁ ମୋ ପାଖରେ ପିତାମାତା ସମ୍ମତି ଅଛି।</string>
+    
 
-    <string name="error_parental_consent_required">18 ବର୍ଷ ତଳେ ପିତାମାତା ସମ୍ମତି ଦରକାର।</string>
+    
 
     <string name="title_email_verification">Email ଭେରିଫାଏ କର</string>
 
-    <string name="label_verification_email_sent">%1$s କୁ ଭେରିଫିକେସନ email ପଠାଗଲା। ଆଗକୁ ଯିବାକୁ email ଭେରିଫାଏ କର (ନଦେଖିଲେ ସ୍ପାମ/ଜଙ୍କ ଚେକ କର)।</string>
+    
 
-    <string name="error_email_not_verified">Email ଏବେ ଭେରିଫାଏ ହୋଇନାହିଁ। ଇନବକ୍ସ (ସ୍ପାମ ସହିତ) ଚେକ କରି ଲିଙ୍କ ଦବା।</string>
+    
 
     <string name="btn_check_status">ଭେରିଫିକେସନ ସ୍ଥିତି ଚେକ କର</string>
 
     <string name="btn_resend_email">ଭେରିଫିକେସନ email ଆଉଥରେ ପଠା</string>
 
-    <string name="info_verification_email_sent_again">ଭେରିଫିକେସନ email ଆଉଥରେ ପଠାଗଲା। ଇନବକ୍ସ ଓ ସ୍ପାମ ଚେକ କର।</string>
+    
 
-    <string name="error_link_still_valid">ବର୍ତ୍ତମାନ ଭେରିଫିକେସନ ଲିଙ୍କ ଏବେ ମଧ୍ୟ ବୈଧ। ନୂଆ ମାଗିବା ଆଗରେ ଇନବକ୍ସ ଓ ସ୍ପାମ ଚେକ କର।</string>
+    
 
-    <string name="error_email_not_verified_expired_sent">ଭେରିଫିକେସନ ଲିଙ୍କ ସରିଯାଇଥିଲା, ତେଣୁ ନୂଆ ପଠାଗଲା। ଇନବକ୍ସ ଓ ସ୍ପାମ ଚେକ କର।</string>
+    
 
-    <string name="label_verification_link_expired">ଭେରିଫିକେସନ ଲିଙ୍କ ସରିଲା। ନୂଆ ପାଇବାକୁ ତଳେ ଆଉଥରେ ପଠା ଦବା।</string>
+    
 
     <string name="label_verification_link_expires_in">ଲିଙ୍କ ସରେ: %1$s</string>
 
@@ -3879,29 +3869,29 @@
 
     <string name="dialog_verify_email_title">Email ଭେରିଫାଏ ହୋଇନାହିଁ</string>
 
-    <string name="dialog_verify_email_pro_pass">Pro Pass ସକ୍ରିୟ କରିବାକୁ email ଭେରିଫାଏ କର। ଆମେ ଲିଙ୍କ ପଠାଇବୁ।</string>
+    
 
-    <string name="dialog_verify_email_auto_backup">ଅଟୋବ୍ୟାକଅପ ଅନ କରିବାକୁ email ଭେରିଫାଏ କର। ଅନ୍ୟ ଡିଭାଇସରେ ଡାଟା ଫେରାଇବା ସୁନିଶ୍ଚିତ କରେ।</string>
+    
 
-    <string name="dialog_verify_email_sync">ଡିଭାଇସ ମଧ୍ୟରେ ସିଙ୍କ ଅନ କରିବାକୁ email ଭେରିଫାଏ କର।</string>
+    
 
     <string name="label_verify_now">ଏବେ ଭେରିଫାଏ କର</string>
 
     <string name="label_later">ପରେ</string>
 
     <string name="title_sms_stale_remind">ଚିହ୍ନଟ କାରବାର</string>
-    <string name="msg_sms_stale_remind">%d ବ୍ୟାଙ୍କ ସନ୍ଦେଶ ଏକ ଦିନରୁ ଅଧିକ ସମୟ ଧରି ଅପେକ୍ଷା କରୁଛି।</string>
+    
     <string name="label_review_sms_inbox">ସମୀକ୍ଷା</string>
 
     <string name="toast_verification_email_sent">ଭେରିଫିକେସନ email ପଠାଗଲା — ଇନବକ୍ସ ଚେକ କର</string>
 
-    <string name="msg_email_not_verified_yet">Email ଏବେ ଭେରିଫାଏ ହୋଇନାହିଁ। ଇନବକ୍ସ ଚେକ କର।</string>
+    
 
-    <string name="msg_failed_to_check_status">ସ୍ଥିତି ଚେକ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_verification_email_resent">ଭେରିଫିକେସନ email ଆଉଥରେ ପଠାଗଲା। ଇନବକ୍ସ ଚେକ କର।</string>
+    
 
-    <string name="msg_failed_to_resend">ଆଉଥରେ ପଠାଇହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="msg_email_verified_success">Email ସଫଳରେ ଭେରିଫାଏ ହେଲା!</string>
 
@@ -3911,7 +3901,7 @@
 
     <string name="title_update_email">Email ଠିକଣା ଅପଡେଟ କର</string>
 
-    <string name="desc_update_email">ନୂଆ email ଲେଖ। ଭେରିଫିକେସନ ଲିଙ୍କ ପଠାଯିବ — ଭେରିଫାଏ ପରେ ହିଁ email ବଦଳିବ।</string>
+    
 
     <string name="label_current_email">ବର୍ତ୍ତମାନ Email</string>
 
@@ -3923,45 +3913,45 @@
 
     <string name="label_verify_and_update">ଭେରିଫାଏ ଓ ଅପଡେଟ</string>
 
-    <string name="msg_reauth_required">ସୁରକ୍ଷା ପାଇଁ email ବଦଳାଇବାକୁ ବର୍ତ୍ତମାନ ପାସୱାର୍ଡ ଲେଖ।</string>
+    
 
     <string name="toast_email_update_verification_sent">ନୂଆ email କୁ ଭେରିଫିକେସନ ଲିଙ୍କ ପଠାଗଲା — ଇନବକ୍ସ ଚେକ କର</string>
 
-    <string name="msg_email_already_in_use">ଏହି email ଅନ୍ୟ ଆକାଉଣ୍ଟ ସହିତ ଯୋଡା।</string>
+    
 
-    <string name="msg_failed_to_update_email">Email ଅପଡେଟ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_incorrect_password">ଭୁଲ ପାସୱାର୍ଡ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_auth_failed">ପ୍ରମାଣୀକରଣ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="title_pending_email_verification">ନୂଆ Email ଭେରିଫାଏ କର</string>
 
-    <string name="msg_verification_sent_to_new_email">%1$s କୁ ଭେରିଫିକେସନ ଲିଙ୍କ ପଠାଗଲା। Email ବଦଳ ସାରିବାକୁ ଇନବକ୍ସର ଲିଙ୍କ ଦବା।</string>
+    
 
-    <string name="msg_current_email_unchanged">ନୂଆ ଭେରିଫାଏ ନହେବା ଯାଏ ବର୍ତ୍ତମାନ ଲଗଇନ email (%1$s) ସକ୍ରିୟ ରହିବ।</string>
+    
 
     <string name="msg_checking_verification_status">ଭେରିଫିକେସନ ସ୍ଥିତି ଚେକ ହେଉଛି…</string>
 
     <string name="msg_email_updated_success">Email ଅପଡେଟ ହେଲା!</string>
 
-    <string name="msg_email_updated_success_desc">ଲଗଇନ email ବଦଳିଲା। ଏବେ ନୂଆ email ରେ ଲଗଇନ କରିପାରିବ।</string>
+    
 
     <string name="label_confirm_new_email">ନୂଆ Email ନିଶ୍ଚିତ କର</string>
 
     <string name="placeholder_confirm_new_email">ନୂଆ email ଆଉଥରେ ଲେଖ</string>
 
-    <string name="error_emails_do_not_match">Email ମିଳୁନାହିଁ।</string>
+    
 
-    <string name="msg_fill_all_fields_correctly">ସବୁ ଫିଲ୍ଡ ସଠିକ ଭର।</string>
+    
 
-    <string name="msg_enter_current_password">ବର୍ତ୍ତମାନ ପାସୱାର୍ଡ ଲେଖ।</string>
+    
 
     <string name="label_send_verification_to_new_email">ଭେରିଫିକେସନ ଲିଙ୍କ ପଠା</string>
 
     <string name="btn_resend_in_seconds">%1$ds ରେ ଆଉଥରେ ପଠା</string>
 
-    <string name="msg_check_spam_folder">ମିଳୁନି? ସ୍ପାମ କିମ୍ବା ଜଙ୍କ ଫୋଲ୍ଡର ଚେକ କର।</string>
+    
 
     <string name="placeholder_reenter_password_for_security">ସୁରକ୍ଷା ପାଇଁ ପାସୱାର୍ଡ ଆଉଥରେ ଲେଖ</string>
 
@@ -3971,9 +3961,9 @@
 
     <string name="title_force_sync">ସିଙ୍କରେ ସମସ୍ୟା?</string>
 
-    <string name="desc_force_sync">ପରିବର୍ତ୍ତନ ଅଟୋ ସିଙ୍କ ନହେଲେ ପୂରା ସିଙ୍କ ଜୋର କରିପାରିବ।</string>
+    
 
-    <string name="desc_last_synced_info">ଶେଷ ସିଙ୍କ ହେଉଛି ଏହି ଡିଭାଇସ ଶେଷ ସଫଳ କ୍ଲାଉଡ ସିଙ୍କ ସାରିଥିବା ତାରିଖ ଓ ସମୟ। କେବେ ନୁହେଁ ମାନେ ଏବେ ସମ୍ପୂର୍ଣ୍ଣ ସିଙ୍କ ରେକର୍ଡ ନାହିଁ।</string>
+    
 
     <string name="btn_sync_now">ଏବେ ସିଙ୍କ କର</string>
 
@@ -4001,9 +3991,9 @@
 
     <string name="placeholder_confirm_new_password">ନୂଆ ପାସୱାର୍ଡ ନିଶ୍ଚିତ କର</string>
 
-    <string name="error_passwords_do_not_match">ନୂଆ ପାସୱାର୍ଡ ମିଳୁନାହିଁ।</string>
+    
 
-    <string name="error_password_update_failed">ପାସୱାର୍ଡ ଅପଡେଟ ହେଲା ନାହିଁ। ବର୍ତ୍ତମାନ ପାସୱାର୍ଡ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="success_password_updated">ପାସୱାର୍ଡ ସଫଳରେ ଅପଡେଟ ହେଲା!</string>
 
@@ -4015,7 +4005,7 @@
 
     <string name="label_turn_on">ଲଗଇନ</string>
 
-    <string name="label_sign_in_keep_data_safe">ଡାଟା ସୁରକ୍ଷିତ ରଖିବାକୁ ଲଗଇନ କର।</string>
+    
 
     <string name="title_membership">ମୋ ମେମ୍ବରସିପ</string>
 
@@ -4031,17 +4021,17 @@
 
     <string name="title_membership_upgrade_card">Expense Tracker Pro କୁ ଅପଗ୍ରେଡ କର</string>
 
-    <string name="msg_membership_upgrade_body">ଅସୀମିତ ବଜେଟ, ୱିଜେଟ, ପୁନରାବୃତ୍ତ ଟ୍ରାନ୍ଜାକ୍ସନ, ଆଡଭାନ୍ସ ଆନାଲିଟିକ୍ସ, କ୍ଲାଉଡ ବ୍ୟାକଅପ ଓ ଅଧିକ ଖୋଲ।</string>
+    
 
     <string name="label_membership_managed_by_play">Google Play ଦ୍ୱାରା ମ୍ୟାନେଜ</string>
 
     <string name="label_membership_unlocked_headline">ସବୁ ପ୍ରିମିୟମ ଫିଚର ଖୋଲା</string>
 
-    <string name="msg_membership_unlocked_body">ବିଲିଂ ଓ ବାତିଲ Google Play ରେ ସୁରକ୍ଷିତ ମ୍ୟାନେଜ ହୁଏ।</string>
+    
 
-    <string name="label_membership_pass_headline">ପ୍ରୋମୋସନାଲ Pro Pass ରେ ଖୋଲା।</string>
+    
 
-    <string name="msg_membership_pass_body">ଏହି ଆକ୍ସେସ ଅଟୋ ସରେ। ଏହା Google Play ସବସ୍କ୍ରିପସନ ନୁହେଁ।</string>
+    
 
     <string name="btn_membership_buy_subscription">ସବସ୍କ୍ରିପସନ କିଣ</string>
 
@@ -4060,9 +4050,9 @@
 
     <string name="label_membership_benefits">ମେମ୍ବରସିପ ଲାଭ</string>
 
-    <string name="msg_subscription_billing_issue">ଶେଷ ପେମେଣ୍ଟ ନେଇପାରିଲୁ ନାହିଁ। Pro ରଖିବାକୁ Google Play ରେ ପେମେଣ୍ଟ ଉପାୟ ଅପଡେଟ କର।</string>
+    
 
-    <string name="msg_pro_active_no_expiry">ତୁମ Pro ଆକ୍ସେସ ସକ୍ରିୟ।</string>
+    
 
     <string name="label_na">N/A</string>
 
@@ -4072,7 +4062,7 @@
 
     <string name="label_free_tier">ମାଗଣା ଟିୟର</string>
 
-    <string name="label_pro_benefit_adfree">ଶୂନ୍ୟ ବିଜ୍ଞାପନ। ପୂରା ଫୋକସ</string>
+    
 
     <string name="label_pro_benefit_devices">4 ଡିଭାଇସରେ ତୁରନ୍ତ ସିଙ୍କ!</string>
 
@@ -4096,15 +4086,15 @@
 
     <string name="label_unlimited_offline">Offline ଲୋକାଲ ମୋଡ</string>
 
-    <string name="label_offline_warning_desc">ଡାଟା କେବଳ ଏହି ଡିଭାଇସରେ ଅଛି। ବ୍ୟାକଅପ ସୁରକ୍ଷିତ କରିବାକୁ ଲଗଇନ କିମ୍ବା ରେଜିଷ୍ଟର କର।</string>
+    
 
     <string name="title_coming_soon">ଶୀଘ୍ର ଆସୁଛି</string>
 
-    <string name="msg_billing_coming_soon">Google Play Billing ଏବେ ବନାହେଉଛି। ଏହି ଫିଚର ଆସନ୍ତା ଅପଡେଟରେ ଆସିବ।</string>
+    
 
     <string name="title_feedback">ଫିଡବ୍ୟାକ</string>
 
-    <string name="label_send_feedback_desc">କଣ ଭଲ ଲାଗେ କିମ୍ବା କଣ ସୁଧାରିପାରିବା କୁହ।</string>
+    
 
     <string name="placeholder_feedback_hint">ଫିଡବ୍ୟାକ ଏଠି ଲେଖ…</string>
 
@@ -4112,19 +4102,19 @@
 
     <string name="msg_feedback_success">ଫିଡବ୍ୟାକ ପାଇଁ ଧନ୍ୟବାଦ!</string>
 
-    <string name="msg_feedback_error">ଫିଡବ୍ୟାକ ପଠାଇହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_feedback_cooldown">ଆଉଥରେ ଫିଡବ୍ୟାକ ପଠାଇବା ଆଗରେ %1$s ମିନିଟ ଅପେକ୍ଷା କର।</string>
+    
 
     <string name="label_logged_in_as">ପଠାଉଛି: %1$s</string>
 
-    <string name="msg_feedback_empty">ଫିଡବ୍ୟାକ ଖାଲି ରହିପାରିବ ନାହିଁ।</string>
+    
 
     <string name="title_view_by">ଦେଖ</string>
 
     <string name="label_welcome_back_comma">ଫେରି ଆସିବାକୁ ସ୍ୱାଗତ,</string>
 
-    <string name="msg_welcome_back_subtitle">ଆପଣଙ୍କ ୱର୍କସ୍ପେସ ପ୍ରସ୍ତୁତ — ଛାଡ଼ିଥିବା ସ୍ଥାନରୁ ଜାରି ରଖନ୍ତୁ।</string>
+    
     <string name="label_signed_in_as">%1$s ଭାବରେ ସାଇନ୍ ଇନ୍</string>
     <string name="label_hi_sticker">ହାଇ</string>
 
@@ -4150,7 +4140,7 @@
 
     <string name="msg_voice_error_empty_input">ଯଥା «କିରାଣାରେ 50 ଡଲାର ଖର୍ଚ୍ଚ» କହ</string>
 
-    <string name="msg_voice_error_no_amount">ରାଶି ମିଳିଲା ନାହିଁ। «କିରାଣା ପାଇଁ 50 ଡଲାର ଖର୍ଚ୍ଚ» କହିବାକୁ ଚେଷ୍ଟା କର</string>
+    
 
     <string name="label_voice_confirm">ନିଶ୍ଚିତ କର</string>
 
@@ -4174,13 +4164,13 @@
 
     <string name="msg_voice_error_no_permission">ଭଏସ ଇନପୁଟ ପାଇଁ ମାଇକ୍ରୋଫୋନ ପରମିସନ ଦରକାର</string>
 
-    <string name="msg_voice_error_recognizer">ସ୍ପିଚ ରିକଗନିସନ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_voice_error_network">ନେଟୱର୍କ ତ୍ରୁଟି। କନେକ୍ସନ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_voice_error_audio">ଅଡିଓ ରେକର୍ଡିଂ ତ୍ରୁଟି। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="msg_voice_error_timeout">କଥା ମିଳିଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="widget_description">ଦ୍ରୁତ ଭଏସ ଟ୍ରାନ୍ଜାକ୍ସନ ଓ ଆଜିର ଖର୍ଚ୍ଚ ସାରାଂଶ</string>
 
@@ -4232,7 +4222,7 @@
 
     <string name="btn_upgrade">Pro କୁ ଯାଅ</string>
 
-    <string name="msg_paywall_subtitle">ପ୍ରତ୍ୟେକ Pro ଫିଚର ଖୋଲ ଓ ଚାଲୁ ବିକାଶକୁ ସହଯୋଗ କର।</string>
+    
 
     <string name="msg_paywall_hero_subtitle">ସବୁ ଫାଇନାନ୍ସ ଇନସାଇଟ, AI ଭଏସ ପାର୍ସିଂ ଓ ଅସୀମିତ ନିୟମ ଖୋଲ</string>
 
@@ -4310,7 +4300,7 @@
 
     <string name="paywall_congrats_purchase">କିଣିବା ପାଇଁ ଅଭିନନ୍ଦନ</string>
 
-    <string name="paywall_invested_in_yourself">ତୁମେ ନିଜରେ ନିବେଶ କଲ। ସଠିକ କାମ।</string>
+    
 
     <string name="paywall_start_using_pro">Pro ବ୍ୟବହାର ଆରମ୍ଭ କର</string>
 
@@ -4322,9 +4312,9 @@
 
     <string name="label_paywall_choose_plan">ପ୍ଲାନ ବାଛ</string>
 
-    <string name="label_paywall_plans_unavailable">ପ୍ଲାନ ଲୋଡ ହେଲା ନାହିଁ।</string>
+    
 
-    <string name="msg_paywall_plans_unavailable_desc">କନେକ୍ସନ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
     <string name="btn_paywall_retry">ଆଉଥରେ</string>
 
@@ -4332,13 +4322,13 @@
 
     <string name="btn_paywall_subscribe">ସବସ୍କ୍ରାଇବ</string>
 
-    <string name="msg_paywall_play_account_billing">Google Play ଏହି ଡିଭାଇସରେ ଲଗଇନ Google ଆକାଉଣ୍ଟକୁ ବିଲ କରେ। Expense Tracker email ରୁ କାଢାଯାଏ ନାହିଁ।</string>
+    
 
     <string name="desc_paywall_play_billing_info">ସବସ୍କ୍ରିପସନ ବିଲିଂ ସୂଚନା</string>
 
-    <string name="msg_paywall_play_billing_info">ତୁମେ ନିଜେ ବାତିଲ ନକରିବା ଯାଏ ସବସ୍କ୍ରିପସନ ଅଟୋ ରିନ୍ୟୁ ହୁଏ। Google Play Store ରୁ ଯେକୌଣସି ସମୟରେ ବାତିଲ କରିପାରିବ।</string>
+    
 
-    <string name="msg_paywall_already_pro">ତୁମେ Pro ରେ ଅଛ। ଆପକୁ ସହଯୋଗ ପାଇଁ ଧନ୍ୟବାଦ।</string>
+    
 
     <string name="content_desc_paywall_plan_selected">ବଛା ପ୍ଲାନ</string>
 
@@ -4370,71 +4360,71 @@
 
     <string name="paywall_period_one_time">ଥରେ</string>
 
-    <string name="msg_paywall_purchase_success">ତୁମେ ଏବେ Pro ରେ ଅଛ। ଉପଭୋଗ କର!</string>
+    
 
     <string name="title_paywall_purchase_congrats">ଅଭିନନ୍ଦନ</string>
 
-    <string name="msg_paywall_purchase_congrats">ତୁମେ Pro। ଅସୀମିତ ଇନସାଇଟ, ବିଜ୍ଞାପନ ନାହିଁ, ସବୁ ଫିଚର ଖୋଲା। ଅପଗ୍ରେଡ ଉପଭୋଗ କର।</string>
+    
 
-    <string name="msg_paywall_purchase_sign_in">ପେମେଣ୍ଟ ହୋଇଗଲା। Pro ବ୍ୟବହାର କରିବାକୁ Google କିମ୍ବା email ଓ ପାସୱାର୍ଡରେ ଲଗଇନ କର। Pro ନିଜେ ଅନ ନହେଲେ ସେଟିଂ, ତାପରେ ମୋ ମେମ୍ବରସିପ ଖୋଲି Restore purchase ଦବା।</string>
+    
 
     <string name="content_desc_opening_play_store">Google Play ଖୋଲୁଛି</string>
 
-    <string name="msg_paywall_restore_success">ତୁମ କିଣିବା ଫେରିଲା।</string>
+    
 
-    <string name="msg_paywall_restore_nothing_found">ଏହି ଆକାଉଣ୍ଟ ପାଇଁ ପୂର୍ବ କିଣିବା ମିଳିଲା ନାହିଁ।</string>
+    
 
-    <string name="msg_paywall_payment_pending">ପେମେଣ୍ଟ ଅପେକ୍ଷାରେ। ପେମେଣ୍ଟ ସରିବା ସଙ୍ଗେ ସଙ୍ଗେ Pro ଖୋଲିବ।</string>
+    
 
-    <string name="paywall_error_network">ଷ୍ଟୋର ପହଞ୍ଚିଲା ନାହିଁ। କନେକ୍ସନ ଚେକ କରି ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_store_problem">ଷ୍ଟୋର ସାରିପାରିଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_not_allowed">ଏହି ଡିଭାଇସ କିମ୍ବା ଆକାଉଣ୍ଟରେ କିଣିବା ଅନୁମତି ନାହିଁ।</string>
+    
 
-    <string name="paywall_error_product_unavailable">ଏହି ପ୍ଲାନ ଏବେ ଉପଲବ୍ଧ ନାହିଁ। ପରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_already_owned">ତୁମେ ଆଗରୁ ଏହି ସବସ୍କ୍ରିପସନ ରଖିଛ।</string>
+    
 
-    <string name="paywall_error_receipt_in_use">ଏହି ସବସ୍କ୍ରିପସନ ଅନ୍ୟ ଆକାଉଣ୍ଟ ସହିତ ଯୋଡା। କିଣିଥିବା ଆକାଉଣ୍ଟରେ ଲଗଇନ କରି restore କର।</string>
+    
 
-    <string name="paywall_error_invalid_receipt">ଏହି କିଣିବା ଯାଞ୍ଚ ହେଲା ନାହିଁ। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_invalid_credentials">ଷ୍ଟୋର ଅନୁରୋଧ ମାନିଲା ନାହିଁ। ପରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_configuration">ସବସ୍କ୍ରିପସନ ଏବେ ସଠିକ ସେଟ ନାହିଁ। ପରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="paywall_error_billing_not_configured">ଏହି ବିଲ୍ଡରେ ସବସ୍କ୍ରିପସନ ଉପଲବ୍ଧ ନାହିଁ।</string>
+    
 
-    <string name="paywall_error_unknown">କିଛି ଭୁଲ ହେଲା। ଆଉଥରେ ଚେଷ୍ଟା କର।</string>
+    
 
-    <string name="desc_terms_conditions_requirement">ଅତିଥି କିମ୍ବା ରେଜିଷ୍ଟର ଆକାଉଣ୍ଟରେ ExpenseTracker ଚାଲୁ ରଖିବାକୁ ଏହି ସର୍ତ ମାନିବା ଦରକାର।</string>
+    
 
     <string name="label_bullet_app_usage_title">ଆପ ବ୍ୟବହାର</string>
 
-    <string name="label_bullet_app_usage_desc">ବ୍ୟକ୍ତିଗତ ବଜେଟ ଓ ଟ୍ରାକିଂ। ଅନଧିକୃତ ପୁନର୍ବଣ୍ଟନ କିମ୍ବା ରିଭର୍ସ ଇଞ୍ଜିନିୟରିଂ ନାହିଁ।</string>
+    
 
     <string name="label_bullet_privacy_title">ଡାଟା ଓ ପ୍ରାଇଭେସି</string>
 
-    <string name="label_bullet_privacy_desc">ଡିଭାଇସରେ offline-first। ସିଙ୍କ ଇଚ୍ଛାଧୀନ ଓ end-to-end ଏନକ୍ରିପସନରେ ସୁରକ୍ଷିତ।</string>
+    
 
     <string name="label_bullet_subscriptions_title">ସବସ୍କ୍ରିପସନ</string>
 
-    <string name="label_bullet_subscriptions_desc">Pro ଆକ୍ସେସ Google Play Billing ରେ ସୁରକ୍ଷିତ ମ୍ୟାନେଜ। ବାତିଲ ନକଲେ ଅଟୋ ରିନ୍ୟୁ।</string>
+    
 
     <string name="label_bullet_cancellation_title">ବାତିଲ ଓ ଏକ୍ସପୋର୍ଟ</string>
 
-    <string name="label_bullet_cancellation_desc">Play Store ରେ ଯେକୌଣସି ସମୟରେ Pro ବାତିଲ କର। ଚାହିଁଲେ 100% ଡାଟା ଏକ୍ସପୋର୍ଟ କିମ୍ବା ଡିଲିଟ କର।</string>
+    
 
-    <string name="label_terms_clause_1">1. ସର୍ତ ସ୍ୱୀକାର: ଆପ ବ୍ୟବହାର କରି ତୁମେ ଏହି ବ୍ୟବହାର ସର୍ତ ଓ ପ୍ରାଇଭେସି ନୀତି ମାନୁଛ। ଏହି ସର୍ତ ସବୁ ବ୍ୟବହାରକାରୀଙ୍କୁ (ଅତିଥି କିମ୍ବା ରେଜିଷ୍ଟର) ବାନ୍ଧେ।</string>
+    
 
-    <string name="label_terms_clause_2">2. ଲାଇସେନ୍ସ: ଆମେ ବ୍ୟକ୍ତିଗତ ଅଣ-ବାଣିଜ୍ୟିକ ଫାଇନାନ୍ସ ମ୍ୟାନେଜମେଣ୍ଟ ପାଇଁ ସୀମିତ, ଫେରାଇହେଉଥିବା, ଅଣ-ଏକଚ୍ଛତ୍ର ଲାଇସେନ୍ସ ଦେଉ।</string>
+    
 
-    <string name="label_terms_clause_3">3. ଲୋକାଲ-ପ୍ରଥମ ଷ୍ଟୋରେଜ: ଫାଇନାନ୍ସ ଡାଟା ଡିଫଲ୍ଟରେ ଏନକ୍ରିପ୍ଟ ଡାଟାବେସରେ ଡିଭାଇସରେ ସୁରକ୍ଷିତ ରହେ।</string>
+    
 
-    <string name="label_terms_clause_4">4. ଇନ-ଆପ କିଣିବା: ସବସ୍କ୍ରିପସନ Google Play ମାଧ୍ୟମରେ ଷ୍ଟୋର ନୀତି ଅନୁସାରେ ବିଲ ହୁଏ।</string>
+    
 
-    <string name="label_terms_clause_5">5. ଡିସ୍କ୍ଲେମର: ExpenseTracker ଏକ ସଂଗଠନ ଟୁଲ ଓ ପ୍ରମାଣିତ ଫାଇନାନ୍ସ ପରାମର୍ଶ ଦେଏ ନାହିଁ।</string>
+    
 
     <string name="label_agree_terms_checkbox">ମୁଁ ବ୍ୟବହାର ସର୍ତ ପଢିଛି ଓ ମାନୁଛି</string>
 
@@ -4446,8 +4436,8 @@
 
     <string name="title_terms_required">ବ୍ୟବହାର ସର୍ତ</string>
 
-    <string name="msg_agree_terms_required">ଏହି ଆପ ବ୍ୟବହାର କରିବାକୁ ବ୍ୟବହାର ସର୍ତ ଓ ପ୍ରାଇଭେସି ନୀତି ମାନିବା ଦରକାର। ଚେକବକ୍ସ ଟିକ କର।</string>
-    <string name="msg_agree_terms_links">ମୁଁ %1$s ଏବଂ %2$s ପଢ଼ିଛି ଏବଂ ସହମତ।</string>
+    
+    
     <string name="label_terms_and_conditions">ନିୟମ ଓ ସର୍ତ୍ତାବଳୀ</string>
     <string name="label_privacy_policy">ଗୋପନୀୟତା ନୀତି</string>
 
@@ -4457,15 +4447,15 @@
 
     <string name="title_what_are_funds">ଫଣ୍ଡ କଣ</string>
 
-    <string name="msg_funds_what">ଫଣ୍ଡ ହେଉଛି ଗୋଟେ ଉଦ୍ଦେଶ୍ୟ ପାଇଁ ରଖିଥିବା ନଗଦ ବାକେଟ। ଆଲୋକେଟ ହେଉଛି ତୁମେ ରଖିଥିବା, ଖର୍ଚ୍ଚ ହେଉଛି କାଢିଥିବା, ବାକି ହେଉଛି ଯାହା ରହିଲା।</string>
+    
 
-    <string name="msg_funds_how">ଫଣ୍ଡ ତିଆରି କର, ତାପରେ ଖର୍ଚ୍ଚ ଯୋଡିବାବେଳେ ବାଛ। ସେହି ଖର୍ଚ୍ଚ ବାକେଟରୁ ଯାଏ ଯାହାଫଳରେ ବାକି ଟଙ୍କା ସହିତ ମିଶାଇ ନଦେଖି ପୁଲ କେମିତି ଚାଲିଛି ଦେଖିପାରିବ।</string>
+    
 
     <string name="label_funds_example">ଉଦାହରଣ</string>
 
     <string name="label_fund_example_name">ଛୁଟି</string>
 
-    <string name="msg_funds_example">ଛୁଟି ଫଣ୍ଡରେ ଟଙ୍କା ରଖ। ସେହି ଫଣ୍ଡରୁ ହୋଟେଲ ଓ ଫ୍ଲାଇଟ ଖର୍ଚ୍ଚ ବାକି କମାଏ। କିରାଣା ସେଥିରେ ଆସେ ନାହିଁ ଯଦି ସେହି ଖର୍ଚ୍ଚରେ ଫଣ୍ଡ ନବାଛ।</string>
+    
 
     <string name="desc_funds_info">ଫଣ୍ଡ କଣ ଓ କିପରି ବ୍ୟବହାର କରିବ</string>
 
@@ -4493,7 +4483,7 @@
 
     <string name="label_fund_summary_remaining">ବାକି</string>
 
-    <string name="label_fund_empty">ଏବେ ଫଣ୍ଡ ନାହିଁ। ଟଙ୍କା ପୁଲ ଟ୍ରାକ କରିବାକୁ ଗୋଟେ ତିଆରି କର।</string>
+    
 
     <string name="label_fund_spent_of">%2$s ରୁ %1$s ଖର୍ଚ୍ଚ</string>
 
@@ -4507,7 +4497,7 @@
 
     <string name="title_fund_breakdown">ଖର୍ଚ୍ଚ ବିଭାଜନ</string>
 
-    <string name="label_fund_no_spending">ଏହି ଫଣ୍ଡରୁ ଏବେ ଖର୍ଚ୍ଚ ନାହିଁ।</string>
+    
 
     <string name="label_fund_linked_transactions">ଟ୍ରାନ୍ଜାକ୍ସନ</string>
 
@@ -4525,17 +4515,17 @@
 
     <string name="title_delete_fund">ଫଣ୍ଡ ଡିଲିଟ କରିବେ?</string>
 
-    <string name="msg_delete_fund_body">«%1$s» କାଢାଯିବ। ଟ୍ରାନ୍ଜାକ୍ସନ ରହେ; କେବଳ ଏହା ସହିତ ଲିଙ୍କ ବନ୍ଦ ହୁଏ।</string>
+    
 
-    <string name="msg_fund_edit_amount_updates_income">ଏହା ଏହାକୁ ଫଣ୍ଡ କରୁଥିବା ଆୟ ଟ୍ରାନ୍ଜାକ୍ସନ ମଧ୍ୟ ଅପଡେଟ କରେ।</string>
+    
 
     <string name="title_spend_from_fund">ଫଣ୍ଡ</string>
 
-    <string name="label_fund_none">कोई फंड नहीं। अकेले उड़ रहा है।</string>
+    
 
     <string name="title_fund_overspend">ଫଣ୍ଡ ଯଥେଷ୍ଟ ନାହିଁ</string>
 
-    <string name="msg_fund_overspend">ଏହି ଖର୍ଚ୍ଚ «%1$s» ରେ ବାକି %2$s ଠାରୁ ବଡ। ତଥାପି ଖର୍ଚ୍ଚ କର, ରାଶି ବଦଳାଅ, କିମ୍ବା ଏହି ଖର୍ଚ୍ଚରୁ ଫଣ୍ଡ କାଢ।</string>
+    
 
     <string name="label_spend_anyway">ତଥାପି ଖର୍ଚ୍ଚ କର</string>
 
@@ -4547,13 +4537,12 @@
 
     <string name="label_all_funds_breakdown">ସବୁ ଫଣ୍ଡ</string>
 
-    <string name="label_no_fund_breakdown">ଏହି ରେଞ୍ଜରେ ଫଣ୍ଡ ଖର୍ଚ୍ଚ ନାହିଁ।</string>
+    
 
     <string name="title_full_fund_breakdown">ପୂରା ଫଣ୍ଡ ବିଭାଜନ</string>
 
-
     <string name="title_ai_extract_from_text">ଟେକ୍ସଟରୁ ବାହାର କରନ୍ତୁ</string>
-    <string name="desc_ai_extract_from_text">ବ୍ୟାଙ୍କ SMS, ରସିଦ କିମ୍ବା ନୋଟ୍ ଲଗାନ୍ତୁ। ଆମେ ଟ୍ରାନ୍ସଆକ୍ସନ୍ ପୂରଣ କରିବୁ।</string>
+    
     <string name="placeholder_ai_extract_from_text">ଯଥା UPI ରେ 450 ଦିଆଗଲା</string>
     <string name="action_ai_extract">ବାହାର କରନ୍ତୁ</string>
     <string name="desc_ai_fab_file">ଫାଇଲ୍ ଅପଲୋଡ୍ କରନ୍ତୁ</string>
@@ -4583,49 +4572,47 @@
     <string name="label_ai_transaction_saved">Transaction Saved</string>
     <string name="msg_ai_added_to_budget">Successfully added to budget</string>
 
-    <string name="label_add_button_style">जोड़ें बटन</string>
-    <string name="desc_add_button_style">+ बटन कैसे क्रियाएँ खोले, चुनें</string>
-    <string name="label_add_ui_pattern">लेन-देन जोड़ने का लेआउट</string>
-    <string name="desc_add_ui_pattern">एकीकृत स्मार्ट शीट या त्वरित फ्लोटिंग आर्क</string>
-    <string name="label_add_ui_unified">एकीकृत स्मार्ट शीट</string>
-    <string name="label_add_ui_arc">त्वरित फ्लोटिंग आर्क</string>
-    <string name="label_add_transaction">लेन-देन जोड़ें</string>
-    <string name="label_use_classic_form">क्लासिक फ़ॉर्म इस्तेमाल करें</string>
-    <string name="hint_ai_chat_spend">जैसे एयरपोर्ट तक उबर पर $18 खर्च…</string>
-    <string name="label_voice_mic">माइक</string>
-    <string name="desc_voice_mic">बोलें, अपने आप दर्ज हो</string>
-    <string name="label_scan_receipt">स्कैन</string>
-    <string name="desc_scan_receipt">छवि या PDF</string>
-    <string name="label_speak_transaction">लेन-देन बोलें</string>
-    <string name="desc_speak_transaction">\"लंच पर $20 खर्च\"</string>
-    <string name="label_scan_receipt_pdf">रसीद / PDF स्कैन करें</string>
-    <string name="desc_scan_receipt_pdf">AI से विवरण निकालें</string>
-    <string name="label_quick_chat_note">त्वरित चैट नोट</string>
-    <string name="desc_quick_chat_note">सामान्य भाषा में लिखें</string>
-    <string name="label_manual_entry">मैन्युअल प्रविष्टि</string>
-    <string name="desc_manual_entry">सामान्य फ़ॉर्म</string>
-    <string name="label_parsing_ai_input">टेक्स्ट पढ़ा जा रहा है</string>
-    <string name="msg_extracting_merchant">AI गलती कर सकता है</string>
-
+    <string name="label_add_button_style">ଯୋଡ଼ନ୍ତୁ ବଟନ୍</string>
+    <string name="desc_add_button_style">+ ବଟନ୍ କିପରି କାର୍ଯ୍ୟ ଖୋଲିବ ବାଛନ୍ତୁ</string>
+    <string name="label_add_ui_pattern">କାରବାର ଯୋଡ଼ିବା ଲେଆଉଟ୍</string>
+    <string name="desc_add_ui_pattern">ଏକୀକୃତ ସ୍ମାର୍ଟ ସିଟ୍ କିମ୍ବା ଦ୍ରୁତ ଫ୍ଲୋଟିଂ ଆର୍କ</string>
+    <string name="label_add_ui_unified">ଏକୀକୃତ ସ୍ମାର୍ଟ ସିଟ୍</string>
+    <string name="label_add_ui_arc">ଦ୍ରୁତ ଫ୍ଲୋଟିଂ ଆର୍କ</string>
+    <string name="label_add_transaction">କାରବାର ଯୋଡ଼ନ୍ତୁ</string>
+    <string name="label_use_classic_form">କ୍ଲାସିକ୍ ଫର୍ମ ବ୍ୟବହାର କରନ୍ତୁ</string>
+    <string name="hint_ai_chat_spend">ଯେପରି ଏୟାରପୋର୍ଟ ପର୍ଯ୍ୟନ୍ତ ଉବର୍‌ରେ $18 ଖର୍ଚ୍ଚ…</string>
+    <string name="label_voice_mic">ମାଇକ୍</string>
+    <string name="desc_voice_mic">କୁହନ୍ତୁ, ନିଜେ ଲିପିବଦ୍ଧ ହେବ</string>
+    <string name="label_scan_receipt">ସ୍କାନ୍</string>
+    <string name="desc_scan_receipt">ଛବି କିମ୍ବା PDF</string>
+    <string name="label_speak_transaction">କାରବାର କୁହନ୍ତୁ</string>
+    <string name="desc_speak_transaction">\"ଲଞ୍ଚରେ $20 ଖର୍ଚ୍ଚ\"</string>
+    <string name="label_scan_receipt_pdf">ରସିଦ / PDF ସ୍କାନ୍ କରନ୍ତୁ</string>
+    <string name="desc_scan_receipt_pdf">AIରୁ ବିବରଣୀ ବାହାର କରନ୍ତୁ</string>
+    <string name="label_quick_chat_note">ଶୀଘ୍ର ଚାଟ୍ ନୋଟ୍</string>
+    <string name="desc_quick_chat_note">ସାଧାରଣ ଭାଷାରେ ଲେଖନ୍ତୁ</string>
+    <string name="label_manual_entry">ହସ୍ତକୃତ ପ୍ରବିଷ୍ଟି</string>
+    <string name="desc_manual_entry">ସାଧାରଣ ଫର୍ମ</string>
+    <string name="label_parsing_ai_input">ପାଠ୍ୟ ପଢ଼ାଯାଉଛି</string>
+    <string name="msg_extracting_merchant">AI ଭୁଲ କରିପାରେ</string>
 
     <string name="label_listening_to_voice">Listening to your voice...</string>
     <string name="hint_voice_listen_example">"Spent $15 for dinner at Olive Garden"</string>
 
-
     <string name="msg_ai_chat_no_transactions">No transactions found from the text.</string>
     <string name="msg_ai_chat_daily_limit">Daily transaction limit reached. Please try again tomorrow.</string>
     <string name="msg_ai_chat_generic_error">Unable to fetch transactions right now. Please try again later.</string>
-    <string name="label_attach_file">फ़ाइल</string>
-    <string name="desc_attach_file">PDF / छवि फ़ाइलें साझा करें</string>
-    <string name="label_gallery">गैलरी</string>
-    <string name="label_all_media">सभी मीडिया</string>
-    <string name="label_camera">कैमरा</string>
-    <string name="label_send">भेजें</string>
-    <plurals name="label_photos_selected">
-        <item quantity="one">%d फ़ोटो चुनी गई</item>
-        <item quantity="other">%d फ़ोटो चुनी गईं</item>
+    <string name="label_attach_file">ଫାଇଲ୍</string>
+    <string name="desc_attach_file">PDF / ଛବି ଫାଇଲ୍ ସେୟାର କରନ୍ତୁ</string>
+    <string name="label_gallery">ଗ୍ୟାଲେରୀ</string>
+    <string name="label_all_media">ସମସ୍ତ ମିଡ଼ିଆ</string>
+    <string name="label_camera">କ୍ୟାମେରା</string>
+    <string name="label_send">ପଠାନ୍ତୁ</string>
+        <plurals name="label_photos_selected">
+        <item quantity="one">%d ଟି ଫଟୋ ବଛାଗଲା</item>
+        <item quantity="other">%d ଟି ଫଟୋ ବଛାଗଲା</item>
     </plurals>
-    <string name="desc_language_changes_ledger">ବଛା ଯାଇଥିବା ଭାଷା ସମଗ୍ର ଆପ୍‌ରେ ବ୍ୟବହୃତ ହେବ।</string>
+    
     <string name="label_pick_from_languages">%d ଟି ଭାଷାରୁ ବାଛନ୍ତୁ</string>
     <string name="title_ai_daily_limit">ଦୈନିକ AI ପାର୍ସ ସୀମା</string>
 </resources>
