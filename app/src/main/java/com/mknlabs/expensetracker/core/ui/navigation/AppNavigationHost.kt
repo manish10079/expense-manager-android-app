@@ -34,6 +34,7 @@ import com.mknlabs.expensetracker.feature.settings.ui.ReferAFriendScreen
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxItemUi
 import com.mknlabs.expensetracker.feature.smsinbox.ui.SmsInboxRoute
 import com.mknlabs.expensetracker.feature.settings.ui.FeedbackRoute
+import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.feature.transactions.ui.AddTransactionScreen
 import com.mknlabs.expensetracker.feature.analytics.ui.AnalyticsScreen
 import com.mknlabs.expensetracker.feature.budget.ui.BudgetAndRecurringScreen
@@ -142,6 +143,7 @@ fun AppNavigationHost(
     onAddTransactionDraftAmountChange: (String?) -> Unit,
     onAddTransactionDraftNoteChange: (String?) -> Unit,
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
+    onShowTransactionSaved: (AiParsedReviewItem) -> Unit = {},
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
@@ -794,6 +796,26 @@ fun AppNavigationHost(
                                 isFavorite,
                                 tagIds
                             )
+                            if (!isEdit) {
+                                val category = categories.firstOrNull { it.id == transactionToSave.categoryId }
+                                val payment = paymentMethods.firstOrNull { it.id == transactionToSave.paymentTypeId }
+                                onShowTransactionSaved(
+                                    AiParsedReviewItem(
+                                        id = transactionToSave.id.ifBlank { "new" },
+                                        amount = transactionToSave.amountMinor / 100.0,
+                                        amountMinor = transactionToSave.amountMinor,
+                                        categoryName = category?.name.orEmpty(),
+                                        categoryId = transactionToSave.categoryId,
+                                        paymentName = payment?.name.orEmpty(),
+                                        paymentTypeId = transactionToSave.paymentTypeId,
+                                        note = transactionToSave.note,
+                                        typeId = transactionToSave.transactionTypeId,
+                                        createdAt = transactionToSave.createdAt,
+                                        fundId = transactionToSave.fundId,
+                                        tagIds = tagIds,
+                                    )
+                                )
+                            }
                             if (isFavorite != wasFavorite) {
                                 Toast.makeText(
                                     favoritesContext,

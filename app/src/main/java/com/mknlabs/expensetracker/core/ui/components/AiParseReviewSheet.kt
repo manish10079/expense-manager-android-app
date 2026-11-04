@@ -148,7 +148,7 @@ fun AiParseReviewSheet(
         drafts = drafts.map { if (it.id == updated.id) updated else it }
     }
 
-    Dialog(
+    if (savedItem == null) Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
@@ -988,7 +988,7 @@ private fun MetaStackCard(
 }
 
 @Composable
-private fun TransactionSavedDialog(
+fun TransactionSavedDialog(
     item: AiParsedReviewItem,
     currencyId: Int,
     onFinished: () -> Unit,
@@ -998,62 +998,80 @@ private fun TransactionSavedDialog(
         onFinished()
     }
     Dialog(onDismissRequest = onFinished) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color(0xFF0F172A),
-            border = BorderStroke(1.dp, Color(0xE61E293B)),
-            shadowElevation = 24.dp,
+        TransactionSavedCard(
+            item = item,
+            currencyId = currencyId,
+            dark = MaterialTheme.colorScheme.isDark,
+        )
+    }
+}
+
+@Composable
+private fun TransactionSavedCard(
+    item: AiParsedReviewItem,
+    currencyId: Int,
+    dark: Boolean,
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = if (dark) DarkCanvas else LightCanvas,
+        border = BorderStroke(1.dp, if (dark) DarkBorder else LightBorder),
+        shadowElevation = 24.dp,
+    ) {
+        Column(
+            modifier = Modifier
+                .width(280.dp)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(
+            Box(
                 modifier = Modifier
-                    .width(280.dp)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .border(2.5.dp, Emerald, CircleShape),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .border(2.5.dp, Emerald, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Lucide.Check, null, tint = Emerald, modifier = Modifier.size(32.dp))
-                }
-                Spacer(Modifier.height(16.dp))
+                Icon(Lucide.Check, null, tint = Emerald, modifier = Modifier.size(32.dp))
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.label_ai_transaction_saved),
+                color = if (dark) DarkTitle else LightTitle,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 13.6.sp,
+            )
+            Text(
+                merchantOf(item),
+                color = if (dark) DarkMuted else LightMuted,
+                fontSize = 10.2.sp,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Text(
+                formatReviewAmount(item.amount, currencyId),
+                color = Emerald,
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Spacer(Modifier.height(12.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(if (dark) DarkBorder else LightBorder),
+            )
+            Row(
+                modifier = Modifier.padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.size(6.dp).clip(CircleShape).background(Emerald))
+                Spacer(Modifier.width(6.dp))
                 Text(
-                    stringResource(R.string.label_ai_transaction_saved),
-                    color = Color(0xFFF1F5F9),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.6.sp,
+                    stringResource(R.string.msg_ai_added_to_budget),
+                    color = if (dark) DarkFaint else LightFaint,
+                    fontSize = 9.35.sp,
+                    fontWeight = FontWeight.Medium,
                 )
-                Text(
-                    merchantOf(item),
-                    color = Color(0xFF94A3B8),
-                    fontSize = 10.2.sp,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-                Text(
-                    formatReviewAmount(item.amount, currencyId),
-                    color = Emerald,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(Modifier.fillMaxWidth().height(1.dp).background(Color(0xFF1E293B)))
-                Row(
-                    modifier = Modifier.padding(top = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(Modifier.size(6.dp).clip(CircleShape).background(Emerald))
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        stringResource(R.string.msg_ai_added_to_budget),
-                        color = Color(0xFF64748B),
-                        fontSize = 9.35.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
             }
         }
     }
@@ -1306,6 +1324,44 @@ private fun PreviewBatchTransactionListDark() {
                 currencyId = DEFAULT_CURRENCY_ID,
                 onSelect = {},
                 onRetry = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Saved dialog - Light", showBackground = true, backgroundColor = 0xFFF1F5F9)
+@Composable
+private fun PreviewTransactionSavedCardLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            TransactionSavedCard(
+                item = previewReviewItem(),
+                currencyId = DEFAULT_CURRENCY_ID,
+                dark = false,
+            )
+        }
+    }
+}
+
+@Preview(name = "Saved dialog - Dark", showBackground = true, backgroundColor = 0xFF09090B)
+@Composable
+private fun PreviewTransactionSavedCardDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            TransactionSavedCard(
+                item = previewReviewItem(),
+                currencyId = DEFAULT_CURRENCY_ID,
+                dark = true,
             )
         }
     }

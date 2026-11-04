@@ -62,6 +62,7 @@ import com.mknlabs.expensetracker.core.ui.components.AddQuickFloatingArc
 import com.mknlabs.expensetracker.core.ui.components.AddUnifiedSmartSheet
 import com.mknlabs.expensetracker.core.ui.components.ReceiptAttachmentSheet
 import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
+import com.mknlabs.expensetracker.core.ui.components.TransactionSavedDialog
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
@@ -255,6 +256,7 @@ fun MainScaffold(
     val addFabVisibility = remember { mutableStateOf(true) }
     var showAiExtractSheet by remember { mutableStateOf(false) }
     var showAiReviewSheet by remember { mutableStateOf(false) }
+    var savedConfirmation by remember { mutableStateOf<AiParsedReviewItem?>(null) }
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
     var aiReviewSourceText by remember { mutableStateOf("") }
     var pendingOcrFingerprint by remember { mutableStateOf("") }
@@ -643,6 +645,7 @@ fun MainScaffold(
             onAddTransactionDraftAmountChange = onAddTransactionDraftAmountChange,
             onAddTransactionDraftNoteChange = onAddTransactionDraftNoteChange,
             onSaveTransaction = onSaveTransaction,
+            onShowTransactionSaved = { savedConfirmation = it },
             onDeleteTransaction = onDeleteTransaction,
             onSwipeDeleteTransaction = onSwipeDeleteTransaction,
             onRestoreTransaction = onRestoreTransaction,
@@ -872,6 +875,13 @@ fun MainScaffold(
                         showAiReviewSheet = true
                     }
                 }
+            )
+        }
+        savedConfirmation?.let { item ->
+            TransactionSavedDialog(
+                item = item,
+                currencyId = selectedCurrencyId,
+                onFinished = { savedConfirmation = null },
             )
         }
         if (showAiReviewSheet && aiReviewItems.isNotEmpty()) {
