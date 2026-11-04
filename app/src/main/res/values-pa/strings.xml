@@ -1870,6 +1870,10 @@
     <string name="dialog_verify_email_sync">ਕ੍ਰਾਸ-ਡਿਵਾਈਸ ਸਿੰਕ ਚਾਲੂ ਕਰਨ ਲਈ ਆਪਣੀ ਈਮੇਲ ਪ੍ਰਮਾਣਿਤ ਕਰੋ।</string>
     <string name="label_verify_now">ਹੁਣੇ ਪ੍ਰਮਾਣਿਤ ਕਰੋ</string>
     <string name="label_later">ਬਾਅਦ ਵਿੱਚ</string>
+
+    <string name="title_sms_stale_remind">ਪਤਾ ਲੱਗੇ ਲੈਣ-ਦੇਣ</string>
+    <string name="msg_sms_stale_remind">%d ਬੈਂਕ ਸੁਨੇਹੇ ਇੱਕ ਦਿਨ ਤੋਂ ਵੱਧ ਉਡੀਕ ਕਰ ਰਹੇ ਹਨ।</string>
+    <string name="label_review_sms_inbox">ਸਮੀਖਿਆ</string>
     <string name="toast_verification_email_sent">ਪ੍ਰਮਾਣਿਕਤਾ ਈਮੇਲ ਭੇਜੀ — ਆਪਣਾ ਇਨਬਾਕਸ ਜਾਂਚੋ</string>
     <string name="msg_email_not_verified_yet">ਈਮੇਲ ਅਜੇ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਇਨਬਾਕਸ ਜਾਂਚੋ।</string>
     <string name="msg_failed_to_check_status">ਸਥਿਤੀ ਜਾਂਚੀ ਨਹੀਂ ਜਾ ਸਕੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>

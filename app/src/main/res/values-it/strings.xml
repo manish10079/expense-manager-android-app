@@ -3889,6 +3889,10 @@
 
     <string name="label_later">Dopo</string>
 
+    <string name="title_sms_stale_remind">Transazioni rilevate</string>
+    <string name="msg_sms_stale_remind">%d messaggi bancari sono in attesa da più di un giorno.</string>
+    <string name="label_review_sms_inbox">Rivedi</string>
+
     <string name="toast_verification_email_sent">Email di verifica inviata — controlla la posta</string>
 
     <string name="msg_email_not_verified_yet">Email non ancora verificata. Controlla la posta.</string>

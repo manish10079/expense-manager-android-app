@@ -3918,6 +3918,10 @@ privé par nature</string>
 
     <string name="label_later">Plus tard</string>
 
+    <string name="title_sms_stale_remind">Transactions détectées</string>
+    <string name="msg_sms_stale_remind">%d messages bancaires attendent depuis plus d’un jour.</string>
+    <string name="label_review_sms_inbox">Examiner</string>
+
     <string name="toast_verification_email_sent">E-mail de vérif envoyé — regarde ta boîte</string>
 
     <string name="msg_email_not_verified_yet">L’e-mail n’est pas encore vérifié. Regarde ta boîte.</string>

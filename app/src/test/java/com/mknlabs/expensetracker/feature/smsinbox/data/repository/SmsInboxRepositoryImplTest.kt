@@ -286,6 +286,9 @@ private class FakeDetectedSmsNotificationDao : DetectedSmsNotificationDao {
     override fun observeUnreadCount(): Flow<Int> =
         flowOf(rows.value.count { it.status == SmsInboxStatus.NEW })
 
+    override fun observeOldestUnreadCreatedAt(): Flow<Long?> =
+        flowOf(rows.value.filter { it.status == SmsInboxStatus.NEW }.minOfOrNull { it.createdAt })
+
     override suspend fun countByStatus(status: String) = rows.value.count { it.status.name == status }
 
     override suspend fun countNew() = rows.value.count { it.status == SmsInboxStatus.NEW }

@@ -3946,6 +3946,10 @@
 
     <string name="label_later">あとで</string>
 
+    <string name="title_sms_stale_remind">検出された取引</string>
+    <string name="msg_sms_stale_remind">%d件の銀行メッセージが1日以上未確認です。</string>
+    <string name="label_review_sms_inbox">確認</string>
+
     <string name="toast_verification_email_sent">確認メールを送ったよ — 受信箱を見て</string>
 
     <string name="msg_email_not_verified_yet">メールはまだ未確認。受信箱を見て。</string>

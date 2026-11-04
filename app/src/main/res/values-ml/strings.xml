@@ -1842,6 +1842,10 @@
     <string name="dialog_verify_email_sync">ഉപകരണങ്ങൾക്കിടയിലുള്ള സമന്വയം സജീവമാക്കാൻ ഇമെയിൽ സ്ഥിരീകരിക്കുക.</string>
     <string name="label_verify_now">ഇപ്പോൾ സ്ഥിരീകരിക്കുക</string>
     <string name="label_later">പിന്നീട്</string>
+
+    <string name="title_sms_stale_remind">കണ്ടെത്തിയ ഇടപാടുകൾ</string>
+    <string name="msg_sms_stale_remind">%d ബാങ്ക് സന്ദേശങ്ങൾ ഒരു ദിവസത്തിലധികമായി കാത്തിരിക്കുന്നു.</string>
+    <string name="label_review_sms_inbox">അവലോകനം</string>
     <string name="toast_verification_email_sent">സ്ഥിരീകരണ ഇമെയിൽ അയച്ചു — ഇൻബോക്സ് പരിശോധിക്കുക</string>
     <string name="msg_email_not_verified_yet">ഇമെയിൽ ഇതുവരെ സ്ഥിരീകരിച്ചിട്ടില്ല. ഇൻബോക്സ് പരിശോധിക്കുക.</string>
     <string name="msg_failed_to_check_status">നില പരിശോധിക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക.</string>

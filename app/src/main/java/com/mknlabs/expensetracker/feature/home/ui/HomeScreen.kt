@@ -88,7 +88,11 @@ import com.mknlabs.expensetracker.core.ui.components.RateAppBottomSheet
 import com.mknlabs.expensetracker.core.ui.components.ReferOfferBottomSheet
 import com.mknlabs.expensetracker.data.local.ReferPromptStore
 import com.mknlabs.expensetracker.data.local.RateAppPromptStore
+import com.mknlabs.expensetracker.data.local.SmsInboxStaleRemindStore
 import com.mknlabs.expensetracker.utils.RateAppPrompt
+import com.mknlabs.expensetracker.utils.SmsInboxStaleRemind
+import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.delay
 import com.mknlabs.expensetracker.utils.LaunchSheetPick
 import kotlinx.coroutines.launch
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -573,6 +577,95 @@ fun HomeScreen(
                 rateDismissed = true
                 referScope.launch { RateAppPromptStore.markCompleted(context) }
             }
+        )
+    }
+    val staleRemind by SmsInboxStaleRemindStore.flow(context).collectAsStateWithLifecycle(
+        SmsInboxStaleRemindStore.State()
+    )
+    val staleEligible = SmsInboxStaleRemind.isEligible(
+        unreadCount = uiState.smsInboxUnreadCount,
+        oldestUnreadCreatedAt = uiState.smsInboxOldestUnreadCreatedAt,
+        nowMillis = System.currentTimeMillis(),
+        dismissedDayStart = staleRemind.dismissedDayStart,
+    )
+    androidx.compose.runtime.LaunchedEffect(
+        staleEligible,
+        staleRemind.scheduledShowAt,
+        uiState.smsInboxUnreadCount,
+        uiState.smsInboxOldestUnreadCreatedAt,
+    ) {
+        val now = System.currentTimeMillis()
+        if (SmsInboxStaleRemind.needsSchedule(staleEligible, staleRemind.scheduledShowAt, now)) {
+            SmsInboxStaleRemindStore.setScheduledShowAt(context, SmsInboxStaleRemind.pickShowAt(now))
+        }
+    }
+    var staleDue by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(staleEligible, staleRemind.scheduledShowAt) {
+        staleDue = false
+        if (!staleEligible) return@LaunchedEffect
+        val at = staleRemind.scheduledShowAt
+        if (at <= 0L) return@LaunchedEffect
+        val wait = at - System.currentTimeMillis()
+        if (wait > 0L) delay(wait)
+        staleDue = true
+    }
+    val showStaleRemind = staleDue &&
+        !isLockOverlayActive &&
+        !showPermissionSheet &&
+        !showRefer &&
+        !showRateSheet &&
+        SmsInboxStaleRemind.shouldShowCard(
+            unreadCount = uiState.smsInboxUnreadCount,
+            oldestUnreadCreatedAt = uiState.smsInboxOldestUnreadCreatedAt,
+            nowMillis = System.currentTimeMillis(),
+            scheduledShowAt = staleRemind.scheduledShowAt,
+            dismissedDayStart = staleRemind.dismissedDayStart,
+        )
+    if (showStaleRemind) {
+        AlertDialog(
+            onDismissRequest = {},
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+            ),
+            title = { Text(stringResource(R.string.title_sms_stale_remind)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.msg_sms_stale_remind,
+                        uiState.smsInboxUnreadCount,
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        referScope.launch {
+                            SmsInboxStaleRemindStore.markHandledToday(
+                                context,
+                                SmsInboxStaleRemind.startOfLocalDay(System.currentTimeMillis()),
+                            )
+                        }
+                        onSmsInboxClick()
+                    }
+                ) {
+                    Text(stringResource(R.string.label_review_sms_inbox))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        referScope.launch {
+                            SmsInboxStaleRemindStore.markHandledToday(
+                                context,
+                                SmsInboxStaleRemind.startOfLocalDay(System.currentTimeMillis()),
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.label_later))
+                }
+            },
         )
     }
 }

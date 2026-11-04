@@ -579,6 +579,8 @@ private class FakeInboxRepository : SmsInboxRepository {
 
     override fun observeUnreadCount(): Flow<Int> = unread
 
+    override fun observeOldestUnreadCreatedAt(): Flow<Long?> = kotlinx.coroutines.flow.flowOf(null)
+
     override suspend fun getById(id: String): DetectedSmsNotification? =
         items.value.firstOrNull { it.id == id }
 

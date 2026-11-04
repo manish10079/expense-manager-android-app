@@ -1829,6 +1829,10 @@
     <string name="dialog_verify_email_sync">ডিভাইসের মধ্যে সিঙ্ক চালু করতে ইমেল যাচাই করুন।</string>
     <string name="label_verify_now">এখনই যাচাই করুন</string>
     <string name="label_later">পরে</string>
+
+    <string name="title_sms_stale_remind">শনাক্ত লেনদেন</string>
+    <string name="msg_sms_stale_remind">%dটি ব্যাংক বার্তা একদিনের বেশি অপেক্ষা করছে।</string>
+    <string name="label_review_sms_inbox">পর্যালোচনা</string>
     <string name="toast_verification_email_sent">যাচাইয়ের ইমেল পাঠানো হয়েছে — ইনবক্স দেখুন</string>
     <string name="msg_email_not_verified_yet">ইমেল এখনও যাচাই হয়নি। ইনবক্স দেখুন।</string>
     <string name="msg_failed_to_check_status">অবস্থা দেখা যায়নি। আবার চেষ্টা করুন।</string>

@@ -3483,6 +3483,10 @@
 
     <string name="label_later">बाद में</string>
 
+    <string name="title_sms_stale_remind">पहचाने गए लेन-देन</string>
+    <string name="msg_sms_stale_remind">%d बैंक संदेश एक दिन से ज़्यादा इंतज़ार कर रहे हैं।</string>
+    <string name="label_review_sms_inbox">समीक्षा</string>
+
     <string name="toast_verification_email_sent">वेरीफिकेशन ईमेल भेज दिया गया है — अपना इनबॉक्स चेक करें</string>
 
     <string name="msg_email_not_verified_yet">ईमेल अभी वेरीफाई नहीं हुआ है। कृपया अपना इनबॉक्स चेक करें।</string>

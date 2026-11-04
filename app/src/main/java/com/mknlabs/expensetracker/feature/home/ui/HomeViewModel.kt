@@ -16,6 +16,7 @@ import com.mknlabs.expensetracker.domain.repository.GoalRepository
 import com.mknlabs.expensetracker.domain.repository.RecurringRuleRepository
 import com.mknlabs.expensetracker.domain.repository.SyncRepository
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
+import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.GetSmsInboxOldestUnreadCreatedAtUseCase
 import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.GetSmsInboxUnreadCountUseCase
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.CategoryType
@@ -95,6 +96,7 @@ data class HomeScreenUiState(
     // it is reported for every tier because the inbox is where a detected bank message survives
     // a dismissed notification.
     val smsInboxUnreadCount: Int = 0,
+    val smsInboxOldestUnreadCreatedAt: Long? = null,
     // Monthly Summary (shown to ad-free/premium users in place of the home ad slot).
     val monthlyNetDisplay: String = "",
     val monthlyNetDeltaPercent: Float = 0f,
@@ -237,6 +239,7 @@ class HomeViewModel @Inject constructor(
     private val syncRepository: SyncRepository,
     private val appPreferencesRepository: com.mknlabs.expensetracker.domain.repository.AppPreferencesRepository,
     private val getSmsInboxUnreadCount: GetSmsInboxUnreadCountUseCase,
+    private val getSmsInboxOldestUnreadCreatedAt: GetSmsInboxOldestUnreadCreatedAtUseCase,
     private val tagRepository: com.mknlabs.expensetracker.domain.repository.TagRepository,
     private val fundRepository: com.mknlabs.expensetracker.domain.repository.FundRepository
 ) : ViewModel() {
@@ -326,6 +329,7 @@ class HomeViewModel @Inject constructor(
                         // Home consumes the inbox only through its use case, so the badge cannot
                         // reach into the inbox's tables or DAO directly.
                         getSmsInboxUnreadCount(),
+                        getSmsInboxOldestUnreadCreatedAt(),
                         tagRepository.observeAllTransactionTags(),
                         fundRepository.observeActiveFunds()
                     ) { flows ->
@@ -342,10 +346,11 @@ class HomeViewModel @Inject constructor(
                         val isSyncing = flows[5] as Boolean
                         val inputs = flows[6] as HomeInputState
                         val smsInboxUnreadCount = flows[7] as Int
+                        val smsInboxOldestUnreadCreatedAt = flows[8] as Long?
                         @Suppress("UNCHECKED_CAST")
-                        val transactionTags = flows[8] as Map<String, List<com.mknlabs.expensetracker.models.Tag>>
+                        val transactionTags = flows[9] as Map<String, List<com.mknlabs.expensetracker.models.Tag>>
                         @Suppress("UNCHECKED_CAST")
-                        val funds = flows[9] as List<com.mknlabs.expensetracker.models.Fund>
+                        val funds = flows[10] as List<com.mknlabs.expensetracker.models.Fund>
                         val fundNames = funds.associate { it.id to it.name }
 
                         val categoriesMap = inputs.categories.associateBy { it.id }
@@ -428,6 +433,7 @@ class HomeViewModel @Inject constructor(
                             isSyncing = isSyncing,
                             userTier = inputs.userTier,
                             smsInboxUnreadCount = smsInboxUnreadCount,
+                            smsInboxOldestUnreadCreatedAt = smsInboxOldestUnreadCreatedAt,
                             currentPeriodStartMillis = currentMonthStart,
                             currentPeriodEndMillis = currentMonthEnd,
                             monthStartDay = currentMonthStartDay

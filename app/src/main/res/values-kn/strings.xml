@@ -1859,6 +1859,10 @@
     <string name="dialog_verify_email_sync">ಸಾಧನಗಳ ನಡುವೆ ಸಿಂಕ್ ಆನ್ ಮಾಡಲು ಇಮೇಲ್ ದೃಢೀಕರಿಸಿ.</string>
     <string name="label_verify_now">ಈಗ ದೃಢೀಕರಿಸಿ</string>
     <string name="label_later">ಆಮೇಲೆ</string>
+
+    <string name="title_sms_stale_remind">ಪತ್ತೆಯಾದ ವಹಿವಾಟುಗಳು</string>
+    <string name="msg_sms_stale_remind">%d ಬ್ಯಾಂಕ್ ಸಂದೇಶಗಳು ಒಂದು ದಿನಕ್ಕಿಂತ ಹೆಚ್ಚು ಕಾಯುತ್ತಿವೆ.</string>
+    <string name="label_review_sms_inbox">ಪರಿಶೀಲಿಸಿ</string>
     <string name="toast_verification_email_sent">ದೃಢೀಕರಣ ಇಮೇಲ್ ಕಳುಹಿಸಲಾಗಿದೆ — ಇನ್‌ಬಾಕ್ಸ್ ನೋಡಿ</string>
     <string name="msg_email_not_verified_yet">ಇಮೇಲ್ ಇನ್ನೂ ದೃಢೀಕರಣವಾಗಿಲ್ಲ. ಇನ್‌ಬಾಕ್ಸ್ ನೋಡಿ.</string>
     <string name="msg_failed_to_check_status">ಸ್ಥಿತಿ ನೋಡಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>

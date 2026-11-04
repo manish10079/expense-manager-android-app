@@ -1829,6 +1829,10 @@
     <string name="dialog_verify_email_sync">डिव्हाइसवर सिंक सुरू करण्यासाठी ईमेल तपासा.</string>
     <string name="label_verify_now">आता तपासा</string>
     <string name="label_later">नंतर</string>
+
+    <string name="title_sms_stale_remind">आढळलेली व्यवहार</string>
+    <string name="msg_sms_stale_remind">%d बँक संदेश एक दिवसापेक्षा जास्त वाट पाहत आहेत.</string>
+    <string name="label_review_sms_inbox">पुनरावलोकन</string>
     <string name="toast_verification_email_sent">तपासणीचा ईमेल पाठवला — इनबॉक्स पाहा</string>
     <string name="msg_email_not_verified_yet">ईमेलची अजून तपासणी झाली नाही. इनबॉक्स पाहा.</string>
     <string name="msg_failed_to_check_status">स्थिती पाहता आली नाही. पुन्हा प्रयत्न करा.</string>

@@ -1870,6 +1870,10 @@
     <string name="dialog_verify_email_sync">ક્રોસ-ડિવાઇસ સિંક ચાલુ કરવા તમારો ઈમેલ ચકાસો.</string>
     <string name="label_verify_now">હમણાં ચકાસો</string>
     <string name="label_later">પછી</string>
+
+    <string name="title_sms_stale_remind">શોધાયેલા વ્યવહારો</string>
+    <string name="msg_sms_stale_remind">%d બેંક સંદેશા એક દિવસથી વધુ રાહ જોઈ રહ્યા છે.</string>
+    <string name="label_review_sms_inbox">સમીક્ષા</string>
     <string name="toast_verification_email_sent">ચકાસણી ઈમેલ મોકલાઈ — તમારું ઇનબોક્સ તપાસો</string>
     <string name="msg_email_not_verified_yet">ઈમેલ હજી ચકાસાયેલો નથી. કૃપા કરીને તમારું ઇનબોક્સ તપાસો.</string>
     <string name="msg_failed_to_check_status">સ્થિતિ તપાસી શકાઈ નથી. ફરી પ્રયાસ કરો.</string>

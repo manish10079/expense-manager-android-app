@@ -4105,6 +4105,10 @@
 
     <string name="label_later">Later</string>
 
+    <string name="title_sms_stale_remind">Detected transactions</string>
+    <string name="msg_sms_stale_remind">%d bank messages have been waiting more than a day.</string>
+    <string name="label_review_sms_inbox">Review</string>
+
     <string name="toast_verification_email_sent">Verification email sent — check your inbox</string>
 
     <string name="msg_email_not_verified_yet">Email not verified yet. Please check your inbox.</string>

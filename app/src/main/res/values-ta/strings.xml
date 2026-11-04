@@ -1815,6 +1815,10 @@
     <string name="dialog_verify_email_sync">சாதனங்களுக்கு இடையே ஒத்திசைவை இயக்க மின்னஞ்சலைச் சரிபார்க்கவும்.</string>
     <string name="label_verify_now">இப்போது சரிபார்</string>
     <string name="label_later">பிறகு</string>
+
+    <string name="title_sms_stale_remind">கண்டறியப்பட்ட பரிவர்த்தனைகள்</string>
+    <string name="msg_sms_stale_remind">%d வங்கி செய்திகள் ஒரு நாளுக்கும் மேலாக காத்திருக்கின்றன.</string>
+    <string name="label_review_sms_inbox">மதிப்பாய்வு</string>
     <string name="toast_verification_email_sent">சரிபார்ப்பு மின்னஞ்சல் அனுப்பப்பட்டது — இன்பாக்ஸைப் பாருங்கள்</string>
     <string name="msg_email_not_verified_yet">மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை. இன்பாக்ஸைப் பாருங்கள்.</string>
     <string name="msg_failed_to_check_status">நிலையைச் சரிபார்க்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>

@@ -3922,6 +3922,10 @@
 
     <string name="label_later">나중에</string>
 
+    <string name="title_sms_stale_remind">감지된 거래</string>
+    <string name="msg_sms_stale_remind">은행 메시지 %d건이 하루 이상 대기 중입니다.</string>
+    <string name="label_review_sms_inbox">검토</string>
+
     <string name="toast_verification_email_sent">확인 메일을 보냈어 — 받은함을 봐</string>
 
     <string name="msg_email_not_verified_yet">이메일은 아직 미확인. 받은함을 봐.</string>

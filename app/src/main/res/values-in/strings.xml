@@ -3946,6 +3946,10 @@ privat dari sifat</string>
 
     <string name="label_later">Nanti</string>
 
+    <string name="title_sms_stale_remind">Transaksi terdeteksi</string>
+    <string name="msg_sms_stale_remind">%d pesan bank sudah menunggu lebih dari sehari.</string>
+    <string name="label_review_sms_inbox">Tinjau</string>
+
     <string name="toast_verification_email_sent">Email verifikasi terkirim — cek inbox</string>
 
     <string name="msg_email_not_verified_yet">Email belum terverifikasi. Cek inbox.</string>

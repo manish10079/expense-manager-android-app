@@ -110,6 +110,8 @@ class SmsInboxRepositoryImpl @Inject constructor(
 
     override fun observeUnreadCount(): Flow<Int> = dao.observeUnreadCount()
 
+    override fun observeOldestUnreadCreatedAt(): Flow<Long?> = dao.observeOldestUnreadCreatedAt()
+
     override suspend fun getById(id: String): DetectedSmsNotification? = withContext(Dispatchers.IO) {
         dao.getById(id)?.toDomain()
     }

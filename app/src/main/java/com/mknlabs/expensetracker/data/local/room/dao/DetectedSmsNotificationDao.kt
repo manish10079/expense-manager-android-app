@@ -105,6 +105,9 @@ interface DetectedSmsNotificationDao {
     @Query("SELECT COUNT(*) FROM detected_sms_notifications WHERE status = 'NEW'")
     fun observeUnreadCount(): Flow<Int>
 
+    @Query("SELECT MIN(created_at) FROM detected_sms_notifications WHERE status = 'NEW'")
+    fun observeOldestUnreadCreatedAt(): Flow<Long?>
+
     @Query("SELECT COUNT(*) FROM detected_sms_notifications WHERE status = :status")
     suspend fun countByStatus(status: String): Int
 

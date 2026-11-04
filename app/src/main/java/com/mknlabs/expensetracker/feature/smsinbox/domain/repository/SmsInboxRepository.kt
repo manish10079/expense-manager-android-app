@@ -79,6 +79,8 @@ interface SmsInboxRepository {
     /** Unread (NEW) count driving the bell badge. */
     fun observeUnreadCount(): Flow<Int>
 
+    fun observeOldestUnreadCreatedAt(): Flow<Long?>
+
     suspend fun getById(id: String): DetectedSmsNotification?
 
     suspend fun getByIds(ids: List<String>): List<DetectedSmsNotification>

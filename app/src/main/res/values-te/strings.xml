@@ -1223,6 +1223,10 @@
     <string name="dialog_verify_email_sync">క్రాస్-డివైస్ సింక్ ఆన్ చేయడానికి మీ ఇమెయిల్ నిర్ధారించండి.</string>
     <string name="label_verify_now">ఇప్పుడే నిర్ధారించండి</string>
     <string name="label_later">తర్వాత</string>
+
+    <string name="title_sms_stale_remind">గుర్తించిన లావాదేవీలు</string>
+    <string name="msg_sms_stale_remind">%d బ్యాంక్ సందేశాలు ఒక రోజు కంటే ఎక్కువగా వేచి ఉన్నాయి.</string>
+    <string name="label_review_sms_inbox">సమీక్ష</string>
     <string name="toast_verification_email_sent">నిర్ధారణ ఇమెయిల్ పంపబడింది — ఇన్‌బాక్స్ తనిఖీ చేయండి</string>
     <string name="msg_email_not_verified_yet">ఇమెయిల్ ఇంకా నిర్ధారించబడలేదు. దయచేసి ఇన్‌బాక్స్ తనిఖీ చేయండి.</string>
     <string name="msg_failed_to_check_status">స్థితి తనిఖీ చేయలేకపోయాం. మళ్లీ ప్రయత్నించండి.</string>

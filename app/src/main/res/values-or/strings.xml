@@ -3889,6 +3889,10 @@
 
     <string name="label_later">ପରେ</string>
 
+    <string name="title_sms_stale_remind">ଚିହ୍ନଟ କାରବାର</string>
+    <string name="msg_sms_stale_remind">%d ବ୍ୟାଙ୍କ ସନ୍ଦେଶ ଏକ ଦିନରୁ ଅଧିକ ସମୟ ଧରି ଅପେକ୍ଷା କରୁଛି।</string>
+    <string name="label_review_sms_inbox">ସମୀକ୍ଷା</string>
+
     <string name="toast_verification_email_sent">ଭେରିଫିକେସନ email ପଠାଗଲା — ଇନବକ୍ସ ଚେକ କର</string>
 
     <string name="msg_email_not_verified_yet">Email ଏବେ ଭେରିଫାଏ ହୋଇନାହିଁ। ଇନବକ୍ସ ଚେକ କର।</string>

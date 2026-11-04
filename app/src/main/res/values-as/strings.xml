@@ -1809,6 +1809,10 @@
     <string name="dialog_verify_email_sync">ক্ৰছ-ডিভাইচ ছিংক সক্ৰিয় কৰিবলৈ আপোনাৰ ইমেইল সত্যাপন কৰক।</string>
     <string name="label_verify_now">এতিয়াই সত্যাপন কৰক</string>
     <string name="label_later">পিছত</string>
+
+    <string name="title_sms_stale_remind">চিনাক্ত লেনদেন</string>
+    <string name="msg_sms_stale_remind">%d বেংক বাৰ্তা এদিনতকৈ অধিক অপেক্ষা কৰি আছে।</string>
+    <string name="label_review_sms_inbox">পৰ্যালোচনা</string>
     <string name="toast_verification_email_sent">সত্যাপন ইমেইল পঠোৱা হ\'ল — ইনবক্স চাওক</string>
     <string name="msg_email_not_verified_yet">ইমেইল এতিয়াও সত্যাপিত নহয়। অনুগ্ৰহ কৰি ইনবক্স চাওক।</string>
     <string name="msg_failed_to_check_status">স্থিতি পৰীক্ষা কৰিব পৰা নগ\'ল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।</string>

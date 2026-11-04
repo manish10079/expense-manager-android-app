@@ -3951,6 +3951,10 @@ privat von Haus aus</string>
 
     <string name="label_later">Später</string>
 
+    <string name="title_sms_stale_remind">Erkannte Transaktionen</string>
+    <string name="msg_sms_stale_remind">%d Banknachrichten warten seit mehr als einem Tag.</string>
+    <string name="label_review_sms_inbox">Prüfen</string>
+
     <string name="toast_verification_email_sent">Bestätigungsmail raus — Postfach checken</string>
 
     <string name="msg_email_not_verified_yet">E-Mail noch nicht bestätigt. Postfach checken.</string>

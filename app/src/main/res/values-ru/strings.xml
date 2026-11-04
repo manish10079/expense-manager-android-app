@@ -3911,6 +3911,10 @@
 
     <string name="label_later">Позже</string>
 
+    <string name="title_sms_stale_remind">Найденные операции</string>
+    <string name="msg_sms_stale_remind">%d банковских сообщений ждут больше суток.</string>
+    <string name="label_review_sms_inbox">Проверить</string>
+
     <string name="toast_verification_email_sent">Письмо подтверждения отправлено — проверь почту</string>
 
     <string name="msg_email_not_verified_yet">Email ещё не подтверждён. Проверь почту.</string>

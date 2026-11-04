@@ -3953,6 +3953,10 @@ privado de verdad</string>
 
     <string name="label_later">Más tarde</string>
 
+    <string name="title_sms_stale_remind">Transacciones detectadas</string>
+    <string name="msg_sms_stale_remind">%d mensajes bancarios llevan más de un día en espera.</string>
+    <string name="label_review_sms_inbox">Revisar</string>
+
     <string name="toast_verification_email_sent">Correo de verificación enviado — mira la bandeja</string>
 
     <string name="msg_email_not_verified_yet">El correo aún no está verificado. Mira la bandeja.</string>

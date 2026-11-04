@@ -42,6 +42,12 @@ class GetSmsInboxUnreadCountUseCase @Inject constructor(
     operator fun invoke(): Flow<Int> = repository.observeUnreadCount()
 }
 
+class GetSmsInboxOldestUnreadCreatedAtUseCase @Inject constructor(
+    private val repository: SmsInboxRepository
+) {
+    operator fun invoke(): Flow<Long?> = repository.observeOldestUnreadCreatedAt()
+}
+
 /** Fetches detections by id — used by the review sheet and notification actions. */
 class GetSmsDetectionsUseCase @Inject constructor(
     private val repository: SmsInboxRepository
