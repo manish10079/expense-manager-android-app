@@ -2306,7 +2306,7 @@
     <string name="label_use_classic_form">ਕਲਾਸਿਕ ਫਾਰਮ ਵਰਤੋ</string>
     <string name="hint_ai_chat_spend">ਜਿਵੇਂ ਏਅਰਪੋਰਟ ਤੱਕ ਉਬਰ ਤੇ $18 ਖਰਚ…</string>
     <string name="label_voice_mic">ਮਾਈਕ</string>
-    <string name="desc_voice_mic">ਬੋਲੋ ਅਤੇ ਆਪਣੇ ਆਪ ਦਰਜ ਹੋਵੇ</string>
+    <string name="desc_voice_mic">ਬੋਲੋ ਅਤੇ ਦਰਜ ਕਰੋ</string>
     <string name="label_scan_receipt">ਸਕੈਨ</string>
     <string name="desc_scan_receipt">ਚਿੱਤਰ ਜਾਂ PDF</string>
     <string name="label_speak_transaction">ਲੈਣ-ਦੇਣ ਬੋਲੋ</string>

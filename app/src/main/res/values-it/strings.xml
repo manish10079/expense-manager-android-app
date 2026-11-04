@@ -4593,7 +4593,7 @@
     <string name="label_use_classic_form">Modulo classico</string>
     <string name="hint_ai_chat_spend">es. Spesi 18 $ per Uber in aeroporto…</string>
     <string name="label_voice_mic">Microfono</string>
-    <string name="desc_voice_mic">Parla e registra in automatico</string>
+    <string name="desc_voice_mic">Parla e registra</string>
     <string name="label_scan_receipt">Scansione</string>
     <string name="desc_scan_receipt">Immagine o PDF</string>
     <string name="label_speak_transaction">Detta transazione</string>

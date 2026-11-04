@@ -2299,7 +2299,7 @@
     <string name="label_use_classic_form">ಕ್ಲಾಸಿಕ್ ಫಾರ್ಮ್ ಬಳಸಿ</string>
     <string name="hint_ai_chat_spend">ಉದಾ. ವಿಮಾನ ನಿಲ್ದಾಣಕ್ಕೆ ಉಬರ್‌ಗೆ $18 ಖರ್ಚು…</string>
     <string name="label_voice_mic">ಮೈಕ್</string>
-    <string name="desc_voice_mic">ಮಾತನಾಡಿ, ಸ್ವಯಂ ದಾಖಲೆ</string>
+    <string name="desc_voice_mic">ಮಾತನಾಡಿ ಮತ್ತು ದಾಖಲಿಸಿ</string>
     <string name="label_scan_receipt">ಸ್ಕ್ಯಾನ್</string>
     <string name="desc_scan_receipt">ಚಿತ್ರ ಅಥವಾ PDF</string>
     <string name="label_speak_transaction">ವಹಿವಾಟು ಹೇಳಿ</string>

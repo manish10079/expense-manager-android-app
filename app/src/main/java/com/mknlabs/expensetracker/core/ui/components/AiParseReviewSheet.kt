@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -53,6 +56,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -398,7 +403,11 @@ private fun ParsedDetailCard(
 ) {
     var picker by remember { mutableStateOf<ReviewPicker?>(null) }
     val noteFocus = remember { FocusRequester() }
+    val amountFocus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
+    var amountDraft by remember(item.id) {
+        mutableStateOf(reviewAmountDraft(item.amount))
+    }
 
     Column(modifier = Modifier.padding(horizontal = 17.dp, vertical = 20.dp)) {
         Column(
@@ -427,21 +436,62 @@ private fun ParsedDetailCard(
                 ),
             )
             val currency = getCurrency(currencyId)
-            val amountNumber = formatNumberValue(kotlin.math.abs(item.amount))
             val amountFigureStyle = MaterialTheme.typography.headlineSmall.copy(
                 fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.173f,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
+                textAlign = TextAlign.Center,
             )
             val amountSymbolStyle = amountFigureStyle.copy(
                 fontSize = amountFigureStyle.fontSize * 0.55f,
                 color = Color(0xFFC7D2FE),
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        amountFocus.requestFocus()
+                        keyboard?.show()
+                    },
+            ) {
                 if (currency.position == CurrencyPosition.PREFIX) {
                     Text(text = currency.currencySymbol, style = amountSymbolStyle)
                 }
-                Text(text = amountNumber, style = amountFigureStyle)
+                BasicTextField(
+                    value = amountDraft,
+                    onValueChange = { raw ->
+                        val filtered = filterReviewAmountInput(raw)
+                        amountDraft = filtered
+                        parseReviewAmount(filtered)?.let { major ->
+                            onItemChange(
+                                item.copy(
+                                    amount = major,
+                                    amountMinor = major.toMinorUnits(),
+                                )
+                            )
+                        }
+                    },
+                    textStyle = amountFigureStyle,
+                    cursorBrush = SolidColor(Color.White),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier
+                        .widthIn(min = 48.dp)
+                        .focusRequester(amountFocus)
+                        .onFocusChanged { focus ->
+                            if (!focus.isFocused) {
+                                parseReviewAmount(amountDraft)?.let {
+                                    amountDraft = reviewAmountDraft(it)
+                                } ?: run {
+                                    amountDraft = reviewAmountDraft(item.amount)
+                                }
+                            }
+                        },
+                )
                 if (currency.position == CurrencyPosition.POSTFIX) {
                     Text(text = currency.currencySymbol, style = amountSymbolStyle)
                 }
@@ -1190,6 +1240,30 @@ private fun ReviewChoiceRow(
 
 private fun merchantOf(item: AiParsedReviewItem): String =
     item.note.ifBlank { item.categoryName }.ifBlank { "—" }
+
+
+private fun reviewAmountDraft(amount: Double): String {
+    val n = kotlin.math.abs(amount)
+    return if (n == n.toLong().toDouble()) n.toLong().toString() else n.toString()
+}
+
+private fun filterReviewAmountInput(raw: String): String {
+    val out = StringBuilder()
+    var sawDot = false
+    raw.forEach { c ->
+        when {
+            c.isDigit() -> out.append(c)
+            (c == '.' || c == ',') && !sawDot -> {
+                out.append('.')
+                sawDot = true
+            }
+        }
+    }
+    return out.toString()
+}
+
+private fun parseReviewAmount(raw: String): Double? =
+    raw.trim().toDoubleOrNull()?.let { kotlin.math.abs(it) }
 
 private fun formatReviewAmount(amount: Double, currencyId: Int): String =
     formatCurrencyValue(amount = amount, currencyId = currencyId)

@@ -4582,7 +4582,7 @@
     <string name="label_use_classic_form">କ୍ଲାସିକ୍ ଫର୍ମ ବ୍ୟବହାର କରନ୍ତୁ</string>
     <string name="hint_ai_chat_spend">ଯେପରି ଏୟାରପୋର୍ଟ ପର୍ଯ୍ୟନ୍ତ ଉବର୍‌ରେ $18 ଖର୍ଚ୍ଚ…</string>
     <string name="label_voice_mic">ମାଇକ୍</string>
-    <string name="desc_voice_mic">କୁହନ୍ତୁ, ନିଜେ ଲିପିବଦ୍ଧ ହେବ</string>
+    <string name="desc_voice_mic">କୁହନ୍ତୁ ଏବଂ ଲଗ୍ କରନ୍ତୁ</string>
     <string name="label_scan_receipt">ସ୍କାନ୍</string>
     <string name="desc_scan_receipt">ଛବି କିମ୍ବା PDF</string>
     <string name="label_speak_transaction">କାରବାର କୁହନ୍ତୁ</string>

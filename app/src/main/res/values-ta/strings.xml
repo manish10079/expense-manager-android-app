@@ -2261,7 +2261,7 @@
     <string name="label_use_classic_form">பழைய படிவத்தைப் பயன்படுத்து</string>
     <string name="hint_ai_chat_spend">எ.கா. விமான நிலைய உபருக்கு $18 செலவு…</string>
     <string name="label_voice_mic">மைக்</string>
-    <string name="desc_voice_mic">பேசி தானாக பதிவுசெய்</string>
+    <string name="desc_voice_mic">பேசி பதிவுசெய்</string>
     <string name="label_scan_receipt">ஸ்கேன்</string>
     <string name="desc_scan_receipt">படம் அல்லது PDF</string>
     <string name="label_speak_transaction">பரிவர்த்தனையைச் சொல்</string>

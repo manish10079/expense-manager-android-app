@@ -4227,7 +4227,7 @@
     <string name="label_use_classic_form">क्लासिक फ़ॉर्म इस्तेमाल करें</string>
     <string name="hint_ai_chat_spend">जैसे एयरपोर्ट तक उबर पर $18 खर्च…</string>
     <string name="label_voice_mic">माइक</string>
-    <string name="desc_voice_mic">बोलें, अपने आप दर्ज हो</string>
+    <string name="desc_voice_mic">बोलें और दर्ज करें</string>
     <string name="label_scan_receipt">स्कैन</string>
     <string name="desc_scan_receipt">छवि या PDF</string>
     <string name="label_speak_transaction">लेन-देन बोलें</string>

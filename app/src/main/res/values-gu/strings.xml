@@ -2306,7 +2306,7 @@
     <string name="label_use_classic_form">ક્લાસિક ફોર્મ વાપરો</string>
     <string name="hint_ai_chat_spend">જેમ કે એરપોર્ટ સુધી ઉબર પર $18 ખર્ચ…</string>
     <string name="label_voice_mic">માઇક</string>
-    <string name="desc_voice_mic">બોલો અને આપમેળે નોંધાય</string>
+    <string name="desc_voice_mic">બોલો અને નોંધો</string>
     <string name="label_scan_receipt">સ્કેન</string>
     <string name="desc_scan_receipt">છબી અથવા PDF</string>
     <string name="label_speak_transaction">વ્યવહાર બોલો</string>

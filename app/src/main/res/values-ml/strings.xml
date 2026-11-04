@@ -2288,7 +2288,7 @@
     <string name="label_use_classic_form">ക്ലാസിക് ഫോം ഉപയോഗിക്കുക</string>
     <string name="hint_ai_chat_spend">ഉദാ. എയർപോർട്ടിലേക്ക് ഉബറിന് $18 ചെലവ്…</string>
     <string name="label_voice_mic">മൈക്ക്</string>
-    <string name="desc_voice_mic">സംസാരിച്ച് യാന്ത്രികമായി രേഖപ്പെടുത്തുക</string>
+    <string name="desc_voice_mic">സംസാരിച്ച് രേഖപ്പെടുത്തുക</string>
     <string name="label_scan_receipt">സ്കാൻ</string>
     <string name="desc_scan_receipt">ചിത്രം അല്ലെങ്കിൽ PDF</string>
     <string name="label_speak_transaction">ഇടപാട് പറയുക</string>

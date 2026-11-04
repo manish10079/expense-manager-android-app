@@ -4657,7 +4657,7 @@ privado de verdade</string>
     <string name="label_use_classic_form">Usar formulário clássico</string>
     <string name="hint_ai_chat_spend">ex.: Gastei US$ 18 de Uber até o aeroporto…</string>
     <string name="label_voice_mic">Microfone</string>
-    <string name="desc_voice_mic">Fale e registre automaticamente</string>
+    <string name="desc_voice_mic">Fale e registre</string>
     <string name="label_scan_receipt">Escanear</string>
     <string name="desc_scan_receipt">Imagem ou PDF</string>
     <string name="label_speak_transaction">Falar transação</string>

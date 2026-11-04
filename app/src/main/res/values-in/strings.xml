@@ -4650,7 +4650,7 @@ privat dari sifat</string>
     <string name="label_use_classic_form">Gunakan formulir klasik</string>
     <string name="hint_ai_chat_spend">mis. Habis $18 untuk Uber ke bandara…</string>
     <string name="label_voice_mic">Mikrofon</string>
-    <string name="desc_voice_mic">Ucapkan lalu tercatat otomatis</string>
+    <string name="desc_voice_mic">Ucapkan lalu catat</string>
     <string name="label_scan_receipt">Pindai</string>
     <string name="desc_scan_receipt">Gambar atau PDF</string>
     <string name="label_speak_transaction">Ucapkan transaksi</string>

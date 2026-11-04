@@ -2260,7 +2260,7 @@
     <string name="label_use_classic_form">క్లాసిక్ ఫారమ్ ఉపయోగించండి</string>
     <string name="hint_ai_chat_spend">ఉదా. విమానాశ్రయానికి ఉబర్‌కు $18 ఖర్చు…</string>
     <string name="label_voice_mic">మైక్</string>
-    <string name="desc_voice_mic">మాట్లాడండి, స్వయంగా నమోదవుతుంది</string>
+    <string name="desc_voice_mic">మాట్లాడి నమోదు చేయండి</string>
     <string name="label_scan_receipt">స్కాన్</string>
     <string name="desc_scan_receipt">చిత్రం లేదా PDF</string>
     <string name="label_speak_transaction">లావాదేవీ చెప్పండి</string>

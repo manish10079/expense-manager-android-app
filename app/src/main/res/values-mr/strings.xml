@@ -2272,7 +2272,7 @@
     <string name="label_use_classic_form">क्लासिक फॉर्म वापरा</string>
     <string name="hint_ai_chat_spend">उदा. विमानतळापर्यंत उबरवर $18 खर्च…</string>
     <string name="label_voice_mic">माइक</string>
-    <string name="desc_voice_mic">बोला आणि आपोआप नोंद व्हा</string>
+    <string name="desc_voice_mic">बोला आणि नोंद करा</string>
     <string name="label_scan_receipt">स्कॅन</string>
     <string name="desc_scan_receipt">प्रतिमा किंवा PDF</string>
     <string name="label_speak_transaction">व्यवहार बोला</string>

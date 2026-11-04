@@ -4650,7 +4650,7 @@
     <string name="label_use_classic_form">従来のフォームを使う</string>
     <string name="hint_ai_chat_spend">例: 空港までのUberに18ドル使った…</string>
     <string name="label_voice_mic">マイク</string>
-    <string name="desc_voice_mic">話して自動記録</string>
+    <string name="desc_voice_mic">話して記録</string>
     <string name="label_scan_receipt">スキャン</string>
     <string name="desc_scan_receipt">画像またはPDF</string>
     <string name="label_speak_transaction">取引を話す</string>

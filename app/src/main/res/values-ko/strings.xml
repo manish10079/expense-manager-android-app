@@ -4626,7 +4626,7 @@
     <string name="label_use_classic_form">기본 양식 사용</string>
     <string name="hint_ai_chat_spend">예: 공항 우버에 18달러 썼어…</string>
     <string name="label_voice_mic">마이크</string>
-    <string name="desc_voice_mic">말하면 자동 기록</string>
+    <string name="desc_voice_mic">말하고 기록</string>
     <string name="label_scan_receipt">스캔</string>
     <string name="desc_scan_receipt">이미지 또는 PDF</string>
     <string name="label_speak_transaction">거래 말하기</string>

@@ -4655,7 +4655,7 @@ privat von Haus aus</string>
     <string name="label_use_classic_form">Klassisches Formular</string>
     <string name="hint_ai_chat_spend">z. B. 18 € für Uber zum Flughafen…</string>
     <string name="label_voice_mic">Mikro</string>
-    <string name="desc_voice_mic">Sprechen und automatisch erfassen</string>
+    <string name="desc_voice_mic">Sprechen und erfassen</string>
     <string name="label_scan_receipt">Scan</string>
     <string name="desc_scan_receipt">Bild oder PDF</string>
     <string name="label_speak_transaction">Buchung sprechen</string>

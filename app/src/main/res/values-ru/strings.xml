@@ -4617,7 +4617,7 @@
     <string name="label_use_classic_form">Классическая форма</string>
     <string name="hint_ai_chat_spend">напр. Потратил 18 $ на Uber в аэропорт…</string>
     <string name="label_voice_mic">Микрофон</string>
-    <string name="desc_voice_mic">Скажите — запись сохранится</string>
+    <string name="desc_voice_mic">Скажите и запишите</string>
     <string name="label_scan_receipt">Скан</string>
     <string name="desc_scan_receipt">Изображение или PDF</string>
     <string name="label_speak_transaction">Продиктовать операцию</string>

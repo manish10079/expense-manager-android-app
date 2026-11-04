@@ -4622,7 +4622,7 @@ privé par nature</string>
     <string name="label_use_classic_form">Formulaire classique</string>
     <string name="hint_ai_chat_spend">ex. 18 $ pour un Uber à l’aéroport…</string>
     <string name="label_voice_mic">Micro</string>
-    <string name="desc_voice_mic">Parlez, l’app enregistre</string>
+    <string name="desc_voice_mic">Parlez et enregistrez</string>
     <string name="label_scan_receipt">Scanner</string>
     <string name="desc_scan_receipt">Image ou PDF</string>
     <string name="label_speak_transaction">Dicter l’opération</string>
