@@ -177,6 +177,9 @@ class AiTextExtractViewModel @Inject constructor(
                 note = row.note,
                 typeId = row.typeId,
                 createdAt = row.createdAt,
+                fundId = null,
+                fundName = "",
+                tagIds = emptyList(),
             )
         }
     }

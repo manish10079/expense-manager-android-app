@@ -1,6 +1,6 @@
 package com.mknlabs.expensetracker.ai.cloud
 
-data class AiParsedReviewItem(
+data class AiParsedReviewItem @JvmOverloads constructor(
     val id: String,
     val amount: Double,
     val amountMinor: Long,

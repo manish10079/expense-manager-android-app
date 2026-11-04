@@ -71,13 +71,13 @@ import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.RotateCw
 import com.composables.icons.lucide.ArrowDown
 import com.composables.icons.lucide.ArrowUp
-import com.composables.icons.lucide.ShoppingBag
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.cloud.AiParseContract
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
+import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.cta
 import com.mknlabs.expensetracker.core.ui.theme.paymentColor
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
@@ -169,6 +169,7 @@ fun AiParseReviewSheet(
                     dark = dark,
                     currencyId = currencyId,
                     onSelect = { selectedId = it.id },
+                    onRetry = onRetry,
                 )
                 else -> ParsedDetailCard(
                     item = selected,
@@ -210,8 +211,14 @@ private fun BatchTransactionList(
     dark: Boolean,
     currencyId: Int,
     onSelect: (AiParsedReviewItem) -> Unit,
+    onRetry: (() -> Unit)? = null,
 ) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(if (dark) DarkCanvas else LightCanvas)
+            .padding(horizontal = 17.dp, vertical = 20.dp),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -256,13 +263,23 @@ private fun BatchTransactionList(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(360.dp)
+                .heightIn(max = 520.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEach { item ->
                 BatchRow(item = item, dark = dark, currencyId = currencyId, onClick = { onSelect(item) })
             }
+        }
+        if (onRetry != null) {
+            Spacer(Modifier.height(10.dp))
+            ReviewGhostButton(
+                text = stringResource(R.string.label_retry),
+                dark = dark,
+                modifier = Modifier.fillMaxWidth(),
+                icon = { Icon(Lucide.RotateCw, null, Modifier.size(12.dp)) },
+                onClick = onRetry,
+            )
         }
     }
 }
@@ -276,35 +293,34 @@ private fun BatchRow(
 ) {
     val expense = item.typeId != AiParseContract.TYPE_INCOME
     val amount = formatReviewAmount(item.amount, currencyId)
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .reviewClickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        color = if (dark) DarkPanel else LightPanel,
-        border = BorderStroke(1.dp, if (dark) DarkBorder else LightBorder),
+    Row(
+        modifier = reviewMetaCardModifier(
+            dark,
+            Modifier
+                .fillMaxWidth()
+                .reviewClickable(onClick = onClick),
+        ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                val catId = reviewCategoryId(item)
+                val catColor = MaterialTheme.colorScheme.categoryColor(catId)
                 Box(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (dark) DarkRow else LightRow),
+                        .background(MaterialTheme.colorScheme.categorySoft(catColor)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        Lucide.ShoppingBag,
+                        reviewCategoryIcon(item),
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = if (dark) DarkMuted else LightMuted,
+                        tint = catColor,
                     )
                 }
                 Spacer(Modifier.width(10.dp))
@@ -365,7 +381,6 @@ private fun BatchRow(
             }
         }
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1187,15 +1202,18 @@ private fun previewReviewItem(
     note = note,
     typeId = AiParseContract.TYPE_EXPENSE,
     createdAt = 1_704_067_200_000L,
+    fundId = null,
+    fundName = "",
+    tagIds = emptyList(),
 )
 
-@Preview(name = "Parsed card - Light", showBackground = true)
+@Preview(name = "Parsed card - Light", showBackground = true, backgroundColor = 0xFFF1F5F9)
 @Composable
 private fun PreviewParsedDetailCardLight() {
     ExpenseTrackerTheme(darkTheme = false) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.85f)
                 .padding(20.dp),
             shape = RoundedCornerShape(16.dp),
             color = LightCanvas,
@@ -1221,7 +1239,7 @@ private fun PreviewParsedDetailCardDark() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.85f)
                 .padding(20.dp),
             shape = RoundedCornerShape(16.dp),
             color = DarkCanvas,
@@ -1241,13 +1259,13 @@ private fun PreviewParsedDetailCardDark() {
     }
 }
 
-@Preview(name = "Batch list - Light", showBackground = true)
+@Preview(name = "Batch list - Light", showBackground = true, backgroundColor = 0xFFF1F5F9)
 @Composable
 private fun PreviewBatchTransactionListLight() {
     ExpenseTrackerTheme(darkTheme = false) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.85f)
                 .padding(20.dp),
             shape = RoundedCornerShape(16.dp),
             color = LightCanvas,
@@ -1261,6 +1279,7 @@ private fun PreviewBatchTransactionListLight() {
                 dark = false,
                 currencyId = DEFAULT_CURRENCY_ID,
                 onSelect = {},
+                onRetry = {},
             )
         }
     }
@@ -1272,7 +1291,7 @@ private fun PreviewBatchTransactionListDark() {
     ExpenseTrackerTheme(darkTheme = true) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.85f)
                 .padding(20.dp),
             shape = RoundedCornerShape(16.dp),
             color = DarkCanvas,
@@ -1286,6 +1305,7 @@ private fun PreviewBatchTransactionListDark() {
                 dark = true,
                 currencyId = DEFAULT_CURRENCY_ID,
                 onSelect = {},
+                onRetry = {},
             )
         }
     }

@@ -169,6 +169,10 @@ class VoiceAddViewModel @Inject constructor(
                 paymentTypeId = payment?.id ?: defaultPaymentId,
                 note = row.note,
                 typeId = row.typeId,
+                createdAt = row.createdAt,
+                fundId = null,
+                fundName = "",
+                tagIds = emptyList(),
             )
         }
     }
@@ -184,6 +188,10 @@ class VoiceAddViewModel @Inject constructor(
             paymentTypeId = parsed.paymentTypeId ?: DEFAULT_PAYMENT_TYPE_ID,
             note = parsed.note,
             typeId = parsed.transactionTypeId,
+            createdAt = null,
+            fundId = null,
+            fundName = "",
+            tagIds = emptyList(),
         )
     }
 
