@@ -79,6 +79,8 @@ import com.mknlabs.expensetracker.feature.home.ui.HomeViewModel
 import com.mknlabs.expensetracker.feature.settings.ui.SettingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mknlabs.expensetracker.feature.transactions.ui.AddTransactionFundsViewModel
+import com.mknlabs.expensetracker.feature.transactions.ui.TransactionTagsViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mknlabs.expensetracker.feature.transactions.ui.TransactionsViewModel
 import androidx.compose.ui.unit.dp
@@ -263,8 +265,13 @@ fun MainScaffold(
     var scanStatusRes by remember { mutableStateOf<Int?>(null) }
     var aiParseErrorRes by remember { mutableStateOf<Int?>(null) }
     var addFabMenuExpanded by remember { mutableStateOf(false) }
+    var unifiedRetryText by remember { mutableStateOf<String?>(null) }
     var showReceiptAttachSheet by remember { mutableStateOf(false) }
     val aiExtractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel = hiltViewModel()
+    val reviewFundsViewModel: AddTransactionFundsViewModel = hiltViewModel()
+    val reviewTagsViewModel: TransactionTagsViewModel = hiltViewModel()
+    val reviewFunds by reviewFundsViewModel.funds.collectAsStateWithLifecycle()
+    val reviewTags by reviewTagsViewModel.allTags.collectAsStateWithLifecycle()
     fun applyIncomingDocumentOutcome(outcome: DocumentParseOutcome) {
         when (outcome) {
             DocumentParseOutcome.PlayServicesUnavailable -> {
@@ -757,10 +764,15 @@ fun MainScaffold(
             )
         }
 
-        if (addUiPattern == AddTransactionUiPattern.UNIFIED_SMART_SHEET) {
+        if (addUiPattern == AddTransactionUiPattern.UNIFIED_SMART_SHEET || unifiedRetryText != null) {
             AddUnifiedSmartSheet(
                 visible = addFabMenuExpanded,
-                onDismiss = { addFabMenuExpanded = false },
+                initialChat = unifiedRetryText.orEmpty(),
+                autoParse = unifiedRetryText != null,
+                onDismiss = {
+                    addFabMenuExpanded = false
+                    unifiedRetryText = null
+                },
                 onClassicForm = {
                     addFabMenuExpanded = false
                     onBottomBarVisibilityChange(false)
@@ -775,6 +787,7 @@ fun MainScaffold(
                     showReceiptAttachSheet = true
                 },
                 onChatParsed = { text, items ->
+                    unifiedRetryText = null
                     aiReviewSourceText = text
                     if (items.isEmpty()) {
                         addFabMenuExpanded = false
@@ -865,6 +878,8 @@ fun MainScaffold(
             AiParseReviewSheet(
                 items = aiReviewItems.toList(),
                 currencyId = selectedCurrencyId,
+                funds = reviewFunds,
+                tags = reviewTags,
                 onDismissRequest = {
                     showAiReviewSheet = false
                     aiReviewItems.clear()
@@ -887,12 +902,12 @@ fun MainScaffold(
                             isDeleted = false,
                             updatedAt = now,
                             sourceRecurringRuleId = null,
-                            fundId = null,
+                            fundId = item.fundId,
                         ),
                         null,
                         null,
                         false,
-                        emptyList(),
+                        item.tagIds,
                     )
                     aiReviewItems.removeAll { it.id == item.id }
                     if (aiReviewItems.isEmpty()) {
@@ -908,20 +923,9 @@ fun MainScaffold(
                         documentParseBusy = true
                         aiExtractViewModel.parseFromDocument(uri) { applyIncomingDocumentOutcome(it) }
                     } else if (text.isNotBlank()) {
-                        aiExtractViewModel.parse(text) { outcome ->
-                            applyIncomingDocumentOutcome(
-                                when (outcome) {
-                                    is com.mknlabs.expensetracker.ai.TextParseOutcome.Review ->
-                                        DocumentParseOutcome.Review(text, outcome.items)
-                                    is com.mknlabs.expensetracker.ai.TextParseOutcome.RawAdd ->
-                                        DocumentParseOutcome.RawAdd(text, reason = outcome.reason)
-                                    com.mknlabs.expensetracker.ai.TextParseOutcome.DailyLimit ->
-                                        DocumentParseOutcome.DailyLimit
-                                    com.mknlabs.expensetracker.ai.TextParseOutcome.Failed ->
-                                        DocumentParseOutcome.Failed
-                                },
-                            )
-                        }
+                        showAiReviewSheet = false
+                        unifiedRetryText = text
+                        addFabMenuExpanded = true
                     }
                 },
             )

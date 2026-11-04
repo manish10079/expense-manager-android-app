@@ -46,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -96,6 +97,8 @@ fun AddUnifiedSmartSheet(
     onScan: () -> Unit,
     onChatParsed: (String, List<AiParsedReviewItem>) -> Unit,
     extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel,
+    initialChat: String = "",
+    autoParse: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.isDark
@@ -112,9 +115,23 @@ fun AddUnifiedSmartSheet(
             onDispose { }
         }
     }
-    var chat by remember(visible) { mutableStateOf("") }
+    var chat by remember(visible, initialChat) { mutableStateOf(if (visible) initialChat else "") }
     var parsing by remember(visible) { mutableStateOf(false) }
     var parseErrorRes by remember(visible) { mutableStateOf<Int?>(null) }
+    var autoParseStarted by remember(visible, autoParse, initialChat) { mutableStateOf(false) }
+    LaunchedEffect(visible, autoParse, initialChat) {
+        if (visible && autoParse && initialChat.isNotBlank() && !autoParseStarted) {
+            autoParseStarted = true
+            chat = initialChat
+            submitChat(
+                initialChat,
+                extractViewModel,
+                { parsing = it },
+                { parseErrorRes = it },
+                onChatParsed,
+            )
+        }
+    }
     val cycle = rememberInfiniteTransition(label = "parse-cycle")
     val cycleAngle by cycle.animateFloat(
         initialValue = 0f,

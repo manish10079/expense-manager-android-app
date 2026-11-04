@@ -12,4 +12,7 @@ data class AiParsedReviewItem(
     val typeId: Int,
     /** Epoch millis for [com.mknlabs.expensetracker.models.Transaction.createdAt]; null if unknown. */
     val createdAt: Long? = null,
+    val fundId: String? = null,
+    val fundName: String = "",
+    val tagIds: List<String> = emptyList(),
 )
