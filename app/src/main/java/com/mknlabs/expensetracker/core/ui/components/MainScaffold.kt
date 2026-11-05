@@ -701,7 +701,8 @@ fun MainScaffold(
             onDirectSignOut = onDirectSignOut,
             onAdFreeAccessClick = onAdFreeAccessClick,
             onShowUpgradeSheet = onShowUpgradeSheet,
-            onPrepareForExternalActivity = onPrepareForExternalActivity
+            onPrepareForExternalActivity = onPrepareForExternalActivity,
+            onOpenUnifiedAdd = { addFabMenuExpanded = true },
             )
         }
 

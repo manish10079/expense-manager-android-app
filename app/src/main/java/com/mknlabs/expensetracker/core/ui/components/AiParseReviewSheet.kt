@@ -1,6 +1,11 @@
 package com.mknlabs.expensetracker.core.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,9 +53,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -66,7 +77,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.ChevronDown
-import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Clock
 import com.composables.icons.lucide.Tags
 import com.composables.icons.lucide.Wallet
@@ -1037,30 +1047,68 @@ private fun MetaStackCard(
     }
 }
 
+
+@Composable
+private fun SavedSuccessMark(
+    onFinished: () -> Unit = {},
+) {
+    val circle = remember { Animatable(0f) }
+    val tick = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        circle.animateTo(1f, tween(durationMillis = 340, easing = LinearEasing))
+        tick.animateTo(1f, tween(durationMillis = 180, easing = FastOutSlowInEasing))
+        delay(200)
+        onFinished()
+    }
+    Canvas(Modifier.size(64.dp)) {
+        val strokePx = 2.5.dp.toPx()
+        val inset = strokePx / 2f
+        drawArc(
+            color = Emerald,
+            startAngle = 300f,
+            sweepAngle = 360f * circle.value,
+            useCenter = false,
+            topLeft = Offset(inset, inset),
+            size = Size(size.width - strokePx, size.height - strokePx),
+            style = Stroke(width = strokePx, cap = StrokeCap.Round),
+        )
+        if (tick.value > 0f) {
+            val check = Path().apply {
+                moveTo(size.width * 0.28f, size.height * 0.52f)
+                lineTo(size.width * 0.42f, size.height * 0.68f)
+                lineTo(size.width * 0.72f, size.height * 0.34f)
+            }
+            val measure = PathMeasure()
+            measure.setPath(check, false)
+            val drawn = Path()
+            measure.getSegment(0f, measure.length * tick.value, drawn, true)
+            drawPath(
+                drawn,
+                color = Emerald,
+                style = Stroke(width = strokePx, cap = StrokeCap.Round),
+            )
+        }
+    }
+}
+
 @Composable
 fun TransactionSavedDialog(
     item: AiParsedReviewItem,
     currencyId: Int,
     onFinished: () -> Unit,
 ) {
-    LaunchedEffect(item.id) {
-        delay(1400)
-        onFinished()
-    }
     Dialog(onDismissRequest = onFinished) {
         TransactionSavedCard(
-            item = item,
-            currencyId = currencyId,
             dark = MaterialTheme.colorScheme.isDark,
+            onFinished = onFinished,
         )
     }
 }
 
 @Composable
 private fun TransactionSavedCard(
-    item: AiParsedReviewItem,
-    currencyId: Int,
     dark: Boolean,
+    onFinished: () -> Unit = {},
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -1074,15 +1122,7 @@ private fun TransactionSavedCard(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .border(2.5.dp, Emerald, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Lucide.Check, null, tint = Emerald, modifier = Modifier.size(32.dp))
-            }
+            SavedSuccessMark(onFinished = onFinished)
             Spacer(Modifier.height(16.dp))
             Text(
                 stringResource(R.string.label_ai_transaction_saved),
@@ -1090,39 +1130,6 @@ private fun TransactionSavedCard(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.6.sp,
             )
-            Text(
-                merchantOf(item),
-                color = if (dark) DarkMuted else LightMuted,
-                fontSize = 10.2.sp,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-            Text(
-                formatReviewAmount(item.amount, currencyId),
-                color = Emerald,
-                fontWeight = FontWeight.Bold,
-                fontSize = 17.sp,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Spacer(Modifier.height(12.dp))
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(if (dark) DarkBorder else LightBorder),
-            )
-            Row(
-                modifier = Modifier.padding(top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(Modifier.size(6.dp).clip(CircleShape).background(Emerald))
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    stringResource(R.string.msg_ai_added_to_budget),
-                    color = if (dark) DarkFaint else LightFaint,
-                    fontSize = 9.35.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
         }
     }
 }
@@ -1414,8 +1421,6 @@ private fun PreviewTransactionSavedCardLight() {
             contentAlignment = Alignment.Center,
         ) {
             TransactionSavedCard(
-                item = previewReviewItem(),
-                currencyId = DEFAULT_CURRENCY_ID,
                 dark = false,
             )
         }
@@ -1433,8 +1438,6 @@ private fun PreviewTransactionSavedCardDark() {
             contentAlignment = Alignment.Center,
         ) {
             TransactionSavedCard(
-                item = previewReviewItem(),
-                currencyId = DEFAULT_CURRENCY_ID,
                 dark = true,
             )
         }

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
+import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import androidx.compose.ui.res.stringResource
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.models.CategoryType
@@ -199,7 +200,8 @@ fun AppNavigationHost(
     onDirectSignOut: () -> Unit = {},
     onAdFreeAccessClick: () -> Unit = {},
     onShowUpgradeSheet: () -> Unit,
-    onPrepareForExternalActivity: () -> Unit
+    onPrepareForExternalActivity: () -> Unit,
+    onOpenUnifiedAdd: () -> Unit = {},
 ) {
     var addingCategoryTargetTab by remember { mutableStateOf(CategoryManagementTab.Expense) }
     var showEmailUpdateSuccessDialog by remember { mutableStateOf(false) }
@@ -400,8 +402,12 @@ fun AppNavigationHost(
                             onRouteChange(AppRoute.Home)
                         },
                         onAddTransactionClick = {
-                            onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.AddTransaction)
+                            if (appSettings.addTransactionUiPattern == AddTransactionUiPattern.UNIFIED_SMART_SHEET) {
+                                onOpenUnifiedAdd()
+                            } else {
+                                onBottomBarVisibilityChange(false)
+                                onRouteChange(AppRoute.AddTransaction)
+                            }
                         },
                         onTransactionClick = { transaction: Transaction ->
                             onSelectedTransactionChange(transaction)

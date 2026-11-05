@@ -40,6 +40,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Autorenew
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -75,6 +77,7 @@ import com.adamglin.phosphoricons.regular.PencilSimple
 import com.composables.icons.lucide.ArrowRight
 import com.composables.icons.lucide.Lucide
 import com.mknlabs.expensetracker.R
+import kotlinx.coroutines.delay
 import com.mknlabs.expensetracker.ai.TextParseOutcome
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.core.ui.components.ModernConfirmationDialog
@@ -119,6 +122,37 @@ fun AddUnifiedSmartSheet(
     var parsing by remember(visible) { mutableStateOf(false) }
     var parseErrorRes by remember(visible) { mutableStateOf<Int?>(null) }
     var autoParseStarted by remember(visible, autoParse, initialChat) { mutableStateOf(false) }
+    var showAiPrivacy by remember { mutableStateOf(false) }
+    val typeHints = listOf(
+        stringResource(R.string.hint_ai_type_1),
+        stringResource(R.string.hint_ai_type_2),
+        stringResource(R.string.hint_ai_type_3),
+        stringResource(R.string.hint_ai_type_4),
+        stringResource(R.string.hint_ai_type_5),
+        stringResource(R.string.hint_ai_type_6),
+        stringResource(R.string.hint_ai_type_7),
+        stringResource(R.string.hint_ai_type_8),
+        stringResource(R.string.hint_ai_type_9),
+    )
+    var typedHint by remember { mutableStateOf("") }
+    var chatFocused by remember { mutableStateOf(false) }
+    LaunchedEffect(visible, chat.isEmpty(), chatFocused, typeHints) {
+        if (!visible || chat.isNotEmpty() || chatFocused) {
+            if (chat.isNotEmpty()) typedHint = ""
+            return@LaunchedEffect
+        }
+        var i = 0
+        while (true) {
+            val phrase = typeHints[i % typeHints.size]
+            typedHint = ""
+            for (n in 1..phrase.length) {
+                typedHint = phrase.take(n)
+                delay(49)
+            }
+            delay(5000)
+            i++
+        }
+    }
     LaunchedEffect(visible, autoParse, initialChat) {
         if (visible && autoParse && initialChat.isNotBlank() && !autoParseStarted) {
             autoParseStarted = true
@@ -191,14 +225,35 @@ fun AddUnifiedSmartSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = stringResource(R.string.label_add_transaction),
-                        modifier = Modifier.weight(1f),
-                        color = scheme.onSurface,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .onFocusChanged { chatFocused = it.isFocused },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_add_transaction),
+                            color = scheme.onSurface,
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .size(24.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable { showAiPrivacy = true },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = stringResource(R.string.desc_ai_parse_privacy),
+                                tint = scheme.accentInk.copy(alpha = 0.7f),
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
                     TextButton(
                         onClick = onClassicForm,
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp),
@@ -242,9 +297,10 @@ fun AddUnifiedSmartSheet(
                         decorationBox = { inner ->
                             if (chat.isEmpty()) {
                                 Text(
-                                    stringResource(R.string.hint_ai_chat_spend),
+                                    typedHint,
                                     color = scheme.onSurfaceVariant,
                                     fontSize = 15.sp,
+                                    maxLines = 2,
                                 )
                             }
                             inner()
@@ -354,6 +410,17 @@ fun AddUnifiedSmartSheet(
                 }
             }
         }
+    }
+    if (showAiPrivacy) {
+        ModernConfirmationDialog(
+            onDismissRequest = { showAiPrivacy = false },
+            title = stringResource(R.string.title_ai_parse_privacy),
+            text = stringResource(R.string.msg_ai_parse_privacy),
+            confirmButtonText = stringResource(R.string.btn_got_it),
+            onConfirm = { showAiPrivacy = false },
+            headerIcon = Icons.Outlined.Info,
+            showDismissButton = false,
+        )
     }
     if (parseErrorRes == R.string.msg_ai_chat_daily_limit) {
         ModernConfirmationDialog(
