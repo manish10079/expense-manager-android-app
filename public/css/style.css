@@ -89,6 +89,7 @@
   --z-base: 1;
   --z-above: 10;
   --z-nav: 100;
+  --nav-offset: 64px;
   --z-overlay: 200;
   --z-modal: 300;
 }
@@ -147,7 +148,7 @@ body {
   line-height: 1.6;
   color: var(--color-text-primary);
   background-color: var(--color-bg);
-  overflow-x: hidden;
+  overflow-x: clip;
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
@@ -251,6 +252,8 @@ button {
 .section {
   padding: var(--space-4xl) var(--space-lg);
   position: relative;
+  z-index: 2;
+  background-color: var(--color-bg);
 }
 
 .section-inner {
@@ -362,7 +365,12 @@ button {
   left: 0;
   right: 0;
   z-index: var(--z-nav);
-  padding: var(--space-md) var(--space-lg);
+  height: var(--nav-offset);
+  padding: 0 var(--space-lg);
+  display: flex;
+  align-items: center;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
   transition: all var(--transition-base);
 }
 
@@ -492,6 +500,7 @@ button {
    ============================================================ */
 .hero {
   position: relative;
+  z-index: 10;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -499,6 +508,8 @@ button {
   padding: var(--space-4xl) var(--space-lg);
   overflow: hidden;
   background: var(--gradient-hero);
+  margin-top: 0;
+  box-shadow: 0 -24px 48px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="light"] .hero {
@@ -708,8 +719,10 @@ button {
    ============================================================ */
 .app-preview {
   position: relative;
+  z-index: 2;
   padding: var(--space-4xl) var(--space-lg);
   overflow: hidden;
+  background: var(--color-bg);
 }
 
 .app-preview-inner {
@@ -735,9 +748,10 @@ button {
 /* Phone mockup - stripped down since screenshots have their own phone frame */
 .phone-mockup {
   position: relative;
-  width: 380px;
-  height: 780px;
+  width: 360px;
+  height: 560px;
   overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
 .phone-screen {
@@ -1380,6 +1394,46 @@ button {
 }
 
 /* ============================================================
+   FEATURE GRAPHIC BANNER
+   ============================================================ */
+.promo-banner-section {
+  position: fixed;
+  top: var(--nav-offset);
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1;
+  height: min(calc(100vw * 886 / 1775), calc(100vh - var(--nav-offset)));
+  margin: 0;
+  padding: 0;
+  background: #12081f;
+  pointer-events: none;
+}
+.promo-banner-spacer {
+  height: calc(var(--nav-offset) + min(100vw * 886 / 1775, 100vh - var(--nav-offset)));
+  pointer-events: none;
+}
+.promo-banner-wrap {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+  background: #12081f;
+}
+.promo-banner-wrap img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* ============================================================
    CTA SECTION
    ============================================================ */
 .cta-section {
@@ -1454,8 +1508,11 @@ button {
    FOOTER
    ============================================================ */
 .footer {
+  position: relative;
+  z-index: 2;
   padding: var(--space-3xl) var(--space-lg);
   border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
 }
 
 .footer-inner {
@@ -1532,8 +1589,8 @@ button {
   cursor: pointer;
   border: 1px solid var(--color-border);
   transition: all var(--transition-base);
-  aspect-ratio: 9 / 19;
-  max-height: 480px;
+  aspect-ratio: 2 / 3;
+  max-height: 520px;
 }
 
 .screenshot-card:hover {

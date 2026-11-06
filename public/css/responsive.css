@@ -240,7 +240,7 @@
 
   .phone-mockup {
     width: 280px;
-    height: 580px;
+    height: 430px;
   }
 
   .ps-balance-amount {
@@ -314,7 +314,7 @@
 @media (max-width: 479px) {
   .phone-mockup {
     width: 240px;
-    height: 500px;
+    height: 370px;
   }
 
   .ps-balance-card {

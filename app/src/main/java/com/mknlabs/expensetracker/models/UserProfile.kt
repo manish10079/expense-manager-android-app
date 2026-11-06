@@ -2,7 +2,7 @@ package com.mknlabs.expensetracker.models
 
 import androidx.compose.runtime.Immutable
 
-const val CURRENT_TERMS_VERSION = "1.0"
+const val CURRENT_TERMS_VERSION = "1.1"
 
 @Immutable
 data class UserProfile(

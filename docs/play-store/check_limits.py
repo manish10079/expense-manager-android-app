@@ -22,7 +22,7 @@ LIMITS = {"App name": 30, "Short description": 80, "Full description": 4000}
 
 # Every locale the app ships in AppLanguages.kt, source included.
 EXPECTED = [
-    "en", "hi", "bn", "mr", "gu", "kn", "ml", "or", "pa", "ta", "te", "as",
+    "en", "en-US", "en-GB", "hi", "bn", "mr", "gu", "kn", "ml", "or", "pa", "ta", "te", "as",
     "es", "pt-BR", "fr", "de", "id", "it", "ja", "ko", "ru",
 ]
 

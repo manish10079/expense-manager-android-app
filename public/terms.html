@@ -111,7 +111,8 @@
 
     <div class="container">
         <h1>Terms &amp; Conditions</h1>
-        <p class="last-updated">Last updated: September 9, 2026</p>
+        <p class="last-updated">Version 1.1 &middot; Effective 5 November 2026<br>
+        Previous: <a href="legal/terms-1.0.html">Terms 1.0</a></p>
 
         <div class="highlight">
             <strong>Please read these Terms &amp; Conditions carefully</strong> before using the <strong>Expense Tracker: Budget &amp; Spend</strong> mobile application (the "App") operated by <strong>MKN Labs</strong> ("we", "us", or "our").
@@ -146,19 +147,21 @@
 
         <!-- ===== SECTION 4 ===== -->
         <h2>4. Subscriptions &amp; Purchases</h2>
-        <p>The App offers a free tier and optional paid features (collectively, "Pro"). Details of the Pro plans are displayed in the App and on Google Play. By subscribing or making a purchase:</p>
+        <p>The App offers a free tier and optional paid features (collectively, "Pro"), which may include a subscription and/or a lifetime Pro Pass. Details are displayed in the App and on Google Play. By subscribing or making a purchase:</p>
         <ul>
             <li>You authorize Google Play to charge your payment method for the applicable fees.</li>
-            <li>Subscriptions renew automatically until cancelled. You can manage or cancel subscriptions at any time through your Google Play account settings.</li>
-            <li>Payments are processed exclusively by Google Play Billing. We never see or store your payment card details.</li>
+            <li>Subscriptions renew automatically until cancelled. You can manage or cancel subscriptions through your Google Play account settings.</li>
+            <li>Payments are processed by Google Play Billing. We use <strong>RevenueCat</strong> to keep Pro entitlements in sync. We never see or store your payment card details.</li>
             <li>Refunds are handled in accordance with Google Play's refund policies.</li>
-            <li>Free promotional access (e.g., watching an ad for temporary ad-free access) is provided at our discretion and may be withdrawn at any time.</li>
+            <li>Ads, rewarded unlocks, coupons, App Links, and refer-a-friend promotions are provided at our discretion, may be withdrawn, and do not guarantee a reward. We may refuse fraudulent or self-referrals.</li>
+            <li>Cloud sync is limited to a maximum number of devices (currently 4). We may unlink devices to enforce that limit.</li>
+            <li>Guest users are bound by these Terms.</li>
         </ul>
 
         <!-- ===== SECTION 5 ===== -->
         <h2>5. Your Data &amp; Privacy</h2>
-        <p>Your financial data belongs to you. The App is <strong>offline-first</strong>: all financial data is stored locally on your device by default and never leaves your device unless you explicitly enable cloud synchronization (a Pro feature). Please review our <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> for detailed information about how we collect, use, and protect your information.</p>
-        <p>You are solely responsible for the accuracy of the financial data you enter, and for maintaining appropriate backups. We encourage you to use the App's built-in backup and export tools (JSON / SQLite database) regularly.</p>
+        <p>Your financial data belongs to you. The App is <strong>offline-first</strong> for your ledger: transactions are stored locally by default. Data may leave the device if you use cloud sync, optional AI parse, online speech-to-text, advertising, analytics, Firebase App Check, or the Play Install Referrer. See our <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        <p>You own your entries. You grant us a limited license to process them as needed to operate the App (including sync and optional parse). You are responsible for accuracy and backups. OS backup of App data is disabled; use the in-App export tools. We cannot recover a forgotten App Lock PIN.</p>
 
         <!-- ===== SECTION 6 ===== -->
         <h2>6. Acceptable Use</h2>
@@ -168,6 +171,8 @@
             <li>Using automated tools (bots, scrapers) to access the App's services without authorization.</li>
             <li>Circumventing any access controls, payment mechanisms, or security features.</li>
             <li>Impersonating another person or entity.</li>
+            <li>Abusing optional AI parse (including automating or reselling parse requests, or exceeding intended use of the daily limit).</li>
+            <li>Sharing bills, receipts, payment screens, or SMS that you do not have the right to process.</li>
         </ul>
 
         <!-- ===== SECTION 7 ===== -->
@@ -176,16 +181,18 @@
 
         <!-- ===== SECTION 8 ===== -->
         <h2>8. Third-Party Services</h2>
-        <p>The App relies on trusted third-party services to operate, including Google Firebase (authentication, cloud storage, analytics, remote configuration, push notifications), Google AdMob (advertising), Google Play Billing (payments), and Google Gemini (optional AI voice parsing). These services are governed by their own terms and privacy policies, linked in our <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        <p>The App uses third parties, including Google Firebase, Google AdMob, Google Play Billing, RevenueCat, Google ML Kit (on-device OCR), Google Play (updates and install referrer), and optional AI inference APIs called from our Cloud Functions (providers and models may change). Their terms and privacy policies apply. See our <a href="https://expense-tracker-2ea00.web.app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        <p><strong>Optional AI parse:</strong> Typed text, a voice transcript, or OCR text may be sent to our servers and then to third-party AI providers. Those providers may use that input to operate, secure, or train / improve their models, under <strong>their</strong> privacy policies and terms. MKN Labs does not control those practices. By using AI parse you agree those third-party terms apply to that request. Read their policies and terms before using AI parse. If you do not want this text sent to third-party AI, use on-device parse only, stay offline, or wait until the daily AI limit is reached.</p>
+        <p>You must have the right to share any bill, receipt, payment screen, or SMS you import. AI, OCR, and SMS suggestions may be wrong.</p>
 
         <!-- ===== SECTION 9 ===== -->
         <h2>9. Disclaimer of Warranties</h2>
         <p>The App is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis, without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the App will be uninterrupted, error-free, or free of harmful components.</p>
-        <p>The App is a financial <strong>tracking</strong> tool, not a financial advisor. Any analytics, insights, or projections provided are for informational purposes only and should not be relied upon as professional financial advice.</p>
+        <p>The App is a financial <strong>tracking</strong> tool, not a financial advisor, bank, or chartered accountant. Analytics, insights, AI parse, OCR, SMS detection, reminders, and projections are informational only and may be inaccurate or delayed by the operating system. They should not be relied upon as professional financial advice.</p>
 
         <!-- ===== SECTION 10 ===== -->
         <h2>10. Limitation of Liability</h2>
-        <p>To the maximum extent permitted by applicable law, MKN Labs, its developers, and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, data, or goodwill, arising out of or related to your use of, or inability to use, the App. Our total liability shall not exceed the amount you paid to us (if any) during the twelve (12) months preceding the claim.</p>
+        <p>To the maximum extent permitted by applicable law, MKN Labs, its developers, and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, data, or goodwill, arising out of or related to your use of, or inability to use, the App, including wrong AI/OCR/SMS amounts, missed bills, failed reminders, lost local data, or third-party outages (Play, Firebase, AI APIs). Our total liability shall not exceed the amount you paid to us (if any) during the twelve (12) months preceding the claim. These Terms do not exclude rights that cannot be excluded under the laws of India.</p>
 
         <!-- ===== SECTION 11 ===== -->
         <h2>11. Changes to These Terms</h2>
@@ -195,8 +202,14 @@
         <h2>12. Governing Law</h2>
         <p>These Terms shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts located in India.</p>
 
-        <!-- ===== SECTION 13 ===== -->
-        <h2>13. Contact Us</h2>
+        <h2>13. Age</h2>
+        <p>The App is not intended for children under 13, or under the digital-consent age in your country if higher. Do not use the App if you are below that age.</p>
+        <h2>14. Updates and Termination</h2>
+        <p>We may require a Google Play or in-app update to keep using the App. You may stop using the App at any time. We may suspend or terminate access for breach of these Terms or unpaid Pro. You may delete your account as described in the App and on our account deletion page.</p>
+        <h2>15. General</h2>
+        <p>If a provision of these Terms is held unenforceable, the rest remains in effect. These Terms and the Privacy Policy are the entire agreement between you and us regarding the App. You may not assign these Terms; we may assign them in connection with a reorganization or sale.</p>
+        <!-- ===== SECTION 16 ===== -->
+        <h2>16. Contact Us</h2>
         <p>If you have any questions about these Terms &amp; Conditions, please contact us:</p>
         <ul>
             <li><strong>Email:</strong> <a href="mailto:mknlabs.dev@gmail.com">mknlabs.dev@gmail.com</a></li>

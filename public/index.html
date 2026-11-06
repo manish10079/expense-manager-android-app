@@ -4,7 +4,7 @@
   <!-- ==========================================================
      Expense Tracker: Budget & Spend — Official Landing Page
      Extracted from Android app (com.mknlabs.expensetracker)
-     Version: 2.24.0 | Brand: "Premium by Design, Private by Nature"
+     Version: 2.258.2 | Brand: "Premium by Design, Private by Nature"
      ========================================================== -->
 
   <!-- Meta -->
@@ -20,16 +20,16 @@
   <meta property="og:description" content="Log expenses in seconds. Visualize trends. Sync across devices. Secure, private, and beautifully designed.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://expense-tracker-2ea00.web.app">
-  <meta property="og:image" content="assets/images/app-icon.webp">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
+  <meta property="og:image" content="assets/images/feature-graphic.webp">
+  <meta property="og:image:width" content="1775">
+  <meta property="og:image:height" content="886">
   <meta property="og:site_name" content="Expense Tracker">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Expense Tracker: Budget & Spend">
   <meta name="twitter:description" content="Premium by Design, Private by Nature. Track your finances with elegance.">
-  <meta name="twitter:image" content="assets/images/app-icon.webp">
+  <meta name="twitter:image" content="assets/images/feature-graphic.webp">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://expense-tracker-2ea00.web.app">
@@ -108,6 +108,17 @@
     </div>
   </nav>
 
+  <!-- Feature graphic sits under the nav; the hero scrolls over it -->
+  <section class="promo-banner-section" aria-label="App showcase banner">
+    <div class="promo-banner-wrap">
+      <img src="assets/images/feature-graphic.webp"
+           alt="Expense Tracker: Budget & Spend — type, talk, or scan, plus share bills from any payment app"
+           width="1775"
+           height="886">
+    </div>
+  </section>
+  <div class="promo-banner-spacer" aria-hidden="true"></div>
+
   <!-- ==========================================================
      HERO SECTION
      ========================================================== -->
@@ -143,9 +154,9 @@
       </h1>
 
       <p class="hero-subtitle">
-        A premium expense tracker designed for the modern user. Log expenses in seconds, 
-        visualize trends with stunning charts, set smart budgets, and sync effortlessly 
-        across devices — all while keeping your data completely private.
+        A premium expense tracker designed for the modern user. Type, talk, or scan — or share a bill
+        or payment from any banking or UPI app. Visualize trends with stunning charts, set smart budgets, and sync
+        effortlessly across devices — all while keeping your data completely private.
       </p>
 
       <div class="hero-cta">
@@ -218,55 +229,52 @@
           <div class="phone-screen">
             <div class="phone-screen-carousel">
 
-              <!-- Slide 1: Dashboard Screenshot -->
               <div class="phone-screen-slide image-slide active">
-                <img src="assets/images/expense-tracker-dashboard.webp"
-                     alt="Expense Tracker Dashboard - Total balance and recent transactions"
-                     style="width: 100%; height: 100%; object-fit: cover;"
+                <img src="assets/images/mockup-hero.webp"
+                     alt="Expense Tracker: Budget & Spend — log expenses in seconds"
+                     style="width: 100%; height: 100%; object-fit: contain;"
+                     loading="eager">
+              </div>
+              <div class="phone-screen-slide image-slide">
+                <img src="assets/images/mockup-logging.webp"
+                     alt="Log expenses in seconds — keypad, voice, or itemized split"
+                     style="width: 100%; height: 100%; object-fit: contain;"
                      loading="lazy">
               </div>
-
-              <!-- Slide 2: Home Screenshot -->
               <div class="phone-screen-slide image-slide">
-                <img src="assets/images/expense-tracker-home.webp"
-                     alt="Expense Tracker Home - Overview of spending and income"
-                     style="width: 100%; height: 100%; object-fit: cover;"
+                <img src="assets/images/mockup-budget.webp"
+                     alt="Master your monthly budget — category limits and savings goals"
+                     style="width: 100%; height: 100%; object-fit: contain;"
                      loading="lazy">
               </div>
-
-              <!-- Slide 3: Analytics Screenshot -->
               <div class="phone-screen-slide image-slide">
-                <img src="assets/images/expense-tracker-analytics.webp"
-                     alt="Expense Tracker Analytics - Interactive charts and spending insights"
-                     style="width: 100%; height: 100%; object-fit: cover;"
+                <img src="assets/images/mockup-bills.webp"
+                     alt="Never miss a bill payment — recurring alerts and due dates"
+                     style="width: 100%; height: 100%; object-fit: contain;"
                      loading="lazy">
               </div>
-
-              <!-- Slide 4: Budget Screenshot -->
               <div class="phone-screen-slide image-slide">
-                <img src="assets/images/expense-tracker-budget.webp"
-                     alt="Expense Tracker Budget - Monthly category budgeting"
-                     style="width: 100%; height: 100%; object-fit: cover;"
+                <img src="assets/images/mockup-insights.webp"
+                     alt="Visual reports and deep insights — cash flow and category charts"
+                     style="width: 100%; height: 100%; object-fit: contain;"
                      loading="lazy">
               </div>
-
-              <!-- Slide 5: Categories Screenshot -->
               <div class="phone-screen-slide image-slide">
-                <img src="assets/images/expense-tracker-categories.webp"
-                     alt="Expense Tracker Categories - Spending by category breakdown"
-                     style="width: 100%; height: 100%; object-fit: cover;"
+                <img src="assets/images/mockup-sms.webp"
+                     alt="Smart SMS expense tracking — bank and UPI messages on-device"
+                     style="width: 100%; height: 100%; object-fit: contain;"
                      loading="lazy">
               </div>
 
             </div>
 
-            <!-- Screen dots -->
             <div class="phone-screen-dots">
-              <button class="phone-screen-dot active" aria-label="Dashboard view"></button>
-              <button class="phone-screen-dot" aria-label="Home view"></button>
-              <button class="phone-screen-dot" aria-label="Analytics view"></button>
-              <button class="phone-screen-dot" aria-label="Budget view"></button>
-              <button class="phone-screen-dot" aria-label="Categories view"></button>
+              <button class="phone-screen-dot active" aria-label="App overview"></button>
+              <button class="phone-screen-dot" aria-label="Fast logging"></button>
+              <button class="phone-screen-dot" aria-label="Monthly budget"></button>
+              <button class="phone-screen-dot" aria-label="Bill reminders"></button>
+              <button class="phone-screen-dot" aria-label="Insights"></button>
+              <button class="phone-screen-dot" aria-label="Smart SMS"></button>
             </div>
           </div>
         </div>
@@ -308,11 +316,43 @@
       </div>
 
       <div class="features-grid">
-        <!-- Feature 1: Quick Expense Logging -->
+        <!-- Feature 1: Unified add sheet -->
+        <div class="feature-card">
+          <div class="feature-icon">✨</div>
+          <h3>Type, Talk, or Scan</h3>
+          <p>One add sheet for everything. Write it like a message, speak it, or scan a receipt — we parse amount, merchant, and category for you.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature 1b: Quick Expense Logging -->
         <div class="feature-card">
           <div class="feature-icon">⚡</div>
           <h3>Lightning-Fast Logging</h3>
-          <p>Log expenses in seconds with our optimized numeric keypad. Smart category ranking puts your most-used categories at the top.</p>
+          <p>Prefer the keypad? Log expenses in seconds with our optimized numeric keypad. Smart category ranking puts your most-used categories at the top.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature: Share from any payment app -->
+        <div class="feature-card">
+          <div class="feature-icon">📤</div>
+          <h3>Share From Any Payment App</h3>
+          <p>Paid in GPay, PhonePe, Paytm, a bank app, or anywhere else? Share the bill, receipt, or payment screen into Expense Tracker — we parse it and you confirm. Works from any app’s Share sheet, not only UPI.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature: Receipt OCR -->
+        <div class="feature-card">
+          <div class="feature-icon">📷</div>
+          <h3>Receipt Scan &amp; OCR</h3>
+          <p>Pick a photo with the system picker, or share an image, PDF, or payment text into the app. Review amount, funds, and tags, then save with a quick confirmation.</p>
+          <span class="feature-tag free">Free</span>
+        </div>
+
+        <!-- Feature: Voice add -->
+        <div class="feature-card">
+          <div class="feature-icon">🎤</div>
+          <h3>Voice Add</h3>
+          <p>Optional mic input turns speech into a transaction. Offline parsing stays on-device; AI parsing can help with messier phrasing, within a daily free limit.</p>
           <span class="feature-tag free">Free</span>
         </div>
 
@@ -548,6 +588,9 @@
             </div>
             <ul class="pricing-features">
               <li class="pricing-feature"><span class="check">✓</span> Unlimited expense logging</li>
+              <li class="pricing-feature"><span class="check">✓</span> Type, talk, or scan to add</li>
+              <li class="pricing-feature"><span class="check">✓</span> Share bills &amp; payments from any app</li>
+              <li class="pricing-feature"><span class="check">✓</span> Receipt OCR &amp; voice parse (daily AI limit)</li>
               <li class="pricing-feature"><span class="check">✓</span> Basic analytics dashboard</li>
               <li class="pricing-feature"><span class="check">✓</span> PIN & Biometric lock</li>
               <li class="pricing-feature"><span class="check">✓</span> 50+ custom categories</li>
@@ -798,24 +841,28 @@
 
       <div class="screenshots-grid reveal">
         <div class="screenshot-card" onclick="openLightbox(this)">
-          <img src="assets/images/expense-tracker-dashboard.webp" alt="Dashboard - Total balance overview" loading="lazy">
-          <div class="screenshot-label">Dashboard</div>
+          <img src="assets/images/mockup-hero.webp" alt="Expense Tracker overview — log expenses in seconds" loading="lazy">
+          <div class="screenshot-label">Overview</div>
         </div>
         <div class="screenshot-card" onclick="openLightbox(this)">
-          <img src="assets/images/expense-tracker-home.webp" alt="Home - Spending and income summary" loading="lazy">
-          <div class="screenshot-label">Home</div>
+          <img src="assets/images/mockup-logging.webp" alt="Log expenses — keypad, voice, or split" loading="lazy">
+          <div class="screenshot-label">Fast logging</div>
         </div>
         <div class="screenshot-card" onclick="openLightbox(this)">
-          <img src="assets/images/expense-tracker-analytics.webp" alt="Analytics - Interactive charts" loading="lazy">
-          <div class="screenshot-label">Analytics</div>
+          <img src="assets/images/mockup-budget.webp" alt="Monthly budget and savings goals" loading="lazy">
+          <div class="screenshot-label">Budgets</div>
         </div>
         <div class="screenshot-card" onclick="openLightbox(this)">
-          <img src="assets/images/expense-tracker-budget.webp" alt="Budget - Monthly category budgets" loading="lazy">
-          <div class="screenshot-label">Budget</div>
+          <img src="assets/images/mockup-bills.webp" alt="Bill reminders and recurring payments" loading="lazy">
+          <div class="screenshot-label">Bills</div>
         </div>
         <div class="screenshot-card" onclick="openLightbox(this)">
-          <img src="assets/images/expense-tracker-categories.webp" alt="Categories - Spending breakdown" loading="lazy">
-          <div class="screenshot-label">Categories</div>
+          <img src="assets/images/mockup-insights.webp" alt="Visual reports and analytics" loading="lazy">
+          <div class="screenshot-label">Insights</div>
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this)">
+          <img src="assets/images/mockup-sms.webp" alt="Smart SMS tracking from bank and UPI" loading="lazy">
+          <div class="screenshot-label">Smart SMS</div>
         </div>
       </div>
     </div>

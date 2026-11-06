@@ -17,7 +17,7 @@ class TermsConsentTrackingTest {
 
     @Test
     fun currentTermsVersion_isStandardOnePointZero() {
-        assertEquals("1.0", CURRENT_TERMS_VERSION)
+        assertEquals("1.1", CURRENT_TERMS_VERSION)
     }
 
     @Test
@@ -29,7 +29,7 @@ class TermsConsentTrackingTest {
         )
 
         assertEquals(now, profile.termsAcceptedAt)
-        assertEquals("1.0", profile.termsVersion)
+        assertEquals("1.1", profile.termsVersion)
     }
 
     @Test
