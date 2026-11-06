@@ -46,7 +46,8 @@ com.mknlabs.expensetracker/
 │   ├── calendar/                       # Calendar View & Timeline feature
 │   │   └── ui/                         # CalendarScreen, CalendarViewModel
 │   ├── budget/                         # Budgets & Recurring Expenses feature
-│   │   └── ui/                         # BudgetAndRecurringScreen, BudgetViewModel
+│   │   └── ui/                         # BudgetAndRecurringScreen (orchestrator),
+│   │                                   # BudgetAndRecurringViewModel, BudgetCards, editors, pickers, copy-month, EMI ledger
 │   ├── goals/                          # Savings Goals feature
 │   │   └── ui/                         # GoalsScreen, GoalsViewModel
 │   ├── smsinbox/                       # SMS Detection Inbox feature (Reference implementation)
