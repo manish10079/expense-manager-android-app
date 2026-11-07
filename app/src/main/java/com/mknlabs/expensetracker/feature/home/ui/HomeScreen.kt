@@ -35,6 +35,7 @@ import com.adamglin.phosphoricons.Fill
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.fill.CheckCircle
 import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.ChatCircle
 import com.adamglin.phosphoricons.regular.Crown
 import com.adamglin.phosphoricons.regular.CaretRight
 import com.adamglin.phosphoricons.regular.Circle
@@ -91,7 +92,6 @@ import com.mknlabs.expensetracker.data.local.RateAppPromptStore
 import com.mknlabs.expensetracker.data.local.SmsInboxStaleRemindStore
 import com.mknlabs.expensetracker.utils.RateAppPrompt
 import com.mknlabs.expensetracker.utils.SmsInboxStaleRemind
-import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import com.mknlabs.expensetracker.utils.LaunchSheetPick
 import kotlinx.coroutines.launch
@@ -610,7 +610,7 @@ fun HomeScreen(
         staleDue = true
     }
     val showStaleRemind = staleDue &&
-        !isLockOverlayActive &&
+        homeVisibleForPrompts &&
         !showPermissionSheet &&
         !showRefer &&
         !showRateSheet &&
@@ -622,50 +622,32 @@ fun HomeScreen(
             dismissedDayStart = staleRemind.dismissedDayStart,
         )
     if (showStaleRemind) {
-        AlertDialog(
-            onDismissRequest = {},
-            properties = DialogProperties(
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false,
-            ),
-            title = { Text(stringResource(R.string.title_sms_stale_remind)) },
-            text = {
-                Text(
-                    stringResource(
-                        R.string.msg_sms_stale_remind,
-                        uiState.smsInboxUnreadCount,
-                    )
+        val markStaleHandled: () -> Unit = {
+            referScope.launch {
+                SmsInboxStaleRemindStore.markHandledToday(
+                    context,
+                    SmsInboxStaleRemind.startOfLocalDay(System.currentTimeMillis()),
                 )
+            }
+        }
+        ModernConfirmationDialog(
+            onDismissRequest = {},
+            title = stringResource(R.string.title_sms_stale_remind),
+            text = stringResource(
+                R.string.msg_sms_stale_remind,
+                uiState.smsInboxUnreadCount,
+            ),
+            confirmButtonText = stringResource(R.string.label_review_sms_inbox),
+            onConfirm = {
+                markStaleHandled()
+                onSmsInboxClick()
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        referScope.launch {
-                            SmsInboxStaleRemindStore.markHandledToday(
-                                context,
-                                SmsInboxStaleRemind.startOfLocalDay(System.currentTimeMillis()),
-                            )
-                        }
-                        onSmsInboxClick()
-                    }
-                ) {
-                    Text(stringResource(R.string.label_review_sms_inbox))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        referScope.launch {
-                            SmsInboxStaleRemindStore.markHandledToday(
-                                context,
-                                SmsInboxStaleRemind.startOfLocalDay(System.currentTimeMillis()),
-                            )
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.label_later))
-                }
-            },
+            headerIcon = PhosphorIcons.Regular.ChatCircle,
+            headerIconContentDescription = stringResource(R.string.title_sms_stale_remind),
+            dismissButtonText = stringResource(R.string.label_later),
+            onDismiss = markStaleHandled,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
         )
     }
 }

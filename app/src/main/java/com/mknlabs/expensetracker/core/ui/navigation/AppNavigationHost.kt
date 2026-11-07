@@ -46,6 +46,7 @@ import com.mknlabs.expensetracker.feature.settings.ui.TagManagementScreen
 import com.mknlabs.expensetracker.feature.settings.ui.DataManagementScreen
 import com.mknlabs.expensetracker.feature.goals.ui.GoalsScreen
 import com.mknlabs.expensetracker.feature.home.ui.HomeScreen
+import com.mknlabs.expensetracker.feature.transactions.ui.CalculatorScreen
 import com.mknlabs.expensetracker.feature.transactions.ui.ItemizedCalculatorScreen
 import com.mknlabs.expensetracker.feature.settings.ui.NotificationSettingsScreen
 import com.mknlabs.expensetracker.feature.settings.ui.PreferencesScreen
@@ -272,7 +273,7 @@ fun AppNavigationHost(
                         },
                         onCalculatorClick = {
                             onBottomBarVisibilityChange(false)
-                            onRouteChange(AppRoute.ItemizedCalculator)
+                            onRouteChange(AppRoute.Calculator)
                         },
                         onTodaySpendingClick = {
                             onBottomBarVisibilityChange(false)
@@ -841,23 +842,33 @@ fun AppNavigationHost(
                     )
                 }
 
+                AppRoute.Calculator -> {
+                    val calculatorViewModel: ItemizedCalculatorViewModel = hiltViewModel()
+                    CalculatorScreen(
+                        viewModel = calculatorViewModel,
+                        dateFormatPattern = selectedDateFormatPattern,
+                        timeFormat = selectedTimeFormat,
+                        onBackClick = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(previousRoute)
+                        }
+                    )
+                }
+
                 AppRoute.ItemizedCalculator -> {
                     val calculatorViewModel: ItemizedCalculatorViewModel = hiltViewModel()
                     ItemizedCalculatorScreen(
                         viewModel = calculatorViewModel,
                         currencyId = selectedCurrencyId,
                         amountFormatPreferences = amountFormatPreferences,
-                        dateFormatPattern = selectedDateFormatPattern,
-                        timeFormat = selectedTimeFormat,
-                        initialNote = if (previousRoute == AppRoute.Home) null else addTransactionDraftNote ?: selectedTransaction?.note,
-                        initialMode = if (previousRoute == AppRoute.Home) {
-                            com.mknlabs.expensetracker.feature.transactions.ui.CalculatorMode.NORMAL
-                        } else {
-                            com.mknlabs.expensetracker.feature.transactions.ui.CalculatorMode.ITEMIZED
-                        },
+                        initialNote = addTransactionDraftNote ?: selectedTransaction?.note,
                         onBackClick = {
                             onBottomBarVisibilityChange(false)
                             onRouteChange(previousRoute)
+                        },
+                        onOpenCalculator = {
+                            onBottomBarVisibilityChange(false)
+                            onRouteChange(AppRoute.Calculator)
                         },
                         onApplyToNoteClick = { finalAmount, finalNote ->
                             onAddTransactionDraftAmountChange(finalAmount)

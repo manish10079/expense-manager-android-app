@@ -126,6 +126,7 @@ class NavigationUtilsTest {
         assertEquals(AppRoute.Home, addTransactionExitRoute(AppRoute.Home, AppRoute.AddTransaction))
         assertEquals(AppRoute.Transactions, addTransactionExitRoute(AppRoute.AddTransaction, AppRoute.Transactions))
         assertEquals(AppRoute.Home, addTransactionExitRoute(AppRoute.AddTransaction, AppRoute.ItemizedCalculator))
+        assertEquals(AppRoute.Home, addTransactionExitRoute(AppRoute.AddTransaction, AppRoute.Calculator))
     }
 
     @Test

@@ -39,9 +39,9 @@ fun addTransactionExitRoute(
     previousRoute: AppRoute
 ): AppRoute {
     return when {
-        originRoute != AppRoute.AddTransaction && originRoute != AppRoute.ItemizedCalculator ->
+        originRoute != AppRoute.AddTransaction && originRoute != AppRoute.ItemizedCalculator && originRoute != AppRoute.Calculator ->
             originRoute
-        previousRoute != AppRoute.AddTransaction && previousRoute != AppRoute.ItemizedCalculator ->
+        previousRoute != AppRoute.AddTransaction && previousRoute != AppRoute.ItemizedCalculator && previousRoute != AppRoute.Calculator ->
             previousRoute
         else -> AppRoute.Home
     }
@@ -90,7 +90,8 @@ fun resolveBackNavigationRoute(
         // for Add Transaction: reading that one left Back on the paywall heading to a
         // stale Home instead of the membership screen that opened it.
         AppRoute.Paywall -> paywallOriginRoute
-        AppRoute.ItemizedCalculator -> previousRoute
+        AppRoute.ItemizedCalculator,
+        AppRoute.Calculator -> previousRoute
         else -> null
     }
 }

@@ -23,6 +23,7 @@ enum class AppRoute(
     ConnectedDevices("connected_devices", false),
     AddTransaction("add_transaction", false),
     ItemizedCalculator("itemized_calculator", false),
+    Calculator("calculator", false),
     AddCategory("add_category", false),
     Goals("goals", false),
     MembershipDetails("membership_details", false),

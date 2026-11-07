@@ -40,6 +40,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.Check
@@ -231,44 +232,15 @@ fun ItemizedCalculatorScreen(
     viewModel: ItemizedCalculatorViewModel,
     currencyId: Int = DEFAULT_CURRENCY_ID,
     amountFormatPreferences: AmountFormatPreferences = defaultAmountFormatPreferences,
-    dateFormatPattern: String = DEFAULT_DATE_FORMAT_PATTERN,
-    timeFormat: String = DEFAULT_TIME_FORMAT,
     initialNote: String? = null,
-    initialMode: CalculatorMode = CalculatorMode.ITEMIZED,
     onBackClick: () -> Unit = {},
+    onOpenCalculator: () -> Unit = {},
     onApplyToNoteClick: (String, String) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val modes = CalculatorMode.entries
-    val coroutineScope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(
-        initialPage = modes.indexOf(initialMode).coerceAtLeast(0),
-        pageCount = { modes.size }
-    )
-    val context = LocalContext.current
-    var showHistorySheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(initialNote) {
         viewModel.initialize(initialNote)
-    }
-
-    LaunchedEffect(initialMode) {
-        viewModel.setMode(initialMode)
-    }
-
-    // Sync from ViewModel to Pager
-    LaunchedEffect(uiState.selectedMode) {
-        val targetPage = modes.indexOf(uiState.selectedMode)
-        if (pagerState.currentPage != targetPage) {
-            pagerState.animateScrollToPage(targetPage)
-        }
-    }
-
-    // Sync from Pager to ViewModel
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            viewModel.setMode(modes[page])
-        }
     }
 
     Column(
@@ -279,13 +251,6 @@ fun ItemizedCalculatorScreen(
             .navigationBarsPadding()
             .imePadding()
             .padding(start = 20.dp, end = 20.dp, top = Dimens.HeaderSpacing, bottom = 14.dp)
-            .pointerInput(Unit) {
-                detectVerticalDragGestures { _, dragAmount ->
-                    if (dragAmount < -40f) {
-                        showHistorySheet = true
-                    }
-                }
-            },
     ) {
         val enter = rememberSectionEnterAlphas(2)
         AppHeader(
@@ -293,107 +258,70 @@ fun ItemizedCalculatorScreen(
             onBackClick = onBackClick,
             modifier = Modifier.alpha(enter[0]),
             actions = {
-                CalculatorHistoryHeaderIcon(
-                    onClick = { showHistorySheet = true }
-                )
+                OpenCalculatorHeaderIcon(onClick = onOpenCalculator)
             }
         )
 
-        Column(modifier = Modifier.alpha(enter[1]).weight(1f)) {
-        AnimatedTabSwitcher(
-            items = modes.map { TabItem(it, stringResource(it.titleRes)) },
-            selectedItemId = uiState.selectedMode,
-            onItemSelected = { mode ->
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(modes.indexOf(mode))
-                }
-            }
-        )
-
-        HorizontalPager(
-            state = pagerState,
+        ItemizedCalculatorContent(
             modifier = Modifier
+                .alpha(enter[1])
                 .weight(1f)
+                .fillMaxSize()
+                .padding(top = 2.dp)
                 .clipToBounds(),
-            userScrollEnabled = !uiState.isAddingItem,
-            beyondViewportPageCount = 0
-        ) { page ->
-            when (modes[page]) {
-                CalculatorMode.ITEMIZED -> {
-                    ItemizedCalculatorContent(
-                        // The switcher sits 10dp above the total card: the card brings 8dp
-                        // of its own top inset for the shadow, so the page adds the rest.
-                        modifier = Modifier.fillMaxSize().padding(top = 2.dp).clipToBounds(),
-                        items = uiState.items,
-                        currencyId = currencyId,
-                        amountFormatPreferences = amountFormatPreferences,
-                        totalAmount = uiState.totalAmount,
-                        isAddingItem = uiState.isAddingItem,
-                        descriptionInput = uiState.descriptionInput,
-                        amountInput = uiState.amountInput,
-                        canAddItem = uiState.canAddItem,
-                        isEditingItem = uiState.editingItemId != null,
-                        onDeleteItem = viewModel::deleteItem,
-                        onEditItem = viewModel::startEditingItem,
-                        onDescriptionChange = viewModel::updateDescriptionInput,
-                        onAmountChange = viewModel::updateAmountInput,
-                        onStartAdding = viewModel::startAddingItem,
-                        onCancelAdding = viewModel::cancelAddingItem,
-                        onAddItem = viewModel::addItem,
-                        onApplyToNoteClick = {
-                            val (amount, note) = viewModel.getFinalResult(currencyId, amountFormatPreferences)
-                            onApplyToNoteClick(amount, note)
-                        }
-                    )
-                }
-
-                CalculatorMode.NORMAL -> {
-                    NormalCalculatorContent(
-                        modifier = Modifier.fillMaxSize().padding(top = 18.dp),
-                        display = uiState.normalDisplay,
-                        previewResult = viewModel.calculatePreview(),
-                        expression = viewModel.buildExpression(),
-                        isEvaluated = uiState.shouldResetNormalDisplay,
-                        onAction = viewModel::handleNormalAction,
-                        onSelectionChanged = viewModel::setSelectionFromDisplay,
-                        cursorDisplayPosition = viewModel.getDisplayPositionFromCursor()
-                    )
-                }
+            items = uiState.items,
+            currencyId = currencyId,
+            amountFormatPreferences = amountFormatPreferences,
+            totalAmount = uiState.totalAmount,
+            isAddingItem = uiState.isAddingItem,
+            descriptionInput = uiState.descriptionInput,
+            amountInput = uiState.amountInput,
+            canAddItem = uiState.canAddItem,
+            isEditingItem = uiState.editingItemId != null,
+            onDeleteItem = viewModel::deleteItem,
+            onEditItem = viewModel::startEditingItem,
+            onDescriptionChange = viewModel::updateDescriptionInput,
+            onAmountChange = viewModel::updateAmountInput,
+            onStartAdding = viewModel::startAddingItem,
+            onCancelAdding = viewModel::cancelAddingItem,
+            onAddItem = viewModel::addItem,
+            onApplyToNoteClick = {
+                val (amount, note) = viewModel.getFinalResult(currencyId, amountFormatPreferences)
+                onApplyToNoteClick(amount, note)
             }
-        }
-        }
-    }
-
-    if (showHistorySheet) {
-        CalculatorHistorySheet(
-            entries = uiState.historyEntries,
-            dateFormatPattern = dateFormatPattern,
-            timeFormat = timeFormat,
-            onDismiss = { showHistorySheet = false },
-            onTapExpression = { expression ->
-                viewModel.restoreHistoryExpression(expression)
-                showHistorySheet = false
-            },
-            onTapResult = { result ->
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(
-                    ClipData.newPlainText(
-                        context.getString(R.string.label_history),
-                        result
-                    )
-                )
-                Toast.makeText(context, context.getString(R.string.toast_history_copied), Toast.LENGTH_SHORT).show()
-                viewModel.selectHistoryResult(result)
-                showHistorySheet = false
-            },
-            onDeleteEntry = viewModel::deleteHistoryEntry,
-            onClearHistory = viewModel::clearHistory
         )
     }
 }
 
+
 @Composable
-private fun CalculatorHistoryHeaderIcon(
+internal fun OpenCalculatorHeaderIcon(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier.size(48.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(if (MaterialTheme.colorScheme.isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Calculate,
+                contentDescription = stringResource(id = R.string.desc_open_calculator),
+                tint = MaterialTheme.colorScheme.accentInk,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+internal fun CalculatorHistoryHeaderIcon(
     onClick: () -> Unit
 ) {
     Box(
@@ -534,9 +462,7 @@ private fun ItemizedCalculatorContent(
                 }
             }
 
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                AddNewItemButton(onClick = onStartAdding)
-            }
+            AddNewItemButton(onClick = onStartAdding)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -548,7 +474,7 @@ private fun ItemizedCalculatorContent(
 }
 
 @Composable
-private fun NormalCalculatorContent(
+internal fun NormalCalculatorContent(
     modifier: Modifier = Modifier,
     display: String,
     previewResult: String,
@@ -1719,7 +1645,7 @@ private fun AddNewItemButton(onClick: () -> Unit) {
 
     Row(
         modifier = Modifier
-            .fillMaxWidth(0.9f)
+            .fillMaxWidth()
             .heightIn(min = 72.dp)
             .drawBehind {
                 drawRoundRect(
@@ -1895,7 +1821,7 @@ private fun ApplyToNoteButton(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-private fun CalculatorHistorySheet(
+internal fun CalculatorHistorySheet(
     entries: List<CalculatorHistoryEntry>,
     dateFormatPattern: String,
     timeFormat: String,
@@ -2209,11 +2135,6 @@ private fun CalculatorNormalScreenPreviewBody() {
                 }
             )
             Column(modifier = Modifier.weight(1f)) {
-                AnimatedTabSwitcher(
-                    items = CalculatorMode.entries.map { TabItem(it, stringResource(it.titleRes)) },
-                    selectedItemId = CalculatorMode.NORMAL,
-                    onItemSelected = {}
-                )
                 NormalCalculatorContent(
                     modifier = Modifier
                         .fillMaxSize()

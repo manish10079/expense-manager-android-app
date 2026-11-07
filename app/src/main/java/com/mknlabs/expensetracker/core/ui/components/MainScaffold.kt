@@ -497,7 +497,7 @@ fun MainScaffold(
     }
 
     LaunchedEffect(currentRoute) {
-        if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator) {
+        if (currentRoute != AppRoute.AddTransaction && currentRoute != AppRoute.ItemizedCalculator && currentRoute != AppRoute.Calculator) {
             saveableStateHolder.removeState(AppRoute.AddTransaction)
             onSelectedTransactionChange(null)
             onAddTransactionDraftAmountChange(null)
@@ -521,7 +521,7 @@ fun MainScaffold(
                 onBottomBarVisibilityChange(false)
                 onRouteChange(backNavigationRoute ?: AppRoute.Home)
             }
-            currentRoute == AppRoute.ItemizedCalculator -> {
+            currentRoute == AppRoute.ItemizedCalculator || currentRoute == AppRoute.Calculator -> {
                 onBottomBarVisibilityChange(false)
                 onRouteChange(previousRoute)
             }

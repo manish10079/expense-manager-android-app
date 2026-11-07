@@ -55,9 +55,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Calculate
+
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
@@ -1002,7 +1003,7 @@ internal fun AddTransactionScreenContent(
                             )
                         }
 
-                        // Itemized calculator button: opens calculator sheet
+                        // Opens the itemized breakdown screen
                         Box(
                             modifier = Modifier
                                 .size(if (compact) 40.dp else 44.dp)
@@ -1026,8 +1027,8 @@ internal fun AddTransactionScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Calculate,
-                                contentDescription = stringResource(R.string.desc_open_calculator),
+                                imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
+                                contentDescription = stringResource(R.string.label_itemized_calculator),
                                 tint = Color.White,
                                 modifier = actionIconModifier
                             )

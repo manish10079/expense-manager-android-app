@@ -87,13 +87,17 @@ class MainNavigationState(
     fun navigateTo(route: AppRoute) {
         if (route == AppRoute.AddTransaction) {
             if (currentRoute != AppRoute.AddTransaction &&
-                currentRoute != AppRoute.ItemizedCalculator
+                currentRoute != AppRoute.ItemizedCalculator &&
+                currentRoute != AppRoute.Calculator
             ) {
                 addTransactionOriginRoute = currentRoute
                 previousRoute = currentRoute
             }
         }
-        if (route == AppRoute.ItemizedCalculator && currentRoute != AppRoute.ItemizedCalculator) {
+        if (
+            (route == AppRoute.ItemizedCalculator && currentRoute != AppRoute.ItemizedCalculator) ||
+            (route == AppRoute.Calculator && currentRoute != AppRoute.Calculator)
+        ) {
             previousRoute = currentRoute
         }
         // Guarded on the destination not already being the paywall, so a re-entry cannot
