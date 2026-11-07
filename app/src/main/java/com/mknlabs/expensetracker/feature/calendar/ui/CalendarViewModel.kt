@@ -513,54 +513,6 @@ private fun alignDateToMonth(
     )
 }
 
-private fun startOfDay(timestamp: Long): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = timestamp
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
-
-private fun startOfMonth(timestamp: Long, monthStartDay: Int = 1): Long =
-    com.mknlabs.expensetracker.utils.CustomMonthUtils.getStartOfCustomMonth(timestamp, monthStartDay)
-
-private fun addMonths(timestamp: Long, months: Int): Long {
-    return Calendar.getInstance().apply {
-        timeInMillis = startOfMonth(timestamp)
-        add(Calendar.MONTH, months)
-    }.timeInMillis
-}
-
-private fun createDate(
-    year: Int,
-    month: Int,
-    dayOfMonth: Int
-): Long {
-    return Calendar.getInstance().apply {
-        set(Calendar.YEAR, year)
-        set(Calendar.MONTH, month)
-        set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
-
-private fun isSameDay(first: Long, second: Long): Boolean {
-    return startOfDay(first) == startOfDay(second)
-}
-
-private fun getField(timestamp: Long, field: Int): Int {
-    return Calendar.getInstance().apply { timeInMillis = timestamp }.get(field)
-}
-
-private fun mondayFirstOffset(dayOfWeek: Int): Int {
-    return (dayOfWeek + 5) % 7
-}
-
 private fun signedAmount(transaction: Transaction): Double {
     return if (transaction.transactionTypeId == 1) transaction.amount else -transaction.amount
 }
