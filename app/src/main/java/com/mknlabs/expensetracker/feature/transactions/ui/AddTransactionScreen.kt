@@ -253,32 +253,6 @@ import java.math.BigDecimal
 internal const val incomeTypeId = 1
 internal const val expenseTypeId = 2
 
-private data class TransactionMode(
-    val id: Int,
-    @androidx.annotation.StringRes val label: Int
-)
-
-private val transactionModes = listOf(
-    TransactionMode(id = incomeTypeId, label = R.string.title_income),
-    TransactionMode(id = expenseTypeId, label = R.string.title_expense)
-)
-
-
-
-
-private fun mergeTimeWithDate(newTimeMillis: Long, currentDateMillis: Long): Long {
-    val dateCal = java.util.Calendar.getInstance().apply { timeInMillis = currentDateMillis }
-    val timeCal = java.util.Calendar.getInstance().apply { timeInMillis = newTimeMillis }
-    return java.util.Calendar.getInstance().apply {
-        set(java.util.Calendar.YEAR, dateCal.get(java.util.Calendar.YEAR))
-        set(java.util.Calendar.MONTH, dateCal.get(java.util.Calendar.MONTH))
-        set(java.util.Calendar.DAY_OF_MONTH, dateCal.get(java.util.Calendar.DAY_OF_MONTH))
-        set(java.util.Calendar.HOUR_OF_DAY, timeCal.get(java.util.Calendar.HOUR_OF_DAY))
-        set(java.util.Calendar.MINUTE, timeCal.get(java.util.Calendar.MINUTE))
-        set(java.util.Calendar.SECOND, 0)
-        set(java.util.Calendar.MILLISECOND, 0)
-    }.timeInMillis
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -554,28 +528,38 @@ internal fun AddTransactionScreenContent(
         var emiInstallmentInput by rememberSaveable(existingTransaction?.id) { mutableStateOf("") }
         // Null until the user picks one Ã¢â‚¬â€ an unpicked plan starts on the
         // transaction date, so changing that date still moves the plan start.
-        var emiFirstDueAtPicked by rememberSaveable(existingTransaction?.id) {
-            mutableStateOf<Long?>(null)
-        }
-        var isEmiFirstDuePickerVisible by rememberSaveable { mutableStateOf(false) }
+        val emiFirstDueAtPickedState = rememberSaveable(existingTransaction?.id) { mutableStateOf<Long?>(null) }
+        var emiFirstDueAtPicked by emiFirstDueAtPickedState
+        val isEmiFirstDuePickerVisibleState = rememberSaveable { mutableStateOf(false) }
+        var isEmiFirstDuePickerVisible by isEmiFirstDuePickerVisibleState
         var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isTimePickerVisible by rememberSaveable { mutableStateOf(false) }
         var isNoteSheetVisible by rememberSaveable { mutableStateOf(false) }
-        var isRecurringModalVisible by rememberSaveable { mutableStateOf(false) }
-        var isFavoritesSheetVisible by rememberSaveable { mutableStateOf(false) }
+        val isRecurringModalVisibleState = rememberSaveable { mutableStateOf(false) }
+        var isRecurringModalVisible by isRecurringModalVisibleState
+        val isFavoritesSheetVisibleState = rememberSaveable { mutableStateOf(false) }
+        var isFavoritesSheetVisible by isFavoritesSheetVisibleState
         var isCategorySheetVisible by rememberSaveable { mutableStateOf(false) }
         var isPaymentSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isTagSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isFundSheetVisible by rememberSaveable { mutableStateOf(false) }
         var isCreateFundSheetVisible by rememberSaveable { mutableStateOf(false) }
-        var showDuplicateWarning by rememberSaveable { mutableStateOf(false) }
-        var duplicateWarningMessage by rememberSaveable { mutableStateOf<String?>(null) }
-        var pendingSaveTransaction by remember { mutableStateOf<Transaction?>(null) }
-        var pendingSaveDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
-        var showOverspendWarning by rememberSaveable { mutableStateOf(false) }
-        var pendingOverspendTransaction by remember { mutableStateOf<Transaction?>(null) }
-        var pendingOverspendDraft by remember { mutableStateOf<RecurringTransactionDraft?>(null) }
-        var pendingOverspendFundId by remember { mutableStateOf<String?>(null) }
+        val showDuplicateWarningState = rememberSaveable { mutableStateOf(false) }
+        var showDuplicateWarning by showDuplicateWarningState
+        val duplicateWarningMessageState = rememberSaveable { mutableStateOf<String?>(null) }
+        var duplicateWarningMessage by duplicateWarningMessageState
+        val pendingSaveTransactionState = remember { mutableStateOf<Transaction?>(null) }
+        var pendingSaveTransaction by pendingSaveTransactionState
+        val pendingSaveDraftState = remember { mutableStateOf<RecurringTransactionDraft?>(null) }
+        var pendingSaveDraft by pendingSaveDraftState
+        val showOverspendWarningState = rememberSaveable { mutableStateOf(false) }
+        var showOverspendWarning by showOverspendWarningState
+        val pendingOverspendTransactionState = remember { mutableStateOf<Transaction?>(null) }
+        var pendingOverspendTransaction by pendingOverspendTransactionState
+        val pendingOverspendDraftState = remember { mutableStateOf<RecurringTransactionDraft?>(null) }
+        var pendingOverspendDraft by pendingOverspendDraftState
+        val pendingOverspendFundIdState = remember { mutableStateOf<String?>(null) }
+        var pendingOverspendFundId by pendingOverspendFundIdState
         val amountFocusRequester = remember { FocusRequester() }
         val noteFocusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -1458,213 +1442,43 @@ internal fun AddTransactionScreenContent(
             }
         }
 
-        // Duplicate warning dialog
-        if (showDuplicateWarning && duplicateWarningMessage != null) {
-            ModernConfirmationDialog(
-                onDismissRequest = {
-                    showDuplicateWarning = false
-                    duplicateWarningMessage = null
-                    pendingSaveTransaction = null
-                    pendingSaveDraft = null
-                },
-                title = stringResource(R.string.title_cannot_duplicate_recurring),
-                text = duplicateWarningMessage ?: "",
-                confirmButtonText = stringResource(R.string.label_yes),
-                onConfirm = {
-                    showDuplicateWarning = false
-                    duplicateWarningMessage = null
-                    val tx = pendingSaveTransaction
-                    val draft = pendingSaveDraft
-                    pendingSaveTransaction = null
-                    pendingSaveDraft = null
-                    keyboardController?.hide()
-                    if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                },
-                headerIcon = Icons.Filled.ContentCopy,
-                dismissButtonText = stringResource(R.string.label_no),
-                onDismiss = {
-                    showDuplicateWarning = false
-                    duplicateWarningMessage = null
-                    pendingSaveTransaction = null
-                    pendingSaveDraft = null
-                }
-            )
-        }
 
-        // Fund overspend warning. Three ways out, all explicit: spend anyway, go back and
-        // edit the amount, or drop the fund link and save it as ordinary spending.
-        if (showOverspendWarning) {
-            val overspendFundName = availableFunds
-                .firstOrNull { it.id == pendingOverspendFundId }?.name
-                .orEmpty()
-            val overspendRemaining = pendingOverspendFundId?.let { fundRemainingById[it] } ?: 0L
-            Dialog(
-                onDismissRequest = {
-                    showOverspendWarning = false
-                    pendingOverspendTransaction = null
-                    pendingOverspendDraft = null
-                    pendingOverspendFundId = null
-                }
-            ) {
-                QuickActionCard(
-                    title = stringResource(R.string.title_fund_overspend),
-                    caption = stringResource(
-                        R.string.msg_fund_overspend,
-                        overspendFundName,
-                        formatCurrencyValue(overspendRemaining.coerceAtLeast(0L).toMajorUnits(), currencyId)
-                    ),
-                    headerIcon = Icons.Filled.Savings,
-                    options = listOf(
-                        QuickActionOption("spend_anyway", stringResource(R.string.label_spend_anyway), Icons.Filled.AccountBalanceWallet),
-                        QuickActionOption("edit_amount", stringResource(R.string.label_edit_amount_action), Icons.Filled.EditNote),
-                        QuickActionOption("remove_fund", stringResource(R.string.label_remove_fund), Icons.Filled.Close)
-                    ),
-                    selectedId = null,
-                    onSelect = { id ->
-                        when (id) {
-                            "spend_anyway" -> {
-                                val tx = pendingOverspendTransaction
-                                val draft = pendingOverspendDraft
-                                showOverspendWarning = false
-                                pendingOverspendTransaction = null
-                                pendingOverspendDraft = null
-                                pendingOverspendFundId = null
-                                keyboardController?.hide()
-                                if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                            }
-                            "edit_amount" -> {
-                                showOverspendWarning = false
-                                pendingOverspendTransaction = null
-                                pendingOverspendDraft = null
-                                pendingOverspendFundId = null
-                            }
-                            "remove_fund" -> {
-                                val tx = pendingOverspendTransaction?.copy(fundId = null)
-                                val draft = pendingOverspendDraft
-                                showOverspendWarning = false
-                                pendingOverspendTransaction = null
-                                pendingOverspendDraft = null
-                                pendingOverspendFundId = null
-                                onSelectFund(null)
-                                keyboardController?.hide()
-                                if (tx != null) onSaveClick(tx, draft, isFavorite, selectedTags.map { it.id })
-                            }
-                        }
-                    }
-                )
-            }
-        }
-
-        // The recurring section steps out of its sheet so this picker (itself a
-        // sheet) can open; confirming or cancelling returns to the plan form.
-        if (isEmiFirstDuePickerVisible) {
-            WheelDateTimePickerModal(
-                mode = WheelPickerMode.SINGLE_DATE,
-                initialStartMillis = effectiveFirstDueAt,
-                onDismissRequest = {
-                    isEmiFirstDuePickerVisible = false
-                    isRecurringModalVisible = true
-                },
-                onConfirm = { start, _ ->
-                    emiFirstDueAtPicked = start
-                    isEmiFirstDuePickerVisible = false
-                    isRecurringModalVisible = true
-                }
-            )
-        }
-
-        if (isFavoritesSheetVisible) {
-            FavoritesBottomSheet(
-                favorites = favorites,
-                currencyId = currencyId,
-                availableCategories = availableCategories,
-                availablePaymentMethods = availablePaymentMethods,
-                onDismiss = { isFavoritesSheetVisible = false },
-                onSelect = applyFavorite,
-                onDelete = { id ->
-                    onRemoveFavorite(id)
-                    Toast.makeText(context, context.getString(R.string.msg_favorite_removed), Toast.LENGTH_SHORT).show()
-                }
-            )
-        }
-    }
-}
-
-
-
-
-
-
-
-@Composable
-
-
-/**
- * The recurring rule an Add Transaction save persists, or null when recurring is
- * off or the repeat count is unusable.
- *
- * An EMI is materialized only when its terms are internally consistent
- * (`total = installment Ãƒâ€” count`, the invariant the recurring-list editor also
- * enforces), compared in minor units so float noise on values like
- * `1234.56 Ãƒâ€” 3` cannot reject a plan the user entered correctly. A half-filled or
- * inconsistent plan therefore yields a draft with `plan == null`, which callers
- * must treat as unsaveable instead of persisting it as an ordinary recurring
- * rule.
- */
-internal fun buildRecurringDraft(
-    isRecurringEnabled: Boolean,
-    frequency: RecurringFrequency,
-    repeatCount: Int?,
-    isInstallmentSelected: Boolean,
-    totalAmount: Double,
-    installmentAmount: Double,
-    firstDueAt: Long
-): RecurringTransactionDraft? {
-    if (!isRecurringEnabled || repeatCount == null || repeatCount <= 0) return null
-
-    val totalMinor = totalAmount.toMinorUnits()
-    val installmentMinor = installmentAmount.toMinorUnits()
-    val plan = if (isInstallmentSelected && totalMinor > 0L && installmentMinor > 0L &&
-        totalMinor == installmentMinor * repeatCount
-    ) {
-        RecurringPlanEdit(
-            totalAmountMinor = totalMinor,
-            installmentAmountMinor = installmentMinor,
-            totalInstallments = repeatCount,
-            firstDueAt = firstDueAt
+        AddTransactionOverlays(
+            currencyId = currencyId,
+            availableFunds = availableFunds,
+            fundRemainingById = fundRemainingById,
+            availableCategories = availableCategories,
+            availablePaymentMethods = availablePaymentMethods,
+            favorites = favorites,
+            selectedTags = selectedTags,
+            isFavorite = isFavorite,
+            effectiveFirstDueAt = effectiveFirstDueAt,
+            applyFavorite = applyFavorite,
+            onRemoveFavorite = onRemoveFavorite,
+            onSelectFund = onSelectFund,
+            onSaveClick = onSaveClick,
+            showDuplicateWarningState = showDuplicateWarningState,
+            duplicateWarningMessageState = duplicateWarningMessageState,
+            pendingSaveTransactionState = pendingSaveTransactionState,
+            pendingSaveDraftState = pendingSaveDraftState,
+            showOverspendWarningState = showOverspendWarningState,
+            pendingOverspendTransactionState = pendingOverspendTransactionState,
+            pendingOverspendDraftState = pendingOverspendDraftState,
+            pendingOverspendFundIdState = pendingOverspendFundIdState,
+            isEmiFirstDuePickerVisibleState = isEmiFirstDuePickerVisibleState,
+            isRecurringModalVisibleState = isRecurringModalVisibleState,
+            emiFirstDueAtPickedState = emiFirstDueAtPickedState,
+            isFavoritesSheetVisibleState = isFavoritesSheetVisibleState,
         )
-    } else {
-        null
-    }
-
-    return RecurringTransactionDraft(
-        frequency = frequency,
-        repeatCount = repeatCount,
-        plan = plan
-    )
-}
-
-
-@Preview(
-    name = "Add Transaction - Light",
-    showBackground = true,
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Preview(
-    name = "Add Transaction - Dark",
-    showBackground = true,
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun AddTransactionScreenPreview() {
-    ExpenseTrackerTheme {
-        AddTransactionScreenContent()
     }
 }
+
+
+
+
+
+
+
 
 
 

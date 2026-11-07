@@ -350,7 +350,7 @@ fun TransactionScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-private fun TransactionScreenContent(
+internal fun TransactionScreenContent(
     uiState: TransactionsScreenUiState,
     transactionItems: List<TransactionListItemUi> = emptyList(),
     pinnedSummary: TransactionListItemUi.SummaryCard? = null,
@@ -426,10 +426,14 @@ private fun TransactionScreenContent(
         emptyTransactionMessages.random()
     }
 
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var showPeriodPicker by remember { mutableStateOf(false) }
-    var showDeleteConfirmation by remember { mutableStateOf(false) }
-    var showRecurringDuplicateDialog by remember { mutableStateOf(false) }
+    val showBottomSheetState = rememberSaveable { mutableStateOf(false) }
+    var showBottomSheet by showBottomSheetState
+    val showPeriodPickerState = remember { mutableStateOf(false) }
+    var showPeriodPicker by showPeriodPickerState
+    val showDeleteConfirmationState = remember { mutableStateOf(false) }
+    var showDeleteConfirmation by showDeleteConfirmationState
+    val showRecurringDuplicateDialogState = remember { mutableStateOf(false) }
+    var showRecurringDuplicateDialog by showRecurringDuplicateDialogState
     val snackbarHostState = remember { SnackbarHostState() }
     val deletedMessage = stringResource(R.string.msg_transaction_deleted)
     val duplicatedMessage = stringResource(R.string.msg_transaction_duplicated)
@@ -1083,293 +1087,31 @@ private fun TransactionScreenContent(
         )
     }
 
-    // Period date-jump picker
-    if (showPeriodPicker) {
-        val pickerMode = when (uiState.selectedPeriodFilter) {
-            TransactionPeriodFilter.DAILY   -> WheelPickerMode.SINGLE_DATE
-            TransactionPeriodFilter.MONTHLY -> WheelPickerMode.MONTH_YEAR
-            TransactionPeriodFilter.YEARLY  -> WheelPickerMode.YEAR_ONLY
-            TransactionPeriodFilter.ALL     -> WheelPickerMode.SINGLE_DATE
-        }
-        WheelDateTimePickerModal(
-            mode = pickerMode,
-            initialStartMillis = uiState.focusedPeriodTimestamp,
-            onDismissRequest = { showPeriodPicker = false },
-            onConfirm = { millis, _ ->
-                jumpToPeriod(millis)
-                showPeriodPicker = false
-            }
-        )
-    }
 
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
-            sheetState = sheetState,
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-            scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.76f),
-            dragHandle = null,
-            tonalElevation = 0.dp
-        ) {
-            var isSheetReady by remember { mutableStateOf(false) }
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(10) // Small delay to let the sheet start animating
-                isSheetReady = true
-            }
-
-            if (isSheetReady) {
-                FilterBottomSheet(
-                    selectedSort = uiState.selectedSort,
-                    selectedOrder = uiState.selectedOrder,
-                    selectedDateRange = uiState.selectedDateRange,
-                    selectedCustomStartDate = uiState.selectedCustomStartDate,
-                    selectedCustomEndDate = uiState.selectedCustomEndDate,
-                    selectedTransactionTypeIds = uiState.selectedTransactionTypeIds,
-                    availableCategories = uiState.availableCategories,
-                    selectedCategoryIds = uiState.selectedCategoryIds,
-                    paymentModes = uiState.paymentModes,
-                    selectedPaymentTypeIds = uiState.selectedPaymentTypeIds,
-                    availableTags = uiState.availableTags,
-                    selectedTagIds = uiState.selectedTagIds,
-                    selectedTagMatchMode = uiState.selectedTagMatchMode,
-                    minAmount = uiState.selectedMinAmount,
-                    maxAmount = uiState.selectedMaxAmount,
-                    onSortChange = updateSort,
-                    onOrderChange = updateOrder,
-                    onDateRangeChange = updateDateRange,
-                    onCustomDateRangeChange = updateCustomDateRange,
-                    onTransactionTypeToggle = toggleTransactionTypeFilter,
-                    onCategoryToggle = toggleCategory,
-                    onPaymentModeToggle = togglePaymentMode,
-                    onTagToggle = toggleTag,
-                    onTagMatchModeChange = updateTagMatchMode,
-                    onMinAmountChange = updateMinAmount,
-                    onMaxAmountChange = updateMaxAmount,
-                    onApply = {
-                        applyFilters()
-                        scope.launch {
-                            sheetState.hide()
-                            showBottomSheet = false
-                        }
-                    },
-                    onReset = {
-                        resetFilters()
-                        scope.launch {
-                            sheetState.hide()
-                            showBottomSheet = false
-                        }
-                    },
-                    onClose = {
-                        scope.launch {
-                            sheetState.hide()
-                            showBottomSheet = false
-                        }
-                    }
-                )
-            } else {
-                Spacer(modifier = Modifier.fillMaxWidth().height(400.dp))
-            }
-        }
-    }
-
-    if (showDeleteConfirmation) {
-        ModernConfirmationDialog(
-            onDismissRequest = { showDeleteConfirmation = false },
-            title = stringResource(R.string.label_delete_transactions),
-            text = stringResource(R.string.msg_delete_transactions_confirm, uiState.selectedTransactionIds.size),
-            confirmButtonText = stringResource(R.string.label_delete_confirm),
-            onConfirm = {
-                deleteSelectedTransactions()
-                showDeleteConfirmation = false
-            },
-            headerIcon = Icons.Filled.Delete,
-            dismissButtonText = stringResource(R.string.label_cancel_confirm),
-            onDismiss = { showDeleteConfirmation = false }
-        )
-    }
-
-    if (showRecurringDuplicateDialog) {
-        ModernConfirmationDialog(
-            onDismissRequest = { showRecurringDuplicateDialog = false },
-            title = stringResource(R.string.title_cannot_duplicate_recurring),
-            text = stringResource(R.string.msg_cannot_duplicate_recurring),
-            confirmButtonText = stringResource(R.string.label_ok),
-            onConfirm = { showRecurringDuplicateDialog = false },
-            headerIcon = Icons.Filled.ContentCopy,
-            showDismissButton = false
-        )
-    }
+    TransactionsOverlays(
+        uiState = uiState,
+        sheetState = sheetState,
+        scope = scope,
+        showPeriodPickerState = showPeriodPickerState,
+        showBottomSheetState = showBottomSheetState,
+        showDeleteConfirmationState = showDeleteConfirmationState,
+        showRecurringDuplicateDialogState = showRecurringDuplicateDialogState,
+        jumpToPeriod = jumpToPeriod,
+        updateSort = updateSort,
+        updateOrder = updateOrder,
+        updateDateRange = updateDateRange,
+        updateCustomDateRange = updateCustomDateRange,
+        toggleTransactionTypeFilter = toggleTransactionTypeFilter,
+        toggleCategory = toggleCategory,
+        togglePaymentMode = togglePaymentMode,
+        toggleTag = toggleTag,
+        updateTagMatchMode = updateTagMatchMode,
+        updateMinAmount = updateMinAmount,
+        updateMaxAmount = updateMaxAmount,
+        applyFilters = applyFilters,
+        resetFilters = resetFilters,
+        deleteSelectedTransactions = deleteSelectedTransactions,
+    )
 
 }
-
-private fun closeSearchBar(
-    focusManager: FocusManager,
-    onSearchQueryChange: (String) -> Unit,
-    onSearchExpandedChange: (Boolean) -> Unit
-) {
-    focusManager.clearFocus(force = true)
-    onSearchQueryChange("")
-    onSearchExpandedChange(false)
-}
-
-
-
-@Preview(
-    name = "Transactions Screen - Empty State (Light)",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun TransactionsScreenEmptyStatePreviewLight() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        TransactionScreenContent(
-            uiState = TransactionsScreenUiState(
-                selectedPeriodLabel = UiText.dynamic("July 2026"),
-                canNavigateBackward = true,
-                canNavigateForward = true
-            ),
-            isAdsEnabled = true,
-            onBackClick = {},
-            onAddTransactionClick = {},
-            onTransactionClick = {},
-            clearSelection = {},
-            selectAll = {},
-            toggleSelection = {},
-            enterSelectionMode = {},
-            updateSearchQuery = {},
-            updatePeriodFilter = {},
-            navigatePeriod = {},
-            jumpToPeriod = {},
-            updateSort = {},
-            updateOrder = {},
-            updateDateRange = {},
-            updateCustomDateRange = { _, _ -> },
-            toggleTransactionTypeFilter = {},
-            toggleCategory = {},
-            togglePaymentMode = {},
-            toggleTag = {},
-            updateTagMatchMode = {},
-            updateMinAmount = {},
-            updateMaxAmount = {},
-            applyFilters = {},
-            resetFilters = {},
-            deleteSelectedTransactions = {},
-            selectAllInQuery = {}
-        )
-    }
-}
-
-@Preview(
-    name = "Transactions Screen - Empty State (Dark)",
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=412dp,height=915dp,dpi=420"
-)
-@Composable
-private fun TransactionsScreenEmptyStatePreviewDark() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        TransactionScreenContent(
-            uiState = TransactionsScreenUiState(
-                selectedPeriodLabel = UiText.dynamic("July 2026"),
-                canNavigateBackward = true,
-                canNavigateForward = true
-            ),
-            isAdsEnabled = true,
-            onBackClick = {},
-            onAddTransactionClick = {},
-            onTransactionClick = {},
-            clearSelection = {},
-            selectAll = {},
-            toggleSelection = {},
-            enterSelectionMode = {},
-            updateSearchQuery = {},
-            updatePeriodFilter = {},
-            navigatePeriod = {},
-            jumpToPeriod = {},
-            updateSort = {},
-            updateOrder = {},
-            updateDateRange = {},
-            updateCustomDateRange = { _, _ -> },
-            toggleTransactionTypeFilter = {},
-            toggleCategory = {},
-            togglePaymentMode = {},
-            toggleTag = {},
-            updateTagMatchMode = {},
-            updateMinAmount = {},
-            updateMaxAmount = {},
-            applyFilters = {},
-            resetFilters = {},
-            deleteSelectedTransactions = {},
-            selectAllInQuery = {}
-        )
-    }
-}
-
-// Multi-config adaptive previews (phone → desktop sizes × font scales) so the
-// list layout, search/filter bar, and empty state are visually verifiable
-// across configurations without a device (roadmap Milestone 5).
-@Preview(name = "Transactions - Multi-Config", showBackground = true)
-@PreviewScreenSizes
-@PreviewFontScale
-@Composable
-private fun TransactionsScreenMultiConfigPreview() {
-    ExpenseTrackerTheme(darkTheme = false) {
-        TransactionScreenContent(
-            uiState = TransactionsScreenUiState(
-                selectedPeriodLabel = UiText.dynamic("July 2026"),
-                canNavigateBackward = true,
-                canNavigateForward = true
-            ),
-            isAdsEnabled = true,
-            onBackClick = {},
-            onAddTransactionClick = {},
-            onTransactionClick = {},
-            clearSelection = {},
-            selectAll = {},
-            toggleSelection = {},
-            enterSelectionMode = {},
-            updateSearchQuery = {},
-            updatePeriodFilter = {},
-            navigatePeriod = {},
-            jumpToPeriod = {},
-            updateSort = {},
-            updateOrder = {},
-            updateDateRange = {},
-            updateCustomDateRange = { _, _ -> },
-            toggleTransactionTypeFilter = {},
-            toggleCategory = {},
-            togglePaymentMode = {},
-            toggleTag = {},
-            updateTagMatchMode = {},
-            updateMinAmount = {},
-            updateMaxAmount = {},
-            applyFilters = {},
-            resetFilters = {},
-            deleteSelectedTransactions = {},
-            selectAllInQuery = {}
-        )
-    }
-}
-
-
-/** Stable LazyColumn key for a feed item (unchanged from the list-entry ids). */
-private val TransactionListItemUi.stableKey: String
-    get() = when (this) {
-        is TransactionListItemUi.Header -> id
-        is TransactionListItemUi.TransactionRow -> card.id
-        is TransactionListItemUi.SummaryCard -> id
-        is TransactionListItemUi.Ad -> id
-    }
-
-/** Recyclable content type so Compose reuses the right item composables. */
-private val TransactionListItemUi.contentType: String
-    get() = when (this) {
-        is TransactionListItemUi.Header -> "header"
-        is TransactionListItemUi.TransactionRow -> "transaction"
-        is TransactionListItemUi.SummaryCard -> "summary"
-        is TransactionListItemUi.Ad -> "ad"
-    }
-
-
 
