@@ -4,11 +4,11 @@
 
 **An elegant, offline-first personal finance app for Android — built with Jetpack Compose & Material 3.**
 
-![Version](https://img.shields.io/badge/version-2.259.28-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
+![Version](https://img.shields.io/badge/version-2.259.29-blue) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-purple) ![minSdk](https://img.shields.io/badge/minSdk-24-green) ![targetSdk](https://img.shields.io/badge/targetSdk-36-orange) ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-lightgrey)
 
 <img src="app/src/main/ic_launcher-playstore.png" width="120" alt="App icon" />
 
-*Elegance in every transaction.*
+*Premium by Design, Private by Nature.*
 
 </div>
 
@@ -16,14 +16,14 @@
 
 ## 📱 About
 
-**Expense Tracker: Budget & Spend** is a privacy-focused personal finance app whose **SMS-based money management** is a core, optional feature: with `RECEIVE_SMS`, incoming bank / UPI / wallet debit-credit messages are parsed **on-device** and listed as suggested transactions you review before anything is saved. You can also log spending with an optimized keypad, plan monthly budgets, visualize habits with analytics, and lock the app with PIN/biometrics. The app is **offline-first** — your data never leaves the device unless you sign in and enable cloud sync.
+**Expense Tracker: Budget & Spend** is a privacy-focused personal finance app. Log spending by **typing, talking, or scanning**, share a bill from any payment app, or use optional **SMS-based money management**: with `RECEIVE_SMS`, incoming bank / UPI / wallet debit-credit messages are parsed **on-device** and listed as suggestions you review before anything is saved. Plan monthly budgets, funds, and goals; visualize habits with analytics; and lock the app with PIN/biometrics. The app is **offline-first** — your data never leaves the device unless you sign in and enable cloud sync.
 
 The app is **not** a default SMS handler, does **not** request `READ_SMS` or `SEND_SMS`, does **not** send 5-digit payment SMS or use SMS for OTP/fraud, and does **not** upload SMS content. Non-financial SMS (OTP, promo, no amount) are ignored.
 
 | | |
 |---|---|
 | **Application ID** | `com.mknlabs.expensetracker` |
-| **Version** | 2.259.28 |
+| **Version** | 2.259.29 |
 | **Min SDK / Target SDK** | 24 / 36 |
 | **Language** | 100% Kotlin |
 | **UI** | Jetpack Compose (Material 3) |
@@ -33,10 +33,19 @@ The app is **not** a default SMS handler, does **not** request `READ_SMS` or `SE
 
 ## 📸 Screenshots
 
-| | | |
+Same gallery as the [website](https://expense-tracker-2ea00.web.app/#screenshots).
+
+<p align="center">
+  <img src="public/assets/images/feature-graphic.webp" alt="Expense Tracker: Budget & Spend — type, talk, or scan, plus share bills from any payment app" width="800" />
+</p>
+
+| Overview | Fast logging | Budgets |
 |---|---|---|
-| ![Dashboard](public/assets/images/expense-tracker-dashboard.webp) | ![Home](public/assets/images/expense-tracker-home.webp) | ![Analytics](public/assets/images/expense-tracker-analytics.webp) |
-| ![Budget](public/assets/images/expense-tracker-budget.webp) | ![Categories](public/assets/images/expense-tracker-categories.webp) | ![App Icon](public/assets/images/app-icon.webp) |
+| ![Overview](public/assets/images/mockup-hero.webp) | ![Fast logging](public/assets/images/mockup-logging.webp) | ![Budgets](public/assets/images/mockup-budget.webp) |
+
+| Bills | Insights | Smart SMS |
+|---|---|---|
+| ![Bills](public/assets/images/mockup-bills.webp) | ![Insights](public/assets/images/mockup-insights.webp) | ![Smart SMS](public/assets/images/mockup-sms.webp) |
 
 ---
 
@@ -48,17 +57,29 @@ The app is **not** a default SMS handler, does **not** request `READ_SMS` or `SE
 - Suggestions appear under **Detected Transactions** (Home ⋮). Tap a card to open Add Transaction, edit if needed, then press **Add**. Swipe deletes a suggestion. Nothing is booked without that confirmation
 - SMS bodies are **not uploaded, sold, or shared**. Confirmed transactions follow the same local (and optional cloud-sync) path as keypad entries
 
+### ✨ Type, talk, scan & share
+- One add sheet: **write it like a message**, **speak it**, or **scan a receipt** — amount, merchant, and category are parsed for review
+- **Share from any payment app** (GPay, PhonePe, Paytm, bank apps, and more) — bill, receipt, or payment screen via the system Share sheet
+- **Receipt OCR** — photo, image, or PDF; review amount, funds, and tags, then confirm
+- **Voice add** — optional mic; on-device parsing, with AI help for messier phrasing (daily free limit)
+
 ### 🧾 Transactions
-- Log **income & expenses** in seconds with a dedicated amount keypad
-- Add **notes**, **categories** (50 icons, fully customizable), and **payment methods/wallets**
-- **Itemized calculator** — break one payment into multiple line items
+- Log **income & expenses** in seconds with a dedicated amount keypad and smart category ranking
+- Add **notes**, **categories** (50+ icons, fully customizable), **payment methods/wallets**, and **tags**
+- **Itemized calculator** — split one payment into line items with a running total; history kept
+- **Quick favorites** (Pro) — reuse frequent entries in one tap
 - Advanced **search, sort & multi-filter** (date range, amount range, category, payment mode, type, order)
 - Fully customizable **transaction cards** (icons, labels, date/time visibility, grouping)
 
-### 📊 Budget & Goals
+### 📊 Budget, Funds & Goals
 - **Monthly category budgets** with caps, spent/remaining/over tracking and limit alerts
-- **Recurring transactions** — daily/weekly/monthly/yearly frequencies, repeat counts & installment tracking
-- **Savings goals** with progress tracking
+- **Funds** — named buckets (holiday, car, wedding) with allocated / spent / remaining
+- **Savings goals** with progress tracking; fund goals from transactions
+- **Recurring transactions** (Pro) — daily/weekly/monthly/yearly bills, rent, salary
+- **EMI & installments** (Pro) — pay, skip, or undo individual installments with paid history
+
+### 🔖 Tags
+- Label spending across categories (trip, project) with a **tag breakdown in Analytics**
 
 ### 📈 Analytics
 - Weekly / monthly / yearly / **custom range** analytics
@@ -83,16 +104,19 @@ The app is **not** a default SMS handler, does **not** request `READ_SMS` or `SE
 - **Automated backups** via WorkManager with configurable frequency
 
 ### 🔔 Notifications
-- Daily spend reminders, budget-limit alerts, missed-entry reminders
+- **Notification center** you control: expense reminders, budget thresholds, large transactions, weekly summaries, goal milestones, bill reminders, backup and sync status
 
 ### 🎨 Personalization
-- **Multi-currency** support with country search
-- Number format (Indian/International grouping), decimal places, date & time formats
-- System / Light / Dark themes, profile (avatar, DOB, gender), customizable categories
+- **Multi-currency** with country search; Indian or international digit grouping; decimal places; date & time formats; billing-cycle start day
+- System / Light / Dark themes, language, profile (avatar, DOB, gender), customizable categories
+- **Adaptive layout** — phone, tablet, foldable; side menu on large screens; larger system text never breaks a card
+
+### 🎁 Refer & Earn
+- Invite a friend — you both get **free Pro days** (up to 16 days of Pro per month), with progress in the app
 
 ### 👑 Monetization
 - **AdMob** (native, interstitial, rewarded) with **UMP** consent management
-- **Pro membership** (server-verified Pro Pass redemption) unlocking: ad-free UI, advanced analytics, recurring rules, cloud sync & auto backup
+- **Pro membership** (server-verified Pro Pass redemption) unlocking: ad-free UI, advanced analytics, recurring rules, EMI, favorites, cloud sync & auto backup
 - Watch-a-rewarded-ad to unlock temporary ad-free Pro access (length is set by the `ad_pass_duration_minutes` Remote Config parameter, so the app never advertises a fixed duration)
 
 ---
