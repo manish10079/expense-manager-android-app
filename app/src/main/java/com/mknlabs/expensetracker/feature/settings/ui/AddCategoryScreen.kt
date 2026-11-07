@@ -91,7 +91,7 @@ fun AddCategoryScreen(
 }
 
 @Composable
-private fun AddCategoryScreenContent(
+internal fun AddCategoryScreenContent(
     uiState: AddCategoryUiState,
     existingCategories: List<CategoryType>,
     existingPaymentMethods: List<PaymentType>,
@@ -414,122 +414,6 @@ private fun AddCategoryScreenContent(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun CategorySectionLabel(text: String) {
-    Text(
-        text = text,
-        color = MaterialTheme.colorScheme.accentInk,
-        style = MaterialTheme.typography.labelLarge.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp
-        )
-    )
-}
-
-@Composable
-private fun TypePreviewChip(targetTab: CategoryManagementTab) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.accentInk.copy(alpha = 0.22f),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(brush = brandGradient()),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = when (targetTab) {
-                    CategoryManagementTab.Income -> Icons.AutoMirrored.Filled.TrendingUp
-                    CategoryManagementTab.Expense -> Icons.Filled.Category
-                    CategoryManagementTab.Payment -> Icons.Filled.Payments
-                },
-                contentDescription = stringResource(targetTab.titleRes),
-                tint = MaterialTheme.colorScheme.onCta,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-
-        Column {
-            Text(
-                text = when (targetTab) {
-                    CategoryManagementTab.Payment -> stringResource(R.string.label_payment_type_item)
-                    CategoryManagementTab.Income -> stringResource(R.string.label_income_category_item)
-                    CategoryManagementTab.Expense -> stringResource(R.string.label_expense_category_item)
-                },
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleSmall,
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.msg_item_added_under, stringResource(targetTab.titleRes)),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Light")
-@Composable
-private fun AddCategoryScreenContentPreview() {
-    com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme {
-        AddCategoryScreenContent(
-            uiState = AddCategoryUiState(),
-            existingCategories = emptyList(),
-            existingPaymentMethods = emptyList(),
-            onBackClick = {},
-            onCategoryCreated = {},
-            onNameChange = {},
-            onIconSearchQueryChange = {},
-            onIconSelected = {},
-            onColorSelected = {},
-            onSaveCategory = {}
-        )
-    }
-}
-
-/**
- * The state the light preview cannot show: a colour already chosen.
- *
- * The stored hex is a light swatch drawn inside the dark theme, which is exactly the case the
- * swatch row exists to handle — a colour picked in one theme has to still read as selected in
- * the other, or a coloured category would look uncoloured and a second tap would silently
- * replace a colour the user never meant to change.
- */
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Add Category - Dark, colour chosen")
-@Composable
-private fun AddCategoryScreenContentColoredPreview() {
-    com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme(darkTheme = true) {
-        AddCategoryScreenContent(
-            uiState = AddCategoryUiState(
-                name = "Coffee runs",
-                selectedColorHex = "#D97706"
-            ),
-            existingCategories = emptyList(),
-            existingPaymentMethods = emptyList(),
-            onBackClick = {},
-            onCategoryCreated = {},
-            onNameChange = {},
-            onIconSearchQueryChange = {},
-            onIconSelected = {},
-            onColorSelected = {},
-            onSaveCategory = {}
-        )
     }
 }
 
