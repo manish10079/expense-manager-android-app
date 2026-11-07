@@ -1,5 +1,18 @@
 package com.mknlabs.expensetracker.feature.transactions.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.tooling.preview.Preview
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowHeight
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowInfo
+import com.mknlabs.expensetracker.core.ui.adaptive.AppWindowSize
+import com.mknlabs.expensetracker.core.ui.adaptive.LocalAppWindowInfo
+import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import androidx.compose.material3.MaterialTheme
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -12,10 +25,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
@@ -109,5 +120,68 @@ fun CalculatorScreen(
             onDeleteEntry = viewModel::deleteHistoryEntry,
             onClearHistory = viewModel::clearHistory
         )
+    }
+}
+
+@Preview(name = "Normal tab light", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+private fun CalculatorNormalTabPreviewLight() {
+    ExpenseTrackerTheme(darkTheme = false) {
+        CalculatorNormalScreenPreviewBody()
+    }
+}
+
+@Preview(
+    name = "Normal tab dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    widthDp = 360,
+    heightDp = 740
+)
+@Composable
+private fun CalculatorNormalTabPreviewDark() {
+    ExpenseTrackerTheme(darkTheme = true) {
+        CalculatorNormalScreenPreviewBody()
+    }
+}
+
+@Composable
+private fun CalculatorNormalScreenPreviewBody() {
+    CompositionLocalProvider(
+        LocalAppWindowInfo provides AppWindowInfo(
+            width = AppWindowSize.Compact,
+            height = AppWindowHeight.Expanded
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(start = 20.dp, end = 20.dp, top = Dimens.HeaderSpacing, bottom = 14.dp)
+        ) {
+            AppHeader(
+                title = stringResource(id = R.string.title_home_calculator),
+                onBackClick = {},
+                actions = {
+                    CalculatorHistoryHeaderIcon(onClick = {})
+                }
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                NormalCalculatorContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 18.dp),
+                    display = "142",
+                    previewResult = "142",
+                    expression = "100+42",
+                    isEvaluated = false,
+                    onAction = {},
+                    onSelectionChanged = { _, _ -> },
+                    cursorDisplayPosition = 7
+                )
+            }
+        }
     }
 }
