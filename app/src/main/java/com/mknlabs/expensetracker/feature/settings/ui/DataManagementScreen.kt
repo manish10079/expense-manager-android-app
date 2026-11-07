@@ -126,7 +126,7 @@ fun DataManagementScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DataManagementContent(
+internal fun DataManagementContent(
     transactionCount: Int,
     isAutoBackupEnabled: Boolean,
     autoBackupFrequencyDays: Int,
@@ -545,44 +545,3 @@ private fun DataManagementContent(
     }
 }
 
-@Composable
-private fun SectionHeader(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        color = MaterialTheme.colorScheme.accentInk,
-        style = MaterialTheme.typography.labelMedium.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp
-        ),
-        modifier = modifier.padding(start = 6.dp, top = 8.dp, bottom = 4.dp)
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun DataManagementScreenPreview() {
-    ExpenseTrackerTheme(darkTheme = true) {
-        val flow = remember { kotlinx.coroutines.flow.MutableStateFlow(AccessStatus.Granted) }
-        DataManagementContent(
-            transactionCount = 120,
-            isAutoBackupEnabled = true,
-            autoBackupFrequencyDays = 7,
-            isAdsEnabled = true,
-            isAnonymous = false,
-            onAutoBackupEnabledChange = {},
-            onAutoBackupFrequencyChange = {},
-            onDatabaseBackupFileSelected = {},
-            onDatabaseRestoreFileSelected = {},
-            onJsonExportFileSelected = {},
-            onJsonImportFileSelected = {},
-            onLegacyImportFileSelected = {},
-            onDeleteAllTransactionsClick = {},
-            onPrepareForExternalActivity = {},
-            onBackClick = {},
-            getAccessStatus = { _, _ -> flow }
-        )
-    }
-}
