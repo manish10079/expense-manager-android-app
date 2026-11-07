@@ -513,7 +513,7 @@
           <tr><td><a href="#sms-inbox">Detected Transactions</a></td>
               <td>Review bank/UPI SMS the app parsed on-device</td><td class="entry">Home bell · notifications</td></tr>
           <tr><td><a href="#add-transaction">Add / Edit Transaction</a></td>
-              <td>Record or change an income/expense entry</td><td class="entry">Centre + button · any transaction card</td></tr>
+              <td>Record or change an entry — type, talk, scan, or share a bill</td><td class="entry">Centre + button · any transaction card</td></tr>
           <tr><td><a href="#transactions">Transactions</a></td>
               <td>Full ledger with search, sort, filter and bulk actions</td><td class="entry">Home “See All”</td></tr>
           <tr><td><a href="#calculator">Itemized Calculator</a></td>
@@ -972,7 +972,7 @@
         <p>It opens in one of two modes: <strong>Add</strong> for a new entry, and
         <strong>Edit</strong> when you tap an existing transaction (the title changes to “Edit
         Transaction” and a delete action appears). The same screen also carries the amount keypad,
-        voice input, the itemized calculator hand-off, tags, funds, and the recurring/EMI planner.</p>
+        voice input, receipt scan / OCR, share-from-other-apps, the itemized calculator hand-off, tags, funds, and the recurring/EMI planner.</p>
       </div>
 
       <div class="block">
@@ -986,9 +986,15 @@
                 <td>Types as you tap the keypad</td></tr>
             <tr><td>Amount keypad</td><td>Fast numeric entry with a decimal point and delete</td>
                 <td>Tap digits; tap the collapse handle to hide the keypad and see the rest of the form</td></tr>
+            <tr><td>Type like a message</td><td>Natural-language line parsed into amount, merchant and category</td>
+                <td>Type something like “coffee 120 at Starbucks” and confirm the parsed fields</td></tr>
             <tr><td>Voice input 🎤</td><td>Lets you dictate a transaction</td>
-                <td>Tap and say something like “spent 50 on groceries”. Free tier has a daily limit;
-                    Pro is unlimited</td></tr>
+                <td>Tap and say something like “spent 50 on groceries”. Offline parsing stays on-device;
+                    AI can help with messier phrasing. Free tier has a daily limit; Pro is unlimited</td></tr>
+            <tr><td>Scan receipt 📷</td><td>OCR from a photo, image or PDF</td>
+                <td>Pick a file with the system picker, review amount / merchant / category, then confirm</td></tr>
+            <tr><td>Share into the app 📤</td><td>A bill, receipt or payment screen from another app</td>
+                <td>In GPay, PhonePe, Paytm or any bank app, use <b>Share</b> → Expense Tracker, then confirm</td></tr>
             <tr><td>Calculator 🧮</td><td>Opens the itemized calculator</td>
                 <td>Tap → <a href="#calculator">Itemized Calculator</a>; results come back into this form</td></tr>
             <tr><td>Favorite ★</td><td>Marks this transaction as a reusable template</td>
@@ -1042,6 +1048,24 @@
           <li>Optionally switch on <b>Recurring Transaction</b> to automate it.</li>
           <li>Tap <b>Add</b> (or <b>Update</b> when editing).</li>
         </ol>
+      </div>
+
+
+      <div class="block" id="add-scan-share">
+        <h3>Type, talk, scan &amp; share</h3>
+        <p>You do not have to use the keypad. The same Add sheet can fill the form from text, speech,
+        a receipt, or a share from another app. Always review the parsed amount, category and note
+        before you tap <b>Add</b> — nothing is saved until you confirm.</p>
+        <ol class="steps">
+          <li><b>Type:</b> open Add (+), type a short sentence (“uber 350 yesterday”), then confirm the fields.</li>
+          <li><b>Talk:</b> tap the mic, speak the spend, wait for the parse, then confirm. Grant microphone
+              permission if asked. Deny and voice stays off.</li>
+          <li><b>Scan:</b> tap scan / camera, pick a receipt photo or PDF, check the OCR result, then save.</li>
+          <li><b>Share:</b> in any payment or banking app, open the bill or payment screen →
+              <b>Share</b> → choose Expense Tracker. Review the parsed transaction and tap <b>Add</b>.</li>
+        </ol>
+        <p>Shares and scans are parsed on-device when possible. Promo images with no amount are ignored.
+        SMS import is separate — see <a href="#sms-inbox">Detected Transactions</a>.</p>
       </div>
 
       <div class="callout pro">
@@ -2740,7 +2764,7 @@
   var KW = {
     home: 'dashboard spent today recent upcoming recurring greeting avatar bell',
     'sms-inbox': 'sms detected bank upi inbox parse notification suggestions swipe',
-    'add-transaction': 'keypad voice calculator favorite note category payment fund date time recurring emi tags save delete',
+    'add-transaction': 'keypad voice talk type scan ocr receipt share gpay phonepe paytm calculator favorite note category payment fund date time recurring emi tags save delete',
     transactions: 'ledger search sort filter swipe duplicate multi select date separators summary',
     calculator: 'itemized history copy expression total line items',
     analytics: 'charts insights top spending breakdown category payment tag fund trend period',
