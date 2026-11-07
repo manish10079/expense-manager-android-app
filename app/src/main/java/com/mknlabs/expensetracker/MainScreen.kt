@@ -135,46 +135,6 @@ import com.mknlabs.expensetracker.core.ui.theme.AdLoadingText
 import com.mknlabs.expensetracker.monetization.FeatureRegistry
 import com.mknlabs.expensetracker.monetization.AccessLevel
 
-private fun sanitizeCardSettings(
-    settings: TransactionCardCustomizationSettings,
-    userTier: UserTier
-): TransactionCardCustomizationSettings {
-    if (userTier == UserTier.PREMIUM) return settings
-    return settings.copy(
-        showTransactionTime = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showTransactionTime") == AccessLevel.PREMIUM) false else settings.showTransactionTime,
-        showDateSeparators = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showDateSeparators") == AccessLevel.PREMIUM) false else settings.showDateSeparators,
-        showPaymentMethod = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showPaymentMethod") == AccessLevel.PREMIUM) false else settings.showPaymentMethod,
-        showTransactionListSummaries = if (FeatureRegistry.getAccessLevel(Feature.CARD_CUSTOMIZATION, "showTransactionListSummaries") == AccessLevel.PREMIUM) false else settings.showTransactionListSummaries
-    )
-}
-
-private fun AppSettings.toTransactionCardCustomizationSettings(): TransactionCardCustomizationSettings {
-    return TransactionCardCustomizationSettings(
-        showIncomeExpenseLabels = transactionCardShowIncomeExpenseLabels,
-        showTransactionDate = transactionCardShowTransactionDate,
-        showPaymentMethod = transactionCardShowPaymentMethod,
-        showTransactionTime = transactionCardShowTransactionTime,
-        showCategoryIcon = transactionCardShowCategoryIcon,
-        showCategoryLabel = transactionCardShowCategoryLabel,
-        showDateSeparators = transactionCardShowDateSeparators,
-        showTransactionListSummaries = transactionCardShowListSummaries
-    )
-}
-
-private fun AppSettings.withTransactionCardCustomizationSettings(
-    settings: TransactionCardCustomizationSettings
-): AppSettings {
-    return copy(
-        transactionCardShowIncomeExpenseLabels = settings.showIncomeExpenseLabels,
-        transactionCardShowTransactionDate = settings.showTransactionDate,
-        transactionCardShowPaymentMethod = settings.showPaymentMethod,
-        transactionCardShowTransactionTime = settings.showTransactionTime,
-        transactionCardShowCategoryIcon = settings.showCategoryIcon,
-        transactionCardShowCategoryLabel = settings.showCategoryLabel,
-        transactionCardShowDateSeparators = settings.showDateSeparators,
-        transactionCardShowListSummaries = settings.showTransactionListSummaries
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,25 +182,34 @@ fun MainScreen(
     val isAdLoading by monetizationViewModel.isAdLoading.collectAsStateWithLifecycle()
     val adPassMinutes by monetizationViewModel.adPassDurationMinutes.collectAsStateWithLifecycle()
     val adPassDuration = adPassDurationLabel(adPassMinutes)
-    var appLockState by remember { mutableStateOf(AppLockPreferences.getCachedState()) }
+    val appLockStateState = remember { mutableStateOf(AppLockPreferences.getCachedState()) }
+    var appLockState by appLockStateState
     val showOnboarding = appSettings.showOnboardingScreen
     val navigationState = rememberMainNavigationState()
     val firebaseUser by authViewModel.currentUser.collectAsStateWithLifecycle()
     
-    var showAuthSheet by remember { mutableStateOf(false) }
-    var showPremiumSheet by remember { mutableStateOf(false) }
-    var showAccountCreatedPopup by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
+    val showAuthSheetState = remember { mutableStateOf(false) }
+    var showAuthSheet by showAuthSheetState
+    val showPremiumSheetState = remember { mutableStateOf(false) }
+    var showPremiumSheet by showPremiumSheetState
+    val showAccountCreatedPopupState = remember { mutableStateOf(false) }
+    var showAccountCreatedPopup by showAccountCreatedPopupState
+    val showLogoutDialogState = remember { mutableStateOf(false) }
+    var showLogoutDialog by showLogoutDialogState
     val voiceReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
-    var voiceReviewSourceText by remember { mutableStateOf("") }
-    var showAdExpiryWarningDialog by remember { mutableStateOf(false) }
+    val voiceReviewSourceTextState = remember { mutableStateOf("") }
+    var voiceReviewSourceText by voiceReviewSourceTextState
+    val showAdExpiryWarningDialogState = remember { mutableStateOf(false) }
+    var showAdExpiryWarningDialog by showAdExpiryWarningDialogState
     var adExpiryMinutesRemaining by remember { mutableStateOf(0) }
     // One-time, non-blocking notice when the device is rooted or an emulator
     // (security plan Phase 2, Items 7 & 8).
-    var showDeviceIntegrityNotice by remember { mutableStateOf(false) }
+    val showDeviceIntegrityNoticeState = remember { mutableStateOf(false) }
+    var showDeviceIntegrityNotice by showDeviceIntegrityNoticeState
     // Smart SMS Import "Change" sheet request — set when the app is opened via
     // the notification's Change action (DESTINATION_SMS_CHANGE, plan §8/Phase 4).
-    var smsChangeRequest by remember { mutableStateOf<ParsedSms?>(null) }
+    val smsChangeRequestState = remember { mutableStateOf<ParsedSms?>(null) }
+    var smsChangeRequest by smsChangeRequestState
     // Detected-SMS notification focus (card tap / Edit action), held in state so the
     // inbox can take it exactly once. Re-armed below on every notification intent, so a
     // second tap on the same card focuses again while simply walking back to the inbox
@@ -302,7 +271,8 @@ fun MainScreen(
     val hasAppLockPin = remember(appLockState) {
         AppLockPreferences.hasPin(context)
     }
-    var appLockFlow by remember { mutableStateOf<AppLockFlow?>(null) }
+    val appLockFlowState = remember { mutableStateOf<AppLockFlow?>(null) }
+    var appLockFlow by appLockFlowState
     var hasPromptedBiometricForCurrentUnlock by remember(appLockFlow) {
         mutableStateOf(false)
     }
@@ -1299,441 +1269,44 @@ fun MainScreen(
         }
     }
 
-    if (showPremiumSheet && isUiInteractive) {
-        PremiumGateSheet(
-            onDismiss = { showPremiumSheet = false },
-            onUpgradeClick = {
-                showPremiumSheet = false
-                // This sheet is rendered by the shell itself, outside the subtree that
-                // installs LocalUpgradeToPro, so the shell navigates directly.
-                navigationState.updateBottomBarVisibility(false)
-                navigationState.navigateTo(AppRoute.Paywall)
-            }
-        )
-    }
 
-    if (showAdExpiryWarningDialog && isUiInteractive) {
-            ModernConfirmationDialog(
-                onDismissRequest = { showAdExpiryWarningDialog = false },
-                title = stringResource(id = R.string.title_ad_expiry_warning),
-                text = stringResource(
-                    id = R.string.msg_ad_expiry_warning,
-                    adExpiryMinutesRemaining,
-                    adPassDuration
-                ),
-                confirmButtonText = stringResource(id = R.string.btn_extend_now),
-                onConfirm = {
-                    showAdExpiryWarningDialog = false
-                    if (activity != null) {
-                        monetizationViewModel.onWatchAdFreeClicked(activity)
-                    }
-                },
-                headerIcon = Icons.Rounded.PlayArrow,
-                dismissButtonText = stringResource(id = R.string.btn_maybe_later),
-                onDismiss = { showAdExpiryWarningDialog = false },
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false
-            )
-        }
-
-        if (showDeviceIntegrityNotice && isUiInteractive) {
-            val acknowledgeIntegrityNotice: () -> Unit = {
-                showDeviceIntegrityNotice = false
-                HomeFirstRunPromptGate.markIntegrityComplete()
-                coroutineScope.launch {
-                    AppSettingsDataStore.updateAppSettings(context) { settings ->
-                        settings.copy(deviceIntegrityNoticeAcknowledged = true)
-                    }
-                }
-            }
-            ModernConfirmationDialog(
-                onDismissRequest = acknowledgeIntegrityNotice,
-                title = stringResource(id = R.string.title_device_integrity_notice),
-                text = stringResource(id = R.string.msg_device_integrity_notice),
-                confirmButtonText = stringResource(id = R.string.btn_got_it),
-                onConfirm = acknowledgeIntegrityNotice,
-                headerIcon = Icons.Rounded.Security,
-                showDismissButton = false
-            )
-        }
-
-        if (showLogoutDialog && isUiInteractive) {
-            ModernConfirmationDialog(
-                onDismissRequest = { showLogoutDialog = false },
-                title = stringResource(id = R.string.label_logout),
-                text = stringResource(id = R.string.msg_logout_confirm),
-                confirmButtonText = stringResource(id = R.string.label_logout),
-                onConfirm = {
-                    showLogoutDialog = false
-                    authViewModel.signOut()
-                },
-                headerIcon = Icons.AutoMirrored.Rounded.Logout,
-                dismissButtonText = stringResource(id = R.string.label_cancel_1),
-                onDismiss = { showLogoutDialog = false }
-            )
-        }
-
-        if (showAccountCreatedPopup) {
-            AnimatedVisibility(
-                visible = showAccountCreatedPopup,
-                enter = fadeIn(animationSpec = tween(250)) + scaleIn(animationSpec = tween(250), initialScale = 0.96f),
-                exit = fadeOut(animationSpec = tween(450)) + scaleOut(animationSpec = tween(450), targetScale = 0.96f),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    androidx.compose.material3.Surface(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-                        tonalElevation = 8.dp,
-                        shadowElevation = 10.dp,
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.title_account_created),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(id = R.string.msg_account_created_successfully),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        if (showAuthSheet && isUiInteractive) {
-            ModalBottomSheet(
-                onDismissRequest = { 
-                    showAuthSheet = false
-                    authViewModel.resetState()
-                },
-                sheetState = authSheetState,
-                containerColor = if (MaterialTheme.colorScheme.isDark) {
-                    com.mknlabs.expensetracker.feature.auth.ui.AuthSheetDark
-                } else {
-                    com.mknlabs.expensetracker.feature.auth.ui.AuthSheetLight
-                },
-                contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
-                dragHandle = {
-                    Box(
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .size(48.dp, 6.dp)
-                            .background(
-                                if (MaterialTheme.colorScheme.isDark) {
-                                    com.mknlabs.expensetracker.feature.auth.ui.AuthHandleDark
-                                } else {
-                                    com.mknlabs.expensetracker.feature.auth.ui.AuthHandleLight
-                                },
-                                RoundedCornerShape(50)
-                            )
-                    )
-                }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .imePadding()
-                        .padding(bottom = 32.dp)
-                ) {
-                    AuthRoute(
-                        viewModel = authViewModel,
-                        onAuthSuccess = {
-                            showAuthSheet = false
-                            handleSuccessfulAuth()
-                        },
-                        onGuestContinue = {
-                            showAuthSheet = false
-                        },
-                        onSignUpSuccess = {
-                            showAuthSheet = false
-                            showAccountCreatedPopup = true
-                            handleSuccessfulAuth()
-                        },
-                        // Add-Account flow launches the system settings screen.
-                        onPrepareForExternalActivity = { AppLockPreferences.setLockSuppressed(true) }
-                    )
-                }
-            }
-        }
-
-        // Smart SMS Import "Change" bottom sheet (plan §8 / Phase 4): shown when
-        // the app was opened via the notification's Change action. On save, the
-        // notification is dismissed and Room flows refresh everything.
-        smsChangeRequest?.takeIf { isUiInteractive }?.let { parsed ->
-            SmsChangeRoute(
-                parsedSms = parsed,
-                categories = mainUiState.categories,
-                onDismiss = { smsChangeRequest = null },
-                onSaved = {
-                    SmsNotificationManager.cancel(context)
-                    smsChangeRequest = null
-                    showToast(context.getString(R.string.toast_sms_transaction_saved))
-                }
-            )
-        }
-
-        // ── Voice Input Sheet (Speak-to-Add shortcut) ──
-        if (navigationState.showVoiceInputSheet && isUiInteractive) {
-            val voiceViewModel: VoiceAddViewModel = hiltViewModel()
-            val voiceUiState by voiceViewModel.uiState.collectAsStateWithLifecycle()
-
-            val hasMicPermission = remember {
-                ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
-                    PackageManager.PERMISSION_GRANTED
-            }
-            var micPermissionGranted by remember { mutableStateOf(hasMicPermission) }
-
-            val voicePermissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission()
-            ) { granted ->
-                micPermissionGranted = granted
-                if (granted) {
-                    voiceViewModel.resetToListening()
-                } else {
-                    voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
-                }
-            }
-
-            // SpeechRecognizer for voice capture
-            val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-            DisposableEffect(speechRecognizer) {
-                onDispose { speechRecognizer.destroy() }
-            }
-
-            // Auto-start listening when sheet opens
-            LaunchedEffect(navigationState.showVoiceInputSheet) {
-                if (navigationState.showVoiceInputSheet) {
-                    if (micPermissionGranted) {
-                        voiceViewModel.resetToListening()
-                    } else {
-                        voicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    }
-                }
-            }
-
-            // Start speech recognizer when state is LISTENING
-            LaunchedEffect(voiceUiState.sheetState) {
-                if (voiceUiState.sheetState == VoiceSheetState.LISTENING) {
-                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                        putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                    }
-                    speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                        override fun onReadyForSpeech(params: Bundle?) {}
-                        override fun onBeginningOfSpeech() {}
-                        override fun onRmsChanged(rmsdB: Float) {}
-                        override fun onBufferReceived(buffer: ByteArray?) {}
-                        override fun onEndOfSpeech() {}
-                        override fun onError(error: Int) {
-                            val errorResId = when (error) {
-                                SpeechRecognizer.ERROR_NO_MATCH,
-                                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
-                                SpeechRecognizer.ERROR_NETWORK,
-                                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
-                                SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
-                                else -> R.string.msg_voice_error_recognizer
-                            }
-                            voiceViewModel.onRecognizerError(errorResId)
-                        }
-                        override fun onResults(results: Bundle?) {
-                            val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                                ?.firstOrNull().orEmpty()
-                            voiceViewModel.onSpeechResult(text)
-                        }
-                        override fun onPartialResults(partialResults: Bundle?) {
-                            val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                                ?.firstOrNull().orEmpty()
-                            voiceViewModel.onPartialResult(text)
-                        }
-                        override fun onEvent(eventType: Int, params: Bundle?) {}
-                    })
-                    speechRecognizer.startListening(intent)
-                }
-            }
-
-            val currencySymbol = remember(selectedCurrencyId) {
-                com.mknlabs.expensetracker.utils.getCurrency(selectedCurrencyId).currencySymbol
-            }
-
-            LaunchedEffect(voiceUiState.sheetState, voiceUiState.reviewItems) {
-                if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
-                speechRecognizer.cancel()
-                val items = voiceUiState.reviewItems
-                val transcript = voiceUiState.transcript
-                voiceViewModel.dismiss()
-                navigationState.updateShowVoiceInputSheet(false)
-                if (items.isEmpty()) {
-                    navigationState.updateAddTransactionDraftNote(transcript)
-                    navigationState.navigateTo(AppRoute.AddTransaction)
-                } else {
-                    voiceReviewSourceText = transcript
-                    voiceReviewItems.clear()
-                    voiceReviewItems.addAll(items)
-                }
-            }
-
-            VoiceInputSheet(
-                sheetState = voiceUiState.sheetState,
-                transcript = voiceUiState.transcript,
-                parsedTransaction = voiceUiState.parsedTransaction,
-                errorMessage = voiceUiState.errorMessageResId?.let { context.getString(it) },
-                currencySymbol = currencySymbol,
-                onDismissRequest = {
-                    speechRecognizer.cancel()
-                    voiceViewModel.dismiss()
-                    navigationState.updateShowVoiceInputSheet(false)
-                },
-                onConfirm = { },
-                onRetry = {
-                    speechRecognizer.cancel()
-                    voiceViewModel.resetToListening()
-                },
-                onDone = { speechRecognizer.stopListening() },
-            )
-        }
-
-        if (voiceReviewItems.isNotEmpty()) {
-            AiParseReviewSheet(
-                items = voiceReviewItems.toList(),
-                currencyId = selectedCurrencyId,
-                onDismissRequest = {
-                    voiceReviewItems.clear()
-                },
-                onAdd = { item ->
-                    val now = System.currentTimeMillis()
-                    mainViewModel.saveTransaction(
-                        Transaction(
-                            id = "",
-                            note = item.note,
-                            createdAt = now,
-                            amountMinor = item.amountMinor,
-                            transactionTypeId = item.typeId,
-                            paymentTypeId = item.paymentTypeId,
-                            categoryId = item.categoryId,
-                            contentHash = null,
-                            syncState = SyncState.PENDING_UPLOAD,
-                            isDeleted = false,
-                            updatedAt = now,
-                            sourceRecurringRuleId = null,
-                            fundId = null,
-                        ),
-                        null,
-                        null,
-                        false,
-                        emptyList(),
-                    )
-                    voiceReviewItems.removeAll { it.id == item.id }
-                },
-
-            )
-        }
-
-        if (appLockFlow != null) {
-            AppLockOverlay(
-                isReady = isReady,
-                appSettings = effectiveAppSettings,
-                initialFlow = appLockFlow!!,
-                isAppUnlocked = true, // MainScreen only exists in Unlocked state
-                // Non-null onDismiss switches AppLockOverlay into its fullscreen
-                // Dialog mode so the Setup/Unlock flow renders in its own window
-                // ABOVE any open ModalBottomSheet / AlertDialog (bottom sheets and
-                // dialogs live in separate windows and would otherwise cover an
-                // inline overlay). The flow itself still only closes via its own
-                // back button (onBackClick); the dialog is not dismissible by back
-                // press or outside tap.
-                onDismiss = { appLockFlow = null },
-                biometricEnabled = isBiometricEnabled && biometricAvailability.isAvailable,
-                scrambledPinKeypadEnabled = isScrambledPinKeypadEffective,
-                isBiometricAvailable = biometricAvailability.isAvailable,
-                // Recovery questions (real + decoys) are derived internally by AppLockOverlay.
-                onBackClick = { appLockFlow = null },
-                autoTriggerBiometricOnShow = appLockFlow == AppLockFlow.Unlock,
-                onBiometricClick = unlockWithBiometric,
-                onSetupComplete = { pin, questionId, answer ->
-                    // 1. Dismiss UI immediately
-                    completeUnlock()
-
-                    // 2. Background heavy work
-                    coroutineScope.launch(Dispatchers.Default) {
-                        AppLockPreferences.savePin(context, pin)
-                        AppLockPreferences.saveSecurityQuestion(context, questionId, answer)
-                        appLockState = AppLockPreferences.getCachedState()
-
-                        AppSettingsDataStore.updateAppSettings(context) { settings ->
-                            settings.copy(appLockEnabled = true)
-                        }
-                    }
-                },
-                onUnlockSuccess = completeUnlock,
-                validateUnlockPin = { pin ->
-                    AppLockPreferences.validatePinForUnlock(context, pin).also {
-                        appLockState = AppLockPreferences.getCachedState()
-                    }
-                },
-                onForgotPinRecovery = {
-                    disableAppLock(true)
-                },
-                validateSecurityAnswer = { questionId, answer ->
-                    AppLockPreferences.validateSecurityQuestionAnswer(context, questionId, answer)
-                },
-                pinVisualMode = if (effectiveUserTier == UserTier.PREMIUM) PinVisualMode.PRO_ANIMATED else PinVisualMode.NORMAL
-            )
-        }
-
-        if (isAdLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(AdLoadingScrim)
-                    .clickable(enabled = false) {},
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(56.dp),
-                        color = MaterialTheme.colorScheme.accentInk,
-                        strokeWidth = 4.dp
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    Text(
-                        text = stringResource(id = R.string.msg_preparing_pro_experience),
-                        color = AdLoadingText,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(id = R.string.msg_wont_take_long),
-                        color = AdLoadingText.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun JsonImportResult.toJsonImportMessage(context: Context): String {
-    return context.getString(
-        R.string.toast_json_import_message,
-        importedTransactions,
-        importedBudgets,
-        importedRecurringRules,
-        importedGoals,
-        skippedTransactions
+    MainScreenOverlays(
+        isReady = isReady,
+        isUiInteractive = isUiInteractive,
+        isAdLoading = isAdLoading,
+        adExpiryMinutesRemaining = adExpiryMinutesRemaining,
+        adPassDuration = adPassDuration,
+        selectedCurrencyId = selectedCurrencyId,
+        isBiometricEnabled = isBiometricEnabled,
+        isScrambledPinKeypadEffective = isScrambledPinKeypadEffective,
+        effectiveUserTier = effectiveUserTier,
+        effectiveAppSettings = effectiveAppSettings,
+        mainUiState = mainUiState,
+        navigationState = navigationState,
+        mainViewModel = mainViewModel,
+        authViewModel = authViewModel,
+        monetizationViewModel = monetizationViewModel,
+        activity = activity,
+        context = context,
+        coroutineScope = coroutineScope,
+        authSheetState = authSheetState,
+        biometricAvailability = biometricAvailability,
+        voiceReviewItems = voiceReviewItems,
+        showPremiumSheetState = showPremiumSheetState,
+        showAdExpiryWarningDialogState = showAdExpiryWarningDialogState,
+        showDeviceIntegrityNoticeState = showDeviceIntegrityNoticeState,
+        showLogoutDialogState = showLogoutDialogState,
+        showAccountCreatedPopupState = showAccountCreatedPopupState,
+        showAuthSheetState = showAuthSheetState,
+        smsChangeRequestState = smsChangeRequestState,
+        appLockFlowState = appLockFlowState,
+        appLockStateState = appLockStateState,
+        voiceReviewSourceTextState = voiceReviewSourceTextState,
+        showToast = showToast,
+        handleSuccessfulAuth = handleSuccessfulAuth,
+        unlockWithBiometric = unlockWithBiometric,
+        completeUnlock = completeUnlock,
+        disableAppLock = disableAppLock,
     )
+}
 }
