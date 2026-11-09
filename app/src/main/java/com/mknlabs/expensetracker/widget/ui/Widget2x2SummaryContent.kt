@@ -10,6 +10,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
 import com.mknlabs.expensetracker.widget.overlay.OverlayUiMode
@@ -56,6 +57,8 @@ internal fun Widget2x2SummaryContent(
     val income = uiState.monthIncomeMinor
     val expense = uiState.monthExpenseMinor
     val budgetCap = uiState.monthBudgetCapMinor
+    val net = income - expense
+    val netPrefix = if (net >= 0) "+" else "-"
     val openApp = Intent().setClass(LocalContext.current, MainActivity::class.java)
 
     val cardBg = if (dark) R.drawable.widget_2x2_bg_dark else R.drawable.widget_2x2_bg_light
@@ -83,11 +86,21 @@ internal fun Widget2x2SummaryContent(
 
             Spacer(GlanceModifier.height(4.dp))
             Widget2x2MetricStack(
+                label = "Net Saved",
+                amount = "$netPrefix${formatWidgetAmount(symbol, abs(net))}",
+                labelColor = colors.muted,
+                amountColor = colors.title,
+                chipBg = chipBg
+            )
+            Spacer(GlanceModifier.height(6.dp))
+            Widget2x2MetricStack(
                 label = "Income",
                 amount = formatWidgetAmount(symbol, income),
                 labelColor = colors.income,
                 amountColor = colors.title,
-                chipBg = chipBg
+                chipBg = chipBg,
+                trailingIcon = R.drawable.widget_ic_mic_outline,
+                trailingClick = widgetOverlayAction(LocalContext.current, OverlayUiMode.VOICE)
             )
             Spacer(GlanceModifier.height(6.dp))
             Widget2x2MetricStack(
@@ -95,7 +108,9 @@ internal fun Widget2x2SummaryContent(
                 amount = formatWidgetAmount(symbol, expense),
                 labelColor = colors.expense,
                 amountColor = colors.title,
-                chipBg = chipBg
+                chipBg = chipBg,
+                trailingIcon = camIcon,
+                trailingClick = widgetOverlayAction(LocalContext.current, OverlayUiMode.SCAN)
             )
             if (budgetCap > 0L) {
                 val left = budgetCap - expense
@@ -109,52 +124,6 @@ internal fun Widget2x2SummaryContent(
                 )
             }
 
-            Spacer(GlanceModifier.defaultWeight())
-            Spacer(GlanceModifier.height(4.dp))
-            Row(
-                modifier = GlanceModifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = GlanceModifier
-                        .defaultWeight()
-                        .height(26.dp)
-                        .background(ImageProvider(R.drawable.widget_2x2_log))
-                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.VOICE)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            provider = ImageProvider(R.drawable.widget_ic_mic_outline),
-                            contentDescription = "Log",
-                            modifier = GlanceModifier.size(12.dp)
-                        )
-                        Spacer(GlanceModifier.width(4.dp))
-                        Text(
-                            text = "Log",
-                            style = TextStyle(
-                                color = ColorProvider(colors.onBrand),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
-                }
-                Spacer(GlanceModifier.width(6.dp))
-                Box(
-                    modifier = GlanceModifier
-                        .size(26.dp)
-                        .background(ImageProvider(chipBg))
-                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.SCAN)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        provider = ImageProvider(camIcon),
-                        contentDescription = "Scan",
-                        modifier = GlanceModifier.size(14.dp)
-                    )
-                }
-            }
         }
     }
 }
@@ -165,30 +134,50 @@ private fun Widget2x2MetricStack(
     amount: String,
     labelColor: Color,
     amountColor: Color,
-    chipBg: Int
+    chipBg: Int,
+    trailingIcon: Int? = null,
+    trailingClick: Action? = null
 ) {
-    Column(
+    Row(
         modifier = GlanceModifier
             .fillMaxWidth()
             .background(ImageProvider(chipBg))
-            .padding(horizontal = 10.dp, vertical = 8.dp)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = label,
-            style = TextStyle(
-                color = ColorProvider(labelColor),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = label,
+                style = TextStyle(
+                    color = ColorProvider(labelColor),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
-        )
-        Text(
-            text = amount,
-            style = TextStyle(
-                color = ColorProvider(amountColor),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+            Text(
+                text = amount,
+                style = TextStyle(
+                    color = ColorProvider(amountColor),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
-        )
+        }
+        if (trailingIcon != null && trailingClick != null) {
+            Box(
+                modifier = GlanceModifier
+                    .size(28.dp)
+                    .background(ImageProvider(R.drawable.widget_2x2_log))
+                    .clickable(trailingClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    provider = ImageProvider(trailingIcon),
+                    contentDescription = label,
+                    modifier = GlanceModifier.size(14.dp)
+                )
+            }
+        }
     }
 }
 

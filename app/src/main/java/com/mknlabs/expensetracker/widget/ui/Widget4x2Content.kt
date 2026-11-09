@@ -67,25 +67,25 @@ internal fun Widget4x2Content(
                     text = "Add Transaction",
                     style = TextStyle(
                         color = ColorProvider(colors.title),
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
             }
 
-            Spacer(GlanceModifier.height(4.dp))
+            Spacer(GlanceModifier.height(8.dp))
             Row(
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .background(ImageProvider(chipBg))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
                     Text(
                         text = "$month Income".uppercase(Locale.US),
                         style = TextStyle(
                             color = ColorProvider(colors.muted),
-                            fontSize = 8.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -93,7 +93,7 @@ internal fun Widget4x2Content(
                         text = "+${formatWidgetAmount(symbol, income)}",
                         style = TextStyle(
                             color = ColorProvider(colors.income),
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -103,7 +103,7 @@ internal fun Widget4x2Content(
                         text = "$month Expense".uppercase(Locale.US),
                         style = TextStyle(
                             color = ColorProvider(colors.muted),
-                            fontSize = 8.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -111,19 +111,19 @@ internal fun Widget4x2Content(
                         text = "-${formatWidgetAmount(symbol, expense)}",
                         style = TextStyle(
                             color = ColorProvider(colors.expense),
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     )
                 }
             }
 
-            Spacer(GlanceModifier.height(4.dp))
+            Spacer(GlanceModifier.height(8.dp))
             Row(
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .background(ImageProvider(chipBg))
-                    .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
+                    .padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp)
                     .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.TEXT)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -131,7 +131,7 @@ internal fun Widget4x2Content(
                     text = "UPI screenshot? Grab the words.",
                     style = TextStyle(
                         color = ColorProvider(colors.muted),
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Normal
                     ),
                     modifier = GlanceModifier.defaultWeight()
@@ -140,13 +140,13 @@ internal fun Widget4x2Content(
                     provider = ImageProvider(R.drawable.widget_ic_arrow_right),
                     contentDescription = "Open",
                     modifier = GlanceModifier
-                        .size(22.dp)
+                        .size(32.dp)
                         .background(ImageProvider(R.drawable.widget_2x2_log))
-                        .padding(4.dp)
+                        .padding(8.dp)
                 )
             }
 
-            Spacer(GlanceModifier.height(4.dp))
+            Spacer(GlanceModifier.height(8.dp))
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Widget4x2ActionCard(
                     title = "Mic",
@@ -187,28 +187,28 @@ private fun Widget4x2ActionCard(
     Row(
         modifier = modifier
             .background(ImageProvider(chipBg))
-            .padding(6.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = GlanceModifier
-                .size(28.dp)
+                .size(32.dp)
                 .background(ImageProvider(R.drawable.widget_2x2_log)),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 provider = ImageProvider(icon),
                 contentDescription = title,
-                modifier = GlanceModifier.size(14.dp)
+                modifier = GlanceModifier.size(16.dp)
             )
         }
-        Spacer(GlanceModifier.width(6.dp))
+        Spacer(GlanceModifier.width(8.dp))
         Column {
             Text(
                 text = title,
                 style = TextStyle(
                     color = ColorProvider(titleColor),
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -216,7 +216,7 @@ private fun Widget4x2ActionCard(
                 text = subtitle,
                 style = TextStyle(
                     color = ColorProvider(mutedColor),
-                    fontSize = 9.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Normal
                 )
             )

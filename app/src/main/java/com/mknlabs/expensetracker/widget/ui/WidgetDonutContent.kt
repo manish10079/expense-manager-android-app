@@ -49,7 +49,7 @@ internal fun WidgetDonutContent(
     val month = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) ?: ""
     val year = Calendar.getInstance().get(Calendar.YEAR)
     val density = LocalContext.current.resources.displayMetrics.density
-    val donutPx = (64 * density).toInt().coerceAtLeast(96)
+    val donutPx = (80 * density).toInt().coerceAtLeast(120)
     val track = if (dark) AndroidColor.parseColor("#1E293B") else AndroidColor.parseColor("#E2E8F0")
 
     Box(
@@ -80,7 +80,7 @@ internal fun WidgetDonutContent(
                 )
             )
             panels.take(2).forEach { panel ->
-                Spacer(GlanceModifier.height(6.dp))
+                Spacer(GlanceModifier.height(12.dp))
                 WidgetDonutPanelRow(
                     panel = panel,
                     colors = colors,
@@ -137,12 +137,12 @@ private fun WidgetDonutPanelRow(
         } else {
             val top = panel.slices.maxByOrNull { it.percent }
             val bitmap = WidgetDonutBitmap.draw(panel.slices, donutPx, track)
-            Row(
+            Box(
                 modifier = GlanceModifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                contentAlignment = Alignment.Center
             ) {
                 Box(
-                    modifier = GlanceModifier.size(64.dp),
+                    modifier = GlanceModifier.size(80.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -155,7 +155,7 @@ private fun WidgetDonutPanelRow(
                             text = "${top?.percent ?: 0}%",
                             style = TextStyle(
                                 color = ColorProvider(colors.title),
-                                fontSize = 10.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -163,28 +163,16 @@ private fun WidgetDonutPanelRow(
                             text = top?.label.orEmpty(),
                             style = TextStyle(
                                 color = ColorProvider(colors.muted),
-                                fontSize = 8.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Normal
                             )
                         )
                     }
                 }
-                Spacer(GlanceModifier.width(8.dp))
-                Column(modifier = GlanceModifier.defaultWeight()) {
-                    panel.slices.take(4).chunked(2).forEach { row ->
-                        Row(modifier = GlanceModifier.fillMaxWidth()) {
-                            row.forEachIndexed { index, slice ->
-                                if (index > 0) Spacer(GlanceModifier.width(12.dp))
-                                Box(modifier = GlanceModifier.defaultWeight()) {
-                                    WidgetDonutLegendLine(slice, colors, showAmount = false)
-                                }
-                            }
-                            if (row.size == 1) {
-                                Spacer(GlanceModifier.defaultWeight())
-                            }
-                        }
-                    }
-                }
+            }
+            Spacer(GlanceModifier.height(8.dp))
+            panel.slices.take(8).forEach { slice ->
+                WidgetDonutLegendLine(slice, colors, showAmount = false)
             }
         }
     }
@@ -210,7 +198,7 @@ private fun WidgetDonutLegendLine(
             text = slice.label,
             style = TextStyle(
                 color = ColorProvider(colors.muted),
-                fontSize = 9.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Normal
             ),
             modifier = GlanceModifier.defaultWeight()
@@ -219,7 +207,7 @@ private fun WidgetDonutLegendLine(
             text = if (showAmount) slice.amountText else "${slice.percent}%",
             style = TextStyle(
                 color = ColorProvider(colors.title),
-                fontSize = 9.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
         )
