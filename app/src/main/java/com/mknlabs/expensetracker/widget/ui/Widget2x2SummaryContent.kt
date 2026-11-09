@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.widget.ui
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
@@ -11,6 +12,8 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
+import com.mknlabs.expensetracker.widget.overlay.OverlayUiMode
+import com.mknlabs.expensetracker.widget.overlay.widgetOverlayAction
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -52,8 +55,7 @@ internal fun Widget2x2SummaryContent(
     val month = uiState.monthLabel.ifBlank { currentMonthSummaryLabel() }
     val income = uiState.monthIncomeMinor
     val expense = uiState.monthExpenseMinor
-    val net = income - expense
-    val netPrefix = if (net >= 0) "+" else "-"
+    val budgetCap = uiState.monthBudgetCapMinor
     val openApp = Intent().setClass(LocalContext.current, MainActivity::class.java)
 
     val cardBg = if (dark) R.drawable.widget_2x2_bg_dark else R.drawable.widget_2x2_bg_light
@@ -68,81 +70,47 @@ internal fun Widget2x2SummaryContent(
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .padding(10.dp)
+                .padding(8.dp)
         ) {
             Text(
                 text = month.uppercase(Locale.US),
                 style = TextStyle(
                     color = ColorProvider(colors.muted),
-                    fontSize = 9.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             )
 
             Spacer(GlanceModifier.height(4.dp))
-            Text(
-                text = "Net Saved",
-                style = TextStyle(
-                    color = ColorProvider(colors.muted),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Normal
-                )
+            Widget2x2MetricStack(
+                label = "Income",
+                amount = formatWidgetAmount(symbol, income),
+                labelColor = colors.income,
+                amountColor = colors.title,
+                chipBg = chipBg
             )
-            Text(
-                text = "$netPrefix${formatWidgetAmount(symbol, abs(net))}",
-                style = TextStyle(
-                    color = ColorProvider(colors.title),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
             Spacer(GlanceModifier.height(6.dp))
-            Row(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .background(ImageProvider(chipBg))
-                    .padding(horizontal = 6.dp, vertical = 4.dp)
-            ) {
-                Column(modifier = GlanceModifier.defaultWeight()) {
-                    Text(
-                        text = "Income",
-                        style = TextStyle(
-                            color = ColorProvider(colors.income),
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        text = formatWidgetAmount(symbol, income),
-                        style = TextStyle(
-                            color = ColorProvider(colors.title),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
-                Column(modifier = GlanceModifier.defaultWeight()) {
-                    Text(
-                        text = "Expense",
-                        style = TextStyle(
-                            color = ColorProvider(colors.expense),
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        text = formatWidgetAmount(symbol, expense),
-                        style = TextStyle(
-                            color = ColorProvider(colors.title),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
+            Widget2x2MetricStack(
+                label = "Expense",
+                amount = formatWidgetAmount(symbol, expense),
+                labelColor = colors.expense,
+                amountColor = colors.title,
+                chipBg = chipBg
+            )
+            if (budgetCap > 0L) {
+                val left = budgetCap - expense
+                Spacer(GlanceModifier.height(6.dp))
+                Widget2x2MetricStack(
+                    label = "Left",
+                    amount = formatWidgetAmount(symbol, abs(left)),
+                    labelColor = colors.muted,
+                    amountColor = if (left >= 0) colors.income else colors.expense,
+                    chipBg = chipBg
+                )
             }
 
-            Spacer(GlanceModifier.height(6.dp))
+            Spacer(GlanceModifier.defaultWeight())
+            Spacer(GlanceModifier.height(4.dp))
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -152,7 +120,7 @@ internal fun Widget2x2SummaryContent(
                         .defaultWeight()
                         .height(26.dp)
                         .background(ImageProvider(R.drawable.widget_2x2_log))
-                        .clickable(actionStartActivity(openApp)),
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.VOICE)),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -166,7 +134,7 @@ internal fun Widget2x2SummaryContent(
                             text = "Log",
                             style = TextStyle(
                                 color = ColorProvider(colors.onBrand),
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -177,7 +145,7 @@ internal fun Widget2x2SummaryContent(
                     modifier = GlanceModifier
                         .size(26.dp)
                         .background(ImageProvider(chipBg))
-                        .clickable(actionStartActivity(openApp)),
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.SCAN)),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -188,6 +156,39 @@ internal fun Widget2x2SummaryContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Widget2x2MetricStack(
+    label: String,
+    amount: String,
+    labelColor: Color,
+    amountColor: Color,
+    chipBg: Int
+) {
+    Column(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(ImageProvider(chipBg))
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            style = TextStyle(
+                color = ColorProvider(labelColor),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal
+            )
+        )
+        Text(
+            text = amount,
+            style = TextStyle(
+                color = ColorProvider(amountColor),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
     }
 }
 

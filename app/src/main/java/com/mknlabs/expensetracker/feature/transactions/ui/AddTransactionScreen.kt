@@ -172,6 +172,7 @@ import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.core.ui.components.QuickActionCard
 import com.mknlabs.expensetracker.core.ui.components.QuickActionOption
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
+import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.core.ui.components.WheelDateTimePickerModal
 import com.mknlabs.expensetracker.core.ui.components.WheelPickerMode
 import com.mknlabs.expensetracker.core.ui.components.rememberSectionEnterAlphas
@@ -1313,29 +1314,27 @@ internal fun AddTransactionScreenContent(
             )
         }
 
+        LaunchedEffect(voiceUiState.sheetState, voiceUiState.parsedTransaction) {
+            if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
+            val transaction = voiceUiState.parsedTransaction ?: return@LaunchedEffect
+            amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
+            selectedTransactionTypeId = transaction.transactionTypeId
+            selectedCategoryId = transaction.categoryId
+            note = transaction.note
+            noteDraft = transaction.note
+            if (transaction.merchant != null) {
+                note = if (note.isNotBlank()) "$note — ${transaction.merchant}" else transaction.merchant
+                noteDraft = note
+            }
+            selectedDateMillis = transaction.createdAt
+            onVoiceSheetDismiss()
+        }
         if (isVoiceSheetVisible) {
-            val currencySymbol = remember(currencyId) { getCurrency(currencyId).currencySymbol }
             VoiceInputSheet(
                 sheetState = voiceUiState.sheetState,
                 transcript = voiceUiState.transcript,
-                parsedTransaction = voiceUiState.parsedTransaction,
                 errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
-                currencySymbol = currencySymbol,
                 onDismissRequest = onVoiceSheetDismiss,
-                onConfirm = { transaction ->
-                    // Auto-fill form fields from parsed voice result
-                    amountInput = formatEditableAmount(transaction.amountMinor.toMajorUnits())
-                    selectedTransactionTypeId = transaction.transactionTypeId
-                    selectedCategoryId = transaction.categoryId
-                    note = transaction.note
-                    noteDraft = transaction.note
-                    if (transaction.merchant != null) {
-                        note = if (note.isNotBlank()) "$note \u2014 ${transaction.merchant}" else transaction.merchant
-                        noteDraft = note
-                    }
-                    selectedDateMillis = transaction.createdAt
-                    onVoiceSheetDismiss()
-                },
                 onRetry = onVoiceSheetRetry
             )
         }

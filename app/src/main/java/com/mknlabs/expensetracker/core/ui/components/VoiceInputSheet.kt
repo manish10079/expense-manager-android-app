@@ -13,6 +13,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +28,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -47,6 +46,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
+import com.mknlabs.expensetracker.core.ui.theme.brandGradient
+import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -58,11 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.core.ui.components.AppTextButton
-import com.mknlabs.expensetracker.domain.models.ParsedVoiceTransaction
-import com.mknlabs.expensetracker.domain.models.VoiceConfidence
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
-import com.mknlabs.expensetracker.utils.toMajorUnits
 
 /**
  * Voice input bottom sheet states.
@@ -91,11 +88,8 @@ enum class VoiceSheetState {
 fun VoiceInputSheet(
     sheetState: VoiceSheetState,
     transcript: String,
-    parsedTransaction: ParsedVoiceTransaction?,
     errorMessage: String?,
-    currencySymbol: String,
     onDismissRequest: () -> Unit,
-    onConfirm: (ParsedVoiceTransaction) -> Unit,
     onRetry: () -> Unit,
     onDone: () -> Unit = onDismissRequest,
     modifier: Modifier = Modifier
@@ -123,17 +117,11 @@ fun VoiceInputSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (sheetState) {
-                VoiceSheetState.LISTENING, VoiceSheetState.PROCESSING -> ListeningContent(
+                VoiceSheetState.LISTENING, VoiceSheetState.PROCESSING, VoiceSheetState.RESULT -> VoiceListeningContent(
                     transcript = transcript,
-                    isProcessing = sheetState == VoiceSheetState.PROCESSING,
+                    isProcessing = sheetState != VoiceSheetState.LISTENING,
                     onCancel = onDismissRequest,
                     onDone = onDone,
-                )
-                VoiceSheetState.RESULT -> ResultContent(
-                    transaction = parsedTransaction,
-                    currencySymbol = currencySymbol,
-                    onConfirm = onConfirm,
-                    onRetry = onRetry
                 )
                 VoiceSheetState.ERROR -> ErrorContent(
                     message = errorMessage ?: stringResource(R.string.msg_voice_error_empty_input),
@@ -145,7 +133,7 @@ fun VoiceInputSheet(
 }
 
 @Composable
-private fun ListeningContent(
+internal fun VoiceListeningContent(
     transcript: String,
     isProcessing: Boolean,
     onCancel: () -> Unit,
@@ -190,6 +178,7 @@ private fun ListeningContent(
                 if (isProcessing) R.string.msg_voice_processing else R.string.label_listening_to_voice
             ),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
         Text(
@@ -297,161 +286,26 @@ private fun ListeningContent(
             ) {
                 Text(stringResource(R.string.label_cancel), fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
-            Button(
-                onClick = onDone,
-                modifier = Modifier.weight(1f).height(44.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5)),
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(brandGradient())
+                    .clickable(onClick = onDone),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.label_done), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(
+                    stringResource(R.string.label_done),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                )
             }
         }
     }
 }
 
-@Composable
-private fun ResultContent(
-    transaction: ParsedVoiceTransaction?,
-    currencySymbol: String,
-    onConfirm: (ParsedVoiceTransaction) -> Unit,
-    onRetry: () -> Unit
-) {
-    if (transaction == null) {
-        ErrorContent(
-            message = stringResource(R.string.msg_voice_error_empty_input),
-            onRetry = onRetry
-        )
-        return
-    }
-
-    val confidenceColor = when (transaction.confidence) {
-        VoiceConfidence.HIGH -> MaterialTheme.colorScheme.accentInk
-        VoiceConfidence.MEDIUM -> MaterialTheme.colorScheme.tertiary
-        VoiceConfidence.LOW -> MaterialTheme.colorScheme.error
-    }
-    val confidenceText = when (transaction.confidence) {
-        VoiceConfidence.HIGH -> stringResource(R.string.label_voice_confidence_high)
-        VoiceConfidence.MEDIUM -> stringResource(R.string.label_voice_confidence_medium)
-        VoiceConfidence.LOW -> stringResource(R.string.label_voice_confidence_low)
-    }
-    val typeLabel = when (transaction.transactionTypeId) {
-        1 -> stringResource(R.string.label_income)
-        else -> stringResource(R.string.label_expense)
-    }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Parsed preview card
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Amount + type row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text =                    "$currencySymbol${"%.2f".format(transaction.amountMinor.toMajorUnits())}",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-                Text(
-                    text = typeLabel,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        color = confidenceColor
-                    )
-                )
-            }
-
-            // Category
-            PreviewRow(
-                label = stringResource(R.string.label_category_1),
-                value = transaction.note.ifBlank { stringResource(R.string.label_other) }
-            )
-
-            // Note (if different from category)
-            if (transaction.note.isNotBlank()) {
-                PreviewRow(
-                    label = stringResource(R.string.label_note),
-                    value = transaction.note
-                )
-            }
-
-            // Merchant (if detected)
-            if (!transaction.merchant.isNullOrBlank()) {
-                PreviewRow(
-                    label = stringResource(R.string.label_merchant),
-                    value = transaction.merchant
-                )
-            }
-
-            // Confidence
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.label_voice_confidence),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = confidenceText,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = confidenceColor
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Action buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            AppTextButton(
-                onClick = onRetry,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = stringResource(R.string.label_voice_retry))
-            }
-
-            Button(
-                onClick = { onConfirm(transaction) },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.accentInk
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.label_voice_confirm),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun ErrorContent(
@@ -501,27 +355,6 @@ private fun ErrorContent(
     }
 }
 
-@Composable
-private fun PreviewRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
 @Preview(name = "Voice Sheet - Listening", showBackground = true)
 @Composable
 private fun VoiceInputSheetListeningPreview() {
@@ -532,7 +365,7 @@ private fun VoiceInputSheetListeningPreview() {
                 .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
-            ListeningContent(
+            VoiceListeningContent(
                 transcript = "Spent 50 dollars on food",
                 isProcessing = false,
                 onCancel = {},
@@ -542,29 +375,3 @@ private fun VoiceInputSheetListeningPreview() {
     }
 }
 
-@Preview(name = "Voice Sheet - Result", showBackground = true)
-@Composable
-private fun VoiceInputSheetResultPreview() {
-    ExpenseTrackerTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-        ) {
-            ResultContent(
-                transaction = ParsedVoiceTransaction(
-                    amountMinor = 5000L,
-                    transactionTypeId = 2,
-                    categoryId = 4,
-                    note = "Food",
-                    merchant = null,
-                    confidence = VoiceConfidence.HIGH
-                ),
-                currencySymbol = "$",
-                onConfirm = {},
-                onRetry = {}
-            )
-        }
-    }
-}

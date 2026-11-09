@@ -10,6 +10,8 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
+import com.mknlabs.expensetracker.widget.overlay.OverlayUiMode
+import com.mknlabs.expensetracker.widget.overlay.widgetOverlayAction
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -122,7 +124,7 @@ internal fun Widget4x2Content(
                     .fillMaxWidth()
                     .background(ImageProvider(chipBg))
                     .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
-                    .clickable(actionStartActivity(openApp)),
+                    .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.TEXT)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -154,7 +156,7 @@ internal fun Widget4x2Content(
                     titleColor = colors.title,
                     mutedColor = colors.muted,
                     modifier = GlanceModifier.defaultWeight()
-                        .clickable(actionStartActivity(openApp))
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.VOICE))
                 )
                 Spacer(GlanceModifier.width(6.dp))
                 Widget4x2ActionCard(
@@ -165,7 +167,7 @@ internal fun Widget4x2Content(
                     titleColor = colors.title,
                     mutedColor = colors.muted,
                     modifier = GlanceModifier.defaultWeight()
-                        .clickable(actionStartActivity(openApp))
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.SCAN))
                 )
             }
         }

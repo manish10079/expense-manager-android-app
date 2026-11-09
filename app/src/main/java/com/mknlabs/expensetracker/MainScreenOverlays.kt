@@ -452,10 +452,6 @@ internal fun MainScreenOverlays(
                 }
             }
 
-            val currencySymbol = remember(selectedCurrencyId) {
-                com.mknlabs.expensetracker.utils.getCurrency(selectedCurrencyId).currencySymbol
-            }
-
             LaunchedEffect(voiceUiState.sheetState, voiceUiState.reviewItems) {
                 if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
                 speechRecognizer.cancel()
@@ -476,15 +472,12 @@ internal fun MainScreenOverlays(
             VoiceInputSheet(
                 sheetState = voiceUiState.sheetState,
                 transcript = voiceUiState.transcript,
-                parsedTransaction = voiceUiState.parsedTransaction,
                 errorMessage = voiceUiState.errorMessageResId?.let { context.getString(it) },
-                currencySymbol = currencySymbol,
                 onDismissRequest = {
                     speechRecognizer.cancel()
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)
                 },
-                onConfirm = { },
                 onRetry = {
                     speechRecognizer.cancel()
                     voiceViewModel.resetToListening()

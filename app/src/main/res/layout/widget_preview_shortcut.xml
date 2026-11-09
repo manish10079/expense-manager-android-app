@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_2x2_bg_light"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/widget_2x2_chip_light"
+        android:gravity="center"
+        android:text="Type"
+        android:textColor="#0F172A"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <Space
+        android:layout_width="6dp"
+        android:layout_height="1dp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/widget_2x2_chip_light"
+        android:gravity="center"
+        android:text="Talk"
+        android:textColor="#0F172A"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <Space
+        android:layout_width="6dp"
+        android:layout_height="1dp" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/widget_2x2_log"
+        android:contentDescription="@string/widget_shortcut_description"
+        android:padding="12dp"
+        android:src="@drawable/widget_ic_camera_on_brand" />
+</LinearLayout>

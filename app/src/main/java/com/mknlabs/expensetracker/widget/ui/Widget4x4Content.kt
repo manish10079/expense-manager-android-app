@@ -11,6 +11,8 @@ import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
+import com.mknlabs.expensetracker.widget.overlay.OverlayUiMode
+import com.mknlabs.expensetracker.widget.overlay.widgetOverlayAction
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -164,7 +166,7 @@ internal fun Widget4x4Content(
                     chipBg = chipBg,
                     titleColor = colors.title,
                     modifier = GlanceModifier.defaultWeight()
-                        .clickable(actionStartActivity(openApp))
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.VOICE))
                 )
                 Spacer(GlanceModifier.width(6.dp))
                 Widget4x4Action(
@@ -173,7 +175,7 @@ internal fun Widget4x4Content(
                     chipBg = chipBg,
                     titleColor = colors.title,
                     modifier = GlanceModifier.defaultWeight()
-                        .clickable(actionStartActivity(openApp))
+                        .clickable(widgetOverlayAction(LocalContext.current, OverlayUiMode.SCAN))
                 )
             }
 

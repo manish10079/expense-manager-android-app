@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_2x2_bg_dark"
+    android:background="@drawable/widget_2x2_bg_light"
     android:orientation="vertical"
     android:padding="8dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/widget_4x4_description"
-        android:textColor="#FFFFFF"
+        android:text="This month"
+        android:textColor="#0F172A"
         android:textSize="13sp"
         android:textStyle="bold" />
 
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Income\n₹1,20,000"
-            android:textColor="#34D399"
+            android:textColor="#059669"
             android:textSize="10sp"
             android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Expense\n₹42,800"
-            android:textColor="#F87171"
+            android:textColor="#F43F5E"
             android:textSize="10sp"
             android:textStyle="bold" />
 
@@ -43,8 +43,41 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Net\n+₹77,200"
-            android:textColor="#FFFFFF"
+            android:textColor="#0F172A"
             android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_2x2_chip_light"
+            android:gravity="center"
+            android:text="Mic Log"
+            android:textColor="#0F172A"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_2x2_chip_light"
+            android:gravity="center"
+            android:text="Scan UPI"
+            android:textColor="#0F172A"
+            android:textSize="11sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
