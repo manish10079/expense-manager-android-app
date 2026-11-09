@@ -4458,7 +4458,10 @@
 
     <!-- Widget -->
 
-    <string name="widget_description">Quick voice transaction entry and today\'s spending summary</string>
+    <string name="widget_description">Month summary (2×2)</string>
+    <string name="widget_4x2_description">Add transaction (4×2)</string>
+    <string name="widget_4x4_description">Month overview (4×4)</string>
+    <string name="widget_donut_description">Analytics breakdown donut charts</string>
 
     <string name="widget_voice_channel_name">Voice Recording</string>
 

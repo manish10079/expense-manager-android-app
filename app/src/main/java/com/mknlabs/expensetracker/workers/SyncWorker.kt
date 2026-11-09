@@ -143,6 +143,13 @@ class SyncWorker @AssistedInject constructor(
             } else {
                 com.mknlabs.expensetracker.notifications.NotificationHelper.cancelSyncInProgressNotification(applicationContext)
                 notificationHandled = true
+                try {
+                    com.mknlabs.expensetracker.widget.di.WidgetEntryPoint.get(applicationContext)
+                        .widgetUpdater()
+                        .refreshAll(applicationContext)
+                } catch (e: Exception) {
+                    android.util.Log.w("SyncWorker", "Widget refresh failed", e)
+                }
             }
 
             return if (success) Result.success() else Result.retry()

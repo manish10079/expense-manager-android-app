@@ -204,7 +204,6 @@
             android:name="privacy_policy_url"
             android:value="@string/url_privacy_policy" />
 
-        <!-- Voice Home Widget (Phase 4.1) -->
         <receiver
             android:name=".widget.receiver.ExpenseHomeWidgetReceiver"
             android:exported="true"
@@ -217,11 +216,51 @@
                 android:resource="@xml/voice_widget_info" />
         </receiver>
 
-        <!-- Voice Capture Foreground Service -->
-        <service
-            android:name=".widget.service.VoiceCaptureService"
-            android:exported="false"
-            android:foregroundServiceType="microphone" />
+        <receiver
+            android:name=".widget.receiver.Widget4x2HomeWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_4x2_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_4x2_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.receiver.Widget4x4HomeWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_4x4_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_4x4_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.receiver.DonutBreakdownWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_donut_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/donut_widget_info" />
+        </receiver>
+
+        <activity
+            android:name=".widget.ui.DonutWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ExpenseTracker">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

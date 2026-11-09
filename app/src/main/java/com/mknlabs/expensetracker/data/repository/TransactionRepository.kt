@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.data.repository
 
+import android.content.Context
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -21,6 +23,8 @@ import com.mknlabs.expensetracker.domain.repository.ReferralRepository
 import com.mknlabs.expensetracker.domain.usecase.CheckLargeTransactionUseCase
 import com.mknlabs.expensetracker.models.SyncState
 import com.mknlabs.expensetracker.models.Transaction
+import com.mknlabs.expensetracker.widget.di.WidgetEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
@@ -33,6 +37,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class TransactionRepository @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val database: ExpenseTrackerDatabase,
     private val dao: TransactionDao,
     private val recurringRuleDao: RecurringRuleDao,
@@ -163,6 +168,7 @@ class TransactionRepository @Inject constructor(
         // bypass the repository deliberately, so they stay silent.
         checkLargeTransactionUseCase(resolved)
         postWriteScope.launch { referralRepository.qualifyAfterTransaction() }
+        refreshWidgets()
         resolved
     }
 
@@ -172,6 +178,7 @@ class TransactionRepository @Inject constructor(
             syncState = SyncState.PENDING_DELETE.name,
             updatedAt = System.currentTimeMillis()
         )
+        refreshWidgets()
     }
 
     override suspend fun softDeleteTransactions(ids: List<String>) = withContext(Dispatchers.IO) {
@@ -185,12 +192,24 @@ class TransactionRepository @Inject constructor(
                 )
             }
         }
+        refreshWidgets()
     }
 
     override suspend fun deleteAllTransactions() = withContext(Dispatchers.IO) {
         database.withTransaction {
             recurringRuleDao.deleteAll()
             dao.deleteAll()
+        }
+        refreshWidgets()
+    }
+
+    private fun refreshWidgets() {
+        postWriteScope.launch {
+            try {
+                WidgetEntryPoint.get(appContext).widgetUpdater().refreshAll(appContext)
+            } catch (e: Exception) {
+                Log.w("TransactionRepository", "Widget refresh failed", e)
+            }
         }
     }
 
