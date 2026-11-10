@@ -131,19 +131,30 @@ internal fun IosNotificationEnter(
     delayMillis: Int = 0,
     content: @Composable () -> Unit,
 ) {
-    val startPx = with(LocalDensity.current) { 56.dp.toPx() }
+    val startPx = with(LocalDensity.current) { 80.dp.toPx() }
     val dropY = remember { Animatable(-startPx) }
     val fade = remember { Animatable(0f) }
+    val scale = remember { Animatable(0.86f) }
     LaunchedEffect(Unit) {
         dropY.snapTo(-startPx)
         fade.snapTo(0f)
+        scale.snapTo(0.86f)
         delay(delayMillis.toLong())
-        launch { fade.animateTo(1f, tween(180)) }
+        launch { fade.animateTo(1f, tween(320)) }
+        launch {
+            scale.animateTo(
+                1f,
+                spring(
+                    dampingRatio = 0.55f,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
         dropY.animateTo(
             0f,
             spring(
-                dampingRatio = 0.62f,
-                stiffness = Spring.StiffnessMediumLow,
+                dampingRatio = 0.55f,
+                stiffness = Spring.StiffnessLow,
             ),
         )
     }
@@ -151,6 +162,8 @@ internal fun IosNotificationEnter(
         modifier = Modifier.graphicsLayer {
             translationY = dropY.value
             alpha = fade.value
+            scaleX = scale.value
+            scaleY = scale.value
         },
     ) {
         content()
@@ -224,6 +237,7 @@ internal fun BatchTransactionList(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 12.dp)
                 .then(
                     if (items.size > 5) {
                         Modifier
@@ -321,7 +335,7 @@ internal fun BatchRow(
 ) {
     val expense = item.typeId != AiParseContract.TYPE_INCOME
     val amount = formatReviewAmount(item.amount, currencyId)
-    IosNotificationEnter(delayMillis = enterIndex * 70) {
+    IosNotificationEnter(delayMillis = enterIndex * 140) {
     Column(
         modifier = reviewMetaCardModifier(dark, Modifier.fillMaxWidth()),
     ) {
