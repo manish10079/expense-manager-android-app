@@ -4639,6 +4639,7 @@
     <string name="hint_ai_type_9">친구에게 문자 보내듯 치면 돼.</string>
     <string name="title_ai_parse_privacy">AI 분석 안내</string>
     <string name="msg_ai_parse_privacy">AI는 파일 자체가 아니라 텍스트, 음성, 사진, PDF에서 읽은 단어와 카테고리·결제 이름, 통화, 언어만 받습니다. 그 텍스트는 AI 모델 학습이나 개선에 쓰일 수 있습니다.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">AI 분석 안내</string>
     <string name="label_voice_mic">마이크</string>
     <string name="desc_voice_mic">말하고 기록</string>

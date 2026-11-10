@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.ai.AiUsageTracker
@@ -88,10 +89,14 @@ class VoiceAddViewModel @Inject constructor(
         viewModelScope.launch {
             val isOnline = isInternetAvailable()
             val isPro = monetizationRepository.userTier.first() == UserTier.PREMIUM
-            val hasRemainingAiParses =
-                BuildConfig.DEBUG || aiUsageTracker.hasRemainingParses(isPro).first()
-
-            if (isOnline && hasRemainingAiParses) {
+            if (!BuildConfig.DEBUG && !aiUsageTracker.hasRemainingParses(isPro).first()) {
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.ERROR,
+                    errorMessageResId = R.string.msg_ai_daily_limit,
+                )
+                return@launch
+            }
+            if (isOnline) {
                 try {
                     val ctx = userContextProvider.getUserContext()
                     val response = aiParseApiService.parseExpenseText(
@@ -105,25 +110,30 @@ class VoiceAddViewModel @Inject constructor(
                         )
                     )
                     val items = mapCloudResponse(response.transactions)
-                    if (!BuildConfig.DEBUG) {
-                        aiUsageTracker.recordUsage(isPro)
-                    }
-                    val remaining = aiUsageTracker.remainingParses(isPro).first()
+                    aiUsageTracker.recordUsage(isPro)
                     _uiState.value = _uiState.value.copy(
                         sheetState = VoiceSheetState.RESULT,
                         parsedTransaction = null,
                         reviewItems = items,
                         parserType = VoiceParserType.GEMINI,
-                        remainingAiParses = remaining,
                     )
                     return@launch
+                } catch (e: FirebaseFunctionsException) {
+                    if (e.code == FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED) {
+                        aiUsageTracker.markLimitReached(isPro)
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.ERROR,
+                            errorMessageResId = R.string.msg_ai_daily_limit,
+                        )
+                        return@launch
+                    }
+                    Log.e(TAG, "cloud parse failed, using offline", e)
                 } catch (e: Exception) {
                     Log.e(TAG, "cloud parse failed, using offline", e)
                 }
             }
 
             val offlineResult = offlineParser.parse(text)
-            val remaining = aiUsageTracker.remainingParses(isPro).first()
             when (offlineResult) {
                 is VoiceParseResult.Success -> {
                     _uiState.value = _uiState.value.copy(
@@ -131,7 +141,6 @@ class VoiceAddViewModel @Inject constructor(
                         parsedTransaction = offlineResult.transaction,
                         reviewItems = listOf(fromOffline(offlineResult.transaction)),
                         parserType = VoiceParserType.OFFLINE,
-                        remainingAiParses = remaining,
                     )
                 }
                 is VoiceParseResult.Failed -> {

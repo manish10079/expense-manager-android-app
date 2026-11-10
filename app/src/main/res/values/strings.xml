@@ -4794,6 +4794,7 @@
     <string name="hint_ai_type_9">Just type it like you’d message a friend.</string>
     <string name="title_ai_parse_privacy">About AI parsing</string>
     <string name="msg_ai_parse_privacy">AI only receives the words from your text, voice, photo, or PDF—not the file—plus your category and payment names, currency, and language. That text may be used to train or improve AI models.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">About AI parsing</string>
     <string name="label_voice_mic">Mic</string>
     <string name="desc_voice_mic">Speak and log</string>

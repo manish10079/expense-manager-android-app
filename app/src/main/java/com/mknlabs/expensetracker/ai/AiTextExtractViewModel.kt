@@ -17,7 +17,11 @@ import com.mknlabs.expensetracker.utils.toMinorUnits
 import android.util.Log
 import com.google.firebase.functions.FirebaseFunctionsException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -37,6 +41,20 @@ class AiTextExtractViewModel @Inject constructor(
     companion object {
         private const val TAG = "AiTextExtractVM"
     }
+
+    data class ParseQuota(val used: Int, val limit: Int)
+
+    val parseQuota: StateFlow<ParseQuota> = combine(
+        monetizationRepository.userTier,
+        aiUsageTracker.todayCount,
+    ) { tier, count ->
+        val limit = aiUsageTracker.dailyLimit(tier == UserTier.PREMIUM)
+        ParseQuota(count.coerceAtMost(limit), limit)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        ParseQuota(0, AiUsageTracker.FREE_OR_GUEST_DAILY_LIMIT),
+    )
 
     fun parseFromDocument(
         uri: android.net.Uri,
@@ -124,9 +142,7 @@ class AiTextExtractViewModel @Inject constructor(
                     )
                 )
                 val mapped = mapResponse(response)
-                if (!BuildConfig.DEBUG) {
-                    aiUsageTracker.recordUsage(isPro)
-                }
+                aiUsageTracker.recordUsage(isPro)
                 if (mapped.isEmpty()) {
                     TextParseOutcome.RawAdd(AiRawAddReason.NoTransactions)
                 } else {
@@ -137,6 +153,7 @@ class AiTextExtractViewModel @Inject constructor(
                 if (error is FirebaseFunctionsException &&
                     error.code == FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
                 ) {
+                    aiUsageTracker.markLimitReached(isPro)
                     TextParseOutcome.DailyLimit
                 } else {
                     TextParseOutcome.Failed

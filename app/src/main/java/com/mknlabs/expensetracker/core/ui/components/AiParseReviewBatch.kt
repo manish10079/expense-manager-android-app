@@ -6,6 +6,8 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -122,6 +124,38 @@ import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@Composable
+internal fun IosNotificationEnter(
+    delayMillis: Int = 0,
+    content: @Composable () -> Unit,
+) {
+    val startPx = with(LocalDensity.current) { 56.dp.toPx() }
+    val dropY = remember { Animatable(-startPx) }
+    val fade = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        dropY.snapTo(-startPx)
+        fade.snapTo(0f)
+        delay(delayMillis.toLong())
+        launch { fade.animateTo(1f, tween(180)) }
+        dropY.animateTo(
+            0f,
+            spring(
+                dampingRatio = 0.62f,
+                stiffness = Spring.StiffnessMediumLow,
+            ),
+        )
+    }
+    Box(
+        modifier = Modifier.graphicsLayer {
+            translationY = dropY.value
+            alpha = fade.value
+        },
+    ) {
+        content()
+    }
+}
 
 @Composable
 internal fun BatchTransactionList(
@@ -201,11 +235,12 @@ internal fun BatchTransactionList(
                 ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items.forEach { item ->
+            items.forEachIndexed { index, item ->
                 BatchRow(
                     item = item,
                     dark = dark,
                     currencyId = currencyId,
+                    enterIndex = index,
                     expanded = expandedId == item.id,
                     onClick = {
                         expandedId = if (expandedId == item.id) null else item.id
@@ -277,6 +312,7 @@ internal fun BatchRow(
     dark: Boolean,
     currencyId: Int,
     onClick: () -> Unit,
+    enterIndex: Int = 0,
     expanded: Boolean = false,
     onItemChange: (AiParsedReviewItem) -> Unit = {},
     onAdd: () -> Unit = {},
@@ -285,6 +321,7 @@ internal fun BatchRow(
 ) {
     val expense = item.typeId != AiParseContract.TYPE_INCOME
     val amount = formatReviewAmount(item.amount, currencyId)
+    IosNotificationEnter(delayMillis = enterIndex * 70) {
     Column(
         modifier = reviewMetaCardModifier(dark, Modifier.fillMaxWidth()),
     ) {
@@ -400,5 +437,6 @@ internal fun BatchRow(
                 compactEmbed = true,
             )
         }
+    }
     }
 }

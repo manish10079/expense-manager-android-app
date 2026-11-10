@@ -4668,6 +4668,7 @@ privat von Haus aus</string>
     <string name="hint_ai_type_9">Tippe es wie eine Nachricht an einen Freund.</string>
     <string name="title_ai_parse_privacy">Über die KI-Auswertung</string>
     <string name="msg_ai_parse_privacy">Die KI erhält nur die Wörter aus Text, Sprache, Foto oder PDF – nicht die Datei – plus Kategorienamen, Zahlungsarten, Währung und Sprache. Dieser Text kann zum Trainieren oder Verbessern von KI-Modellen verwendet werden.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">Über die KI-Auswertung</string>
     <string name="label_voice_mic">Mikro</string>
     <string name="desc_voice_mic">Sprechen und erfassen</string>

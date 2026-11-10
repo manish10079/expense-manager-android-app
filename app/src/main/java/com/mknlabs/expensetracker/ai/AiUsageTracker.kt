@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -76,6 +77,13 @@ class AiUsageTracker @Inject constructor(
         return withinLimit
     }
 
+    suspend fun markLimitReached(isPro: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[KEY_COUNT] = dailyLimit(isPro)
+            prefs[KEY_COUNT_DATE] = System.currentTimeMillis()
+        }
+    }
+
     suspend fun reset() {
         dataStore.edit { prefs ->
             prefs[KEY_COUNT] = 0
@@ -85,9 +93,10 @@ class AiUsageTracker @Inject constructor(
 
     private fun isToday(timestamp: Long): Boolean {
         if (timestamp == 0L) return false
-        val now = System.currentTimeMillis()
-        val todayStart = now - (now % (24 * 60 * 60 * 1000))
-        return timestamp >= todayStart
+        val now = Calendar.getInstance()
+        val then = Calendar.getInstance().apply { timeInMillis = timestamp }
+        return now.get(Calendar.YEAR) == then.get(Calendar.YEAR) &&
+            now.get(Calendar.DAY_OF_YEAR) == then.get(Calendar.DAY_OF_YEAR)
     }
 
     companion object {

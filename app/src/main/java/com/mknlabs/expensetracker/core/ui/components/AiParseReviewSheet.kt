@@ -3,6 +3,8 @@ package com.mknlabs.expensetracker.core.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -49,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -117,6 +120,7 @@ import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AiParseReviewSheet(
@@ -179,7 +183,8 @@ fun AiParseReviewSheet(
                     onSelect = { selectedId = it.id },
                     onRetry = onRetry,
                 )
-                else -> ParsedDetailCard(
+                else -> IosNotificationEnter {
+                ParsedDetailCard(
                     item = selected,
                     dark = dark,
                     currencyId = currencyId,
@@ -193,6 +198,7 @@ fun AiParseReviewSheet(
                         savedItem = selected
                     },
                 )
+                }
             }
         }
         }

@@ -2319,6 +2319,7 @@
     <string name="hint_ai_type_9">મિત્રને મેસેજ કરો તેમ લખો.</string>
     <string name="title_ai_parse_privacy">એઆઈ પાર્સિંગ વિશે</string>
     <string name="msg_ai_parse_privacy">એઆઈને ફાઇલ નહીં, તમારા ટેક્સ્ટ, અવાજ, ફોટો કે પીડીએફના શબ્દો મળે છે, સાથે શ્રેણી અને ચુકવણીના નામ, ચલણ અને ભાષા. આ ટેક્સ્ટ એઆઈ મોડલ તાલીમ કે સુધારામાં વપરાઈ શકે.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">એઆઈ પાર્સિંગ વિશે</string>
     <string name="label_voice_mic">માઇક</string>
     <string name="desc_voice_mic">બોલો અને નોંધો</string>

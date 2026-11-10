@@ -4670,6 +4670,7 @@ privado de verdad</string>
     <string name="hint_ai_type_9">Escríbelo como le escribirías a un amigo.</string>
     <string name="title_ai_parse_privacy">Acerca del análisis con IA</string>
     <string name="msg_ai_parse_privacy">La IA solo recibe las palabras de tu texto, voz, foto o PDF, no el archivo, más los nombres de categorías y pagos, la moneda y el idioma. Ese texto puede usarse para entrenar o mejorar modelos de IA.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">Acerca del análisis con IA</string>
     <string name="label_voice_mic">Micrófono</string>
     <string name="desc_voice_mic">Habla y registra</string>

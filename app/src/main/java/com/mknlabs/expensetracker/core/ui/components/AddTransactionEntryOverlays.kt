@@ -48,6 +48,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -134,16 +135,17 @@ fun AddUnifiedSmartSheet(
         stringResource(R.string.hint_ai_type_8),
         stringResource(R.string.hint_ai_type_9),
     )
+    val shuffledHints = remember(visible) { typeHints.shuffled() }
     var typedHint by remember { mutableStateOf("") }
     var chatFocused by remember { mutableStateOf(false) }
-    LaunchedEffect(visible, chat.isEmpty(), chatFocused, typeHints) {
+    LaunchedEffect(visible, chat.isEmpty(), chatFocused, shuffledHints) {
         if (!visible || chat.isNotEmpty() || chatFocused) {
             if (chat.isNotEmpty()) typedHint = ""
             return@LaunchedEffect
         }
         var i = 0
         while (true) {
-            val phrase = typeHints[i % typeHints.size]
+            val phrase = shuffledHints[i % shuffledHints.size]
             typedHint = ""
             for (n in 1..phrase.length) {
                 typedHint = phrase.take(n)
@@ -237,6 +239,22 @@ fun AddUnifiedSmartSheet(
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.Bold,
                             ),
+                        )
+                        val quota by extractViewModel.parseQuota.collectAsState()
+                        Text(
+                            text = stringResource(
+                                R.string.label_ai_parse_quota,
+                                quota.used,
+                                quota.limit,
+                            ),
+                            modifier = Modifier
+                                .padding(start = 8.dp, end = 2.dp)
+                                .clip(RoundedCornerShape(99.dp))
+                                .background(scheme.accentInk.copy(alpha = 0.12f))
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                            color = scheme.accentInk,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
                         )
                         Box(
                             modifier = Modifier

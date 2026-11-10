@@ -4240,6 +4240,7 @@
     <string name="hint_ai_type_9">जैसे दोस्त को मैसेज करते हो, वैसे लिखो।</string>
     <string name="title_ai_parse_privacy">एआई पार्सिंग के बारे में</string>
     <string name="msg_ai_parse_privacy">एआई को फ़ाइल नहीं, बल्कि आपके टेक्स्ट, आवाज़, फ़ोटो या पीडीएफ के शब्द मिलते हैं, साथ में श्रेणी और भुगतान नाम, मुद्रा और भाषा। इस टेक्स्ट का उपयोग एआई मॉडल को ट्रेन या बेहतर करने में हो सकता है।</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">एआई पार्सिंग के बारे में</string>
     <string name="label_voice_mic">माइक</string>
     <string name="desc_voice_mic">बोलें और दर्ज करें</string>

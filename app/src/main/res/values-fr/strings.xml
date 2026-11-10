@@ -4635,6 +4635,7 @@ privé par nature</string>
     <string name="hint_ai_type_9">Écris comme tu enverrais un texto à un ami.</string>
     <string name="title_ai_parse_privacy">À propos de l’analyse IA</string>
     <string name="msg_ai_parse_privacy">L’IA ne reçoit que les mots de votre texte, voix, photo ou PDF — pas le fichier — plus les noms de catégories et de paiement, la devise et la langue. Ce texte peut servir à entraîner ou améliorer des modèles d’IA.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">À propos de l’analyse IA</string>
     <string name="label_voice_mic">Micro</string>
     <string name="desc_voice_mic">Parlez et enregistrez</string>

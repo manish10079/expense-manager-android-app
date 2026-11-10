@@ -4595,6 +4595,7 @@
     <string name="hint_ai_type_9">ବନ୍ଧୁକୁ ମେସେଜ୍ ଦିଅନ୍ତି ଭଳି ଲେଖନ୍ତୁ।</string>
     <string name="title_ai_parse_privacy">ଏଆଇ ପାର୍ସିଙ୍ଗ ବିଷୟରେ</string>
     <string name="msg_ai_parse_privacy">ଏଆଇ ଫାଇଲ ନୁହେଁ, ଆପଣଙ୍କ ଟେକ୍ସଟ, ସ୍ୱର, ଫଟୋ କିମ୍ବା ପିଡିଏଫର ଶବ୍ଦ ପାଏ, ସହିତ ବର୍ଗ ଓ ପେମେଣ୍ଟ ନାମ, ମୁଦ୍ରା ଓ ଭାଷା। ସେହି ଟେକ୍ସଟ ଏଆଇ ମଡେଲ ତାଲିମ କିମ୍ବା ଉନ୍ନତିରେ ବ୍ୟବହାର ହୋଇପାରେ।</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">ଏଆଇ ପାର୍ସିଙ୍ଗ ବିଷୟରେ</string>
     <string name="label_voice_mic">ମାଇକ୍</string>
     <string name="desc_voice_mic">କୁହନ୍ତୁ ଏବଂ ଲଗ୍ କରନ୍ତୁ</string>

@@ -4630,6 +4630,7 @@
     <string name="hint_ai_type_9">Пиши как сообщение другу.</string>
     <string name="title_ai_parse_privacy">Об ИИ-разборе</string>
     <string name="msg_ai_parse_privacy">ИИ получает только слова из текста, голоса, фото или PDF — не сам файл — плюс названия категорий и способов оплаты, валюту и язык. Этот текст могут использовать для обучения или улучшения моделей ИИ.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">Об ИИ-разборе</string>
     <string name="label_voice_mic">Микрофон</string>
     <string name="desc_voice_mic">Скажите и запишите</string>

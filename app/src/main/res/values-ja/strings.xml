@@ -4663,6 +4663,7 @@
     <string name="hint_ai_type_9">友達に送るみたいに打てばいい。</string>
     <string name="title_ai_parse_privacy">AI解析について</string>
     <string name="msg_ai_parse_privacy">AIに送られるのはテキスト・音声・写真・PDFの文字だけで、ファイル本体は送りません。カテゴリ名、支払い方法、通貨、言語も含まれます。その文字はAIモデルの学習や改善に使われる場合があります。</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">AI解析について</string>
     <string name="label_voice_mic">マイク</string>
     <string name="desc_voice_mic">話して記録</string>

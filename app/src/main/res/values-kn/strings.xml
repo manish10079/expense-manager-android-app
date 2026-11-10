@@ -2312,6 +2312,7 @@
     <string name="hint_ai_type_9">ಸ್ನೇಹಿತನಿಗೆ ಮೆಸೇಜ್ ಹಾಕಿದಂತೆ ಬರೆಯಿರಿ.</string>
     <string name="title_ai_parse_privacy">ಎಐ ಪಾರ್ಸಿಂಗ್ ಬಗ್ಗೆ</string>
     <string name="msg_ai_parse_privacy">ಎಐಗೆ ಫೈಲ್ ಅಲ್ಲ, ನಿಮ್ಮ ಪಠ್ಯ, ಧ್ವನಿ, ಫೋಟೋ ಅಥವಾ ಪಿಡಿಎಫ್‌ನ ಪದಗಳು ಸಿಗುತ್ತವೆ, ಜೊತೆಗೆ ವರ್ಗ ಮತ್ತು ಪಾವತಿ ಹೆಸರುಗಳು, ಕರೆನ್ಸಿ ಮತ್ತು ಭಾಷೆ. ಆ ಪಠ್ಯವನ್ನು ಎಐ ಮಾದರಿ ತರಬೇತಿ ಅಥವಾ ಸುಧಾರಣೆಗೆ ಬಳಸಬಹುದು.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">ಎಐ ಪಾರ್ಸಿಂಗ್ ಬಗ್ಗೆ</string>
     <string name="label_voice_mic">ಮೈಕ್</string>
     <string name="desc_voice_mic">ಮಾತನಾಡಿ ಮತ್ತು ದಾಖಲಿಸಿ</string>

@@ -2285,6 +2285,7 @@
     <string name="hint_ai_type_9">मित्राला मेसेज करता तसे लिहा.</string>
     <string name="title_ai_parse_privacy">एआय पार्सिंगबद्दल</string>
     <string name="msg_ai_parse_privacy">एआयला फाइल नाही, तुमच्या मजकूर, आवाज, फोटो किंवा पीडीएफमधील शब्द मिळतात, सोबत श्रेणी व पेमेंट नावे, चलन आणि भाषा. हा मजकूर एआय मॉडेल प्रशिक्षण किंवा सुधारणेसाठी वापरला जाऊ शकतो.</string>
+    <string name="label_ai_parse_quota">%1$d/%2$d</string>
     <string name="desc_ai_parse_privacy">एआय पार्सिंगबद्दल</string>
     <string name="label_voice_mic">माइक</string>
     <string name="desc_voice_mic">बोला आणि नोंद करा</string>
