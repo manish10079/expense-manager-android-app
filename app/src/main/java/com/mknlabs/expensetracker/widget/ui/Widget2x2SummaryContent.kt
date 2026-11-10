@@ -48,7 +48,9 @@ internal fun widgetIsNightMode(forceDark: Boolean? = null): Boolean {
 @Composable
 internal fun Widget2x2SummaryContent(
     uiState: WidgetUiState,
-    forceDark: Boolean? = null
+    forceDark: Boolean? = null,
+    showMonthNav: Boolean = false,
+    appWidgetId: Int = android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID
 ) {
     val dark = widgetIsNightMode(forceDark)
     val colors = if (dark) Widget2x2Colors.Dark else Widget2x2Colors.Light
@@ -75,14 +77,24 @@ internal fun Widget2x2SummaryContent(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(
-                text = month.uppercase(Locale.US),
-                style = TextStyle(
-                    color = ColorProvider(colors.muted),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+            if (showMonthNav) {
+                WidgetMonthNav(
+                    label = month,
+                    labelColor = colors.muted,
+                    chipBg = chipBg,
+                    target = com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_SUMMARY,
+                    appWidgetId = appWidgetId
                 )
-            )
+            } else {
+                Text(
+                    text = month.uppercase(Locale.US),
+                    style = TextStyle(
+                        color = ColorProvider(colors.muted),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
 
             Spacer(GlanceModifier.height(4.dp))
             Widget2x2MetricStack(

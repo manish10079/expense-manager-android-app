@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.widget.ui
 
+import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.graphics.Color as AndroidColor
 import androidx.compose.runtime.Composable
@@ -39,15 +40,23 @@ import java.util.Locale
 @Composable
 internal fun WidgetDonutContent(
     panels: List<WidgetBreakdownPanel>,
-    forceDark: Boolean? = null
+    forceDark: Boolean? = null,
+    appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID,
+    monthLabel: String? = null
 ) {
     val dark = widgetIsNightMode(forceDark)
     val colors = if (dark) Widget2x2Colors.Dark else Widget2x2Colors.Light
     val cardBg = if (dark) R.drawable.widget_2x2_bg_dark else R.drawable.widget_2x2_bg_light
     val chipBg = if (dark) R.drawable.widget_2x2_chip_dark else R.drawable.widget_2x2_chip_light
-    val openApp = Intent().setClass(LocalContext.current, MainActivity::class.java)
+    val context = LocalContext.current
+    val openApp = Intent().setClass(context, MainActivity::class.java)
+    val editWidget = Intent(context, DonutWidgetConfigureActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        .setData(android.net.Uri.parse("expensetracker://donut-config/$appWidgetId"))
     val month = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) ?: ""
     val year = Calendar.getInstance().get(Calendar.YEAR)
+    val period = monthLabel ?: "$month $year"
     val density = LocalContext.current.resources.displayMetrics.density
     val donutPx = (80 * density).toInt().coerceAtLeast(120)
     val track = if (dark) AndroidColor.parseColor("#1E293B") else AndroidColor.parseColor("#E2E8F0")
@@ -56,29 +65,65 @@ internal fun WidgetDonutContent(
         modifier = GlanceModifier
             .fillMaxSize()
             .background(ImageProvider(cardBg))
-            .clickable(actionStartActivity(openApp))
     ) {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(
-                text = "Analytics Breakdown",
-                style = TextStyle(
-                    color = ColorProvider(colors.title),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = GlanceModifier
+                        .defaultWeight()
+                        .clickable(actionStartActivity(openApp))
+                ) {
+                    Text(
+                        text = "Analytics Breakdown",
+                        style = TextStyle(
+                            color = ColorProvider(colors.title),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+                if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    Box(
+                        modifier = GlanceModifier
+                            .size(28.dp)
+                            .background(ImageProvider(chipBg))
+                            .clickable(actionStartActivity(editWidget)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.widget_ic_edit),
+                            contentDescription = "Edit",
+                            modifier = GlanceModifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            Spacer(GlanceModifier.height(6.dp))
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                WidgetMonthNav(
+                    label = period,
+                    labelColor = colors.muted,
+                    chipBg = chipBg,
+                    target = com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_DONUT,
+                    appWidgetId = appWidgetId
                 )
-            )
-            Text(
-                text = "$month $year",
-                style = TextStyle(
-                    color = ColorProvider(colors.muted),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Normal
+            } else {
+                Text(
+                    text = period,
+                    style = TextStyle(
+                        color = ColorProvider(colors.muted),
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Normal
+                    )
                 )
-            )
+            }
             panels.take(2).forEach { panel ->
                 Spacer(GlanceModifier.height(12.dp))
                 WidgetDonutPanelRow(

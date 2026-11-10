@@ -2,7 +2,9 @@ package com.mknlabs.expensetracker.widget.di
 
 import android.content.Context
 import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
+import com.mknlabs.expensetracker.data.local.room.dao.FundDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
+import com.mknlabs.expensetracker.data.local.room.dao.TagDao
 import com.mknlabs.expensetracker.data.local.room.dao.TransactionDao
 import com.mknlabs.expensetracker.domain.repository.TransactionRepository
 import com.mknlabs.expensetracker.widget.updater.WidgetUpdater
@@ -22,6 +24,10 @@ internal interface WidgetEntryPoint {
     fun categoryDao(): CategoryDao
 
     fun paymentMethodDao(): PaymentMethodDao
+
+    fun tagDao(): TagDao
+
+    fun fundDao(): FundDao
 
     fun widgetUpdater(): WidgetUpdater
 

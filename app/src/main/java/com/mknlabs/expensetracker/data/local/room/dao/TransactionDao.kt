@@ -23,6 +23,16 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE is_deleted = 0 ORDER BY occurred_at DESC")
     suspend fun getActiveTransactions(): List<TransactionEntity>
 
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE is_deleted = 0
+          AND occurred_at >= :startMillis
+          AND occurred_at < :endMillis
+        """
+    )
+    suspend fun getInRange(startMillis: Long, endMillis: Long): List<TransactionEntity>
+
     /** Live transactions drawn from one fund, newest first (fund detail screen). */
     @Query("SELECT * FROM transactions WHERE fund_id = :fundId AND is_deleted = 0 ORDER BY occurred_at DESC")
     fun observeTransactionsByFund(fundId: String): Flow<List<TransactionEntity>>

@@ -11,7 +11,14 @@ class DonutBreakdownWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DonutBreakdownWidget()
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        appWidgetIds.forEach { WidgetDonutPrefs.delete(context, it) }
+        appWidgetIds.forEach {
+            WidgetDonutPrefs.delete(context, it)
+            com.mknlabs.expensetracker.widget.WidgetMonthPrefs.delete(
+                context,
+                com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_DONUT,
+                it
+            )
+        }
         super.onDeleted(context, appWidgetIds)
     }
 

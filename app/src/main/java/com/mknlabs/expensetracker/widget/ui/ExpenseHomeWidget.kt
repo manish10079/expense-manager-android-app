@@ -8,8 +8,10 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
+import com.mknlabs.expensetracker.widget.WidgetMonthPrefs
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
@@ -25,10 +27,12 @@ class ExpenseHomeWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Responsive(setOf(SIZE_2X2))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val uiState = loadMonthUiState(context)
+        val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
+        val offset = WidgetMonthPrefs.offset(context, WidgetMonthPrefs.TARGET_SUMMARY, appWidgetId)
+        val uiState = loadMonthUiState(context, offset)
         provideContent {
             GlanceTheme {
-                Widget2x2SummaryContent(uiState)
+                Widget2x2SummaryContent(uiState, showMonthNav = true, appWidgetId = appWidgetId)
             }
         }
     }
@@ -81,18 +85,25 @@ internal fun ExpenseWidgetContent(uiState: WidgetUiState) {
     Widget2x2SummaryContent(uiState)
 }
 
-internal suspend fun loadMonthUiState(context: Context): WidgetUiState {
+internal suspend fun loadMonthUiState(context: Context, monthOffset: Int = 0): WidgetUiState {
     return try {
         val settings = AppSettingsDataStore.getAppSettingsFlow(context).first()
         val now = System.currentTimeMillis()
         val (start, endInclusive) = CustomMonthUtils.getCustomMonthRange(
             nowMillis = now,
             monthStartDay = settings.monthStartDay,
-            monthOffset = 0
+            monthOffset = monthOffset
         )
         val summary = WidgetEntryPoint.get(context).transactionDao()
             .getRangeSummary(start, endInclusive + 1)
+        val labelCal = java.util.Calendar.getInstance().apply { timeInMillis = start }
+        val monthName = labelCal.getDisplayName(
+            java.util.Calendar.MONTH,
+            java.util.Calendar.SHORT,
+            java.util.Locale.US
+        ) ?: ""
         WidgetUiState(
+            monthLabel = "$monthName ${labelCal.get(java.util.Calendar.YEAR)}",
             monthIncomeMinor = summary.incomeMinor,
             monthExpenseMinor = summary.expenseMinor,
             currencySymbol = getCurrency(settings.currencyId).currencySymbol

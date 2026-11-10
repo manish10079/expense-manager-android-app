@@ -18,7 +18,7 @@ internal object WidgetDonutPrefs {
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit()
             .putString(SLOT_A + appWidgetId, a.name)
             .putString(SLOT_B + appWidgetId, b.name)
-            .apply()
+            .commit()
     }
 
     fun delete(context: Context, appWidgetId: Int) {

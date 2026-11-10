@@ -208,6 +208,14 @@
             android:value="@string/url_privacy_policy" />
 
         <receiver
+            android:name=".widget.WidgetMonthNavReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mknlabs.expensetracker.widget.SHIFT_MONTH" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
             android:name=".widget.receiver.ExpenseHomeWidgetReceiver"
             android:exported="true"
             android:label="@string/widget_description">
@@ -278,7 +286,7 @@
         <activity
             android:name=".widget.ui.DonutWidgetConfigureActivity"
             android:exported="true"
-            android:theme="@style/Theme.ExpenseTracker">
+            android:theme="@style/Theme.ExpenseTracker.WidgetOverlay">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

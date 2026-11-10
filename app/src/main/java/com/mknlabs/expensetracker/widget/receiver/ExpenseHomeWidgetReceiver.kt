@@ -29,6 +29,17 @@ internal class ExpenseHomeWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onEnabled(context)
     }
 
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        appWidgetIds.forEach {
+            com.mknlabs.expensetracker.widget.WidgetMonthPrefs.delete(
+                context,
+                com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_SUMMARY,
+                it
+            )
+        }
+        super.onDeleted(context, appWidgetIds)
+    }
+
     override fun onDisabled(context: Context) {
         Log.d(TAG, "onDisabled — last widget instance removed")
         super.onDisabled(context)
