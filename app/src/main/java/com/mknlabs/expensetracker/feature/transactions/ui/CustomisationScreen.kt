@@ -81,6 +81,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
+import com.mknlabs.expensetracker.models.BottomBarRevealMotion
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -189,6 +190,14 @@ fun CustomisationScreen(
                 }
             }
         },
+        bottomBarRevealMotion = appSettings.bottomBarRevealMotion,
+        onBottomBarRevealMotionChange = { motion ->
+            coroutineScope.launch {
+                AppSettingsDataStore.updateAppSettings(context) { settings ->
+                    settings.copy(bottomBarRevealMotion = motion)
+                }
+            }
+        },
         onSettingsChange = onSettingsChange,
         onBackClick = onBackClick
     )
@@ -212,6 +221,8 @@ internal fun TransactionCardCustomizeContent(
     onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit = {},
     addUiPattern: AddTransactionUiPattern = AddTransactionUiPattern.UNIFIED_SMART_SHEET,
     onAddUiPatternChange: (AddTransactionUiPattern) -> Unit = {},
+    bottomBarRevealMotion: BottomBarRevealMotion = BottomBarRevealMotion.ExpandFromCenter,
+    onBottomBarRevealMotionChange: (BottomBarRevealMotion) -> Unit = {},
     onSettingsChange: (TransactionCardCustomizationSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -415,6 +426,8 @@ internal fun TransactionCardCustomizeContent(
                         onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
                         addUiPattern = addUiPattern,
                         onAddUiPatternChange = onAddUiPatternChange,
+                        bottomBarRevealMotion = bottomBarRevealMotion,
+                        onBottomBarRevealMotionChange = onBottomBarRevealMotionChange,
                         modifier = Modifier.weight(1f),
                         horizontalPadding = 0.dp
                     )
@@ -463,6 +476,8 @@ internal fun TransactionCardCustomizeContent(
                 onDefaultPeriodFilterChange = onDefaultPeriodFilterChange,
                 addUiPattern = addUiPattern,
                 onAddUiPatternChange = onAddUiPatternChange,
+                bottomBarRevealMotion = bottomBarRevealMotion,
+                onBottomBarRevealMotionChange = onBottomBarRevealMotionChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),

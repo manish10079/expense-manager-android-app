@@ -2305,6 +2305,10 @@
     <string name="desc_add_ui_pattern">એકીકૃત સ્માર્ટ શીટ અથવા ફ્લોટિંગ આર્ક</string>
     <string name="label_add_ui_unified">એકીકૃત સ્માર્ટ શીટ</string>
     <string name="label_add_ui_arc">ઝડપી ફ્લોટિંગ આર્ક</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">વ્યવહાર ઉમેરો</string>
     <string name="label_use_classic_form">ક્લાસિક ફોર્મ વાપરો</string>
     <string name="hint_ai_chat_spend">જેમ કે એરપોર્ટ સુધી ઉબર પર $18 ખર્ચ…</string>

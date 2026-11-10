@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material.icons.filled.Today
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
@@ -81,6 +83,7 @@ import com.mknlabs.expensetracker.data.constants.DEFAULT_DATE_FORMAT_PATTERN
 import com.mknlabs.expensetracker.data.constants.DEFAULT_TIME_FORMAT
 import com.mknlabs.expensetracker.data.constants.transactionList
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
+import com.mknlabs.expensetracker.models.BottomBarRevealMotion
 import com.mknlabs.expensetracker.models.AmountFormatPreferences
 import com.mknlabs.expensetracker.models.Transaction
 import com.mknlabs.expensetracker.models.TransactionCardCustomizationSettings
@@ -137,13 +140,17 @@ internal fun TransactionCardTogglesList(
     onDefaultPeriodFilterChange: (TransactionPeriodFilter) -> Unit,
     addUiPattern: AddTransactionUiPattern,
     onAddUiPatternChange: (AddTransactionUiPattern) -> Unit,
+    bottomBarRevealMotion: BottomBarRevealMotion = BottomBarRevealMotion.ExpandFromCenter,
+    onBottomBarRevealMotionChange: (BottomBarRevealMotion) -> Unit = {},
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 20.dp
 ) {
     var isDefaultViewSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isAddUiSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isNavRevealSheetVisible by rememberSaveable { mutableStateOf(false) }
     val defaultViewSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addUiSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val navRevealSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val periodFilterItems = TransactionPeriodFilter.entries.map { filter ->
         SelectionItem(
             id = filter,
@@ -183,6 +190,31 @@ internal fun TransactionCardTogglesList(
                     type = SettingsItemType.Value,
                     standalone = false,
                     onClick = { isAddUiSheetVisible = true }
+                )
+            }
+        }
+        item {
+            SettingsGroupHeader(
+                title = stringResource(id = R.string.label_nav_bar_reveal),
+                subtitle = stringResource(id = R.string.desc_nav_bar_reveal)
+            )
+        }
+        item {
+            SettingsGroup(colors = settingsGroupCardColors()) {
+                SettingsItemCard(
+                    icon = Icons.Filled.KeyboardArrowUp,
+                    iconTile = SettingsTiles.Sky,
+                    title = stringResource(id = R.string.label_nav_bar_reveal),
+                    subtitle = stringResource(id = R.string.desc_nav_bar_reveal),
+                    valueText = stringResource(
+                        if (bottomBarRevealMotion == BottomBarRevealMotion.SlideUp)
+                            R.string.label_nav_reveal_slide
+                        else
+                            R.string.label_nav_reveal_expand
+                    ),
+                    type = SettingsItemType.Value,
+                    standalone = false,
+                    onClick = { isNavRevealSheetVisible = true }
                 )
             }
         }
@@ -272,6 +304,34 @@ internal fun TransactionCardTogglesList(
             onItemSelected = { pattern ->
                 onAddUiPatternChange(pattern)
                 isAddUiSheetVisible = false
+            }
+        )
+    }
+
+    if (isNavRevealSheetVisible) {
+        AppSelectionSheet(
+            title = stringResource(id = R.string.label_nav_bar_reveal),
+            description = stringResource(id = R.string.desc_nav_bar_reveal),
+            items = listOf(
+                SelectionItem(
+                    id = BottomBarRevealMotion.SlideUp,
+                    title = stringResource(R.string.label_nav_reveal_slide),
+                    leadingIcon = Icons.Filled.KeyboardArrowUp,
+                ),
+                SelectionItem(
+                    id = BottomBarRevealMotion.ExpandFromCenter,
+                    title = stringResource(R.string.label_nav_reveal_expand),
+                    leadingIcon = Icons.Filled.UnfoldMore,
+                ),
+            ),
+            selectedId = bottomBarRevealMotion,
+            sheetState = navRevealSheetState,
+            containerColor = MaterialTheme.colorScheme.profileSheet,
+            rowColor = MaterialTheme.colorScheme.genderRow,
+            onDismiss = { isNavRevealSheetVisible = false },
+            onItemSelected = { motion ->
+                onBottomBarRevealMotionChange(motion)
+                isNavRevealSheetVisible = false
             }
         )
     }

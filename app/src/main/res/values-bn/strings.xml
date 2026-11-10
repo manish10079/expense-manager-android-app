@@ -2271,6 +2271,10 @@
     <string name="desc_add_ui_pattern">একীভূত স্মার্ট শিট বা ভাসমান আর্ক</string>
     <string name="label_add_ui_unified">একীভূত স্মার্ট শিট</string>
     <string name="label_add_ui_arc">দ্রুত ভাসমান আর্ক</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">লেনদেন যোগ করুন</string>
     <string name="label_use_classic_form">ক্লাসিক ফর্ম ব্যবহার করুন</string>
     <string name="hint_ai_chat_spend">যেমন বিমানবন্দরে উবারে $১৮ খরচ…</string>

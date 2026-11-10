@@ -67,6 +67,7 @@ import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.adaptive.FontScaleTier
 import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
+import com.mknlabs.expensetracker.models.BottomBarRevealMotion
 import com.mknlabs.expensetracker.core.ui.navigation.BottomNavBarItem
 import com.mknlabs.expensetracker.core.ui.navigation.bottomNavBarItems
 import com.mknlabs.expensetracker.core.ui.theme.Dimens
@@ -198,7 +199,8 @@ fun AppBottomBar(
     onSpeedDialWrite: () -> Unit = {},
     onSpeedDialManual: () -> Unit = {},
     hazeState: HazeState? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    revealMotion: BottomBarRevealMotion = BottomBarRevealMotion.ExpandFromCenter,
 ) {
     var barVisible by remember { mutableStateOf(true) }
 
@@ -242,7 +244,8 @@ fun AppBottomBar(
         barVisible = barVisible,
         onRevealClick = { showRequests++ },
         hazeState = hazeState,
-        modifier = modifier
+        modifier = modifier,
+        revealMotion = revealMotion,
     )
 }
 
@@ -287,7 +290,8 @@ private fun AppBottomBarContent(
     barVisible: Boolean,
     onRevealClick: () -> Unit,
     hazeState: HazeState? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    revealMotion: BottomBarRevealMotion = BottomBarRevealMotion.ExpandFromCenter,
 ) {
     val capsuleShape = RoundedCornerShape(32.dp)
 
@@ -340,20 +344,8 @@ private fun AppBottomBarContent(
         // otherwise draw over the rising capsule.
         AnimatedVisibility(
             visible = !barVisible,
-            // Delayed so the sequence reads as the bar leaving, then the handle
-            // arriving — never both mid-flight at once.
-            enter = slideInVertically(
-                animationSpec = tween(
-                    BarSlideMillis,
-                    delayMillis = BarSlideMillis / 2,
-                    easing = FastOutSlowInEasing
-                ),
-                initialOffsetY = { it }
-            ) + fadeIn(tween(BarSlideMillis, delayMillis = BarSlideMillis / 2)),
-            exit = slideOutVertically(
-                animationSpec = tween(BarSlideMillis, easing = FastOutLinearInEasing),
-                targetOffsetY = { it }
-            ) + fadeOut(tween(BarSlideMillis)),
+            enter = bottomBarHandleEnter(revealMotion),
+            exit = bottomBarHandleExit(revealMotion),
             label = "bottom_bar_handle_reveal"
         ) {
             BottomBarRevealHandle(onClick = onRevealClick)
@@ -361,14 +353,8 @@ private fun AppBottomBarContent(
 
         AnimatedVisibility(
             visible = barVisible,
-            enter = slideInVertically(
-                animationSpec = tween(BarSlideMillis, easing = FastOutSlowInEasing),
-                initialOffsetY = { it }
-            ) + fadeIn(tween(BarSlideMillis)),
-            exit = slideOutVertically(
-                animationSpec = tween(BarSlideMillis, easing = FastOutLinearInEasing),
-                targetOffsetY = { it }
-            ) + fadeOut(tween(BarSlideMillis)),
+            enter = bottomBarEnter(revealMotion),
+            exit = bottomBarExit(revealMotion),
             label = "bottom_bar_reveal"
         ) {
             // Every inset lives INSIDE the sliding element so its bottom edge is

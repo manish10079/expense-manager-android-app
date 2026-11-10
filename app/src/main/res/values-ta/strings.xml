@@ -2260,6 +2260,10 @@
     <string name="desc_add_ui_pattern">ஒருங்கிணைந்த ஸ்மார்ட் ஷீட் அல்லது மிதக்கும் ஆர்க்</string>
     <string name="label_add_ui_unified">ஒருங்கிணைந்த ஸ்மார்ட் ஷீட்</string>
     <string name="label_add_ui_arc">விரைவு மிதக்கும் ஆர்க்</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">பரிவர்த்தனை சேர்</string>
     <string name="label_use_classic_form">பழைய படிவத்தைப் பயன்படுத்து</string>
     <string name="hint_ai_chat_spend">எ.கா. விமான நிலைய உபருக்கு $18 செலவு…</string>

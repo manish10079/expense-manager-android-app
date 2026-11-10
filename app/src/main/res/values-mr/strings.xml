@@ -2271,6 +2271,10 @@
     <string name="desc_add_ui_pattern">एकीकृत स्मार्ट शीट किंवा फ्लोटिंग आर्क</string>
     <string name="label_add_ui_unified">एकीकृत स्मार्ट शीट</string>
     <string name="label_add_ui_arc">त्वरित फ्लोटिंग आर्क</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">व्यवहार जोडा</string>
     <string name="label_use_classic_form">क्लासिक फॉर्म वापरा</string>
     <string name="hint_ai_chat_spend">उदा. विमानतळापर्यंत उबरवर $18 खर्च…</string>

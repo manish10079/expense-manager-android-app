@@ -4649,6 +4649,10 @@
     <string name="desc_add_ui_pattern">統合スマートシートまたはフローティングアーク</string>
     <string name="label_add_ui_unified">統合スマートシート</string>
     <string name="label_add_ui_arc">クイックフローティングアーク</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">取引を追加</string>
     <string name="label_use_classic_form">従来のフォームを使う</string>
     <string name="hint_ai_chat_spend">例: 空港までのUberに18ドル使った…</string>

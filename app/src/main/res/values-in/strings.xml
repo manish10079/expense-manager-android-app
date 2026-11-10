@@ -4649,6 +4649,10 @@ privat dari sifat</string>
     <string name="desc_add_ui_pattern">Lembar cerdas terpadu atau busur mengambang</string>
     <string name="label_add_ui_unified">Lembar cerdas terpadu</string>
     <string name="label_add_ui_arc">Busur mengambang cepat</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">Tambah transaksi</string>
     <string name="label_use_classic_form">Gunakan formulir klasik</string>
     <string name="hint_ai_chat_spend">mis. Habis $18 untuk Uber ke bandara…</string>

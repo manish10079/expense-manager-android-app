@@ -743,6 +743,7 @@ fun MainScaffold(
             AppBottomBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 currentRoute = currentRoute,
+                revealMotion = appSettings.bottomBarRevealMotion,
                 hazeState = hazeState,
                 onItemClick = { route ->
                     onBottomBarVisibilityChange(false)

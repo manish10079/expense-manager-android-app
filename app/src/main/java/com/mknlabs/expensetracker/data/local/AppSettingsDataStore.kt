@@ -15,6 +15,7 @@ import com.mknlabs.expensetracker.data.constants.LEGACY_DEFAULT_DATE_FORMAT_PATT
 import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.models.AppSettings
 import com.mknlabs.expensetracker.models.addTransactionUiPatternOrDefault
+import com.mknlabs.expensetracker.models.bottomBarRevealMotionOrDefault
 import com.mknlabs.expensetracker.models.AppThemeMode
 import com.mknlabs.expensetracker.models.CurrencyGroupingStyle
 import com.mknlabs.expensetracker.models.FontMode
@@ -100,6 +101,7 @@ object AppSettingsDataStore {
         val monthStartDay = intPreferencesKey("month_start_day")
         val defaultTransactionPeriodFilter = stringPreferencesKey("default_transaction_period_filter")
         val addTransactionUiPattern = stringPreferencesKey("add_transaction_ui_pattern")
+        val bottomBarRevealMotion = stringPreferencesKey("bottom_bar_reveal_motion")
         val defaultsRevision = intPreferencesKey("defaults_revision")
     }
 
@@ -379,6 +381,7 @@ object AppSettingsDataStore {
             defaultTransactionPeriodFilter = this[Keys.defaultTransactionPeriodFilter]
                 ?: defaultAppSettings.defaultTransactionPeriodFilter,
             addTransactionUiPattern = addTransactionUiPatternOrDefault(this[Keys.addTransactionUiPattern]),
+            bottomBarRevealMotion = bottomBarRevealMotionOrDefault(this[Keys.bottomBarRevealMotion]),
         )
     }
 
@@ -455,6 +458,7 @@ object AppSettingsDataStore {
         this[Keys.monthStartDay] = settings.monthStartDay
         this[Keys.defaultTransactionPeriodFilter] = settings.defaultTransactionPeriodFilter
         this[Keys.addTransactionUiPattern] = settings.addTransactionUiPattern.name
+        this[Keys.bottomBarRevealMotion] = settings.bottomBarRevealMotion.name
     }
 
     private fun userTierOrDefault(value: String): com.mknlabs.expensetracker.models.UserTier {

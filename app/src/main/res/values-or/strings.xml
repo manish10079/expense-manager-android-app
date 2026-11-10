@@ -4581,6 +4581,10 @@
     <string name="desc_add_ui_pattern">ଏକୀକୃତ ସ୍ମାର୍ଟ ସିଟ୍ କିମ୍ବା ଦ୍ରୁତ ଫ୍ଲୋଟିଂ ଆର୍କ</string>
     <string name="label_add_ui_unified">ଏକୀକୃତ ସ୍ମାର୍ଟ ସିଟ୍</string>
     <string name="label_add_ui_arc">ଦ୍ରୁତ ଫ୍ଲୋଟିଂ ଆର୍କ</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">କାରବାର ଯୋଡ଼ନ୍ତୁ</string>
     <string name="label_use_classic_form">କ୍ଲାସିକ୍ ଫର୍ମ ବ୍ୟବହାର କରନ୍ତୁ</string>
     <string name="hint_ai_chat_spend">ଯେପରି ଏୟାରପୋର୍ଟ ପର୍ଯ୍ୟନ୍ତ ଉବର୍‌ରେ $18 ଖର୍ଚ୍ଚ…</string>

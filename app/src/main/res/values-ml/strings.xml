@@ -2287,6 +2287,10 @@
     <string name="desc_add_ui_pattern">ഏകീകൃത സ്മാർട്ട് ഷീറ്റ് അല്ലെങ്കിൽ ഫ്ലോട്ടിങ് ആർക്ക്</string>
     <string name="label_add_ui_unified">ഏകീകൃത സ്മാർട്ട് ഷീറ്റ്</string>
     <string name="label_add_ui_arc">ക്വിക്ക് ഫ്ലോട്ടിങ് ആർക്ക്</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">ഇടപാട് ചേർക്കുക</string>
     <string name="label_use_classic_form">ക്ലാസിക് ഫോം ഉപയോഗിക്കുക</string>
     <string name="hint_ai_chat_spend">ഉദാ. എയർപോർട്ടിലേക്ക് ഉബറിന് $18 ചെലവ്…</string>

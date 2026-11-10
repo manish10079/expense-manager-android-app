@@ -80,4 +80,5 @@ data class AppSettings(
     val monthStartDay: Int = 1,
     val defaultTransactionPeriodFilter: String = "MONTHLY",
     val addTransactionUiPattern: AddTransactionUiPattern = AddTransactionUiPattern.UNIFIED_SMART_SHEET,
+    val bottomBarRevealMotion: BottomBarRevealMotion = BottomBarRevealMotion.ExpandFromCenter,
 )

@@ -2298,6 +2298,10 @@
     <string name="desc_add_ui_pattern">ಏಕೀಕೃತ ಸ್ಮಾರ್ಟ್ ಶೀಟ್ ಅಥವಾ ತೇಲುವ ಆರ್ಕ್</string>
     <string name="label_add_ui_unified">ಏಕೀಕೃತ ಸ್ಮಾರ್ಟ್ ಶೀಟ್</string>
     <string name="label_add_ui_arc">ತ್ವರಿತ ತೇಲುವ ಆರ್ಕ್</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">ವಹಿವಾಟು ಸೇರಿಸಿ</string>
     <string name="label_use_classic_form">ಕ್ಲಾಸಿಕ್ ಫಾರ್ಮ್ ಬಳಸಿ</string>
     <string name="hint_ai_chat_spend">ಉದಾ. ವಿಮಾನ ನಿಲ್ದಾಣಕ್ಕೆ ಉಬರ್‌ಗೆ $18 ಖರ್ಚು…</string>

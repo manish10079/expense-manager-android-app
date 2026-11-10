@@ -4625,6 +4625,10 @@
     <string name="desc_add_ui_pattern">통합 스마트 시트 또는 플로팅 아크</string>
     <string name="label_add_ui_unified">통합 스마트 시트</string>
     <string name="label_add_ui_arc">빠른 플로팅 아크</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">거래 추가</string>
     <string name="label_use_classic_form">기본 양식 사용</string>
     <string name="hint_ai_chat_spend">예: 공항 우버에 18달러 썼어…</string>

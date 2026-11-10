@@ -4780,6 +4780,10 @@
     <string name="desc_add_ui_pattern">Unified Smart Sheet or Quick Floating Arc</string>
     <string name="label_add_ui_unified">Unified Smart Sheet</string>
     <string name="label_add_ui_arc">Quick Floating Arc</string>
+    <string name="label_nav_bar_reveal">Navigation bar</string>
+    <string name="desc_nav_bar_reveal">How the bar appears from the chevron</string>
+    <string name="label_nav_reveal_slide">Slide up</string>
+    <string name="label_nav_reveal_expand">Expand from center</string>
     <string name="label_add_transaction">Add Transaction</string>
     <string name="label_use_classic_form">Use Classic Form</string>
     <string name="hint_ai_chat_spend">e.g. Spent $18 for Uber to airport...</string>

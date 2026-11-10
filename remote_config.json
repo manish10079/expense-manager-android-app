@@ -2,7 +2,7 @@
   "parameters": {
     "latest_version": {
       "defaultValue": {
-        "value": "2.258.2"
+        "value": "2.263.0"
       },
       "valueType": "STRING"
     },
