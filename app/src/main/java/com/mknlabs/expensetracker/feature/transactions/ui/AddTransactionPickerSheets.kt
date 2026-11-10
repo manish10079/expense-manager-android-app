@@ -887,7 +887,7 @@ internal fun SpendFromFundBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.surface,
+                            containerColor = if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.15f) else if (colorScheme.isDark) Color(0xFF101019) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isNoneSelected) 1.5.dp else 1.dp,
@@ -906,13 +906,13 @@ internal fun SpendFromFundBottomSheet(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(colorScheme.onSurfaceVariant.copy(alpha = 0.12f)),
+                                    .background(if (isNoneSelected) colorScheme.accentInk.copy(alpha = 0.15f) else colorScheme.onSurfaceVariant.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Clear,
                                     contentDescription = null,
-                                    tint = colorScheme.onSurfaceVariant,
+                                    tint = if (isNoneSelected) colorScheme.accentInk else colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -941,11 +941,11 @@ internal fun SpendFromFundBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = AppCardColors(
-                            containerColor = if (isSelected) fundColor.copy(alpha = 0.15f) else colorScheme.surface,
+                            containerColor = if (isSelected) colorScheme.accentInk.copy(alpha = 0.15f) else if (colorScheme.isDark) Color(0xFF101019) else colorScheme.surface,
                             contentColor = colorScheme.onSurface,
                             border = BorderStroke(
                                 width = if (isSelected) 1.5.dp else 1.dp,
-                                color = if (isSelected) fundColor else colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                color = if (isSelected) colorScheme.accentInk else colorScheme.outlineVariant.copy(alpha = 0.4f)
                             )
                         )
                     ) {
@@ -967,7 +967,7 @@ internal fun SpendFromFundBottomSheet(
                                     imageVector = fund.icon,
                                     contentDescription = null,
                                     tint = fundColor,
-                                    modifier = Modifier.size(22.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                             Text(
