@@ -1143,6 +1143,9 @@
 
     <string name="label_add_action">जोड़ें</string>
 
+    <string name="label_add_all">सभी जोड़ें</string>
+
+
     <string name="label_am">सुबह (AM)</string>
 
     <string name="label_pm">शाम (PM)</string>

@@ -1599,6 +1599,9 @@ privat von Haus aus</string>
 
     <string name="label_add_action">Hinzufügen</string>
 
+    <string name="label_add_all">Alle hinzufügen</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

@@ -1432,6 +1432,9 @@
     <string name="msg_installment_info">ప్రస్తుత లావాదేవీ వాయిదా #1. భవిష్యత్ నమోదులు స్వయంచాలకంగా సృష్టించబడతాయి.</string>
     <string name="label_update_action">అప్‌డేట్</string>
     <string name="label_add_action">జోడించు</string>
+
+    <string name="label_add_all">అన్నీ జోడించు</string>
+
     <string name="label_secure_app_pin">PIN కోడ్‌తో యాప్‌ను సురక్షితం చేయండి</string>
     <string name="label_use_biometric_subtitle">వేలిముద్ర వాడండి</string>
     <string name="label_scrambled_keypad">కలగలిపిన కీప్యాడ్</string>

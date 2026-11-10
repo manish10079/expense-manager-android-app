@@ -3,6 +3,9 @@ package com.mknlabs.expensetracker.core.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -55,6 +59,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -123,9 +128,17 @@ internal fun BatchTransactionList(
     items: List<AiParsedReviewItem>,
     dark: Boolean,
     currencyId: Int,
-    onSelect: (AiParsedReviewItem) -> Unit,
+    onSelect: (AiParsedReviewItem) -> Unit = {},
     onRetry: (() -> Unit)? = null,
+    onItemChange: (AiParsedReviewItem) -> Unit = {},
+    onDismiss: () -> Unit = {},
+    onAddAll: () -> Unit = {},
+    onAddItem: (AiParsedReviewItem) -> Unit = {},
+    funds: List<Fund> = emptyList(),
+    tags: List<Tag> = emptyList(),
+    showBatchActions: Boolean = false,
 ) {
+    var expandedId by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -173,18 +186,79 @@ internal fun BatchTransactionList(
                 ),
             )
         }
+        val listScroll = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 520.dp)
-                .verticalScroll(rememberScrollState()),
+                .then(
+                    if (items.size > 5) {
+                        Modifier
+                            .height(392.dp)
+                            .verticalScroll(listScroll)
+                    } else {
+                        Modifier
+                    }
+                ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEach { item ->
-                BatchRow(item = item, dark = dark, currencyId = currencyId, onClick = { onSelect(item) })
+                BatchRow(
+                    item = item,
+                    dark = dark,
+                    currencyId = currencyId,
+                    expanded = expandedId == item.id,
+                    onClick = {
+                        expandedId = if (expandedId == item.id) null else item.id
+                    },
+                    onItemChange = onItemChange,
+                    onAdd = { onAddItem(item) },
+                    funds = funds,
+                    tags = tags,
+                )
             }
         }
-        if (onRetry != null) {
+        if (showBatchActions) {
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (onRetry != null) {
+                    ReviewGhostButton(
+                        text = stringResource(R.string.label_retry),
+                        dark = dark,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        icon = { Icon(Lucide.RotateCw, null, Modifier.size(12.dp)) },
+                        onClick = onRetry,
+                    )
+                }
+                val canAddAll = items.isNotEmpty() && items.all { it.categoryId > 0 }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(ReviewCardCorner))
+                        .background(ReviewBrandGradient)
+                        .then(
+                            if (canAddAll) Modifier.reviewClickable(onClick = onAddAll)
+                            else Modifier
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(R.string.label_add_all),
+                        color = Color.White.copy(alpha = if (canAddAll) 1f else 0.5f),
+                        fontSize = 12.90.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        } else if (onRetry != null) {
             Spacer(Modifier.height(10.dp))
             ReviewGhostButton(
                 text = stringResource(R.string.label_retry),
@@ -203,16 +277,21 @@ internal fun BatchRow(
     dark: Boolean,
     currencyId: Int,
     onClick: () -> Unit,
+    expanded: Boolean = false,
+    onItemChange: (AiParsedReviewItem) -> Unit = {},
+    onAdd: () -> Unit = {},
+    funds: List<Fund> = emptyList(),
+    tags: List<Tag> = emptyList(),
 ) {
     val expense = item.typeId != AiParseContract.TYPE_INCOME
     val amount = formatReviewAmount(item.amount, currencyId)
+    Column(
+        modifier = reviewMetaCardModifier(dark, Modifier.fillMaxWidth()),
+    ) {
     Row(
-        modifier = reviewMetaCardModifier(
-            dark,
-            Modifier
-                .fillMaxWidth()
-                .reviewClickable(onClick = onClick),
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .reviewClickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -292,7 +371,34 @@ internal fun BatchRow(
                     ),
                 )
             }
+            Icon(
+                Lucide.ChevronDown,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .size(16.dp)
+                    .graphicsLayer { rotationZ = if (expanded) 180f else 0f },
+                tint = if (dark) ReviewDarkMuted else ReviewLightMuted,
+            )
+        }
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
+            ParsedDetailCard(
+                item = item,
+                dark = dark,
+                currencyId = currencyId,
+                showBackToList = false,
+                onBackToList = {},
+                onRetry = null,
+                onItemChange = onItemChange,
+                funds = funds,
+                tags = tags,
+                onAdd = onAdd,
+                compactEmbed = true,
+            )
         }
     }
-
-
+}

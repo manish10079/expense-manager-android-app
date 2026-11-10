@@ -729,6 +729,9 @@
     <string name="msg_installment_info">ਮੌਜੂਦਾ ਲੈਣ-ਦੇਣ ਕਿਸ਼ਤ #1 ਹੈ। ਅੱਗੇ ਦੀਆਂ ਐਂਟਰੀਆਂ ਆਪਣੇ ਆਪ ਬਣ ਜਾਣਗੀਆਂ।</string>
     <string name="label_update_action">ਅੱਪਡੇਟ</string>
     <string name="label_add_action">ਸ਼ਾਮਲ ਕਰੋ</string>
+
+    <string name="label_add_all">ਸਭ ਜੋੜੋ</string>
+
     <string name="label_am">AM</string>
     <string name="label_pm">PM</string>
     <string name="label_secure_app_pin">ਐਪ ਨੂੰ PIN ਕੋਡ ਨਾਲ ਸੁਰੱਖਿਅਤ ਕਰੋ</string>

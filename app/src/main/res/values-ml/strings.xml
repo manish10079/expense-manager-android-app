@@ -722,6 +722,9 @@
     <string name="msg_installment_info">നിലവിലെ ഇടപാട് ഗഡു #1 ആണ്. ഭാവിയിലുള്ളവ സ്വയം സൃഷ്ടിക്കും.</string>
     <string name="label_update_action">അപ്ഡേറ്റ് ചെയ്യുക</string>
     <string name="label_add_action">ചേർക്കുക</string>
+
+    <string name="label_add_all">എല്ലാം ചേർക്കുക</string>
+
     <string name="label_secure_app_pin">PIN കോഡ് ഉപയോഗിച്ച് ആപ്പ് സുരക്ഷിതമാക്കുക</string>
     <string name="label_use_biometric_subtitle">വിരലടയാളം ഉപയോഗിക്കുക</string>
     <string name="label_scrambled_keypad">കുഴഞ്ഞ കീപാഡ്</string>

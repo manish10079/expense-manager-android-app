@@ -1571,6 +1571,9 @@
 
     <string name="label_add_action">추가</string>
 
+    <string name="label_add_all">모두 추가</string>
+
+
     <string name="label_am">오전</string>
 
     <string name="label_pm">오후</string>

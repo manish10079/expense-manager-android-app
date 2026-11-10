@@ -1599,6 +1599,9 @@ privado de verdade</string>
 
     <string name="label_add_action">Adicionar</string>
 
+    <string name="label_add_all">Adicionar todos</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

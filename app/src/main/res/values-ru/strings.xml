@@ -1575,6 +1575,9 @@
 
     <string name="label_add_action">Добавить</string>
 
+    <string name="label_add_all">Добавить все</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

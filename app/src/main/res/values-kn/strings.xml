@@ -753,6 +753,9 @@
     <string name="msg_installment_info">ಪ್ರಸ್ತುತ ವಹಿವಾಟು ಕಂತ ಸಂಖ್ಯೆ 1. ಮುಂದಿನ ನಮೂದುಗಳು ತಾನಾಗಿ ಸೃಷ್ಟಿಯಾಗುತ್ತವೆ.</string>
     <string name="label_update_action">ನವೀಕರಿಸಿ</string>
     <string name="label_add_action">ಸೇರಿಸಿ</string>
+
+    <string name="label_add_all">ಎಲ್ಲವನ್ನೂ ಸೇರಿಸಿ</string>
+
     <string name="label_secure_app_pin">PIN ಕೋಡ್‌ನಿಂದ ಆಪ್ ಸುರಕ್ಷಿತಗೊಳಿಸಿ</string>
     <string name="label_use_biometric_subtitle">ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಬಳಸಿ</string>
     <string name="label_scrambled_keypad">ಆಯಾದುಂಬರಿ ಕೀಪ್ಯಾಡ್</string>

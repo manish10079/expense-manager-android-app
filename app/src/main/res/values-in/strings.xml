@@ -1599,6 +1599,9 @@ privat dari sifat</string>
 
     <string name="label_add_action">Tambah</string>
 
+    <string name="label_add_all">Tambah semua</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

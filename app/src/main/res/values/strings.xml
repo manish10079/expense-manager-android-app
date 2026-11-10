@@ -1481,6 +1481,9 @@
 
     <string name="label_add_action">Add</string>
 
+    <string name="label_add_all">Add all</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

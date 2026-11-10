@@ -1598,6 +1598,9 @@ privé par nature</string>
 
     <string name="label_add_action">Ajouter</string>
 
+    <string name="label_add_all">Tout ajouter</string>
+
+
     <string name="label_am">AM</string>
 
     <string name="label_pm">PM</string>

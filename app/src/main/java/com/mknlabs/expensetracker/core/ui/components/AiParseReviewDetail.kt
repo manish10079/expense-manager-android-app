@@ -133,6 +133,7 @@ internal fun ParsedDetailCard(
     funds: List<Fund> = emptyList(),
     tags: List<Tag> = emptyList(),
     onAdd: () -> Unit,
+    compactEmbed: Boolean = false,
 ) {
     var picker by remember { mutableStateOf<ReviewPicker?>(null) }
     val noteFocus = remember { FocusRequester() }
@@ -142,7 +143,13 @@ internal fun ParsedDetailCard(
         mutableStateOf(reviewAmountDraft(item.amount))
     }
 
-    Column(modifier = Modifier.padding(horizontal = 17.dp, vertical = 20.dp)) {
+    Column(
+        modifier = if (compactEmbed) {
+            Modifier.padding(top = 8.dp)
+        } else {
+            Modifier.padding(horizontal = 17.dp, vertical = 20.dp)
+        }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -385,7 +392,7 @@ internal fun ParsedDetailCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (showBackToList) {
+            if (!compactEmbed && showBackToList) {
                 ReviewGhostButton(
                     text = stringResource(R.string.label_cancel),
                     dark = dark,
@@ -393,7 +400,7 @@ internal fun ParsedDetailCard(
                     onClick = onBackToList,
                 )
             }
-            if (onRetry != null) {
+            if (!compactEmbed && onRetry != null) {
                 ReviewGhostButton(
                     text = stringResource(R.string.label_retry),
                     dark = dark,

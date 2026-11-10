@@ -157,6 +157,21 @@ fun AiParseReviewSheet(
             shadowElevation = 20.dp,
         ) {
             when {
+                items.size > 1 -> BatchTransactionList(
+                    items = drafts,
+                    dark = dark,
+                    currencyId = currencyId,
+                    onRetry = onRetry,
+                    onItemChange = { updateDraft(it) },
+                    onDismiss = onDismissRequest,
+                    onAddAll = {
+                        drafts.forEach { onAdd(it) }
+                    },
+                    onAddItem = { onAdd(it) },
+                    funds = funds,
+                    tags = tags,
+                    showBatchActions = true,
+                )
                 selected == null -> BatchTransactionList(
                     items = drafts,
                     dark = dark,

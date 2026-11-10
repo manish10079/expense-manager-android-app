@@ -707,6 +707,9 @@
     <string name="msg_installment_info">বৰ্তমান লেনদেনটো কিস্তি #১। ভৱিষ্যতৰ এণ্ট্ৰিবোৰ স্বয়ংক্ৰিয়ভাৱে তৈয়াৰ হ\'ব।</string>
     <string name="label_update_action">আপডেট</string>
     <string name="label_add_action">যোগ</string>
+
+    <string name="label_add_all">সকলো যোগ কৰক</string>
+
     <string name="label_secure_app_pin">PIN ক\'ডেৰে এপ সুৰক্ষিত কৰক</string>
     <string name="label_use_biometric_subtitle">আঙুলিৰ ছাপ ব্যৱহাৰ কৰক</string>
     <string name="label_scrambled_keypad">এলোমেলো কীপেড</string>

@@ -711,6 +711,9 @@
     <string name="msg_installment_info">தற்போதைய பரிவர்த்தனை தவணை எண் 1. அடுத்த பதிவுகள் தானாக உருவாக்கப்படும்.</string>
     <string name="label_update_action">புதுப்பி</string>
     <string name="label_add_action">சேர்</string>
+
+    <string name="label_add_all">அனைத்தையும் சேர்</string>
+
     <string name="label_secure_app_pin">PIN குறியீட்டால் ஆப்பைப் பாதுகாக்கவும்</string>
     <string name="label_use_biometric_subtitle">கைரேகையைப் பயன்படுத்து</string>
     <string name="label_scrambled_keypad">கலைந்த விசைப்பலகை</string>

@@ -714,6 +714,9 @@
     <string name="label_update_action">अपडेट करा</string>
     <string name="label_add_action">जोडा</string>
 
+    <string name="label_add_all">सर्व जोडा</string>
+
+
     <!-- Security, language, theme, fonts & auth entry -->
     <string name="label_secure_app_pin">PIN कोडने अ‍ॅप सुरक्षित करा</string>
     <string name="label_use_biometric_subtitle">फिंगरप्रिंट वापरा</string>

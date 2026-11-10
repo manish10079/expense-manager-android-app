@@ -715,6 +715,9 @@
     <string name="msg_installment_info">এই লেনদেনটি কিস্তি #১। পরের এন্ট্রিগুলো স্বয়ংক্রিয়ভাবে তৈরি হবে।</string>
     <string name="label_update_action">আপডেট</string>
     <string name="label_add_action">যোগ করুন</string>
+
+    <string name="label_add_all">সব যোগ করুন</string>
+
     <string name="label_secure_app_pin">PIN দিয়ে অ্যাপ সুরক্ষিত করুন</string>
     <string name="label_use_biometric_subtitle">ফিঙ্গারপ্রিন্ট ব্যবহার করুন</string>
     <string name="label_scrambled_keypad">এলোমেলো কীপ্যাড</string>
