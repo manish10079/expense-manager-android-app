@@ -52,7 +52,8 @@ class DonutBreakdownWidget : GlanceAppWidget() {
                 WidgetDonutContent(
                     panels = panels,
                     appWidgetId = appWidgetId,
-                    monthLabel = "$monthName ${labelCal.get(java.util.Calendar.YEAR)}"
+                    monthLabel = "$monthName ${labelCal.get(java.util.Calendar.YEAR)}",
+                    canGoNext = offset < 0,
                 )
             }
         }

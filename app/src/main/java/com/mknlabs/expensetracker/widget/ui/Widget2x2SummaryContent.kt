@@ -50,7 +50,8 @@ internal fun Widget2x2SummaryContent(
     uiState: WidgetUiState,
     forceDark: Boolean? = null,
     showMonthNav: Boolean = false,
-    appWidgetId: Int = android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID
+    appWidgetId: Int = android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID,
+    canGoNext: Boolean = false,
 ) {
     val dark = widgetIsNightMode(forceDark)
     val colors = if (dark) Widget2x2Colors.Dark else Widget2x2Colors.Light
@@ -83,7 +84,8 @@ internal fun Widget2x2SummaryContent(
                     labelColor = colors.muted,
                     chipBg = chipBg,
                     target = com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_SUMMARY,
-                    appWidgetId = appWidgetId
+                    appWidgetId = appWidgetId,
+                    canGoNext = canGoNext,
                 )
             } else {
                 Text(

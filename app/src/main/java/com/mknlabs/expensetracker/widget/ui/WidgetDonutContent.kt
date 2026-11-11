@@ -42,7 +42,8 @@ internal fun WidgetDonutContent(
     panels: List<WidgetBreakdownPanel>,
     forceDark: Boolean? = null,
     appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID,
-    monthLabel: String? = null
+    monthLabel: String? = null,
+    canGoNext: Boolean = false,
 ) {
     val dark = widgetIsNightMode(forceDark)
     val colors = if (dark) Widget2x2Colors.Dark else Widget2x2Colors.Light
@@ -112,7 +113,8 @@ internal fun WidgetDonutContent(
                     labelColor = colors.muted,
                     chipBg = chipBg,
                     target = com.mknlabs.expensetracker.widget.WidgetMonthPrefs.TARGET_DONUT,
-                    appWidgetId = appWidgetId
+                    appWidgetId = appWidgetId,
+                    canGoNext = canGoNext,
                 )
             } else {
                 Text(

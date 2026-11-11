@@ -15,7 +15,7 @@ internal object WidgetMonthPrefs {
 
     fun add(context: Context, target: String, appWidgetId: Int, delta: Int) {
         val prefs = context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
-        val next = prefs.getInt(key(target, appWidgetId), 0) + delta
+        val next = (prefs.getInt(key(target, appWidgetId), 0) + delta).coerceAtMost(0)
         prefs.edit().putInt(key(target, appWidgetId), next).commit()
     }
 

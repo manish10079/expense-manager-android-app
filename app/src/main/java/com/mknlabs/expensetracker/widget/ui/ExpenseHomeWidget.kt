@@ -32,7 +32,12 @@ class ExpenseHomeWidget : GlanceAppWidget() {
         val uiState = loadMonthUiState(context, offset)
         provideContent {
             GlanceTheme {
-                Widget2x2SummaryContent(uiState, showMonthNav = true, appWidgetId = appWidgetId)
+                Widget2x2SummaryContent(
+                    uiState,
+                    showMonthNav = true,
+                    appWidgetId = appWidgetId,
+                    canGoNext = offset < 0,
+                )
             }
         }
     }

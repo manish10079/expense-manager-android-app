@@ -8,9 +8,9 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.LocalContext
+import androidx.glance.action.Action
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.action.actionSendBroadcast
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -23,7 +23,11 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mknlabs.expensetracker.R
-import com.mknlabs.expensetracker.widget.WidgetMonthNavReceiver
+import com.mknlabs.expensetracker.widget.DonutMonthNextAction
+import com.mknlabs.expensetracker.widget.DonutMonthPrevAction
+import com.mknlabs.expensetracker.widget.SummaryMonthNextAction
+import com.mknlabs.expensetracker.widget.SummaryMonthPrevAction
+import com.mknlabs.expensetracker.widget.WidgetMonthPrefs
 
 @Composable
 internal fun WidgetMonthNav(
@@ -31,9 +35,20 @@ internal fun WidgetMonthNav(
     labelColor: Color,
     chipBg: Int,
     target: String,
-    appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
+    appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID,
+    canGoNext: Boolean = false,
 ) {
-    val context = LocalContext.current
+    val live = appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID
+    val prevAction: Action = if (target == WidgetMonthPrefs.TARGET_DONUT) {
+        actionRunCallback<DonutMonthPrevAction>()
+    } else {
+        actionRunCallback<SummaryMonthPrevAction>()
+    }
+    val nextAction: Action = if (target == WidgetMonthPrefs.TARGET_DONUT) {
+        actionRunCallback<DonutMonthNextAction>()
+    } else {
+        actionRunCallback<SummaryMonthNextAction>()
+    }
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -41,8 +56,8 @@ internal fun WidgetMonthNav(
         WidgetMonthChevron(
             icon = R.drawable.widget_ic_chevron_left,
             chipBg = chipBg,
-            enabled = appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID,
-            intent = WidgetMonthNavReceiver.intent(context, appWidgetId, target, -1)
+            enabled = live,
+            action = prevAction,
         )
         Spacer(GlanceModifier.defaultWeight())
         Text(
@@ -57,8 +72,8 @@ internal fun WidgetMonthNav(
         WidgetMonthChevron(
             icon = R.drawable.widget_ic_chevron_right,
             chipBg = chipBg,
-            enabled = appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID,
-            intent = WidgetMonthNavReceiver.intent(context, appWidgetId, target, 1)
+            enabled = live && canGoNext,
+            action = nextAction,
         )
     }
 }
@@ -68,13 +83,13 @@ private fun WidgetMonthChevron(
     icon: Int,
     chipBg: Int,
     enabled: Boolean,
-    intent: android.content.Intent
+    action: Action,
 ) {
     val base = GlanceModifier
         .size(36.dp)
         .background(ImageProvider(chipBg))
     Box(
-        modifier = if (enabled) base.clickable(actionSendBroadcast(intent)) else base,
+        modifier = if (enabled) base.clickable(action) else base,
         contentAlignment = Alignment.Center
     ) {
         Image(
