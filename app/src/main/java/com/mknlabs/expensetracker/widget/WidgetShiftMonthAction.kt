@@ -16,6 +16,9 @@ internal suspend fun shiftWidgetMonth(
 ) {
     val app = context.applicationContext
     val appWidgetId = GlanceAppWidgetManager(app).getAppWidgetId(glanceId)
+    if (delta > 0 && WidgetMonthPrefs.offset(app, target, appWidgetId) >= 0) {
+        return
+    }
     WidgetMonthPrefs.add(app, target, appWidgetId, delta)
     when (target) {
         WidgetMonthPrefs.TARGET_SUMMARY -> ExpenseHomeWidget().updateAll(app)
