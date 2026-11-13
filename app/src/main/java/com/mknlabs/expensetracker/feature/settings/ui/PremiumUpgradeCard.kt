@@ -256,9 +256,9 @@ fun PremiumUpgradeCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Main Title: "Upgrade to Premium"
+                // Main Title: "Upgrade to Pro"
                 Text(
-                    text = stringResource(R.string.title_upgrade_to_premium),
+                    text = stringResource(R.string.label_upgrade_to_pro),
                     color = titleColor,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,

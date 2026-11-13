@@ -4267,7 +4267,6 @@
     <string name="title_membership_upgrade_card">Upgrade to Expense Tracker Pro</string>
 
     <string name="badge_exclusive">EXCLUSIVE</string>
-    <string name="title_upgrade_to_premium">Upgrade to Premium</string>
     <string name="desc_upgrade_to_premium">Unlock advanced insights, reports, and category trends.</string>
 
     <string name="msg_membership_upgrade_body">Unlock unlimited budgets, widgets, recurring transactions, advanced analytics, cloud backup, and more.</string>

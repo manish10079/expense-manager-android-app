@@ -39,6 +39,8 @@ import com.composables.icons.lucide.Star
 import com.composables.icons.lucide.Tags
 import com.composables.icons.lucide.Ticket
 import com.composables.icons.lucide.UserPlus
+import com.mknlabs.expensetracker.core.ui.navigation.LocalUpgradeToPro
+import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.User
@@ -135,6 +137,7 @@ fun SettingsScreen(
     onConnectedDevicesClick: () -> Unit = onCloudSyncDevicesClick,
     onSecurityPrivacyClick: () -> Unit = {},
     onMembershipClick: () -> Unit = {},
+    onUpgradeToProClick: () -> Unit = {},
     onAdFreeAccessClick: () -> Unit = {},
     onRedeemProPassClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
@@ -155,6 +158,7 @@ fun SettingsScreen(
     isAdsEnabled: Boolean = false
 ) {
     val monetizationViewModel: MonetizationViewModel = hiltViewModel()
+    val upgradeToPro = LocalUpgradeToPro.current
 
     val adFreeRemainingTime by settingsViewModel.adFreeRemainingTime.collectAsStateWithLifecycle()
     // Comes from the store entitlement, not from the Pro tier: the store is the authority on a
@@ -199,6 +203,7 @@ fun SettingsScreen(
         onCloudSyncDevicesClick = onConnectedDevicesClick,
         onSecurityPrivacyClick = onSecurityPrivacyClick,
         onMembershipClick = onMembershipClick,
+        onUpgradeToProClick = upgradeToPro,
         onAdFreeAccessClick = onAdFreeAccessClick,
         onRedeemProPassClick = {
             val anonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
@@ -235,6 +240,7 @@ fun SettingsScreenContent(
     onCloudSyncDevicesClick: () -> Unit = {},
     onSecurityPrivacyClick: () -> Unit = {},
     onMembershipClick: () -> Unit = {},
+    onUpgradeToProClick: () -> Unit = {},
     onAdFreeAccessClick: () -> Unit = {},
     onRedeemProPassClick: () -> Unit = {},
     onManageCategoryClick: () -> Unit = {},
@@ -249,7 +255,12 @@ fun SettingsScreenContent(
     onLinkAccountClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val isProUser = userTier == UserTier.PREMIUM
+    val hasProPass = EntitlementResolver.hasActiveProPassGrant(
+        accountTier = userProfile.accountTier,
+        proExpiryTimestamp = userProfile.proExpiryTimestamp,
+        now = System.currentTimeMillis()
+    )
+    val isProUser = userTier == UserTier.PREMIUM || hasActiveStoreSubscription || hasProPass
     val isAdPassActive = !isProUser && adFreeRemainingTime != null
     val isAnonymous = userProfile.authProvider.isBlank() || userProfile.authProvider == "anonymous"
     val enter = rememberSectionEnterAlphas(4)
@@ -322,7 +333,7 @@ fun SettingsScreenContent(
                         item {
                             Spacer(modifier = Modifier.height(16.dp))
                             PremiumUpgradeCard(
-                                onClick = onMembershipClick,
+                                onClick = onUpgradeToProClick,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .alpha(enter[1])

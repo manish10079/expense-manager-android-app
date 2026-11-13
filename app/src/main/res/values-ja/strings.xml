@@ -4092,7 +4092,6 @@
     <string name="title_membership_upgrade_card">Expense Tracker Proにアップグレード</string>
 
     <string name="badge_exclusive">限定</string>
-    <string name="title_upgrade_to_premium">プレミアムにアップグレード</string>
     <string name="desc_upgrade_to_premium">高度な分析、レポート、カテゴリ別のトレンドを解除。</string>
 
     <string name="msg_membership_upgrade_body">無制限の予算、ウィジェット、繰り返し取引、高度な分析、クラウドバックアップなど。</string>

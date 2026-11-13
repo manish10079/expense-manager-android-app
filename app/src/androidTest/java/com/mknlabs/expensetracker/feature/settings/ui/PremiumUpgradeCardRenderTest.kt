@@ -33,10 +33,10 @@ class PremiumUpgradeCardRenderTest {
         }
 
         compose.onNodeWithText(text(R.string.badge_exclusive)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.title_upgrade_to_premium)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_upgrade_to_pro)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.desc_upgrade_to_premium)).assertIsDisplayed()
 
-        compose.onNodeWithText(text(R.string.title_upgrade_to_premium)).performClick()
+        compose.onNodeWithText(text(R.string.label_upgrade_to_pro)).performClick()
         assertEquals(true, clicked)
     }
 
@@ -50,10 +50,10 @@ class PremiumUpgradeCardRenderTest {
         }
 
         compose.onNodeWithText(text(R.string.badge_exclusive)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.title_upgrade_to_premium)).assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.label_upgrade_to_pro)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.desc_upgrade_to_premium)).assertIsDisplayed()
 
-        compose.onNodeWithText(text(R.string.title_upgrade_to_premium)).performClick()
+        compose.onNodeWithText(text(R.string.label_upgrade_to_pro)).performClick()
         assertEquals(true, clicked)
     }
 }
