@@ -68,6 +68,7 @@ import com.mknlabs.expensetracker.models.AddTransactionUiPattern
 import com.mknlabs.expensetracker.core.ui.components.AiTextExtractBottomSheet
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.models.SyncState
+import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
 import com.mknlabs.expensetracker.utils.toMinorUnits
 import com.mknlabs.expensetracker.core.ui.navigation.AppNavigationHost
 import com.mknlabs.expensetracker.core.ui.navigation.AppRoute
@@ -172,6 +173,7 @@ fun MainScaffold(
     onAddTransactionDraftPaymentTypeIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftCreatedAtChange: (Long?) -> Unit = {},
     onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
+    onSaveTransactions: ((List<Pair<Transaction, List<String>>>) -> Unit)? = null,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
     onRestoreTransaction: (Transaction, RecurringTransactionRule?) -> Unit = { _, _ -> },
@@ -900,6 +902,8 @@ fun MainScaffold(
                     aiExtractViewModel.rememberOcrSaved(pendingOcrFingerprint)
                     val occurredAt = item.createdAt ?: System.currentTimeMillis()
                     val now = System.currentTimeMillis()
+                    val catId = if (item.categoryId > 0) item.categoryId else reviewCategoryId(item).let { if (it > 0) it else 20 }
+                    val paymentId = if (item.paymentTypeId > 0) item.paymentTypeId else reviewPaymentId(item).let { if (it > 0) it else DEFAULT_PAYMENT_TYPE_ID }
                     onSaveTransaction(
                         Transaction(
                             id = "",
@@ -907,8 +911,8 @@ fun MainScaffold(
                             createdAt = occurredAt,
                             amountMinor = item.amountMinor,
                             transactionTypeId = item.typeId,
-                            paymentTypeId = item.paymentTypeId,
-                            categoryId = item.categoryId,
+                            paymentTypeId = paymentId,
+                            categoryId = catId,
                             contentHash = null,
                             syncState = SyncState.PENDING_UPLOAD,
                             isDeleted = false,
@@ -925,6 +929,39 @@ fun MainScaffold(
                     if (aiReviewItems.isEmpty()) {
                         showAiReviewSheet = false
                     }
+                },
+                onAddAll = { allDrafts ->
+                    aiExtractViewModel.rememberOcrSaved(pendingOcrFingerprint)
+                    val now = System.currentTimeMillis()
+                    val toSave = allDrafts.map { item ->
+                        val occurredAt = item.createdAt ?: now
+                        val catId = if (item.categoryId > 0) item.categoryId else reviewCategoryId(item).let { if (it > 0) it else 20 }
+                        val paymentId = if (item.paymentTypeId > 0) item.paymentTypeId else reviewPaymentId(item).let { if (it > 0) it else DEFAULT_PAYMENT_TYPE_ID }
+                        Transaction(
+                            id = "",
+                            note = item.note,
+                            createdAt = occurredAt,
+                            amountMinor = item.amountMinor,
+                            transactionTypeId = item.typeId,
+                            paymentTypeId = paymentId,
+                            categoryId = catId,
+                            contentHash = null,
+                            syncState = SyncState.PENDING_UPLOAD,
+                            isDeleted = false,
+                            updatedAt = now,
+                            sourceRecurringRuleId = null,
+                            fundId = item.fundId,
+                        ) to item.tagIds
+                    }
+                    if (onSaveTransactions != null) {
+                        onSaveTransactions(toSave)
+                    } else {
+                        toSave.forEach { (tx, tags) ->
+                            onSaveTransaction(tx, null, null, false, tags)
+                        }
+                    }
+                    aiReviewItems.clear()
+                    showAiReviewSheet = false
                 },
                 onRetry = {
                     val uri = documentParseUri

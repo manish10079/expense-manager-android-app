@@ -94,6 +94,9 @@ import com.mknlabs.expensetracker.models.PinVisualMode
 import com.mknlabs.expensetracker.core.ui.components.MainScaffold
 import com.mknlabs.expensetracker.core.ui.components.PremiumGateSheet
 import com.mknlabs.expensetracker.core.ui.components.AiParseReviewSheet
+import com.mknlabs.expensetracker.core.ui.components.reviewCategoryId
+import com.mknlabs.expensetracker.core.ui.components.reviewPaymentId
+import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
 import com.mknlabs.expensetracker.core.ui.components.VoiceInputSheet
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
@@ -495,6 +498,8 @@ internal fun MainScreenOverlays(
                 },
                 onAdd = { item ->
                     val now = System.currentTimeMillis()
+                    val catId = if (item.categoryId > 0) item.categoryId else reviewCategoryId(item).let { if (it > 0) it else 20 }
+                    val paymentId = if (item.paymentTypeId > 0) item.paymentTypeId else reviewPaymentId(item).let { if (it > 0) it else DEFAULT_PAYMENT_TYPE_ID }
                     mainViewModel.saveTransaction(
                         Transaction(
                             id = "",
@@ -502,8 +507,8 @@ internal fun MainScreenOverlays(
                             createdAt = item.createdAt ?: now,
                             amountMinor = item.amountMinor,
                             transactionTypeId = item.typeId,
-                            paymentTypeId = item.paymentTypeId,
-                            categoryId = item.categoryId,
+                            paymentTypeId = paymentId,
+                            categoryId = catId,
                             contentHash = null,
                             syncState = SyncState.PENDING_UPLOAD,
                             isDeleted = false,
@@ -517,6 +522,30 @@ internal fun MainScreenOverlays(
                         emptyList(),
                     )
                     voiceReviewItems.removeAll { it.id == item.id }
+                },
+                onAddAll = { allDrafts ->
+                    val now = System.currentTimeMillis()
+                    val toSave = allDrafts.map { item ->
+                        val catId = if (item.categoryId > 0) item.categoryId else reviewCategoryId(item).let { if (it > 0) it else 20 }
+                        val paymentId = if (item.paymentTypeId > 0) item.paymentTypeId else reviewPaymentId(item).let { if (it > 0) it else DEFAULT_PAYMENT_TYPE_ID }
+                        Transaction(
+                            id = "",
+                            note = item.note,
+                            createdAt = item.createdAt ?: now,
+                            amountMinor = item.amountMinor,
+                            transactionTypeId = item.typeId,
+                            paymentTypeId = paymentId,
+                            categoryId = catId,
+                            contentHash = null,
+                            syncState = SyncState.PENDING_UPLOAD,
+                            isDeleted = false,
+                            updatedAt = now,
+                            sourceRecurringRuleId = null,
+                            fundId = null,
+                        ) to emptyList<String>()
+                    }
+                    mainViewModel.saveTransactions(toSave)
+                    voiceReviewItems.clear()
                 },
 
             )

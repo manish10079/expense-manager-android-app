@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -127,6 +128,7 @@ fun AiParseReviewSheet(
     items: List<AiParsedReviewItem>,
     onDismissRequest: () -> Unit,
     onAdd: (AiParsedReviewItem) -> Unit,
+    onAddAll: ((List<AiParsedReviewItem>) -> Unit)? = null,
     onRetry: (() -> Unit)? = null,
     sourceLabel: String? = null,
     currencyId: Int = DEFAULT_CURRENCY_ID,
@@ -149,12 +151,19 @@ fun AiParseReviewSheet(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
+        val configuration = LocalConfiguration.current
+        val maxSheetHeight = (configuration.screenHeightDp * 0.88f).dp
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp),
             contentAlignment = Alignment.Center,
         ) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.85f),
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .widthIn(max = 440.dp)
+                .heightIn(max = maxSheetHeight),
             shape = RoundedCornerShape(16.dp),
             color = if (dark) ReviewDarkCanvas else ReviewLightCanvas,
             border = BorderStroke(1.dp, if (dark) ReviewDarkBorder else ReviewLightBorder),
@@ -169,7 +178,11 @@ fun AiParseReviewSheet(
                     onItemChange = { updateDraft(it) },
                     onDismiss = onDismissRequest,
                     onAddAll = {
-                        drafts.forEach { onAdd(it) }
+                        if (onAddAll != null) {
+                            onAddAll(drafts)
+                        } else {
+                            drafts.forEach { onAdd(it) }
+                        }
                     },
                     onAddItem = { onAdd(it) },
                     funds = funds,

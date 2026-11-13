@@ -69,6 +69,9 @@ class ShareCaptureActivity : AppCompatActivity() {
                     onSave = { item, fingerprint, done ->
                         saveViewModel.save(item, fingerprint, done)
                     },
+                    onSaveAll = { allItems, fingerprint, done ->
+                        saveViewModel.saveAll(allItems, fingerprint, done)
+                    },
                     onDismiss = { finish() },
                 )
             }
@@ -81,6 +84,7 @@ private fun ShareCaptureDialog(
     share: IncomingShare?,
     extractViewModel: AiTextExtractViewModel,
     onSave: (AiParsedReviewItem, String, () -> Unit) -> Unit,
+    onSaveAll: (List<AiParsedReviewItem>, String, () -> Unit) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var loading by remember { mutableStateOf(true) }
@@ -157,6 +161,12 @@ private fun ShareCaptureDialog(
                 onSave(item, fingerprint) {
                     items.removeAll { it.id == item.id }
                     if (items.isEmpty()) onDismiss()
+                }
+            },
+            onAddAll = { allItems ->
+                onSaveAll(allItems, fingerprint) {
+                    items.clear()
+                    onDismiss()
                 }
             },
             onRetry = {

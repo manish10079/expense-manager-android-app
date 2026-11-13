@@ -924,6 +924,7 @@ fun MainScreen(
                         onAddTransactionDraftPaymentTypeIdChange = navigationState::updateAddTransactionDraftPaymentTypeId,
                         onAddTransactionDraftCreatedAtChange = navigationState::updateAddTransactionDraftCreatedAt,
                         onSaveTransaction = mainViewModel::saveTransaction,
+                        onSaveTransactions = mainViewModel::saveTransactions,
                         onDeleteTransaction = { id ->
                             mainViewModel.deleteTransaction(id)
                             showToast(rawContext.getString(R.string.toast_transaction_deleted))

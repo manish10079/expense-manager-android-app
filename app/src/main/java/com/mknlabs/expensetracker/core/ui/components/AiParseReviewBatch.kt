@@ -70,6 +70,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -234,19 +235,14 @@ internal fun BatchTransactionList(
             )
         }
         val listScroll = rememberScrollState()
+        val configuration = LocalConfiguration.current
+        val maxListHeight = (configuration.screenHeightDp * 0.62f).dp
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
-                .then(
-                    if (items.size > 5) {
-                        Modifier
-                            .height(392.dp)
-                            .verticalScroll(listScroll)
-                    } else {
-                        Modifier
-                    }
-                ),
+                .heightIn(max = maxListHeight)
+                .verticalScroll(listScroll),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEachIndexed { index, item ->
@@ -286,7 +282,7 @@ internal fun BatchTransactionList(
                         onClick = onRetry,
                     )
                 }
-                val canAddAll = items.isNotEmpty() && items.all { it.categoryId > 0 }
+                val canAddAll = items.isNotEmpty() && items.all { it.categoryId > 0 || reviewCategoryId(it) > 0 }
                 Box(
                     modifier = Modifier
                         .weight(1f)

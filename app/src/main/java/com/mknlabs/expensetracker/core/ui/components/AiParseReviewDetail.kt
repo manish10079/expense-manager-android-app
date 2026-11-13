@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -143,11 +144,17 @@ internal fun ParsedDetailCard(
         mutableStateOf(reviewAmountDraft(item.amount))
     }
 
+    val detailScroll = rememberScrollState()
+    val configuration = LocalConfiguration.current
+    val maxDetailHeight = (configuration.screenHeightDp * 0.72f).dp
     Column(
         modifier = if (compactEmbed) {
             Modifier.padding(top = 8.dp)
         } else {
-            Modifier.padding(horizontal = 17.dp, vertical = 20.dp)
+            Modifier
+                .padding(horizontal = 17.dp, vertical = 20.dp)
+                .heightIn(max = maxDetailHeight)
+                .verticalScroll(detailScroll)
         }
     ) {
         Column(

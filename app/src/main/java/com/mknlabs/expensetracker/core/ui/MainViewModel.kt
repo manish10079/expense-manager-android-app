@@ -492,6 +492,29 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun saveTransactions(items: List<Pair<Transaction, List<String>>>) {
+        if (items.isEmpty()) return
+        viewModelScope.launch {
+            try {
+                items.forEach { (transaction, tagIds) ->
+                    val toPersist = if (transaction.id.isBlank()) {
+                        transaction.copy(id = UUID.randomUUID().toString())
+                    } else {
+                        transaction
+                    }
+                    val savedTransaction = transactionRepository.upsertTransaction(toPersist)
+                    if (tagIds.isNotEmpty()) {
+                        tagRepository.setTransactionTags(savedTransaction.id, tagIds)
+                    }
+                    checkBudgetUseCase(savedTransaction)
+                }
+                _uiEvent.emit(MainUiEvent.TransactionOperationCompleted)
+            } catch (t: Throwable) {
+                Log.e("MainViewModel", "saveTransactions failed", t)
+            }
+        }
+    }
+
     fun deleteTransaction(transactionId: String) {
         viewModelScope.launch {
             transactionRepository.softDeleteTransaction(transactionId)
