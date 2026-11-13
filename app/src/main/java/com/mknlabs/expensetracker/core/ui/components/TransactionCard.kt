@@ -518,7 +518,7 @@ fun TransactionCard(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 8.dp, bottom = 8.dp)
-                    .offset(x = 50.dp, y  =50.dp)
+                    .offset(x = 42.dp, y = 42.dp)
             ) {
                 Box(
                     modifier = Modifier
