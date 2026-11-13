@@ -193,7 +193,7 @@ class AiTextExtractViewModel @Inject constructor(
                 paymentTypeId = payment?.id ?: defaultPaymentId,
                 note = row.note,
                 typeId = row.typeId,
-                createdAt = row.createdAt,
+                createdAt = row.createdAt ?: System.currentTimeMillis(),
                 fundId = null,
                 fundName = "",
                 tagIds = emptyList(),

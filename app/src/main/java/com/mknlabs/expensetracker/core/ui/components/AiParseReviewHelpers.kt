@@ -190,13 +190,13 @@ internal fun formatReviewAmount(amount: Double, currencyId: Int): String =
     formatCurrencyValue(amount = amount, currencyId = currencyId)
 
 internal fun formatReviewDate(createdAt: Long?): String {
-    if (createdAt == null) return "—"
-    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(createdAt))
+    val millis = createdAt ?: System.currentTimeMillis()
+    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(millis))
 }
 
 internal fun formatReviewTime(createdAt: Long?): String {
-    if (createdAt == null) return "—"
-    return DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(createdAt))
+    val millis = createdAt ?: System.currentTimeMillis()
+    return DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(millis))
 }
 
 internal fun previewReviewItem(

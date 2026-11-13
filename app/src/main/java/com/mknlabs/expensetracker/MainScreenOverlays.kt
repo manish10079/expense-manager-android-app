@@ -499,7 +499,7 @@ internal fun MainScreenOverlays(
                         Transaction(
                             id = "",
                             note = item.note,
-                            createdAt = now,
+                            createdAt = item.createdAt ?: now,
                             amountMinor = item.amountMinor,
                             transactionTypeId = item.typeId,
                             paymentTypeId = item.paymentTypeId,
