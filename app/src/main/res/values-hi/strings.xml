@@ -3638,6 +3638,10 @@
 
     <string name="title_membership_upgrade_card">Expense Tracker Pro में अपग्रेड करें</string>
 
+    <string name="badge_exclusive">एक्सक्लूसिव</string>
+    <string name="title_upgrade_to_premium">प्रीमियम में अपग्रेड करें</string>
+    <string name="desc_upgrade_to_premium">उन्नत इनसाइट्स, रिपोर्ट्स और श्रेणी के रुझान अनलॉक करें।</string>
+
     <string name="msg_membership_upgrade_body">असीमित बजट, विजेट्स, बार-बार होने वाले खर्चे, एडवांस्ड एनालिटिक्स, क्लाउड बैकअप और बहुत कुछ अनलॉक करें।</string>
 
     <string name="label_membership_managed_by_play">Google Play द्वारा प्रबंधित</string>

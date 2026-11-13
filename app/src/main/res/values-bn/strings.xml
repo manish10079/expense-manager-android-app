@@ -1907,6 +1907,10 @@
     <string name="label_membership_badge_free_pass">ফ্রি পাস</string>
     <string name="title_membership_pro_card">খরচ ট্র্যাকার Pro</string>
     <string name="title_membership_upgrade_card">খরচ ট্র্যাকার Pro-তে আপগ্রেড করুন</string>
+
+    <string name="badge_exclusive">বিশেষ</string>
+    <string name="title_upgrade_to_premium">প্রিমিয়ামে আপগ্রেড করুন</string>
+    <string name="desc_upgrade_to_premium">উন্নত ইনসাইট, রিপোর্ট এবং ক্যাটাগরির ট্রেন্ড আনলক করুন।</string>
     <string name="msg_membership_upgrade_body">সীমাহীন বাজেট, উইজেট, পুনরাবৃত্ত লেনদেন, উন্নত বিশ্লেষণ, ক্লাউড ব্যাকআপ আরও অনেক কিছু আনলক করুন।</string>
     <string name="label_membership_managed_by_play">Google Play দ্বারা পরিচালিত</string>
     <string name="label_membership_unlocked_headline">সব প্রিমিয়াম সুবিধা আনলক হয়েছে</string>

@@ -1918,6 +1918,10 @@
     <string name="label_membership_badge_free_pass">സൗജന്യ പാസ്</string>
     <string name="title_membership_pro_card">ചെലവ് ട്രാക്കർ Pro</string>
     <string name="title_membership_upgrade_card">ചെലവ് ട്രാക്കർ Pro-യിലേക്ക് അപ്ഗ്രേഡ് ചെയ്യുക</string>
+
+    <string name="badge_exclusive">പ്രത്യേകം</string>
+    <string name="title_upgrade_to_premium">പ്രീമിയത്തിലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക</string>
+    <string name="desc_upgrade_to_premium">വിപുലമായ സ്ഥിതിവിവരക്കണക്കുകൾ, റിപ്പോർട്ടുകൾ, വിഭാഗ ട്രെൻഡുകൾ എന്നിവ അൺലോക്ക് ചെയ്യുക.</string>
     <string name="msg_membership_upgrade_body">പരിധിയില്ലാത്ത ബജറ്റുകൾ, വിജറ്റുകൾ, ആവർത്തിച്ചുള്ള ഇടപാടുകൾ, വിപുലമായ അനാലിറ്റിക്സ്, ക്ലൗഡ് ബാക്കপ്പ് എന്നിവയും കൂടുതലും അൺലോക്ക് ചെയ്യുക.</string>
     <string name="label_membership_managed_by_play">Google Play കൈകാര്യം ചെയ്യുന്നു</string>
     <string name="label_membership_unlocked_headline">എല്ലാ പ്രീമിയം സവിശേഷതകളും അൺലോക്ക് ചെയ്തു</string>

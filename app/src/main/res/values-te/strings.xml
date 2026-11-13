@@ -2019,6 +2019,10 @@
     <string name="label_membership_badge_free_pass">ఉచిత పాస్</string>
     <string name="title_membership_pro_card">ఖర్చుల ట్రాకర్ Pro</string>
     <string name="title_membership_upgrade_card">ఖర్చుల ట్రాకర్ Proకి అప్‌గ్రేడ్ చేయండి</string>
+
+    <string name="badge_exclusive">ప్రత్యేకం</string>
+    <string name="title_upgrade_to_premium">ప్రీమియంకు అప్‌గ్రేడ్ చేయండి</string>
+    <string name="desc_upgrade_to_premium">మరింత సమగ్రమైన విశ్లేషణలు, నివేదికలు మరియు వర్గ పోకడలను అన్‌లాక్ చేయండి.</string>
     <string name="msg_membership_upgrade_body">అపరిమిత బడ్జెట్‌లు, విడ్జెట్‌లు, పునరావృత లావాదేవీలు, అధునాతన విశ్లేషణలు, క్లౌడ్ బ్యాకప్ మరియు మరెన్నో అన్‌లాక్ చేయండి.</string>
     <string name="label_membership_managed_by_play">Google Play ద్వారా నిర్వహించబడుతుంది</string>
     <string name="label_membership_unlocked_headline">అన్ని ప్రీమియం ఫీచర్లు అన్‌లాక్</string>

@@ -4098,6 +4098,10 @@ privado de verdade</string>
 
     <string name="title_membership_upgrade_card">Passe para o Expense Tracker Pro</string>
 
+    <string name="badge_exclusive">EXCLUSIVO</string>
+    <string name="title_upgrade_to_premium">Mude para o Premium</string>
+    <string name="desc_upgrade_to_premium">Desbloqueie insights avançados, relatórios e tendências de categorias.</string>
+
     <string name="msg_membership_upgrade_body">Orçamentos ilimitados, widgets, recorrentes, análises, cópia na nuvem e mais.</string>
 
     <string name="label_membership_managed_by_play">Gerenciado pelo Google Play</string>

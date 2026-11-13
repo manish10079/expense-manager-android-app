@@ -4056,6 +4056,10 @@
 
     <string name="title_membership_upgrade_card">Перейти на Expense Tracker Pro</string>
 
+    <string name="badge_exclusive">ЭКСКЛЮЗИВ</string>
+    <string name="title_upgrade_to_premium">Перейти на Premium</string>
+    <string name="desc_upgrade_to_premium">Откройте расширенную аналитику, отчеты и тренды категорий.</string>
+
     <string name="msg_membership_upgrade_body">Открой безлимитные бюджеты, виджеты, повторяющиеся транзакции, продвинутую аналитику, облачный бэкап и больше.</string>
 
     <string name="label_membership_managed_by_play">Управляется через Google Play</string>

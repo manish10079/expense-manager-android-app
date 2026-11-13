@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Premium Card</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    keyframes: {
+                        shine: {
+                            '0%': { transform: 'translateX(-150%) skewX(-25deg)' },
+                            '45%, 100%': { transform: 'translateX(250%) skewX(-25deg)' },
+                        }
+                    },
+                    animation: {
+                        shine: 'shine 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#0a0a0c] min-h-screen flex items-center justify-center p-4 sm:p-8 antialiased selection:bg-purple-400 selection:text-black">
+
+    <!-- Side-by-Side Showcase Wrapper -->
+    <div class="w-full max-w-[840px] flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-10">
+
+        <!-- ========================================================= -->
+        <!-- 1. DARK MODE ANDROID MOCKUP                               -->
+        <!-- ========================================================= -->
+        <div class="w-full max-w-[380px] flex flex-col items-center gap-3">
+            <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Dark Mode</span>
+
+            <!-- Android Device Mockup Frame -->
+            <div class="relative w-full rounded-[46px] bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 p-[3px] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.08)]">
+                
+                <!-- Hardware Side Buttons -->
+                <div class="hidden sm:block absolute -right-[5px] top-28 w-[3px] h-14 bg-zinc-700 rounded-r-md"></div>
+                <div class="hidden sm:block absolute -right-[5px] top-48 w-[3px] h-24 bg-zinc-700 rounded-r-md"></div>
+
+                <!-- Inner Black Bezel -->
+                <div class="relative w-full bg-black rounded-[43px] p-3">
+                    
+                    <!-- Android Screen Container (Dark) -->
+                    <div class="relative w-full h-[680px] max-h-[82vh] bg-[#060606] rounded-[34px] overflow-hidden flex flex-col justify-between border border-white/[0.04]">
+                        
+                        <!-- Android Status Bar + Punch-Hole Camera -->
+                        <header class="relative z-20 flex items-center justify-between px-6 pt-3.5 pb-2 text-xs font-medium text-zinc-400 select-none">
+                            <span>9:41</span>
+                            <!-- Centered Punch-Hole Front Camera -->
+                            <div class="w-3.5 h-3.5 rounded-full bg-black border border-zinc-800 shadow-inner flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-indigo-950/80"></div>
+                            </div>
+                            <!-- Signal, Wi-Fi & Battery Icons -->
+                            <div class="flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h20V2z"/></svg>
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.3 3 3 4.9 0 8l12 13L24 8c-3-3.1-7.3-5-12-5z"/></svg>
+                                <div class="w-5 h-2.5 border border-zinc-500 rounded-[3px] p-[1px] flex items-center">
+                                    <div class="w-full h-full bg-zinc-300 rounded-[1px]"></div>
+                                </div>
+                            </div>
+                        </header>
+
+                        <!-- Centered Screen Content: Dark Mode Purple Glass Card -->
+                        <main class="relative flex-1 flex items-center justify-center px-4">
+                            <div class="relative w-full">
+
+                                <!-- Ambient Purple Backlight behind the glass card -->
+                                <div class="pointer-events-none absolute -inset-2 bg-gradient-to-tr from-purple-600/25 via-violet-400/20 to-purple-500/25 blur-2xl rounded-full"></div>
+
+                                <!-- Dark-Purple Glass Card -->
+                                <div 
+                                    role="button"
+                                    tabindex="0"
+                                    onclick="showToast('dark', 'Opening Dark Mode Premium Plans...')"
+                                    onkeydown="if(event.key==='Enter'||event.key===' ') showToast('dark', 'Opening Dark Mode Premium Plans...')"
+                                    class="group relative z-10 w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1b0c2e]/80 via-[#11071f]/75 to-[#0a0412]/85 backdrop-blur-xl border border-[#4a2678]/70 hover:border-[#6c39ad] px-6 py-5 transition-all duration-200 cursor-pointer active:scale-[0.985] shadow-[0_16px_36px_-8px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(216,180,254,0.28),inset_0_-1px_0_0_rgba(192,132,252,0.08)]"
+                                >
+                                    <!-- Glass Top-Left Specular Sheen Overlay -->
+                                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-purple-300/[0.08] via-transparent to-transparent"></div>
+
+                                    <!-- Subtle Diagonal Glass Glint -->
+                                    <div class="pointer-events-none absolute -top-12 -right-12 w-36 h-36 rounded-full bg-purple-400/[0.09] blur-xl"></div>
+
+                                    <!-- Animated Diagonal Glass Shine Sweep -->
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-purple-200/[0.16] to-transparent animate-shine"></div>
+
+                                    <!-- Top Row: "EXCLUSIVE" Label + Magic Wand Sparkle Icon -->
+                                    <div class="relative z-10 flex items-center justify-between mb-3">
+                                        <span class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#9b6cd4]">
+                                            EXCLUSIVE
+                                        </span>
+
+                                        <!-- Minimalist Outline Magic Wand with Sparkles Icon -->
+                                        <svg class="w-5 h-5 text-[#b582f2] drop-shadow-[0_0_8px_rgba(192,132,252,0.35)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 4V2"/>
+                                            <path d="M15 16v-2"/>
+                                            <path d="M8 9h2"/>
+                                            <path d="M20 9h2"/>
+                                            <path d="M17.8 11.8L19 13"/>
+                                            <path d="M15 9h0"/>
+                                            <path d="M17.8 6.2L19 5"/>
+                                            <path d="m3 21 9-9"/>
+                                            <path d="M12.2 6.2 11 5"/>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Main Title: "Upgrade to Premium" -->
+                                    <h1 class="relative z-10 text-[24px] font-bold tracking-tight text-[#c99bff] drop-shadow-[0_2px_10px_rgba(192,132,252,0.18)] leading-snug mb-2">
+                                        Upgrade to Premium
+                                    </h1>
+
+                                    <!-- Subtitle Description -->
+                                    <p class="relative z-10 text-[13px] font-normal text-[#9466cc] leading-relaxed">
+                                        Unlock advanced insights, reports, and category trends.
+                                    </p>
+                                </div>
+                            </div>
+                        </main>
+
+                        <!-- Android Gesture Navigation Pill -->
+                        <footer class="relative z-20 pb-2.5 pt-2 flex justify-center">
+                            <div class="w-28 h-1 rounded-full bg-zinc-700/80"></div>
+                        </footer>
+
+                        <!-- In-Screen Click Feedback Toast (Dark) -->
+                        <div id="toast-dark" class="pointer-events-none opacity-0 translate-y-2 transition-all duration-300 absolute bottom-8 inset-x-4 z-50 flex justify-center">
+                            <div class="bg-zinc-900/95 text-[#c99bff] text-xs font-medium px-4 py-2 rounded-full shadow-2xl border border-[#381d5c] backdrop-blur-md text-center">
+                                <span id="toast-msg-dark">Action triggered</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 2. LIGHT MODE ANDROID MOCKUP                              -->
+        <!-- ========================================================= -->
+        <div class="w-full max-w-[380px] flex flex-col items-center gap-3">
+            <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Light Mode</span>
+
+            <!-- Android Device Mockup Frame -->
+            <div class="relative w-full rounded-[46px] bg-gradient-to-b from-zinc-300 via-zinc-400 to-zinc-600 p-[3px] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.18)]">
+                
+                <!-- Hardware Side Buttons -->
+                <div class="hidden sm:block absolute -right-[5px] top-28 w-[3px] h-14 bg-zinc-400 rounded-r-md"></div>
+                <div class="hidden sm:block absolute -right-[5px] top-48 w-[3px] h-24 bg-zinc-400 rounded-r-md"></div>
+
+                <!-- Inner Black Bezel -->
+                <div class="relative w-full bg-black rounded-[43px] p-3">
+                    
+                    <!-- Android Screen Container (Light) -->
+                    <div class="relative w-full h-[680px] max-h-[82vh] bg-[#f6f4fa] rounded-[34px] overflow-hidden flex flex-col justify-between border border-black/[0.06]">
+                        
+                        <!-- Android Status Bar + Punch-Hole Camera (Light) -->
+                        <header class="relative z-20 flex items-center justify-between px-6 pt-3.5 pb-2 text-xs font-medium text-zinc-700 select-none">
+                            <span>9:41</span>
+                            <!-- Centered Punch-Hole Front Camera -->
+                            <div class="w-3.5 h-3.5 rounded-full bg-black border border-zinc-800 shadow-inner flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-indigo-950/80"></div>
+                            </div>
+                            <!-- Signal, Wi-Fi & Battery Icons -->
+                            <div class="flex items-center gap-1.5 text-zinc-800">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h20V2z"/></svg>
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.3 3 3 4.9 0 8l12 13L24 8c-3-3.1-7.3-5-12-5z"/></svg>
+                                <div class="w-5 h-2.5 border border-zinc-700 rounded-[3px] p-[1px] flex items-center">
+                                    <div class="w-full h-full bg-zinc-800 rounded-[1px]"></div>
+                                </div>
+                            </div>
+                        </header>
+
+                        <!-- Centered Screen Content: Light Mode Purple Glass Card -->
+                        <main class="relative flex-1 flex items-center justify-center px-4">
+                            <div class="relative w-full">
+
+                                <!-- Ambient Soft Purple Backlight behind the glass card -->
+                                <div class="pointer-events-none absolute -inset-2 bg-gradient-to-tr from-purple-400/35 via-violet-300/30 to-fuchsia-300/35 blur-2xl rounded-full"></div>
+
+                                <!-- Light-Purple Frosted Glass Card -->
+                                <div 
+                                    role="button"
+                                    tabindex="0"
+                                    onclick="showToast('light', 'Opening Light Mode Premium Plans...')"
+                                    onkeydown="if(event.key==='Enter'||event.key===' ') showToast('light', 'Opening Light Mode Premium Plans...')"
+                                    class="group relative z-10 w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#f3eaff]/85 via-[#ead9ff]/75 to-[#e1caff]/85 backdrop-blur-xl border border-[#c7a6f5]/80 hover:border-[#9e6be8] px-6 py-5 transition-all duration-200 cursor-pointer active:scale-[0.985] shadow-[0_16px_36px_-10px_rgba(107,33,168,0.18),inset_0_1px_0_0_rgba(255,255,255,0.9),inset_0_-1px_0_0_rgba(147,51,234,0.12)]"
+                                >
+                                    <!-- Glass Top-Left Specular Sheen Overlay -->
+                                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/55 via-transparent to-transparent"></div>
+
+                                    <!-- Subtle Diagonal Glass Glint -->
+                                    <div class="pointer-events-none absolute -top-12 -right-12 w-36 h-36 rounded-full bg-white/50 blur-xl"></div>
+
+                                    <!-- Animated Diagonal Glass Shine Sweep -->
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/75 to-transparent animate-shine"></div>
+
+                                    <!-- Top Row: "EXCLUSIVE" Label + Magic Wand Sparkle Icon -->
+                                    <div class="relative z-10 flex items-center justify-between mb-3">
+                                        <span class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7c3aed]">
+                                            EXCLUSIVE
+                                        </span>
+
+                                        <!-- Minimalist Outline Magic Wand with Sparkles Icon -->
+                                        <svg class="w-5 h-5 text-[#6d28d9] drop-shadow-[0_2px_6px_rgba(124,58,237,0.22)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 4V2"/>
+                                            <path d="M15 16v-2"/>
+                                            <path d="M8 9h2"/>
+                                            <path d="M20 9h2"/>
+                                            <path d="M17.8 11.8L19 13"/>
+                                            <path d="M15 9h0"/>
+                                            <path d="M17.8 6.2L19 5"/>
+                                            <path d="m3 21 9-9"/>
+                                            <path d="M12.2 6.2 11 5"/>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Main Title: "Upgrade to Premium" -->
+                                    <h1 class="relative z-10 text-[24px] font-bold tracking-tight text-[#4c1d95] leading-snug mb-2">
+                                        Upgrade to Premium
+                                    </h1>
+
+                                    <!-- Subtitle Description -->
+                                    <p class="relative z-10 text-[13px] font-normal text-[#6b3fa0] leading-relaxed">
+                                        Unlock advanced insights, reports, and category trends.
+                                    </p>
+                                </div>
+                            </div>
+                        </main>
+
+                        <!-- Android Gesture Navigation Pill (Light) -->
+                        <footer class="relative z-20 pb-2.5 pt-2 flex justify-center">
+                            <div class="w-28 h-1 rounded-full bg-zinc-400/80"></div>
+                        </footer>
+
+                        <!-- In-Screen Click Feedback Toast (Light) -->
+                        <div id="toast-light" class="pointer-events-none opacity-0 translate-y-2 transition-all duration-300 absolute bottom-8 inset-x-4 z-50 flex justify-center">
+                            <div class="bg-white/95 text-[#5b21b6] text-xs font-medium px-4 py-2 rounded-full shadow-xl border border-[#d8b4fe] backdrop-blur-md text-center">
+                                <span id="toast-msg-light">Action triggered</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const toastTimers = {};
+
+        // Custom Toast helper supporting both Dark and Light mockups
+        function showToast(theme, message) {
+            const toast = document.getElementById(`toast-${theme}`);
+            const toastMsg = document.getElementById(`toast-msg-${theme}`);
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimers[theme]);
+            toastTimers[theme] = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

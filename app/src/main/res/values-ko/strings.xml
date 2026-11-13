@@ -4067,6 +4067,10 @@
 
     <string name="title_membership_upgrade_card">Expense Tracker Pro로 업그레이드</string>
 
+    <string name="badge_exclusive">특별 혜택</string>
+    <string name="title_upgrade_to_premium">프리미엄으로 업그레이드</string>
+    <string name="desc_upgrade_to_premium">고급 인사이트, 보고서 및 카테고리 트렌드를 확인해 보세요.</string>
+
     <string name="msg_membership_upgrade_body">무제한 예산, 위젯, 반복 거래, 고급 분석, 클라우드 백업 등을 열어.</string>
 
     <string name="label_membership_managed_by_play">Google Play가 관리</string>

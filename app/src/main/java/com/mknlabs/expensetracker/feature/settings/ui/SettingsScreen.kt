@@ -318,6 +318,18 @@ fun SettingsScreenContent(
                         }
                     }
 
+                    if (!isProUser) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            PremiumUpgradeCard(
+                                onClick = onMembershipClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .alpha(enter[1])
+                            )
+                        }
+                    }
+
                     // Section 1: ACCOUNT & SECURITY
                     item {
                         val accountSecurityItems = mutableListOf<SettingsRowData>()

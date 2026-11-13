@@ -4063,6 +4063,10 @@ privé par nature</string>
 
     <string name="title_membership_upgrade_card">Passe à Expense Tracker Pro</string>
 
+    <string name="badge_exclusive">EXCLUSIF</string>
+    <string name="title_upgrade_to_premium">Passer à Premium</string>
+    <string name="desc_upgrade_to_premium">Débloquez des analyses avancées, des rapports et les tendances par catégorie.</string>
+
     <string name="msg_membership_upgrade_body">Budgets illimités, widgets, récurrents, analyses, sauvegarde cloud et plus.</string>
 
     <string name="label_membership_managed_by_play">Géré par Google Play</string>

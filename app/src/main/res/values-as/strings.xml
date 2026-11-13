@@ -1878,6 +1878,10 @@
     <string name="label_membership_badge_free_pass">বিনামূলীয়া পাছ</string>
     <string name="title_membership_pro_card">খৰচ ট্ৰেকাৰ Pro</string>
     <string name="title_membership_upgrade_card">খৰচ ট্ৰেকাৰ Proলৈ উন্নীত কৰক</string>
+
+    <string name="badge_exclusive">বিশেষ</string>
+    <string name="title_upgrade_to_premium">প্ৰিমিয়ামলৈ উন্নীত কৰক</string>
+    <string name="desc_upgrade_to_premium">উন্নত অন্তৰ্দৃষ্টি, প্ৰতিবেদন আৰু শ্ৰেণীৰ প্ৰৱণতা আনলক কৰক।</string>
     <string name="msg_membership_upgrade_body">অসীম বাজেট, ৱিজেট, পুনৰাবৃত্তি লেনদেন, উন্নত বিশ্লেষণ, ক্লাউড বেকআপ আৰু অধিক আনলক কৰক।</string>
     <string name="label_membership_managed_by_play">Google Play-এ পৰিচালনা কৰে</string>
     <string name="label_membership_unlocked_headline">সকলো প্ৰিমিয়াম বৈশিষ্ট্য আনলক</string>

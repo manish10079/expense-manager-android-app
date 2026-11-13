@@ -4091,6 +4091,10 @@ privat dari sifat</string>
 
     <string name="title_membership_upgrade_card">Upgrade ke Expense Tracker Pro</string>
 
+    <string name="badge_exclusive">EKSKLUSIF</string>
+    <string name="title_upgrade_to_premium">Tingkatkan ke Premium</string>
+    <string name="desc_upgrade_to_premium">Buka insight lanjutan, laporan, dan tren kategori.</string>
+
     <string name="msg_membership_upgrade_body">Buka anggaran tanpa batas, widget, transaksi berulang, analitik lanjutan, cadangan cloud, dan lainnya.</string>
 
     <string name="label_membership_managed_by_play">Dikelola Google Play</string>

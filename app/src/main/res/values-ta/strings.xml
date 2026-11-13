@@ -1891,6 +1891,10 @@
     <string name="label_membership_badge_free_pass">இலவச பாஸ்</string>
     <string name="title_membership_pro_card">செலவு கண்காணிப்பு Pro</string>
     <string name="title_membership_upgrade_card">செலவு கண்காணிப்பு Pro க்கு மேம்படுத்துங்கள்</string>
+
+    <string name="badge_exclusive">சிறப்பு</string>
+    <string name="title_upgrade_to_premium">பிரீமியத்திற்கு மேம்படுத்துங்கள்</string>
+    <string name="desc_upgrade_to_premium">மேம்பட்ட பகுப்பாய்வுகள், அறிக்கைகள் மற்றும் வகை போக்குகளைத் திறக்கவும்.</string>
     <string name="msg_membership_upgrade_body">வரம்பில்லா பட்ஜெட், விட்ஜெட், தொடர் பரிவர்த்தனைகள், மேம்பட்ட பகுப்பாய்வு, கிளவுட் காப்புப்பிரதி மற்றும் பலவற்றைத் திறக்கவும்.</string>
     <string name="label_membership_managed_by_play">Google Play மூலம் நிர்வகிக்கப்படுகிறது</string>
     <string name="label_membership_unlocked_headline">அனைத்து பிரீமியம் வசதிகளும் திறக்கப்பட்டன</string>

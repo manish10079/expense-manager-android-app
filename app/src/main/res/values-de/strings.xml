@@ -4096,6 +4096,10 @@ privat von Haus aus</string>
 
     <string name="title_membership_upgrade_card">Upgrade auf Expense Tracker Pro</string>
 
+    <string name="badge_exclusive">EXKLUSIV</string>
+    <string name="title_upgrade_to_premium">Auf Premium upgraden</string>
+    <string name="desc_upgrade_to_premium">Schalte erweiterte Einblicke, Berichte und Kategorietrends frei.</string>
+
     <string name="msg_membership_upgrade_body">Unbegrenzte Budgets, Widgets, Wiederholungen, Auswertung, Cloud-Backup und mehr.</string>
 
     <string name="label_membership_managed_by_play">Verwaltet über Google Play</string>
