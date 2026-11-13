@@ -14,15 +14,17 @@ class ThemeTransitionStateTest {
         val state = ThemeTransitionState()
         assertFalse(state.isTransitioning)
         assertNull(state.snapshot)
+        assertNull(state.overrideDarkTheme)
         assertEquals(Offset.Zero, state.origin)
     }
 
     @Test
     fun startTransition_ignoresNullBitmap() {
         val state = ThemeTransitionState()
-        state.startTransition(null, Offset(100f, 200f))
+        state.startTransition(null, Offset(100f, 200f), true)
         assertFalse(state.isTransitioning)
         assertNull(state.snapshot)
+        assertNull(state.overrideDarkTheme)
         assertEquals(Offset.Zero, state.origin)
     }
 
@@ -32,5 +34,6 @@ class ThemeTransitionStateTest {
         state.endTransition()
         assertFalse(state.isTransitioning)
         assertNull(state.snapshot)
+        assertNull(state.overrideDarkTheme)
     }
 }

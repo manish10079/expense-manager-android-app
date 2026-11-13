@@ -417,17 +417,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        DisposableEffect(darkTheme) {
+        val themeTransitionState = remember { ThemeTransitionState() }
+        val effectiveDarkTheme = themeTransitionState.overrideDarkTheme ?: darkTheme
+
+        DisposableEffect(effectiveDarkTheme) {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.auto(
                     android.graphics.Color.TRANSPARENT,
                     android.graphics.Color.TRANSPARENT,
-                    detectDarkMode = { darkTheme }
+                    detectDarkMode = { effectiveDarkTheme }
                 ),
                 navigationBarStyle = SystemBarStyle.auto(
                     android.graphics.Color.TRANSPARENT,
                     android.graphics.Color.TRANSPARENT,
-                    detectDarkMode = { darkTheme }
+                    detectDarkMode = { effectiveDarkTheme }
                 )
             )
             onDispose { }
@@ -445,9 +448,7 @@ class MainActivity : AppCompatActivity() {
             com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
         }
 
-        val themeTransitionState = remember { ThemeTransitionState() }
-
-        ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
+        ExpenseTrackerTheme(darkTheme = effectiveDarkTheme, typography = dynamicTypography) {
             CompositionLocalProvider(
                 LocalAppWindowInfo provides rememberAppWindowInfo(),
                 LocalFontScaleInfo provides rememberFontScaleInfo(),

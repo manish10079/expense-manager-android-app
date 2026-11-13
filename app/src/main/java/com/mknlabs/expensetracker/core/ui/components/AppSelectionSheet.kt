@@ -178,17 +178,12 @@ fun <T> AppSelectionSheet(
                         onClick = { originOffset ->
                             if (!isDismissing.value) {
                                 isDismissing.value = true
-                                if (onItemSelectedWithOrigin != null) {
-                                    onItemSelectedWithOrigin(item.id, originOffset)
-                                    scope.launch {
-                                        try {
-                                            sheetState.hide()
-                                        } finally {
-                                            onDismiss()
-                                        }
+                                dismissSheetThen(scope, sheetState) {
+                                    if (onItemSelectedWithOrigin != null) {
+                                        onItemSelectedWithOrigin(item.id, originOffset)
+                                    } else {
+                                        onItemSelected(item.id)
                                     }
-                                } else {
-                                    dismissSheetThen(scope, sheetState) { onItemSelected(item.id) }
                                 }
                             }
                         }

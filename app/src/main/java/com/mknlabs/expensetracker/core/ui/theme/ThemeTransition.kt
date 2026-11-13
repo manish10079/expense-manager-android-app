@@ -1,7 +1,10 @@
 package com.mknlabs.expensetracker.core.ui.theme
 
-import android.app.Activity
 import android.graphics.Bitmap
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.view.PixelCopy
 import android.view.Window
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -35,45 +38,79 @@ import kotlin.math.hypot
  * Holds state for the circular ripple theme reveal transition (Telegram-style).
  */
 class ThemeTransitionState internal constructor() {
+    private var rawBitmap: Bitmap? = null
+
     var snapshot: ImageBitmap? by mutableStateOf(null)
         private set
     var origin: Offset by mutableStateOf(Offset.Zero)
         private set
     var isTransitioning: Boolean by mutableStateOf(false)
         private set
+    var overrideDarkTheme: Boolean? by mutableStateOf(null)
+        private set
 
-    fun startTransition(bitmap: Bitmap?, originOffset: Offset) {
+    fun startTransition(bitmap: Bitmap?, originOffset: Offset, targetDarkTheme: Boolean? = null) {
         if (bitmap == null) return
+        rawBitmap = bitmap
         snapshot = bitmap.asImageBitmap()
         origin = originOffset
+        overrideDarkTheme = targetDarkTheme
         isTransitioning = true
     }
 
     fun endTransition() {
         isTransitioning = false
+        overrideDarkTheme = null
+        val bmp = rawBitmap
         snapshot = null
+        rawBitmap = null
+        bmp?.recycle()
     }
 }
 
 val LocalThemeTransitionState = staticCompositionLocalOf { ThemeTransitionState() }
 
 /**
- * Synchronously captures the window's decor view into a software Bitmap.
+ * Asynchronously captures the window's surface using hardware PixelCopy.
+ * Runs on GPU/RenderThread in ~16ms without freezing the main thread.
  */
-fun captureWindowBitmap(window: Window?): Bitmap? {
-    if (window == null) return null
-    val decorView = window.decorView
+fun captureWindowBitmap(window: Window?, onCaptured: (Bitmap?) -> Unit) {
+    if (window == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        android.util.Log.w("ThemeTransition", "captureWindowBitmap: window is null or API < 26")
+        onCaptured(null)
+        return
+    }
+    val decorView = window.peekDecorView() ?: window.decorView
     val width = decorView.width
     val height = decorView.height
-    if (width <= 0 || height <= 0) return null
+    if (width <= 0 || height <= 0) {
+        android.util.Log.w("ThemeTransition", "captureWindowBitmap: decorView size <= 0 ($width x $height)")
+        onCaptured(null)
+        return
+    }
 
-    return try {
+    try {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(bitmap)
-        decorView.draw(canvas)
-        bitmap
-    } catch (_: Throwable) {
-        null
+        val srcRect = android.graphics.Rect(0, 0, width, height)
+        PixelCopy.request(
+            window,
+            srcRect,
+            bitmap,
+            { copyResult ->
+                if (copyResult == PixelCopy.SUCCESS) {
+                    android.util.Log.d("ThemeTransition", "PixelCopy SUCCESS: $width x $height")
+                    onCaptured(bitmap)
+                } else {
+                    android.util.Log.e("ThemeTransition", "PixelCopy FAILED with result $copyResult")
+                    bitmap.recycle()
+                    onCaptured(null)
+                }
+            },
+            Handler(Looper.getMainLooper())
+        )
+    } catch (e: Throwable) {
+        android.util.Log.e("ThemeTransition", "PixelCopy threw exception", e)
+        onCaptured(null)
     }
 }
 
@@ -96,7 +133,7 @@ fun ThemeCircularRevealOverlay(
         progress.animateTo(
             targetValue = 1f,
             animationSpec = tween(
-                durationMillis = 400,
+                durationMillis = 700,
                 easing = FastOutSlowInEasing
             )
         )
@@ -107,7 +144,7 @@ fun ThemeCircularRevealOverlay(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(snapshot) {
-                // Intercept touches during the brief 400ms transition
+                // Intercept touches during the 700ms transition
                 awaitPointerEventScope {
                     while (true) {
                         awaitPointerEvent()

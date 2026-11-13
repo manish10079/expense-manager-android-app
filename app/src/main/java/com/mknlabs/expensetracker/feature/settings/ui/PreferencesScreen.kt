@@ -467,7 +467,8 @@ internal fun PreferencesScreenContent(
                     }
                 }
                 val context = LocalContext.current
-                val window = (context as? Activity)?.window
+                val activity = context.findFragmentActivity()
+                val window = activity?.window
                 val themeTransitionState = LocalThemeTransitionState.current
                 val isSystemDark = isSystemInDarkTheme()
 
@@ -491,12 +492,15 @@ internal fun PreferencesScreenContent(
                             com.mknlabs.expensetracker.models.AppThemeMode.DARK -> true
                         }
                         if (currentDark != targetDark && window != null) {
-                            val bitmap = captureWindowBitmap(window)
-                            if (bitmap != null) {
-                                themeTransitionState.startTransition(bitmap, origin)
+                            captureWindowBitmap(window) { bitmap ->
+                                if (bitmap != null) {
+                                    themeTransitionState.startTransition(bitmap, origin, targetDark)
+                                }
+                                selectThemeMode(selectedMode)
                             }
+                        } else {
+                            selectThemeMode(selectedMode)
                         }
-                        selectThemeMode(selectedMode)
                     },
                     onDismiss = dismissSheet
                 )
