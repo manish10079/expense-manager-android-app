@@ -4651,4 +4651,6 @@
     <string name="desc_language_changes_ledger">La lingua selezionata verrà usata in tutta l\'app.</string>
     <string name="label_pick_from_languages">Scegli tra %d lingue</string>
     <string name="title_ai_daily_limit">Limite giornaliero di analisi IA</string>
+    <string name="msg_voice_downloading_model">Download del modello vocale offline (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Trascrizione offline in corso…</string>
 </resources>

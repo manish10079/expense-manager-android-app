@@ -2362,4 +2362,6 @@
         <item quantity="other">%d ફોટા પસંદ</item>
     </plurals>
     <string name="title_ai_daily_limit">દૈનિક AI પાર્સ મર્યાદા</string>
+    <string name="msg_voice_downloading_model">ઑફલાઇન વૉઇસ મોડેલ ડાઉનલોડ થઈ રહ્યું છે (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">ઑફલાઇન ટ્રાન્સક્રાઇબ થઈ રહ્યું છે…</string>
 </resources>

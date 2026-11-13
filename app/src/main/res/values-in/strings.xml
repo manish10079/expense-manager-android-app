@@ -4708,4 +4708,6 @@ privat dari sifat</string>
     <string name="desc_language_changes_ledger">Bahasa yang dipilih akan dipakai di seluruh aplikasi.</string>
     <string name="label_pick_from_languages">Pilih dari %d bahasa</string>
     <string name="title_ai_daily_limit">Batas parse AI harian</string>
+    <string name="msg_voice_downloading_model">Mengunduh model suara offline (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Mentranskripsi secara offline…</string>
 </resources>

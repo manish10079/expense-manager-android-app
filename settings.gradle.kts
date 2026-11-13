@@ -20,6 +20,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
@@ -27,3 +28,4 @@ rootProject.name = "Expense Tracker"
 include(":app")
 include(":benchmark")
 include(":baselineprofile")
+include(":whisper_model")

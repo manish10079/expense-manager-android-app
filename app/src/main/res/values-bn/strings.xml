@@ -2328,4 +2328,6 @@
         <item quantity="other">%dটি ছবি নির্বাচিত</item>
     </plurals>
     <string name="title_ai_daily_limit">দৈনিক AI পার্স সীমা</string>
+    <string name="msg_voice_downloading_model">অফলাইন ভয়েস মডেল ডাউনলোড হচ্ছে (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">অফলাইনে প্রতিলিপিকরণ করা হচ্ছে…</string>
 </resources>

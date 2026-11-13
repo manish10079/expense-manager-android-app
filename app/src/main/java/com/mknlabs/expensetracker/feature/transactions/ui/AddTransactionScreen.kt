@@ -365,6 +365,7 @@ fun AddTransactionScreen(
         onMicClick = voice.onMicClick,
         onVoiceSheetDismiss = voice.onSheetDismiss,
         onVoiceSheetRetry = voice.onSheetRetry,
+        onVoiceSheetDone = voice.onSheetDone,
         onCreateFund = fundsViewModel::createFund
     )
 }
@@ -418,6 +419,7 @@ internal fun AddTransactionScreenContent(
     onMicClick: () -> Unit = {},
     onVoiceSheetDismiss: () -> Unit = {},
     onVoiceSheetRetry: () -> Unit = {},
+    onVoiceSheetDone: () -> Unit = {},
     onCreateFund: (name: String, amountMinor: Long, startDate: Long, iconKey: String, colorHex: String, note: String, incomeCategoryId: Int) -> Unit = { _, _, _, _, _, _, _ -> }
 ) {
     BoxWithConstraints(
@@ -1334,8 +1336,11 @@ internal fun AddTransactionScreenContent(
                 sheetState = voiceUiState.sheetState,
                 transcript = voiceUiState.transcript,
                 errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
+                audioAmplitude = voiceUiState.audioAmplitude,
+                downloadProgress = voiceUiState.downloadProgress,
                 onDismissRequest = onVoiceSheetDismiss,
-                onRetry = onVoiceSheetRetry
+                onRetry = onVoiceSheetRetry,
+                onDone = onVoiceSheetDone
             )
         }
 

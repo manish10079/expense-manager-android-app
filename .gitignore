@@ -105,3 +105,7 @@ category-payment-icons.html
 # Python
 __pycache__/
 *.py[cod]
+
+# Whisper on-device model weights (downloaded on demand or via fast-follow)
+whisper_model/src/main/assets/whisper/*.onnx
+

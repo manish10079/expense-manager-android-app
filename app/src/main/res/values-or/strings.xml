@@ -4638,4 +4638,6 @@
     
     <string name="label_pick_from_languages">%d ଟି ଭାଷାରୁ ବାଛନ୍ତୁ</string>
     <string name="title_ai_daily_limit">ଦୈନିକ AI ପାର୍ସ ସୀମା</string>
+    <string name="msg_voice_downloading_model">ଅଫଲାଇନ୍ ଭଏସ୍ ମଡେଲ୍ ଡାଉନଲୋଡ୍ ହେଉଛି (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">ଅଫଲାଇନରେ ଟ୍ରାନ୍ସକ୍ରାଇବ୍ କରାଯାଉଛି…</string>
 </resources>

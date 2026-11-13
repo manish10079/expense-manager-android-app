@@ -2362,4 +2362,6 @@
         <item quantity="other">%d ਫੋਟੋਆਂ ਚੁਣੀਆਂ</item>
     </plurals>
     <string name="title_ai_daily_limit">ਰੋਜ਼ਾਨਾ AI ਪਾਰਸ ਸੀਮਾ</string>
+    <string name="msg_voice_downloading_model">ਔਫਲਾਈਨ ਆਵਾਜ਼ ਮਾਡਲ ਡਾਊਨਲੋਡ ਹੋ ਰਿਹਾ ਹੈ (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">ਔਫਲਾਈਨ ਟ੍ਰਾਂਸਕ੍ਰਾਈਬ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…</string>
 </resources>

@@ -19,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 292
-        versionName = "2.265.5"
+        versionName = "2.266.0"
         resValue("string", "label_app_version", "v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,6 +29,8 @@ android {
             enableSplit = false
         }
     }
+
+    assetPacks += listOf(":whisper_model")
 
 
 
@@ -212,6 +214,8 @@ dependencies {
     implementation(libs.revenuecat.purchases)
     // Google Play In-App Updates (2.1.0 - current latest)
     implementation(libs.play.app.update.ktx)
+    implementation(libs.play.asset.delivery.ktx)
+    implementation(libs.sherpa.onnx)
     implementation(libs.install.referrer)
 
     // Glassmorphic Backdrop Blur (Haze)

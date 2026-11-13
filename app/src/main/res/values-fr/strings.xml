@@ -4680,4 +4680,6 @@ privé par nature</string>
     <string name="desc_language_changes_ledger">La langue sélectionnée sera utilisée dans toute l\'application.</string>
     <string name="label_pick_from_languages">Choisis parmi %d langues</string>
     <string name="title_ai_daily_limit">Limite quotidienne d\'analyse IA</string>
+    <string name="msg_voice_downloading_model">Téléchargement du modèle vocal hors ligne (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Transcription hors ligne…</string>
 </resources>

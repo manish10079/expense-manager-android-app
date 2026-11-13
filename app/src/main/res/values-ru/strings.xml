@@ -4675,4 +4675,6 @@
     <string name="desc_language_changes_ledger">Выбранный язык будет использоваться во всём приложении.</string>
     <string name="label_pick_from_languages">Выберите из %d языков</string>
     <string name="title_ai_daily_limit">Дневной лимит ИИ-разбора</string>
+    <string name="msg_voice_downloading_model">Загрузка офлайн-голосовой модели (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Офлайн-распознавание…</string>
 </resources>

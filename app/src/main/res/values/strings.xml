@@ -4836,5 +4836,7 @@
         <item quantity="one">%d photo selected</item>
         <item quantity="other">%d photos selected</item>
     </plurals>
+    <string name="msg_voice_downloading_model">Downloading offline voice model (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Transcribing offline…</string>
 </resources>
 

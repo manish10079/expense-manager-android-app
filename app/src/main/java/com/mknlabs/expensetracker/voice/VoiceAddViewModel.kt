@@ -16,6 +16,7 @@ import com.mknlabs.expensetracker.ai.cloud.AiParseRequest
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.ai.cloud.UserContextProvider
 import com.mknlabs.expensetracker.ai.offline.OfflineVoiceParser
+import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.data.constants.DEFAULT_PAYMENT_TYPE_ID
 import com.mknlabs.expensetracker.data.local.room.dao.CategoryDao
 import com.mknlabs.expensetracker.data.local.room.dao.PaymentMethodDao
@@ -24,10 +25,14 @@ import com.mknlabs.expensetracker.domain.repository.MonetizationRepository
 import com.mknlabs.expensetracker.domain.repository.VoiceParseResult
 import com.mknlabs.expensetracker.domain.repository.VoiceParserType
 import com.mknlabs.expensetracker.models.UserTier
-import com.mknlabs.expensetracker.core.ui.components.VoiceSheetState
 import com.mknlabs.expensetracker.utils.toMajorUnits
 import com.mknlabs.expensetracker.utils.toMinorUnits
+import com.mknlabs.expensetracker.voice.audio.WavAudioRecorder
+import com.mknlabs.expensetracker.voice.transcription.OfflineVoiceModelManager
+import com.mknlabs.expensetracker.voice.transcription.VoiceModelStatus
+import com.mknlabs.expensetracker.voice.transcription.WhisperTranscriptionEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,6 +44,8 @@ import javax.inject.Inject
 data class VoiceInputUiState(
     val sheetState: VoiceSheetState = VoiceSheetState.LISTENING,
     val transcript: String = "",
+    val audioAmplitude: Float = 0f,
+    val downloadProgress: Float = 0f,
     val parsedTransaction: ParsedVoiceTransaction? = null,
     val reviewItems: List<AiParsedReviewItem> = emptyList(),
     val errorMessageResId: Int? = null,
@@ -55,6 +62,9 @@ class VoiceAddViewModel @Inject constructor(
     private val categoryDao: CategoryDao,
     private val paymentMethodDao: PaymentMethodDao,
     private val monetizationRepository: MonetizationRepository,
+    private val wavAudioRecorder: WavAudioRecorder,
+    private val whisperEngine: WhisperTranscriptionEngine,
+    private val modelManager: OfflineVoiceModelManager,
 ) : AndroidViewModel(application) {
 
     companion object {
@@ -67,6 +77,150 @@ class VoiceAddViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(VoiceInputUiState())
     val uiState: StateFlow<VoiceInputUiState> = _uiState.asStateFlow()
+
+    private var modelObservationJob: Job? = null
+    private var amplitudeObservationJob: Job? = null
+
+    /**
+     * Start the full offline voice input flow.
+     * Checks if the Whisper model is ready; if not, triggers fast-follow/direct download.
+     * When model is ready, begins microphone recording.
+     */
+    fun startVoiceInput() {
+        val modelStatus = modelManager.checkModelStatus()
+        when (modelStatus) {
+            is VoiceModelStatus.Ready -> {
+                beginAudioRecording()
+            }
+            is VoiceModelStatus.Downloading -> {
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.DOWNLOADING_MODEL,
+                    downloadProgress = modelStatus.progress,
+                )
+                observeModelDownload()
+            }
+            is VoiceModelStatus.NotInstalled,
+            is VoiceModelStatus.Error -> {
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.DOWNLOADING_MODEL,
+                    downloadProgress = 0f,
+                )
+                modelManager.ensureModelReady()
+                observeModelDownload()
+            }
+        }
+    }
+
+    private fun observeModelDownload() {
+        modelObservationJob?.cancel()
+        modelObservationJob = viewModelScope.launch {
+            modelManager.modelStatus.collect { status ->
+                when (status) {
+                    is VoiceModelStatus.Downloading -> {
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.DOWNLOADING_MODEL,
+                            downloadProgress = status.progress,
+                        )
+                    }
+                    is VoiceModelStatus.Ready -> {
+                        modelObservationJob?.cancel()
+                        modelObservationJob = null
+                        beginAudioRecording()
+                    }
+                    is VoiceModelStatus.Error -> {
+                        modelObservationJob?.cancel()
+                        modelObservationJob = null
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.ERROR,
+                            errorMessageResId = R.string.msg_voice_error_recognizer,
+                        )
+                    }
+                    is VoiceModelStatus.NotInstalled -> {}
+                }
+            }
+        }
+    }
+
+    private fun beginAudioRecording() {
+        _uiState.value = _uiState.value.copy(
+            sheetState = VoiceSheetState.LISTENING,
+            transcript = "",
+            errorMessageResId = null,
+        )
+
+        val result = wavAudioRecorder.startRecording()
+        if (result.isFailure) {
+            Log.e(TAG, "Failed to start AudioRecord", result.exceptionOrNull())
+            _uiState.value = _uiState.value.copy(
+                sheetState = VoiceSheetState.ERROR,
+                errorMessageResId = R.string.msg_voice_error_audio,
+            )
+            return
+        }
+
+        amplitudeObservationJob?.cancel()
+        amplitudeObservationJob = viewModelScope.launch {
+            wavAudioRecorder.amplitude.collect { amp ->
+                _uiState.value = _uiState.value.copy(audioAmplitude = amp)
+            }
+        }
+    }
+
+    /**
+     * Stop capturing audio, transcribe with Whisper Tiny on-device, and parse transaction.
+     */
+    fun stopAndProcess() {
+        amplitudeObservationJob?.cancel()
+        amplitudeObservationJob = null
+
+        _uiState.value = _uiState.value.copy(
+            sheetState = VoiceSheetState.PROCESSING,
+            audioAmplitude = 0f,
+        )
+
+        viewModelScope.launch {
+            val wavFile = wavAudioRecorder.stopRecording()
+            if (wavFile == null || !wavFile.exists() || wavFile.length() <= 44L) {
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.ERROR,
+                    errorMessageResId = R.string.msg_voice_error_empty_input,
+                )
+                return@launch
+            }
+
+            try {
+                val transcriptionResult = whisperEngine.transcribe(wavFile)
+                wavFile.delete()
+
+                if (transcriptionResult.isFailure) {
+                    Log.e(TAG, "Whisper transcription failed", transcriptionResult.exceptionOrNull())
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.ERROR,
+                        errorMessageResId = R.string.msg_voice_error_recognizer,
+                    )
+                    return@launch
+                }
+
+                val transcribedText = transcriptionResult.getOrThrow()
+                if (transcribedText.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.ERROR,
+                        errorMessageResId = R.string.msg_voice_error_empty_input,
+                    )
+                    return@launch
+                }
+
+                onSpeechResult(transcribedText)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in stopAndProcess", e)
+                wavFile.delete()
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.ERROR,
+                    errorMessageResId = R.string.msg_voice_error_recognizer,
+                )
+            }
+        }
+    }
 
     fun onPartialResult(text: String) {
         _uiState.value = _uiState.value.copy(transcript = text)
@@ -215,6 +369,7 @@ class VoiceAddViewModel @Inject constructor(
     }
 
     fun onRecognizerError(errorResId: Int) {
+        wavAudioRecorder.cancelRecording()
         _uiState.value = _uiState.value.copy(
             sheetState = VoiceSheetState.ERROR,
             errorMessageResId = errorResId,
@@ -222,10 +377,24 @@ class VoiceAddViewModel @Inject constructor(
     }
 
     fun resetToListening() {
-        _uiState.value = VoiceInputUiState(sheetState = VoiceSheetState.LISTENING)
+        startVoiceInput()
+    }
+
+    fun cancelVoiceInput() {
+        amplitudeObservationJob?.cancel()
+        amplitudeObservationJob = null
+        modelObservationJob?.cancel()
+        modelObservationJob = null
+        wavAudioRecorder.cancelRecording()
+        _uiState.value = VoiceInputUiState()
     }
 
     fun dismiss() {
-        _uiState.value = VoiceInputUiState()
+        cancelVoiceInput()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelVoiceInput()
     }
 }

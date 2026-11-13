@@ -391,73 +391,25 @@ internal fun MainScreenOverlays(
             ) { granted ->
                 micPermissionGranted = granted
                 if (granted) {
-                    voiceViewModel.resetToListening()
+                    voiceViewModel.startVoiceInput()
                 } else {
                     voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
                 }
-            }
-
-            // SpeechRecognizer for voice capture
-            val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-            DisposableEffect(speechRecognizer) {
-                onDispose { speechRecognizer.destroy() }
             }
 
             // Auto-start listening when sheet opens
             LaunchedEffect(navigationState.showVoiceInputSheet) {
                 if (navigationState.showVoiceInputSheet) {
                     if (micPermissionGranted) {
-                        voiceViewModel.resetToListening()
+                        voiceViewModel.startVoiceInput()
                     } else {
                         voicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }
             }
 
-            // Start speech recognizer when state is LISTENING
-            LaunchedEffect(voiceUiState.sheetState) {
-                if (voiceUiState.sheetState == VoiceSheetState.LISTENING) {
-                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                        putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                    }
-                    speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                        override fun onReadyForSpeech(params: Bundle?) {}
-                        override fun onBeginningOfSpeech() {}
-                        override fun onRmsChanged(rmsdB: Float) {}
-                        override fun onBufferReceived(buffer: ByteArray?) {}
-                        override fun onEndOfSpeech() {}
-                        override fun onError(error: Int) {
-                            val errorResId = when (error) {
-                                SpeechRecognizer.ERROR_NO_MATCH,
-                                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_empty_input
-                                SpeechRecognizer.ERROR_NETWORK,
-                                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.msg_voice_error_network
-                                SpeechRecognizer.ERROR_AUDIO -> R.string.msg_voice_error_audio
-                                else -> R.string.msg_voice_error_recognizer
-                            }
-                            voiceViewModel.onRecognizerError(errorResId)
-                        }
-                        override fun onResults(results: Bundle?) {
-                            val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                                ?.firstOrNull().orEmpty()
-                            voiceViewModel.onSpeechResult(text)
-                        }
-                        override fun onPartialResults(partialResults: Bundle?) {
-                            val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                                ?.firstOrNull().orEmpty()
-                            voiceViewModel.onPartialResult(text)
-                        }
-                        override fun onEvent(eventType: Int, params: Bundle?) {}
-                    })
-                    speechRecognizer.startListening(intent)
-                }
-            }
-
             LaunchedEffect(voiceUiState.sheetState, voiceUiState.reviewItems) {
                 if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
-                speechRecognizer.cancel()
                 val items = voiceUiState.reviewItems
                 val transcript = voiceUiState.transcript
                 voiceViewModel.dismiss()
@@ -476,16 +428,16 @@ internal fun MainScreenOverlays(
                 sheetState = voiceUiState.sheetState,
                 transcript = voiceUiState.transcript,
                 errorMessage = voiceUiState.errorMessageResId?.let { context.getString(it) },
+                audioAmplitude = voiceUiState.audioAmplitude,
+                downloadProgress = voiceUiState.downloadProgress,
                 onDismissRequest = {
-                    speechRecognizer.cancel()
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)
                 },
                 onRetry = {
-                    speechRecognizer.cancel()
-                    voiceViewModel.resetToListening()
+                    voiceViewModel.startVoiceInput()
                 },
-                onDone = { speechRecognizer.stopListening() },
+                onDone = { voiceViewModel.stopAndProcess() },
             )
         }
 

@@ -4713,4 +4713,6 @@ privat von Haus aus</string>
     <string name="desc_language_changes_ledger">Die gewählte Sprache wird in der ganzen App verwendet.</string>
     <string name="label_pick_from_languages">Wähle aus %d Sprachen</string>
     <string name="title_ai_daily_limit">Tägliches KI-Parse-Limit</string>
+    <string name="msg_voice_downloading_model">Offline-Sprachmodell wird heruntergeladen (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Offline-Transkription läuft…</string>
 </resources>

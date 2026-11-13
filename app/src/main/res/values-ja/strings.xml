@@ -4708,4 +4708,6 @@
     <string name="desc_language_changes_ledger">選択した言語がアプリ全体で使われます。</string>
     <string name="label_pick_from_languages">%d言語から選ぶ</string>
     <string name="title_ai_daily_limit">1日のAI解析上限</string>
+    <string name="msg_voice_downloading_model">オフライン音声モデルをダウンロード中 (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">オフラインで文字起こし中…</string>
 </resources>

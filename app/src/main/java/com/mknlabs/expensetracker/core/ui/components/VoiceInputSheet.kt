@@ -5,7 +5,6 @@ import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -32,20 +31,19 @@ import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
-import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
 import androidx.compose.ui.draw.clip
@@ -65,9 +63,11 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
  * Voice input bottom sheet states.
  */
 enum class VoiceSheetState {
-    /** Microphone active, listening for speech. */
+    /** Downloading offline Whisper voice model. */
+    DOWNLOADING_MODEL,
+    /** Microphone active, listening and recording speech. */
     LISTENING,
-    /** Speech received, parser processing. */
+    /** Speech received, transcribing & parsing. */
     PROCESSING,
     /** Parse complete, showing preview for user confirmation. */
     RESULT,
@@ -78,10 +78,7 @@ enum class VoiceSheetState {
 /**
  * Bottom sheet for voice transaction input.
  *
- * Flow: Listening → Processing → Result (or Error)
- *
- * Follows the same [ModalBottomSheet] pattern as
- * [TransactionNoteBottomSheet] in AddTransactionScreen.
+ * Flow: Downloading (if needed) → Listening / Recording → Processing → Result (or Error)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +89,8 @@ fun VoiceInputSheet(
     onDismissRequest: () -> Unit,
     onRetry: () -> Unit,
     onDone: () -> Unit = onDismissRequest,
+    audioAmplitude: Float = 0f,
+    downloadProgress: Float = 0f,
     modifier: Modifier = Modifier
 ) {
     val sheetBodyState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -117,9 +116,14 @@ fun VoiceInputSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (sheetState) {
+                VoiceSheetState.DOWNLOADING_MODEL -> VoiceDownloadingModelContent(
+                    progress = downloadProgress,
+                    onCancel = onDismissRequest,
+                )
                 VoiceSheetState.LISTENING, VoiceSheetState.PROCESSING, VoiceSheetState.RESULT -> VoiceListeningContent(
                     transcript = transcript,
                     isProcessing = sheetState != VoiceSheetState.LISTENING,
+                    audioAmplitude = audioAmplitude,
                     onCancel = onDismissRequest,
                     onDone = onDone,
                 )
@@ -133,9 +137,59 @@ fun VoiceInputSheet(
 }
 
 @Composable
+private fun VoiceDownloadingModelContent(
+    progress: Float,
+    onCancel: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.msg_voice_downloading_model, (progress * 100).toInt()),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
+
+        Box(
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .size(96.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                progress = { progress.coerceIn(0.05f, 1f) },
+                modifier = Modifier.size(80.dp),
+                strokeWidth = 6.dp,
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(stringResource(R.string.label_cancel), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
 internal fun VoiceListeningContent(
     transcript: String,
     isProcessing: Boolean,
+    audioAmplitude: Float = 0f,
     onCancel: () -> Unit,
     onDone: () -> Unit,
 ) {
@@ -169,13 +223,15 @@ internal fun VoiceListeningContent(
         label = "blob",
     )
     val barDelays = intArrayOf(100, 300, 200, 500, 400)
+    val ampBoost = (1f + audioAmplitude * 0.35f)
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(
-                if (isProcessing) R.string.msg_voice_processing else R.string.label_listening_to_voice
+                if (isProcessing) R.string.msg_voice_transcribing else R.string.label_listening_to_voice
             ),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface,
@@ -203,7 +259,7 @@ internal fun VoiceListeningContent(
             Box(
                 Modifier
                     .matchParentSize()
-                    .graphicsLayer { scaleX = blob; scaleY = blob }
+                    .graphicsLayer { scaleX = blob * ampBoost; scaleY = blob * ampBoost }
                     .background(
                         Brush.radialGradient(
                             listOf(
@@ -218,8 +274,8 @@ internal fun VoiceListeningContent(
                 Modifier
                     .matchParentSize()
                     .graphicsLayer {
-                        scaleX = ring1
-                        scaleY = ring1
+                        scaleX = ring1 * ampBoost
+                        scaleY = ring1 * ampBoost
                         alpha = 0.25f + (1.35f - ring1) * 0.7f
                     }
                     .border(1.dp, Color(0xFF818CF8).copy(alpha = 0.4f), CircleShape)
@@ -229,8 +285,8 @@ internal fun VoiceListeningContent(
                 Modifier
                     .size(128.dp)
                     .graphicsLayer {
-                        scaleX = ring2
-                        scaleY = ring2
+                        scaleX = ring2 * ampBoost
+                        scaleY = ring2 * ampBoost
                         alpha = 0.25f + (1.35f - ring2) * 0.7f
                     }
                     .border(1.dp, Color(0xFFC084FC).copy(alpha = 0.5f), CircleShape)
@@ -257,10 +313,15 @@ internal fun VoiceListeningContent(
                             ),
                             label = "bar-$delay",
                         )
+                        val dynamicH = if (audioAmplitude > 0.05f) {
+                            (h * (0.6f + audioAmplitude * 1.5f)).coerceIn(8f, 56f)
+                        } else {
+                            h
+                        }
                         Box(
                             Modifier
                                 .width(6.dp)
-                                .height(h.dp)
+                                .height(dynamicH.dp)
                                 .clip(RoundedCornerShape(99.dp))
                                 .background(Color.White),
                         )
@@ -271,15 +332,10 @@ internal fun VoiceListeningContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
-                .border(
-                    width = 0.dp,
-                    color = Color.Transparent,
-                    shape = RoundedCornerShape(0.dp),
-                ),
+                .padding(top = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            androidx.compose.material3.OutlinedButton(
+            OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f).height(44.dp),
                 shape = RoundedCornerShape(12.dp),
@@ -292,7 +348,7 @@ internal fun VoiceListeningContent(
                     .height(44.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(brandGradient())
-                    .clickable(onClick = onDone),
+                    .clickable(enabled = !isProcessing, onClick = onDone),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -305,7 +361,6 @@ internal fun VoiceListeningContent(
         }
     }
 }
-
 
 @Composable
 private fun ErrorContent(
@@ -359,19 +414,12 @@ private fun ErrorContent(
 @Composable
 private fun VoiceInputSheetListeningPreview() {
     ExpenseTrackerTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-        ) {
-            VoiceListeningContent(
-                transcript = "Spent 50 dollars on food",
-                isProcessing = false,
-                onCancel = {},
-                onDone = {},
-            )
-        }
+        VoiceListeningContent(
+            transcript = "Paid 250 for groceries",
+            isProcessing = false,
+            audioAmplitude = 0.4f,
+            onCancel = {},
+            onDone = {},
+        )
     }
 }
-

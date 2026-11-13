@@ -2317,4 +2317,6 @@
         <item quantity="other">%d புகைப்படங்கள் தேர்ந்தெடுக்கப்பட்டன</item>
     </plurals>
     <string name="title_ai_daily_limit">தினசரி AI பாகுபடுத்தல் வரம்பு</string>
+    <string name="msg_voice_downloading_model">ஆஃப்லைன் குரல் மாதிரி பதிவிறக்கப்படுகிறது (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">ஆஃப்லைனில் உரையாக மாற்றப்படுகிறது…</string>
 </resources>

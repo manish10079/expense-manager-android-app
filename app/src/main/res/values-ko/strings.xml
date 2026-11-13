@@ -4684,4 +4684,6 @@
     <string name="desc_language_changes_ledger">선택한 언어가 앱 전체에 사용됩니다.</string>
     <string name="label_pick_from_languages">%d개 언어 중에서 선택</string>
     <string name="title_ai_daily_limit">일일 AI 분석 한도</string>
+    <string name="msg_voice_downloading_model">오프라인 음성 모델 다운로드 중 (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">오프라인 텍스트 변환 중…</string>
 </resources>

@@ -4715,4 +4715,6 @@ privado de verdade</string>
     <string name="desc_language_changes_ledger">O idioma selecionado será usado em todo o app.</string>
     <string name="label_pick_from_languages">Escolha entre %d idiomas</string>
     <string name="title_ai_daily_limit">Limite diário de análise de IA</string>
+    <string name="msg_voice_downloading_model">Baixando modelo de voz offline (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">Transcrevendo offline…</string>
 </resources>

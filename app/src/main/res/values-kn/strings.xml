@@ -2355,6 +2355,8 @@
         <item quantity="other">%d ಫೋಟೋಗಳು ಆಯ್ಕೆ</item>
     </plurals>
     <string name="title_ai_daily_limit">ದೈನಂದಿನ AI ಪಾರ್ಸ್ ಮಿತಿ</string>
+    <string name="msg_voice_downloading_model">ಆಫ್‌ಲೈನ್ ಧ್ವನಿ ಮಾದರಿ ಡೌನ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ (%1$d%%)…</string>
+    <string name="msg_voice_transcribing">ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಲಿಪ್ಯಂತರ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
 </resources>
 
 
