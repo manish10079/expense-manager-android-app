@@ -22,8 +22,10 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
@@ -178,9 +180,10 @@ fun <T> AppSelectionSheet(
                         onClick = { originOffset ->
                             if (!isDismissing.value) {
                                 isDismissing.value = true
+                                val capturedOrigin = originOffset
                                 dismissSheetThen(scope, sheetState) {
                                     if (onItemSelectedWithOrigin != null) {
-                                        onItemSelectedWithOrigin(item.id, originOffset)
+                                        onItemSelectedWithOrigin(item.id, capturedOrigin)
                                     } else {
                                         onItemSelected(item.id)
                                     }
@@ -209,20 +212,19 @@ private fun <T> SelectionRow(
     rowColor: Color?,
     onClick: (Offset) -> Unit
 ) {
-    // Choosing a row changes its edge, never its fill: the chosen card keeps the idle fill so
-    // the list does not light up, and only the accent border marks the choice. Losing the
-    // "Selected" label means the choice must still reach TalkBack, which `selectable` carries.
     val backgroundColor = rowColor ?: MaterialTheme.colorScheme.surfaceVariant
     val boxBackgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     val contentColor = MaterialTheme.colorScheme.onSurface
     val rowShape = RoundedCornerShape(24.dp)
-    var rowCenter by remember { mutableStateOf(Offset.Zero) }
+    val view = androidx.compose.ui.platform.LocalView.current
+    var rowCoordinates by remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
+    var lastTapOffset by remember { mutableStateOf<Offset?>(null) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .onGloballyPositioned { coordinates ->
-                rowCenter = coordinates.boundsInWindow().center
+                rowCoordinates = coordinates
             }
             .clip(rowShape)
             .background(backgroundColor)
@@ -237,10 +239,33 @@ private fun <T> SelectionRow(
                     Modifier
                 }
             )
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                        val change = event.changes.firstOrNull()
+                        if (change != null && change.pressed) {
+                            lastTapOffset = change.position
+                        }
+                    }
+                }
+            }
             .selectable(
                 selected = isSelected,
                 role = Role.RadioButton,
-                onClick = { onClick(rowCenter) }
+                onClick = {
+                    val coords = rowCoordinates
+                    val location = IntArray(2)
+                    view.getLocationOnScreen(location)
+                    val posInWindow = coords?.positionInWindow() ?: Offset.Zero
+                    val offsetX = lastTapOffset?.x ?: ((coords?.size?.width ?: 0) / 2f)
+                    val offsetY = lastTapOffset?.y ?: ((coords?.size?.height ?: 0) / 2f)
+                    val screenOrigin = Offset(
+                        x = location[0] + posInWindow.x + offsetX,
+                        y = location[1] + posInWindow.y + offsetY
+                    )
+                    onClick(screenOrigin)
+                }
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
