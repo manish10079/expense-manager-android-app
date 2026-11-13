@@ -59,6 +59,9 @@ import com.mknlabs.expensetracker.core.ui.adaptive.LocalFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberAppWindowInfo
 import com.mknlabs.expensetracker.core.ui.adaptive.rememberFontScaleInfo
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.core.ui.theme.LocalThemeTransitionState
+import com.mknlabs.expensetracker.core.ui.theme.ThemeCircularRevealOverlay
+import com.mknlabs.expensetracker.core.ui.theme.ThemeTransitionState
 import com.mknlabs.expensetracker.utils.BiometricAuthManager
 import com.mknlabs.expensetracker.utils.findFragmentActivity
 import com.mknlabs.expensetracker.utils.ThemePreferenceSync
@@ -442,11 +445,14 @@ class MainActivity : AppCompatActivity() {
             com.mknlabs.expensetracker.core.ui.theme.resolveTypography(fontMode, customFontFamily)
         }
 
+        val themeTransitionState = remember { ThemeTransitionState() }
+
         ExpenseTrackerTheme(darkTheme = darkTheme, typography = dynamicTypography) {
             CompositionLocalProvider(
                 LocalAppWindowInfo provides rememberAppWindowInfo(),
                 LocalFontScaleInfo provides rememberFontScaleInfo(),
                 com.mknlabs.expensetracker.core.ui.components.LocalSplashGone provides splashGone,
+                LocalThemeTransitionState provides themeTransitionState,
             ) {
             Box(modifier = Modifier
                 .fillMaxSize()
@@ -634,6 +640,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
 
+                ThemeCircularRevealOverlay(transitionState = themeTransitionState)
             }
             }
         }

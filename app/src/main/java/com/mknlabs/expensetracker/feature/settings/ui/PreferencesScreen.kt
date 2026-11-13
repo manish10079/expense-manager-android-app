@@ -98,6 +98,11 @@ import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.SettingsTiles
 import com.mknlabs.expensetracker.core.ui.theme.genderRow
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
+import android.app.Activity
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.platform.LocalContext
+import com.mknlabs.expensetracker.core.ui.theme.LocalThemeTransitionState
+import com.mknlabs.expensetracker.core.ui.theme.captureWindowBitmap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -461,6 +466,11 @@ internal fun PreferencesScreenContent(
                         )
                     }
                 }
+                val context = LocalContext.current
+                val window = (context as? Activity)?.window
+                val themeTransitionState = LocalThemeTransitionState.current
+                val isSystemDark = isSystemInDarkTheme()
+
                 AppSelectionSheet<com.mknlabs.expensetracker.models.AppThemeMode>(
                     title = stringResource(R.string.label_select_theme),
                     description = stringResource(R.string.label_theme_selection_desc),
@@ -469,6 +479,25 @@ internal fun PreferencesScreenContent(
                     containerColor = colorScheme.profileSheet,
                     rowColor = colorScheme.genderRow,
                     onItemSelected = { selectThemeMode(it) },
+                    onItemSelectedWithOrigin = { selectedMode, origin ->
+                        val currentDark = when (uiState.selectedThemeMode) {
+                            com.mknlabs.expensetracker.models.AppThemeMode.SYSTEM -> isSystemDark
+                            com.mknlabs.expensetracker.models.AppThemeMode.LIGHT -> false
+                            com.mknlabs.expensetracker.models.AppThemeMode.DARK -> true
+                        }
+                        val targetDark = when (selectedMode) {
+                            com.mknlabs.expensetracker.models.AppThemeMode.SYSTEM -> isSystemDark
+                            com.mknlabs.expensetracker.models.AppThemeMode.LIGHT -> false
+                            com.mknlabs.expensetracker.models.AppThemeMode.DARK -> true
+                        }
+                        if (currentDark != targetDark && window != null) {
+                            val bitmap = captureWindowBitmap(window)
+                            if (bitmap != null) {
+                                themeTransitionState.startTransition(bitmap, origin)
+                            }
+                        }
+                        selectThemeMode(selectedMode)
+                    },
                     onDismiss = dismissSheet
                 )
             }

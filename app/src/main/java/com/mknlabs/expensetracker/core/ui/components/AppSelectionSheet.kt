@@ -18,8 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.clip
@@ -51,6 +57,7 @@ fun <T> AppSelectionSheet(
     items: List<SelectionItem<T>>,
     selectedId: T?,
     onItemSelected: (T) -> Unit,
+    onItemSelectedWithOrigin: ((T, Offset) -> Unit)? = null,
     description: String? = null,
     showSearch: Boolean = false,
     searchQuery: String = "",
@@ -168,10 +175,21 @@ fun <T> AppSelectionSheet(
                         item = item,
                         isSelected = item.id == selectedId,
                         rowColor = rowColor,
-                        onClick = {
+                        onClick = { originOffset ->
                             if (!isDismissing.value) {
                                 isDismissing.value = true
-                                dismissSheetThen(scope, sheetState) { onItemSelected(item.id) }
+                                if (onItemSelectedWithOrigin != null) {
+                                    onItemSelectedWithOrigin(item.id, originOffset)
+                                    scope.launch {
+                                        try {
+                                            sheetState.hide()
+                                        } finally {
+                                            onDismiss()
+                                        }
+                                    }
+                                } else {
+                                    dismissSheetThen(scope, sheetState) { onItemSelected(item.id) }
+                                }
                             }
                         }
                     )
@@ -194,7 +212,7 @@ private fun <T> SelectionRow(
     item: SelectionItem<T>,
     isSelected: Boolean,
     rowColor: Color?,
-    onClick: () -> Unit
+    onClick: (Offset) -> Unit
 ) {
     // Choosing a row changes its edge, never its fill: the chosen card keeps the idle fill so
     // the list does not light up, and only the accent border marks the choice. Losing the
@@ -203,10 +221,14 @@ private fun <T> SelectionRow(
     val boxBackgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     val contentColor = MaterialTheme.colorScheme.onSurface
     val rowShape = RoundedCornerShape(24.dp)
+    var rowCenter by remember { mutableStateOf(Offset.Zero) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                rowCenter = coordinates.boundsInWindow().center
+            }
             .clip(rowShape)
             .background(backgroundColor)
             .then(
@@ -223,7 +245,7 @@ private fun <T> SelectionRow(
             .selectable(
                 selected = isSelected,
                 role = Role.RadioButton,
-                onClick = onClick
+                onClick = { onClick(rowCenter) }
             )
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
