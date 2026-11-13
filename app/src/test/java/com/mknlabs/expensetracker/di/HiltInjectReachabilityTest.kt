@@ -98,6 +98,7 @@ class HiltInjectReachabilityTest {
             "GetSmsInboxPageUseCase (SmsInboxReadUseCases.kt)",
             "SetActiveFontUseCase (SetActiveFontUseCase.kt)",
             "VoiceTransactionViewModel (VoiceTransactionViewModel.kt)",
+            "WidgetRepositoryImpl (WidgetRepositoryImpl.kt)",
         )
 
         private val CLASS_DECLARATION = Regex("""class\s+([A-Za-z0-9_]+)""")

@@ -22,6 +22,7 @@ import com.mknlabs.expensetracker.models.FontMode
 import com.mknlabs.expensetracker.models.SortType
 import com.mknlabs.expensetracker.monetization.EntitlementResolver
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -106,7 +107,12 @@ object AppSettingsDataStore {
     }
 
     fun getAppSettingsFlow(context: Context): Flow<AppSettings> {
-        return context.applicationContext.appSettingsDataStore.data.map { it.toAppSettings() }
+        val appContext = runCatching { context.applicationContext }.getOrNull() ?: return emptyFlow()
+        return try {
+            appContext.appSettingsDataStore.data.map { it.toAppSettings() }
+        } catch (_: Exception) {
+            emptyFlow()
+        }
     }
 
     suspend fun initialize(context: Context) {

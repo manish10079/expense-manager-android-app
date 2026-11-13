@@ -101,3 +101,7 @@ localProperties.properties
 
 # Local icon mockup (kept out of git)
 category-payment-icons.html
+
+# Python
+__pycache__/
+*.py[cod]
