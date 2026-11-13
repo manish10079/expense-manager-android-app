@@ -4838,5 +4838,6 @@
     </plurals>
     <string name="msg_voice_downloading_model">Downloading offline voice model (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcribing offline…</string>
+    <string name="label_stop_recording">Stop Recording</string>
 </resources>
 

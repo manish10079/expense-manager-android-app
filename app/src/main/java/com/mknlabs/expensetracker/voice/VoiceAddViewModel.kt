@@ -33,6 +33,7 @@ import com.mknlabs.expensetracker.voice.transcription.VoiceModelStatus
 import com.mknlabs.expensetracker.voice.transcription.WhisperTranscriptionEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,6 +81,7 @@ class VoiceAddViewModel @Inject constructor(
 
     private var modelObservationJob: Job? = null
     private var amplitudeObservationJob: Job? = null
+    private var silenceJob: Job? = null
 
     /**
      * Start the full offline voice input flow.
@@ -164,12 +166,70 @@ class VoiceAddViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(audioAmplitude = amp)
             }
         }
+
+        // Automatic silence detection (VAD auto-stop)
+        silenceJob?.cancel()
+        silenceJob = viewModelScope.launch {
+            var hasSpoken = false
+            var lastSpeechTime = System.currentTimeMillis()
+            val startTime = System.currentTimeMillis()
+            val speechThreshold = 0.05f
+            val silenceDurationMs = 1500L // 1.5s of silence after speech triggers auto-stop
+            val minSpeechDurationMs = 600L // at least 600ms of recording before auto-stop
+            val initialSilenceTimeoutMs = 6000L // 6s with no speech at all triggers timeout
+            val maxRecordingDurationMs = 20000L // 20s safety limit
+
+            while (isActive && _uiState.value.sheetState == VoiceSheetState.LISTENING) {
+                kotlinx.coroutines.delay(100L)
+                val now = System.currentTimeMillis()
+                val currentAmp = _uiState.value.audioAmplitude
+
+                if (currentAmp > speechThreshold) {
+                    hasSpoken = true
+                    lastSpeechTime = now
+                }
+
+                if (hasSpoken) {
+                    val speechDuration = now - startTime
+                    val silenceDuration = now - lastSpeechTime
+                    if (speechDuration >= minSpeechDurationMs && silenceDuration >= silenceDurationMs) {
+                        Log.d(TAG, "Silence detected ($silenceDuration ms). Auto-stopping recording.")
+                        silenceJob?.cancel()
+                        silenceJob = null
+                        stopAndProcess()
+                        break
+                    }
+                } else {
+                    if (now - startTime >= initialSilenceTimeoutMs) {
+                        Log.d(TAG, "Initial silence timeout reached.")
+                        silenceJob?.cancel()
+                        silenceJob = null
+                        wavAudioRecorder.cancelRecording()
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.ERROR,
+                            errorMessageResId = R.string.msg_voice_error_empty_input,
+                        )
+                        break
+                    }
+                }
+
+                if (now - startTime >= maxRecordingDurationMs) {
+                    Log.d(TAG, "Max recording duration reached (20s). Auto-stopping.")
+                    silenceJob?.cancel()
+                    silenceJob = null
+                    stopAndProcess()
+                    break
+                }
+            }
+        }
     }
 
     /**
      * Stop capturing audio, transcribe with Whisper Tiny on-device, and parse transaction.
      */
     fun stopAndProcess() {
+        silenceJob?.cancel()
+        silenceJob = null
         amplitudeObservationJob?.cancel()
         amplitudeObservationJob = null
 
@@ -381,6 +441,8 @@ class VoiceAddViewModel @Inject constructor(
     }
 
     fun cancelVoiceInput() {
+        silenceJob?.cancel()
+        silenceJob = null
         amplitudeObservationJob?.cancel()
         amplitudeObservationJob = null
         modelObservationJob?.cancel()

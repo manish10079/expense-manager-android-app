@@ -4640,4 +4640,5 @@
     <string name="title_ai_daily_limit">ଦୈନିକ AI ପାର୍ସ ସୀମା</string>
     <string name="msg_voice_downloading_model">ଅଫଲାଇନ୍ ଭଏସ୍ ମଡେଲ୍ ଡାଉନଲୋଡ୍ ହେଉଛି (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ଅଫଲାଇନରେ ଟ୍ରାନ୍ସକ୍ରାଇବ୍ କରାଯାଉଛି…</string>
+    <string name="label_stop_recording">ରେକର୍ଡିଂ ବନ୍ଦ କରନ୍ତୁ</string>
 </resources>

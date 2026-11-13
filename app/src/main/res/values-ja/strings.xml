@@ -4710,4 +4710,5 @@
     <string name="title_ai_daily_limit">1日のAI解析上限</string>
     <string name="msg_voice_downloading_model">オフライン音声モデルをダウンロード中 (%1$d%%)…</string>
     <string name="msg_voice_transcribing">オフラインで文字起こし中…</string>
+    <string name="label_stop_recording">録音を停止</string>
 </resources>

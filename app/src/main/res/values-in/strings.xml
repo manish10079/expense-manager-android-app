@@ -4710,4 +4710,5 @@ privat dari sifat</string>
     <string name="title_ai_daily_limit">Batas parse AI harian</string>
     <string name="msg_voice_downloading_model">Mengunduh model suara offline (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Mentranskripsi secara offline…</string>
+    <string name="label_stop_recording">Hentikan Rekaman</string>
 </resources>

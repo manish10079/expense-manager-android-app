@@ -2319,4 +2319,5 @@
     <string name="title_ai_daily_limit">தினசரி AI பாகுபடுத்தல் வரம்பு</string>
     <string name="msg_voice_downloading_model">ஆஃப்லைன் குரல் மாதிரி பதிவிறக்கப்படுகிறது (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ஆஃப்லைனில் உரையாக மாற்றப்படுகிறது…</string>
+    <string name="label_stop_recording">பதிவை நிறுத்து</string>
 </resources>

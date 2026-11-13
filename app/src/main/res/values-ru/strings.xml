@@ -4677,4 +4677,5 @@
     <string name="title_ai_daily_limit">Дневной лимит ИИ-разбора</string>
     <string name="msg_voice_downloading_model">Загрузка офлайн-голосовой модели (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Офлайн-распознавание…</string>
+    <string name="label_stop_recording">Остановить запись</string>
 </resources>

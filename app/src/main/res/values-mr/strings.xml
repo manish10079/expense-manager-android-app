@@ -2330,4 +2330,5 @@
     <string name="title_ai_daily_limit">दैनिक AI पार्स मर्यादा</string>
     <string name="msg_voice_downloading_model">ऑफलाइन व्हॉइस मॉडेल डाउनलोड होत आहे (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ऑफलाइन ट्रान्सक्राइब करत आहे…</string>
+    <string name="label_stop_recording">रेकॉर्डिंग थांबवा</string>
 </resources>

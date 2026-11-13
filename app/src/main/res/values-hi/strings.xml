@@ -4287,4 +4287,5 @@
     <string name="title_ai_daily_limit">दैनिक AI पार्स सीमा</string>
     <string name="msg_voice_downloading_model">ऑफ़लाइन वॉइस मॉडल डाउनलोड हो रहा है (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ऑफ़लाइन ट्रांसक्राइब किया जा रहा है…</string>
+    <string name="label_stop_recording">रिकॉर्डिंग रोकें</string>
 </resources>

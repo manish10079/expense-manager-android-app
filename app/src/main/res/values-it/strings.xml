@@ -4653,4 +4653,5 @@
     <string name="title_ai_daily_limit">Limite giornaliero di analisi IA</string>
     <string name="msg_voice_downloading_model">Download del modello vocale offline (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Trascrizione offline in corso…</string>
+    <string name="label_stop_recording">Interrompi registrazione</string>
 </resources>

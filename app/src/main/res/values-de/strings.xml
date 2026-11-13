@@ -4715,4 +4715,5 @@ privat von Haus aus</string>
     <string name="title_ai_daily_limit">Tägliches KI-Parse-Limit</string>
     <string name="msg_voice_downloading_model">Offline-Sprachmodell wird heruntergeladen (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Offline-Transkription läuft…</string>
+    <string name="label_stop_recording">Aufnahme beenden</string>
 </resources>

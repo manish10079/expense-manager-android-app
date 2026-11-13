@@ -2318,4 +2318,5 @@
     <string name="title_ai_daily_limit">రోజువారీ AI పార్స్ పరిమితి</string>
     <string name="msg_voice_downloading_model">ఆఫ్‌లైన్ వాయిస్ మోడల్ డౌన్‌లోడ్ అవుతోంది (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ఆఫ్‌లైన్‌లో ట్రాన్స్‌క్రైబ్ చేయబడుతోంది…</string>
+    <string name="label_stop_recording">రికార్డింగ్ ఆపండి</string>
 </resources>

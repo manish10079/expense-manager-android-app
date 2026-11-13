@@ -2308,4 +2308,5 @@
     <string name="title_ai_daily_limit">দৈনিক AI পাৰ্ছ সীমা</string>
     <string name="msg_voice_downloading_model">অফলাইন ভইচ মডেল ডাউনল’ড হৈ আছে (%1$d%%)…</string>
     <string name="msg_voice_transcribing">অফলাইনত ট্ৰান্সক্ৰাইব কৰা হৈছে…</string>
+    <string name="label_stop_recording">ৰেকৰ্ডিং বন্ধ কৰক</string>
 </resources>

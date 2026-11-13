@@ -4682,4 +4682,5 @@ privé par nature</string>
     <string name="title_ai_daily_limit">Limite quotidienne d\'analyse IA</string>
     <string name="msg_voice_downloading_model">Téléchargement du modèle vocal hors ligne (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcription hors ligne…</string>
+    <string name="label_stop_recording">Arrêter l\'enregistrement</string>
 </resources>

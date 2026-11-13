@@ -4717,4 +4717,5 @@ privado de verdad</string>
     <string name="title_ai_daily_limit">Límite diario de análisis de IA</string>
     <string name="msg_voice_downloading_model">Descargando modelo de voz sin conexión (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcribiendo sin conexión…</string>
+    <string name="label_stop_recording">Detener grabación</string>
 </resources>
