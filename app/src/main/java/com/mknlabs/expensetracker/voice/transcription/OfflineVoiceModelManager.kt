@@ -40,14 +40,14 @@ class OfflineVoiceModelManager @Inject constructor(
     companion object {
         private const val TAG = "VoiceModelManager"
         const val PACK_NAME = "whisper_model"
-        const val ENCODER_FILE = "tiny.en-encoder.int8.onnx"
-        const val DECODER_FILE = "tiny.en-decoder.int8.onnx"
-        const val TOKENS_FILE = "tiny.en-tokens.txt"
+        const val ENCODER_FILE = "tiny-encoder.int8.onnx"
+        const val DECODER_FILE = "tiny-decoder.int8.onnx"
+        const val TOKENS_FILE = "tiny-tokens.txt"
 
         private val DOWNLOAD_URLS = listOf(
-            TOKENS_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-tokens.txt",
-            ENCODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-encoder.int8.onnx",
-            DECODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-decoder.int8.onnx",
+            TOKENS_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-tokens.txt",
+            ENCODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-encoder.int8.onnx",
+            DECODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-decoder.int8.onnx",
         )
     }
 

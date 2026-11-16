@@ -18,9 +18,9 @@ val downloadWhisperModel by tasks.registering {
     doLast {
         assetsDir.mkdirs()
         val modelFiles = listOf(
-            "tiny.en-tokens.txt" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-tokens.txt",
-            "tiny.en-encoder.int8.onnx" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-encoder.int8.onnx",
-            "tiny.en-decoder.int8.onnx" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/tiny.en-decoder.int8.onnx"
+            "tiny-tokens.txt" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-tokens.txt",
+            "tiny-encoder.int8.onnx" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-encoder.int8.onnx",
+            "tiny-decoder.int8.onnx" to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-decoder.int8.onnx"
         )
         for ((name, urlStr) in modelFiles) {
             val dest = file("$assetsDir/$name")

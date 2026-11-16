@@ -52,7 +52,7 @@ class WhisperTranscriptionEngine @Inject constructor(
                 val whisperConfig = OfflineWhisperModelConfig(
                     encoder = encoderFile.absolutePath,
                     decoder = decoderFile.absolutePath,
-                    language = "en",
+                    language = "",
                     task = "transcribe",
                 )
 
