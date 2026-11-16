@@ -66,11 +66,19 @@ class VoiceAddViewModel @Inject constructor(
     private val wavAudioRecorder: WavAudioRecorder,
     private val whisperEngine: WhisperTranscriptionEngine,
     private val modelManager: OfflineVoiceModelManager,
+    private val voiceRecognitionManager: VoiceRecognitionManager,
 ) : AndroidViewModel(application) {
 
     companion object {
         private const val TAG = "VoiceAddViewModel"
     }
+
+    private enum class VoiceEngineMode {
+        OFFLINE_WHISPER,
+        STREAMING_SPEECH_RECOGNIZER,
+    }
+
+    private var activeEngineMode = VoiceEngineMode.OFFLINE_WHISPER
 
     private val aiUsageTracker by lazy {
         AiUsageTracker(getApplication<Application>().aiUsageDataStore)
@@ -84,33 +92,87 @@ class VoiceAddViewModel @Inject constructor(
     private var silenceJob: Job? = null
 
     /**
-     * Start the full offline voice input flow.
-     * Checks if the Whisper model is ready; if not, triggers fast-follow/direct download.
-     * When model is ready, begins microphone recording.
+     * Start the full voice input flow.
+     * Evaluates device RAM (>=4GB) and free storage (>=500MB):
+     * - Qualified devices use 100% offline multilingual Whisper Tiny.
+     * - Low RAM or low storage devices gracefully stream via system SpeechRecognizer.
      */
     fun startVoiceInput() {
-        val modelStatus = modelManager.checkModelStatus()
-        when (modelStatus) {
-            is VoiceModelStatus.Ready -> {
-                beginAudioRecording()
+        if (modelManager.canUseOfflineWhisper()) {
+            activeEngineMode = VoiceEngineMode.OFFLINE_WHISPER
+            val modelStatus = modelManager.checkModelStatus()
+            when (modelStatus) {
+                is VoiceModelStatus.Ready -> {
+                    beginAudioRecording()
+                }
+                is VoiceModelStatus.Downloading -> {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.DOWNLOADING_MODEL,
+                        downloadProgress = modelStatus.progress,
+                    )
+                    observeModelDownload()
+                }
+                is VoiceModelStatus.NotInstalled,
+                is VoiceModelStatus.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.DOWNLOADING_MODEL,
+                        downloadProgress = 0f,
+                    )
+                    modelManager.ensureModelReady()
+                    observeModelDownload()
+                }
             }
-            is VoiceModelStatus.Downloading -> {
-                _uiState.value = _uiState.value.copy(
-                    sheetState = VoiceSheetState.DOWNLOADING_MODEL,
-                    downloadProgress = modelStatus.progress,
-                )
-                observeModelDownload()
-            }
-            is VoiceModelStatus.NotInstalled,
-            is VoiceModelStatus.Error -> {
-                _uiState.value = _uiState.value.copy(
-                    sheetState = VoiceSheetState.DOWNLOADING_MODEL,
-                    downloadProgress = 0f,
-                )
-                modelManager.ensureModelReady()
-                observeModelDownload()
+        } else {
+            // Low RAM (<4GB) or Low Storage (<500MB without model):
+            // Gracefully stream via system SpeechRecognizer with 0MB storage and 0MB native RAM
+            activeEngineMode = VoiceEngineMode.STREAMING_SPEECH_RECOGNIZER
+            startStreamingVoiceInput()
+        }
+    }
+
+    private fun startStreamingVoiceInput() {
+        silenceJob?.cancel()
+        silenceJob = null
+        amplitudeObservationJob?.cancel()
+        amplitudeObservationJob = null
+        modelObservationJob?.cancel()
+        modelObservationJob = null
+
+        _uiState.value = _uiState.value.copy(
+            sheetState = VoiceSheetState.LISTENING,
+            transcript = "",
+            audioAmplitude = 0f,
+            errorMessageResId = null,
+        )
+
+        voiceRecognitionManager.onPartialResultListener = { partialText ->
+            onPartialResult(partialText)
+        }
+
+        voiceRecognitionManager.onResultListener = { finalText ->
+            onSpeechResult(finalText)
+        }
+
+        // Live amplitude reactive visualizer in bottom sheet
+        amplitudeObservationJob = viewModelScope.launch {
+            voiceRecognitionManager.audioAmplitude.collect { amp ->
+                _uiState.value = _uiState.value.copy(audioAmplitude = amp)
             }
         }
+
+        // Error observation
+        viewModelScope.launch {
+            voiceRecognitionManager.errorResId.collect { errResId ->
+                if (errResId != null && _uiState.value.sheetState == VoiceSheetState.LISTENING) {
+                    _uiState.value = _uiState.value.copy(
+                        sheetState = VoiceSheetState.ERROR,
+                        errorMessageResId = errResId,
+                    )
+                }
+            }
+        }
+
+        voiceRecognitionManager.startListening(getApplication())
     }
 
     private fun observeModelDownload() {
@@ -232,6 +294,15 @@ class VoiceAddViewModel @Inject constructor(
         silenceJob = null
         amplitudeObservationJob?.cancel()
         amplitudeObservationJob = null
+
+        if (activeEngineMode == VoiceEngineMode.STREAMING_SPEECH_RECOGNIZER) {
+            _uiState.value = _uiState.value.copy(
+                sheetState = VoiceSheetState.PROCESSING,
+                audioAmplitude = 0f,
+            )
+            voiceRecognitionManager.stopListening()
+            return
+        }
 
         _uiState.value = _uiState.value.copy(
             sheetState = VoiceSheetState.PROCESSING,
@@ -448,6 +519,8 @@ class VoiceAddViewModel @Inject constructor(
         modelObservationJob?.cancel()
         modelObservationJob = null
         wavAudioRecorder.cancelRecording()
+        whisperEngine.release()
+        voiceRecognitionManager.cancel()
         _uiState.value = VoiceInputUiState()
     }
 

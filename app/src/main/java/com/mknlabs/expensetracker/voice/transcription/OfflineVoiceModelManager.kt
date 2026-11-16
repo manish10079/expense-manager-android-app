@@ -1,5 +1,6 @@
 package com.mknlabs.expensetracker.voice.transcription
 
+import android.app.ActivityManager
 import android.content.Context
 import android.util.Log
 import com.google.android.play.core.assetpacks.AssetPackManager
@@ -44,11 +45,56 @@ class OfflineVoiceModelManager @Inject constructor(
         const val DECODER_FILE = "tiny-decoder.int8.onnx"
         const val TOKENS_FILE = "tiny-tokens.txt"
 
+        /** Minimum free internal storage required to download the model pack (500 MB). */
+        const val MIN_STORAGE_REQUIRED_BYTES = 500L * 1024 * 1024
+
+        /** Minimum total device RAM required for offline Whisper (3.4 GB to safely cover 4 GB RAM phones). */
+        const val MIN_RAM_REQUIRED_BYTES = 3400L * 1024 * 1024
+
         private val DOWNLOAD_URLS = listOf(
             TOKENS_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-tokens.txt",
             ENCODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-encoder.int8.onnx",
             DECODER_FILE to "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main/tiny-decoder.int8.onnx",
         )
+    }
+
+    /**
+     * Checks if the device has at least 3.4 GB total RAM and is not in low-RAM/low-memory mode.
+     */
+    fun hasSufficientRamForWhisper(): Boolean {
+        val actManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return false
+        val memInfo = ActivityManager.MemoryInfo()
+        actManager.getMemoryInfo(memInfo)
+        if (actManager.isLowRamDevice || memInfo.lowMemory) {
+            return false
+        }
+        return memInfo.totalMem >= MIN_RAM_REQUIRED_BYTES
+    }
+
+    /**
+     * Checks if there is at least 500 MB of usable internal storage available.
+     */
+    fun hasSufficientStorageForDownload(): Boolean {
+        return context.filesDir.usableSpace >= MIN_STORAGE_REQUIRED_BYTES
+    }
+
+    /**
+     * Determines whether offline Whisper should be used based on model presence, device RAM, and free storage.
+     */
+    fun canUseOfflineWhisper(): Boolean {
+        if (!hasSufficientRamForWhisper()) {
+            Log.d(TAG, "Device does not meet RAM requirements for Whisper. Fallback to streaming SpeechRecognizer.")
+            return false
+        }
+        if (getModelDirectory() != null) {
+            // Model is already downloaded and verified on disk
+            return true
+        }
+        val hasStorage = hasSufficientStorageForDownload()
+        if (!hasStorage) {
+            Log.d(TAG, "Device has less than 500 MB free storage. Fallback to streaming SpeechRecognizer.")
+        }
+        return hasStorage
     }
 
     private val assetPackManager: AssetPackManager by lazy {
@@ -152,6 +198,12 @@ class OfflineVoiceModelManager @Inject constructor(
     fun ensureModelReady() {
         if (_modelStatus.value is VoiceModelStatus.Ready) return
         if (_modelStatus.value is VoiceModelStatus.Downloading) return
+
+        if (!hasSufficientStorageForDownload()) {
+            Log.w(TAG, "Cannot start model download: insufficient free storage (< 500 MB)")
+            _modelStatus.value = VoiceModelStatus.Error("Insufficient storage space to download offline model")
+            return
+        }
 
         if (!isListenerRegistered) {
             try {
