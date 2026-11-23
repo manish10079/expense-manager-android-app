@@ -23,6 +23,10 @@ import javax.inject.Singleton
 @Singleton
 class VoiceRecognitionManager @Inject constructor() {
 
+    companion object {
+        private const val TAG = "VoiceRecognitionManager"
+    }
+
     private var speechRecognizer: SpeechRecognizer? = null
     private val _isListening = MutableStateFlow(false)
     val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
@@ -64,9 +68,12 @@ class VoiceRecognitionManager @Inject constructor() {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTag)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languageTag)
+            putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your transaction...")
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000L)
         }
 
         _recognizedText.value = ""
@@ -74,15 +81,26 @@ class VoiceRecognitionManager @Inject constructor() {
         _error.value = null
         _errorResId.value = null
 
-        speechRecognizer?.startListening(intent)
-        _isListening.value = true
+        try {
+            speechRecognizer?.startListening(intent)
+            _isListening.value = true
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Failed to start listening", e)
+            _errorResId.value = R.string.msg_voice_error_recognizer
+            _error.value = e.message
+            _isListening.value = false
+        }
     }
 
     /**
      * Stop listening.
      */
     fun stopListening() {
-        speechRecognizer?.stopListening()
+        try {
+            speechRecognizer?.stopListening()
+        } catch (e: Exception) {
+            android.util.Log.w(TAG, "Error stopping speech recognizer", e)
+        }
         _isListening.value = false
         _audioAmplitude.value = 0f
     }
@@ -91,8 +109,12 @@ class VoiceRecognitionManager @Inject constructor() {
      * Cancel listening and clean up.
      */
     fun cancel() {
-        speechRecognizer?.cancel()
-        speechRecognizer?.destroy()
+        try {
+            speechRecognizer?.cancel()
+            speechRecognizer?.destroy()
+        } catch (e: Exception) {
+            android.util.Log.w(TAG, "Error cancelling speech recognizer", e)
+        }
         speechRecognizer = null
         _isListening.value = false
         _audioAmplitude.value = 0f
@@ -102,10 +124,7 @@ class VoiceRecognitionManager @Inject constructor() {
      * Clean up resources.
      */
     fun destroy() {
-        speechRecognizer?.destroy()
-        speechRecognizer = null
-        _isListening.value = false
-        _audioAmplitude.value = 0f
+        cancel()
     }
 
     private fun createRecognitionListener(): RecognitionListener {
@@ -133,6 +152,14 @@ class VoiceRecognitionManager @Inject constructor() {
             override fun onError(error: Int) {
                 _isListening.value = false
                 _audioAmplitude.value = 0f
+
+                val lastCaptured = _recognizedText.value.trim()
+                if (lastCaptured.isNotBlank()) {
+                    android.util.Log.d(TAG, "onError code $error occurred after capturing '$lastCaptured'. Delivering recognized text.")
+                    onResultListener?.invoke(lastCaptured)
+                    return
+                }
+
                 val resId = when (error) {
                     SpeechRecognizer.ERROR_NO_MATCH,
                     SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.msg_voice_error_timeout
@@ -148,7 +175,10 @@ class VoiceRecognitionManager @Inject constructor() {
 
             override fun onResults(results: Bundle?) {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val text = matches?.firstOrNull().orEmpty().trim()
+                var text = matches?.firstOrNull().orEmpty().trim()
+                if (text.isBlank() && _recognizedText.value.isNotBlank()) {
+                    text = _recognizedText.value.trim()
+                }
                 _recognizedText.value = text
                 _isListening.value = false
                 _audioAmplitude.value = 0f

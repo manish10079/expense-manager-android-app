@@ -252,18 +252,37 @@ class OfflineVoiceModelManager @Inject constructor(
                     }
 
                     val tempFile = File(targetDir, "$fileName.download")
-                    val url = URL(urlString)
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.connectTimeout = 30_000
-                    connection.readTimeout = 60_000
-                    connection.connect()
+                    var currentUrl = urlString
+                    var connection: HttpURLConnection? = null
+                    var redirects = 0
 
-                    if (connection.responseCode !in 200..299) {
-                        throw IllegalStateException("HTTP ${connection.responseCode} while downloading $fileName")
+                    while (true) {
+                        val url = URL(currentUrl)
+                        val conn = url.openConnection() as HttpURLConnection
+                        conn.connectTimeout = 30_000
+                        conn.readTimeout = 60_000
+                        conn.instanceFollowRedirects = true
+                        val code = conn.responseCode
+                        if (code in 300..399) {
+                            val newLoc = conn.getHeaderField("Location")
+                            conn.disconnect()
+                            if (newLoc.isNullOrBlank() || redirects++ >= 5) {
+                                throw IllegalStateException("HTTP $code redirect failed for $fileName")
+                            }
+                            currentUrl = newLoc
+                            continue
+                        }
+                        if (code !in 200..299) {
+                            conn.disconnect()
+                            throw IllegalStateException("HTTP $code while downloading $fileName")
+                        }
+                        connection = conn
+                        break
                     }
 
-                    val fileLength = connection.contentLength.coerceAtLeast(1)
-                    connection.inputStream.use { input ->
+                    val activeConnection = connection ?: throw IllegalStateException("Could not establish connection for $fileName")
+                    val fileLength = activeConnection.contentLength.coerceAtLeast(1)
+                    activeConnection.inputStream.use { input ->
                         FileOutputStream(tempFile).use { output ->
                             val buffer = ByteArray(8192)
                             var totalRead = 0L
@@ -278,6 +297,7 @@ class OfflineVoiceModelManager @Inject constructor(
                             output.flush()
                         }
                     }
+                    activeConnection.disconnect()
 
                     if (tempFile.renameTo(destFile)) {
                         completedFiles++

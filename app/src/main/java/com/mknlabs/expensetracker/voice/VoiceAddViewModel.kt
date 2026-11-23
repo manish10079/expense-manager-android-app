@@ -163,11 +163,19 @@ class VoiceAddViewModel @Inject constructor(
         // Error observation
         viewModelScope.launch {
             voiceRecognitionManager.errorResId.collect { errResId ->
-                if (errResId != null && _uiState.value.sheetState == VoiceSheetState.LISTENING) {
-                    _uiState.value = _uiState.value.copy(
-                        sheetState = VoiceSheetState.ERROR,
-                        errorMessageResId = errResId,
-                    )
+                if (errResId != null) {
+                    val currentTranscript = _uiState.value.transcript.trim().ifBlank {
+                        voiceRecognitionManager.recognizedText.value.trim()
+                    }
+                    if (currentTranscript.isNotBlank()) {
+                        Log.d(TAG, "Error received ($errResId) but transcript is available ('$currentTranscript'). Processing...")
+                        onSpeechResult(currentTranscript)
+                    } else if (_uiState.value.sheetState == VoiceSheetState.LISTENING || _uiState.value.sheetState == VoiceSheetState.PROCESSING) {
+                        _uiState.value = _uiState.value.copy(
+                            sheetState = VoiceSheetState.ERROR,
+                            errorMessageResId = errResId,
+                        )
+                    }
                 }
             }
         }
@@ -192,12 +200,11 @@ class VoiceAddViewModel @Inject constructor(
                         beginAudioRecording()
                     }
                     is VoiceModelStatus.Error -> {
+                        Log.w(TAG, "Offline Whisper model download error: ${status.message}. Fallback to streaming SpeechRecognizer.")
                         modelObservationJob?.cancel()
                         modelObservationJob = null
-                        _uiState.value = _uiState.value.copy(
-                            sheetState = VoiceSheetState.ERROR,
-                            errorMessageResId = R.string.msg_voice_error_recognizer,
-                        )
+                        activeEngineMode = VoiceEngineMode.STREAMING_SPEECH_RECOGNIZER
+                        startStreamingVoiceInput()
                     }
                     is VoiceModelStatus.NotInstalled -> {}
                 }
@@ -307,11 +314,20 @@ class VoiceAddViewModel @Inject constructor(
         amplitudeObservationJob = null
 
         if (activeEngineMode == VoiceEngineMode.STREAMING_SPEECH_RECOGNIZER) {
-            _uiState.value = _uiState.value.copy(
-                sheetState = VoiceSheetState.PROCESSING,
-                audioAmplitude = 0f,
-            )
+            val capturedTranscript = _uiState.value.transcript.trim().ifBlank {
+                voiceRecognitionManager.recognizedText.value.trim()
+            }
             voiceRecognitionManager.stopListening()
+
+            if (capturedTranscript.isNotBlank()) {
+                Log.d(TAG, "stopAndProcess: Processing captured transcript '$capturedTranscript'")
+                onSpeechResult(capturedTranscript)
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    sheetState = VoiceSheetState.PROCESSING,
+                    audioAmplitude = 0f,
+                )
+            }
             return
         }
 
@@ -369,7 +385,8 @@ class VoiceAddViewModel @Inject constructor(
     }
 
     fun onSpeechResult(text: String) {
-        if (text.isBlank()) {
+        val trimmed = text.trim().ifBlank { _uiState.value.transcript.trim() }
+        if (trimmed.isBlank()) {
             _uiState.value = _uiState.value.copy(
                 sheetState = VoiceSheetState.ERROR,
                 errorMessageResId = R.string.msg_voice_error_empty_input,
@@ -379,7 +396,7 @@ class VoiceAddViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             sheetState = VoiceSheetState.PROCESSING,
-            transcript = text,
+            transcript = trimmed,
         )
 
         viewModelScope.launch {

@@ -46,3 +46,9 @@
 -keep class com.google.android.libraries.identity.googleid.** { *; }
 -keep class com.google.android.gms.auth.** { *; }
 -keep class com.google.android.gms.common.** { *; }
+
+# Sherpa-ONNX (Whisper offline speech recognition via JNI)
+-keep class com.k2fsa.sherpa.onnx.** { *; }
+
+# Google Play Asset Delivery
+-keep class com.google.android.play.core.assetpacks.** { *; }
