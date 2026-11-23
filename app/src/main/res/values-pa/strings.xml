@@ -1538,6 +1538,7 @@
     <string name="info_recurring_alerts">ਤੁਹਾਡੇ ਆਵਰਤੀ ਬਿੱਲਾਂ ਤੇ ਭੁਗਤਾਨਾਂ ਦੀ ਬਾਕੀ ਤਾਰੀਖ਼ ਤੋਂ 7 ਦਿਨ, 3 ਦਿਨ ਤੇ 1 ਦਿਨ ਪਹਿਲਾਂ ਤੇ ਬਾਕੀ ਤਾਰੀਖ਼ ਉੱਤੇ ਯਾਦ। ਹਰ ਆਵਰਤੀ ਨਿਯਮ ਵੱਖਰਾ ਖ਼ਾਮੋਸ਼ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।</string>
     <string name="info_cloud_security">ਜਦੋਂ ਕਲਾਊਡ ਸਿੰਕ ਜਾਂ ਬੈਕਅੱਪ ਫੇਲ੍ਹ ਹੋਵੇ, ਤੇ ਜਦੋਂ ਤੁਹਾਡੇ ਖਾਤੇ ਤੱਕ ਨਵੇਂ ਡਿਵਾਈਸ ਤੋਂ ਪਹੁੰਚ ਹੋਵੇ ਜਾਂ ਬਦਲਾਅ ਹੋਵੇ, ਚੇਤਾਵਨੀ।</string>
     <string name="notification_title_sms_import">💳 ਲੈਣ-ਦੇਣ ਖੋਜਿਆ</string>
+    <string name="toast_sms_transaction_detected">ਲੈਣ-ਦੇਣ ਖੋਜਿਆ</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">ਸੁਝਾਇਆ: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s ਉੱਤੇ %1$s ਖਰਚ</string>

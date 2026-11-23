@@ -235,7 +235,14 @@ class VoiceAddViewModel @Inject constructor(
             var hasSpoken = false
             var lastSpeechTime = System.currentTimeMillis()
             val startTime = System.currentTimeMillis()
-            val speechThreshold = 0.05f
+            // Amplitude is normalized RMS from AudioRecord (rms / 32767) captured with
+            // AudioSource.VOICE_RECOGNITION, which is a quiet source: normal speech
+            // lands around 0.01-0.05. The old fixed 0.05 gate therefore treated real
+            // speech as silence and failed with "say something" after the no-speech
+            // timeout. Track the room's noise floor and require clearly-above-noise.
+            var noiseFloor = 0.002f
+            val minSpeechThreshold = 0.004f
+            val maxSpeechThreshold = 0.02f
             val silenceDurationMs = 1500L // 1.5s of silence after speech triggers auto-stop
             val minSpeechDurationMs = 600L // at least 600ms of recording before auto-stop
             val initialSilenceTimeoutMs = 6000L // 6s with no speech at all triggers timeout
@@ -245,10 +252,14 @@ class VoiceAddViewModel @Inject constructor(
                 kotlinx.coroutines.delay(100L)
                 val now = System.currentTimeMillis()
                 val currentAmp = _uiState.value.audioAmplitude
+                val speechThreshold = (noiseFloor * 3f).coerceIn(minSpeechThreshold, maxSpeechThreshold)
 
                 if (currentAmp > speechThreshold) {
                     hasSpoken = true
                     lastSpeechTime = now
+                } else if (!hasSpoken) {
+                    // Learn the room's baseline while nobody is speaking yet.
+                    noiseFloor = noiseFloor * 0.9f + currentAmp * 0.1f
                 }
 
                 if (hasSpoken) {

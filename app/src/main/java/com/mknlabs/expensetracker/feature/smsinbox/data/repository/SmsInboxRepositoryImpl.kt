@@ -1,5 +1,7 @@
 package com.mknlabs.expensetracker.feature.smsinbox.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import com.mknlabs.expensetracker.data.local.room.dao.DetectedSmsNotificationDao
 import com.mknlabs.expensetracker.data.local.room.entities.DetectedSmsNotificationEntity
 import com.mknlabs.expensetracker.data.local.room.entities.toDomain
@@ -128,8 +130,24 @@ class SmsInboxRepositoryImpl @Inject constructor(
         dao.markViewed(ids, System.currentTimeMillis())
     }
 
+    /**
+     * Files a detection. The transaction link is a foreign key, so a transaction that was
+     * deleted (or one the caller only thinks exists) makes the UPDATE throw instead of
+     * writing. That must not cost the user their decision: on a constraint failure the row
+     * is filed unlinked, which still takes the card out of the inbox.
+     */
     override suspend fun markAdded(id: String, transactionId: String) = withContext(Dispatchers.IO) {
-        dao.markAdded(id, transactionId, System.currentTimeMillis())
+        val now = System.currentTimeMillis()
+        try {
+            dao.markAdded(id, transactionId, now)
+        } catch (exception: SQLiteConstraintException) {
+            Log.w(
+                "SmsInboxRepository",
+                "markAdded: no transaction $transactionId to link, filing $id unlinked",
+                exception
+            )
+            dao.markAdded(id, null, now)
+        }
     }
 
     override suspend fun markIgnored(ids: List<String>) = withContext(Dispatchers.IO) {

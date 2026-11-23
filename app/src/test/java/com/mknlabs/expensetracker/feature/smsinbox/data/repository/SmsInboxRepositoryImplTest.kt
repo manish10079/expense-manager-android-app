@@ -304,7 +304,7 @@ private class FakeDetectedSmsNotificationDao : DetectedSmsNotificationDao {
         }
     }
 
-    override suspend fun markAdded(id: String, transactionId: String, updatedAt: Long) {
+    override suspend fun markAdded(id: String, transactionId: String?, updatedAt: Long) {
         rows.value = rows.value.map {
             if (it.id == id) it.copy(status = SmsInboxStatus.ADDED, linkedTransactionId = transactionId, updatedAt = updatedAt) else it
         }

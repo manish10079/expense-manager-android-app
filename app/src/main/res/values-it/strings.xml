@@ -3220,6 +3220,7 @@
     <string name="info_cloud_security">Avvisi se sync o backup falliscono, e se l\'account viene usato da un dispositivo nuovo o cambiato.</string>
 
     <string name="notification_title_sms_import">💳 Transazione rilevata</string>
+    <string name="toast_sms_transaction_detected">Transazione rilevata</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

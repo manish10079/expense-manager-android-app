@@ -63,8 +63,16 @@ class WavAudioRecorder @Inject constructor(
             return Result.failure(SecurityException("RECORD_AUDIO permission not granted"))
         }
 
+        // A previous session can still be marked as recording after its owner went
+        // away (screen dismissed mid-teardown, another screen's ViewModel, etc.).
+        // Returning success here used to leave the new session with no capture at
+        // all: the caller believed it was recording while no read loop produced
+        // audio, so the amplitude stayed flat and the session ended in "no speech".
+        // Release the stale session instead, so this caller always gets a live
+        // recorder it owns.
         if (_isRecording.value) {
-            return Result.success(Unit)
+            Log.w(TAG, "startRecording() while a previous session was still active; releasing it")
+            cancelRecording()
         }
 
         val minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)

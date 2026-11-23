@@ -3238,6 +3238,7 @@
     <string name="info_cloud_security">Оповещения, когда синк или бэкап не удаётся, и когда в аккаунт заходят с нового устройства или его меняют.</string>
 
     <string name="notification_title_sms_import">💳 Найдена транзакция</string>
+    <string name="toast_sms_transaction_detected">Найдена транзакция</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

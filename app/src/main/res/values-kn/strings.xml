@@ -1535,6 +1535,7 @@
     <string name="info_recurring_alerts">ನಿಮ್ಮ ಪುನರಾವರ್ತಿತ ಬಿಲ್ ಮತ್ತು ಪಾವತಿಗಳಿಗೆ 7 ದಿನ, 3 ದಿನ, 1 ದಿನ ಮೊದಲು ಮತ್ತು ಬಾಕಿ ದಿನದಂದು ಜ್ಞಾಪನೆ. ಪ್ರತಿ ನಿಯಮವನ್ನೂ ಪ್ರತ್ಯೇಕವಾಗಿ ಮೌನ ಮಾಡಬಹುದು.</string>
     <string name="info_cloud_security">ಕ್ಲೌಡ್ ಸಿಂಕ್ ಅಥವಾ ಬ್ಯಾಕಪ್ ವಿಫಲವಾದಾಗ, ಮತ್ತು ನಿಮ್ಮ ಖಾತೆ ಹೊಸ ಸಾಧನದಿಂದ ತೆರೆದಾಗ ಅಥವಾ ಬದಲಾದಾಗ ಎಚ್ಚರಿಕೆ.</string>
     <string name="notification_title_sms_import">💳 ವಹಿವಾಟು ಕಂಡುಬಂದಿದೆ</string>
+    <string name="toast_sms_transaction_detected">ವಹಿವಾಟು ಕಂಡುಬಂದಿದೆ</string>
     <string name="notification_format_sms_import_suggested">ಸೂಚಿಸಿದ್ದು: %1$s</string>
 
     <!-- SMS actions, notification humour, updates & auth errors -->

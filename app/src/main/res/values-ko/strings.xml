@@ -3253,6 +3253,7 @@
     <string name="info_cloud_security">클라우드 동기화나 백업 실패, 새 기기 접근이나 변경 알림.</string>
 
     <string name="notification_title_sms_import">💳 거래 감지</string>
+    <string name="toast_sms_transaction_detected">거래 감지</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

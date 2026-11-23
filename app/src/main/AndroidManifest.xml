@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- RECEIVE_SMS implies a REQUIRED android.hardware.telephony feature in the
+         merged manifest, which hid the app from tablets, desktops and XR devices in
+         Play. Smart SMS Import is optional (every screen works without it), so the
+         feature is declared optional to restore availability on those devices. -->
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />

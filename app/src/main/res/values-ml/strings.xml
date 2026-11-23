@@ -1513,6 +1513,7 @@
     <string name="info_recurring_alerts">അടയ്ക്കേണ്ടതിന് 7 ദിവസം, 3 ദിവസം, 1 ദിവസം മുൻപും അടയ്ക്കേണ്ട ദിവസവും നിങ്ങളുടെ ആവർത്തിച്ചുള്ള ബില്ലുകളെയും പേയ്മെന്റുകളെയും കുറിച്ച് ഓർമ്മപ്പെടുത്തും. ഓരോ ആവർത്തന നിയമവും വെവ്വേറെ നിശബ്ദമാക്കാം.</string>
     <string name="info_cloud_security">ക്ലൗഡ് സമന്വയമോ ബാക്കപ്പുകളോ പരാജയപ്പെടുമ്പോൾ, നിങ്ങളുടെ അക്കൗണ്ട് പുതിയ ഉപകരണത്തിൽ നിന്ന് ആക്സസ് ചെയ്യുമ്പോഴോ മാറ്റുമ്പോഴോ അലേർട്ടുകൾ.</string>
     <string name="notification_title_sms_import">💳 ഇടപാട് കണ്ടെത്തി</string>
+    <string name="toast_sms_transaction_detected">ഇടപാട് കണ്ടെത്തി</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">നിർദ്ദേശിച്ചത്: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s-ൽ %1$s ചെലവാക്കി</string>

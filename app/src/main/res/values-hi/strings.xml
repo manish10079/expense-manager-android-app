@@ -293,6 +293,7 @@
     <string name="notification_action_edit">संपादित करें</string>
     <string name="notification_action_ignore">नज़रअंदाज़</string>
     <string name="notification_title_sms_import">पहचाना गया लेनदेन</string>
+    <string name="toast_sms_transaction_detected">लेनदेन पहचाना गया</string>
     <string name="label_developed_by">विकासकर्ता</string>
     <string name="label_funds_breakdown">फंड विवरण</string>
     <string name="label_no_fund_breakdown">इस अवधि में फंड खर्च नहीं</string>

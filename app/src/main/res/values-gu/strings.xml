@@ -1538,6 +1538,7 @@
     <string name="info_recurring_alerts">તમારા પુનરાવર્તિત બિલ અને ચુકવણીની બાકી તારીખથી 7 દિવસ, 3 દિવસ અને 1 દિવસ પહેલાં તથા બાકી તારીખે યાદ કરાવે છે. દરેક પુનરાવર્તિત નિયમ અલગથી મ્યૂટ કરી શકાય છે.</string>
     <string name="info_cloud_security">ક્લાઉડ સિંક કે બૅકઅપ નિષ્ફળ જાય ત્યારે અને તમારા ખાતામાં નવા ઉપકરણથી ઍક્સેસ થાય કે ફેરફાર થાય ત્યારે ચેતવણી.</string>
     <string name="notification_title_sms_import">💳 વ્યવહાર મળ્યો</string>
+    <string name="toast_sms_transaction_detected">વ્યવહાર મળ્યો</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">સૂચવેલું: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s પર %1$s ખર્ચ્યા</string>

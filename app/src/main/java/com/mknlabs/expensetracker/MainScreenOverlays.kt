@@ -69,6 +69,9 @@ import com.mknlabs.expensetracker.core.ui.theme.accentSoft
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -386,12 +389,32 @@ internal fun MainScreenOverlays(
             }
             var micPermissionGranted by remember { mutableStateOf(hasMicPermission) }
 
+            val voiceFocusManager = LocalFocusManager.current
+            val voiceKeyboardController = LocalSoftwareKeyboardController.current
+            val voiceScope = rememberCoroutineScope()
+
+            // Recording starts only once the keyboard is really gone. A closing IME
+            // still owns the window and can leave AudioRecord reading silence for the
+            // whole session, which surfaced as "say something" / "try again". This
+            // mirrors the classic add form's start sequence: clear focus, hide the
+            // IME, then settle briefly before capturing.
+            val startVoiceSession: () -> Unit = {
+                voiceFocusManager.clearFocus(force = true)
+                voiceKeyboardController?.hide()
+                voiceScope.launch {
+                    kotlinx.coroutines.delay(300)
+                    if (navigationState.showVoiceInputSheet) {
+                        voiceViewModel.startVoiceInput()
+                    }
+                }
+            }
+
             val voicePermissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { granted ->
                 micPermissionGranted = granted
                 if (granted) {
-                    voiceViewModel.startVoiceInput()
+                    startVoiceSession()
                 } else {
                     voiceViewModel.onRecognizerError(R.string.msg_voice_error_no_permission)
                 }
@@ -401,7 +424,7 @@ internal fun MainScreenOverlays(
             LaunchedEffect(navigationState.showVoiceInputSheet) {
                 if (navigationState.showVoiceInputSheet) {
                     if (micPermissionGranted) {
-                        voiceViewModel.startVoiceInput()
+                        startVoiceSession()
                     } else {
                         voicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }

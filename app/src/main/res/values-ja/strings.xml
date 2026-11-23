@@ -3277,6 +3277,7 @@
     <string name="info_cloud_security">クラウド同期やバックアップ失敗、新しい端末からのアクセスや変更のアラート。</string>
 
     <string name="notification_title_sms_import">💳 取引を検出</string>
+    <string name="toast_sms_transaction_detected">取引を検出</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

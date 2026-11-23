@@ -1502,6 +1502,7 @@
     <string name="info_recurring_alerts">नियमित बिले आणि पेमेंटची आठवण देय तारखेच्या ७ दिवस, ३ दिवस आणि १ दिवस आधी, आणि देय तारखेला देते. प्रत्येक नियम स्वतंत्रपणे गपचूप करता येतो.</string>
     <string name="info_cloud_security">क्लाउड सिंक किंवा बॅकअप अयशस्वी झाल्यास, आणि नवीन डिव्हाइसवरून खाते वापरले किंवा बदलले गेल्यास सूचना.</string>
     <string name="notification_title_sms_import">💳 व्यवहार ओळखला</string>
+    <string name="toast_sms_transaction_detected">व्यवहार ओळखला</string>
     <string name="notification_format_sms_import_suggested">सुचवलेले: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s येथे %1$s खर्च</string>
     <string name="notification_format_sms_import_title_received">%2$s कडून %1$s आले</string>

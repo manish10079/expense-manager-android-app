@@ -3284,6 +3284,7 @@ privado de verdade</string>
     <string name="info_cloud_security">Avisos se a sync ou a cópia falhar, e se entrar um aparelho novo ou a conta mudar.</string>
 
     <string name="notification_title_sms_import">💳 Lançamento detectado</string>
+    <string name="toast_sms_transaction_detected">Lançamento detectado</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

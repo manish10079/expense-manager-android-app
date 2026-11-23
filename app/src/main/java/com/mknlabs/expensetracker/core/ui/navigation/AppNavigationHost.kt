@@ -100,7 +100,6 @@ fun AppNavigationHost(
     /** A filed detection card was tapped: open the transaction it created. */
     onSmsInboxOpenTransaction: (String) -> Unit = {},
     /** The draft was saved: stamp the detection with the transaction that came out of it. */
-    onSmsDetectionSaved: (String, String) -> Unit = { _, _ -> },
     categories: List<CategoryType>,
     paymentMethods: List<PaymentType>,
     transactionCardCustomizationSettings: TransactionCardCustomizationSettings,
@@ -144,7 +143,7 @@ fun AppNavigationHost(
     onSelectedTransactionChange: (Transaction?) -> Unit,
     onAddTransactionDraftAmountChange: (String?) -> Unit,
     onAddTransactionDraftNoteChange: (String?) -> Unit,
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>, String?) -> Boolean,
     onShowTransactionSaved: (AiParsedReviewItem) -> Unit = {},
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
@@ -796,14 +795,19 @@ fun AppNavigationHost(
                             // The star is written by the save, not by the tap, so this
                             // is the only place its effect can be confirmed.
                             val wasFavorite = favorites.any { it.transactionId == transactionToSave.id }
-                            onSaveTransaction(
+                            // The detection id goes into the save itself, which stamps it
+                            // once the insert has committed. `accepted` is false only when a
+                            // save was already in flight and this one was dropped: nothing was
+                            // written then, so nothing may be reported as saved either.
+                            val accepted = onSaveTransaction(
                                 transactionToSave,
                                 recurringDraft,
                                 selectedRecurringRule,
                                 isFavorite,
-                                tagIds
+                                tagIds,
+                                detectionId
                             )
-                            if (!isEdit) {
+                            if (accepted && !isEdit) {
                                 val category = categories.firstOrNull { it.id == transactionToSave.categoryId }
                                 val payment = paymentMethods.firstOrNull { it.id == transactionToSave.paymentTypeId }
                                 onShowTransactionSaved(
@@ -823,7 +827,7 @@ fun AppNavigationHost(
                                     )
                                 )
                             }
-                            if (isFavorite != wasFavorite) {
+                            if (accepted && isFavorite != wasFavorite) {
                                 Toast.makeText(
                                     favoritesContext,
                                     favoritesContext.getString(
@@ -831,12 +835,6 @@ fun AppNavigationHost(
                                     ),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                            }
-                            // Add was pressed, so the detection is now filed: the inbox
-                            // drops its card and the notification goes with it. Backing out
-                            // of this screen instead leaves the detection exactly as it was.
-                            if (detectionId != null) {
-                                onSmsDetectionSaved(detectionId, transactionToSave.id)
                             }
                         }
                     )

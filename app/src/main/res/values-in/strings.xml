@@ -3277,6 +3277,7 @@ privat dari sifat</string>
     <string name="info_cloud_security">Peringatan saat sinkron atau cadangan gagal, dan saat akun diakses dari perangkat baru atau diubah.</string>
 
     <string name="notification_title_sms_import">💳 Transaksi terdeteksi</string>
+    <string name="toast_sms_transaction_detected">Transaksi terdeteksi</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

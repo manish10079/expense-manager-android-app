@@ -3282,6 +3282,7 @@ privat von Haus aus</string>
     <string name="info_cloud_security">Hinweise, wenn Cloud-Sync oder Backups scheitern und wenn dein Konto von einem neuen Gerät genutzt oder geändert wird.</string>
 
     <string name="notification_title_sms_import">💳 Buchung erkannt</string>
+    <string name="toast_sms_transaction_detected">Buchung erkannt</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

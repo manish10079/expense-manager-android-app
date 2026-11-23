@@ -1493,6 +1493,7 @@
     <string name="info_recurring_alerts">உங்கள் தொடர் பில் மற்றும் பணச் செலுத்தல்களுக்கு 7 நாள், 3 நாள், 1 நாள் முன்பும், நிலுவை தேதியிலும் நினைவூட்டும். ஒவ்வொரு தொடர் விதியையும் தனித்தனியாக அமைதியாக்கலாம்.</string>
     <string name="info_cloud_security">கிளவுட் ஒத்திசைவு அல்லது காப்புப்பிரதி தோல்வியடையும்போது, மற்றும் உங்கள் கணக்கு புதிய சாதனத்திலிருந்து திறக்கப்பட்டாலோ மாற்றப்பட்டாலோ எச்சரிக்கை.</string>
     <string name="notification_title_sms_import">💳 பரிவர்த்தனை கண்டறியப்பட்டது</string>
+    <string name="toast_sms_transaction_detected">பரிவர்த்தனை கண்டறியப்பட்டது</string>
     <string name="notification_format_sms_import_suggested">பரிந்துரை: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s இல் %1$s செலவு</string>
     <string name="notification_format_sms_import_title_received">%2$s இலிருந்து %1$s கிடைத்தது</string>

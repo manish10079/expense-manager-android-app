@@ -121,7 +121,6 @@ fun MainScaffold(
      * The detection draft was saved. Carries the row id and the transaction that was
      * written, so the inbox can record the filing the user actually performed.
      */
-    onSmsDetectionSaved: (String, String) -> Unit = { _, _ -> },
     /** The Add Transaction screen was left without saving: drop the detection link. */
     onSmsInboxDraftConsumed: () -> Unit = {},
     categories: List<CategoryType>,
@@ -172,7 +171,7 @@ fun MainScaffold(
     onAddTransactionDraftTypeIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftPaymentTypeIdChange: (Int?) -> Unit = {},
     onAddTransactionDraftCreatedAtChange: (Long?) -> Unit = {},
-    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>) -> Unit,
+    onSaveTransaction: (Transaction, RecurringTransactionDraft?, RecurringTransactionRule?, Boolean, List<String>, String?) -> Boolean,
     onSaveTransactions: ((List<Pair<Transaction, List<String>>>) -> Unit)? = null,
     onDeleteTransaction: (String) -> Unit,
     onSwipeDeleteTransaction: (Transaction) -> Unit = {},
@@ -603,7 +602,6 @@ fun MainScaffold(
             smsInboxDraftDetectionId = smsInboxDraftDetectionId,
             onSmsInboxReview = onSmsInboxReview,
             onSmsInboxOpenTransaction = onSmsInboxOpenTransaction,
-            onSmsDetectionSaved = onSmsDetectionSaved,
             categories = categories,
             paymentMethods = paymentMethods,
             transactionCardCustomizationSettings = transactionCardCustomizationSettings,
@@ -924,6 +922,7 @@ fun MainScaffold(
                         null,
                         false,
                         item.tagIds,
+                        null,
                     )
                     aiReviewItems.removeAll { it.id == item.id }
                     if (aiReviewItems.isEmpty()) {
@@ -957,7 +956,7 @@ fun MainScaffold(
                         onSaveTransactions(toSave)
                     } else {
                         toSave.forEach { (tx, tags) ->
-                            onSaveTransaction(tx, null, null, false, tags)
+                            onSaveTransaction(tx, null, null, false, tags, null)
                         }
                     }
                     aiReviewItems.clear()

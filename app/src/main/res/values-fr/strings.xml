@@ -3249,6 +3249,7 @@ privé par nature</string>
     <string name="info_cloud_security">Alertes si la sync ou la sauvegarde rate, et si un nouvel appareil ou le compte change.</string>
 
     <string name="notification_title_sms_import">💳 Opération détectée</string>
+    <string name="toast_sms_transaction_detected">Opération détectée</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

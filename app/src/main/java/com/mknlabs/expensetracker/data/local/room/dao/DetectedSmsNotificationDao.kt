@@ -125,7 +125,11 @@ interface DetectedSmsNotificationDao {
     @Query("UPDATE detected_sms_notifications SET status = 'VIEWED', updated_at = :updatedAt WHERE id IN (:ids) AND status = 'NEW'")
     suspend fun markViewed(ids: List<String>, updatedAt: Long)
 
-    /** Files a detection against the transaction created from it. */
+    /**
+     * Files a detection against the transaction created from it. [transactionId] is
+     * nullable because the link is a foreign key: a caller whose transaction is already
+     * gone files the row unlinked rather than losing the decision to a constraint error.
+     */
     @Query(
         """
         UPDATE detected_sms_notifications
@@ -133,7 +137,7 @@ interface DetectedSmsNotificationDao {
         WHERE id = :id
         """
     )
-    suspend fun markAdded(id: String, transactionId: String, updatedAt: Long)
+    suspend fun markAdded(id: String, transactionId: String?, updatedAt: Long)
 
     @Query("UPDATE detected_sms_notifications SET notification_id = :notificationId, updated_at = :updatedAt WHERE id = :id")
     suspend fun attachNotification(id: String, notificationId: Int, updatedAt: Long)

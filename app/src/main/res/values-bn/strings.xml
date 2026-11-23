@@ -1502,6 +1502,7 @@
     <string name="info_recurring_alerts">পুনরাবৃত্ত বিল ও পেমেন্ট দেওয়ার ৭ দিন, ৩ দিন, ১ দিন আগে এবং দেওয়ার দিনে মনে করিয়ে দেয়। প্রতিটি নিয়ম আলাদাভাবে চুপ করানো যায়।</string>
     <string name="info_cloud_security">ক্লাউড সিঙ্ক বা ব্যাকআপ ব্যর্থ হলে, এবং নতুন ডিভাইস থেকে অ্যাকাউন্ট ব্যবহার বা পরিবর্তন হলে সতর্কবার্তা।</string>
     <string name="notification_title_sms_import">💳 লেনদেন শনাক্ত হয়েছে</string>
+    <string name="toast_sms_transaction_detected">লেনদেন শনাক্ত হয়েছে</string>
     <string name="notification_format_sms_import_suggested">প্রস্তাবিত: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s-এ %1$s খরচ</string>
     <string name="notification_format_sms_import_title_received">%2$s থেকে %1$s এসেছে</string>

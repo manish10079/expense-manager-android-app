@@ -3216,6 +3216,7 @@
     
 
     <string name="notification_title_sms_import">💳 ଟ୍ରାନ୍ଜାକ୍ସନ ମିଳିଲା</string>
+    <string name="toast_sms_transaction_detected">ଟ୍ରାନ୍ଜାକ୍ସନ ମିଳିଲା</string>
 
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 

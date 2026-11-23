@@ -873,7 +873,6 @@ fun MainScreen(
                                     navigationState.navigateTo(AppRoute.AddTransaction)
                                 }
                         },
-                        onSmsDetectionSaved = mainViewModel::attachSmsDetection,
                         onSmsInboxDraftConsumed = navigationState::clearAddTransactionSourceDetectionId,
                         categories = mainUiState.categories,
                         paymentMethods = mainUiState.paymentMethods,

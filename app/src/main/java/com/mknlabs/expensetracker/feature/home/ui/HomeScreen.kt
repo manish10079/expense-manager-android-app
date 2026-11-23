@@ -252,6 +252,18 @@ internal fun HomeScreenContent(
     val transactionsListState = rememberLazyListState()
     rememberBindAddFabToScroll(transactionsListState)
 
+    // A keyed LazyColumn keeps its scroll anchored to the item that was first on
+    // screen, so a newly saved transaction inserted above it lands just out of
+    // view: the recent list looks unchanged until the user scrolls up. Follow the
+    // new head only when the user is already near the top — someone scrolled down
+    // to older transactions stays exactly where they are.
+    val newestTransactionId = uiState.recentTransactions.firstOrNull()?.transaction?.id
+    LaunchedEffect(newestTransactionId) {
+        if (newestTransactionId != null && transactionsListState.firstVisibleItemIndex <= 1) {
+            transactionsListState.animateScrollToItem(0)
+        }
+    }
+
     val enter = rememberSectionEnterAlphas(4)
     val headerEnter = enter[0]
     val cashFlowEnter = enter[1]

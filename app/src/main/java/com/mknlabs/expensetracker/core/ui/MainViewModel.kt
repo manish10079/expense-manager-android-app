@@ -319,26 +319,26 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * Links a detection to the transaction the user saved from it in the Add Transaction
-     * screen, so the inbox stops offering to add what is already in the ledger.
+     * Saves a transaction and, when it came from the SMS inbox, files the detection
+     * against it.
      *
-     * Deliberately fire-and-forget: the save itself is the user's real intent and must not
-     * be delayed, or rolled back, because a stamp on an inbox row did not land.
+     * [smsDetectionId] is stamped inside this same coroutine, after the insert, because
+     * `detected_sms_notifications.linked_transaction_id` is a foreign key: stamping
+     * before the parent row exists is a constraint violation, and stamping from a
+     * separate coroutine is a race with this one.
+     *
+     * Returns `false` when a save was already running and this one was dropped, so the
+     * caller cannot report a write that never happened.
      */
-    fun attachSmsDetection(detectionId: String, transactionId: String) {
-        viewModelScope.launch {
-            attachSmsDetectionToTransaction(detectionId, transactionId)
-        }
-    }
-
     fun saveTransaction(
         transaction: Transaction,
         recurringDraft: RecurringTransactionDraft?,
         existingRule: RecurringTransactionRule?,
         isFavorite: Boolean,
-        tagIds: List<String> = emptyList()
-    ) {
-        if (!transactionSaveInFlight.compareAndSet(false, true)) return
+        tagIds: List<String> = emptyList(),
+        smsDetectionId: String? = null
+    ): Boolean {
+        if (!transactionSaveInFlight.compareAndSet(false, true)) return false
         viewModelScope.launch {
             try {
             val toPersist = if (transaction.id.isBlank()) {
@@ -347,6 +347,17 @@ class MainViewModel @Inject constructor(
                 transaction
             }
             val savedTransaction = transactionRepository.upsertTransaction(toPersist)
+            // Stamped here, not by the screen: the row it points at only exists once the
+            // insert above returned, and the stamp must not be a separate coroutine racing
+            // this one. A stamp that still fails is logged and dropped — the transaction
+            // the user saved is the real intent and must never be rolled back for it.
+            if (smsDetectionId != null) {
+                runCatching {
+                    attachSmsDetectionToTransaction(smsDetectionId, savedTransaction.id)
+                }.onFailure { error ->
+                    Log.w("MainViewModel", "SMS detection $smsDetectionId not stamped", error)
+                }
+            }
             // Tags are written after the transaction exists, because the link table keys
             // on the transaction's id — which the repository may have just minted. The
             // repository reconciles the whole set in one database transaction, so an
@@ -490,6 +501,7 @@ class MainViewModel @Inject constructor(
                 transactionSaveInFlight.set(false)
             }
         }
+        return true
     }
 
     fun saveTransactions(items: List<Pair<Transaction, List<String>>>) {

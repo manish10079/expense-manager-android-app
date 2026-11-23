@@ -1486,6 +1486,7 @@
     <string name="info_recurring_alerts">পৰিশোধৰ তাৰিখৰ ৭ দিন, ৩ দিন, ১ দিন আগতে আৰু পৰিশোধৰ দিনা আপোনাৰ পুনৰাবৃত্তি বিল আৰু পেমেন্টৰ কথা মনত পেলাই দিয়ে। প্ৰতিটো পুনৰাবৃত্তি নিয়ম বেলেগে মিউট কৰিব পাৰি।</string>
     <string name="info_cloud_security">ক্লাউড ছিংক বা বেকআপ ব্যৰ্থ হ\'লে, আৰু নতুন ডিভাইচৰ পৰা আপোনাৰ একাউণ্টত প্ৰৱেশ কৰিলে বা সলনি কৰিলে সতৰ্কবাণী।</string>
     <string name="notification_title_sms_import">💳 লেনদেন চিনাক্ত হ\'ল</string>
+    <string name="toast_sms_transaction_detected">লেনদেন চিনাক্ত হ\'ল</string>
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
     <string name="notification_format_sms_import_suggested">পৰামৰ্শিত: %1$s</string>
     <string name="notification_format_sms_import_title_spent">%2$s-ত %1$s খৰচ</string>

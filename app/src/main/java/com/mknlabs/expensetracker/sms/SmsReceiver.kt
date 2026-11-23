@@ -5,8 +5,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.provider.Telephony
+import android.view.Gravity
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.constants.currencyMap
 import com.mknlabs.expensetracker.data.local.AppSettingsDataStore
 import com.mknlabs.expensetracker.data.local.SmsLearningStore
@@ -15,6 +24,7 @@ import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.RecordSmsOu
 import com.mknlabs.expensetracker.feature.smsinbox.domain.repository.SmsInboxRepository
 import com.mknlabs.expensetracker.feature.smsinbox.domain.model.SmsFingerprint
 import com.mknlabs.expensetracker.feature.smsinbox.domain.usecase.RecordDetectedSmsUseCase
+import com.mknlabs.expensetracker.utils.AppLocaleHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -139,6 +149,11 @@ class SmsReceiver : BroadcastReceiver() {
                 )
                 smsInboxRepository.attachNotification(detectionId, notificationId)
 
+                // Told once per genuinely new detection (a redelivery of the same
+                // message already returned as a duplicate above). Centered on screen
+                // so it is visible even while the app is in the background.
+                showDetectedToast(context.applicationContext)
+
                 delay(SMS_NOTIFY_DELAY_MS)
                 SmsNotificationManager.showImportNotification(
                     context.applicationContext,
@@ -152,6 +167,53 @@ class SmsReceiver : BroadcastReceiver() {
                 pendingResult.finish()
             }
         }
+    }
+
+    /**
+     * "Transaction detected", vertically centered.
+     *
+     * Only a custom toast view keeps the gravity we ask for: from API 30 on SystemUI
+     * pins text toasts to the bottom and ignores [Toast.setGravity]. The system blocks
+     * custom views from background apps, so out there the plain text toast is all we can
+     * post (the heads-up notification a moment later is the real surface).
+     */
+    private fun showDetectedToast(context: Context) {
+        val toastContext = AppLocaleHelper.wrapForAppLanguage(context)
+        val message = toastContext.getString(R.string.toast_sms_transaction_detected)
+        val appVisible = ProcessLifecycleOwner.get().lifecycle.currentState
+            .isAtLeast(Lifecycle.State.STARTED)
+        // onReceive's work runs on a dispatcher without a looper; toasts need the main one.
+        ContextCompat.getMainExecutor(context).execute {
+            if (appVisible) {
+                showCenteredToast(toastContext, message)
+            } else {
+                Toast.makeText(toastContext, message, Toast.LENGTH_SHORT).apply {
+                    // Honored only before Android 11, where apps still position toasts.
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) setGravity(Gravity.CENTER, 0, 0)
+                }.show()
+            }
+        }
+    }
+
+    /** System-toast styling (dark pill, white text) placed at [Gravity.CENTER]. */
+    @Suppress("DEPRECATION")
+    private fun showCenteredToast(context: Context, message: String) {
+        val density = context.resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
+        Toast(context).apply {
+            duration = Toast.LENGTH_SHORT
+            view = TextView(context).apply {
+                text = message
+                setTextColor(Color.WHITE)
+                textSize = 14f
+                setPadding(dp(20), dp(12), dp(20), dp(12))
+                background = GradientDrawable().apply {
+                    cornerRadius = dp(24).toFloat()
+                    setColor(Color.parseColor("#E6202020"))
+                }
+            }
+            setGravity(Gravity.CENTER, 0, 0)
+        }.show()
     }
 
     private fun hasSmsPermission(context: Context): Boolean {

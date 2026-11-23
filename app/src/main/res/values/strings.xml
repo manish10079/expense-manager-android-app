@@ -3352,6 +3352,8 @@
 
     <string name="notification_title_sms_import">💳 Transaction Detected</string>
 
+    <string name="toast_sms_transaction_detected">Transaction detected</string>
+
     <string name="notification_format_sms_import_content">%1$s %2$s · %3$s</string>
 
     <string name="notification_format_sms_import_suggested">Suggested: %1$s</string>
