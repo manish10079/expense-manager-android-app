@@ -4,12 +4,19 @@ import com.mknlabs.expensetracker.core.ui.theme.isDark
 import com.mknlabs.expensetracker.core.ui.theme.profileSheet
 import com.mknlabs.expensetracker.core.ui.theme.sheet
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,9 +48,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
 import com.mknlabs.expensetracker.core.ui.theme.brandGradient
 import com.mknlabs.expensetracker.core.ui.theme.onBrandGradient
@@ -54,11 +64,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
+import com.mknlabs.expensetracker.data.constants.DEFAULT_CURRENCY_ID
+import com.mknlabs.expensetracker.models.CurrencyPosition
+import com.mknlabs.expensetracker.utils.getCurrency
 
 /**
  * Voice input bottom sheet states.
@@ -92,6 +106,7 @@ fun VoiceInputSheet(
     onDone: () -> Unit = onDismissRequest,
     audioAmplitude: Float = 0f,
     downloadProgress: Float = 0f,
+    currencyId: Int = DEFAULT_CURRENCY_ID,
     modifier: Modifier = Modifier
 ) {
     val sheetBodyState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -125,6 +140,7 @@ fun VoiceInputSheet(
                     transcript = transcript,
                     isProcessing = sheetState != VoiceSheetState.LISTENING,
                     audioAmplitude = audioAmplitude,
+                    currencyId = currencyId,
                     onCancel = onDismissRequest,
                     onDone = onDone,
                 )
@@ -191,9 +207,42 @@ internal fun VoiceListeningContent(
     transcript: String,
     isProcessing: Boolean,
     audioAmplitude: Float = 0f,
+    currencyId: Int = DEFAULT_CURRENCY_ID,
     onCancel: () -> Unit,
     onDone: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val baseAmounts = remember {
+        intArrayOf(45, 12, 60, 15, 40, 4, 18, 35, 10, 60, 40, 15, 25, 20, 15)
+    }
+    val hintExamples = remember {
+        runCatching { context.resources.getStringArray(R.array.voice_hint_examples) }
+            .getOrNull()?.takeIf { it.isNotEmpty() }
+            ?: arrayOf(context.getString(R.string.hint_voice_listen_example))
+    }
+    val randomIndex = remember {
+        if (hintExamples.isNotEmpty()) hintExamples.indices.random() else 0
+    }
+    val randomHint = remember(currencyId, randomIndex) {
+        val rawTemplate = hintExamples.getOrElse(randomIndex) { context.getString(R.string.hint_voice_listen_example) }
+        val baseAmount = baseAmounts.getOrElse(randomIndex % baseAmounts.size) { 45 }
+        val formattedAmount = formatHintAmount(baseAmount, currencyId)
+        if (rawTemplate.contains("%1\$s") || rawTemplate.contains("%s")) {
+            runCatching { String.format(rawTemplate, formattedAmount) }
+                .getOrDefault(rawTemplate.replace("%1\$s", formattedAmount).replace("%s", formattedAmount))
+        } else {
+            rawTemplate
+        }
+    }
+    val hintAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        hintAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 850, easing = LinearOutSlowInEasing),
+        )
+    }
+
     val dark = MaterialTheme.colorScheme.isDark
     val pulse = rememberInfiniteTransition(label = "voice-listen")
     val ring1 by pulse.animateFloat(
@@ -238,19 +287,29 @@ internal fun VoiceListeningContent(
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
-        Text(
-            text = if (transcript.isNotBlank()) {
-                "\"$transcript\""
-            } else {
-                stringResource(R.string.hint_voice_listen_example)
+        AnimatedContent(
+            targetState = if (transcript.isNotBlank()) "\"$transcript\"" else "\"$randomHint\"",
+            transitionSpec = {
+                fadeIn(animationSpec = tween(400, easing = LinearOutSlowInEasing)) togetherWith
+                    fadeOut(animationSpec = tween(200, easing = FastOutLinearInEasing))
             },
-            modifier = Modifier.padding(top = 4.dp).height(20.dp),
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
+            label = "VoiceHintFadeAnimation",
+            modifier = Modifier.graphicsLayer { alpha = hintAlpha.value },
+        ) { targetDisplay ->
+            Text(
+                text = targetDisplay,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .height(20.dp),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Box(
             modifier = Modifier
                 .padding(vertical = 24.dp)
@@ -421,20 +480,47 @@ private fun ErrorContent(
             textAlign = TextAlign.Center
         )
 
-        Button(
-            onClick = onRetry,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.accentInk
-            )
+        Box(
+            modifier = Modifier
+                .height(44.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(brandGradient())
+                .clickable(onClick = onRetry)
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = stringResource(R.string.label_voice_retry))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBrandGradient,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text(
+                    text = stringResource(R.string.label_voice_retry),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBrandGradient,
+                )
+            }
         }
+    }
+}
+
+private fun formatHintAmount(amount: Int, currencyId: Int): String {
+    val currency = getCurrency(currencyId)
+    val scaledAmount = when (currency.id) {
+        5, 6 -> amount * 100 // JPY, CNY
+        7, 12 -> amount * 1000 // KRW, IDR
+        1, 24, 25, 26, 27 -> amount * 10 // INR, PKR, BDT, LKR, NPR
+        else -> amount
+    }
+    return when (currency.position) {
+        CurrencyPosition.PREFIX -> "${currency.currencySymbol}$scaledAmount"
+        CurrencyPosition.POSTFIX -> "$scaledAmount ${currency.currencySymbol}"
     }
 }
 
@@ -446,6 +532,7 @@ private fun VoiceInputSheetListeningPreview() {
             transcript = "Paid 250 for groceries",
             isProcessing = false,
             audioAmplitude = 0.4f,
+            currencyId = DEFAULT_CURRENCY_ID,
             onCancel = {},
             onDone = {},
         )

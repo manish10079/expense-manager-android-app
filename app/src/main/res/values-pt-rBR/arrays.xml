@@ -85,4 +85,21 @@
         <item>Visual mais fino, matemática honesta.</item>
         <item>Ajustado para reality checks rápidos.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Gastei %1$s no mercado</item>
+        <item>Comprei leite e pão por %1$s</item>
+        <item>%1$s no supermercado</item>
+        <item>Paguei %1$s no almoço</item>
+        <item>Jantar com amigos %1$s</item>
+        <item>Café da manhã %1$s</item>
+        <item>Paguei %1$s de Uber para o trabalho</item>
+        <item>Gastei %1$s de combustível</item>
+        <item>Recarga de metrô %1$s</item>
+        <item>Paguei %1$s na conta de luz</item>
+        <item>Conta de internet %1$s</item>
+        <item>Recarga de celular %1$s</item>
+        <item>Gastei %1$s em roupas</item>
+        <item>Ingressos de cinema %1$s</item>
+        <item>Remédios na farmácia %1$s</item>
+    </string-array>
 </resources>

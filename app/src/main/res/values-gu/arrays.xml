@@ -85,4 +85,21 @@
         <item>વધુ સુંદર દેખાવ, પ્રામાણિક ગણિત.</item>
         <item>ઝડપી હકીકતી ચકાસણી માટે ટ્યૂન કર્યું.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>કરિયાણા પર %1$s ખર્ચ્યા</item>
+        <item>%1$sમાં દૂધ અને બ્રેડ ખરીદ્યા</item>
+        <item>સુપરમાર્કેટમાં %1$s</item>
+        <item>બપોરના ભોજન માટે %1$s ચૂકવ્યા</item>
+        <item>મિત્રો સાથે ડિનર %1$s</item>
+        <item>સવારની કોફી %1$s</item>
+        <item>ઓફિસ માટે કેબમાં %1$s ચૂકવ્યા</item>
+        <item>પેટ્રોલ પર %1$s ખર્ચ્યા</item>
+        <item>મેટ્રો રિચાર્જ %1$s</item>
+        <item>લાઈટ બિલ %1$s ભર્યું</item>
+        <item>ઇન્ટરનેટ બિલ %1$s</item>
+        <item>મોબાઈલ રિચાર્જ %1$s</item>
+        <item>કપડાં પર %1$s ખર્ચ્યા</item>
+        <item>મૂવી ટિકિટ %1$s</item>
+        <item>દવાઓ માટે %1$s</item>
+    </string-array>
 </resources>

@@ -85,4 +85,21 @@
         <item>ସରଳ ଦୃଶ୍ୟ, ସତ୍ୟବାଦୀ ଗଣିତ।</item>
         <item>ଦ୍ରୁତ ବାସ୍ତବ ଯାଞ୍ଚ ପାଇଁ ଟ୍ୟୁନ୍।</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>କିରାଣା ସାମଗ୍ରୀରେ %1$s ଖର୍ଚ୍ଚ କଲି</item>
+        <item>%1$sରେ କ୍ଷୀର ଓ ପାଉଁରୁଟି କିଣିଲି</item>
+        <item>ସୁପରମାର୍କେଟରେ %1$s</item>
+        <item>ଦ୍ୱିପ୍ରହର ଖାଦ୍ୟ ପାଇଁ %1$s ଦେଲି</item>
+        <item>ସାଙ୍ଗମାନଙ୍କ ସହ ରାତ୍ରୀଭୋଜନ %1$s</item>
+        <item>ସକାଳ କଫି %1$s</item>
+        <item>ଅଫିସ ଯିବା ପାଇଁ %1$s ଦେଲି</item>
+        <item>ପେଟ୍ରୋଲ ପାଇଁ %1$s ଖର୍ଚ୍ଚ</item>
+        <item>ମେଟ୍ରୋ ରିଚାର୍ଜ %1$s</item>
+        <item>ବିଜୁଳି ବିଲ୍ %1$s ଭରିଲି</item>
+        <item>ଇଣ୍ଟରନେଟ୍ ବିଲ୍ %1$s</item>
+        <item>ମୋବାଇଲ୍ ରିଚାର୍ଜ %1$s</item>
+        <item>ପୋଷାକରେ %1$s ଖର୍ଚ୍ଚ କଲି</item>
+        <item>ସିନେମା ଟିକେଟ୍ %1$s</item>
+        <item>ଔଷଧ ଦୋକାନରେ %1$s</item>
+    </string-array>
 </resources>

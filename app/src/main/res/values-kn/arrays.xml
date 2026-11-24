@@ -85,4 +85,21 @@
         <item>ಸ್ಲೀಕ್ ನೋಟ, ಪ್ರಾಮಾಣಿಕ ಗಣಿತ.</item>
         <item>ವೇಗದ ವಾಸ್ತವ ಪರೀಕ್ಷೆಗೆ ಟ್ಯೂನ್.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>ದಿನಸಿಗೆ %1$s ಖರ್ಚು ಮಾಡಿದೆ</item>
+        <item>%1$sಗೆ ಹಾಲು ಮತ್ತು ಬ್ರೆಡ್ ಕೊಂಡೆ</item>
+        <item>ಸೂಪರ್‌ಮಾರ್ಕೆಟ್‌ನಲ್ಲಿ %1$s</item>
+        <item>ಮಧ್ಯಾಹ್ನದ ಊಟಕ್ಕೆ %1$s ಪಾವತಿಸಿದೆ</item>
+        <item>ಸ್ನೇಹಿತರೊಂದಿಗೆ ರಾತ್ರಿ ಊಟ %1$s</item>
+        <item>ಬೆಳಗಿನ ಕಾಫಿ %1$s</item>
+        <item>ಆಫೀಸ್‌ಗೆ ಕ್ಯಾಬ್‌ಗೆ %1$s ನೀಡಿದೆ</item>
+        <item>ಪೆಟ್ರೋಲ್‌ಗೆ %1$s ಖರ್ಚು</item>
+        <item>ಮೆಟ್ರೋ ಕಾರ್ಡ್ ರೀಚಾರ್ಜ್ %1$s</item>
+        <item>ಕರೆಂಟ್ ಬಿಲ್ %1$s ಕಟ್ಟಿದೆ</item>
+        <item>ಇಂಟರ್ನೆಟ್ ಬಿಲ್ %1$s</item>
+        <item>ಮೊಬೈಲ್ ರೀಚಾರ್ಜ್ %1$s</item>
+        <item>ಬಟ್ಟೆಗೆ %1$s ಖರ್ಚು</item>
+        <item>ಸಿನಿಮಾ ಟಿಕೆಟ್ %1$s</item>
+        <item>ಔಷಧಿಗೆ %1$s</item>
+    </string-array>
 </resources>

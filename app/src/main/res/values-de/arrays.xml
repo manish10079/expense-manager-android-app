@@ -85,4 +85,21 @@
         <item>Schlanker Look, ehrliche Mathe.</item>
         <item>Abgestimmt auf schnelle Realitätschecks.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>%1$s für Lebensmittel ausgegeben</item>
+        <item>Milch und Brot für %1$s gekauft</item>
+        <item>%1$s im Supermarkt</item>
+        <item>%1$s für Mittagessen bezahlt</item>
+        <item>Abendessen mit Freunden %1$s</item>
+        <item>Morgenkaffee für %1$s</item>
+        <item>%1$s für Taxi ins Büro bezahlt</item>
+        <item>%1$s für Benzin ausgegeben</item>
+        <item>Metro-Karte mit %1$s aufgeladen</item>
+        <item>%1$s Stromrechnung bezahlt</item>
+        <item>Internet-Rechnung %1$s</item>
+        <item>Handy-Guthaben %1$s</item>
+        <item>%1$s für Kleidung ausgegeben</item>
+        <item>Kinotickets %1$s</item>
+        <item>Medikamente aus der Apotheke %1$s</item>
+    </string-array>
 </resources>

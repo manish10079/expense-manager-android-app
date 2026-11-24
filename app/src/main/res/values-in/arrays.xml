@@ -85,4 +85,21 @@
         <item>Tampilan lebih ramping, matematika jujur.</item>
         <item>Disetel untuk reality check cepat.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Belanja bahan makanan %1$s</item>
+        <item>Beli susu dan roti %1$s</item>
+        <item>%1$s di supermarket</item>
+        <item>Bayar %1$s untuk makan siang</item>
+        <item>Makan malam bareng teman %1$s</item>
+        <item>Kopi pagi %1$s</item>
+        <item>Bayar ojek online %1$s ke kantor</item>
+        <item>Beli bensin %1$s</item>
+        <item>Isi saldo tiket transportasi %1$s</item>
+        <item>Bayar tagihan listrik %1$s</item>
+        <item>Tagihan internet %1$s</item>
+        <item>Pulsa seluler %1$s</item>
+        <item>Beli baju %1$s</item>
+        <item>Tiket bioskop %1$s</item>
+        <item>Obat di apotek %1$s</item>
+    </string-array>
 </resources>

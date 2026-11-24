@@ -85,4 +85,21 @@
         <item>Look più snello, matematica onesta.</item>
         <item>Messa a punto per reality check rapidi.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Speso %1$s per la spesa</item>
+        <item>Comprato latte e pane per %1$s</item>
+        <item>%1$s al supermercato</item>
+        <item>Pagato %1$s per il pranzo</item>
+        <item>Cena con amici %1$s</item>
+        <item>Caffè della mattina %1$s</item>
+        <item>Pagato %1$s di taxi per l\'ufficio</item>
+        <item>Speso %1$s di benzina</item>
+        <item>Ricarica metro %1$s</item>
+        <item>Pagato %1$s di bolletta elettrica</item>
+        <item>Bolletta internet %1$s</item>
+        <item>Ricarica cellulare %1$s</item>
+        <item>Speso %1$s per vestiti</item>
+        <item>Biglietti per il cinema %1$s</item>
+        <item>Medicine in farmacia %1$s</item>
+    </string-array>
 </resources>

@@ -85,4 +85,21 @@
         <item>見た目すっきり、算数は正直。</item>
         <item>速い現実確認向けに調整。</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>食料品に%1$s使った</item>
+        <item>牛乳とパンを%1$sで買った</item>
+        <item>スーパーで%1$s</item>
+        <item>ランチに%1$s払った</item>
+        <item>友達との夕食に%1$s</item>
+        <item>朝のコーヒー%1$s</item>
+        <item>職場までのタクシー代%1$s</item>
+        <item>ガソリン代に%1$s使った</item>
+        <item>電車のICカードチャージ%1$s</item>
+        <item>電気代%1$s払った</item>
+        <item>インターネット料金%1$s</item>
+        <item>スマホのチャージ%1$s</item>
+        <item>服に%1$s使った</item>
+        <item>映画のチケット%1$s</item>
+        <item>薬局で薬に%1$s</item>
+    </string-array>
 </resources>

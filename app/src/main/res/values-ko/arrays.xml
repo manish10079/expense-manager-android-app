@@ -85,4 +85,21 @@
         <item>더 매끈한 룩, 정직한 수학.</item>
         <item>빠른 현실 점검용 튜닝.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>식료품에 %1$s 썼어</item>
+        <item>우유와 빵 %1$s에 구매</item>
+        <item>마트에서 %1$s</item>
+        <item>점심값으로 %1$s 결제</item>
+        <item>친구들과 저녁 식사 %1$s</item>
+        <item>모닝커피 %1$s</item>
+        <item>회사까지 택시비 %1$s</item>
+        <item>주유비로 %1$s 썼어</item>
+        <item>교통카드 충전 %1$s</item>
+        <item>전기요금 %1$s 납부</item>
+        <item>인터넷 요금 %1$s</item>
+        <item>휴대폰 요금 충전 %1$s</item>
+        <item>옷 사는 데 %1$s 썼어</item>
+        <item>영화 티켓 %1$s</item>
+        <item>약국에서 약값 %1$s</item>
+    </string-array>
 </resources>

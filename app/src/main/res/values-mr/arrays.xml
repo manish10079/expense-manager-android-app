@@ -85,4 +85,21 @@
         <item>अधिक देखणा, प्रामाणिक हिशोब.</item>
         <item>जलद वास्तव समजण्यासाठी ट्यून केले.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>किराणा सामानावर %1$s खर्च केले</item>
+        <item>%1$s रुपयांना दूध आणि ब्रेड घेतले</item>
+        <item>सुपरमार्केटमध्ये %1$s</item>
+        <item>दुपारच्या जेवणासाठी %1$s दिले</item>
+        <item>मित्रांसोबत डिनर %1$s</item>
+        <item>सकाळचा चहा-कॉफी %1$s</item>
+        <item>ऑफिसला जाण्यासाठी %1$s दिले</item>
+        <item>पेट्रोलवर %1$s खर्च झाले</item>
+        <item>मेट्रो रिचार्ज %1$s</item>
+        <item>लाईट बिल %1$s भरले</item>
+        <item>इंटरनेट बिल %1$s</item>
+        <item>मोबाइल रिचार्ज %1$s</item>
+        <item>कपड्यांवर %1$s खर्च केले</item>
+        <item>चित्रपटाचे तिकीट %1$s</item>
+        <item>औषधांसाठी %1$s</item>
+    </string-array>
 </resources>

@@ -85,4 +85,21 @@
         <item>ਹੋਰ ਸੋਹਣੀ ਦਿੱਖ, ਇਮਾਨਦਾਰ ਗਣਿਤ।</item>
         <item>ਤੇਜ਼ ਹਕੀਕਤੀ ਜਾਂਚਾਂ ਲਈ ਟਿਊਨ ਕੀਤਾ।</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>ਕਰਿਆਨੇ ਉੱਤੇ %1$s ਖਰਚ ਕੀਤੇ</item>
+        <item>%1$s ਦਾ ਦੁੱਧ ਅਤੇ ਬਰੈੱਡ ਖਰੀਦਿਆ</item>
+        <item>ਸੁਪਰਮਾਰਕੀਟ ਵਿੱਚ %1$s</item>
+        <item>ਦੁਪਹਿਰ ਦੇ ਖਾਣੇ ਲਈ %1$s ਦਿੱਤੇ</item>
+        <item>ਦੋਸਤਾਂ ਨਾਲ ਰਾਤ ਦਾ ਖਾਣਾ %1$s</item>
+        <item>ਸਵੇਰ ਦੀ ਕੌਫੀ %1$s</item>
+        <item>ਦਫ਼ਤਰ ਜਾਣ ਲਈ %1$s ਦਿੱਤੇ</item>
+        <item>ਪੈਟਰੋਲ ਉੱਤੇ %1$s ਖਰਚ ਕੀਤੇ</item>
+        <item>ਮੈਟਰੋ ਰੀਚਾਰਜ %1$s</item>
+        <item>ਬਿਜਲੀ ਦਾ ਬਿੱਲ %1$s ਭਰਿਆ</item>
+        <item>ਇੰਟਰਨੈੱਟ ਬਿੱਲ %1$s</item>
+        <item>ਮੋਬਾਈਲ ਰੀਚਾਰਜ %1$s</item>
+        <item>ਕੱਪੜਿਆਂ ਉੱਤੇ %1$s ਖਰਚ ਕੀਤੇ</item>
+        <item>ਫ਼ਿਲਮ ਦੀਆਂ ਟਿਕਟਾਂ %1$s</item>
+        <item>ਦਵਾਈਆਂ ਉੱਤੇ %1$s</item>
+    </string-array>
 </resources>

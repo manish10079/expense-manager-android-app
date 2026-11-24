@@ -85,4 +85,21 @@
         <item>Look más fino, mates honestas.</item>
         <item>Afinada para chequeos rápidos de realidad.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Gasté %1$s en compras del súper</item>
+        <item>Compré leche y pan por %1$s</item>
+        <item>%1$s en el supermercado</item>
+        <item>Pagué %1$s por el almuerzo</item>
+        <item>Cena con amigos %1$s</item>
+        <item>Café de la mañana %1$s</item>
+        <item>Pagué %1$s de taxi a la oficina</item>
+        <item>Gasté %1$s en gasolina</item>
+        <item>Recarga de metro %1$s</item>
+        <item>Pagué %1$s de factura de luz</item>
+        <item>Factura de internet %1$s</item>
+        <item>Recarga de móvil %1$s</item>
+        <item>Gasté %1$s en ropa</item>
+        <item>Entradas de cine %1$s</item>
+        <item>Medicamentos en farmacia %1$s</item>
+    </string-array>
 </resources>

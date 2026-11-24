@@ -1338,6 +1338,7 @@ internal fun AddTransactionScreenContent(
                 errorMessage = voiceUiState.errorMessageResId?.let { stringResource(it) },
                 audioAmplitude = voiceUiState.audioAmplitude,
                 downloadProgress = voiceUiState.downloadProgress,
+                currencyId = currencyId,
                 onDismissRequest = onVoiceSheetDismiss,
                 onRetry = onVoiceSheetRetry,
                 onDone = onVoiceSheetDone

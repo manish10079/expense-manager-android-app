@@ -85,4 +85,21 @@
         <item>स्लिक लुक, ईमानदार गणित।</item>
         <item>तेज़ रियलिटी चेक के लिए ट्यून।</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>किराने के सामान पर %1$s खर्च किए</item>
+        <item>%1$s में दूध और ब्रेड खरीदा</item>
+        <item>सुपरमार्केट में %1$s का सामान</item>
+        <item>दोपहर के खाने के लिए %1$s दिए</item>
+        <item>दोस्तों के साथ डिनर %1$s</item>
+        <item>सुबह की चाय-कॉफी %1$s</item>
+        <item>ऑफिस के लिए ऑटो/कैब %1$s</item>
+        <item>पेट्रोल पर %1$s खर्च किए</item>
+        <item>मेट्रो कार्ड रिचार्ज %1$s</item>
+        <item>बिजली का बिल %1$s भरा</item>
+        <item>इंटरनेट का बिल %1$s</item>
+        <item>मोबाइल रिचार्ज %1$s</item>
+        <item>कपड़ों पर %1$s खर्च किए</item>
+        <item>मूवी टिकट %1$s</item>
+        <item>दवाइयों पर %1$s खर्च किए</item>
+    </string-array>
 </resources>

@@ -85,4 +85,21 @@
         <item>Строже вид, честная математика.</item>
         <item>Настроено на быстрые проверки реальности.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Потратил %1$s на продукты</item>
+        <item>Купил молоко и хлеб за %1$s</item>
+        <item>%1$s в супермаркете</item>
+        <item>Заплатил %1$s за обед</item>
+        <item>Ужин с друзьями %1$s</item>
+        <item>Утренний кофе за %1$s</item>
+        <item>Заплатил %1$s за такси до офиса</item>
+        <item>Потратил %1$s на бензин</item>
+        <item>Пополнение карты метро %1$s</item>
+        <item>Оплатил счет за электричество %1$s</item>
+        <item>Счет за интернет %1$s</item>
+        <item>Пополнение мобильного %1$s</item>
+        <item>Потратил %1$s на одежду</item>
+        <item>Билеты в кино %1$s</item>
+        <item>Лекарства в аптеке %1$s</item>
+    </string-array>
 </resources>

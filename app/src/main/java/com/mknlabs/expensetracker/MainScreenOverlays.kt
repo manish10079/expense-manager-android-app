@@ -453,6 +453,7 @@ internal fun MainScreenOverlays(
                 errorMessage = voiceUiState.errorMessageResId?.let { context.getString(it) },
                 audioAmplitude = voiceUiState.audioAmplitude,
                 downloadProgress = voiceUiState.downloadProgress,
+                currencyId = selectedCurrencyId,
                 onDismissRequest = {
                     voiceViewModel.dismiss()
                     navigationState.updateShowVoiceInputSheet(false)

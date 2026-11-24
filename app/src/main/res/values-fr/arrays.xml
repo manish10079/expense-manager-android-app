@@ -85,4 +85,21 @@
         <item>Look plus fin, maths honnêtes.</item>
         <item>Réglée pour des checks réalité rapides.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Dépensé %1$s en courses</item>
+        <item>Acheté du lait et du pain pour %1$s</item>
+        <item>%1$s au supermarché</item>
+        <item>Payé %1$s pour le déjeuner</item>
+        <item>Dîner entre amis %1$s</item>
+        <item>Café du matin à %1$s</item>
+        <item>Payé %1$s de taxi pour le bureau</item>
+        <item>Dépensé %1$s d\'essence</item>
+        <item>Recharge de métro %1$s</item>
+        <item>Payé %1$s d\'électricité</item>
+        <item>Facture internet %1$s</item>
+        <item>Recharge mobile %1$s</item>
+        <item>Dépensé %1$s en vêtements</item>
+        <item>Places de cinéma %1$s</item>
+        <item>Médicaments à la pharmacie %1$s</item>
+    </string-array>
 </resources>

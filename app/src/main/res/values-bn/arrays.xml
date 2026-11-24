@@ -85,4 +85,21 @@
         <item>আরও সুন্দর দেখতে, সৎ অঙ্ক।</item>
         <item>দ্রুত বাস্তবতা জানার জন্য টিউন করা।</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>মুদি কেনাকাটায় %1$s খরচ</item>
+        <item>%1$s দুধ ও রুটি কিনেছি</item>
+        <item>সুপারমার্কেটে %1$s</item>
+        <item>দুপুরের খাবারে %1$s দিয়েছি</item>
+        <item>বন্ধুদের সাথে রাতের খাবার %1$s</item>
+        <item>সকালের কফি %1$s</item>
+        <item>অফিসের ভাড়ায় %1$s দিয়েছি</item>
+        <item>পেট্রোলে %1$s খরচ</item>
+        <item>মেট্রো কার্ড রিচার্জ %1$s</item>
+        <item>বিদ্যুৎ বিল %1$s পরিশোধ করেছি</item>
+        <item>ইন্টারনেট বিল %1$s</item>
+        <item>মোবাইল রিচার্জ %1$s</item>
+        <item>পোশাক কেনায় %1$s খরচ</item>
+        <item>সিনেমার টিকিট %1$s</item>
+        <item>ফার্মেসিতে ওষুধ %1$s</item>
+    </string-array>
 </resources>

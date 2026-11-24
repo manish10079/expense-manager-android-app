@@ -85,4 +85,21 @@
         <item>Sleeker look, honest math.</item>
         <item>Tuned up for quick reality checks.</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>Spent %1$s on groceries</item>
+        <item>Bought milk and bread for %1$s</item>
+        <item>%1$s at supermarket</item>
+        <item>Paid %1$s for lunch</item>
+        <item>Dinner with friends %1$s</item>
+        <item>%1$s morning coffee</item>
+        <item>Paid %1$s for Uber to office</item>
+        <item>Spent %1$s on petrol</item>
+        <item>Metro recharge %1$s</item>
+        <item>Paid %1$s electricity bill</item>
+        <item>Internet bill %1$s</item>
+        <item>Mobile recharge %1$s</item>
+        <item>Spent %1$s on clothes</item>
+        <item>Movie tickets %1$s</item>
+        <item>Pharmacy medicines %1$s</item>
+    </string-array>
 </resources>

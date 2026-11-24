@@ -85,4 +85,21 @@
         <item>আকৰ্ষণীয় ৰূপ, সৎ গণিত।</item>
         <item>দ্ৰুত বাস্তৱ পৰীক্ষাৰ বাবে টিউন কৰা হ\'ল।</item>
     </string-array>
+    <string-array name="voice_hint_examples">
+        <item>কিৰাণা সামগ্ৰীত %1$s খৰচ কৰিলোঁ</item>
+        <item>%1$sত গাখীৰ আৰু পাউৰুটী কিনিলোঁ</item>
+        <item>ছুপাৰমাৰ্কেটত %1$s</item>
+        <item>দুপৰীয়াৰ আহাৰত %1$s দিলোঁ</item>
+        <item>বন্ধুৰ সৈতে নৈশভোজ %1$s</item>
+        <item>ৰাতিপুৱাৰ কফি %1$s</item>
+        <item>অফিচলৈ যাবলৈ %1$s দিলোঁ</item>
+        <item>পেট্ৰ’লত %1$s খৰচ হ’ল</item>
+        <item>মেট্ৰ’ ৰিচাৰ্জ %1$s</item>
+        <item>বিদ্যুৎ বিল %1$s পৰিশোধ কৰিলোঁ</item>
+        <item>ইণ্টাৰনেট বিল %1$s</item>
+        <item>ম’বাইল ৰিচাৰ্জ %1$s</item>
+        <item>কাপোৰত %1$s খৰচ কৰিলোঁ</item>
+        <item>চিনেমাৰ টিকট %1$s</item>
+        <item>ঔষধৰ বাবে %1$s</item>
+    </string-array>
 </resources>
