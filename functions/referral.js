@@ -1,3 +1,5 @@
+const { revenueCatSecretKey, getActiveSubscription } = require("./revenuecat");
+
 const REFERRAL_DAYS = 4;
 const REFERRAL_MONTHLY_CAP = 4;
 
@@ -36,7 +38,6 @@ function registerReferral({
   HttpsError,
   admin,
   db,
-  activeSubscription,
   DURATION_MS_PER_DAY
 }) {
   const ensureReferralCode = onCall({ enforceAppCheck: true }, async (request) => {
@@ -87,7 +88,7 @@ function registerReferral({
     });
   });
 
-  const applyReferralCode = onCall({ enforceAppCheck: true }, async (request) => {
+  const applyReferralCode = onCall({ enforceAppCheck: true, secrets: [revenueCatSecretKey] }, async (request) => {
     const uid = requireRegisteredUid(HttpsError, request);
     const raw = typeof request.data?.code === "string" ? request.data.code : "";
     const code = raw.trim().toUpperCase();
@@ -98,14 +99,16 @@ function registerReferral({
     const userRef = db.collection("users").doc(uid);
     const attrRef = db.collection("referralAttributions").doc(uid);
     const codeRef = db.collection("referralCodes").doc(code);
-    const rcRef = db.collection("rc_customers").doc(uid);
+
+    // Live subscription check, made before the transaction opens: a Firestore transaction
+    // may be retried, so an external HTTP call must not run inside it.
+    const subscription = await getActiveSubscription(uid);
 
     return db.runTransaction(async (tx) => {
-      const [userSnap, attrSnap, codeSnap, rcSnap] = await Promise.all([
+      const [userSnap, attrSnap, codeSnap] = await Promise.all([
         tx.get(userRef),
         tx.get(attrRef),
-        tx.get(codeRef),
-        tx.get(rcRef)
+        tx.get(codeRef)
       ]);
 
       if (!codeSnap.exists) {
@@ -125,10 +128,9 @@ function registerReferral({
       }
 
       const now = Date.now();
-      const sub = activeSubscription(rcSnap.exists ? rcSnap.data() : null);
       let welcomeDays = 0;
       let newExpiry = userSnap.exists ? Number(userSnap.data()?.proExpiryTimestamp) || 0 : 0;
-      if (!sub) {
+      if (!subscription) {
         welcomeDays = REFERRAL_DAYS;
         newExpiry = stackExpiry(newExpiry, REFERRAL_DAYS, now, DURATION_MS_PER_DAY);
         tx.set(
@@ -165,13 +167,33 @@ function registerReferral({
         welcomeGranted: welcomeDays > 0
       });
 
-      return { welcomeDays, newExpiry, grantSkipped: Boolean(sub) };
+      return { welcomeDays, newExpiry, grantSkipped: Boolean(subscription) };
     });
   });
 
-  const qualifyReferral = onCall({ enforceAppCheck: true }, async (request) => {
+  const qualifyReferral = onCall({ enforceAppCheck: true, secrets: [revenueCatSecretKey] }, async (request) => {
     const uid = requireRegisteredUid(HttpsError, request);
     const attrRef = db.collection("referralAttributions").doc(uid);
+
+    // The referrer's subscription is answered by RevenueCat, and that lookup has to happen
+    // outside the transaction. The attribution is read once here to learn the referrer; the
+    // transaction re-reads it so a double qualification is still impossible.
+    const preSnap = await attrRef.get();
+    if (!preSnap.exists) {
+      return { rewarded: false, already: true, rewardsUsedThisMonth: 0 };
+    }
+    const preAttr = preSnap.data() || {};
+    if (preAttr.qualifiedAt) {
+      return {
+        rewarded: Boolean(preAttr.referrerRewarded),
+        already: true,
+        rewardsUsedThisMonth: 0
+      };
+    }
+    if (!preAttr.referrerUid) {
+      throw new HttpsError("failed-precondition", "Invalid attribution", { reason: "UNKNOWN" });
+    }
+    const subscription = await getActiveSubscription(preAttr.referrerUid);
 
     return db.runTransaction(async (tx) => {
       const attrSnap = await tx.get(attrRef);
@@ -188,8 +210,7 @@ function registerReferral({
       }
 
       const referrerRef = db.collection("users").doc(referrerUid);
-      const rcRef = db.collection("rc_customers").doc(referrerUid);
-      const [referrerSnap, rcSnap] = await Promise.all([tx.get(referrerRef), tx.get(rcRef)]);
+      const referrerSnap = await tx.get(referrerRef);
       const now = Date.now();
       const key = utcMonthKey(now);
       const data = referrerSnap.exists ? referrerSnap.data() || {} : {};
@@ -198,10 +219,9 @@ function registerReferral({
 
       let rewarded = false;
       let newExpiry = Number(data.proExpiryTimestamp) || 0;
-      const sub = activeSubscription(rcSnap.exists ? rcSnap.data() : null);
       const underCap = used < REFERRAL_MONTHLY_CAP;
       if (underCap) used += 1;
-      if (underCap && !sub) {
+      if (underCap && !subscription) {
         rewarded = true;
         newExpiry = stackExpiry(newExpiry, REFERRAL_DAYS, now, DURATION_MS_PER_DAY);
       }

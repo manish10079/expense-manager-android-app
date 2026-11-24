@@ -26,6 +26,11 @@ exports.parseVoiceTransaction = parseVoiceTransaction;
 const { parseExpenseText } = require("./parseExpenseText");
 exports.parseExpenseText = parseExpenseText;
 
+const { revenueCatWebhook } = require("./revenuecatWebhook");
+exports.revenueCatWebhook = revenueCatWebhook;
+
+const { revenueCatSecretKey, getActiveSubscription } = require("./revenuecat");
+
 admin.initializeApp();
 
 const db = admin.firestore();
@@ -57,6 +62,10 @@ function rcDateToMillis(value) {
 /**
  * Reads the live subscription entitlement from an `rc_customers/{uid}` document — the
  * snapshot the RevenueCat Firebase Extension maintains for each customer.
+ *
+ * Only `onRcCustomerWritten` still reads a document this way. Callable functions ask
+ * RevenueCat directly (see ./revenuecat.js) so they never depend on a webhook landing
+ * in Firestore first.
  *
  * Returns `{ expiresMillis }` when the `premium` entitlement is live, where 0 means the
  * entitlement carries no expiry (RevenueCat omits `expires_date` for entitlements that
@@ -116,7 +125,7 @@ function activeSubscription(rcData) {
  *                         a running pass (`details.reason = "PASS_ACTIVE"` plus
  *                         `details.passExpiry` in epoch millis).
  */
-exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
+exports.redeemProPass = onCall({ enforceAppCheck: true, secrets: [revenueCatSecretKey] }, async (request) => {
   // --- Auth gate (mirrors the old app check) ---
   const uid = request.auth?.uid;
   if (!uid) {
@@ -145,28 +154,28 @@ exports.redeemProPass = onCall({ enforceAppCheck: true }, async (request) => {
   const couponRef = db.collection("coupons").doc(code);
   const redemptionRef = couponRef.collection("redemptions").doc(uid);
   const userRef = db.collection("users").doc(uid);
-  // Read-only: the RevenueCat Firebase Extension is this document's only writer.
-  const rcCustomerRef = db.collection("rc_customers").doc(uid);
+  // Subscription gate. A subscription already grants Pro, so redeeming a pass on top
+  // would spend its days on access the user is paying for. Checked before the coupon so a
+  // subscriber always hears the real reason, whatever code they typed.
+  //
+  // The answer comes from RevenueCat itself, and it has to be fetched before the
+  // transaction opens: a transaction may be retried, and an external HTTP call must not
+  // be replayed by it.
+  const subscription = await getActiveSubscription(uid);
+  if (subscription) {
+    throw new HttpsError(
+      "failed-precondition",
+      "You already have an active subscription",
+      {
+        reason: "SUBSCRIPTION_ACTIVE",
+        subscriptionExpiry: subscription.expiresMillis
+      }
+    );
+  }
 
   // One transaction: every read happens before any write, so Firestore can
   // guarantee atomicity and the increment can never overshoot maxUses.
   const result = await db.runTransaction(async (tx) => {
-    // Subscription gate. A subscription already grants Pro, so redeeming a pass on top
-    // would spend its days on access the user is paying for. Checked before the coupon
-    // so a subscriber always hears the real reason, whatever code they typed.
-    const rcSnap = await tx.get(rcCustomerRef);
-    const subscription = activeSubscription(rcSnap.exists ? rcSnap.data() : null);
-    if (subscription) {
-      throw new HttpsError(
-        "failed-precondition",
-        "You already have an active subscription",
-        {
-          reason: "SUBSCRIPTION_ACTIVE",
-          subscriptionExpiry: subscription.expiresMillis
-        }
-      );
-    }
-
     // Pass gate. A running pass already grants Pro, so a second code would sit behind it and
     // its days would be spent on access the user already has. The old client refused this
     // before it called; the refusal lives here now, so a modified client cannot stack either.
@@ -575,7 +584,6 @@ const referralFns = registerReferral({
   HttpsError,
   admin,
   db,
-  activeSubscription,
   DURATION_MS_PER_DAY
 });
 exports.ensureReferralCode = referralFns.ensureReferralCode;

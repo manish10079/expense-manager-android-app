@@ -10,6 +10,8 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 
+const { revenueCatSecretKey, getActiveSubscription } = require("./revenuecat");
+
 const groqApiKey = defineSecret("GROQ_API_KEY");
 const openrouterApiKey = defineSecret("OPENROUTER_API_KEY");
 const xkiroApiKey = defineSecret("XKIRO_API_KEY");
@@ -99,16 +101,15 @@ function secretOrEmpty(secretParam) {
   }
 }
 
-function isProFromUserAndRc(userData, rcData) {
+/**
+ * Pro if RevenueCat reports a live subscription, or the profile carries a running Pro
+ * Pass. The subscription answer is live from RevenueCat (never a Firestore snapshot), so
+ * a just-completed purchase raises the limit on the next request instead of after a
+ * webhook lands.
+ */
+function isProFromUserAndSubscription(userData, subscription) {
   const now = Date.now();
-  const entitlements = rcData && typeof rcData === "object" ? rcData.entitlements : null;
-  const premium = entitlements && typeof entitlements === "object" ? entitlements.premium : null;
-  if (premium && typeof premium === "object") {
-    const rawExpiry = premium.expires_date ?? premium.expiresDate ?? null;
-    if (rawExpiry == null) return true;
-    const expiresMillis = Date.parse(rawExpiry);
-    if (Number.isFinite(expiresMillis) && expiresMillis > now) return true;
-  }
+  if (subscription) return true;
   if (!userData || typeof userData !== "object") return false;
   const tier = userData.accountTier;
   if (tier === "Paid_Subscription") return true;
@@ -120,13 +121,13 @@ function isProFromUserAndRc(userData, rcData) {
 }
 
 async function quotaContext(uid) {
-  const [userSnap, rcSnap] = await Promise.all([
+  const [userSnap, subscription] = await Promise.all([
     db().collection("users").doc(uid).get(),
-    db().collection("rc_customers").doc(uid).get(),
+    getActiveSubscription(uid),
   ]);
-  const isPro = isProFromUserAndRc(
+  const isPro = isProFromUserAndSubscription(
     userSnap.exists ? userSnap.data() : null,
-    rcSnap.exists ? rcSnap.data() : null
+    subscription
   );
   const limit = isPro ? PRO_DAILY_LIMIT : FREE_OR_GUEST_DAILY_LIMIT;
   const day = utcDayKey();
@@ -630,7 +631,7 @@ exports.parseExpenseText = onCall(
     timeoutSeconds: 30,
     memory: "256MB",
     enforceAppCheck: true,
-    secrets: [groqApiKey, openrouterApiKey, xkiroApiKey, apinexApiKey],
+    secrets: [groqApiKey, openrouterApiKey, xkiroApiKey, apinexApiKey, revenueCatSecretKey],
   },
   async (request) => {
     const uid = request.auth?.uid;
