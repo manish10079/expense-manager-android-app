@@ -122,17 +122,10 @@ service cloud.firestore {
     }
 
     /******************************************************************
-     * FEEDBACKS COLLECTION
-     *
-     * Allows any signed-in user (including anonymous/guest users) to
-     * submit feedback. Only readable from the Firebase Admin console.
+     * FEEDBACKS COLLECTION (Retired — Feedback routes directly to Google Sheets)
      ******************************************************************/
     match /feedbacks/{document} {
-      // Any signed-in user (including anonymous/guest) may submit feedback,
-      // but only under their own uid — no impersonating another user.
-      allow create: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid;
-      allow read, update, delete: if false;
+      allow read, write: if false;
     }
 
     /******************************************************************

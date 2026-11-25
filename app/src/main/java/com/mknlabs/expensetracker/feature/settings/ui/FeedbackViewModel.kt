@@ -3,6 +3,7 @@ package com.mknlabs.expensetracker.feature.settings.ui
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mknlabs.expensetracker.BuildConfig
 import com.mknlabs.expensetracker.R
 import com.mknlabs.expensetracker.data.local.UserProfileDataStore
 import com.mknlabs.expensetracker.domain.repository.FeedbackRepository
@@ -69,6 +70,16 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun checkCooldown(lastFeedbackTime: Long) {
+        if (BuildConfig.DEBUG) {
+            _uiState.update {
+                it.copy(
+                    isCooldownActive = false,
+                    cooldownRemainingMinutes = 0L
+                )
+            }
+            return
+        }
+
         val now = System.currentTimeMillis()
         val difference = now - lastFeedbackTime
         val oneHourMillis = TimeUnit.HOURS.toMillis(1)
@@ -99,7 +110,7 @@ class FeedbackViewModel @Inject constructor(
             return
         }
 
-        if (_uiState.value.isCooldownActive) {
+        if (!BuildConfig.DEBUG && _uiState.value.isCooldownActive) {
             _uiState.update { it.copy(errorMessageRes = R.string.msg_feedback_cooldown) }
             return
         }
@@ -115,8 +126,10 @@ class FeedbackViewModel @Inject constructor(
 
             result.fold(
                 onSuccess = {
-                    val now = System.currentTimeMillis()
-                    feedbackRepository.saveLastFeedbackTime(now)
+                    if (!BuildConfig.DEBUG) {
+                        val now = System.currentTimeMillis()
+                        feedbackRepository.saveLastFeedbackTime(now)
+                    }
                     _uiState.update {
                         it.copy(
                             isLoading = false,

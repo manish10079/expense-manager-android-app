@@ -31,7 +31,7 @@
     },
     "google_sheets_feedback_url": {
       "defaultValue": {
-        "value": "https://script.google.com/macros/s/AKfycbxZhIQOhMcGxG9YeZBPsDhUPpPkUPs7g0gxG9pz7PbLXY237PSxTkD7P8A1myFNyz6OIQ/exec  "
+        "value": "https://script.google.com/macros/s/AKfycbzkGCpJ-So3bHesY2UjfYco5ISzRpIxn0B-bt-7L72Cn056euzkWdhDt9IFE-YHxT3T/exec"
       },
       "valueType": "STRING"
     },
