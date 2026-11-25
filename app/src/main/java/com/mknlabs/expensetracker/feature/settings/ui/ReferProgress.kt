@@ -114,7 +114,7 @@ internal fun MonthlyProgressCard(
     welcomeClaimed: Boolean,
     monthLabel: String
 ) {
-    val earned = (rewardsThisMonth + if (welcomeClaimed) 1 else 0).coerceIn(0, MONTHLY_CAP)
+    val earned = rewardsThisMonth.coerceIn(0, MONTHLY_CAP)
     val daysEarned = earned * DAYS_PER_REWARD
     val daysLeft = (MONTHLY_CAP - earned) * DAYS_PER_REWARD
     AppCard(

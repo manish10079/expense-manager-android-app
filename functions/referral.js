@@ -49,11 +49,27 @@ function registerReferral({
       const existing = userSnap.exists ? userSnap.data()?.referralCode : null;
       if (typeof existing === "string" && existing.length > 0) {
         const data = userSnap.data() || {};
+        const now = Date.now();
+        const currentMonth = utcMonthKey(now);
+        const storedMonth = data.referralRewardMonthKey || currentMonth;
+        let rewardsThisMonth = Number(data.referralRewardsThisMonth) || 0;
+        if (storedMonth !== currentMonth) {
+          rewardsThisMonth = 0;
+          tx.set(
+            userRef,
+            {
+              referralRewardsThisMonth: 0,
+              referralRewardMonthKey: currentMonth,
+              profileUpdatedAtMillis: now
+            },
+            { merge: true }
+          );
+        }
         return {
           code: existing,
           successCount: Number(data.referralSuccessCount) || 0,
-          rewardsThisMonth: Number(data.referralRewardsThisMonth) || 0,
-          monthKey: data.referralRewardMonthKey || utcMonthKey(Date.now()),
+          rewardsThisMonth,
+          monthKey: currentMonth,
           referredByUid: data.referredByUid || "",
           accountTier: data.accountTier || "",
           proExpiryTimestamp: Number(data.proExpiryTimestamp) || 0

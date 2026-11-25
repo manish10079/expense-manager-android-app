@@ -33,10 +33,16 @@ class ReferralRepositoryImpl @Inject constructor(
         }
         return try {
             val data = call("ensureReferralCode", emptyMap())
+            val monthKey = data["monthKey"] as? String ?: ""
+            val currentUtcMonth = java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.US).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }.format(java.util.Date())
+            val rawRewards = (data["rewardsThisMonth"] as? Number)?.toInt() ?: 0
+            val rewardsThisMonth = if (monthKey.isNotBlank() && monthKey != currentUtcMonth) 0 else rawRewards
             val snap = ReferralSnapshot(
                 code = data["code"] as? String ?: "",
                 successCount = (data["successCount"] as? Number)?.toInt() ?: 0,
-                rewardsThisMonth = (data["rewardsThisMonth"] as? Number)?.toInt() ?: 0,
+                rewardsThisMonth = rewardsThisMonth,
                 referredByUid = data["referredByUid"] as? String ?: "",
                 accountTier = data["accountTier"] as? String ?: "",
                 proExpiryTimestamp = (data["proExpiryTimestamp"] as? Number)?.toLong() ?: 0L
