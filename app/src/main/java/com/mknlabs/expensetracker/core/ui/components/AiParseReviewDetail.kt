@@ -50,6 +50,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -92,6 +98,13 @@ import com.mknlabs.expensetracker.ai.cloud.AiParseContract
 import com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem
 import com.mknlabs.expensetracker.core.ui.theme.ExpenseTrackerTheme
 import com.mknlabs.expensetracker.core.ui.theme.accentInk
+import com.mknlabs.expensetracker.core.ui.theme.aiLockedBadge
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerBackground
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerBody
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerBorder
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerCta
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerIcon
+import com.mknlabs.expensetracker.core.ui.theme.aiTeaserBannerTitle
 import com.mknlabs.expensetracker.core.ui.theme.categoryColor
 import com.mknlabs.expensetracker.core.ui.theme.categorySoft
 import com.mknlabs.expensetracker.core.ui.theme.cta
@@ -133,6 +146,9 @@ internal fun ParsedDetailCard(
     onItemChange: (AiParsedReviewItem) -> Unit,
     funds: List<Fund> = emptyList(),
     tags: List<Tag> = emptyList(),
+    isLocked: Boolean = false,
+    extraDetectedCount: Int = 0,
+    onUpgradePro: (() -> Unit)? = null,
     onAdd: () -> Unit,
     compactEmbed: Boolean = false,
 ) {
@@ -394,6 +410,81 @@ internal fun ParsedDetailCard(
             )
         }
 
+        if (extraDetectedCount > 0) {
+            Spacer(Modifier.height(12.dp))
+            val colorScheme = MaterialTheme.colorScheme
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp)),
+                color = colorScheme.aiTeaserBannerBackground,
+                border = BorderStroke(1.dp, colorScheme.aiTeaserBannerBorder),
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoAwesome,
+                            contentDescription = null,
+                            tint = colorScheme.aiTeaserBannerIcon,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.label_ai_extra_items_detected,
+                                extraDetectedCount
+                            ),
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = colorScheme.aiTeaserBannerTitle
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.msg_ai_free_tier_item_limit),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = colorScheme.aiTeaserBannerBody
+                        )
+                    )
+                    if (onUpgradePro != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = onUpgradePro,
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = colorScheme.aiTeaserBannerCta
+                                )
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = stringResource(R.string.btn_unlock_all_pro),
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -416,34 +507,61 @@ internal fun ParsedDetailCard(
                     onClick = onRetry,
                 )
             }
-            Button(
-                onClick = onAdd,
-                enabled = item.categoryId > 0,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(ReviewCardCorner),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onCta,
-                ),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
-            ) {
+            if (isLocked) {
                 Box(
                     modifier = Modifier
+                        .weight(1f)
                         .clip(RoundedCornerShape(ReviewCardCorner))
                         .background(ReviewBrandGradient)
+                        .then(
+                            if (onUpgradePro != null) Modifier.reviewClickable(onClick = onUpgradePro)
+                            else Modifier
+                        )
                         .padding(horizontal = 8.dp, vertical = 14.dp)
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Lucide.Plus, null, Modifier.size(12.dp), tint = Color.White)
-                        Spacer(Modifier.width(4.dp))
+                        Icon(Icons.Rounded.Lock, null, Modifier.size(14.dp), tint = Color.White)
+                        Spacer(Modifier.width(6.dp))
                         Text(
-                            stringResource(R.string.label_add_action),
+                            stringResource(R.string.btn_unlock_item_pro),
                             color = Color.White,
                             fontSize = 14.08.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
+                    }
+                }
+            } else {
+                Button(
+                    onClick = onAdd,
+                    enabled = item.categoryId > 0,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(ReviewCardCorner),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onCta,
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(ReviewCardCorner))
+                            .background(ReviewBrandGradient)
+                            .padding(horizontal = 8.dp, vertical = 14.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Lucide.Plus, null, Modifier.size(12.dp), tint = Color.White)
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                stringResource(R.string.label_add_action),
+                                color = Color.White,
+                                fontSize = 14.08.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     }
                 }
             }

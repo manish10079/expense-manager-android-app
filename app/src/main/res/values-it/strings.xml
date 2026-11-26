@@ -4655,4 +4655,9 @@
     <string name="msg_voice_downloading_model">Download del modello vocale offline (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Trascrizione offline in corso…</string>
     <string name="label_stop_recording">Interrompi registrazione</string>
+    <string name="label_ai_extra_items_detected">Rilevate altre %1$d transazioni</string>
+    <string name="msg_ai_free_tier_item_limit">Il piano gratuito importa 1 elemento per scansione. Passa a Pro per importare tutto in una volta.</string>
+    <string name="btn_unlock_all_pro">Sblocca tutto (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Sblocca con Pro</string>
 </resources>

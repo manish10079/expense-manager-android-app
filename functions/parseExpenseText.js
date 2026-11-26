@@ -164,6 +164,7 @@ async function incrementDailyQuota(uid) {
       { merge: true }
     );
   });
+  return { isPro };
 }
 
 function asStringList(value, fallback) {
@@ -375,9 +376,21 @@ async function loadParserConfig() {
   if (typeof instruction !== "string" || !instruction.trim()) {
     throw new HttpsError("failed-precondition", "AI prompt not configured");
   }
+  const ORDER_RULE = "13. Preserve input order: Output transactions in the transactions array in the exact order they appear in the user's input (top-to-bottom for receipts, first spoken to last for voice). The first mentioned transaction must always be the first item (index 0) in the transactions array.";
+  let finalInstruction = instruction.trim();
+  if (!finalInstruction.includes("Preserve input order")) {
+    finalInstruction = finalInstruction.replace(
+      "Output valid JSON only.",
+      `${ORDER_RULE}\n\nOutput valid JSON only.`
+    );
+    if (!finalInstruction.includes("Preserve input order")) {
+      finalInstruction += `\n${ORDER_RULE}\n\nOutput valid JSON only.`;
+    }
+    snap.ref.update({ systemInstruction: finalInstruction }).catch(() => {});
+  }
   promptCache = {
     at: now,
-    instruction: instruction.trim(),
+    instruction: finalInstruction,
     providers: normalizeProviders(data.providers),
   };
   return promptCache;
@@ -755,7 +768,12 @@ exports.parseExpenseText = onCall(
       incomeCategories,
       paymentMethods,
     });
-    await incrementDailyQuota(uid);
-    return parsed;
+    const { isPro } = await incrementDailyQuota(uid);
+    const allRows = parsed && Array.isArray(parsed.transactions) ? parsed.transactions : [];
+    return {
+      transactions: allRows,
+      totalDetected: allRows.length,
+      isPro,
+    };
   }
 );

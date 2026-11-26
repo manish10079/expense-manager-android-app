@@ -259,6 +259,8 @@ fun MainScaffold(
     var showAiReviewSheet by remember { mutableStateOf(false) }
     var savedConfirmation by remember { mutableStateOf<AiParsedReviewItem?>(null) }
     val aiReviewItems = remember { mutableStateListOf<AiParsedReviewItem>() }
+    var aiReviewTotalDetected by remember { mutableStateOf(0) }
+    var aiReviewIsPro by remember { mutableStateOf(false) }
     var aiReviewSourceText by remember { mutableStateOf("") }
     var pendingOcrFingerprint by remember { mutableStateOf("") }
     var ocrPlayServicesError by remember { mutableStateOf(false) }
@@ -316,6 +318,8 @@ fun MainScaffold(
                 scanStatusRes = null
                 pendingOcrFingerprint = outcome.fingerprint
                 aiReviewSourceText = outcome.sourceText
+                aiReviewTotalDetected = outcome.totalDetected
+                aiReviewIsPro = outcome.isPro
                 aiReviewItems.clear()
                 aiReviewItems.addAll(outcome.items)
                 showAiReviewSheet = true
@@ -380,6 +384,8 @@ fun MainScaffold(
                     documentParseText = null
                     scanStatusRes = null
                     aiReviewSourceText = text
+                    aiReviewTotalDetected = outcome.totalDetected
+                    aiReviewIsPro = outcome.isPro
                     aiReviewItems.clear()
                     aiReviewItems.addAll(outcome.items)
                     showAiReviewSheet = true
@@ -424,6 +430,8 @@ fun MainScaffold(
                                 documentParseText = null
                                 scanStatusRes = null
                                 aiReviewSourceText = text
+                                aiReviewTotalDetected = outcome.totalDetected
+                                aiReviewIsPro = outcome.isPro
                                 aiReviewItems.clear()
                                 aiReviewItems.addAll(outcome.items)
                                 showAiReviewSheet = true
@@ -791,9 +799,11 @@ fun MainScaffold(
                     addFabMenuExpanded = false
                     showReceiptAttachSheet = true
                 },
-                onChatParsed = { text, items ->
+                onChatParsed = { text, items, totalDetected, isPro ->
                     unifiedRetryText = null
                     aiReviewSourceText = text
+                    aiReviewTotalDetected = totalDetected
+                    aiReviewIsPro = isPro
                     if (items.isEmpty()) {
                         addFabMenuExpanded = false
                         onAddTransactionDraftNoteChange(text)
@@ -887,11 +897,15 @@ fun MainScaffold(
             )
         }
         if (showAiReviewSheet && aiReviewItems.isNotEmpty()) {
+            val extraCount = (aiReviewTotalDetected - aiReviewItems.size).coerceAtLeast(0)
             AiParseReviewSheet(
                 items = aiReviewItems.toList(),
                 currencyId = selectedCurrencyId,
                 funds = reviewFunds,
                 tags = reviewTags,
+                isPro = aiReviewIsPro,
+                extraDetectedCount = extraCount,
+                onUpgradePro = { onRouteChange(AppRoute.Paywall) },
                 onDismissRequest = {
                     showAiReviewSheet = false
                     aiReviewItems.clear()

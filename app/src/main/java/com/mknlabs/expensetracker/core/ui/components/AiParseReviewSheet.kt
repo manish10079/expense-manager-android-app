@@ -134,6 +134,9 @@ fun AiParseReviewSheet(
     currencyId: Int = DEFAULT_CURRENCY_ID,
     funds: List<Fund> = emptyList(),
     tags: List<Tag> = emptyList(),
+    isPro: Boolean = false,
+    extraDetectedCount: Int = 0,
+    onUpgradePro: (() -> Unit)? = null,
 ) {
     if (items.isEmpty()) return
     val dark = MaterialTheme.colorScheme.isDark
@@ -177,8 +180,12 @@ fun AiParseReviewSheet(
                     onRetry = onRetry,
                     onItemChange = { updateDraft(it) },
                     onDismiss = onDismissRequest,
+                    isPro = isPro,
+                    onUpgradePro = onUpgradePro,
                     onAddAll = {
-                        if (onAddAll != null) {
+                        if (!isPro) {
+                            onUpgradePro?.invoke()
+                        } else if (onAddAll != null) {
                             onAddAll(drafts)
                         } else {
                             drafts.forEach { onAdd(it) }
@@ -197,6 +204,8 @@ fun AiParseReviewSheet(
                     onRetry = onRetry,
                 )
                 else -> IosNotificationEnter {
+                val selectedIndex = drafts.indexOfFirst { it.id == selected.id }.coerceAtLeast(0)
+                val isSelectedLocked = !isPro && selectedIndex > 0
                 ParsedDetailCard(
                     item = selected,
                     dark = dark,
@@ -207,8 +216,15 @@ fun AiParseReviewSheet(
                     onItemChange = { updateDraft(it) },
                     funds = funds,
                     tags = tags,
+                    isLocked = isSelectedLocked,
+                    extraDetectedCount = if (!isSelectedLocked) extraDetectedCount else 0,
+                    onUpgradePro = onUpgradePro,
                     onAdd = {
-                        savedItem = selected
+                        if (isSelectedLocked) {
+                            onUpgradePro?.invoke()
+                        } else {
+                            savedItem = selected
+                        }
                     },
                 )
                 }

@@ -2332,4 +2332,9 @@
     <string name="msg_voice_downloading_model">অফলাইন ভয়েস মডেল ডাউনলোড হচ্ছে (%1$d%%)…</string>
     <string name="msg_voice_transcribing">অফলাইনে প্রতিলিপিকরণ করা হচ্ছে…</string>
     <string name="label_stop_recording">রেকর্ডিং বন্ধ করুন</string>
+    <string name="label_ai_extra_items_detected">আরও %1$dটি লেনদেন শনাক্ত হয়েছে</string>
+    <string name="msg_ai_free_tier_item_limit">ফ্রি প্ল্যানে প্রতি স্ক্যানে ১টি আইটেম যুক্ত হয়। সবগুলো একসাথে ইম্পোর্ট করতে Pro-তে আপগ্রেড করুন।</string>
+    <string name="btn_unlock_all_pro">সব আনলক করুন (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro দিয়ে আনলক করুন</string>
 </resources>

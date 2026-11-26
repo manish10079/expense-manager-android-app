@@ -2310,4 +2310,9 @@
     <string name="msg_voice_downloading_model">অফলাইন ভইচ মডেল ডাউনল’ড হৈ আছে (%1$d%%)…</string>
     <string name="msg_voice_transcribing">অফলাইনত ট্ৰান্সক্ৰাইব কৰা হৈছে…</string>
     <string name="label_stop_recording">ৰেকৰ্ডিং বন্ধ কৰক</string>
+    <string name="label_ai_extra_items_detected">আৰু %1$d টা লেনদেন চিনাক্ত কৰা হৈছে</string>
+    <string name="msg_ai_free_tier_item_limit">বিনামূলীয়া আঁচনিত প্ৰতি স্কেনত ১টা লেনদেন অন্তৰ্ভুক্ত হয়। সকলো একেলগে আমদানি কৰিবলৈ Pro লৈ উন্নীত কৰক।</string>
+    <string name="btn_unlock_all_pro">সকলো আনলক কৰক (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro ৰ সৈতে আনলক কৰক</string>
 </resources>

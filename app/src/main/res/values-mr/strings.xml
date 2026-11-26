@@ -2332,4 +2332,9 @@
     <string name="msg_voice_downloading_model">ऑफलाइन व्हॉइस मॉडेल डाउनलोड होत आहे (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ऑफलाइन ट्रान्सक्राइब करत आहे…</string>
     <string name="label_stop_recording">रेकॉर्डिंग थांबवा</string>
+    <string name="label_ai_extra_items_detected">आणखी %1$d व्यवहार आढळले</string>
+    <string name="msg_ai_free_tier_item_limit">मोफत प्लॅनमध्ये प्रत्येक स्कॅनवर १ व्यवहार मिळतो. सर्व एकाच वेळी आयात करण्यासाठी Pro वर अपग्रेड करा.</string>
+    <string name="btn_unlock_all_pro">सर्व अनलॉक करा (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro सह अनलॉक करा</string>
 </resources>

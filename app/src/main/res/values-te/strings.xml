@@ -2320,4 +2320,9 @@
     <string name="msg_voice_downloading_model">ఆఫ్‌లైన్ వాయిస్ మోడల్ డౌన్‌లోడ్ అవుతోంది (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ఆఫ్‌లైన్‌లో ట్రాన్స్‌క్రైబ్ చేయబడుతోంది…</string>
     <string name="label_stop_recording">రికార్డింగ్ ఆపండి</string>
+    <string name="label_ai_extra_items_detected">మరో %1$d లావాదేవీలు గుర్తించబడ్డాయి</string>
+    <string name="msg_ai_free_tier_item_limit">ఉచిత ప్లాన్‌లో ప్రతి స్కాన్‌కు 1 లావాదేవీ మాత్రమే వస్తుంది. అన్నింటినీ ఒకేసారి దిగుమతి చేసుకోవడానికి Pro కి అప్‌గ్రేడ్ చేయండి.</string>
+    <string name="btn_unlock_all_pro">అన్నీ అన్‌లాక్ చేయండి (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro తో అన్‌లాక్ చేయండి</string>
 </resources>

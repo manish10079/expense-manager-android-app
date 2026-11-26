@@ -2366,4 +2366,9 @@
     <string name="msg_voice_downloading_model">ઑફલાઇન વૉઇસ મોડેલ ડાઉનલોડ થઈ રહ્યું છે (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ઑફલાઇન ટ્રાન્સક્રાઇબ થઈ રહ્યું છે…</string>
     <string name="label_stop_recording">રેકોર્ડિંગ બંધ કરો</string>
+    <string name="label_ai_extra_items_detected">વધુ %1$d વ્યવહારો મળ્યા</string>
+    <string name="msg_ai_free_tier_item_limit">મફત પ્લાનમાં સ્કેન દીઠ ૧ આઇટમ ઉમેરાય છે. બધા એકસાથે આયાત કરવા માટે Pro પર અપગ્રેડ કરો.</string>
+    <string name="btn_unlock_all_pro">બધું અનલૉક કરો (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro વડે અનલૉક કરો</string>
 </resources>

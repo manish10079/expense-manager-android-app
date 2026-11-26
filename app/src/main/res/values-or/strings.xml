@@ -4642,4 +4642,9 @@
     <string name="msg_voice_downloading_model">ଅଫଲାଇନ୍ ଭଏସ୍ ମଡେଲ୍ ଡାଉନଲୋଡ୍ ହେଉଛି (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ଅଫଲାଇନରେ ଟ୍ରାନ୍ସକ୍ରାଇବ୍ କରାଯାଉଛି…</string>
     <string name="label_stop_recording">ରେକର୍ଡିଂ ବନ୍ଦ କରନ୍ତୁ</string>
+    <string name="label_ai_extra_items_detected">ଆହୁରି %1$dଟି ଟ୍ରାଞ୍ଜାକସନ୍ ମିଳିଛି</string>
+    <string name="msg_ai_free_tier_item_limit">ମାଗଣା ପ୍ଲାନରେ ପ୍ରତି ସ୍କାନରେ ୧ଟି ଆଇଟମ୍ ଯୋଡ଼ାଯାଏ। ସବୁ ଏକାଥରେ ଯୋଡ଼ିବାକୁ Pro କୁ ଅପଗ୍ରେଡ୍ କରନ୍ତୁ।</string>
+    <string name="btn_unlock_all_pro">ସବୁ ଅନଲକ୍ କରନ୍ତୁ (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro ସହିତ ଅନଲକ୍ କରନ୍ତୁ</string>
 </resources>

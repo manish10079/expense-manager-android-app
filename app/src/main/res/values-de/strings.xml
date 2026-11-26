@@ -4717,4 +4717,9 @@ privat von Haus aus</string>
     <string name="msg_voice_downloading_model">Offline-Sprachmodell wird heruntergeladen (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Offline-Transkription läuft…</string>
     <string name="label_stop_recording">Aufnahme beenden</string>
+    <string name="label_ai_extra_items_detected">%1$d weitere Einträge erkannt</string>
+    <string name="msg_ai_free_tier_item_limit">Der kostenlose Plan importiert 1 Eintrag pro Scan. Upgrade auf Pro, um alle Einträge auf einmal zu importieren.</string>
+    <string name="btn_unlock_all_pro">Alle freischalten (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Mit Pro freischalten</string>
 </resources>

@@ -4712,4 +4712,9 @@ privat dari sifat</string>
     <string name="msg_voice_downloading_model">Mengunduh model suara offline (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Mentranskripsi secara offline…</string>
     <string name="label_stop_recording">Hentikan Rekaman</string>
+    <string name="label_ai_extra_items_detected">%1$d item lainnya terdeteksi</string>
+    <string name="msg_ai_free_tier_item_limit">Paket gratis mengimpor 1 transaksi per pemindaian. Tingkatkan ke Pro untuk mengimpor semuanya sekaligus.</string>
+    <string name="btn_unlock_all_pro">Buka Semua (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Buka dengan Pro</string>
 </resources>

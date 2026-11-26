@@ -4679,4 +4679,9 @@
     <string name="msg_voice_downloading_model">Загрузка офлайн-голосовой модели (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Офлайн-распознавание…</string>
     <string name="label_stop_recording">Остановить запись</string>
+    <string name="label_ai_extra_items_detected">Обнаружено ещё транзакций: %1$d</string>
+    <string name="msg_ai_free_tier_item_limit">Бесплатный тариф импортирует 1 запись за скан. Перейдите на Pro, чтобы импортировать все сразу.</string>
+    <string name="btn_unlock_all_pro">Разблокировать все (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Разблокировать с Pro</string>
 </resources>

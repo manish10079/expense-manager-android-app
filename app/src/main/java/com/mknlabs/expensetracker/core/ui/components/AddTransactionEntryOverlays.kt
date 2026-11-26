@@ -99,7 +99,7 @@ fun AddUnifiedSmartSheet(
     onClassicForm: () -> Unit,
     onVoice: () -> Unit,
     onScan: () -> Unit,
-    onChatParsed: (String, List<AiParsedReviewItem>) -> Unit,
+    onChatParsed: (String, List<AiParsedReviewItem>, Int, Boolean) -> Unit,
     extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel,
     initialChat: String = "",
     autoParse: Boolean = false,
@@ -669,7 +669,7 @@ private fun submitChat(
     extractViewModel: com.mknlabs.expensetracker.ai.AiTextExtractViewModel,
     setParsing: (Boolean) -> Unit,
     setParseError: (Int?) -> Unit,
-    onChatParsed: (String, List<AiParsedReviewItem>) -> Unit,
+    onChatParsed: (String, List<AiParsedReviewItem>, Int, Boolean) -> Unit,
 ) {
     val text = chat.trim()
     if (text.isEmpty()) return
@@ -680,7 +680,7 @@ private fun submitChat(
         when (outcome) {
             is TextParseOutcome.Review -> {
                 setParseError(null)
-                onChatParsed(text, outcome.items)
+                onChatParsed(text, outcome.items, outcome.totalDetected, outcome.isPro)
             }
             is TextParseOutcome.DailyLimit -> {
                 setParseError(R.string.msg_ai_chat_daily_limit)

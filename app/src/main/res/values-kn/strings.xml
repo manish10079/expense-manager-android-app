@@ -2359,6 +2359,11 @@
     <string name="msg_voice_downloading_model">ಆಫ್‌ಲೈನ್ ಧ್ವನಿ ಮಾದರಿ ಡೌನ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಲಿಪ್ಯಂತರ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
     <string name="label_stop_recording">ರೆಕಾರ್ಡಿಂಗ್ ನಿಲ್ಲಿಸಿ</string>
+    <string name="label_ai_extra_items_detected">ಇನ್ನೂ %1$d ವಹಿವಾಟುಗಳು ಪತ್ತೆಯಾಗಿವೆ</string>
+    <string name="msg_ai_free_tier_item_limit">ಉಚಿತ ಯೋಜನೆಯಲ್ಲಿ ಪ್ರತಿ ಸ್ಕ್ಯಾನ್‌ಗೆ ೧ ವಹಿವಾಟು ಲಭ್ಯವಿದೆ. ಎಲ್ಲವನ್ನೂ ಒಟ್ಟಿಗೆ ಸೇರಿಸಲು Pro ಗೆ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ.</string>
+    <string name="btn_unlock_all_pro">ಎಲ್ಲವನ್ನೂ ಅನ್‌ಲಾಕ್ ಮಾಡಿ (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro ಮೂಲಕ ಅನ್‌ಲಾಕ್ ಮಾಡಿ</string>
 </resources>
 
 

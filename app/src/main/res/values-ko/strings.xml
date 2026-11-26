@@ -4688,4 +4688,9 @@
     <string name="msg_voice_downloading_model">오프라인 음성 모델 다운로드 중 (%1$d%%)…</string>
     <string name="msg_voice_transcribing">오프라인 텍스트 변환 중…</string>
     <string name="label_stop_recording">녹음 중지</string>
+    <string name="label_ai_extra_items_detected">%1$d개의 추가 내역 감지됨</string>
+    <string name="msg_ai_free_tier_item_limit">무료 플랜은 1회 스캔당 1개 항목만 가져옵니다. Pro로 업그레이드하여 한 번에 모두 가져오세요.</string>
+    <string name="btn_unlock_all_pro">전체 잠금 해제 (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro로 잠금 해제</string>
 </resources>

@@ -4841,5 +4841,10 @@
     <string name="msg_voice_downloading_model">Downloading offline voice model (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcribing offline…</string>
     <string name="label_stop_recording">Stop Recording</string>
+    <string name="label_ai_extra_items_detected">%1$d more items detected</string>
+    <string name="msg_ai_free_tier_item_limit">Free plan imports 1 item per scan. Upgrade to Pro to import all items at once.</string>
+    <string name="btn_unlock_all_pro">Unlock All (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Unlock with Pro</string>
 </resources>
 

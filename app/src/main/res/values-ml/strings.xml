@@ -2348,4 +2348,9 @@
     <string name="msg_voice_downloading_model">ഓഫ്‌ലൈൻ വോയ്‌സ് മോഡൽ ഡൗൺലോഡ് ചെയ്യുന്നു (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ഓഫ്‌ലൈനായി ട്രാൻസ്‌ക്രൈബ് ചെയ്യുന്നു…</string>
     <string name="label_stop_recording">റെക്കോർഡിംഗ് നിർത്തുക</string>
+    <string name="label_ai_extra_items_detected">%1$d ഇടപാടുകൾ കൂടി കണ്ടെത്തി</string>
+    <string name="msg_ai_free_tier_item_limit">സൗജന്യ പ്ലാനിൽ ഒരു സ്കാനിൽ 1 ഇടപാട് മാത്രമേ ചേർക്കാനാകൂ. എല്ലാം ഒന്നിച്ച് ചേർക്കാൻ Pro-ലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക.</string>
+    <string name="btn_unlock_all_pro">എല്ലാം അൺലോക്ക് ചെയ്യുക (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro ഉപയോഗിച്ച് അൺലോക്ക് ചെയ്യുക</string>
 </resources>

@@ -2366,4 +2366,9 @@
     <string name="msg_voice_downloading_model">ਔਫਲਾਈਨ ਆਵਾਜ਼ ਮਾਡਲ ਡਾਊਨਲੋਡ ਹੋ ਰਿਹਾ ਹੈ (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ਔਫਲਾਈਨ ਟ੍ਰਾਂਸਕ੍ਰਾਈਬ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…</string>
     <string name="label_stop_recording">ਰਿਕਾਰਡਿੰਗ ਬੰਦ ਕਰੋ</string>
+    <string name="label_ai_extra_items_detected">%1$d ਹੋਰ ਲੈਣ-ਦੇਣ ਮਿਲੇ</string>
+    <string name="msg_ai_free_tier_item_limit">ਮੁਫ਼ਤ ਪਲਾਨ ਵਿੱਚ ਪ੍ਰਤੀ ਸਕੈਨ 1 ਆਈਟਮ ਸ਼ਾਮਲ ਹੁੰਦੀ ਹੈ। ਸਭ ਨੂੰ ਇਕੱਠੇ ਆਯਾਤ ਕਰਨ ਲਈ Pro ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ।</string>
+    <string name="btn_unlock_all_pro">ਸਭ ਅਣਲਾਕ ਕਰੋ (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro ਨਾਲ ਅਣਲਾਕ ਕਰੋ</string>
 </resources>

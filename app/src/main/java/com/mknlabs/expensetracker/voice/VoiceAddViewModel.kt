@@ -52,6 +52,8 @@ data class VoiceInputUiState(
     val errorMessageResId: Int? = null,
     val parserType: VoiceParserType? = null,
     val remainingAiParses: Int? = null,
+    val totalDetected: Int = 0,
+    val isPro: Boolean = false,
 )
 
 @HiltViewModel
@@ -429,6 +431,8 @@ class VoiceAddViewModel @Inject constructor(
                         parsedTransaction = null,
                         reviewItems = items,
                         parserType = VoiceParserType.GEMINI,
+                        totalDetected = response.totalDetected,
+                        isPro = response.isPro,
                     )
                     return@launch
                 } catch (e: FirebaseFunctionsException) {

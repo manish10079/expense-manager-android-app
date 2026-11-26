@@ -1068,3 +1068,41 @@ internal object SettingsTiles {
     val Cyan    = SettingsTilePalette(Color(0xFF06B6D4).copy(alpha = 0.15f), Color(0xFF22D3EE))
     val Rose    = SettingsTilePalette(Color(0xFFF43F5E).copy(alpha = 0.15f), Color(0xFFFB7185))
 }
+
+// AI Parse Pro multi-item teaser banner & mimic locked cards
+internal val AiTeaserBannerBackgroundDark = Color(0x33A855F7)
+internal val AiTeaserBannerBackgroundLight = Color(0x1A8B5CF6)
+internal val AiTeaserBannerBorderDark = Color(0x66C084FC)
+internal val AiTeaserBannerBorderLight = Color(0x4DA78BFA)
+internal val AiTeaserBannerIconDark = Color(0xFFC084FC)
+internal val AiTeaserBannerIconLight = Color(0xFF7C3AED)
+internal val AiTeaserBannerTitleDark = Color(0xFFF3E8FF)
+internal val AiTeaserBannerTitleLight = Color(0xFF581C87)
+internal val AiTeaserBannerBodyDark = Color(0xFFE9D5FF)
+internal val AiTeaserBannerBodyLight = Color(0xFF6B21A8)
+internal val AiTeaserBannerCtaDark = Color(0xFFE879F9)
+internal val AiTeaserBannerCtaLight = Color(0xFF7C3AED)
+
+val ColorScheme.aiTeaserBannerBackground: Color
+    get() = if (isDark) AiTeaserBannerBackgroundDark else AiTeaserBannerBackgroundLight
+
+val ColorScheme.aiTeaserBannerBorder: Color
+    get() = if (isDark) AiTeaserBannerBorderDark else AiTeaserBannerBorderLight
+
+val ColorScheme.aiTeaserBannerIcon: Color
+    get() = if (isDark) AiTeaserBannerIconDark else AiTeaserBannerIconLight
+
+val ColorScheme.aiTeaserBannerTitle: Color
+    get() = if (isDark) AiTeaserBannerTitleDark else AiTeaserBannerTitleLight
+
+val ColorScheme.aiTeaserBannerBody: Color
+    get() = if (isDark) AiTeaserBannerBodyDark else AiTeaserBannerBodyLight
+
+val ColorScheme.aiTeaserBannerCta: Color
+    get() = if (isDark) AiTeaserBannerCtaDark else AiTeaserBannerCtaLight
+
+internal val AiLockedBadgeDark = Color(0xFFC084FC)
+internal val AiLockedBadgeLight = Color(0xFF7C3AED)
+val ColorScheme.aiLockedBadge: Color
+    get() = if (isDark) AiLockedBadgeDark else AiLockedBadgeLight
+

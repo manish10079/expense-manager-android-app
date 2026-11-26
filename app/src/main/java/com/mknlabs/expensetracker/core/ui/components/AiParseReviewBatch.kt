@@ -56,6 +56,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Lock
+import com.mknlabs.expensetracker.core.ui.theme.aiLockedBadge
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -185,6 +189,8 @@ internal fun BatchTransactionList(
     funds: List<Fund> = emptyList(),
     tags: List<Tag> = emptyList(),
     showBatchActions: Boolean = false,
+    isPro: Boolean = false,
+    onUpgradePro: (() -> Unit)? = null,
 ) {
     var expandedId by remember { mutableStateOf<String?>(null) }
     Column(
@@ -246,17 +252,26 @@ internal fun BatchTransactionList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEachIndexed { index, item ->
+                val isRowLocked = !isPro && index > 0
                 BatchRow(
                     item = item,
                     dark = dark,
                     currencyId = currencyId,
                     enterIndex = index,
                     expanded = expandedId == item.id,
+                    isLocked = isRowLocked,
+                    onUpgradePro = onUpgradePro,
                     onClick = {
                         expandedId = if (expandedId == item.id) null else item.id
                     },
                     onItemChange = onItemChange,
-                    onAdd = { onAddItem(item) },
+                    onAdd = {
+                        if (isRowLocked) {
+                            onUpgradePro?.invoke()
+                        } else {
+                            onAddItem(item)
+                        }
+                    },
                     funds = funds,
                     tags = tags,
                 )
@@ -283,24 +298,55 @@ internal fun BatchTransactionList(
                     )
                 }
                 val canAddAll = items.isNotEmpty() && items.all { it.categoryId > 0 || reviewCategoryId(it) > 0 }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(ReviewCardCorner))
-                        .background(ReviewBrandGradient)
-                        .then(
-                            if (canAddAll) Modifier.reviewClickable(onClick = onAddAll)
-                            else Modifier
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        stringResource(R.string.label_add_all),
-                        color = Color.White.copy(alpha = if (canAddAll) 1f else 0.5f),
-                        fontSize = 12.90.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                if (!isPro) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(ReviewCardCorner))
+                            .background(ReviewBrandGradient)
+                            .then(
+                                if (onUpgradePro != null) Modifier.reviewClickable(onClick = onUpgradePro)
+                                else Modifier
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Rounded.AutoAwesome,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(14.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                stringResource(R.string.btn_unlock_all_pro),
+                                color = Color.White,
+                                fontSize = 12.90.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(ReviewCardCorner))
+                            .background(ReviewBrandGradient)
+                            .then(
+                                if (canAddAll) Modifier.reviewClickable(onClick = onAddAll)
+                                else Modifier
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            stringResource(R.string.label_add_all),
+                            color = Color.White.copy(alpha = if (canAddAll) 1f else 0.5f),
+                            fontSize = 12.90.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
         } else if (onRetry != null) {
@@ -324,6 +370,8 @@ internal fun BatchRow(
     onClick: () -> Unit,
     enterIndex: Int = 0,
     expanded: Boolean = false,
+    isLocked: Boolean = false,
+    onUpgradePro: (() -> Unit)? = null,
     onItemChange: (AiParsedReviewItem) -> Unit = {},
     onAdd: () -> Unit = {},
     funds: List<Fund> = emptyList(),
@@ -364,15 +412,44 @@ internal fun BatchRow(
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = merchantOf(item),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (dark) ReviewDarkTitle else ReviewLightTitle,
-                        ),
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = merchantOf(item),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (dark) ReviewDarkTitle else ReviewLightTitle,
+                            ),
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        if (isLocked) {
+                            Spacer(Modifier.width(6.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(MaterialTheme.colorScheme.aiLockedBadge.copy(alpha = if (dark) 0.2f else 0.12f))
+                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Lock,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.aiLockedBadge,
+                                    modifier = Modifier.size(10.dp)
+                                )
+                                Spacer(Modifier.width(3.dp))
+                                Text(
+                                    text = stringResource(R.string.label_ai_locked_item),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.aiLockedBadge
+                                    )
+                                )
+                            }
+                        }
+                    }
                     Text(
                         text = formatReviewDate(item.createdAt),
                         style = MaterialTheme.typography.labelSmall.copy(
@@ -443,6 +520,8 @@ internal fun BatchRow(
                 onItemChange = onItemChange,
                 funds = funds,
                 tags = tags,
+                isLocked = isLocked,
+                onUpgradePro = onUpgradePro,
                 onAdd = onAdd,
                 compactEmbed = true,
             )

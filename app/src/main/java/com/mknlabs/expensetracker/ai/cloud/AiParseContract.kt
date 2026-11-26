@@ -33,6 +33,8 @@ data class AiParsedTransaction(
 
 data class AiParseResponse(
     val transactions: List<AiParsedTransaction>,
+    val totalDetected: Int = transactions.size,
+    val isPro: Boolean = false,
 )
 
 object AiParseContract {
@@ -88,7 +90,13 @@ object AiParseContract {
                 createdAt = createdAt,
             )
         }
-        return AiParseResponse(transactions = items)
+        val totalDetected = (data["totalDetected"] as? Number)?.toInt() ?: items.size
+        val isPro = (data["isPro"] as? Boolean) ?: false
+        return AiParseResponse(
+            transactions = items,
+            totalDetected = totalDetected,
+            isPro = isPro,
+        )
     }
 
     fun extraKeys(row: Map<*, *>): Set<String>? {

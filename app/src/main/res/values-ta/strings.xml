@@ -2321,4 +2321,9 @@
     <string name="msg_voice_downloading_model">ஆஃப்லைன் குரல் மாதிரி பதிவிறக்கப்படுகிறது (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ஆஃப்லைனில் உரையாக மாற்றப்படுகிறது…</string>
     <string name="label_stop_recording">பதிவை நிறுத்து</string>
+    <string name="label_ai_extra_items_detected">மேலும் %1$d பரிவர்த்தனைகள் கண்டறியப்பட்டன</string>
+    <string name="msg_ai_free_tier_item_limit">இலவச திட்டத்தில் ஒரு ஸ்கேனுக்கு 1 உருப்படி மட்டுமே இறக்குமதியாகும். அனைத்தையும் ஒரே நேரத்தில் சேர்க்க Pro-வுக்கு மாறவும்.</string>
+    <string name="btn_unlock_all_pro">அனைத்தையும் திற (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro மூலம் திறக்கவும்</string>
 </resources>

@@ -4684,4 +4684,9 @@ privé par nature</string>
     <string name="msg_voice_downloading_model">Téléchargement du modèle vocal hors ligne (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcription hors ligne…</string>
     <string name="label_stop_recording">Arrêter l\'enregistrement</string>
+    <string name="label_ai_extra_items_detected">%1$d transactions supplémentaires détectées</string>
+    <string name="msg_ai_free_tier_item_limit">La formule gratuite importe 1 transaction par scan. Passez à Pro pour tout importer en une fois.</string>
+    <string name="btn_unlock_all_pro">Tout débloquer (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Débloquer avec Pro</string>
 </resources>

@@ -90,7 +90,13 @@ class AiTextExtractViewModel @Inject constructor(
                                 onResult(
                                     when (outcome) {
                                         is TextParseOutcome.Review ->
-                                            DocumentParseOutcome.Review(text, outcome.items, fingerprint)
+                                            DocumentParseOutcome.Review(
+                                                sourceText = text,
+                                                items = outcome.items,
+                                                fingerprint = fingerprint,
+                                                totalDetected = outcome.totalDetected,
+                                                isPro = outcome.isPro,
+                                            )
                                         is TextParseOutcome.RawAdd ->
                                             DocumentParseOutcome.RawAdd(text, fingerprint, outcome.reason)
                                         TextParseOutcome.DailyLimit -> DocumentParseOutcome.DailyLimit
@@ -146,7 +152,11 @@ class AiTextExtractViewModel @Inject constructor(
                 if (mapped.isEmpty()) {
                     TextParseOutcome.RawAdd(AiRawAddReason.NoTransactions)
                 } else {
-                    TextParseOutcome.Review(mapped)
+                    TextParseOutcome.Review(
+                        items = mapped,
+                        totalDetected = response.totalDetected,
+                        isPro = response.isPro,
+                    )
                 }
             }.getOrElse { error ->
                 Log.e(TAG, "parseExpenseText failed", error)

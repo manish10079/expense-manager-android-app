@@ -4712,4 +4712,9 @@
     <string name="msg_voice_downloading_model">オフライン音声モデルをダウンロード中 (%1$d%%)…</string>
     <string name="msg_voice_transcribing">オフラインで文字起こし中…</string>
     <string name="label_stop_recording">録音を停止</string>
+    <string name="label_ai_extra_items_detected">他 %1$d 件の取引を検出</string>
+    <string name="msg_ai_free_tier_item_limit">無料プランでは1回のスキャンで1件のみ取り込めます。Proにアップグレードして一括インポートしましょう。</string>
+    <string name="btn_unlock_all_pro">すべてロック解除 (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Proでロック解除</string>
 </resources>

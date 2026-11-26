@@ -192,6 +192,8 @@ internal fun MainScreenOverlays(
     var appLockFlow by appLockFlowState
     var appLockState by appLockStateState
     var voiceReviewSourceText by voiceReviewSourceTextState
+    var voiceTotalDetected by remember { mutableStateOf(0) }
+    var voiceIsPro by remember { mutableStateOf(false) }
 
     if (showPremiumSheet && isUiInteractive) {
         PremiumGateSheet(
@@ -435,6 +437,8 @@ internal fun MainScreenOverlays(
                 if (voiceUiState.sheetState != VoiceSheetState.RESULT) return@LaunchedEffect
                 val items = voiceUiState.reviewItems
                 val transcript = voiceUiState.transcript
+                voiceTotalDetected = voiceUiState.totalDetected
+                voiceIsPro = voiceUiState.isPro
                 voiceViewModel.dismiss()
                 navigationState.updateShowVoiceInputSheet(false)
                 if (items.isEmpty()) {
@@ -466,9 +470,13 @@ internal fun MainScreenOverlays(
         }
 
         if (voiceReviewItems.isNotEmpty()) {
+            val extraCount = (voiceTotalDetected - voiceReviewItems.size).coerceAtLeast(0)
             AiParseReviewSheet(
                 items = voiceReviewItems.toList(),
                 currencyId = selectedCurrencyId,
+                isPro = voiceIsPro,
+                extraDetectedCount = extraCount,
+                onUpgradePro = { navigationState.navigateTo(AppRoute.Paywall) },
                 onDismissRequest = {
                     voiceReviewItems.clear()
                 },

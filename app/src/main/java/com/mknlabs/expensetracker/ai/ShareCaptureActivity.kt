@@ -92,6 +92,8 @@ private fun ShareCaptureDialog(
     var scanStatusRes by remember { mutableStateOf<Int?>(null) }
     var retryTick by remember { mutableStateOf(0) }
     val items = remember { mutableStateListOf<AiParsedReviewItem>() }
+    var totalDetected by remember { mutableStateOf(0) }
+    var isPro by remember { mutableStateOf(false) }
     var fingerprint by remember { mutableStateOf("") }
 
     LaunchedEffect(share, retryTick) {
@@ -115,6 +117,8 @@ private fun ShareCaptureDialog(
                     }
                     is DocumentParseOutcome.Review -> {
                         fingerprint = outcome.fingerprint
+                        totalDetected = outcome.totalDetected
+                        isPro = outcome.isPro
                         items.clear()
                         items.addAll(outcome.items)
                     }
@@ -131,6 +135,8 @@ private fun ShareCaptureDialog(
                         scanStatusRes = outcome.reason.messageRes()
                     }
                     is TextParseOutcome.Review -> {
+                        totalDetected = outcome.totalDetected
+                        isPro = outcome.isPro
                         items.clear()
                         items.addAll(outcome.items)
                     }
@@ -154,8 +160,11 @@ private fun ShareCaptureDialog(
     }
 
     if (errorRes == null && items.isNotEmpty()) {
+        val extraCount = (totalDetected - items.size).coerceAtLeast(0)
         AiParseReviewSheet(
             items = items.toList(),
+            isPro = isPro,
+            extraDetectedCount = extraCount,
             onDismissRequest = onDismiss,
             onAdd = { item ->
                 onSave(item, fingerprint) {

@@ -4719,4 +4719,9 @@ privado de verdad</string>
     <string name="msg_voice_downloading_model">Descargando modelo de voz sin conexión (%1$d%%)…</string>
     <string name="msg_voice_transcribing">Transcribiendo sin conexión…</string>
     <string name="label_stop_recording">Detener grabación</string>
+    <string name="label_ai_extra_items_detected">%1$d transacciones más detectadas</string>
+    <string name="msg_ai_free_tier_item_limit">El plan gratuito importa 1 transacción por escaneo. Actualiza a Pro para importar todas a la vez.</string>
+    <string name="btn_unlock_all_pro">Desbloquear todo (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Desbloquear con Pro</string>
 </resources>

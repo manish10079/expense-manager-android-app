@@ -26,6 +26,8 @@ sealed class DocumentParseOutcome {
         val sourceText: String,
         val items: List<com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem>,
         val fingerprint: String = "",
+        val totalDetected: Int = items.size,
+        val isPro: Boolean = false,
     ) : DocumentParseOutcome()
 
     data class RawAdd(
@@ -40,7 +42,11 @@ sealed class DocumentParseOutcome {
 }
 
 sealed class TextParseOutcome {
-    data class Review(val items: List<com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem>) : TextParseOutcome()
+    data class Review(
+        val items: List<com.mknlabs.expensetracker.ai.cloud.AiParsedReviewItem>,
+        val totalDetected: Int = items.size,
+        val isPro: Boolean = false,
+    ) : TextParseOutcome()
     data class RawAdd(val reason: AiRawAddReason = AiRawAddReason.NoTransactions) : TextParseOutcome()
     data object DailyLimit : TextParseOutcome()
     data object Failed : TextParseOutcome()

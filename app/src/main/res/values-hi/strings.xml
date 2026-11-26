@@ -4289,4 +4289,9 @@
     <string name="msg_voice_downloading_model">ऑफ़लाइन वॉइस मॉडल डाउनलोड हो रहा है (%1$d%%)…</string>
     <string name="msg_voice_transcribing">ऑफ़लाइन ट्रांसक्राइब किया जा रहा है…</string>
     <string name="label_stop_recording">रिकॉर्डिंग रोकें</string>
+    <string name="label_ai_extra_items_detected">%1$d और ट्रांजैक्शन मिले</string>
+    <string name="msg_ai_free_tier_item_limit">फ्री प्लान में प्रति स्कैन 1 ट्रांजैक्शन जुड़ता है। सभी को एक साथ इंपोर्ट करने के लिए Pro में अपग्रेड करें।</string>
+    <string name="btn_unlock_all_pro">सभी अनलॉक करें (Pro)</string>
+    <string name="label_ai_locked_item">Pro 🔒</string>
+    <string name="btn_unlock_item_pro">Pro से अनलॉक करें</string>
 </resources>
